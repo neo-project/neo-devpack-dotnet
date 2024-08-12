@@ -3,22 +3,20 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Abort : TestBase<Contract_Abort>
+    public class UnitTest_Abort : DebugAndTestBase<Contract_Abort>
     {
         private readonly JObject _debugInfo;
         private readonly bool[] falseTrue = [false, true];
 
-        public UnitTest_Abort() : base(Contract_Abort.Nef, Contract_Abort.Manifest)
+        public UnitTest_Abort()
         {
-            var contract = TestCleanup.EnsureArtifactsUpToDateInternal().Where(u => u.ContractName == "Contract_Abort").First();
+            var contract = TestCleanup.EnsureArtifactUpToDateInternal(nameof(Contract_Abort));
             _debugInfo = contract.CreateDebugInformation();
         }
 
@@ -28,6 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // All the ABORT instruction addresses in "testAbort" method
             List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbort", OpCode.ABORT);
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbort());
+            Assert.AreEqual(1021260, Engine.FeeConsumed.Value);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORT
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
             Assert.AreEqual(exception.State, VMState.FAULT);
@@ -39,6 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // All the ABORTMSG instruction addresses in "testAbortMsg" method
             List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbortMsg", OpCode.ABORTMSG);
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbortMsg());
+            Assert.AreEqual(1021500, Engine.FeeConsumed.Value);
             Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORTMSG
             Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
             Assert.AreEqual(exception.State, VMState.FAULT);

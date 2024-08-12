@@ -42,6 +42,7 @@ namespace Neo.SmartContract.Framework.Attributes
     ///     <see cref="ContractParameterType.ByteArray"/>
     ///     <see cref="ContractParameterType.Hash160"/>
     ///     <see cref="ContractParameterType.PublicKey"/>
+    ///     <see cref="ContractParameterType.Integer"/>
     /// </remarks>
     [AttributeUsage(AttributeTargets.Field)]
     public class InitialValueAttribute : Attribute

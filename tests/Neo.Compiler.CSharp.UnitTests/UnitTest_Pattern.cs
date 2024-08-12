@@ -1,23 +1,24 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Pattern : TestBase<Contract_Pattern>
+    public class UnitTest_Pattern : DebugAndTestBase<Contract_Pattern>
     {
-        public UnitTest_Pattern() : base(Contract_Pattern.Nef, Contract_Pattern.Manifest) { }
-
         [TestMethod]
         public void Between_Test()
         {
             Assert.AreEqual(true, Contract.Between(50));
+            Assert.AreEqual(1083030, Engine.FeeConsumed.Value);
             Assert.AreEqual(false, Contract.Between(1));
+            Assert.AreEqual(1082790, Engine.FeeConsumed.Value);
             Assert.AreEqual(false, Contract.Between(100));
+            Assert.AreEqual(1083030, Engine.FeeConsumed.Value);
             Assert.AreEqual(false, Contract.Between(200));
+            Assert.AreEqual(1083030, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]

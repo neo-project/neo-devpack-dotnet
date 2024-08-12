@@ -14,8 +14,7 @@ namespace Neo.SmartContract.Analyzer
 
         private readonly string[] _unsupportedMathMethods =
         {
-            "Abs", "Acos", "Asin", "Atan", "Atan2",
-            "BigMul", "Ceiling", "Cos", "Cosh", "DivRem",
+            "Acos", "Asin", "Atan", "Atan2", "Ceiling", "Cos", "Cosh",
             "Exp", "Floor", "IEEERemainder", "Log", "Log10", "Pow", "Round",
             "Sin", "Sinh", "Sqrt", "Tan", "Tanh",
             "Truncate"

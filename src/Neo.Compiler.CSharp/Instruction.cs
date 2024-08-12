@@ -382,7 +382,7 @@ namespace Neo.Compiler
                     builder.Append($"<{(StackItemType)Operand![0]}>");
                     break;
                 default:
-                    builder.Append(Operand.ToHexString());
+                    builder.Append(Operand!.ToHexString());
                     break;
             }
         }

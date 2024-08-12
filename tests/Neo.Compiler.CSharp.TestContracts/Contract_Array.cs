@@ -6,13 +6,14 @@ using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
-    struct State
+    internal struct State
     {
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
-        public byte[] from;
-        public byte[] to;
-        public BigInteger amount;
-#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
+        public byte[] from = default;
+        public byte[] to = null!;
+        public BigInteger amount = default;
+        public State()
+        {
+        }
     }
 
     public class Contract_Array : SmartContract.Framework.SmartContract
@@ -111,6 +112,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             return sarray[2];
         }
 
+        public static object TestDefaultState()
+        {
+            var s = new State();
+            return s;
+        }
+
         public static object[] TestEmptyArray()
         {
             var sarray = Array.Empty<object>();
@@ -149,9 +156,8 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static void TestElementBinding()
         {
-            var a = Ledger.GetBlock(10000);
-            var b = Ledger.GetBlock(10001);
-            var array = new[] { a, b };
+            var a = Ledger.GetBlock(0);
+            var array = new[] { a };
             var firstItem = array?[0];
             Runtime.Log(firstItem?.Timestamp.ToString());
         }

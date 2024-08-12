@@ -1,11 +1,12 @@
+using System.Collections.Concurrent;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Template.UnitTests.templates
 {
@@ -13,14 +14,15 @@ namespace Neo.SmartContract.Template.UnitTests.templates
     public class TestCleanup : TestCleanupBase
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly());
+        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
 
         [TestMethod]
         public void EnsureArtifactsUpToDate()
         {
-            if (DebugInfos.Count > 0) return; // Maybe a UT call it
+            if (CachedContracts.Count > 0) return; // Maybe a UT call it
 
             // Define paths
 
@@ -49,24 +51,27 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             // Ensure Nep17
 
             var root = Path.GetPathRoot(templatePath) ?? "";
-            (var artifact, var dbg) = CreateArtifact<Nep17ContractTemplate>(result.FirstOrDefault(p => p.ContractName == "Nep17Contract") ?? throw new InvalidOperationException(), root,
+            var context = result.FirstOrDefault(p => p.ContractName == "Nep17Contract") ?? throw new InvalidOperationException();
+            (var artifact, var dbg) = CreateArtifact<Nep17ContractTemplate>(context, root,
                 Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
 
-            DebugInfos[typeof(Nep17ContractTemplate)] = dbg;
+            CachedContracts[typeof(Nep17ContractTemplate)] = (context, dbg);
 
             // Ensure Oracle
 
-            (artifact, dbg) = CreateArtifact<OracleRequestTemplate>(result.FirstOrDefault(p => p.ContractName == "OracleRequest") ?? throw new InvalidOperationException(), root,
+            context = result.FirstOrDefault(p => p.ContractName == "OracleRequest") ?? throw new InvalidOperationException();
+            (artifact, dbg) = CreateArtifact<OracleRequestTemplate>(context, root,
                 Path.Combine(artifactsPath, "neocontractoracle/TestingArtifacts/OracleRequestTemplate.artifacts.cs"));
 
-            DebugInfos[typeof(OracleRequestTemplate)] = dbg;
+            CachedContracts[typeof(OracleRequestTemplate)] = (context, dbg);
 
             // Ensure Ownable
 
-            (artifact, dbg) = CreateArtifact<OwnableTemplate>(result.FirstOrDefault(p => p.ContractName == "Ownable") ?? throw new InvalidOperationException(), root,
+            context = result.FirstOrDefault(p => p.ContractName == "Ownable") ?? throw new InvalidOperationException();
+            (artifact, dbg) = CreateArtifact<OwnableTemplate>(context, root,
                 Path.Combine(artifactsPath, "neocontractowner/TestingArtifacts/OwnableTemplate.artifacts.cs"));
 
-            DebugInfos[typeof(OwnableTemplate)] = dbg;
+            CachedContracts[typeof(OwnableTemplate)] = (context, dbg);
         }
 
         private static (string artifact, NeoDebugInfo debugInfo) CreateArtifact<T>(CompilationContext context, string rootDebug, string artifactsPath)

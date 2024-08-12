@@ -194,7 +194,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             foreach (var entry in map)
             {
-                dictionary.Add(ConvertToBaseValue(entry.Key), ConvertToBaseValue(entry.Value));
+                dictionary.Add(ConvertToBaseValue(entry.Key)!, ConvertToBaseValue(entry.Value)!);
             }
 
             return dictionary;

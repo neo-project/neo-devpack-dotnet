@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -268,6 +269,16 @@ namespace Neo.Compiler
                 SyntaxNode syntaxNode;
                 if (field.DeclaringSyntaxReferences.IsEmpty)
                 {
+                    // Have to process the string.Empty specially since it has no AssociatedSymbol
+                    // thus will return directly without this if check.
+                    if (field.ContainingType.ToString() == "string" && field.Name == "Empty")
+                    {
+                        preInitialize?.Invoke();
+                        Push(string.Empty);
+                        postInitialize?.Invoke();
+                        return;
+                    }
+
                     if (field.AssociatedSymbol is not IPropertySymbol property) return;
                     syntaxNode = property.DeclaringSyntaxReferences[0].GetSyntax();
                     if (syntaxNode is PropertyDeclarationSyntax syntax)
@@ -298,6 +309,7 @@ namespace Neo.Compiler
                 ContractParameterType parameterType = attributeName switch
                 {
                     nameof(InitialValueAttribute) => (ContractParameterType)initialValue.ConstructorArguments[1].Value!,
+                    nameof(IntegerAttribute) => ContractParameterType.Integer,
                     nameof(Hash160Attribute) => ContractParameterType.Hash160,
                     nameof(PublicKeyAttribute) => ContractParameterType.PublicKey,
                     nameof(ByteArrayAttribute) => ContractParameterType.ByteArray,
@@ -311,6 +323,9 @@ namespace Neo.Compiler
                     {
                         case ContractParameterType.String:
                             Push(value);
+                            break;
+                        case ContractParameterType.Integer:
+                            Push(BigInteger.Parse(value));
                             break;
                         case ContractParameterType.ByteArray:
                             Push(value.HexToBytes(true));

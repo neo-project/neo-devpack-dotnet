@@ -65,7 +65,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             var json = @"{""bXlSYXdLZXk="":""dmFsdWU=""}";
 
-            store.Import((JObject)JToken.Parse(json));
+            store.Import(((JObject)JToken.Parse(json)!)!);
             store.Commit();
 
             entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             json = @"{""bXk="":{""UmF3S2V5LTI="":""dmFsdWUtMg==""}}";
 
-            store.Import((JObject)JToken.Parse(json));
+            store.Import(((JObject)JToken.Parse(json)!)!);
             store.Commit();
 
             entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();

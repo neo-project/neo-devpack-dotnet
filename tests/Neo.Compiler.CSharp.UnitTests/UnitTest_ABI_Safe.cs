@@ -1,11 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ABI_Safe() : TestBase<Contract_ABISafe>(Contract_ABISafe.Nef, Contract_ABISafe.Manifest)
+    public class UnitTest_ABI_Safe : DebugAndTestBase<Contract_ABISafe>
     {
         [TestMethod]
         public void UnitTest_TestSafe()

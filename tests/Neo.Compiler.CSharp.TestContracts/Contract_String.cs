@@ -26,5 +26,30 @@ namespace Neo.Compiler.CSharp.TestContracts
             Runtime.Log(str.Substring(1));
             Runtime.Log(str.Substring(1, 4));
         }
+
+        public static string TestEmpty()
+        {
+            return string.Empty;
+        }
+
+        public static bool TestIsNullOrEmpty(string? str)
+        {
+            return string.IsNullOrEmpty(str);
+        }
+
+        public static bool TestEndWith(string str)
+        {
+            return str.EndsWith("world");
+        }
+
+        public static bool TestContains(string str)
+        {
+            return str.Contains("world");
+        }
+
+        public static int TestIndexOf(string str)
+        {
+            return str.IndexOf("world");
+        }
     }
 }

@@ -1,16 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ExecutionEngineTest : TestBase<Contract_ExecutionEngine>
+    public class ExecutionEngineTest
+         : DebugAndTestBase<Contract_ExecutionEngine>
     {
-        public ExecutionEngineTest() : base(Contract_ExecutionEngine.Nef, Contract_ExecutionEngine.Manifest) { }
-
         [TestMethod]
         public void CallingScriptHashTest()
         {

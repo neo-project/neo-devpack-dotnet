@@ -2,131 +2,141 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Akka.Util;
-using Akka.Util.Internal;
+using Microsoft.CodeAnalysis;
+using Neo.SmartContract.Testing.TestingStandards;
+using CompilationOptions = Neo.Compiler.CompilationOptions;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
     [TestClass]
     public class TestCleanup : TestCleanupBase
     {
-        private static readonly Regex WhiteSpaceRegex = new("\\s");
-        private static readonly object RootSync = new();
+        private static readonly Regex WhiteSpaceRegex = new("\\s", RegexOptions.Compiled);
+        public static readonly ConcurrentDictionary<Type, (CompilationContext Context, NeoDebugInfo? DbgInfo)> CachedContracts = new();
+        private static readonly string TestContractsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "..", "Neo.SmartContract.Framework.TestContracts", "Neo.SmartContract.Framework.TestContracts.csproj"));
+        private static readonly string ArtifactsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "TestingArtifacts"));
+        private static readonly string RootPath = Path.GetDirectoryName(TestContractsPath) ?? string.Empty;
+
+        private static readonly Lazy<CompilationEngine> _compilationEngine = new(() => new CompilationEngine(new CompilationOptions
+        {
+            Debug = true,
+            CompilerVersion = "TestingEngine",
+            Optimize = CompilationOptions.OptimizationType.All,
+            Nullable = NullableContextOptions.Enable
+        }));
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private static List<INamedTypeSymbol> _sortedClasses;
+        private static Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _classDependencies;
+        private static List<INamedTypeSymbol?> _allClassSymbols;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        private static readonly ConcurrentSet<string> UpdatedArtifactNames = new();
+
+        [AssemblyInitialize]
+#pragma warning disable IDE0060 // Remove unused parameter
+        public static void TestAssemblyInitialize(TestContext testContext)
+#pragma warning restore IDE0060 // Remove unused parameter
+        {
+            (_sortedClasses, _classDependencies, _allClassSymbols) = _compilationEngine.Value.PrepareProjectContracts(TestContractsPath);
+        }
+
+        public static void TestInitialize(Type contract)
+        {
+            if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(contract))
+            {
+                throw new InvalidOperationException($"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
+            }
+            if (CachedContracts.ContainsKey(contract)) return;
+            EnsureArtifactUpToDateInternal(contract.Name);
+        }
 
         [AssemblyCleanup]
-        public static void EnsureCoverage() => EnsureCoverageInternal(Assembly.GetExecutingAssembly());
-
-        [TestMethod]
-        public void EnsureArtifactsUpToDate() => EnsureArtifactsUpToDateInternal();
-
-        internal static void EnsureArtifactsUpToDateInternal()
+        public static void EnsureCoverage()
         {
-            if (DebugInfos.Count > 0) return; // Maybe a UT call it
+            if (UpdatedArtifactNames.Count > 0)
+                Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
-            // Define paths
+            var list = _sortedClasses.Select(u => u.Name).ToList();
 
-            var testContractsPath = new FileInfo("../../../../Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj").FullName;
-            var artifactsPath = new FileInfo("../../../TestingArtifacts").FullName;
-            var root = new FileInfo(testContractsPath).FullName ?? "";
-
-            // Compile
-
-            var results = new CompilationEngine(new CompilationOptions()
+            foreach (var cl in CachedContracts)
             {
-                Debug = true,
-                CompilerVersion = "TestingEngine",
-                Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-            })
-            .CompileProject(testContractsPath);
-
-            // Ensure that all was well compiled
-
-            if (!results.All(u => u.Success))
-            {
-                results.SelectMany(u => u.Diagnostics)
-                    .Where(u => u.Severity == Microsoft.CodeAnalysis.DiagnosticSeverity.Error)
-                    .ToList().ForEach(Console.Error.WriteLine);
-
-                Assert.Fail("Error compiling templates");
+                list.Remove(cl.Key.Name);
             }
 
-            // Get all artifacts loaded in this assembly
-            var updatedArtifactNames = new ConcurrentSet<string>();
-            Task.WhenAll(
-                Enumerable.Range(0, Assembly.GetExecutingAssembly().GetTypes().Length).Select(i => Task.Run(() =>
-                {
-                    var type = Assembly.GetExecutingAssembly().GetTypes()[i];
-                    if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(type)) return;
-
-                    // Find result
-                    CompilationContext? result;
-                    lock (RootSync)
-                    {
-                        result = results.SingleOrDefault(u => u.ContractName == type.Name);
-                        if (result == null) return;
-                    }
-
-                    // Ensure that it exists
-                    var (debug, res) = CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
-                    if (debug != null)
-                    {
-                        DebugInfos[type] = debug!;
-                        lock (RootSync)
-                        {
-                            results = results.Where(r => r != result).ToList();
-                        }
-                    }
-                    else
-                    {
-                        updatedArtifactNames.TryAdd(res!);
-                    }
-                }))
-            ).GetAwaiter().GetResult();
-
-            if (updatedArtifactNames.Count != 0)
+            if (list.Count == 0)
+                EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
+            else
             {
-                updatedArtifactNames.ForEach(p => Console.WriteLine($"Artifact {p} was updated"));
-                Assert.Fail("There are artifacts being updated, please rerun the tests.");
-            }
-            // Ensure that all match
+                Console.Error.WriteLine("Coverage not found for:");
 
-            if (results.Count > 0)
-            {
-                foreach (var result in results.Where(u => u.Success))
+                foreach (var line in list)
                 {
-                    CreateArtifact(result.ContractName!, result, root, Path.Combine(artifactsPath, $"{result.ContractName}.cs"));
+                    Console.Error.WriteLine($"- {line}");
                 }
-
-                Assert.Fail("Error compiling templates");
             }
         }
 
-        private static (NeoDebugInfo?, string?) CreateArtifact(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
+        private static void EnsureArtifactUpToDateInternal(string singleContractName)
+        {
+            var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault() ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
+            if (!result.Success)
+            {
+                var errors = string.Join(Environment.NewLine, result.Diagnostics
+                    .Where(u => u.Severity == DiagnosticSeverity.Error)
+                    .Select(d => d.ToString()));
+                Assert.Fail($"Error compiling {result.ContractName}: {errors}");
+            }
+
+            var type = Assembly.GetExecutingAssembly().GetTypes()
+                .FirstOrDefault(t => typeof(Testing.SmartContract).IsAssignableFrom(t) &&
+                                     t.Name.Equals(result.ContractName, StringComparison.OrdinalIgnoreCase));
+
+            if (type == null)
+            {
+                Assert.Fail($"Could not find type for contract {result.ContractName}");
+                return;
+            }
+            var debug = CreateArtifactAsync(result.ContractName!, result, RootPath, Path.Combine(ArtifactsPath, $"{result.ContractName}.cs")).GetAwaiter().GetResult();
+            CachedContracts[type] = (result, debug);
+        }
+
+        private static async Task<NeoDebugInfo?> CreateArtifactAsync(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
         {
             var (nef, manifest, debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
             var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
 
-            string writtenArtifact = File.Exists(artifactsPath) ? File.ReadAllText(artifactsPath) : "";
+            var writtenArtifact = File.Exists(artifactsPath)
+                ? await File.ReadAllTextAsync(artifactsPath)
+                : "";
+
             if (string.IsNullOrEmpty(writtenArtifact) || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
-                // Uncomment to overwrite the artifact file
-                File.WriteAllText(artifactsPath, artifact);
-
-                Console.Error.WriteLine($"{typeName} artifact was wrong");
-                return (null, typeName);
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        File.WriteAllText(artifactsPath, artifact);
+                        Console.WriteLine($"{typeName} artifact was updated");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error writing artifact for {typeName}: {ex.Message}");
+                    }
+                });
+                return null;
             }
 
-            return (debug, null);
+            return debug;
         }
     }
 }

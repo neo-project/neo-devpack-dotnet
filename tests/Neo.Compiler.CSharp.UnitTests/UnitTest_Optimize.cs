@@ -1,17 +1,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
-using System;
 using System.IO;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Optimize : TestBase<Contract_Optimize>
+    public class UnitTest_Optimize : DebugAndTestBase<Contract_Optimize>
     {
-        public UnitTest_Optimize() : base(Contract_Optimize.Nef, Contract_Optimize.Manifest) { }
-
         [TestMethod]
         public void Test_Optimize()
         {

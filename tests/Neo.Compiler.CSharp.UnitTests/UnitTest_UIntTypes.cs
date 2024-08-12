@@ -1,20 +1,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.IO;
-using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.Wallets;
-using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_UIntTypes : TestBase<Contract_UIntTypes>
+    public class UnitTest_UIntTypes : DebugAndTestBase<Contract_UIntTypes>
     {
-        public UnitTest_UIntTypes() : base(Contract_UIntTypes.Nef, Contract_UIntTypes.Manifest) { }
-
         [TestMethod]
         public void UInt160_ValidateAddress()
         {
@@ -23,13 +18,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsTrue(Contract.ValidateAddress(address));
+            Assert.AreEqual(1049340, Engine.FeeConsumed.Value);
 
             // False
 
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
+            Assert.AreEqual(1048770, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.ValidateAddress(InvalidUInt160.Null));
+            Assert.AreEqual(1048110, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
+            Assert.AreEqual(1048770, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidLength));
+            Assert.AreEqual(1048980, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -39,7 +39,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckOwner(owner));
+            Assert.AreEqual(1049040, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.CheckOwner(notOwner));
+            Assert.AreEqual(1049040, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -49,7 +51,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckZeroStatic(zero));
+            Assert.AreEqual(1049220, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.CheckZeroStatic(notZero));
+            Assert.AreEqual(1049220, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -58,6 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.AreEqual(notZero, Contract.ConstructUInt160(notZero.ToArray()));
+            Assert.AreEqual(1294230, Engine.FeeConsumed.Value);
         }
     }
 }

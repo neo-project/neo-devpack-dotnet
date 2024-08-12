@@ -67,9 +67,11 @@ partial class MethodConvert
             AddInstruction(OpCode.CALLA);
             return true;
         }
+
         switch (symbol.ToString())
         {
             #region Property of System.Numerics.BigInteger
+
             //Gets a value that represents the number one (1).
             case "System.Numerics.BigInteger.One.get":
                 Push(1);
@@ -84,120 +86,163 @@ partial class MethodConvert
                 return true;
             //Indicates whether the value of the current BigInteger object is Zero.
             case "System.Numerics.BigInteger.IsZero.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                Push(0);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
+            case "System.Numerics.BigInteger?.IsZero.get":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Push(0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             //Indicates whether the value of the current BigInteger object is One.
             case "System.Numerics.BigInteger.IsOne.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                Push(1);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
+            case "System.Numerics.BigInteger?.IsOne.get":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Push(1);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             //Indicates whether the value of the current BigInteger object is an even number.
             case "System.Numerics.BigInteger.IsEven.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                Push(1);
-                AddInstruction(OpCode.AND);
-                Push(0);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
+            case "System.Numerics.BigInteger?.IsEven.get":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    Push(1);
+                    AddInstruction(OpCode.AND);
+                    Push(0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             //Gets a number that indicates the sign (negative, positive, or zero) of the current BigInteger object.
             case "System.Numerics.BigInteger.Sign.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                AddInstruction(OpCode.SIGN);
-                return true;
+            case "System.Numerics.BigInteger?.Sign.get":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.SIGN);
+                    return true;
+                }
             //Missing BigInteger.IsPowerOfTwo Property
             #endregion
 
             #region Method of System.Numerics.BigInteger
             //Raises a BigInteger value to the power of a specified value.
             case "System.Numerics.BigInteger.Pow(System.Numerics.BigInteger, int)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.POW);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.POW);
+                    return true;
+                }
             //Performs modulus division on a number raised to the power of another number.
             case "System.Numerics.BigInteger.ModPow(System.Numerics.BigInteger, System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.MODPOW);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MODPOW);
+                    return true;
+                }
             //Adds two BigInteger values and returns the result.
             case "System.Numerics.BigInteger.Add(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.ADD);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.ADD);
+                    return true;
+                }
             //Subtracts one BigInteger value from another and returns the result.
             case "System.Numerics.BigInteger.Subtract(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.SUB);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.SUB);
+                    return true;
+                }
             //Negates a specified BigInteger value.
             case "System.Numerics.BigInteger.Negate(System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.NEGATE);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.NEGATE);
+                    return true;
+                }
             //Returns the product of two BigInteger values.
             case "System.Numerics.BigInteger.Multiply(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.MUL);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MUL);
+                    return true;
+                }
             //Divides one BigInteger value by another and returns the result.
             case "System.Numerics.BigInteger.Divide(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.DIV);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.DIV);
+                    return true;
+                }
             //Performs integer division on two BigInteger values and returns the remainder.
             case "System.Numerics.BigInteger.Remainder(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                AddInstruction(OpCode.MOD);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    AddInstruction(OpCode.MOD);
+                    return true;
+                }
             //Compares two BigInteger values and returns an integer that indicates whether the first value is less than,
             //equal to, or greater than the second value.
             case "System.Numerics.BigInteger.Compare(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                // if left < right return -1;
-                // if left = right return 0;
-                // if left > right return 1;
-                AddInstruction(OpCode.SUB);
-                AddInstruction(OpCode.SIGN);
-                return true;
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    // if left < right return -1;
+                    // if left = right return 0;
+                    // if left > right return 1;
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.SIGN);
+                    return true;
+                }
             //Finds the greatest common divisor of two BigInteger values.
             case "System.Numerics.BigInteger.GreatestCommonDivisor(System.Numerics.BigInteger, System.Numerics.BigInteger)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-                JumpTarget gcdTarget = new()
                 {
-                    Instruction = AddInstruction(OpCode.DUP)
-                };
-                AddInstruction(OpCode.REVERSE3);
-                AddInstruction(OpCode.SWAP);
-                AddInstruction(OpCode.MOD);
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.PUSH0);
-                AddInstruction(OpCode.NUMEQUAL);
-                Jump(OpCode.JMPIFNOT, gcdTarget);
-                AddInstruction(OpCode.DROP);
-                AddInstruction(OpCode.ABS);
-                return true;
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    JumpTarget gcdTarget = new()
+                    {
+                        Instruction = AddInstruction(OpCode.DUP)
+                    };
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.MOD);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.PUSH0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    Jump(OpCode.JMPIFNOT, gcdTarget);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.ABS);
+                    return true;
+                }
             //Converts a BigInteger value to a byte array.
             case "System.Numerics.BigInteger.ToByteArray()":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                ChangeType(VM.Types.StackItemType.Buffer);
+            case "System.Numerics.BigInteger?.ToByteArray()":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    ChangeType(VM.Types.StackItemType.Buffer);
+                    return true;
+                }
+            //Converts the string representation of a number to its BigInteger equivalent.
+            case "System.Numerics.BigInteger.Parse(string)":
+                if (arguments is not null)
+                    PrepareArgumentsForMethod(model, symbol, arguments);
+                CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                 return true;
+
+            #endregion
             //Defines an explicit conversion of a BigInteger object to a signed 8-bit value.
             case "System.Numerics.BigInteger.explicit operator sbyte(System.Numerics.BigInteger)":
                 {
@@ -272,8 +317,8 @@ partial class MethodConvert
                     Jump(OpCode.JMPIF, endTarget);
                     AddInstruction(OpCode.THROW);
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
                 }
-                return true;
             //Defines an explicit conversion of a BigInteger object to an unsigned 32-bit integer value.
             case "System.Numerics.BigInteger.explicit operator uint(System.Numerics.BigInteger)":
                 {
@@ -287,8 +332,8 @@ partial class MethodConvert
                     Jump(OpCode.JMPIF, endTarget);
                     AddInstruction(OpCode.THROW);
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
                 }
-                return true;
             //Defines an explicit conversion of a BigInteger object to a 64-bit signed integer value.
             case "System.Numerics.BigInteger.explicit operator long(System.Numerics.BigInteger)":
                 {
@@ -302,8 +347,8 @@ partial class MethodConvert
                     Jump(OpCode.JMPIF, endTarget);
                     AddInstruction(OpCode.THROW);
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
                 }
-                return true;
             //Defines an explicit conversion of a BigInteger object to an unsigned 64-bit integer value.
             case "System.Numerics.BigInteger.explicit operator ulong(System.Numerics.BigInteger)":
                 {
@@ -317,8 +362,8 @@ partial class MethodConvert
                     Jump(OpCode.JMPIF, endTarget);
                     AddInstruction(OpCode.THROW);
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
                 }
-                return true;
             //Initializes a new instance of the BigInteger structure.
             case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(char)":
             case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(sbyte)":
@@ -331,12 +376,6 @@ partial class MethodConvert
             case "System.Numerics.BigInteger.implicit operator System.Numerics.BigInteger(ulong)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
-                return true;
-            //Converts the string representation of a number to its BigInteger equivalent.
-            case "System.Numerics.BigInteger.Parse(string)":
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
                 return true;
             case "System.Math.Abs(sbyte)":
             case "System.Math.Abs(short)":
@@ -365,8 +404,10 @@ partial class MethodConvert
             case "System.Math.Max(uint, uint)":
             case "System.Math.Max(long, long)":
             case "System.Math.Max(ulong, ulong)":
+            case "System.Math.Max(object?, object?)":
             //Returns the larger of two BigInteger values.
             case "System.Numerics.BigInteger.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
+            case "System.Numerics.BigInteger?.Max(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MAX);
@@ -379,12 +420,392 @@ partial class MethodConvert
             case "System.Math.Min(uint, uint)":
             case "System.Math.Min(long, long)":
             case "System.Math.Min(ulong, ulong)":
+            case "System.Math.Min(object?, object?)":
             //Returns the smaller of two BigInteger values.
             case "System.Numerics.BigInteger.Min(System.Numerics.BigInteger, System.Numerics.BigInteger)":
                 if (arguments is not null)
                     PrepareArgumentsForMethod(model, symbol, arguments);
                 AddInstruction(OpCode.MIN);
                 return true;
+            case "System.Math.BigMul(int, int)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.DUP);
+                    Push(long.MinValue);
+                    Push(new BigInteger(long.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "System.Math.DivRem(sbyte, sbyte)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(sbyte.MinValue);
+                    Push(new BigInteger(sbyte.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(byte, byte)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(byte.MinValue);
+                    Push(new BigInteger(byte.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(short, short)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(short.MinValue);
+                    Push(new BigInteger(short.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(ushort, ushort)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(ushort.MinValue);
+                    Push(new BigInteger(ushort.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(int, int)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(int.MinValue);
+                    Push(new BigInteger(int.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(uint, uint)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(uint.MinValue);
+                    Push(new BigInteger(uint.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(long, long)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(long.MinValue);
+                    Push(new BigInteger(long.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.DivRem(ulong, ulong)":
+                {
+                    JumpTarget endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // Perform division
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.TUCK);
+                    AddInstruction(OpCode.DIV);
+
+                    // Calculate remainder
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.MUL);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(ulong.MinValue);
+                    Push(new BigInteger(ulong.MaxValue) + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.PUSH2);
+                    AddInstruction(OpCode.PACK);
+                    return true;
+                }
+            case "System.Math.Clamp(byte, byte, byte)":
+            case "System.Math.Clamp(sbyte, sbyte, sbyte)":
+            case "System.Math.Clamp(short, short, short)":
+            case "System.Math.Clamp(ushort, ushort, ushort)":
+            case "System.Math.Clamp(int, int, int)":
+            case "System.Math.Clamp(uint, uint, uint)":
+            case "System.Math.Clamp(long, long, long)":
+            case "System.Math.Clamp(ulong, ulong, ulong)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    var endTarget = new JumpTarget();
+                    var exceptionTarget = new JumpTarget();
+                    var minTarget = new JumpTarget();
+                    var maxTarget = new JumpTarget();
+                    AddInstruction(OpCode.DUP);// 5 0 10 10
+                    AddInstruction(OpCode.ROT);// 5 10 10 0
+                    AddInstruction(OpCode.DUP);// 5 10 10 0 0
+                    AddInstruction(OpCode.ROT);// 5 10 0 0 10
+                    Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
+                    AddInstruction(OpCode.THROW);
+                    exceptionTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.ROT);// 10 0 5
+                    AddInstruction(OpCode.DUP);// 10 0 5 5
+                    AddInstruction(OpCode.ROT);// 10 5 5 0
+                    AddInstruction(OpCode.DUP);// 10 5 5 0 0
+                    AddInstruction(OpCode.ROT);// 10 5 0 0 5
+                    Jump(OpCode.JMPGT, minTarget);// 10 5 0
+                    AddInstruction(OpCode.DROP);// 10 5
+                    AddInstruction(OpCode.DUP);// 10 5 5
+                    AddInstruction(OpCode.ROT);// 5 5 10
+                    AddInstruction(OpCode.DUP);// 5 5 10 10
+                    AddInstruction(OpCode.ROT);// 5 10 10 5
+                    Jump(OpCode.JMPLT, maxTarget);// 5 10
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    minTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    maxTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "byte?.HasValue.get":
+            case "sbyte?.HasValue.get":
+            case "short?.HasValue.get":
+            case "ushort?.HasValue.get":
+            case "int?.HasValue.get":
+            case "uint?.HasValue.get":
+            case "long?.HasValue.get":
+            case "ulong?.HasValue.get":
+            case "bool?.HasValue.get":
+            case "char?.HasValue.get":
+            case "System.Numerics.BigInteger?.HasValue.get":
+                if (instanceExpression is not null)
+                    ConvertExpression(model, instanceExpression);
+                AddInstruction(OpCode.ISNULL);
+                AddInstruction(OpCode.NOT);
+                return true;
+            case "byte?.Value.get":
+            case "sbyte?.Value.get":
+            case "short?.Value.get":
+            case "ushort?.Value.get":
+            case "int?.Value.get":
+            case "uint?.Value.get":
+            case "long?.Value.get":
+            case "ulong?.Value.get":
+            case "bool?.Value.get":
+            case "char?.Value.get":
+            case "System.Numerics.BigInteger?.Value.get":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    JumpTarget endTarget = new();
+                    Jump(OpCode.JMPIFNOT, endTarget);
+                    AddInstruction(OpCode.THROW);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "sbyte?.ToString()":
+            case "byte?.ToString()":
+            case "short?.ToString()":
+            case "ushort?.ToString()":
+            case "int?.ToString()":
+            case "uint?.ToString()":
+            case "long?.ToString()":
+            case "ulong?.ToString()":
+            //Converts the numeric value of the current BigInteger object to its equivalent string representation.
+            case "System.Numerics.BigInteger?.ToString()":
+                {
+                    JumpTarget endTarget = new();
+                    JumpTarget endTarget2 = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    Jump(OpCode.JMPIF, endTarget);
+                    CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+                    Jump(OpCode.JMP_L, endTarget2);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.DROP);
+                    Push("");
+                    endTarget2.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
             case "sbyte.ToString()":
             case "byte.ToString()":
             case "short.ToString()":
@@ -395,36 +816,63 @@ partial class MethodConvert
             case "ulong.ToString()":
             //Converts the numeric value of the current BigInteger object to its equivalent string representation.
             case "System.Numerics.BigInteger.ToString()":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
-                return true;
-            case "char.ToString()":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                ChangeType(StackItemType.ByteString);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+                    return true;
+                }
+            // do it for every: byte, sbyte, short, ushort, int, uint, long, ulong, bool, char
+            case "byte.Equals(object?)":
+            case "sbyte.Equals(object?)":
+            case "short.Equals(object?)":
+            case "ushort.Equals(object?)":
+            case "int.Equals(object?)":
+            case "uint.Equals(object?)":
+            case "long.Equals(object?)":
+            case "ulong.Equals(object?)":
+            case "bool.Equals(object?)":
+            case "char.Equals(object?)":
+
+            // also do for ? on every type
+            case "byte?.Equals(object?)":
+            case "sbyte?.Equals(object?)":
+            case "short?.Equals(object?)":
+            case "ushort?.Equals(object?)":
+            case "int?.Equals(object?)":
+            case "uint?.Equals(object?)":
+            case "long?.Equals(object?)":
+            case "ulong?.Equals(object?)":
+            case "bool?.Equals(object?)":
+            case "char?.Equals(object?)":
             case "System.Numerics.BigInteger.Equals(long)":
+            case "System.Numerics.BigInteger?.Equals(long)":
             case "System.Numerics.BigInteger.Equals(ulong)":
+            case "System.Numerics.BigInteger?.Equals(ulong)":
+            case "System.Numerics.BigInteger?.Equals(object?)":
+            case "System.Numerics.BigInteger.Equals(object?)":
             //Returns a value that indicates whether two numeric values are equal.
             case "System.Numerics.BigInteger.Equals(System.Numerics.BigInteger)":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                if (arguments is not null)
-                    PrepareArgumentsForMethod(model, symbol, arguments);
-                AddInstruction(OpCode.NUMEQUAL);
-                return true;
-            #endregion
-
+            case "System.Numerics.BigInteger?.Equals(System.Numerics.BigInteger)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    return true;
+                }
             #region Method of string
             //Gets the total number of elements in all the dimensions of the Array.
             case "System.Array.Length.get":
             //Gets the number of characters in the current String object.
             case "string.Length.get":
-                if (instanceExpression is not null)
-                    ConvertExpression(model, instanceExpression);
-                AddInstruction(OpCode.SIZE);
-                return true;
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.SIZE);
+                    return true;
+                }
             //Converts the string representation of a number to its 8-bit signed integer equivalent.
             case "sbyte.Parse(string)":
                 {
@@ -584,6 +1032,43 @@ partial class MethodConvert
                 AddInstruction(OpCode.SUB);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
+            // https://learn.microsoft.com/en-us/dotnet/api/system.string.compare?view=net-8.0
+            case "string.Compare(string?, string?)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    // if left < right return -1;
+                    // if left = right return 0;
+                    // if left > right return 1;
+                    // Less than zero	  The first substring precedes the second substring in the sort order.
+                    // Zero	              The substrings occur in the same position in the sort order, or length is zero.
+                    // Greater than zero  The first substring follows the second substring in the sort order.
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.SIGN);
+                    return true;
+                }
+            case "string.IsNullOrEmpty(string?)":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+                    JumpTarget endTarget = new();
+                    JumpTarget nullOrEmptyTarget = new();
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    Jump(OpCode.JMPIF, nullOrEmptyTarget);
+                    AddInstruction(OpCode.SIZE);
+                    Push(0);
+                    AddInstruction(OpCode.NUMEQUAL);
+                    Jump(OpCode.JMP, endTarget);
+                    nullOrEmptyTarget.Instruction = AddInstruction(OpCode.DROP); // drop the duped item
+                    AddInstruction(OpCode.PUSHT);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
             //Retrieves a substring from this instance.
             //The substring starts at a specified character position and has a specified length.
             case "string.Substring(int, int)":
@@ -593,7 +1078,86 @@ partial class MethodConvert
                     PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
                 AddInstruction(OpCode.SUBSTR);
                 return true;
+            // Returns a value indicating whether a specified substring occurs within this string.
+            case "string.Contains(string)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+                    AddInstruction(OpCode.PUSH0);
+                    AddInstruction(OpCode.GE);
+                    return true;
+                }
+            // Determines whether the end of this string instance matches the specified string.
+            case "string.EndsWith(string)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    var endTarget = new JumpTarget();
+                    var validCountTarget = new JumpTarget();
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.SIZE);
+                    AddInstruction(OpCode.DUP);
+                    Push(3);
+                    AddInstruction(OpCode.ROLL);
+                    AddInstruction(OpCode.SWAP);
+                    AddInstruction(OpCode.SUB);
+                    AddInstruction(OpCode.DUP);
+                    Push(0);
+                    Jump(OpCode.JMPGT, validCountTarget);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.PUSHF);
+                    Jump(OpCode.JMP, endTarget);
+                    validCountTarget.Instruction = AddInstruction(OpCode.NOP);
+                    Push(3);
+                    AddInstruction(OpCode.ROLL);
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.SUBSTR);
+                    ChangeType(StackItemType.ByteString);
+                    AddInstruction(OpCode.EQUAL);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            // Reports the zero-based index of the first occurrence of the specified string in this instance.
+            case "string.IndexOf(string)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+                    return true;
+                }
             //Converts the value of this instance to its equivalent string representation (either "True" or "False").
+            case "bool?.ToString()":
+                {
+                    JumpTarget trueTarget = new(), nullTarget = new(), endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    Jump(OpCode.JMPIF_L, nullTarget);
+                    Jump(OpCode.JMPIF_L, trueTarget);
+                    Push("False");
+                    Jump(OpCode.JMP_L, endTarget);
+                    trueTarget.Instruction = Push("True");
+                    Jump(OpCode.JMP_L, endTarget);
+                    nullTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.DROP);
+                    Push("");
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
             case "bool.ToString()":
                 {
                     JumpTarget trueTarget = new(), endTarget = new();
@@ -604,10 +1168,45 @@ partial class MethodConvert
                     Jump(OpCode.JMP_L, endTarget);
                     trueTarget.Instruction = Push("True");
                     endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
                 }
-                return true;
+            case "char.ToString()":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    ChangeType(StackItemType.ByteString);
+                    return true;
+                }
+            case "char?.ToString()":
+                {
+                    JumpTarget nullTarget = new(), endTarget = new();
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ISNULL);
+                    Jump(OpCode.JMPIF_L, nullTarget);
+                    ChangeType(StackItemType.ByteString);
+                    Jump(OpCode.JMP_L, endTarget);
+                    nullTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.DROP);
+                    Push("");
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "string.ToString()":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    return true;
+                }
+            case "object.ToString()":
+                {
+                    if (instanceExpression is not null)
+                        ConvertExpression(model, instanceExpression);
+                    ChangeType(StackItemType.ByteString);
+                    return true;
+                }
             #endregion
-
             //Non-system methods, such as user-defined methods
             default:
                 return false;
