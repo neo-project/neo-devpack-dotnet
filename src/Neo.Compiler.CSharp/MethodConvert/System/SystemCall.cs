@@ -858,6 +858,7 @@ partial class MethodConvert
                     AddInstruction(OpCode.PACK);
                     return true;
                 }
+            case "System.Math.DivRem(ulong, ulong)":
             case "ulong.DivRem(ulong, ulong)":
                 {
                     JumpTarget endTarget = new();
