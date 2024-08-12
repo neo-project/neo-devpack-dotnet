@@ -1207,6 +1207,269 @@ partial class MethodConvert
                     return true;
                 }
             #endregion
+
+            #region char methods
+            case "char.IsDigit(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    Push((ushort)'0');
+                    Push((ushort)'9' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    return true;
+                }
+            case "char.IsLetter(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'A');
+                    Push((ushort)'Z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    AddInstruction(OpCode.SWAP);
+                    Push((ushort)'a');
+                    Push((ushort)'z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    AddInstruction(OpCode.BOOLOR);
+                    return true;
+                }
+            case "char.IsWhiteSpace(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    var endTarget = new JumpTarget();
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'\t');
+                    Push((ushort)'\r' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    Push((ushort)'\n');
+                    Push((ushort)' ' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "char.IsLower(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    Push((ushort)'a');
+                    Push((ushort)'z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    return true;
+                }
+            case "char.ToLower(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'A');
+                    Push((ushort)'Z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    var endTarget = new JumpTarget();
+                    Jump(OpCode.JMPIFNOT, endTarget);
+                    Push((ushort)'A');
+                    AddInstruction(OpCode.SUB);
+                    Push((ushort)'a');
+                    AddInstruction(OpCode.ADD);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "char.IsUpper(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    Push((ushort)'A');
+                    Push((ushort)'Z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    return true;
+                }
+            case "char.ToUpper(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'a');
+                    Push((ushort)'z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    var endTarget = new JumpTarget();
+                    Jump(OpCode.JMPIFNOT, endTarget);
+                    Push((ushort)'a');
+                    AddInstruction(OpCode.SUB);
+                    Push((ushort)'A');
+                    AddInstruction(OpCode.ADD);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "char.IsPunctuation(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    var endTarget = new JumpTarget();
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'!');
+                    Push((ushort)'/' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)':');
+                    Push((ushort)'@' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'[');
+                    Push((ushort)'`' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    Push((ushort)'{');
+                    Push((ushort)'~' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "char.IsSymbol(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    var endTarget = new JumpTarget();
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'$');
+                    Push((ushort)'+' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'<');
+                    Push((ushort)'=' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'>');
+                    Push((ushort)'@' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'[');
+                    Push((ushort)'`' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    Push((ushort)'{');
+                    Push((ushort)'~' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "char.IsControl(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'\0');
+                    Push((ushort)'\x1F' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    AddInstruction(OpCode.SWAP);
+                    Push((ushort)'\x7F');
+                    Push((ushort)'\x9F' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    AddInstruction(OpCode.BOOLOR);
+                    return true;
+                }
+            case "char.IsSurrogate(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)0xD800);
+                    Push((ushort)0xDBFF + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    AddInstruction(OpCode.SWAP);
+                    Push((ushort)0xDC00);
+                    Push((ushort)0xDFFF + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    AddInstruction(OpCode.BOOLOR);
+                    return true;
+                }
+            case "char.IsHighSurrogate(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    Push((ushort)0xD800);
+                    Push((ushort)0xDBFF + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    return true;
+                }
+            case "char.IsLowSurrogate(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    Push((ushort)0xDC00);
+                    Push((ushort)0xDFFF + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    return true;
+                }
+            case "char.IsLetterOrDigit(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'0');
+                    Push((ushort)'9' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'A');
+                    Push((ushort)'Z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, endTarget);
+                    Push((ushort)'a');
+                    Push((ushort)'z' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "char.IsBetween(char, char, char)": //min max
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget validTarget = new();
+                    JumpTarget endTarget = new();
+                    AddInstruction(OpCode.DUP);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.GE);
+                    AddInstruction(OpCode.DUP);
+                    Jump(OpCode.JMPIFNOT, validTarget);
+                    AddInstruction(OpCode.REVERSE3);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.DROP);
+                    Jump(OpCode.JMP, endTarget);
+                    validTarget.Instruction = AddInstruction(OpCode.NOP);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.LT);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+            case "char.GetNumericValue(char)":
+                {
+                    if (arguments is not null)
+                        PrepareArgumentsForMethod(model, symbol, arguments);
+                    JumpTarget endTarget = new();
+                    JumpTarget validTarget = new();
+                    AddInstruction(OpCode.DUP);
+                    Push((ushort)'0');
+                    Push((ushort)'9' + 1);
+                    AddInstruction(OpCode.WITHIN);
+                    Jump(OpCode.JMPIF, validTarget);
+                    AddInstruction(OpCode.DROP);
+                    AddInstruction(OpCode.PUSHM1);
+                    Jump(OpCode.JMP, endTarget);
+                    validTarget.Instruction = AddInstruction(OpCode.NOP);
+                    Push((ushort)'0');
+                    AddInstruction(OpCode.SUB);
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    return true;
+                }
+
+            #endregion
             //Non-system methods, such as user-defined methods
             default:
                 return false;
