@@ -166,20 +166,6 @@ partial class MethodConvert
         // Register additional Math method handlers
         RegisterHandler((int x, int y) => Math.BigMul(x, y), HandleMathBigMul);
 
-        // Register additional char method handlers
-        RegisterHandler((char c) => char.IsDigit(c), HandleCharIsDigit);
-        RegisterHandler((char c) => char.IsLetter(c), HandleCharIsLetter);
-        RegisterHandler((char c) => char.IsWhiteSpace(c), HandleCharIsWhiteSpace);
-        RegisterHandler((char c) => char.IsLower(c), HandleCharIsLower);
-        RegisterHandler((char c) => char.IsUpper(c), HandleCharIsUpper);
-        // RegisterHandler((char c) => char.GetNumericValue(c), HandleCharGetNumericValue);
-        // RegisterHandler((char c) => char.IsPunctuation(c), HandleCharIsPunctuation);
-        // RegisterHandler((char c) => char.IsSymbol(c), HandleCharIsSymbol);
-        // RegisterHandler((char c) => char.IsControl(c), HandleCharIsControl);
-        // RegisterHandler((char c) => char.IsSurrogate(c), HandleCharIsSurrogate);
-        // RegisterHandler((char c) => char.IsHighSurrogate(c), HandleCharIsHighSurrogate);
-        // RegisterHandler((char c) => char.IsLowSurrogate(c), HandleCharIsLowSurrogate);
-
         // CompareTo
         RegisterHandler((byte x, byte y) => x.CompareTo(y), HandleBigIntegerCompare);
         RegisterHandler((sbyte x, sbyte y) => x.CompareTo(y), HandleBigIntegerCompare);
@@ -476,6 +462,7 @@ partial class MethodConvert
         RegisterHandler((char c) => char.IsDigit(c), HandleCharIsDigit);
         RegisterHandler((char c) => char.IsLetter(c), HandleCharIsLetter);
         RegisterHandler((char c) => char.IsWhiteSpace(c), HandleCharIsWhiteSpace);
+        RegisterHandler((char c) => char.IsUpper(c), HandleCharIsUpper);
         RegisterHandler((char c) => char.IsLower(c), HandleCharIsLower);
         RegisterHandler((char c) => char.IsUpper(c), HandleCharIsUpper);
         RegisterHandler((char c) => char.ToLower(c), HandleCharToLower);
@@ -486,7 +473,6 @@ partial class MethodConvert
         RegisterHandler((char c) => char.IsSurrogate(c), HandleCharIsSurrogate);
         RegisterHandler((char c) => char.IsHighSurrogate(c), HandleCharIsHighSurrogate);
         RegisterHandler((char c) => char.IsLowSurrogate(c), HandleCharIsLowSurrogate);
-        RegisterHandler((char c) => char.GetNumericValue(c), HandleCharGetNumericValue);
         RegisterHandler((char c) => char.GetNumericValue(c), HandleCharGetNumericValue);
         RegisterHandler((char c) => char.IsLetterOrDigit(c), HandleCharIsLetterOrDigit);
         RegisterHandler((char x, char min, char max) => char.IsBetween(x, min, max), HandleCharIsBetween);

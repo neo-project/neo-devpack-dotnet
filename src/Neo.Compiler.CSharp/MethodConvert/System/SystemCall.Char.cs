@@ -59,10 +59,9 @@ partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push((ushort)'0');
-        methodConvert.Push((ushort)'9' + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert. Push((ushort)'0');
+        methodConvert. Push((ushort)'9' + 1);
+        methodConvert. AddInstruction(OpCode.WITHIN);
         return true;
     }
 
@@ -102,7 +101,6 @@ partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push((ushort)'a');
         methodConvert.Push((ushort)'z' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
@@ -113,7 +111,6 @@ partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push((ushort)'A');
         methodConvert.Push((ushort)'Z' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);

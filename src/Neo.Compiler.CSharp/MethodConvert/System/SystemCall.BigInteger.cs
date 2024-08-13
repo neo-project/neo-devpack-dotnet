@@ -60,10 +60,12 @@ partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.Push(1);
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        if (arguments is not null)
+            methodConvert. PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert. Push(1);
+        methodConvert. AddInstruction(OpCode.AND);
+        methodConvert.  Push(0);
+        methodConvert.  AddInstruction(OpCode.NUMEQUAL);
         return true;
     }
 
