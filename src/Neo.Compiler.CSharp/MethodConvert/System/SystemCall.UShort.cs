@@ -45,17 +45,6 @@ partial class MethodConvert
         JumpTarget endLoop = new();
         JumpTarget loopStart = new();
         JumpTarget endTarget = new();
-        if (symbol.ToString() == "short.LeadingZeroCount(short)")
-        {
-            methodConvert.AddInstruction(OpCode.DUP); // a a
-            methodConvert.AddInstruction(OpCode.PUSH0);// a a 0
-            JumpTarget notNegative = new();
-            methodConvert.Jump(OpCode.JMPGE, notNegative); //a
-            methodConvert.AddInstruction(OpCode.DROP);
-            methodConvert.AddInstruction(OpCode.PUSH0);
-            methodConvert.Jump(OpCode.JMP, endTarget);
-            notNegative.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        }
         methodConvert.Push(0); // count 5 0
         loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); //0 5
         methodConvert.AddInstruction(OpCode.DUP);//  0 5 5
@@ -140,5 +129,4 @@ partial class MethodConvert
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
-
 }
