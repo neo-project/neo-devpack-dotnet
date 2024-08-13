@@ -4,8 +4,6 @@ using Neo.VM.Types;
 
 namespace Neo.Compiler;
 
-
-
 partial class MethodConvert
 {
     #region Constants
@@ -435,7 +433,6 @@ partial class MethodConvert
 
     private Instruction PickItem(int? index)
     {
-
         if (index.HasValue)
             Push(index.Value);
         return AddInstruction(OpCode.PICKITEM);
