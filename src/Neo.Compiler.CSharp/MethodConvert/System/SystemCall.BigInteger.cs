@@ -377,4 +377,154 @@ partial class MethodConvert
         return true;
     }
 
+    // HandleBigIntegerIsOdd
+    private static bool HandleBigIntegerIsOdd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.Push(1);
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.Push(0);
+        methodConvert.AddInstruction(OpCode.NUMNOTEQUAL);
+        return true;
+    }
+
+    // HandleBigIntegerIsNegative
+    private static bool HandleBigIntegerIsNegative(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.SIGN);
+        methodConvert.Push(0);
+        methodConvert.AddInstruction(OpCode.LT);
+        return true;
+    }
+
+    // HandleBigIntegerIsPositive
+    private static bool HandleBigIntegerIsPositive(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.SIGN);
+        methodConvert.Push(0);
+        methodConvert.AddInstruction(OpCode.GE);
+        return true;
+    }
+
+    //HandleBigIntegerIsPow2
+    private static bool HandleBigIntegerIsPow2(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        JumpTarget endFalse = new();
+        JumpTarget endTrue = new();
+        JumpTarget endTarget = new();
+        JumpTarget nonZero = new();
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(0);
+        methodConvert.Jump(OpCode.JMPNE, nonZero);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Jump(OpCode.JMP, endFalse);
+        nonZero.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.DEC);
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.Push(0);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.Jump(OpCode.JMPIF, endTrue);
+        endFalse.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push(false);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        endTrue.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push(true);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        return true;
+    }
+
+    // HandleBigIntegerLog2
+    private static bool HandleBigIntegerLog2(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        JumpTarget endLoop = new();
+        JumpTarget negativeInput = new();
+        JumpTarget zeroTarget = new();
+        methodConvert.AddInstruction(OpCode.DUP);// 5 5
+        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
+        methodConvert.Jump(OpCode.JMPEQ, zeroTarget); // 5
+        methodConvert.AddInstruction(OpCode.DUP);// 5 5
+        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
+        methodConvert.Jump(OpCode.JMPLT, negativeInput); // 5
+        methodConvert.AddInstruction(OpCode.PUSHM1);// 5 -1
+        JumpTarget loopStart = new();
+        loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); // -1 5
+        methodConvert.AddInstruction(OpCode.DUP); // -1 5 5
+        methodConvert.AddInstruction(OpCode.PUSH0); // -1 5 5 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);  // -1 5
+        methodConvert.AddInstruction(OpCode.PUSH1); // -1 5 1
+        methodConvert.AddInstruction(OpCode.SHR); // -1 5>>1
+        methodConvert.AddInstruction(OpCode.SWAP); // 5>>1 -1
+        methodConvert.AddInstruction(OpCode.INC); // 5>>1 -1+1
+        methodConvert.Jump(OpCode.JMP, loopStart);
+        endLoop.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DROP); // -1
+        JumpTarget endMethod = new();
+        methodConvert.Jump(OpCode.JMP, endMethod);
+        zeroTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Push(0);
+        methodConvert.Jump(OpCode.JMP, endMethod);
+        negativeInput.Instruction = methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endMethod.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+
+        return true;
+    }
+
+    // HandleBigIntegerCopySign
+    private static bool HandleBigIntegerCopySign(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        JumpTarget nonZeroTarget = new();
+        JumpTarget nonZeroTarget2 = new();
+        // a b
+        methodConvert.AddInstruction(OpCode.SIGN);         // a 1
+        methodConvert.AddInstruction(OpCode.DUP); // a 1 1
+        methodConvert.Push(0); // a 1 1 0
+        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget); // a 1
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Push(1); // a 1
+        nonZeroTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // a 1
+        methodConvert.AddInstruction(OpCode.SWAP);         // 1 a
+        methodConvert.AddInstruction(OpCode.DUP);// 1 a a
+        methodConvert.AddInstruction(OpCode.SIGN);// 1 a 0
+        methodConvert.AddInstruction(OpCode.DUP);// 1 a 0 0
+        methodConvert.Push(0); // 1 a 0 0 0
+        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Push(1);
+        nonZeroTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP); // 1 a 1
+        methodConvert.AddInstruction(OpCode.ROT);// a 1 1
+        methodConvert.AddInstruction(OpCode.EQUAL);// a 1 1
+        JumpTarget endTarget = new();
+        methodConvert.Jump(OpCode.JMPIF, endTarget); // a
+        methodConvert.AddInstruction(OpCode.NEGATE);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        return true;
+    }
 }

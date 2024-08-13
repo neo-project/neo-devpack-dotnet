@@ -10,6 +10,7 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract.Native;
@@ -33,6 +34,159 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.WITHIN);
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        return true;
+    }
+
+    // HandleLongLeadingZeroCount
+    private static bool HandleLongLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        JumpTarget endLoop = new();
+        JumpTarget loopStart = new();
+        JumpTarget endTarget = new();
+        if (symbol.ToString() == "long.LeadingZeroCount(long)")
+        {
+            methodConvert.AddInstruction(OpCode.DUP); // a a
+            methodConvert.AddInstruction(OpCode.PUSH0);// a a 0
+            JumpTarget notNegative = new();
+            methodConvert.Jump(OpCode.JMPGE, notNegative); //a
+            methodConvert.AddInstruction(OpCode.DROP);
+            methodConvert.AddInstruction(OpCode.PUSH0);
+            methodConvert.Jump(OpCode.JMP, endTarget);
+            notNegative.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        }
+        methodConvert.Push(0); // count 5 0
+        loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); //0 5
+        methodConvert.AddInstruction(OpCode.DUP);//  0 5 5
+        methodConvert.AddInstruction(OpCode.PUSH0);// 0 5 5 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop); //0 5
+        methodConvert.AddInstruction(OpCode.PUSH1);//0 5 1
+        methodConvert.AddInstruction(OpCode.SHR); //0  5>>1
+        methodConvert.AddInstruction(OpCode.SWAP);//5>>1 0
+        methodConvert.AddInstruction(OpCode.INC);// 5>>1 1
+        methodConvert.Jump(OpCode.JMP, loopStart);
+        endLoop.Instruction = methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Push(64);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        return true;
+    }
+
+
+    // HandleLongCopySign
+    private static bool HandleLongCopySign(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        JumpTarget nonZeroTarget = new();
+        JumpTarget nonZeroTarget2 = new();
+        // a b
+        methodConvert.AddInstruction(OpCode.SIGN);         // a 1
+        methodConvert.AddInstruction(OpCode.DUP); // a 1 1
+        methodConvert.Push(0); // a 1 1 0
+        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget); // a 1
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Push(1); // a 1
+        nonZeroTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // a 1
+        methodConvert.AddInstruction(OpCode.SWAP);         // 1 a
+        methodConvert.AddInstruction(OpCode.DUP);// 1 a a
+        methodConvert.AddInstruction(OpCode.SIGN);// 1 a 0
+        methodConvert.AddInstruction(OpCode.DUP);// 1 a 0 0
+        methodConvert.Push(0); // 1 a 0 0 0
+        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Push(1);
+        nonZeroTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP); // 1 a 1
+        methodConvert.AddInstruction(OpCode.ROT);// a 1 1
+        methodConvert.AddInstruction(OpCode.EQUAL);// a 1 1
+        JumpTarget endTarget = new();
+        methodConvert.Jump(OpCode.JMPIF, endTarget); // a
+        methodConvert.AddInstruction(OpCode.NEGATE);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        var endTarget2 = new JumpTarget();
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(long.MinValue);
+        methodConvert.Push(new BigInteger(long.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget2);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+
+        return true;
+    }
+
+    // HandleLongCreateChecked
+    private static bool HandleLongCreateChecked(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        JumpTarget endTarget = new();
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push(long.MinValue);
+        methodConvert.Push(new BigInteger(long.MaxValue) + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.AddInstruction(OpCode.THROW);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        return true;
+    }
+
+    // HandleLongCreateSaturating
+    private static bool HandleLongCreateSaturating(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.Push(long.MinValue);
+        methodConvert.Push(long.MaxValue);
+        var endTarget = new JumpTarget();
+        var exceptionTarget = new JumpTarget();
+        var minTarget = new JumpTarget();
+        var maxTarget = new JumpTarget();
+        methodConvert.AddInstruction(OpCode.DUP);// 5 0 10 10
+        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 0
+        methodConvert.AddInstruction(OpCode.DUP);// 5 10 10 0 0
+        methodConvert.AddInstruction(OpCode.ROT);// 5 10 0 0 10
+        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
+        methodConvert.AddInstruction(OpCode.THROW);
+        exceptionTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.ROT);// 10 0 5
+        methodConvert.AddInstruction(OpCode.DUP);// 10 0 5 5
+        methodConvert.AddInstruction(OpCode.ROT);// 10 5 5 0
+        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5 0 0
+        methodConvert.AddInstruction(OpCode.ROT);// 10 5 0 0 5
+        methodConvert.Jump(OpCode.JMPGT, minTarget);// 10 5 0
+        methodConvert.AddInstruction(OpCode.DROP);// 10 5
+        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5
+        methodConvert.AddInstruction(OpCode.ROT);// 5 5 10
+        methodConvert.AddInstruction(OpCode.DUP);// 5 5 10 10
+        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 5
+        methodConvert.Jump(OpCode.JMPLT, maxTarget);// 5 10
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        minTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.REVERSE3);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        maxTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Jump(OpCode.JMP, endTarget);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         return true;
     }
