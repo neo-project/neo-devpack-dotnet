@@ -14,13 +14,9 @@ namespace Neo.SmartContract.Analyzer
 
         private readonly string[] _unsupportedCharMethods = {
             "CompareTo", "Equals", "GetHashCode",
-            "GetType", "GetTypeCode", "IsControl",
-            "IsDigit", "IsHighSurrogate", "IsLetter",
-            "IsLetterOrDigit", "IsLower", "IsLowSurrogate",
-            "IsNumber", "IsPunctuation", "IsSeparator",
-            "IsSurrogate", "IsSymbol", "IsUpper",
-            "IsWhiteSpace", "Parse", "ToLower",
-            "ToLowerInvariant", "ToString", "ToUpper",
+            "GetType", "GetTypeCode",
+            "IsNumber", "IsSeparator", "Parse",
+            "ToLowerInvariant",
             "ToUpperInvariant", "TryParse",
             "ConvertFromUtf32", "ConvertToUtf32",
             "GetNumericValue", "GetUnicodeCategory",
