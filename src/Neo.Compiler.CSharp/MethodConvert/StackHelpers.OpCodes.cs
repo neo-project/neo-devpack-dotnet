@@ -374,11 +374,9 @@ partial class MethodConvert
 
     private Instruction Pack(int? size)
     {
-
         if (size.HasValue)
             Push(size.Value);
         return AddInstruction(OpCode.PACK);
-
     }
 
     private Instruction UnPack()
