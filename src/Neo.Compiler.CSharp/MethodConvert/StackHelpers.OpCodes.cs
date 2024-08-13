@@ -125,7 +125,6 @@ partial class MethodConvert
 
     #endregion
 
-
     #region Splice
 
     private Instruction NewBuffer(int? size)
