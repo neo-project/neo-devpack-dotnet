@@ -59,9 +59,9 @@ partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert. Push((ushort)'0');
-        methodConvert. Push((ushort)'9' + 1);
-        methodConvert. AddInstruction(OpCode.WITHIN);
+        methodConvert.Push((ushort)'0');
+        methodConvert.Push((ushort)'9' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
         return true;
     }
 
