@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private static bool HandleShortParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+    private static void HandleShortParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -34,12 +34,11 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     // HandleShortLeadingZeroCount
 
-    private static bool HandleShortLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+    private static void HandleShortLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -73,12 +72,11 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.SWAP);
         methodConvert.AddInstruction(OpCode.SUB);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
 
     // HandleShortCopySign
-    private static bool HandleShortCopySign(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleShortCopySign(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -120,11 +118,10 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget2);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     // HandleShortCreateChecked
-    private static bool HandleShortCreateChecked(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleShortCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -138,11 +135,10 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     // HandleShortCreateSaturating
-    private static bool HandleShortCreateSaturating(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleShortCreateSaturating(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -187,6 +183,5 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DROP);
         methodConvert.Jump(OpCode.JMP, endTarget);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 }

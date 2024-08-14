@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private static bool HandleIntParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleIntParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
@@ -33,11 +33,10 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     // HandleIntLeadingZeroCount
-    private static bool HandleIntLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+    private static void HandleIntLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -68,12 +67,11 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.SWAP);
         methodConvert.AddInstruction(OpCode.SUB);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
 
     // HandleIntCopySign
-    private static bool HandleIntCopySign(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleIntCopySign(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -115,12 +113,10 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget2);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        return true;
     }
 
     // HandleIntCreateChecked
-    private static bool HandleIntCreateChecked(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleIntCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -134,11 +130,10 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     // HandleIntCreateSaturating
-    private static bool HandleIntCreateSaturating(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleIntCreateSaturating(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -183,7 +178,6 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DROP);
         methodConvert.Jump(OpCode.JMP, endTarget);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 }
 

@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-    private static bool HandleByteParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleByteParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
@@ -33,11 +33,10 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     //HandleByteLeadingZeroCount
-    private static bool HandleByteLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleByteLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
@@ -60,12 +59,11 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.SWAP);
         methodConvert.AddInstruction(OpCode.SUB);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
 
     // HandleByteCreateChecked
-    private static bool HandleByteCreateChecked(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleByteCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         JumpTarget endTarget = new();
@@ -78,11 +76,10 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     // HandleByteCreateSaturating
-    private static bool HandleByteCreateSaturating(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleByteCreateSaturating(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -127,6 +124,5 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DROP);
         methodConvert.Jump(OpCode.JMP, endTarget);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 }

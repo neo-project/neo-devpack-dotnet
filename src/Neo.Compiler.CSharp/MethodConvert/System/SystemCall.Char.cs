@@ -19,7 +19,7 @@ namespace Neo.Compiler;
 partial class MethodConvert
 {
 
-    private static bool HandleCharParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleCharParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
@@ -32,40 +32,36 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
     // Handler for equality methods (Equals)
-    private static bool HandleEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.AddInstruction(OpCode.NUMEQUAL);
-        return true;
     }
 
     // Handler for Array.Length and string.Length properties
-    private static bool HandleLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleLength(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.AddInstruction(OpCode.SIZE);
-        return true;
     }
 
-    private static bool HandleCharIsDigit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleCharIsDigit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Push((ushort)'0');
         methodConvert.Push((ushort)'9' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
-        return true;
     }
 
-    private static bool HandleCharIsLetter(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleCharIsLetter(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
@@ -78,10 +74,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)'z' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         methodConvert.AddInstruction(OpCode.BOOLOR);
-        return true;
     }
 
-    private static bool HandleCharIsWhiteSpace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleCharIsWhiteSpace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
@@ -94,30 +89,27 @@ partial class MethodConvert
         methodConvert.Push((ushort)' ' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         methodConvert.AddInstruction(OpCode.BOOLOR);
-        return true;
     }
 
-    private static bool HandleCharIsLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleCharIsLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Push((ushort)'a');
         methodConvert.Push((ushort)'z' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
-        return true;
     }
 
-    private static bool HandleCharIsUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    private static void HandleCharIsUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Push((ushort)'A');
         methodConvert.Push((ushort)'Z' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
-        return true;
     }
 
-    private static bool HandleCharIsPunctuation(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+    private static void HandleCharIsPunctuation(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -142,10 +134,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)'~' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
-    private static bool HandleCharIsSymbol(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+    private static void HandleCharIsSymbol(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
 
@@ -176,10 +167,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)'~' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
-    private static bool HandleCharIsControl(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+    private static void HandleCharIsControl(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -193,10 +183,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)'\x9F' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         methodConvert.AddInstruction(OpCode.BOOLOR);
-        return true;
     }
 
-    private static bool HandleCharIsSurrogate(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+    private static void HandleCharIsSurrogate(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -210,10 +199,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)0xDFFF + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         methodConvert.AddInstruction(OpCode.BOOLOR);
-        return true;
     }
 
-    private static bool HandleCharIsHighSurrogate(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleCharIsHighSurrogate(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -222,10 +210,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)0xD800);
         methodConvert.Push((ushort)0xDBFF + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
-        return true;
     }
 
-    private static bool HandleCharIsLowSurrogate(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleCharIsLowSurrogate(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -234,10 +221,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)0xDC00);
         methodConvert.Push((ushort)0xDFFF + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
-        return true;
     }
 
-    private static bool HandleCharIsLetterOrDigit(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleCharIsLetterOrDigit(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -257,10 +243,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)'z' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
-    private static bool HandleCharIsBetween(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleCharIsBetween(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -280,10 +265,9 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DROP);
         methodConvert.AddInstruction(OpCode.LT);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
-    private static bool HandleCharGetNumericValue(MethodConvert methodConvert, SemanticModel model,
+    private static void HandleCharGetNumericValue(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -302,10 +286,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)'0');
         methodConvert.AddInstruction(OpCode.SUB);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
-    private static bool HandleCharToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+    private static void HandleCharToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -321,10 +304,9 @@ partial class MethodConvert
         methodConvert.Push((ushort)'a');
         methodConvert.AddInstruction(OpCode.ADD);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 
-    private static bool HandleCharToUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+    private static void HandleCharToUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -340,6 +322,5 @@ partial class MethodConvert
         methodConvert.Push((ushort)'A');
         methodConvert.AddInstruction(OpCode.ADD);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        return true;
     }
 }

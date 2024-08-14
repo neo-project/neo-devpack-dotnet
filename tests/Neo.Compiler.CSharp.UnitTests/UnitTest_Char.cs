@@ -24,6 +24,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [DynamicData(nameof(CharTestData))]
         public void TestCharProperties(char c, bool isDigit, bool isLetter, bool isWhiteSpace, bool isLower, bool isUpper)
         {
+
             Assert.AreEqual(isDigit, Contract.TestCharIsDigit(c), $"IsDigit failed for '{c}'");
             Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
             Assert.AreEqual(isLetter, Contract.TestCharIsLetter(c), $"IsLetter failed for '{c}'");
