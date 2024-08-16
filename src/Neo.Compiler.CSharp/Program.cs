@@ -94,6 +94,9 @@ namespace Neo.Compiler
                 {
                     Console.Error.WriteLine("The files must have a .cs extension.");
                     context.ExitCode = 1;
+                    Console.Error.WriteLine("Maybe invalid command line args. Got the following paths to compile:");
+                    foreach (string p in paths)
+                        Console.Error.WriteLine($"  {p}");
                     return;
                 }
                 if (!File.Exists(path))
