@@ -75,8 +75,7 @@ partial class MethodConvert
             case IMethodSymbol method:
                 if (!method.IsStatic)
                     throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
-                MethodConvert convert = _context.ConvertMethod(model, method);
-                Jump(OpCode.PUSHA, convert._startTarget);
+                InvokeMethod(model, method);
                 break;
             case IParameterSymbol parameter:
                 if (!_internalInline) LdArgSlot(parameter);

@@ -38,8 +38,7 @@ partial class MethodConvert
             ITypeSymbol? typeSymbol = null;
             if (syntaxNode is VariableDeclaratorSyntax variableDeclarator)
             {
-                var declaration = variableDeclarator.Parent as VariableDeclarationSyntax;
-                if (declaration != null)
+                if (variableDeclarator.Parent is VariableDeclarationSyntax declaration)
                 {
                     typeSymbol = ModelExtensions.GetTypeInfo(model, declaration.Type).Type;
                 }
@@ -328,11 +327,7 @@ partial class MethodConvert
         var symbol = (IMethodSymbol)ModelExtensions.GetSymbolInfo(model, expression).Symbol!;
         var mc = _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
-        AddInstruction(new Instruction
-        {
-            OpCode = OpCode.PUSHA,
-            Target = mc._startTarget
-        });
+        InvokeMethod(mc);
     }
 
     private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
@@ -340,34 +335,28 @@ partial class MethodConvert
         var symbol = (IMethodSymbol)ModelExtensions.GetSymbolInfo(model, expression).Symbol!;
         var mc = _context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
-        AddInstruction(new Instruction
-        {
-            OpCode = OpCode.PUSHA,
-            Target = mc._startTarget
-        });
+        InvokeMethod(mc);
     }
 
     private void ConvertLocalToStaticFields(MethodConvert mc)
     {
-        if (mc.CapturedLocalSymbols.Count > 0)
+        if (mc.CapturedLocalSymbols.Count <= 0) return;
+        foreach (var local in mc.CapturedLocalSymbols)
         {
-            foreach (var local in mc.CapturedLocalSymbols)
+            //copy captured local variable/parameter value to related static fields
+            var staticFieldIndex = _context.GetOrAddCapturedStaticField(local);
+            switch (local)
             {
-                //copy captured local variable/parameter value to related static fields
-                var staticFieldIndex = _context.GetOrAddCapturedStaticField(local);
-                switch (local)
-                {
-                    case ILocalSymbol localSymbol:
-                        var localIndex = _localVariables[localSymbol];
-                        AccessSlot(OpCode.LDLOC, localIndex);
-                        break;
-                    case IParameterSymbol parameterSymbol:
-                        var paraIndex = _parameters[parameterSymbol];
-                        AccessSlot(OpCode.LDARG, paraIndex);
-                        break;
-                }
-                AccessSlot(OpCode.STSFLD, staticFieldIndex);
+                case ILocalSymbol localSymbol:
+                    var localIndex = _localVariables[localSymbol];
+                    AccessSlot(OpCode.LDLOC, localIndex);
+                    break;
+                case IParameterSymbol parameterSymbol:
+                    var paraIndex = _parameters[parameterSymbol];
+                    AccessSlot(OpCode.LDARG, paraIndex);
+                    break;
             }
+            AccessSlot(OpCode.STSFLD, staticFieldIndex);
         }
     }
 

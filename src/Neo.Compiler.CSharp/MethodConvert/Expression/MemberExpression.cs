@@ -78,8 +78,7 @@ partial class MethodConvert
                 //This branch is not covered, is there any c# code that matches the conditions?
                 if (!method.IsStatic)
                     throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
-                MethodConvert convert = _context.ConvertMethod(model, method);
-                Jump(OpCode.PUSHA, convert._startTarget);
+                InvokeMethod(model, method);
                 break;
             case IPropertySymbol property:
                 ExpressionSyntax? instanceExpression = property.IsStatic ? null : expression.Expression;

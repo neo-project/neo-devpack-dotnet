@@ -233,4 +233,15 @@ partial class MethodConvert
         AddInstruction(OpCode.PICKITEM);
         AddInstruction(OpCode.CALLA);
     }
+
+    private void InvokeMethod(SemanticModel model, IMethodSymbol method)
+    {
+        var convert = _context.ConvertMethod(model, method);
+        Jump(OpCode.PUSHA, convert._startTarget);
+    }
+
+    private void InvokeMethod(MethodConvert convert)
+    {
+        Jump(OpCode.PUSHA, convert._startTarget);
+    }
 }

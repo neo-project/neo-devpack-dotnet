@@ -80,7 +80,6 @@ partial class MethodConvert
         IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
         if (!symbol.IsStatic)
             throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {symbol}");
-        MethodConvert convert = _context.ConvertMethod(model, symbol);
-        Jump(OpCode.PUSHA, convert._startTarget);
+        InvokeMethod(model, symbol);
     }
 }

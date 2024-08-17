@@ -22,7 +22,7 @@ partial class MethodConvert
 {
     private void ProcessFields(SemanticModel model)
     {
-        _initslot = true;
+        _initSlot = true;
         IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
         for (int i = 0; i < fields.Length; i++)
         {
@@ -85,8 +85,7 @@ partial class MethodConvert
                 }
                 else
                 {
-                    MethodConvert convert = _context.ConvertMethod(model, method);
-                    Jump(OpCode.PUSHA, convert._startTarget);
+                    InvokeMethod(model, method);
                 }
             }
             Push(virtualMethods.Length);

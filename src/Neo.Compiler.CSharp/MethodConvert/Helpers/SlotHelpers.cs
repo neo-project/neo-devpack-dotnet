@@ -1,0 +1,406 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+extern alias scfx;
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.VM;
+
+namespace Neo.Compiler;
+
+partial class MethodConvert
+{
+
+    #region Variables
+
+    private byte AddLocalVariable(ILocalSymbol symbol)
+    {
+        byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+        _variableSymbols.Add((symbol, index));
+        _localVariables.Add(symbol, index);
+        if (_localsCount < index + 1)
+            _localsCount = index + 1;
+        _blockSymbols.Peek().Add(symbol);
+        return index;
+    }
+
+    private byte AddAnonymousVariable()
+    {
+        byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+        _anonymousVariables.Add(index);
+        if (_localsCount < index + 1)
+            _localsCount = index + 1;
+        return index;
+    }
+
+    private void RemoveAnonymousVariable(byte index)
+    {
+        if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+            _anonymousVariables.Remove(index);
+    }
+
+    private void RemoveLocalVariable(ILocalSymbol symbol)
+    {
+        if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+            _localVariables.Remove(symbol);
+    }
+
+    #endregion
+
+    #region Helper
+
+    /// <summary>
+    /// load parameter value
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
+    private Instruction LdArgSlot(IParameterSymbol parameter)
+    {
+        if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
+        {
+            //using created static fields
+            return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
+        }
+        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter))
+        {
+            //create static fields from captured parameter
+            var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
+            CapturedLocalSymbols.Add(parameter);
+            return AccessSlot(OpCode.LDSFLD, staticIndex);
+        }
+        // local parameter in current method
+        byte index = _parameters[parameter];
+        return AccessSlot(OpCode.LDARG, index);
+    }
+
+    /// <summary>
+    /// store value to parameter
+    /// </summary>
+    /// <param name="parameter"></param>
+    /// <returns></returns>
+    private Instruction StArgSlot(IParameterSymbol parameter)
+    {
+        if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
+        {
+            //using created static fields
+            return AccessSlot(OpCode.STSFLD, staticFieldIndex);
+        }
+        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter))
+        {
+            //create static fields from captured parameter
+            var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
+            CapturedLocalSymbols.Add(parameter);
+            return AccessSlot(OpCode.STSFLD, staticIndex);
+        }
+        // local parameter in current method
+        byte index = _parameters[parameter];
+        return AccessSlot(OpCode.STARG, index);
+    }
+
+    /// <summary>
+    /// load local variable value
+    /// </summary>
+    /// <param name="local"></param>
+    /// <returns></returns>
+    private Instruction LdLocSlot(ILocalSymbol local)
+    {
+        if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
+        {
+            //using created static fields
+            return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
+        }
+        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
+        {
+            //create static fields from captured local
+            byte staticIndex = _context.GetOrAddCapturedStaticField(local);
+            CapturedLocalSymbols.Add(local);
+            return AccessSlot(OpCode.LDSFLD, staticIndex);
+        }
+        // local variables in current method
+        byte index = _localVariables[local];
+        return AccessSlot(OpCode.LDLOC, index);
+    }
+
+    /// <summary>
+    /// store value to local variable
+    /// </summary>
+    /// <param name="local"></param>
+    /// <returns></returns>
+    private Instruction StLocSlot(ILocalSymbol local)
+    {
+        if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
+        {
+            //using created static fields
+            return AccessSlot(OpCode.STSFLD, staticFieldIndex);
+        }
+        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
+        {
+            //create static fields from captured local
+            byte staticIndex = _context.GetOrAddCapturedStaticField(local);
+            CapturedLocalSymbols.Add(local);
+            return AccessSlot(OpCode.STSFLD, staticIndex);
+        }
+        byte index = _localVariables[local];
+        return AccessSlot(OpCode.STLOC, index);
+    }
+
+    private Instruction AccessSlot(OpCode opcode, byte index)
+    {
+        return index >= 7
+            ? AddInstruction(new Instruction { OpCode = opcode, Operand = new[] { index } })
+            : AddInstruction(opcode - 7 + index);
+    }
+
+    private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        SyntaxNode? syntaxNode = null;
+        if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+            syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
+
+        if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
+        if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
+                && attribute.AttributeClass?.Name == nameof(MethodImplAttribute)
+                && attribute.ConstructorArguments[0].Value is not null
+                && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+            return false;
+
+        _internalInline = true;
+
+        using (InsertSequencePoint(syntax))
+        {
+            if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+            if (syntax.Body != null) ConvertStatement(model, syntax.Body);
+        }
+        return true;
+    }
+
+    private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
+    {
+        var namedArguments = arguments.OfType<ArgumentSyntax>().Where(p => p.NameColon is not null).Select(p => (Symbol: (IParameterSymbol)ModelExtensions.GetSymbolInfo(model, p.NameColon!.Name).Symbol!, p.Expression)).ToDictionary(p => p.Symbol, p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
+        IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
+        if (callingConvention == CallingConvention.Cdecl)
+            parameters = parameters.Reverse();
+        foreach (IParameterSymbol parameter in parameters)
+        {
+            if (namedArguments.TryGetValue(parameter, out ExpressionSyntax? expression))
+            {
+                ConvertExpression(model, expression);
+            }
+            else if (parameter.IsParams)
+            {
+                if (arguments.Count > parameter.Ordinal)
+                {
+                    if (arguments.Count == parameter.Ordinal + 1)
+                    {
+                        expression = arguments[parameter.Ordinal] switch
+                        {
+                            ArgumentSyntax argument => argument.Expression,
+                            ExpressionSyntax exp => exp,
+                            _ => throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[parameter.Ordinal]}"),
+                        };
+                        Conversion conversion = model.ClassifyConversion(expression, parameter.Type);
+                        if (conversion.Exists)
+                        {
+                            ConvertExpression(model, expression);
+                            continue;
+                        }
+                    }
+                    for (int i = arguments.Count - 1; i >= parameter.Ordinal; i--)
+                    {
+                        expression = arguments[i] switch
+                        {
+                            ArgumentSyntax argument => argument.Expression,
+                            ExpressionSyntax exp => exp,
+                            _ => throw new CompilationException(arguments[i], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[i]}"),
+                        };
+                        ConvertExpression(model, expression);
+                    }
+                    Push(arguments.Count - parameter.Ordinal);
+                    AddInstruction(OpCode.PACK);
+                }
+                else
+                {
+                    AddInstruction(OpCode.NEWARRAY0);
+                }
+            }
+            else
+            {
+                if (arguments.Count > parameter.Ordinal)
+                {
+                    switch (arguments[parameter.Ordinal])
+                    {
+                        case ArgumentSyntax argument:
+                            if (argument.NameColon is null)
+                            {
+                                ConvertExpression(model, argument.Expression);
+                                continue;
+                            }
+                            break;
+                        case ExpressionSyntax ex:
+                            ConvertExpression(model, ex);
+                            continue;
+                        default:
+                            throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[parameter.Ordinal]}");
+                    }
+                }
+                Push(parameter.ExplicitDefaultValue);
+            }
+        }
+    }
+
+    private Instruction IsType(VM.Types.StackItemType type)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = OpCode.ISTYPE,
+            Operand = new[] { (byte)type }
+        });
+    }
+
+    private Instruction ChangeType(VM.Types.StackItemType type)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = OpCode.CONVERT,
+            Operand = new[] { (byte)type }
+        });
+    }
+
+    private void InitializeFieldForObject(SemanticModel model, IFieldSymbol field, InitializerExpressionSyntax? initializer)
+    {
+        ExpressionSyntax? expression = null;
+        if (initializer is not null)
+        {
+            foreach (ExpressionSyntax e in initializer.Expressions)
+            {
+                if (e is not AssignmentExpressionSyntax ae)
+                    throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                if (SymbolEqualityComparer.Default.Equals(field, ModelExtensions.GetSymbolInfo(model, ae.Left).Symbol))
+                {
+                    expression = ae.Right;
+                    break;
+                }
+            }
+        }
+        if (expression is null)
+            PushDefault(field.Type);
+        else
+            ConvertExpression(model, expression);
+    }
+
+    private void CreateObject(SemanticModel model, ITypeSymbol type, InitializerExpressionSyntax? initializer)
+    {
+        ISymbol[] members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+        IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
+        if (fields.Length == 0 || type.IsValueType || type.IsRecord)
+        {
+            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+            foreach (IFieldSymbol field in fields)
+            {
+                AddInstruction(OpCode.DUP);
+                InitializeFieldForObject(model, field, initializer);
+                AddInstruction(OpCode.APPEND);
+            }
+        }
+        else
+        {
+            for (int i = fields.Length - 1; i >= 0; i--)
+                InitializeFieldForObject(model, fields[i], initializer);
+            Push(fields.Length);
+            AddInstruction(OpCode.PACK);
+        }
+        IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+        if (!type.IsRecord && virtualMethods.Length > 0)
+        {
+            byte index = _context.AddVTable(type);
+            AddInstruction(OpCode.DUP);
+            AccessSlot(OpCode.LDSFLD, index);
+            AddInstruction(OpCode.APPEND);
+        }
+    }
+
+    private Instruction Jump(OpCode opcode, JumpTarget target)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = opcode,
+            Target = target
+        });
+    }
+
+    /// <summary>
+    /// Convert a throw expression or throw statement to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about the Throw.</param>
+    /// <param name="exception">The content of exception</param>
+    /// <exception cref="CompilationException">Only a single parameter is supported for exceptions.</exception>
+    /// <example>
+    /// throw statement:
+    /// <code>
+    /// if (shapeAmount <= 0)
+    /// {
+    ///     throw new Exception("Amount of shapes must be positive.");
+    /// }
+    ///</code>
+    /// throw expression:
+    /// <code>
+    /// string a = null;
+    /// var b = a ?? throw new Exception();
+    /// </code>
+    /// <code>
+    /// var first = args.Length >= 1 ? args[0] : throw new Exception();
+    /// </code>
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-throw-expression">The throw expression</seealso>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-try-catch-statement">Exception-handling statements - throw</seealso>
+    private void Throw(SemanticModel model, ExpressionSyntax? exception)
+    {
+        if (exception is not null)
+        {
+            ITypeSymbol type = ModelExtensions.GetTypeInfo(model, exception).Type!;
+            if (type.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.UncatchableException), includeThisClass: true))
+            {
+                AddInstruction(OpCode.ABORT);
+                return;
+            }
+        }
+        switch (exception)
+        {
+            case ObjectCreationExpressionSyntax expression:
+                switch (expression.ArgumentList?.Arguments.Count)
+                {
+                    case null:
+                    case 0:
+                        Push("exception");
+                        break;
+                    case 1:
+                        ConvertExpression(model, expression.ArgumentList.Arguments[0].Expression);
+                        break;
+                    default:
+                        throw new CompilationException(expression, DiagnosticId.MultiplyThrows, "Only a single parameter is supported for exceptions.");
+                }
+                break;
+            case null:
+                AccessSlot(OpCode.LDLOC, _exceptionStack.Peek());
+                break;
+            default:
+                ConvertExpression(model, exception);
+                break;
+        }
+        AddInstruction(OpCode.THROW);
+    }
+    #endregion
+}

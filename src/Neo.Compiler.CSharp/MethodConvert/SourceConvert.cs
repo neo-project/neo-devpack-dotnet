@@ -89,14 +89,16 @@ partial class MethodConvert
             default:
                 throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
         }
-        _initslot = !_inline;
+        // Set _initslot to true for non-inline methods
+        // This ensures that regular methods will have the INITSLOT instruction added
+        _initSlot = !_inline;
     }
 
     private void ConvertDefaultRecordConstruct(RecordDeclarationSyntax recordDeclarationSyntax)
     {
         if (Symbol.MethodKind == MethodKind.Constructor && Symbol.ContainingType.IsRecord)
         {
-            _initslot = true;
+            _initSlot = true;
             IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
             for (byte i = 1; i <= fields.Length; i++)
             {
