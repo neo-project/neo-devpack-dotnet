@@ -189,86 +189,128 @@ partial class MethodConvert
 
     private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
+        // 1. Process named arguments
+        var namedArguments = ProcessNamedArguments(model, arguments);
 
+        // 2. Determine parameter order based on calling convention
+        IEnumerable<IParameterSymbol> parameters = DetermineParameterOrder(symbol, callingConvention);
+
+        // 3. Process each parameter
+        foreach (IParameterSymbol parameter in parameters)
+        {
+            if (TryProcessNamedArgument(model, namedArguments, parameter))
+                continue;
+
+            if (parameter.IsParams)
+            {
+                ProcessParamsArgument(model, arguments, parameter);
+            }
+            else
+            {
+                ProcessRegularArgument(model, arguments, parameter);
+            }
+        }
+    }
+
+    // Helper methods
+
+    private Dictionary<IParameterSymbol, ExpressionSyntax> ProcessNamedArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments)
+    {
         // NameColon is not null means the argument is a named argument
         // so we need to get the parameter symbol and the expression
         // and put them into a dictionary
-        var namedArguments = arguments.OfType<ArgumentSyntax>()
+       return arguments.OfType<ArgumentSyntax>()
             .Where(p => p.NameColon is not null)
             .Select(p => (Symbol: (IParameterSymbol)ModelExtensions.GetSymbolInfo(model, p.NameColon!.Name).Symbol!, p.Expression))
             .ToDictionary(p =>
                 p.Symbol,
                 p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
+    }
 
-        IEnumerable<IParameterSymbol> parameters = symbol.Parameters;
-        if (callingConvention == CallingConvention.Cdecl)
-            parameters = parameters.Reverse();
-        foreach (IParameterSymbol parameter in parameters)
+    private IEnumerable<IParameterSymbol> DetermineParameterOrder(IMethodSymbol symbol, CallingConvention callingConvention)
+    {
+        return callingConvention == CallingConvention.Cdecl ? symbol.Parameters.Reverse() : symbol.Parameters;
+    }
+
+    private bool TryProcessNamedArgument(SemanticModel model, Dictionary<IParameterSymbol, ExpressionSyntax> namedArguments, IParameterSymbol parameter)
+    {
+        if (namedArguments.TryGetValue(parameter, out ExpressionSyntax? expression))
         {
-            if (namedArguments.TryGetValue(parameter, out ExpressionSyntax? expression))
+            ConvertExpression(model, expression);
+            return true;
+        }
+        return false;
+    }
+
+    private void ProcessParamsArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    {
+        if (arguments.Count > parameter.Ordinal)
+        {
+            if (TryProcessSingleParamsArgument(model, arguments, parameter))
+                return;
+
+            ProcessMultipleParamsArguments(model, arguments, parameter);
+        }
+        else
+        {
+            AddInstruction(OpCode.NEWARRAY0);
+        }
+    }
+
+    private bool TryProcessSingleParamsArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    {
+        if (arguments.Count == parameter.Ordinal + 1)
+        {
+            var expression = ExtractExpression(arguments[parameter.Ordinal]);
+            Conversion conversion = model.ClassifyConversion(expression, parameter.Type);
+            if (conversion.Exists)
             {
                 ConvertExpression(model, expression);
-            }
-            else if (parameter.IsParams)
-            {
-                if (arguments.Count > parameter.Ordinal)
-                {
-                    if (arguments.Count == parameter.Ordinal + 1)
-                    {
-                        expression = arguments[parameter.Ordinal] switch
-                        {
-                            ArgumentSyntax argument => argument.Expression,
-                            ExpressionSyntax exp => exp,
-                            _ => throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[parameter.Ordinal]}"),
-                        };
-                        Conversion conversion = model.ClassifyConversion(expression, parameter.Type);
-                        if (conversion.Exists)
-                        {
-                            ConvertExpression(model, expression);
-                            continue;
-                        }
-                    }
-                    for (int i = arguments.Count - 1; i >= parameter.Ordinal; i--)
-                    {
-                        expression = arguments[i] switch
-                        {
-                            ArgumentSyntax argument => argument.Expression,
-                            ExpressionSyntax exp => exp,
-                            _ => throw new CompilationException(arguments[i], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[i]}"),
-                        };
-                        ConvertExpression(model, expression);
-                    }
-                    Push(arguments.Count - parameter.Ordinal);
-                    AddInstruction(OpCode.PACK);
-                }
-                else
-                {
-                    AddInstruction(OpCode.NEWARRAY0);
-                }
-            }
-            else
-            {
-                if (arguments.Count > parameter.Ordinal)
-                {
-                    switch (arguments[parameter.Ordinal])
-                    {
-                        case ArgumentSyntax argument:
-                            if (argument.NameColon is null)
-                            {
-                                ConvertExpression(model, argument.Expression);
-                                continue;
-                            }
-                            break;
-                        case ExpressionSyntax ex:
-                            ConvertExpression(model, ex);
-                            continue;
-                        default:
-                            throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {arguments[parameter.Ordinal]}");
-                    }
-                }
-                Push(parameter.ExplicitDefaultValue);
+                return true;
             }
         }
+        return false;
+    }
+
+    private void ProcessMultipleParamsArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    {
+        for (int i = arguments.Count - 1; i >= parameter.Ordinal; i--)
+        {
+            var expression = ExtractExpression(arguments[i]);
+            ConvertExpression(model, expression);
+        }
+        Push(arguments.Count - parameter.Ordinal);
+        AddInstruction(OpCode.PACK);
+    }
+
+    private void ProcessRegularArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    {
+        if (arguments.Count > parameter.Ordinal)
+        {
+            var argument = arguments[parameter.Ordinal];
+            switch (argument)
+            {
+                case ArgumentSyntax arg when arg.NameColon is null:
+                    ConvertExpression(model, arg.Expression);
+                    return;
+                case ExpressionSyntax ex:
+                    ConvertExpression(model, ex);
+                    return;
+                default:
+                    throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {argument}");
+            }
+        }
+        Push(parameter.ExplicitDefaultValue);
+    }
+
+    private ExpressionSyntax ExtractExpression(SyntaxNode node)
+    {
+        return node switch
+        {
+            ArgumentSyntax argument => argument.Expression,
+            ExpressionSyntax exp => exp,
+            _ => throw new CompilationException(node, DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {node}"),
+        };
     }
 
     private Instruction IsType(VM.Types.StackItemType type)
