@@ -219,12 +219,12 @@ partial class MethodConvert
         // NameColon is not null means the argument is a named argument
         // so we need to get the parameter symbol and the expression
         // and put them into a dictionary
-       return arguments.OfType<ArgumentSyntax>()
-            .Where(p => p.NameColon is not null)
-            .Select(p => (Symbol: (IParameterSymbol)ModelExtensions.GetSymbolInfo(model, p.NameColon!.Name).Symbol!, p.Expression))
-            .ToDictionary(p =>
-                p.Symbol,
-                p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
+        return arguments.OfType<ArgumentSyntax>()
+             .Where(p => p.NameColon is not null)
+             .Select(p => (Symbol: (IParameterSymbol)ModelExtensions.GetSymbolInfo(model, p.NameColon!.Name).Symbol!, p.Expression))
+             .ToDictionary(p =>
+                 p.Symbol,
+                 p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
     }
 
     private IEnumerable<IParameterSymbol> DetermineParameterOrder(IMethodSymbol symbol, CallingConvention callingConvention)
