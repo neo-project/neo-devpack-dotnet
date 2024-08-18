@@ -176,15 +176,23 @@ internal partial class MethodConvert
         // 3. Process each parameter
         foreach (var parameter in parameters)
         {
+            // a. Named Arguments
+            // Example: MethodCall(paramName: value)
             if (TryProcessNamedArgument(model, namedArguments, parameter))
                 continue;
 
             if (parameter.IsParams)
             {
+                // b. Params Arguments
+                // Example: MethodCall(1, 2, 3, 4, 5)
+                // Where method signature is: void MethodCall(params int[] numbers)
                 ProcessParamsArgument(model, arguments, parameter);
             }
             else
             {
+                // c. Regular Arguments
+                // Example: MethodCall(42, "Hello")
+                // Where method signature is: void MethodCall(int num, string message)
                 ProcessRegularArgument(model, arguments, parameter);
             }
         }
