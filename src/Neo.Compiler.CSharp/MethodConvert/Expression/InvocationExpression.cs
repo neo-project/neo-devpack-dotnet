@@ -83,10 +83,7 @@ internal partial class MethodConvert
                 CallMethodWithInstanceExpression(model, symbol, null, arguments);
                 break;
             case MemberAccessExpressionSyntax syntax:
-                if (symbol.IsStatic)
-                    CallMethodWithInstanceExpression(model, symbol, null, arguments);
-                else
-                    CallMethodWithInstanceExpression(model, symbol, syntax.Expression, arguments);
+                CallMethodWithInstanceExpression(model, symbol, symbol.IsStatic ? null : syntax.Expression, arguments);
                 break;
             case MemberBindingExpressionSyntax:
                 CallInstanceMethod(model, symbol, true, arguments);

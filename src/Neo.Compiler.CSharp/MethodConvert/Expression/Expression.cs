@@ -197,13 +197,12 @@ internal partial class MethodConvert
         }
     }
 
-    private ITypeSymbol? GetTypeSymbol(SyntaxNode? syntaxNode, SemanticModel model)
+    private static ITypeSymbol? GetTypeSymbol(SyntaxNode? syntaxNode, SemanticModel model)
     {
         return syntaxNode switch
         {
-            VariableDeclaratorSyntax variableDeclarator
-                when variableDeclarator.Parent is VariableDeclarationSyntax declaration
-                    => ModelExtensions.GetTypeInfo(model, declaration.Type).Type,
+            VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax declaration }
+                => ModelExtensions.GetTypeInfo(model, declaration.Type).Type,
             PropertyDeclarationSyntax propertyDeclaration
                 => ModelExtensions.GetTypeInfo(model, propertyDeclaration.Type).Type,
             _ => null
@@ -230,7 +229,7 @@ internal partial class MethodConvert
             : strValue.ToScriptHash(_context.Options.AddressVersion)).ToArray();
     }
 
-    private byte[] ConvertToUInt256(string strValue, ExpressionSyntax syntax)
+    private static byte[] ConvertToUInt256(string strValue, ExpressionSyntax syntax)
     {
         var value = strValue.HexToBytes(true);
         if (value.Length != 32)
@@ -238,7 +237,7 @@ internal partial class MethodConvert
         return value;
     }
 
-    private byte[] ConvertToECPoint(string strValue)
+    private static byte[] ConvertToECPoint(string strValue)
     {
         return ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
     }
