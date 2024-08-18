@@ -73,8 +73,8 @@ namespace Neo.Compiler
         public IReadOnlyList<Instruction> Instructions => _instructions;
         public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
         public bool IsEmpty => _instructions.Count == 0
-            || (_instructions.Count == 1 && _instructions[^1].OpCode == OpCode.RET)
-            || (_instructions.Count == 2 && _instructions[^1].OpCode == OpCode.RET && _instructions[0].OpCode == OpCode.INITSLOT);
+            || _instructions is [{ OpCode: OpCode.RET }]
+            || _instructions is [{ OpCode: OpCode.INITSLOT }, { OpCode: OpCode.RET }];
 
         /// <summary>
         /// captured local variable/parameter symbols when converting current method

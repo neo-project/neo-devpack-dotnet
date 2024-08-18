@@ -214,7 +214,7 @@ partial class MethodConvert
 
     // Helper methods
 
-    private Dictionary<IParameterSymbol, ExpressionSyntax> ProcessNamedArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments)
+    private static Dictionary<IParameterSymbol, ExpressionSyntax> ProcessNamedArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments)
     {
         // NameColon is not null means the argument is a named argument
         // so we need to get the parameter symbol and the expression
@@ -227,7 +227,7 @@ partial class MethodConvert
                  p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
     }
 
-    private IEnumerable<IParameterSymbol> DetermineParameterOrder(IMethodSymbol symbol, CallingConvention callingConvention)
+    private static IEnumerable<IParameterSymbol> DetermineParameterOrder(IMethodSymbol symbol, CallingConvention callingConvention)
     {
         return callingConvention == CallingConvention.Cdecl ? symbol.Parameters.Reverse() : symbol.Parameters;
     }
