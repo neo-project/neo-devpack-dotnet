@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// This method converts an array element or indexer access ([]) expression to OpCodes.

@@ -30,7 +30,7 @@ using System.Runtime.InteropServices;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         #region Fields
 

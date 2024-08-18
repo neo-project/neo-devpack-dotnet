@@ -17,7 +17,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// This method converts a null-conditional access expression to OpCodes.

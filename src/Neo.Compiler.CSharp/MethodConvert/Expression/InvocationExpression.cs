@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Converts Invocation, include method invocation, event invocation and delegate invocation to OpCodes.
@@ -105,12 +105,12 @@ partial class MethodConvert
     /// <example>
     /// <code>
     /// public delegate int MyDelegate(int x, int y);
-    /// 
+    ///
     /// static int CalculateSum(int x, int y)
     /// {
     ///     return x + y;
     /// }
-    /// 
+    ///
     /// public void MyMethod()
     /// {
     ///     MyDelegate myDelegate = CalculateSum;

@@ -18,7 +18,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private void ConvertCollectionExpression(SemanticModel model, CollectionExpressionSyntax expression)
     {

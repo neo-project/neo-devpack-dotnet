@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a 'switch' statement into a set of conditional jump instructions and targets.

@@ -18,7 +18,7 @@ using System.Numerics;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private void Push(bool value)
     {

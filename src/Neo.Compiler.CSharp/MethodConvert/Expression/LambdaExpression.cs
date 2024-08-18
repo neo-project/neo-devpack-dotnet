@@ -14,13 +14,13 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Convert a simple lambda expression to a method call
     /// </summary>
     /// <param name="model">The semantic model of the method</param>
-    /// <param name="expression">The lambda expression to convert</param>  
+    /// <param name="expression">The lambda expression to convert</param>
     /// <example>
     /// <code>
     /// public void MyMethod()
@@ -66,7 +66,7 @@ partial class MethodConvert
         if (mc.CapturedLocalSymbols.Count <= 0) return;
         foreach (var local in mc.CapturedLocalSymbols)
         {
-            //copy captured local variable/parameter value to related static fields
+            // copy captured local variable/parameter value to related static fields
             var staticFieldIndex = _context.GetOrAddCapturedStaticField(local);
             switch (local)
             {

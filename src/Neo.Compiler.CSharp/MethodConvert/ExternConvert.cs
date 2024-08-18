@@ -22,7 +22,7 @@ using System.Text;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private void ConvertExtern()
     {

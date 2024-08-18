@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Converts the code for null-coalescing assignment expression into OpCodes.

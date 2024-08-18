@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 
 extern alias scfx;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
 
     #region Instructions

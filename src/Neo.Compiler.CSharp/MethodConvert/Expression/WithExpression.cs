@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Convert record with expression: record with{...InitializerExpression}

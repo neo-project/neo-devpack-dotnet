@@ -15,7 +15,7 @@ using Neo.VM;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a 'try-catch-finally' statement into a set of instructions for exception handling.

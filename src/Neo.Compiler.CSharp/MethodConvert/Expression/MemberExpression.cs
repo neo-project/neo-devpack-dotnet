@@ -18,7 +18,7 @@ using System;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// This method converts a member access expression to OpCodes.

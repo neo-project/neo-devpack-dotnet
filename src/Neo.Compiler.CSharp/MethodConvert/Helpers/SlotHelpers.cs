@@ -17,18 +17,19 @@ using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.VM;
+using scfx::Neo.SmartContract.Framework;
+using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
 
     #region Variables
 
     private byte AddLocalVariable(ILocalSymbol symbol)
     {
-        byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+        var index = (byte)(_localVariables.Count + _anonymousVariables.Count);
         _variableSymbols.Add((symbol, index));
         _localVariables.Add(symbol, index);
         if (_localsCount < index + 1)
@@ -39,7 +40,7 @@ partial class MethodConvert
 
     private byte AddAnonymousVariable()
     {
-        byte index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+        var index = (byte)(_localVariables.Count + _anonymousVariables.Count);
         _anonymousVariables.Add(index);
         if (_localsCount < index + 1)
             _localsCount = index + 1;
@@ -82,7 +83,7 @@ partial class MethodConvert
             return AccessSlot(OpCode.LDSFLD, staticIndex);
         }
         // local parameter in current method
-        byte index = _parameters[parameter];
+        var index = _parameters[parameter];
         return AccessSlot(OpCode.LDARG, index);
     }
 
@@ -106,7 +107,7 @@ partial class MethodConvert
             return AccessSlot(OpCode.STSFLD, staticIndex);
         }
         // local parameter in current method
-        byte index = _parameters[parameter];
+        var index = _parameters[parameter];
         return AccessSlot(OpCode.STARG, index);
     }
 
@@ -125,12 +126,12 @@ partial class MethodConvert
         if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
         {
             //create static fields from captured local
-            byte staticIndex = _context.GetOrAddCapturedStaticField(local);
+            var staticIndex = _context.GetOrAddCapturedStaticField(local);
             CapturedLocalSymbols.Add(local);
             return AccessSlot(OpCode.LDSFLD, staticIndex);
         }
         // local variables in current method
-        byte index = _localVariables[local];
+        var index = _localVariables[local];
         return AccessSlot(OpCode.LDLOC, index);
     }
 
@@ -149,11 +150,11 @@ partial class MethodConvert
         if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
         {
             //create static fields from captured local
-            byte staticIndex = _context.GetOrAddCapturedStaticField(local);
+            var staticIndex = _context.GetOrAddCapturedStaticField(local);
             CapturedLocalSymbols.Add(local);
             return AccessSlot(OpCode.STSFLD, staticIndex);
         }
-        byte index = _localVariables[local];
+        var index = _localVariables[local];
         return AccessSlot(OpCode.STLOC, index);
     }
 
@@ -181,7 +182,7 @@ partial class MethodConvert
 
         using (InsertSequencePoint(syntax))
         {
-            if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+            if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments);
             if (syntax.Body != null) ConvertStatement(model, syntax.Body);
         }
         return true;
@@ -193,10 +194,10 @@ partial class MethodConvert
         var namedArguments = ProcessNamedArguments(model, arguments);
 
         // 2. Determine parameter order based on calling convention
-        IEnumerable<IParameterSymbol> parameters = DetermineParameterOrder(symbol, callingConvention);
+        var parameters = DetermineParameterOrder(symbol, callingConvention);
 
         // 3. Process each parameter
-        foreach (IParameterSymbol parameter in parameters)
+        foreach (var parameter in parameters)
         {
             if (TryProcessNamedArgument(model, namedArguments, parameter))
                 continue;
@@ -234,12 +235,9 @@ partial class MethodConvert
 
     private bool TryProcessNamedArgument(SemanticModel model, Dictionary<IParameterSymbol, ExpressionSyntax> namedArguments, IParameterSymbol parameter)
     {
-        if (namedArguments.TryGetValue(parameter, out ExpressionSyntax? expression))
-        {
-            ConvertExpression(model, expression);
-            return true;
-        }
-        return false;
+        if (!namedArguments.TryGetValue(parameter, out var expression)) return false;
+        ConvertExpression(model, expression);
+        return true;
     }
 
     private void ProcessParamsArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
@@ -259,17 +257,12 @@ partial class MethodConvert
 
     private bool TryProcessSingleParamsArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
     {
-        if (arguments.Count == parameter.Ordinal + 1)
-        {
-            var expression = ExtractExpression(arguments[parameter.Ordinal]);
-            Conversion conversion = model.ClassifyConversion(expression, parameter.Type);
-            if (conversion.Exists)
-            {
-                ConvertExpression(model, expression);
-                return true;
-            }
-        }
-        return false;
+        if (arguments.Count != parameter.Ordinal + 1) return false;
+        var expression = ExtractExpression(arguments[parameter.Ordinal]);
+        var conversion = model.ClassifyConversion(expression, parameter.Type);
+        if (!conversion.Exists) return false;
+        ConvertExpression(model, expression);
+        return true;
     }
 
     private void ProcessMultipleParamsArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
@@ -290,7 +283,7 @@ partial class MethodConvert
             var argument = arguments[parameter.Ordinal];
             switch (argument)
             {
-                case ArgumentSyntax arg when arg.NameColon is null:
+                case ArgumentSyntax { NameColon: null } arg:
                     ConvertExpression(model, arg.Expression);
                     return;
                 case ExpressionSyntax ex:
@@ -303,7 +296,7 @@ partial class MethodConvert
         Push(parameter.ExplicitDefaultValue);
     }
 
-    private ExpressionSyntax ExtractExpression(SyntaxNode node)
+    private static ExpressionSyntax ExtractExpression(SyntaxNode node)
     {
         return node switch
         {
@@ -318,7 +311,7 @@ partial class MethodConvert
         return AddInstruction(new Instruction
         {
             OpCode = OpCode.ISTYPE,
-            Operand = new[] { (byte)type }
+            Operand = [(byte)type]
         });
     }
 
@@ -327,7 +320,7 @@ partial class MethodConvert
         return AddInstruction(new Instruction
         {
             OpCode = OpCode.CONVERT,
-            Operand = new[] { (byte)type }
+            Operand = [(byte)type]
         });
     }
 
@@ -336,7 +329,7 @@ partial class MethodConvert
         ExpressionSyntax? expression = null;
         if (initializer is not null)
         {
-            foreach (ExpressionSyntax e in initializer.Expressions)
+            foreach (var e in initializer.Expressions)
             {
                 if (e is not AssignmentExpressionSyntax ae)
                     throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
@@ -355,12 +348,12 @@ partial class MethodConvert
 
     private void CreateObject(SemanticModel model, ITypeSymbol type, InitializerExpressionSyntax? initializer)
     {
-        ISymbol[] members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
-        IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
+        var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+        var fields = members.OfType<IFieldSymbol>().ToArray();
         if (fields.Length == 0 || type.IsValueType || type.IsRecord)
         {
             AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
-            foreach (IFieldSymbol field in fields)
+            foreach (var field in fields)
             {
                 AddInstruction(OpCode.DUP);
                 InitializeFieldForObject(model, field, initializer);
@@ -374,14 +367,12 @@ partial class MethodConvert
             Push(fields.Length);
             AddInstruction(OpCode.PACK);
         }
-        IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        if (!type.IsRecord && virtualMethods.Length > 0)
-        {
-            byte index = _context.AddVTable(type);
-            AddInstruction(OpCode.DUP);
-            AccessSlot(OpCode.LDSFLD, index);
-            AddInstruction(OpCode.APPEND);
-        }
+        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+        if (type.IsRecord || virtualMethods.Length <= 0) return;
+        var index = _context.AddVTable(type);
+        AddInstruction(OpCode.DUP);
+        AccessSlot(OpCode.LDSFLD, index);
+        AddInstruction(OpCode.APPEND);
     }
 
     private Instruction Jump(OpCode opcode, JumpTarget target)
@@ -422,8 +413,8 @@ partial class MethodConvert
     {
         if (exception is not null)
         {
-            ITypeSymbol type = ModelExtensions.GetTypeInfo(model, exception).Type!;
-            if (type.IsSubclassOf(nameof(scfx::Neo.SmartContract.Framework.UncatchableException), includeThisClass: true))
+            var type = ModelExtensions.GetTypeInfo(model, exception).Type!;
+            if (type.IsSubclassOf(nameof(UncatchableException), includeThisClass: true))
             {
                 AddInstruction(OpCode.ABORT);
                 return;

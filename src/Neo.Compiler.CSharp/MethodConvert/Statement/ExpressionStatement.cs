@@ -15,7 +15,7 @@ using Neo.VM;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts an expression statement into OpCodes.
