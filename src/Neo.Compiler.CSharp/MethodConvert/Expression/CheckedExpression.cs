@@ -16,13 +16,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// The checked and unchecked statements specify the overflow-checking context for integral-type arithmetic operations and conversions.
     /// When integer arithmetic overflow occurs, the overflow-checking context defines what happens.
     /// In a checked context, a System.OverflowException is thrown;
-    /// if overflow happens in a constant expression, a compile-time error occurs. 
+    /// if overflow happens in a constant expression, a compile-time error occurs.
     /// </summary>
     /// <param name="model">The semantic model providing context and information about checked and unchecked statement.</param>
     /// <param name="expression">The syntax representation of the checked and unchecked statement being converted.</param>

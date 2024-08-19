@@ -16,7 +16,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Convet declaration pattern to OpCodes.

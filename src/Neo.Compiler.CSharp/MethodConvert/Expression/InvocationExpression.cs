@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Converts Invocation, include method invocation, event invocation and delegate invocation to OpCodes.
@@ -83,10 +83,7 @@ partial class MethodConvert
                 CallMethodWithInstanceExpression(model, symbol, null, arguments);
                 break;
             case MemberAccessExpressionSyntax syntax:
-                if (symbol.IsStatic)
-                    CallMethodWithInstanceExpression(model, symbol, null, arguments);
-                else
-                    CallMethodWithInstanceExpression(model, symbol, syntax.Expression, arguments);
+                CallMethodWithInstanceExpression(model, symbol, symbol.IsStatic ? null : syntax.Expression, arguments);
                 break;
             case MemberBindingExpressionSyntax:
                 CallInstanceMethod(model, symbol, true, arguments);
@@ -105,12 +102,12 @@ partial class MethodConvert
     /// <example>
     /// <code>
     /// public delegate int MyDelegate(int x, int y);
-    /// 
+    ///
     /// static int CalculateSum(int x, int y)
     /// {
     ///     return x + y;
     /// }
-    /// 
+    ///
     /// public void MyMethod()
     /// {
     ///     MyDelegate myDelegate = CalculateSum;

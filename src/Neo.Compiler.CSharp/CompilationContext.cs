@@ -539,9 +539,9 @@ namespace Neo.Compiler
 
         internal byte GetOrAddCapturedStaticField(ISymbol local)
         {
-            if (_capturedStaticFields.ContainsKey(local))
+            if (_capturedStaticFields.TryGetValue(local, out var field))
             {
-                return _capturedStaticFields[local];
+                return field;
             }
             byte index = (byte)StaticFieldCount;
             _anonymousStaticFields.Add(index);
@@ -549,7 +549,7 @@ namespace Neo.Compiler
             return index;
         }
 
-        internal bool TryGetCaptruedStaticField(ISymbol local, out byte staticFieldIndex)
+        internal bool TryGetCapturedStaticField(ISymbol local, out byte staticFieldIndex)
         {
             return _capturedStaticFields.TryGetValue(local, out staticFieldIndex);
         }

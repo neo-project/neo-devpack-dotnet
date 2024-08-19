@@ -15,7 +15,7 @@ using System.Collections.Generic;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a block statement to OpCodes. This method is used for parsing

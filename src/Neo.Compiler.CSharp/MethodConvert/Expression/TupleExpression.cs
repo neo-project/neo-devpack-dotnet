@@ -16,7 +16,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Converts the code for tuple type into OpCodes.

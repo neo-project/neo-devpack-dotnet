@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private void ConvertNoBody(AccessorDeclarationSyntax syntax)
     {

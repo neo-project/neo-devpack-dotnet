@@ -16,7 +16,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Convet a binary pattern to OpCodes.
@@ -92,7 +92,7 @@ partial class MethodConvert
     /// Convet a "or" pattern to OpCodes.
     /// </summary>
     /// <remarks>
-    /// Disjunctive "or" pattern that matches an expression when either pattern matches the expression. 
+    /// Disjunctive "or" pattern that matches an expression when either pattern matches the expression.
     /// </remarks>
     /// <param name="model">The semantic model providing context and information about "or" pattern.</param>
     /// <param name="left">The left pattern to be converted.</param>
