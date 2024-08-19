@@ -60,7 +60,7 @@ internal partial class MethodConvert
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc);
     }
-    
+
     /// <summary>
     /// Convert captured local variables/parameters to static fields
     /// Assign values of captured local variables/parameters to related static fields
@@ -87,5 +87,4 @@ internal partial class MethodConvert
             AccessSlot(OpCode.STSFLD, staticFieldIndex);
         }
     }
-
 }
