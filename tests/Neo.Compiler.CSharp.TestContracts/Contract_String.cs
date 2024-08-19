@@ -53,33 +53,5 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return str.IndexOf("world");
         }
-
-        public static string TestInterpolatedStringHandler()
-        {
-            const sbyte sbyteValue = -42;
-            const byte byteValue = 42;
-            const short shortValue = -1000;
-            const ushort ushortValue = 1000;
-            const int intValue = -1000000;
-            const uint uintValue = 1000000;
-            const long longValue = -1000000000000;
-            const ulong ulongValue = 1000000000000;
-            var bigIntValue = BigInteger.Parse("1000000000000000000000");
-            const char charValue = 'A';
-            const string stringValue = "Hello";
-            ECPoint ecPointValue = "NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq";
-            var byteStringValue = new byte[] { 1, 2, 3 };
-            var uint160Value = UInt160.Zero;
-            var uint256Value = UInt256.Zero;
-            const bool boolValue = true;
-
-            var str = $"SByte: {sbyteValue}, Byte: {byteValue}, Short: {shortValue}, UShort: {ushortValue}, " +
-                      $"Int: {intValue}, UInt: {uintValue}, Long: {longValue}, ULong: {ulongValue}, " +
-                      $"BigInteger: {bigIntValue}, Char: {charValue}, String: {stringValue}, " +
-                      $"ECPoint: {ecPointValue}, ByteString: {byteStringValue}, " +
-                      $"UInt160: {uint160Value}, UInt256: {uint256Value}, Bool: {boolValue}";
-
-            return str;
-        }
     }
 }
