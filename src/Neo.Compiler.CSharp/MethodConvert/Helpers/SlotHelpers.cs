@@ -9,7 +9,7 @@
 // modifications are permitted.
 
 extern alias scfx;
-
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -73,7 +73,9 @@ internal partial class MethodConvert
             //using created static fields
             return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
         }
-        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter))
+
+        if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter)) ||
+            (Symbol.MethodKind == MethodKind.Ordinary && parameter.RefKind == RefKind.Out))
         {
             //create static fields from captured parameter
             var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
@@ -97,7 +99,9 @@ internal partial class MethodConvert
             //using created static fields
             return AccessSlot(OpCode.STSFLD, staticFieldIndex);
         }
-        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter))
+
+        if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter)) ||
+            (Symbol.MethodKind == MethodKind.Ordinary && parameter.RefKind == RefKind.Out))
         {
             //create static fields from captured parameter
             var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
@@ -121,7 +125,8 @@ internal partial class MethodConvert
             //using created static fields
             return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
         }
-        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
+        if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local)) ||
+            (Symbol.MethodKind == MethodKind.Ordinary && local.RefKind == RefKind.Out))
         {
             //create static fields from captured local
             var staticIndex = _context.GetOrAddCapturedStaticField(local);
@@ -145,7 +150,8 @@ internal partial class MethodConvert
             //using created static fields
             return AccessSlot(OpCode.STSFLD, staticFieldIndex);
         }
-        if (Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local))
+        if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local)) ||
+            (Symbol.MethodKind == MethodKind.Ordinary && local.RefKind == RefKind.Out))
         {
             //create static fields from captured local
             var staticIndex = _context.GetOrAddCapturedStaticField(local);
@@ -186,9 +192,16 @@ internal partial class MethodConvert
                 // Where method signature is: void MethodCall(params int[] numbers)
                 ProcessParamsArgument(model, arguments, parameter);
             }
+            else if (parameter.RefKind == RefKind.Out)
+            {
+                // c. Out Arguments
+                // Example: MethodCall(Out value)
+                // Where method signature is: void MethodCall(Out int value)
+                ProcessOutArgument(model, arguments, parameter);
+            }
             else
             {
-                // c. Regular Arguments
+                // d. Regular Arguments
                 // Example: MethodCall(42, "Hello")
                 // Where method signature is: void MethodCall(int num, string message)
                 ProcessRegularArgument(model, arguments, parameter);
@@ -257,6 +270,24 @@ internal partial class MethodConvert
         }
         Push(arguments.Count - parameter.Ordinal);
         AddInstruction(OpCode.PACK);
+    }
+
+    private void ProcessOutArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    {
+        try
+        {
+            var local = _context._outParamToLocal[parameter];
+            LdLocSlot(local);
+        }
+        catch
+        {
+            // check if the argument is a discard
+            var argument = arguments[parameter.Ordinal] as ArgumentSyntax;
+            if (argument.Expression is not IdentifierNameSyntax { Identifier: { ValueText: "_" } })
+                throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported,
+                    $"In method {Symbol.Name}, unsupported out argument: {arguments[parameter.Ordinal]}");
+            LdArgSlot(parameter);
+        }
     }
 
     private void ProcessRegularArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
