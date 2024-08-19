@@ -33,7 +33,7 @@ namespace Neo.Compiler
     /// This example demonstrates a throw statement that creates and throws a new exception
     /// with a specified error message.
     /// </example>
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         private void ConvertThrowStatement(SemanticModel model, ThrowStatementSyntax syntax)
         {

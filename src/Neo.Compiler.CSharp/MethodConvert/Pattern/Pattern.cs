@@ -15,7 +15,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Convert pattern to OpCodes.

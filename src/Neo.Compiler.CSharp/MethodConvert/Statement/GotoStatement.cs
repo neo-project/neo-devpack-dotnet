@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a 'goto' statement into a jump instruction. This method handles both simple
