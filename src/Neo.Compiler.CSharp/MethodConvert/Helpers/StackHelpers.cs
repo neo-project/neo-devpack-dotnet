@@ -20,30 +20,6 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-
-    private Instruction AddInstruction(Instruction instruction)
-    {
-        _instructions.Add(instruction);
-        return instruction;
-    }
-
-    private Instruction AddInstruction(OpCode opcode)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = opcode
-        });
-    }
-
-    private Instruction Jump(OpCode opcode, JumpTarget target)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = opcode,
-            Target = target
-        });
-    }
-
     private void Push(bool value)
     {
         AddInstruction(value ? OpCode.PUSHT : OpCode.PUSHF);
@@ -169,34 +145,8 @@ internal partial class MethodConvert
     {
         return AddInstruction(type.GetStackItemType() switch
         {
-            VM.Types.StackItemType.Boolean => OpCode.PUSHF,
-            VM.Types.StackItemType.Integer => OpCode.PUSH0,
-            VM.Types.StackItemType.ByteString => OpCode.PUSHDATA1,
-            VM.Types.StackItemType.Buffer => OpCode.PUSHNULL,
-            VM.Types.StackItemType.Array => OpCode.NEWARRAY0,
-            VM.Types.StackItemType.Struct => OpCode.NEWSTRUCT0,
-            VM.Types.StackItemType.Map => OpCode.NEWMAP,
-            VM.Types.StackItemType.InteropInterface => OpCode.PUSHNULL,
-            VM.Types.StackItemType.Pointer => OpCode.PUSHNULL,
+            VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
             _ => OpCode.PUSHNULL,
-        });
-    }
-
-    private Instruction IsType(VM.Types.StackItemType type)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = OpCode.ISTYPE,
-            Operand = [(byte)type]
-        });
-    }
-
-    private Instruction ChangeType(VM.Types.StackItemType type)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = OpCode.CONVERT,
-            Operand = [(byte)type]
         });
     }
 

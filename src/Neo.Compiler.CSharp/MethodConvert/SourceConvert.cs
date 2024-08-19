@@ -9,6 +9,7 @@
 // modifications are permitted.
 
 extern alias scfx;
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
@@ -48,7 +49,7 @@ internal partial class MethodConvert
                     // but the expression body has a return value, example: a+=1;
                     // drop the return value
                     // Problem:
-                    //   public void Test() => a+=1; // this will push an int value to the stack
+                    //   public void Test() => a+=1; // this will push a int value to the stack
                     //   public void Test() { a+=1; } // this will not push value to the stack
                     if (syntax is MethodDeclarationSyntax methodSyntax
                         && methodSyntax.ReturnType.ToString() == "void"
@@ -88,7 +89,7 @@ internal partial class MethodConvert
             default:
                 throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
         }
-        // Set _initSlot to true for non-inline methods
+        // Set _initslot to true for non-inline methods
         // This ensures that regular methods will have the INITSLOT instruction added
         _initSlot = !_inline;
     }
@@ -118,19 +119,22 @@ internal partial class MethodConvert
     private static bool IsExpressionReturningValue(SemanticModel semanticModel, MethodDeclarationSyntax methodDeclaration)
     {
         // Check if it's a method declaration with an expression body
-        if (methodDeclaration is not { ExpressionBody: not null }) return false;
-        // Retrieve the expression from the expression body
-        var expression = methodDeclaration.ExpressionBody.Expression;
+        if (methodDeclaration is { ExpressionBody: not null } methodSyntax)
+        {
+            // Retrieve the expression from the expression body
+            var expression = methodSyntax.ExpressionBody.Expression;
 
-        // Use the semantic model to get the type information of the expression
-        var typeInfo = semanticModel.GetTypeInfo(expression);
+            // Use the semantic model to get the type information of the expression
+            var typeInfo = semanticModel.GetTypeInfo(expression);
 
-        // Check if the expression's type is not void, meaning the expression has a return value
-        return typeInfo.ConvertedType?.SpecialType != SpecialType.System_Void;
+            // Check if the expression's type is not void, meaning the expression has a return value
+            return typeInfo.ConvertedType?.SpecialType != SpecialType.System_Void;
+        }
 
         // For other types of BaseMethodDeclarationSyntax or cases without an expression body, default to no return value
+        return false;
     }
 
-    private static bool IsInstanceMethod(IMethodSymbol symbol) => !symbol.IsStatic && symbol.MethodKind != MethodKind.AnonymousFunction;
+    private bool IsInstanceMethod(IMethodSymbol symbol) => !symbol.IsStatic && symbol.MethodKind != MethodKind.AnonymousFunction;
 
 }

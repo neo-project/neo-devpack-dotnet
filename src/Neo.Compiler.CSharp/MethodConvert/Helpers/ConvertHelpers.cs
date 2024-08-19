@@ -50,6 +50,19 @@ internal partial class MethodConvert
     }
 
     #region Instructions
+    private Instruction AddInstruction(Instruction instruction)
+    {
+        _instructions.Add(instruction);
+        return instruction;
+    }
+
+    private Instruction AddInstruction(OpCode opcode)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = opcode
+        });
+    }
 
     private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
     {
@@ -64,68 +77,6 @@ internal partial class MethodConvert
     private SequencePointInserter InsertSequencePoint(Location? location)
     {
         return new SequencePointInserter(_instructions, location);
-    }
-
-    /// <summary>
-    /// Convert a throw expression or throw statement to OpCodes.
-    /// </summary>
-    /// <param name="model">The semantic model providing context and information about the Throw.</param>
-    /// <param name="exception">The content of exception</param>
-    /// <exception cref="CompilationException">Only a single parameter is supported for exceptions.</exception>
-    /// <example>
-    /// throw statement:
-    /// <code>
-    /// if (shapeAmount <= 0)
-    /// {
-    ///     throw new Exception("Amount of shapes must be positive.");
-    /// }
-    ///</code>
-    /// throw expression:
-    /// <code>
-    /// string a = null;
-    /// var b = a ?? throw new Exception();
-    /// </code>
-    /// <code>
-    /// var first = args.Length >= 1 ? args[0] : throw new Exception();
-    /// </code>
-    /// </example>
-    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-throw-expression">The throw expression</seealso>
-    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-try-catch-statement">Exception-handling statements - throw</seealso>
-    private void Throw(SemanticModel model, ExpressionSyntax? exception)
-    {
-        if (exception is not null)
-        {
-            var type = model.GetTypeInfo(exception).Type!;
-            if (type.IsSubclassOf(nameof(UncatchableException), includeThisClass: true))
-            {
-                AddInstruction(OpCode.ABORT);
-                return;
-            }
-        }
-        switch (exception)
-        {
-            case ObjectCreationExpressionSyntax expression:
-                switch (expression.ArgumentList?.Arguments.Count)
-                {
-                    case null:
-                    case 0:
-                        Push("exception");
-                        break;
-                    case 1:
-                        ConvertExpression(model, expression.ArgumentList.Arguments[0].Expression);
-                        break;
-                    default:
-                        throw new CompilationException(expression, DiagnosticId.MultiplyThrows, "Only a single parameter is supported for exceptions.");
-                }
-                break;
-            case null:
-                AccessSlot(OpCode.LDLOC, _exceptionStack.Peek());
-                break;
-            default:
-                ConvertExpression(model, exception);
-                break;
-        }
-        AddInstruction(OpCode.THROW);
     }
 
     #endregion
@@ -171,21 +122,23 @@ internal partial class MethodConvert
         }
 
         // Check if we need to add an INITSLOT instruction
-        if (!_initSlot) return;
-        byte pc = (byte)_parameters.Count;
-        byte lc = (byte)_localsCount;
-        if (IsInstanceMethod(Symbol)) pc++;
-        // Only add INITSLOT if we have local variables or parameters
-        if (pc > 0 || lc > 0)
+        if (_initSlot)
         {
-            // Insert INITSLOT at the beginning of the method
-            // lc: number of local variables
-            // pc: number of parameters (including 'this' for instance methods)
-            _instructions.Insert(0, new Instruction
+            byte pc = (byte)_parameters.Count;
+            byte lc = (byte)_localsCount;
+            if (IsInstanceMethod(Symbol)) pc++;
+            // Only add INITSLOT if we have local variables or parameters
+            if (pc > 0 || lc > 0)
             {
-                OpCode = OpCode.INITSLOT,
-                Operand = [lc, pc]
-            });
+                // Insert INITSLOT at the beginning of the method
+                // lc: number of local variables
+                // pc: number of parameters (including 'this' for instance methods)
+                _instructions.Insert(0, new Instruction
+                {
+                    OpCode = OpCode.INITSLOT,
+                    Operand = [lc, pc]
+                });
+            }
         }
     }
 
@@ -275,7 +228,7 @@ internal partial class MethodConvert
             {
                 if (e is not AssignmentExpressionSyntax ae)
                     throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
-                if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
+                if (SymbolEqualityComparer.Default.Equals(field, ModelExtensions.GetSymbolInfo(model, ae.Left).Symbol))
                 {
                     expression = ae.Right;
                     break;
@@ -315,5 +268,76 @@ internal partial class MethodConvert
         AddInstruction(OpCode.DUP);
         AccessSlot(OpCode.LDSFLD, index);
         AddInstruction(OpCode.APPEND);
+    }
+
+    private Instruction Jump(OpCode opcode, JumpTarget target)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = opcode,
+            Target = target
+        });
+    }
+
+    /// <summary>
+    /// Convert a throw expression or throw statement to OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about the Throw.</param>
+    /// <param name="exception">The content of exception</param>
+    /// <exception cref="CompilationException">Only a single parameter is supported for exceptions.</exception>
+    /// <example>
+    /// throw statement:
+    /// <code>
+    /// if (shapeAmount <= 0)
+    /// {
+    ///     throw new Exception("Amount of shapes must be positive.");
+    /// }
+    ///</code>
+    /// throw expression:
+    /// <code>
+    /// string a = null;
+    /// var b = a ?? throw new Exception();
+    /// </code>
+    /// <code>
+    /// var first = args.Length >= 1 ? args[0] : throw new Exception();
+    /// </code>
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-throw-expression">The throw expression</seealso>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-try-catch-statement">Exception-handling statements - throw</seealso>
+    private void Throw(SemanticModel model, ExpressionSyntax? exception)
+    {
+        if (exception is not null)
+        {
+            var type = model.GetTypeInfo(exception).Type!;
+            if (type.IsSubclassOf(nameof(UncatchableException), includeThisClass: true))
+            {
+                AddInstruction(OpCode.ABORT);
+                return;
+            }
+        }
+        switch (exception)
+        {
+            case ObjectCreationExpressionSyntax expression:
+                switch (expression.ArgumentList?.Arguments.Count)
+                {
+                    case null:
+                    case 0:
+                        Push("exception");
+                        break;
+                    case 1:
+                        ConvertExpression(model, expression.ArgumentList.Arguments[0].Expression);
+                        break;
+                    default:
+                        throw new CompilationException(expression, DiagnosticId.MultiplyThrows, "Only a single parameter is supported for exceptions.");
+                }
+                break;
+            case null:
+                AccessSlot(OpCode.LDLOC, _exceptionStack.Peek());
+                break;
+            default:
+                ConvertExpression(model, exception);
+                break;
+        }
+        AddInstruction(OpCode.THROW);
     }
 }

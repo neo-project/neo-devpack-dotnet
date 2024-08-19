@@ -12,13 +12,13 @@ extern alias scfx;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.IO;
 using Neo.SmartContract;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Akka.Util.Internal;
 
 namespace Neo.Compiler;
 

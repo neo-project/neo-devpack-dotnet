@@ -12,10 +12,12 @@ extern alias scfx;
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using scfx::Neo.SmartContract.Framework;
 using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Compiler;
@@ -287,6 +289,24 @@ internal partial class MethodConvert
             ExpressionSyntax exp => exp,
             _ => throw new CompilationException(node, DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {node}"),
         };
+    }
+
+    private Instruction IsType(VM.Types.StackItemType type)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = OpCode.ISTYPE,
+            Operand = [(byte)type]
+        });
+    }
+
+    private Instruction ChangeType(VM.Types.StackItemType type)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = OpCode.CONVERT,
+            Operand = [(byte)type]
+        });
     }
 
     #endregion
