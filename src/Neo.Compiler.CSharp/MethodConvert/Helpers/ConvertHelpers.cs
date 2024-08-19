@@ -89,23 +89,21 @@ internal partial class MethodConvert
         }
 
         // Check if we need to add an INITSLOT instruction
-        if (_initSlot)
+        if (!_initSlot) return;
+        byte pc = (byte)_parameters.Count;
+        byte lc = (byte)_localsCount;
+        if (IsInstanceMethod(Symbol)) pc++;
+        // Only add INITSLOT if we have local variables or parameters
+        if (pc > 0 || lc > 0)
         {
-            byte pc = (byte)_parameters.Count;
-            byte lc = (byte)_localsCount;
-            if (IsInstanceMethod(Symbol)) pc++;
-            // Only add INITSLOT if we have local variables or parameters
-            if (pc > 0 || lc > 0)
+            // Insert INITSLOT at the beginning of the method
+            // lc: number of local variables
+            // pc: number of parameters (including 'this' for instance methods)
+            _instructions.Insert(0, new Instruction
             {
-                // Insert INITSLOT at the beginning of the method
-                // lc: number of local variables
-                // pc: number of parameters (including 'this' for instance methods)
-                _instructions.Insert(0, new Instruction
-                {
-                    OpCode = OpCode.INITSLOT,
-                    Operand = [lc, pc]
-                });
-            }
+                OpCode = OpCode.INITSLOT,
+                Operand = [lc, pc]
+            });
         }
     }
 
