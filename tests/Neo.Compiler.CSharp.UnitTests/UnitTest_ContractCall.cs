@@ -11,7 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Alice.Account = UInt160.Parse("0102030405060708090A0102030405060708090A");
             var c1 = Engine.Deploy<Contract1>(Contract1.Nef, Contract1.Manifest);
-            Assert.AreEqual("0x54a484c3f3c4a46445a28dd70bc35f6cf917da60", c1.Hash.ToString());
+            Assert.AreEqual("0xd22c62a0b494ea87bdf7e7bccf393747f985cf79", c1.Hash.ToString());
         }
 
         [TestMethod]
