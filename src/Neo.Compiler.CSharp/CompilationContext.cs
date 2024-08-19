@@ -551,7 +551,6 @@ namespace Neo.Compiler
             return index;
         }
 
-
         internal bool TryGetCapturedStaticField(ISymbol local, out byte staticFieldIndex)
         {
             return _capturedStaticFields.TryGetValue(local, out staticFieldIndex);

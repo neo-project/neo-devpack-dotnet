@@ -274,7 +274,6 @@ internal partial class MethodConvert
             result.BreakTargetCount--;
     }
 
-
     /// <summary>
     /// Convert a throw expression or throw statement to OpCodes.
     /// </summary>

@@ -9,6 +9,7 @@
 // modifications are permitted.
 
 extern alias scfx;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -124,6 +125,7 @@ internal partial class MethodConvert
             //using created static fields
             return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
         }
+
         if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local)) ||
             (Symbol.MethodKind == MethodKind.Ordinary && local.RefKind == RefKind.Out))
         {
@@ -149,6 +151,7 @@ internal partial class MethodConvert
             //using created static fields
             return AccessSlot(OpCode.STSFLD, staticFieldIndex);
         }
+
         if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local)) ||
             (Symbol.MethodKind == MethodKind.Ordinary && local.RefKind == RefKind.Out))
         {
