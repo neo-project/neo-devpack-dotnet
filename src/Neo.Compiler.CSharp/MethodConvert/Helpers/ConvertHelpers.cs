@@ -24,7 +24,6 @@ extern alias scfx;
 
 internal partial class MethodConvert
 {
-
     private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
     {
         SyntaxNode? syntaxNode = null;
