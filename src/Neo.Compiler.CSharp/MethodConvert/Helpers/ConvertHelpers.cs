@@ -16,7 +16,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using scfx::Neo.SmartContract.Framework.Attributes;
-using scfx::Neo.SmartContract.Framework;
 using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Compiler;
@@ -48,38 +47,6 @@ internal partial class MethodConvert
         }
         return true;
     }
-
-    #region Instructions
-    private Instruction AddInstruction(Instruction instruction)
-    {
-        _instructions.Add(instruction);
-        return instruction;
-    }
-
-    private Instruction AddInstruction(OpCode opcode)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = opcode
-        });
-    }
-
-    private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
-    {
-        return new SequencePointInserter(_instructions, syntax);
-    }
-
-    private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
-    {
-        return new SequencePointInserter(_instructions, syntax);
-    }
-
-    private SequencePointInserter InsertSequencePoint(Location? location)
-    {
-        return new SequencePointInserter(_instructions, location);
-    }
-
-    #endregion
 
     // Helper methods
     private void InsertStaticFieldInitialization()
@@ -228,7 +195,7 @@ internal partial class MethodConvert
             {
                 if (e is not AssignmentExpressionSyntax ae)
                     throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
-                if (SymbolEqualityComparer.Default.Equals(field, ModelExtensions.GetSymbolInfo(model, ae.Left).Symbol))
+                if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
                 {
                     expression = ae.Right;
                     break;
@@ -268,76 +235,5 @@ internal partial class MethodConvert
         AddInstruction(OpCode.DUP);
         AccessSlot(OpCode.LDSFLD, index);
         AddInstruction(OpCode.APPEND);
-    }
-
-    private Instruction Jump(OpCode opcode, JumpTarget target)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = opcode,
-            Target = target
-        });
-    }
-
-    /// <summary>
-    /// Convert a throw expression or throw statement to OpCodes.
-    /// </summary>
-    /// <param name="model">The semantic model providing context and information about the Throw.</param>
-    /// <param name="exception">The content of exception</param>
-    /// <exception cref="CompilationException">Only a single parameter is supported for exceptions.</exception>
-    /// <example>
-    /// throw statement:
-    /// <code>
-    /// if (shapeAmount <= 0)
-    /// {
-    ///     throw new Exception("Amount of shapes must be positive.");
-    /// }
-    ///</code>
-    /// throw expression:
-    /// <code>
-    /// string a = null;
-    /// var b = a ?? throw new Exception();
-    /// </code>
-    /// <code>
-    /// var first = args.Length >= 1 ? args[0] : throw new Exception();
-    /// </code>
-    /// </example>
-    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-throw-expression">The throw expression</seealso>
-    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements#the-try-catch-statement">Exception-handling statements - throw</seealso>
-    private void Throw(SemanticModel model, ExpressionSyntax? exception)
-    {
-        if (exception is not null)
-        {
-            var type = model.GetTypeInfo(exception).Type!;
-            if (type.IsSubclassOf(nameof(UncatchableException), includeThisClass: true))
-            {
-                AddInstruction(OpCode.ABORT);
-                return;
-            }
-        }
-        switch (exception)
-        {
-            case ObjectCreationExpressionSyntax expression:
-                switch (expression.ArgumentList?.Arguments.Count)
-                {
-                    case null:
-                    case 0:
-                        Push("exception");
-                        break;
-                    case 1:
-                        ConvertExpression(model, expression.ArgumentList.Arguments[0].Expression);
-                        break;
-                    default:
-                        throw new CompilationException(expression, DiagnosticId.MultiplyThrows, "Only a single parameter is supported for exceptions.");
-                }
-                break;
-            case null:
-                AccessSlot(OpCode.LDLOC, _exceptionStack.Peek());
-                break;
-            default:
-                ConvertExpression(model, exception);
-                break;
-        }
-        AddInstruction(OpCode.THROW);
     }
 }

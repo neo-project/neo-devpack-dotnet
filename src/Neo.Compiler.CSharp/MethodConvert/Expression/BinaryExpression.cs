@@ -70,7 +70,7 @@ internal partial class MethodConvert
             return;
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
-        (OpCode opcode, bool checkResult) = expression.OperatorToken.ValueText switch
+        var (opcode, checkResult) = expression.OperatorToken.ValueText switch
         {
             "+" => (OpCode.ADD, true),
             "-" => (OpCode.SUB, true),
