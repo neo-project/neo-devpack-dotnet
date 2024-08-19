@@ -60,7 +60,12 @@ internal partial class MethodConvert
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc);
     }
-
+    
+    /// <summary>
+    /// Convert captured local variables/parameters to static fields
+    /// Assign values of captured local variables/parameters to related static fields
+    /// </summary>
+    /// <param name="mc">The method convert context</param>
     private void ConvertLocalToStaticFields(MethodConvert mc)
     {
         if (mc.CapturedLocalSymbols.Count <= 0) return;

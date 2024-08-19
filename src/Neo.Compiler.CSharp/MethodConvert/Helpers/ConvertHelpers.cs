@@ -12,9 +12,11 @@ extern alias scfx;
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using scfx::Neo.SmartContract.Framework.Attributes;
-using Neo.VM;
+using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Compiler;
 
@@ -23,37 +25,28 @@ extern alias scfx;
 internal partial class MethodConvert
 {
 
-    #region Instructions
-    private Instruction AddInstruction(Instruction instruction)
+    private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
     {
-        _instructions.Add(instruction);
-        return instruction;
-    }
+        SyntaxNode? syntaxNode = null;
+        if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+            syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
-    private Instruction AddInstruction(OpCode opcode)
-    {
-        return AddInstruction(new Instruction
+        if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
+        if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
+                                                                  && attribute.AttributeClass?.Name == nameof(MethodImplAttribute)
+                                                                  && attribute.ConstructorArguments[0].Value is not null
+                                                                  && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+            return false;
+
+        _internalInline = true;
+
+        using (InsertSequencePoint(syntax))
         {
-            OpCode = opcode
-        });
+            if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments);
+            if (syntax.Body != null) ConvertStatement(model, syntax.Body);
+        }
+        return true;
     }
-
-    private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
-    {
-        return new SequencePointInserter(_instructions, syntax);
-    }
-
-    private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
-    {
-        return new SequencePointInserter(_instructions, syntax);
-    }
-
-    private SequencePointInserter InsertSequencePoint(Location? location)
-    {
-        return new SequencePointInserter(_instructions, location);
-    }
-
-    #endregion
 
     // Helper methods
     private void InsertStaticFieldInitialization()
@@ -96,23 +89,21 @@ internal partial class MethodConvert
         }
 
         // Check if we need to add an INITSLOT instruction
-        if (_initSlot)
+        if (!_initSlot) return;
+        byte pc = (byte)_parameters.Count;
+        byte lc = (byte)_localsCount;
+        if (IsInstanceMethod(Symbol)) pc++;
+        // Only add INITSLOT if we have local variables or parameters
+        if (pc > 0 || lc > 0)
         {
-            byte pc = (byte)_parameters.Count;
-            byte lc = (byte)_localsCount;
-            if (IsInstanceMethod(Symbol)) pc++;
-            // Only add INITSLOT if we have local variables or parameters
-            if (pc > 0 || lc > 0)
+            // Insert INITSLOT at the beginning of the method
+            // lc: number of local variables
+            // pc: number of parameters (including 'this' for instance methods)
+            _instructions.Insert(0, new Instruction
             {
-                // Insert INITSLOT at the beginning of the method
-                // lc: number of local variables
-                // pc: number of parameters (including 'this' for instance methods)
-                _instructions.Insert(0, new Instruction
-                {
-                    OpCode = OpCode.INITSLOT,
-                    Operand = [lc, pc]
-                });
-            }
+                OpCode = OpCode.INITSLOT,
+                Operand = [lc, pc]
+            });
         }
     }
 
@@ -191,5 +182,56 @@ internal partial class MethodConvert
         var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
         EmitCall(exitMethod);
         return instruction;
+    }
+
+    private void InitializeFieldForObject(SemanticModel model, IFieldSymbol field, InitializerExpressionSyntax? initializer)
+    {
+        ExpressionSyntax? expression = null;
+        if (initializer is not null)
+        {
+            foreach (var e in initializer.Expressions)
+            {
+                if (e is not AssignmentExpressionSyntax ae)
+                    throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
+                {
+                    expression = ae.Right;
+                    break;
+                }
+            }
+        }
+        if (expression is null)
+            PushDefault(field.Type);
+        else
+            ConvertExpression(model, expression);
+    }
+
+    private void CreateObject(SemanticModel model, ITypeSymbol type, InitializerExpressionSyntax? initializer)
+    {
+        var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+        var fields = members.OfType<IFieldSymbol>().ToArray();
+        if (fields.Length == 0 || type.IsValueType || type.IsRecord)
+        {
+            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+            foreach (var field in fields)
+            {
+                AddInstruction(OpCode.DUP);
+                InitializeFieldForObject(model, field, initializer);
+                AddInstruction(OpCode.APPEND);
+            }
+        }
+        else
+        {
+            for (int i = fields.Length - 1; i >= 0; i--)
+                InitializeFieldForObject(model, fields[i], initializer);
+            Push(fields.Length);
+            AddInstruction(OpCode.PACK);
+        }
+        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+        if (type.IsRecord || virtualMethods.Length <= 0) return;
+        var index = _context.AddVTable(type);
+        AddInstruction(OpCode.DUP);
+        AccessSlot(OpCode.LDSFLD, index);
+        AddInstruction(OpCode.APPEND);
     }
 }

@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 extern alias scfx;
-using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
@@ -89,7 +88,7 @@ internal partial class MethodConvert
             default:
                 throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
         }
-        // Set _initslot to true for non-inline methods
+        // Set _initSlot to true for non-inline methods
         // This ensures that regular methods will have the INITSLOT instruction added
         _initSlot = !_inline;
     }
@@ -119,10 +118,10 @@ internal partial class MethodConvert
     private static bool IsExpressionReturningValue(SemanticModel semanticModel, MethodDeclarationSyntax methodDeclaration)
     {
         // Check if it's a method declaration with an expression body
-        if (methodDeclaration is { ExpressionBody: not null } methodSyntax)
+        if (methodDeclaration is { ExpressionBody: not null })
         {
             // Retrieve the expression from the expression body
-            var expression = methodSyntax.ExpressionBody.Expression;
+            var expression = methodDeclaration.ExpressionBody.Expression;
 
             // Use the semantic model to get the type information of the expression
             var typeInfo = semanticModel.GetTypeInfo(expression);
