@@ -13,7 +13,7 @@ using Neo.VM;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a break statement into the corresponding jump instruction. This method handles

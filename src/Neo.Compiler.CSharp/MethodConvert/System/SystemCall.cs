@@ -21,7 +21,7 @@ using Neo.VM.Types;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Attempts to process system constructors. Performs different processing operations based on the method symbol.

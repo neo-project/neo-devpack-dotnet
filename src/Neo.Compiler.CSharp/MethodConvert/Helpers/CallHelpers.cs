@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Creates an instruction to call an interop method using the given descriptor.
@@ -232,5 +232,16 @@ partial class MethodConvert
         Push(index);
         AddInstruction(OpCode.PICKITEM);
         AddInstruction(OpCode.CALLA);
+    }
+
+    private void InvokeMethod(SemanticModel model, IMethodSymbol method)
+    {
+        var convert = _context.ConvertMethod(model, method);
+        Jump(OpCode.PUSHA, convert._startTarget);
+    }
+
+    private void InvokeMethod(MethodConvert convert)
+    {
+        Jump(OpCode.PUSHA, convert._startTarget);
     }
 }
