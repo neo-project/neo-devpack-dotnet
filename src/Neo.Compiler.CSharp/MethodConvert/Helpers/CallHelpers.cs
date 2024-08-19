@@ -297,7 +297,7 @@ internal partial class MethodConvert
     {
         if (symbol.ContainingType.TypeKind == TypeKind.Interface)
             throw new CompilationException(symbol.ContainingType, DiagnosticId.InterfaceCall, "Interfaces are not supported.");
-      
+
         var members = symbol.ContainingType.GetAllMembers().Where(p => !p.IsStatic).ToArray();
         var fields = members.OfType<IFieldSymbol>().ToArray();
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
@@ -305,7 +305,7 @@ internal partial class MethodConvert
         int index = Array.IndexOf(virtualMethods, symbol);
         if (index < 0)
             throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {symbol.OriginalDefinition}.");
-      
+
         AddInstruction(OpCode.DUP);
         Push(fields.Length);
         AddInstruction(OpCode.PICKITEM);
