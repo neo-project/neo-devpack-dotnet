@@ -22,7 +22,6 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-
     #region Instructions
     private Instruction AddInstruction(Instruction instruction)
     {
