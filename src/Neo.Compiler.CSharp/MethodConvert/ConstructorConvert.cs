@@ -12,7 +12,6 @@ extern alias scfx;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.IO;
 using Neo.VM;
 using System.Linq;
 
