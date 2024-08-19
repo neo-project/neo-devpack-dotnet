@@ -20,7 +20,6 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-
     /// <summary>
     /// Convert literal expression to NeoVM instructions
     /// </summary>
@@ -122,5 +121,4 @@ internal partial class MethodConvert
                 break;
         }
     }
-
 }

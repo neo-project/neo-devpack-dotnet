@@ -87,5 +87,4 @@ internal partial class MethodConvert
             AccessSlot(OpCode.STSFLD, staticFieldIndex);
         }
     }
-
 }

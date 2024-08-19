@@ -22,7 +22,6 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-
     #region Variables
 
     private byte AddLocalVariable(ILocalSymbol symbol)
