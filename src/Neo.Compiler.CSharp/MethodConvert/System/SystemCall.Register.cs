@@ -141,7 +141,6 @@ partial class MethodConvert
         RegisterHandler((Array a) => a.Length, HandleLength);
         RegisterHandler((string s) => s.Length, HandleLength);
 
-
         // RegisterHandler((Array a, int index, object? value) => a.SetValue(value, index), HandleArraySetValue);
         // RegisterHandler((Array a, int index) => a.GetValue(index), HandleArrayGetValue);
         // RegisterHandler((Array a) => a.Clone(), HandleArrayClone);
@@ -248,7 +247,6 @@ partial class MethodConvert
         // RegisterHandler((BigInteger x) => BigInteger.LeadingZeroCount(x), HandleBigIntegerLeadingZeroCount);
 
         // Log2
-
         RegisterHandler((byte x) => byte.Log2(x), HandleBigIntegerLog2);
         RegisterHandler((sbyte x) => sbyte.Log2(x), HandleBigIntegerLog2);
         RegisterHandler((short x) => short.Log2(x), HandleBigIntegerLog2);

@@ -19,7 +19,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     // Handler for Math.Abs methods
     private static void HandleMathAbs(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
