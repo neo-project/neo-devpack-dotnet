@@ -181,4 +181,3 @@ partial class MethodConvert
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 }
-

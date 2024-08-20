@@ -61,7 +61,6 @@ partial class MethodConvert
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 
-
     // HandleByteCreateChecked
     private static void HandleByteCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
