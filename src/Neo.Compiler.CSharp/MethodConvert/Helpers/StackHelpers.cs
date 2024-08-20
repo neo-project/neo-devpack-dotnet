@@ -193,6 +193,27 @@ internal partial class MethodConvert
         });
     }
 
+    // Helper method to reverse stack items
+    private void ReverseStackItems(int count)
+    {
+        switch (count)
+        {
+            case 2:
+                AddInstruction(OpCode.SWAP);
+                break;
+            case 3:
+                AddInstruction(OpCode.REVERSE3);
+                break;
+            case 4:
+                AddInstruction(OpCode.REVERSE4);
+                break;
+            default:
+                Push(count);
+                AddInstruction(OpCode.REVERSEN);
+                break;
+        }
+    }
+
     #region LabelsAndTargets
 
     private JumpTarget AddLabel(ILabelSymbol symbol, bool checkTryStack)

@@ -81,15 +81,9 @@ internal partial class MethodConvert
                 if (!_internalInline) LdArgSlot(parameter);
                 break;
             case IPropertySymbol property:
-                if (property.IsStatic)
-                {
-                    CallMethodWithConvention(model, property.GetMethod!);
-                }
-                else
-                {
+                if (!property.IsStatic)
                     AddInstruction(OpCode.LDARG0);
-                    CallMethodWithConvention(model, property.GetMethod!);
-                }
+                CallMethodWithConvention(model, property.GetMethod!);
                 break;
             case ITypeSymbol type:
                 IsType(type.GetPatternType());
