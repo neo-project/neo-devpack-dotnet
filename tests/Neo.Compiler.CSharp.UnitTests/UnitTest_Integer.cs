@@ -567,7 +567,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestMethodIntIsEvenInteger()
         {
-
             Assert.AreEqual(int.IsEvenInteger(0), Contract.IsEvenIntegerInt(0));
             Assert.AreEqual(1047570, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.IsEvenInteger(1), Contract.IsEvenIntegerInt(1));
