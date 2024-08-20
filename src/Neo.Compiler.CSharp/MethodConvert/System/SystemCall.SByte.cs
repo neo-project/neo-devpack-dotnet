@@ -113,7 +113,6 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget2);
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
     }
 
     // HandleSByteCreateChecked
