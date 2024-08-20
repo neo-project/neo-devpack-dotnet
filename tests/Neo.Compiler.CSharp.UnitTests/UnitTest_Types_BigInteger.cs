@@ -8,7 +8,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_Types_BigInteger : DebugAndTestBase<Contract_Types_BigInteger>
     {
         [TestMethod]
-        public void BigInteer_Test()
+        public void BigInteger_Test()
         {
             // Init
 
