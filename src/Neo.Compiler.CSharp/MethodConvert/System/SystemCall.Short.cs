@@ -74,7 +74,6 @@ partial class MethodConvert
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 
-
     // HandleShortCopySign
     private static void HandleShortCopySign(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,

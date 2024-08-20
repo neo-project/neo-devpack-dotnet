@@ -20,7 +20,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     private static void HandleStringPickItem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
