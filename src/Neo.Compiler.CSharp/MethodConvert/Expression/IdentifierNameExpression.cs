@@ -18,7 +18,7 @@ using System;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// This method converts an identifier name expression to OpCodes.
@@ -75,22 +75,15 @@ partial class MethodConvert
             case IMethodSymbol method:
                 if (!method.IsStatic)
                     throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {method}");
-                MethodConvert convert = _context.ConvertMethod(model, method);
-                Jump(OpCode.PUSHA, convert._startTarget);
+                InvokeMethod(model, method);
                 break;
             case IParameterSymbol parameter:
                 if (!_internalInline) LdArgSlot(parameter);
                 break;
             case IPropertySymbol property:
-                if (property.IsStatic)
-                {
-                    CallMethodWithConvention(model, property.GetMethod!);
-                }
-                else
-                {
+                if (!property.IsStatic)
                     AddInstruction(OpCode.LDARG0);
-                    CallMethodWithConvention(model, property.GetMethod!);
-                }
+                CallMethodWithConvention(model, property.GetMethod!);
                 break;
             case ITypeSymbol type:
                 IsType(type.GetPatternType());

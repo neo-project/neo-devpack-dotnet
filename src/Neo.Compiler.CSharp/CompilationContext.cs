@@ -56,6 +56,8 @@ namespace Neo.Compiler
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
+        // This dictionary is used to map out parameters/arguments to local variables (in the method where the out argument is declared)
+        internal readonly Dictionary<IParameterSymbol, ILocalSymbol> _outParamToLocal = new(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
@@ -537,21 +539,39 @@ namespace Neo.Compiler
             return index;
         }
 
-        internal byte GetOrAddCapturedStaticField(ISymbol local)
+        internal byte GetOrAddCapturedStaticField(ISymbol symbol)
         {
-            if (_capturedStaticFields.ContainsKey(local))
+            if (_capturedStaticFields.TryGetValue(symbol, out var field))
             {
-                return _capturedStaticFields[local];
+                return field;
             }
             byte index = (byte)StaticFieldCount;
             _anonymousStaticFields.Add(index);
-            _capturedStaticFields.Add(local, index);
+            _capturedStaticFields.TryAdd(symbol, index);
             return index;
         }
 
-        internal bool TryGetCaptruedStaticField(ISymbol local, out byte staticFieldIndex)
+        internal bool TryGetCapturedStaticField(ISymbol local, out byte staticFieldIndex)
         {
             return _capturedStaticFields.TryGetValue(local, out staticFieldIndex);
+        }
+
+
+        /// <summary>
+        /// This method tries to associate a local symbol to a parameter symbol.
+        /// </summary>
+        /// <param name="parameter"> The parameter symbol to associate with the local symbol.</param>
+        /// <param name="local"> The local symbol to associate with the parameter symbol. </param>
+        /// <returns> True if the association was successful, false otherwise. </returns>
+        /// <exception cref="CompilationException">Thrown if the parameter symbol is not found in the captured static fields. </exception>
+        internal bool TryAddCapturedStaticField(IParameterSymbol parameter, ILocalSymbol local)
+        {
+            if (TryGetCapturedStaticField(parameter, out var index))
+            {
+                return _capturedStaticFields.TryAdd(local, index);
+            }
+
+            throw new CompilationException(parameter, DiagnosticId.CapturedStaticFieldNotFound, $"Captured static field not found for parameter {parameter.Name}");
         }
 
         internal byte AddVTable(ITypeSymbol type)
@@ -562,6 +582,11 @@ namespace Neo.Compiler
                 _vtables.Add(type, index);
             }
             return index;
+        }
+
+        internal void AssociateCapturedStaticField(ISymbol symbol, byte index)
+        {
+            _capturedStaticFields[symbol] = index;
         }
     }
 }

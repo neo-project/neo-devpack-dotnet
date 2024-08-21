@@ -24,352 +24,224 @@ using Neo.VM.Types;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
+    /// <summary>
+    /// Converts an expression to NeoVM instructions.
+    /// </summary>
+    /// <param name="model">The semantic model of the compilation.</param>
+    /// <param name="syntax">The expression syntax to convert.</param>
+    /// <param name="syntaxNode">Optional parent syntax node for context.</param>
     private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode = null)
     {
+        // Insert a sequence point for debugging purposes
         using var sequence = InsertSequencePoint(syntax);
 
-        Optional<object?> constant = model.GetConstantValue(syntax);
-        if (constant.HasValue)
-        {
-            var value = constant.Value;
-
-            ITypeSymbol? typeSymbol = null;
-            if (syntaxNode is VariableDeclaratorSyntax variableDeclarator)
-            {
-                var declaration = variableDeclarator.Parent as VariableDeclarationSyntax;
-                if (declaration != null)
-                {
-                    typeSymbol = ModelExtensions.GetTypeInfo(model, declaration.Type).Type;
-                }
-            }
-            else if (syntaxNode is PropertyDeclarationSyntax propertyDeclaration)
-            {
-                typeSymbol = ModelExtensions.GetTypeInfo(model, propertyDeclaration.Type).Type;
-            }
-
-            if (typeSymbol != null)
-            {
-                string fullName = typeSymbol.ToDisplayString();
-
-                switch (fullName)
-                {
-                    //complex types like UInt160 at compile time to avoid runtime overhead.
-                    case "Neo.SmartContract.Framework.UInt160":
-                        var strValue = (string)value!;
-                        value = (UInt160.TryParse(strValue, out var hash)
-                            ? hash
-                            : strValue.ToScriptHash(_context.Options.AddressVersion)).ToArray();
-                        break;
-                    case "Neo.SmartContract.Framework.UInt256":
-                        strValue = (string)value!;
-                        value = strValue.HexToBytes(true);
-                        if (((byte[])value).Length != 32)
-                            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, "Invalid UInt256 literal");
-                        break;
-                    case "Neo.SmartContract.Framework.ECPoint":
-                        strValue = (string)value!;
-                        value = ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
-                        break;
-                    //This type no longer exists.
-                    case "Neo.SmartContract.Framework.ByteArray":
-                        strValue = (string)value!;
-                        value = strValue.HexToBytes(true);
-                        break;
-                }
-            }
-
-            Push(value);
+        // Try to convert the expression as a constant first
+        if (TryConvertConstant(model, syntax, syntaxNode))
             return;
+
+        // If it's not a constant, convert it as a non-constant expression
+        ConvertNonConstantExpression(model, syntax);
+    }
+
+    private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)
+    {
+        Optional<object?> constant = model.GetConstantValue(syntax);
+        if (!constant.HasValue)
+            return false;
+
+        var value = constant.Value;
+        ITypeSymbol? typeSymbol = GetTypeSymbol(syntaxNode, model);
+
+        if (typeSymbol != null)
+        {
+            value = ConvertComplexConstantTypes(typeSymbol, value, syntax);
         }
 
+        Push(value);
+        return true;
+    }
+
+    private void ConvertNonConstantExpression(SemanticModel model, ExpressionSyntax syntax)
+    {
         switch (syntax)
         {
-            //Convert an expression that creates an object of an anonymous type.
-            //Example: new { Amount = 108, Message = "Hello" };
             case AnonymousObjectCreationExpressionSyntax expression:
+                // Example: new { Name = "John", Age = 30 }
                 ConvertAnonymousObjectCreationExpression(model, expression);
                 break;
-            //Convert an expression that creates an array.
-            //Example: new int[4] { 5, 6, 7, 8};
             case ArrayCreationExpressionSyntax expression:
+                // Example: new int[] { 1, 2, 3 }
                 ConvertArrayCreationExpression(model, expression);
                 break;
-            //Convert an assignment expression.
-            //Example: new int[4] { 5, 6, 7, 8};
             case AssignmentExpressionSyntax expression:
+                // Example: x = 5
                 ConvertAssignmentExpression(model, expression);
                 break;
             case BaseObjectCreationExpressionSyntax expression:
+                // Example: new MyClass()
                 ConvertObjectCreationExpression(model, expression);
                 break;
             case BinaryExpressionSyntax expression:
+                // Example: a + b
                 ConvertBinaryExpression(model, expression);
                 break;
-            //Converts a cast expression.
-            //Example: (ECPoint)ByteString.Empty;
             case CastExpressionSyntax expression:
+                // Example: (int)myDouble
                 ConvertCastExpression(model, expression);
                 break;
-            //Converts a checked expression.
-            //Example: checked(temp * 2);
             case CheckedExpressionSyntax expression:
+                // Example: checked(x + y)
                 ConvertCheckedExpression(model, expression);
                 break;
-            //Converts a null-conditional access expression.
-            //Example: people?.Name; array?[i];
             case ConditionalAccessExpressionSyntax expression:
+                // Example: person?.Name
                 ConvertConditionalAccessExpression(model, expression);
                 break;
-            //Converts a null-conditional access expression.
-            //Example: var x = a > b ? a : b;
             case ConditionalExpressionSyntax expression:
+                // Example: isTrue ? "Yes" : "No"
                 ConvertConditionalExpression(model, expression);
                 break;
-            //Converts an array element or indexer access ([]) expression.
-            //Example: array[i];
             case ElementAccessExpressionSyntax expression:
+                // Example: myArray[0]
                 ConvertElementAccessExpression(model, expression);
                 break;
-            //Further conversion of the ?[] statement in the ConvertConditionalAccessExpression method.
-            //Example: array?[i];
             case ElementBindingExpressionSyntax expression:
+                // Example: obj?[0]
                 ConvertElementBindingExpression(model, expression);
                 break;
-            //Converts an identifier name expression.
-            //Example: int a = 1;
             case IdentifierNameSyntax expression:
+                // Example: myVariable
                 ConvertIdentifierNameExpression(model, expression);
                 break;
-            //Converts an implicit array creation expression.
-            //Example: var authorNames = new[] {"Shilpa", "Soniya", "Shivi", "Ritika"};
             case ImplicitArrayCreationExpressionSyntax expression:
+                // Example: new[] { 1, 2, 3 }
                 ConvertImplicitArrayCreationExpression(model, expression);
                 break;
-            //Converts initialization of array fields
-            //Example: static UInt160 Owner = UInt160.Zero;
             case InitializerExpressionSyntax expression:
+                // Example: { 1, 2, 3 }
                 ConvertInitializerExpression(model, expression);
                 break;
-            //Converts an interpolated string expression;
-            //Example: $"Hello, {name}"
             case InterpolatedStringExpressionSyntax expression:
+                // Example: $"Hello, {name}!"
                 ConvertInterpolatedStringExpression(model, expression);
                 break;
-            //Converts Invocation, include method invocation, event invocation and delegate invocation
-            //Example: Runtime.Log("hello");
             case InvocationExpressionSyntax expression:
+                // Example: MyMethod()
                 ConvertInvocationExpression(model, expression);
                 break;
-            //Converts an 'is' pattern expression;
-            //Example: if (obj is string)
             case IsPatternExpressionSyntax expression:
+                // Example: obj is string s
                 ConvertIsPatternExpression(model, expression);
                 break;
-            //Converts a member access expression.
-            //Example: Ledger.CurrentHash
             case MemberAccessExpressionSyntax expression:
+                // Example: myObject.Property
                 ConvertMemberAccessExpression(model, expression);
                 break;
-            //Further conversion of the ?. statement in the ConvertConditionalAccessExpression method
-            //Example: people?.Name;
             case MemberBindingExpressionSyntax expression:
+                // Example: ?.Property
                 ConvertMemberBindingExpression(model, expression);
                 break;
-            //Converts a parenthesized expression.
-            //Continuing the recursive processing of the expression with the parentheses removed.
-            //Example: (a / b), (a + b), (new byte[33])
             case ParenthesizedExpressionSyntax expression:
+                // Example: (x + y)
                 ConvertExpression(model, expression.Expression);
                 break;
-            //Converts postfix operator.
-            //Example: i++, i--
             case PostfixUnaryExpressionSyntax expression:
+                // Example: x++
                 ConvertPostfixUnaryExpression(model, expression);
                 break;
-            //Converts prefix operator.
-            //Example: ++i, --i, !flag
             case PrefixUnaryExpressionSyntax expression:
+                // Example: ++x
                 ConvertPrefixUnaryExpression(model, expression);
                 break;
-            //Converts a switch  expression.
-            //Example: day switch { 1 => "Monday", 2 => "Tuesday", 3 => "Wednesday", 4 => "Thursday", 5 => "Friday", 6 => "Saturday", 7 => "Sunday", _ => "Unknown" };
             case SwitchExpressionSyntax expression:
+                // Example: x switch { 1 => "One", 2 => "Two", _ => "Other" }
                 ConvertSwitchExpression(model, expression);
                 break;
-            //Converts a base  expression.
-            //Example: public A() : base() { }
             case BaseExpressionSyntax:
-            //Converts "this" keyword
-            //The "this" keyword in extended methods is also handled here.
-            //Examples: private string name; public void MyMethod(){ Runtime.Log(this.name); }
-            //Examples: UInt160.Zero.ToAddress();
             case ThisExpressionSyntax:
+                // Example: base.Method() or this.Property
                 AddInstruction(OpCode.LDARG0);
                 break;
-            //Converts a throw expression
-            //Examples: string a = null; var b = a ?? throw new Exception();
-            //Examples: var first = args.Length >= 1 ? args[0] : throw new Exception();
             case ThrowExpressionSyntax expression:
+                // Example: throw new Exception("Error")
                 Throw(model, expression.Expression);
                 break;
-            //Converts a tuple type expression.
-            //Example: (string, int) t1 = ("chris", 3);
             case TupleExpressionSyntax expression:
+                // Example: (1, "Hello")
                 ConvertTupleExpression(model, expression);
                 break;
             case ParenthesizedLambdaExpressionSyntax expression:
+                // Example: (x, y) => x + y
                 ConvertParenthesizedLambdaExpression(model, expression);
                 break;
             case SimpleLambdaExpressionSyntax expression:
+                // Example: x => x * x
                 ConvertSimpleLambdaExpression(model, expression);
                 break;
             case CollectionExpressionSyntax expression:
+                // Example: [1, 2, 3]
                 ConvertCollectionExpression(model, expression);
                 break;
             case WithExpressionSyntax expression:
+                // Example: person with { Name = "John" }
                 ConvertWithExpressionSyntax(model, expression);
                 break;
             case LiteralExpressionSyntax expression:
-                if (expression.IsKind(SyntaxKind.DefaultLiteralExpression))
-                {
-                    ConvertDefaultLiteralExpression(model, expression);
-                }
-                else if (expression.IsKind(SyntaxKind.NullLiteralExpression))
-                {
-                    AddInstruction(OpCode.PUSHNULL);
-                }
-                else
-                {
-                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
-                }
+                // Example: 42 or "Hello"
+                ConvertLiteralExpression(model, expression);
                 break;
             default:
-                //Example: typeof(Transaction);
                 throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
         }
     }
 
-    private void ConvertDefaultLiteralExpression(SemanticModel model, LiteralExpressionSyntax expression)
+    private static ITypeSymbol? GetTypeSymbol(SyntaxNode? syntaxNode, SemanticModel model)
     {
-        var type = model.GetTypeInfo(expression).Type;
-        if (type == null)
+        return syntaxNode switch
         {
-            throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, "Cannot determine type for default expression");
-        }
-
-        switch (type.SpecialType)
-        {
-            case SpecialType.System_Boolean:
-                {
-                    AddInstruction(OpCode.PUSHF);
-                    break;
-                }
-            case SpecialType.System_Byte:
-            case SpecialType.System_SByte:
-            case SpecialType.System_Int16:
-            case SpecialType.System_UInt16:
-            case SpecialType.System_Int32:
-            case SpecialType.System_UInt32:
-            case SpecialType.System_Int64:
-            case SpecialType.System_UInt64:
-            case SpecialType.System_Decimal:
-            case SpecialType.System_Single:
-            case SpecialType.System_Double:
-            case SpecialType.System_Char:
-                AddInstruction(OpCode.PUSH0);
-                break;
-            case SpecialType.System_String:
-            case SpecialType.System_Object:
-                AddInstruction(OpCode.PUSHNULL);
-                break;
-            default:
-                if (type.ToString() == "System.Numerics.BigInteger")
-                {
-                    // BigInteger's default value is 0
-                    AddInstruction(OpCode.PUSH0);
-                }
-                else if (type.IsReferenceType)
-                {
-                    AddInstruction(OpCode.PUSHNULL);
-                }
-                else if (type.IsValueType)
-                {
-                    // For structs and other value types, we need to create a default instance
-                    AddInstruction(OpCode.NEWSTRUCT0);
-                }
-                else
-                {
-                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported type for default expression: {type}");
-                }
-                break;
-        }
+            VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax declaration }
+                => ModelExtensions.GetTypeInfo(model, declaration.Type).Type,
+            PropertyDeclarationSyntax propertyDeclaration
+                => ModelExtensions.GetTypeInfo(model, propertyDeclaration.Type).Type,
+            _ => null
+        };
     }
 
-    /// <summary>
-    /// Convert record with expression: record with{...InitializerExpression}
-    /// </summary>
-    /// <param name="model"></param>
-    /// <param name="expression"></param>
-    private void ConvertWithExpressionSyntax(SemanticModel model, WithExpressionSyntax expression)
+    private object ConvertComplexConstantTypes(ITypeSymbol typeSymbol, object value, ExpressionSyntax syntax)
     {
-        //load record
-        ConvertExpression(model, expression.Expression);
-        //clone record struct
-        AddInstruction(new Instruction { OpCode = OpCode.UNPACK });
-        AddInstruction(new Instruction { OpCode = OpCode.PACKSTRUCT });
-        //convert InitializerExpression
-        ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
+        string fullName = typeSymbol.ToDisplayString();
+        return fullName switch
+        {
+            "Neo.SmartContract.Framework.UInt160" => ConvertToUInt160((string)value!),
+            "Neo.SmartContract.Framework.UInt256" => ConvertToUInt256((string)value!, syntax),
+            "Neo.SmartContract.Framework.ECPoint" => ConvertToECPoint((string)value!),
+            "Neo.SmartContract.Framework.ByteArray" => ((string)value!).HexToBytes(true),
+            _ => value
+        };
     }
 
-    private void ConvertSimpleLambdaExpression(SemanticModel model, SimpleLambdaExpressionSyntax expression)
+    private byte[] ConvertToUInt160(string strValue)
     {
-        var symbol = (IMethodSymbol)ModelExtensions.GetSymbolInfo(model, expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
-        ConvertLocalToStaticFields(mc);
-        AddInstruction(new Instruction
-        {
-            OpCode = OpCode.PUSHA,
-            Target = mc._startTarget
-        });
+        return (UInt160.TryParse(strValue, out var hash)
+            ? hash
+            : strValue.ToScriptHash(_context.Options.AddressVersion)).ToArray();
     }
 
-    private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
+    private static byte[] ConvertToUInt256(string strValue, ExpressionSyntax syntax)
     {
-        var symbol = (IMethodSymbol)ModelExtensions.GetSymbolInfo(model, expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
-        ConvertLocalToStaticFields(mc);
-        AddInstruction(new Instruction
-        {
-            OpCode = OpCode.PUSHA,
-            Target = mc._startTarget
-        });
+        var value = strValue.HexToBytes(true);
+        if (value.Length != 32)
+            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, "Invalid UInt256 literal");
+        return value;
     }
 
-    private void ConvertLocalToStaticFields(MethodConvert mc)
+    private static byte[] ConvertToECPoint(string strValue)
     {
-        if (mc.CapturedLocalSymbols.Count > 0)
-        {
-            foreach (var local in mc.CapturedLocalSymbols)
-            {
-                //copy captured local variable/parameter value to related static fields
-                var staticFieldIndex = _context.GetOrAddCapturedStaticField(local);
-                switch (local)
-                {
-                    case ILocalSymbol localSymbol:
-                        var localIndex = _localVariables[localSymbol];
-                        AccessSlot(OpCode.LDLOC, localIndex);
-                        break;
-                    case IParameterSymbol parameterSymbol:
-                        var paraIndex = _parameters[parameterSymbol];
-                        AccessSlot(OpCode.LDARG, paraIndex);
-                        break;
-                }
-                AccessSlot(OpCode.STSFLD, staticFieldIndex);
-            }
-        }
+        return ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
     }
+
 
     /// <summary>
     /// Ensures that the value of the incoming integer type is within the specified range.

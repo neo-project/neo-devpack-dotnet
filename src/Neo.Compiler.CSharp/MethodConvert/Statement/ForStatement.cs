@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a 'for' loop statement into OpCodes. This method handles the parsing

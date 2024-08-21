@@ -14,7 +14,7 @@ using Neo.VM;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts an 'if' statement into a series of jump instructions and conditional logic.

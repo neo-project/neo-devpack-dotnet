@@ -13,7 +13,7 @@ using Neo.VM;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a 'continue' statement into a corresponding jump instruction in the intermediate language.
