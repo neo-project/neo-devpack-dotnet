@@ -53,52 +53,52 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_short()
         {
             Assert.AreEqual(32767, Contract.Testshort(32767));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.AreEqual(-32768, Contract.Testshort(-32768));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testshort(32768));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testshort(-32769));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_ushort()
         {
             Assert.AreEqual(0, Contract.Testushort(0));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.AreEqual(65535, Contract.Testushort(65535));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testushort(-1));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testushort(65536));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_int()
         {
             Assert.AreEqual(-2147483648, Contract.Testint(-2147483648));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.AreEqual(2147483647, Contract.Testint(2147483647));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testint(-2147483649));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testint(2147483648));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void Test_uint()
         {
             Assert.AreEqual(0, Contract.Testuint(0));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.AreEqual(4294967295, Contract.Testuint(4294967295));
-            Assert.AreEqual(1047900, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047810, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testuint(-1));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.Testuint(4294967296));
-            Assert.AreEqual(1078680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1078590, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]

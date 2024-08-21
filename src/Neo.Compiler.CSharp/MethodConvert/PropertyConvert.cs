@@ -102,7 +102,7 @@ internal partial class MethodConvert
         {
             if (attribute.ConstructorArguments[0].Value is byte b)
             {
-                key = new byte[] { b };
+                key = [b];
             }
             else if (attribute.ConstructorArguments[0].Value is string s)
             {

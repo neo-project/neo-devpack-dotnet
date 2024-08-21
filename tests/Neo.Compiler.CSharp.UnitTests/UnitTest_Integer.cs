@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = short.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, checked((short)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((short)(BigInteger)result[1]));
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = int.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (int)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (int)(BigInteger)result[1]);
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = ushort.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (ushort)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ushort)(BigInteger)result[1]);
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = uint.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (uint)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (uint)(BigInteger)result[1]);
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -417,40 +417,40 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CopySign(5, 1), Contract.CopySignInt(5, 1));
-            Assert.AreEqual(1049550, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049460, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CopySign(5, -1), Contract.CopySignInt(5, -1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CopySign(-5, 1), Contract.CopySignInt(-5, 1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CopySign(-5, -1), Contract.CopySignInt(-5, -1));
-            Assert.AreEqual(1049370, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049280, Engine.FeeConsumed.Value);
 
 
             // Test with max values
             Assert.AreEqual(int.CopySign(int.MaxValue, 1), Contract.CopySignInt(int.MaxValue, 1));
-            Assert.AreEqual(1049550, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049460, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CopySign(int.MaxValue, -1), Contract.CopySignInt(int.MaxValue, -1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
-            Assert.AreEqual(1064940, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1064850, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CopySign(int.MinValue, -1), Contract.CopySignInt(int.MinValue, -1));
-            Assert.AreEqual(1049370, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049280, Engine.FeeConsumed.Value);
 
             // Test with min values
             Assert.AreEqual(int.MaxValue, Contract.CopySignInt(int.MaxValue, 1));
-            Assert.AreEqual(1049550, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049460, Engine.FeeConsumed.Value);
             Assert.AreEqual(-int.MaxValue, Contract.CopySignInt(int.MaxValue, -1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
-            Assert.AreEqual(1064940, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1064850, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.MinValue, Contract.CopySignInt(int.MinValue, -1));
-            Assert.AreEqual(1049370, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049280, Engine.FeeConsumed.Value);
 
             // Test with zero
             Assert.AreEqual(0, Contract.CopySignInt(0, 1));
-            Assert.AreEqual(1049550, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049460, Engine.FeeConsumed.Value);
             Assert.AreEqual(0, Contract.CopySignInt(0, -1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -488,23 +488,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(short.CopySign(5, 1), Contract.CopySignShort(5, 1));
-            Assert.AreEqual(1049550, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049460, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CopySign(5, -1), Contract.CopySignShort(5, -1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CopySign(-5, 1), Contract.CopySignShort(-5, 1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CopySign(-5, -1), Contract.CopySignShort(-5, -1));
-            Assert.AreEqual(1049370, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049280, Engine.FeeConsumed.Value);
 
             // Test with max values
             Assert.AreEqual(short.CopySign(short.MaxValue, 1), Contract.CopySignShort(short.MaxValue, 1));
-            Assert.AreEqual(1049550, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049460, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CopySign(short.MaxValue, -1), Contract.CopySignShort(short.MaxValue, -1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.ThrowsException<TestException>(() => Contract.CopySignShort(short.MinValue, 1));
-            Assert.AreEqual(1064940, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1064850, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CopySign(short.MinValue, -1), Contract.CopySignShort(short.MinValue, -1));
-            Assert.AreEqual(1049370, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049280, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -512,38 +512,38 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CreateChecked(0), Contract.CreateCheckedInt(0));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CreateChecked(-5), Contract.CreateCheckedInt(-5));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
 
             // Test with max values
             Assert.AreEqual(int.CreateChecked(int.MaxValue), Contract.CreateCheckedInt(int.MaxValue));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CreateChecked(int.MinValue), Contract.CreateCheckedInt(int.MinValue));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
 
             // Test with min values
             Assert.AreEqual(int.CreateChecked(int.MaxValue), Contract.CreateCheckedInt(int.MaxValue));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CreateChecked(int.MinValue), Contract.CreateCheckedInt(int.MinValue));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
         public void TestMethodShortCreateChecked()
         {
             Assert.AreEqual(short.CreateChecked(5), Contract.CreateCheckedShort(5));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CreateChecked(0), Contract.CreateCheckedShort(0));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CreateChecked(-5), Contract.CreateCheckedShort(-5));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CreateChecked(short.MaxValue), Contract.CreateCheckedShort(short.MaxValue));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(short.CreateChecked(short.MinValue), Contract.CreateCheckedShort(short.MinValue));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -646,9 +646,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestMethodsInt()
         {
             Assert.AreEqual(int.CopySign(5, -1), Contract.CopySignInt(5, -1));
-            Assert.AreEqual(1049580, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047450, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
             Assert.AreEqual(1048230, Engine.FeeConsumed.Value);
             Assert.AreEqual(int.IsEvenInteger(5), Contract.IsEvenIntegerInt(5));

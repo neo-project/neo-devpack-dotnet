@@ -77,25 +77,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestCharSurrogates()
         {
             Assert.IsTrue(Contract.TestCharIsSurrogate('\uD800'));
-            Assert.AreEqual(1048350, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047990, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestCharIsSurrogate('\uDFFF'));
-            Assert.AreEqual(1048350, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047990, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestCharIsSurrogate('a'));
-            Assert.AreEqual(1048350, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047990, Engine.FeeConsumed.Value);
 
             Assert.IsTrue(Contract.TestCharIsHighSurrogate('\uD800'));
-            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestCharIsHighSurrogate('\uDC00'));
-            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestCharIsHighSurrogate('a'));
-            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
 
             Assert.IsTrue(Contract.TestCharIsLowSurrogate('\uDC00'));
-            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestCharIsLowSurrogate('\uD800'));
-            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestCharIsLowSurrogate('a'));
-            Assert.AreEqual(1047510, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047330, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]

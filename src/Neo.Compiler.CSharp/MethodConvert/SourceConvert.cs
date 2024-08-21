@@ -26,6 +26,11 @@ internal partial class MethodConvert
             byte index = i;
             if (IsInstanceMethod(Symbol)) index++;
             _parameters.Add(parameter, index);
+
+            if (parameter.RefKind == RefKind.Out)
+            {
+                _context.GetOrAddCapturedStaticField(parameter);
+            }
         }
         switch (SyntaxNode)
         {
@@ -48,7 +53,7 @@ internal partial class MethodConvert
                     // but the expression body has a return value, example: a+=1;
                     // drop the return value
                     // Problem:
-                    //   public void Test() => a+=1; // this will push a int value to the stack
+                    //   public void Test() => a+=1; // this will push an int value to the stack
                     //   public void Test() { a+=1; } // this will not push value to the stack
                     if (syntax is MethodDeclarationSyntax methodSyntax
                         && methodSyntax.ReturnType.ToString() == "void"

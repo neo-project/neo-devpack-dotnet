@@ -69,7 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1047870, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(-2147483647, Contract.TestArgs3(int.MaxValue, int.MaxValue));
-            Assert.AreEqual(1048740, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048560, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(-2147483646, Contract.TestArgs3(int.MinValue, int.MaxValue));
             Assert.AreEqual(1047870, Engine.FeeConsumed.Value);
@@ -88,9 +88,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(0, Contract.TestArgs4(BigInteger.MinusOne, BigInteger.MinusOne));
             Assert.AreEqual(1048470, Engine.FeeConsumed.Value);
 
-
             Assert.AreEqual(0, Contract.TestArgs4(int.MaxValue, int.MaxValue));
-            Assert.AreEqual(1049340, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1049160, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(1, Contract.TestArgs4(int.MinValue, int.MaxValue));
             Assert.AreEqual(1048470, Engine.FeeConsumed.Value);

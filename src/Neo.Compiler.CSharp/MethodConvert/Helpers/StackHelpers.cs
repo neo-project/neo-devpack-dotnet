@@ -86,26 +86,27 @@ internal partial class MethodConvert
                 OpCode = OpCode.PUSHINT16,
                 Operand = PadRight(buffer, bytesWritten, 2, number.Sign < 0).ToArray()
             },
-            4 => new Instruction
+            <= 4 => new Instruction
             {
                 OpCode = OpCode.PUSHINT32,
                 Operand = PadRight(buffer, bytesWritten, 4, number.Sign < 0).ToArray()
             },
-            8 => new Instruction
+            <= 8 => new Instruction
             {
                 OpCode = OpCode.PUSHINT64,
                 Operand = PadRight(buffer, bytesWritten, 8, number.Sign < 0).ToArray()
             },
-            16 => new Instruction
+            <= 16 => new Instruction
             {
                 OpCode = OpCode.PUSHINT128,
                 Operand = PadRight(buffer, bytesWritten, 16, number.Sign < 0).ToArray()
             },
-            _ => new Instruction
+            <= 32 => new Instruction
             {
                 OpCode = OpCode.PUSHINT256,
                 Operand = PadRight(buffer, bytesWritten, 32, number.Sign < 0).ToArray()
             },
+            _ => throw new ArgumentOutOfRangeException($"Number too large: {bytesWritten}")
         };
         AddInstruction(instruction);
         return instruction;
@@ -211,6 +212,27 @@ internal partial class MethodConvert
             VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
             _ => OpCode.PUSHNULL,
         });
+    }
+
+    // Helper method to reverse stack items
+    private void ReverseStackItems(int count)
+    {
+        switch (count)
+        {
+            case 2:
+                AddInstruction(OpCode.SWAP);
+                break;
+            case 3:
+                AddInstruction(OpCode.REVERSE3);
+                break;
+            case 4:
+                AddInstruction(OpCode.REVERSE4);
+                break;
+            default:
+                Push(count);
+                AddInstruction(OpCode.REVERSEN);
+                break;
+        }
     }
 
     #region LabelsAndTargets

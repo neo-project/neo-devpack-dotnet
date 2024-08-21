@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void BigintegerForeachTest()
         {
             var array = Contract.BigIntegerForeach()!;
-            Assert.AreEqual(2105250, Engine.FeeConsumed.Value);
+            Assert.AreEqual(2105160, Engine.FeeConsumed.Value);
             BigInteger[] expected = [10_000, 1000_000, 1000_000_000, 1000_000_000_000_000_000];
 
             Assert.AreEqual(array.Count, 4);

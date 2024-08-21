@@ -77,7 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = Math.DivRem((short)10, (short)3);
             Assert.AreEqual(expected.Remainder, checked((short)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((short)(BigInteger)result[1]));
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = Math.DivRem((int)10, (int)3);
             Assert.AreEqual(expected.Remainder, checked((int)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((int)(BigInteger)result[1]));
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -117,7 +117,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = Math.DivRem((ushort)10, (ushort)3);
             Assert.AreEqual(expected.Remainder, checked((ushort)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((ushort)(BigInteger)result[1]));
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]
@@ -127,7 +127,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var expected = Math.DivRem((uint)10, (uint)3);
             Assert.AreEqual(expected.Remainder, checked((uint)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((uint)(BigInteger)result[1]));
-            Assert.AreEqual(1110240, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1110150, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]

@@ -10,6 +10,7 @@
 
 extern alias scfx;
 
+using Akka.Util.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.IO;
@@ -19,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Neo.Compiler;
 
@@ -30,13 +32,11 @@ internal partial class MethodConvert
     /// <param name="descriptor">The interop descriptor representing the method to call.</param>
     /// <returns>The instruction to perform the interop call.</returns>
     private Instruction CallInteropMethod(InteropDescriptor descriptor)
-    {
-        return AddInstruction(new Instruction
+        => AddInstruction(new Instruction
         {
             OpCode = OpCode.SYSCALL,
             Operand = BitConverter.GetBytes(descriptor)
         });
-    }
 
     /// <summary>
     /// Creates an instruction to call a method in another smart contract identified by its hash.
@@ -66,46 +66,20 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallInstanceMethod(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
     {
-        if (TryProcessSystemMethods(model, symbol, null, arguments))
+        if (TryProcessSpecialMethods(model, symbol, null, arguments))
             return;
-        if (TryProcessInlineMethods(model, symbol, arguments))
-            return;
-        MethodConvert? convert;
-        CallingConvention methodCallingConvention;
-        if (symbol.IsVirtualMethod())
-        {
-            convert = null;
-            methodCallingConvention = CallingConvention.Cdecl;
-        }
-        else
-        {
-            convert = _context.ConvertMethod(model, symbol);
-            methodCallingConvention = convert._callingConvention;
-        }
-        bool isConstructor = symbol.MethodKind == MethodKind.Constructor;
-        if (instanceOnStack && methodCallingConvention != CallingConvention.Cdecl && isConstructor)
-            AddInstruction(OpCode.DUP);
+
+        ProcessOutParameters(model, symbol, arguments);
+
+        var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
+
+        HandleConstructorDuplication(instanceOnStack, methodCallingConvention, symbol);
+
         PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
-        if (instanceOnStack && methodCallingConvention == CallingConvention.Cdecl)
-        {
-            switch (symbol.Parameters.Length)
-            {
-                case 0:
-                    if (isConstructor) AddInstruction(OpCode.DUP);
-                    break;
-                case 1:
-                    AddInstruction(isConstructor ? OpCode.OVER : OpCode.SWAP);
-                    break;
-                default:
-                    Push(symbol.Parameters.Length);
-                    AddInstruction(isConstructor ? OpCode.PICK : OpCode.ROLL);
-                    break;
-            }
-        }
-        if (convert is null)
-            CallVirtual(symbol);
-        else
-            EmitCall(convert);
+
+        HandleInstanceOnStack(symbol, instanceOnStack, methodCallingConvention);
+
+        EmitMethodCall(convert, symbol);
     }
 
     /// <summary>
@@ -117,43 +91,20 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallMethodWithInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
     {
-        if (TryProcessSystemMethods(model, symbol, instanceExpression, arguments))
+        if (TryProcessSpecialMethods(model, symbol, instanceExpression, arguments))
             return;
-        if (TryProcessInlineMethods(model, symbol, arguments))
-            return;
-        MethodConvert? convert;
-        CallingConvention methodCallingConvention;
-        if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
-        {
-            convert = null;
-            methodCallingConvention = CallingConvention.Cdecl;
-        }
-        else
-        {
-            convert = symbol.ReducedFrom is null
-                ? _context.ConvertMethod(model, symbol)
-                : _context.ConvertMethod(model, symbol.ReducedFrom);
-            methodCallingConvention = convert._callingConvention;
-        }
-        if (!symbol.IsStatic && methodCallingConvention != CallingConvention.Cdecl)
-        {
-            if (instanceExpression is null)
-                AddInstruction(OpCode.LDARG0);
-            else
-                ConvertExpression(model, instanceExpression);
-        }
+
+        ProcessOutParameters(model, symbol, arguments);
+
+        var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol, instanceExpression);
+
+        HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: true);
+
         PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
-        if (!symbol.IsStatic && methodCallingConvention == CallingConvention.Cdecl)
-        {
-            if (instanceExpression is null)
-                AddInstruction(OpCode.LDARG0);
-            else
-                ConvertExpression(model, instanceExpression);
-        }
-        if (convert is null)
-            CallVirtual(symbol);
-        else
-            EmitCall(convert);
+
+        HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: false);
+
+        EmitMethodCall(convert, symbol);
     }
 
     /// <summary>
@@ -164,68 +115,197 @@ internal partial class MethodConvert
     /// <param name="callingConvention">The calling convention to use for the method call.</param>
     private void CallMethodWithConvention(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
-        if (TryProcessSystemMethods(model, symbol, null, null))
+        if (TryProcessSystemMethods(model, symbol, null, null) || TryProcessInlineMethods(model, symbol, null))
             return;
-        if (TryProcessInlineMethods(model, symbol, null))
-            return;
-        MethodConvert? convert;
-        CallingConvention methodCallingConvention;
-        if (symbol.IsVirtualMethod())
-        {
-            convert = null;
-            methodCallingConvention = CallingConvention.Cdecl;
-        }
-        else
-        {
-            convert = _context.ConvertMethod(model, symbol);
-            methodCallingConvention = convert._callingConvention;
-        }
-        int pc = symbol.Parameters.Length;
-        if (!symbol.IsStatic) pc++;
+
+        var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
+
+        int pc = symbol.Parameters.Length + (symbol.IsStatic ? 0 : 1);
         if (pc > 1 && methodCallingConvention != callingConvention)
-        {
-            switch (pc)
-            {
-                case 2:
-                    AddInstruction(OpCode.SWAP);
-                    break;
-                case 3:
-                    AddInstruction(OpCode.REVERSE3);
-                    break;
-                case 4:
-                    AddInstruction(OpCode.REVERSE4);
-                    break;
-                default:
-                    Push(pc);
-                    AddInstruction(OpCode.REVERSEN);
-                    break;
-            }
-        }
+            ReverseStackItems(pc);
+
         if (convert is null)
             CallVirtual(symbol);
         else
             EmitCall(convert);
     }
 
+    private bool TryProcessSpecialMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments)
+    {
+        return TryProcessSystemMethods(model, symbol, instanceExpression, arguments) ||
+               TryProcessInlineMethods(model, symbol, arguments);
+    }
+
+    private void ProcessOutParameters(SemanticModel model, IMethodSymbol symbol, IEnumerable<SyntaxNode> arguments)
+    {
+        var parameters = DetermineParameterOrder(symbol, CallingConvention.Cdecl);
+        foreach (var parameter in parameters.Where(p => p.RefKind == RefKind.Out))
+        {
+            if (arguments.ElementAtOrDefault(parameter.Ordinal) is not ArgumentSyntax argument) continue;
+
+            ProcessOutArgument(model, parameter, argument);
+        }
+    }
+
+    private void ProcessOutArgument(SemanticModel model, IParameterSymbol parameter, ArgumentSyntax argument)
+    {
+        _context.GetOrAddCapturedStaticField(parameter);
+        switch (argument.Expression)
+        {
+            case DeclarationExpressionSyntax { Designation: SingleVariableDesignationSyntax designation }:
+                ProcessOutDeclaration(model, parameter, designation);
+                break;
+            case IdentifierNameSyntax identifierName:
+                ProcessOutIdentifier(model, parameter, identifierName);
+                break;
+            default:
+                throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {argument}");
+        }
+    }
+
+    private void ProcessOutDeclaration(SemanticModel model, IParameterSymbol parameter, SingleVariableDesignationSyntax designation)
+    {
+        var local = (ILocalSymbol)model.GetDeclaredSymbol(designation)!;
+        _context._outParamToLocal.TryAdd(parameter, local);
+        _context.TryAddCapturedStaticField(parameter, local);
+        PushDefault(parameter.Type);
+        StLocSlot(local);
+    }
+
+    private void ProcessOutIdentifier(SemanticModel model, IParameterSymbol parameter, IdentifierNameSyntax identifierName)
+    {
+        var symbol = model.GetSymbolInfo(identifierName).Symbol!;
+        switch (symbol)
+        {
+            case ILocalSymbol local:
+                LdLocSlot(local);
+                _context._outParamToLocal.TryAdd(parameter, local);
+                _context.TryAddCapturedStaticField(parameter, local);
+                StLocSlot(local);
+                break;
+            case IParameterSymbol param:
+                LdArgSlot(param);
+                _context.GetOrAddCapturedStaticField(parameter);
+                StArgSlot(param);
+                break;
+            case IDiscardSymbol:
+                PushDefault(parameter.Type);
+                _context.GetOrAddCapturedStaticField(parameter);
+                StArgSlot(parameter);
+                break;
+            default:
+                throw new CompilationException(identifierName, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {identifierName}");
+        }
+
+    }
+
+    private void HandleConstructorDuplication(bool instanceOnStack, CallingConvention methodCallingConvention, IMethodSymbol symbol)
+    {
+        if (instanceOnStack && methodCallingConvention != CallingConvention.Cdecl && symbol.MethodKind == MethodKind.Constructor)
+            AddInstruction(OpCode.DUP);
+    }
+
+    private void HandleInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+                                        CallingConvention methodCallingConvention, bool beforeArguments)
+    {
+        if (symbol.IsStatic) return;
+
+        bool shouldConvert = beforeArguments ? (methodCallingConvention != CallingConvention.Cdecl)
+                                             : (methodCallingConvention == CallingConvention.Cdecl);
+
+        if (shouldConvert)
+            ConvertInstanceExpression(model, instanceExpression);
+    }
+
+    private void EmitMethodCall(MethodConvert? convert, IMethodSymbol symbol)
+    {
+        if (convert is null)
+            CallVirtual(symbol);
+        else
+            EmitCall(convert);
+    }
+
+    // Helper method to get MethodConvert and CallingConvention
+    private (MethodConvert? convert, CallingConvention methodCallingConvention) GetMethodConvertAndCallingConvention(SemanticModel model, IMethodSymbol symbol)
+    {
+        if (symbol.IsVirtualMethod())
+            return (null, CallingConvention.Cdecl);
+
+        var convert = _context.ConvertMethod(model, symbol);
+        return (convert, convert._callingConvention);
+    }
+
+    // Helper method to handle instance on stack
+    private void HandleInstanceOnStack(IMethodSymbol symbol, bool instanceOnStack, CallingConvention methodCallingConvention)
+    {
+        if (!instanceOnStack || methodCallingConvention != CallingConvention.Cdecl)
+            return;
+
+        bool isConstructor = symbol.MethodKind == MethodKind.Constructor;
+        switch (symbol.Parameters.Length)
+        {
+            case 0:
+                if (isConstructor) AddInstruction(OpCode.DUP);
+                break;
+            case 1:
+                AddInstruction(isConstructor ? OpCode.OVER : OpCode.SWAP);
+                break;
+            default:
+                Push(symbol.Parameters.Length);
+                AddInstruction(isConstructor ? OpCode.PICK : OpCode.ROLL);
+                break;
+        }
+    }
+
+    // Helper method to get MethodConvert and CallingConvention for instance expression
+    private (MethodConvert? convert, CallingConvention methodCallingConvention) GetMethodConvertAndCallingConvention(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression)
+    {
+        if (symbol.IsVirtualMethod() && instanceExpression is not BaseExpressionSyntax)
+            return (null, CallingConvention.Cdecl);
+
+        var convert = symbol.ReducedFrom is null
+            ? _context.ConvertMethod(model, symbol)
+            : _context.ConvertMethod(model, symbol.ReducedFrom);
+        return (convert, convert._callingConvention);
+    }
+
+    // Helper method to convert instance expression
+    private void ConvertInstanceExpression(SemanticModel model, ExpressionSyntax? instanceExpression)
+    {
+        if (instanceExpression is null)
+            AddInstruction(OpCode.LDARG0);
+        else
+            ConvertExpression(model, instanceExpression);
+    }
+
     private void EmitCall(MethodConvert target)
     {
         if (target._inline && !_context.Options.NoInline)
-            for (int i = 0; i < target._instructions.Count - 1; i++)
-                AddInstruction(target._instructions[i].Clone());
+            EmitInlineInstructions(target);
         else
             Jump(OpCode.CALL_L, target._startTarget);
+    }
+
+    // Helper method to emit inline instructions
+    private void EmitInlineInstructions(MethodConvert target)
+    {
+        for (int i = 0; i < target._instructions.Count - 1; i++)
+            AddInstruction(target._instructions[i].Clone());
     }
 
     private void CallVirtual(IMethodSymbol symbol)
     {
         if (symbol.ContainingType.TypeKind == TypeKind.Interface)
             throw new CompilationException(symbol.ContainingType, DiagnosticId.InterfaceCall, "Interfaces are not supported.");
-        ISymbol[] members = symbol.ContainingType.GetAllMembers().Where(p => !p.IsStatic).ToArray();
-        IFieldSymbol[] fields = members.OfType<IFieldSymbol>().ToArray();
-        IMethodSymbol[] virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+
+        var members = symbol.ContainingType.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+        var fields = members.OfType<IFieldSymbol>().ToArray();
+        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+
         int index = Array.IndexOf(virtualMethods, symbol);
         if (index < 0)
             throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {symbol.OriginalDefinition}.");
+
         AddInstruction(OpCode.DUP);
         Push(fields.Length);
         AddInstruction(OpCode.PICKITEM);
@@ -241,7 +321,5 @@ internal partial class MethodConvert
     }
 
     private void InvokeMethod(MethodConvert convert)
-    {
-        Jump(OpCode.PUSHA, convert._startTarget);
-    }
+        => Jump(OpCode.PUSHA, convert._startTarget);
 }
