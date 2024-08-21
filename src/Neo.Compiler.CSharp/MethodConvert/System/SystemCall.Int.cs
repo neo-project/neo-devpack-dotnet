@@ -18,7 +18,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private static void HandleIntParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -176,6 +176,92 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.SWAP);
         methodConvert.AddInstruction(OpCode.DROP);
         methodConvert.Jump(OpCode.JMP, endTarget);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+    }
+
+    // HandleIntRotateLeft
+    private static void HandleIntRotateLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        // public static int RotateLeft(int value, int rotateAmount) => (int)((value << (rotateAmount & 31)) | ((uint)value >> ((32 - rotateAmount) & 31)));
+        var bitWidth = sizeof(int) * 8;
+        methodConvert.Push(bitWidth - 1);  // Push 31 (32-bit - 1)
+        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & 31
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 31)
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);    // Ensure SHL result is 32-bit
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load value
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        methodConvert.Push(bitWidth);  // Push 32
+        methodConvert.AddInstruction(OpCode.SWAP);   // Swap top two elements
+        methodConvert.AddInstruction(OpCode.SUB);    // 32 - rotateAmount
+        methodConvert.Push(bitWidth - 1);  // Push 31
+        methodConvert.AddInstruction(OpCode.AND);    // (32 - rotateAmount) & 31
+        methodConvert.AddInstruction(OpCode.SHR);    // (uint)value >> ((32 - rotateAmount) & 31)
+        methodConvert.AddInstruction(OpCode.OR);
+        methodConvert.AddInstruction(OpCode.DUP);    // Duplicate the result
+        methodConvert.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 31 (0x80000000)
+        var endTarget = new JumpTarget();
+        methodConvert.Jump(OpCode.JMPLT, endTarget);
+        methodConvert.Push(BigInteger.One << bitWidth); // BigInteger.One << 32 (0x100000000)
+        methodConvert.AddInstruction(OpCode.SUB);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+    }
+
+    // HandleIntRotateRight
+    private static void HandleIntRotateRight(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        // public static int RotateRight(int value, int rotateAmount) => (int)(((uint)value >> (rotateAmount & 31)) | (value << ((32 - rotateAmount) & 31)));
+        var bitWidth = sizeof(int) * 8;
+        methodConvert.Push(bitWidth - 1);  // Push 31 (32-bit - 1)
+        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & 31
+        methodConvert.Push(bitWidth);
+        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.Push(bitWidth);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 31)
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);    // Ensure SHL result is 32-bit
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load value
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        methodConvert.Push(bitWidth);
+        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.Push(bitWidth);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.Push(bitWidth);  // Push 32
+        methodConvert.AddInstruction(OpCode.SWAP);   // Swap top two elements
+        methodConvert.AddInstruction(OpCode.SUB);    // 32 - rotateAmount
+        methodConvert.Push(bitWidth - 1);  // Push 31
+        methodConvert.AddInstruction(OpCode.AND);    // (32 - rotateAmount) & 31
+        methodConvert.AddInstruction(OpCode.SHR);    // (uint)value >> ((32 - rotateAmount) & 31)
+        methodConvert.AddInstruction(OpCode.OR);
+        methodConvert.AddInstruction(OpCode.DUP);    // Duplicate the result
+        methodConvert.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 31 (0x80000000)
+        var endTarget = new JumpTarget();
+        methodConvert.Jump(OpCode.JMPLT, endTarget);
+        methodConvert.Push(BigInteger.One << bitWidth); // BigInteger.One << 32 (0x100000000)
+        methodConvert.AddInstruction(OpCode.SUB);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 }

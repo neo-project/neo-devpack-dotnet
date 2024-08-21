@@ -17,7 +17,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     // Handler for Math.Abs methods
     private static void HandleMathAbs(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -359,4 +359,13 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.THROW);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
+
+    // RegisterHandler((double x) => Math.Ceiling(x), HandleMathCeiling);
+    // RegisterHandler((double x) => Math.Floor(x), HandleMathFloor);
+    // RegisterHandler((double x) => Math.Round(x), HandleMathRound);
+    // RegisterHandler((double x) => Math.Truncate(x), HandleMathTruncate);
+    // RegisterHandler((double x, double y) => Math.Pow(x, y), HandleMathPow);
+    // RegisterHandler((double x) => Math.Sqrt(x), HandleMathSqrt);
+    // RegisterHandler((double x) => Math.Log(x), HandleMathLog);
+    // RegisterHandler((double x, double y) => Math.Log(x, y), HandleMathLogBase);
 }

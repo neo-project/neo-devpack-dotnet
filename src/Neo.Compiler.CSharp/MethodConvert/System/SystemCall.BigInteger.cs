@@ -18,7 +18,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private static void HandleBigIntegerOne(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -326,27 +326,6 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.MIN);
     }
 
-    private static void HandleBigIntegerDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
-    }
-
     // HandleBigIntegerIsOdd
     private static void HandleBigIntegerIsOdd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -490,5 +469,106 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIF, endTarget); // a
         methodConvert.AddInstruction(OpCode.NEGATE);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+    }
+
+    // HandleMathBigIntegerDivRem
+    private static void HandleMathBigIntegerDivRem(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        // Perform division
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.TUCK);
+        methodConvert.AddInstruction(OpCode.DIV);
+
+        // Calculate remainder
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.AddInstruction(OpCode.ROT);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.PUSH2);
+        methodConvert.AddInstruction(OpCode.PACK);
+    }
+
+    //implement HandleBigIntegerLeadingZeroCount
+    private static void HandleBigIntegerLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        JumpTarget endLoop = new();
+        JumpTarget loopStart = new();
+        JumpTarget endTarget = new();
+        methodConvert.AddInstruction(OpCode.DUP); // a a
+        methodConvert.AddInstruction(OpCode.PUSH0);// a a 0
+        JumpTarget notNegative = new();
+        methodConvert.Jump(OpCode.JMPGE, notNegative); //a
+        methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.PUSH0);
+        methodConvert.Jump(OpCode.JMP, endTarget);
+        notNegative.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push(0); // count 5 0
+        loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); //0 5
+        methodConvert.AddInstruction(OpCode.DUP);//  0 5 5
+        methodConvert.AddInstruction(OpCode.PUSH0);// 0 5 5 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop); //0 5
+        methodConvert.AddInstruction(OpCode.PUSH1);//0 5 1
+        methodConvert.AddInstruction(OpCode.SHR); //0  5>>1
+        methodConvert.AddInstruction(OpCode.SWAP);//5>>1 0
+        methodConvert.AddInstruction(OpCode.INC);// 5>>1 1
+        methodConvert.Jump(OpCode.JMP, loopStart);
+        endLoop.Instruction = methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.Push(256);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SUB);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+    }
+
+    private static void HandleBigIntegerCreatedChecked(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+    }
+
+    private static void HandleBigIntegerIsPowerOfTwo(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        JumpTarget endTarget = new();
+        methodConvert.AddInstruction(OpCode.DUP); // a a
+        methodConvert.AddInstruction(OpCode.PUSH0); // a a 0
+        methodConvert.Jump(OpCode.JMPLE, endTarget); // a
+        methodConvert.AddInstruction(OpCode.DUP); // a a
+        methodConvert.AddInstruction(OpCode.DEC); // a a-1
+        methodConvert.AddInstruction(OpCode.AND); // a&(a-1)
+        methodConvert.AddInstruction(OpCode.PUSH0); // a&(a-1) 0
+        methodConvert.Jump(OpCode.JMPEQ, endTarget); // a&(a-1)
+        methodConvert.AddInstruction(OpCode.PUSH0); // 0
+        methodConvert.Jump(OpCode.JMP, endTarget); // 0
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // NOP
+    }
+
+
+    private static void HandleBigIntegerCreateSaturating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+    }
+    private static void HandleBigIntegerEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
     }
 }
