@@ -13,8 +13,8 @@ env:
   COVERLET_MERGE_WITH: /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json
 
 jobs:
-
-  Test:
+  Build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -27,8 +27,7 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Check format
-      run: |
-        dotnet format --no-restore --verify-no-changes --verbosity diagnostic
+      run: dotnet format --no-restore --verify-no-changes --verbosity diagnostic
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Build Neo.SmartContract.Template and test templates
@@ -52,26 +51,87 @@ jobs:
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: ${{ github.workspace }}
+
+  Test-Compiler:
+    name: Test Neo.Compiler.CSharp
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Test Neo.Compiler.CSharp.UnitTests
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }}
+
+  Test-Framework:
+    name: Test Neo.SmartContract.Framework
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }}
+
+  Test-Testing:
+    name: Test Neo.SmartContract.Testing
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }}
+
+  Test-Template:
+    name: Test Neo.SmartContract.Template
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
@@ -80,6 +140,16 @@ jobs:
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
+
+  Coverage:
+    name: Coverage
+    needs: [Test-Compiler, Test-Framework, Test-Testing, Test-Template]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
     - name: Coveralls
       uses: coverallsapp/github-action@v2.3.0
       with:
@@ -89,7 +159,7 @@ jobs:
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
-    needs: Test
+    needs: Test-Compiler
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -149,7 +219,7 @@ jobs:
 
   Release:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
-    needs: Test
+    needs: Test-Compiler
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
