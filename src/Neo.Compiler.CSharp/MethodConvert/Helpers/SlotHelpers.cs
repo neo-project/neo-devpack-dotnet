@@ -10,7 +10,6 @@
 
 extern alias scfx;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -25,6 +24,15 @@ internal partial class MethodConvert
 {
     #region Variables
 
+    /// <summary>
+    /// Adds a local variable to the method's scope.
+    /// </summary>
+    /// <remarks>
+    /// ILocalSymbols defined by the 'out' parameter will not be processed here
+    /// but are considered as static fields.
+    /// </remarks>
+    /// <param name="symbol">The ILocalSymbol representing the local variable to be added.</param>
+    /// <returns>The index of the newly added local variable.</returns>
     private byte AddLocalVariable(ILocalSymbol symbol)
     {
         var index = (byte)(_localVariables.Count + _anonymousVariables.Count);
@@ -62,10 +70,11 @@ internal partial class MethodConvert
     #region Helper
 
     /// <summary>
-    /// load parameter value
+    /// Loads the value of a parameter onto the evaluation stack.
     /// </summary>
-    /// <param name="parameter"></param>
-    /// <returns></returns>
+    /// <param name="parameter">The parameter symbol to load.</param>
+    /// <param name="method">Optional method symbol, used for determining if it's a built-in type method.</param>
+    /// <returns>An instruction representing the load operation.</returns>
     private Instruction LdArgSlot(IParameterSymbol parameter)
     {
         if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
@@ -88,10 +97,11 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// store value to parameter
+    /// Stores the value from the evaluation stack to a parameter.
     /// </summary>
-    /// <param name="parameter"></param>
-    /// <returns></returns>
+    /// <param name="parameter">The parameter symbol to store the value to.</param>
+    /// <param name="method">Optional method symbol, used for determining if it's a built-in type method.</param>
+    /// <returns>An instruction representing the store operation.</returns>
     private Instruction StArgSlot(IParameterSymbol parameter)
     {
         if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
@@ -114,10 +124,11 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// load local variable value
+    /// Loads the value of a local variable onto the evaluation stack.
     /// </summary>
-    /// <param name="local"></param>
-    /// <returns></returns>
+    /// <param name="local">The local variable symbol to load.</param>
+    /// <param name="method">Optional method symbol, used for determining if it's a built-in type method.</param>
+    /// <returns>An instruction representing the load operation.</returns>
     private Instruction LdLocSlot(ILocalSymbol local)
     {
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
@@ -140,10 +151,11 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// store value to local variable
+    /// Stores the value from the evaluation stack into a local variable.
     /// </summary>
-    /// <param name="local"></param>
-    /// <returns></returns>
+    /// <param name="local">The local variable symbol to store the value into.</param>
+    /// <param name="method">Optional method symbol, used for determining if it's a built-in type method.</param>
+    /// <returns>An instruction representing the store operation.</returns>
     private Instruction StLocSlot(ILocalSymbol local)
     {
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
@@ -171,6 +183,19 @@ internal partial class MethodConvert
             : AddInstruction(opcode - 7 + index);
     }
 
+    /// <summary>
+    /// Prepares arguments for a method call, handling various parameter types and calling conventions.
+    /// </summary>
+    /// <param name="model">The semantic model used for analysis.</param>
+    /// <param name="symbol">The method symbol being called.</param>
+    /// <param name="arguments">The list of argument syntax nodes.</param>
+    /// <param name="callingConvention">The calling convention to use (default is Cdecl).</param>
+    /// <param name="isSysCall">Indicates whether the method is a system call.</param>
+    /// <remarks>
+    /// This method processes named arguments, determines parameter order based on calling convention,
+    /// and handles regular, params, and out arguments. It also takes into account system calls for
+    /// special processing of out parameters.
+    /// </remarks>
     private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
         // 1. Process named arguments
@@ -199,7 +224,7 @@ internal partial class MethodConvert
                 // c. Out Arguments
                 // Example: MethodCall(Out value)
                 // Where method signature is: void MethodCall(Out int value)
-                ProcessOutArgument(model, arguments, parameter);
+                ProcessOutArgument(model, symbol, arguments, parameter);
             }
             else
             {
@@ -212,7 +237,6 @@ internal partial class MethodConvert
     }
 
     // Helper methods
-
     private static Dictionary<IParameterSymbol, ExpressionSyntax> ProcessNamedArguments(SemanticModel model, IReadOnlyList<SyntaxNode> arguments)
     {
         // NameColon is not null means the argument is a named argument
@@ -274,18 +298,18 @@ internal partial class MethodConvert
         AddInstruction(OpCode.PACK);
     }
 
-    private void ProcessOutArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
     {
         try
         {
-            var local = _context._outParamToLocal[parameter];
+            var local = _context.OutParamToLocal[parameter];
             LdLocSlot(local);
         }
         catch
         {
             // check if the argument is a discard
             var argument = arguments[parameter.Ordinal] as ArgumentSyntax;
-            if (argument.Expression is not IdentifierNameSyntax { Identifier: { ValueText: "_" } })
+            if (argument.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
                 throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported,
                     $"In method {Symbol.Name}, unsupported out argument: {arguments[parameter.Ordinal]}");
             LdArgSlot(parameter);
@@ -321,24 +345,5 @@ internal partial class MethodConvert
             _ => throw new CompilationException(node, DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {node}"),
         };
     }
-
-    private Instruction IsType(VM.Types.StackItemType type)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = OpCode.ISTYPE,
-            Operand = [(byte)type]
-        });
-    }
-
-    private Instruction ChangeType(VM.Types.StackItemType type)
-    {
-        return AddInstruction(new Instruction
-        {
-            OpCode = OpCode.CONVERT,
-            Operand = [(byte)type]
-        });
-    }
-
     #endregion
 }

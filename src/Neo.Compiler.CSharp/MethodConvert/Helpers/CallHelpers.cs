@@ -66,10 +66,10 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallInstanceMethod(SemanticModel model, IMethodSymbol symbol, bool instanceOnStack, IReadOnlyList<ArgumentSyntax> arguments)
     {
+        ProcessOutParameters(model, symbol, arguments);
+
         if (TryProcessSpecialMethods(model, symbol, null, arguments))
             return;
-
-        ProcessOutParameters(model, symbol, arguments);
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
 
@@ -91,10 +91,10 @@ internal partial class MethodConvert
     /// <param name="arguments">The list of arguments for the method call.</param>
     private void CallMethodWithInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, params SyntaxNode[] arguments)
     {
+        ProcessOutParameters(model, symbol, arguments);
+
         if (TryProcessSpecialMethods(model, symbol, instanceExpression, arguments))
             return;
-
-        ProcessOutParameters(model, symbol, arguments);
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol, instanceExpression);
 
@@ -143,17 +143,17 @@ internal partial class MethodConvert
         {
             if (arguments.ElementAtOrDefault(parameter.Ordinal) is not ArgumentSyntax argument) continue;
 
-            ProcessOutArgument(model, parameter, argument);
+            ProcessOutArgument(model, symbol, parameter, argument);
         }
     }
 
-    private void ProcessOutArgument(SemanticModel model, IParameterSymbol parameter, ArgumentSyntax argument)
+    private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, ArgumentSyntax argument)
     {
         _context.GetOrAddCapturedStaticField(parameter);
         switch (argument.Expression)
         {
             case DeclarationExpressionSyntax { Designation: SingleVariableDesignationSyntax designation }:
-                ProcessOutDeclaration(model, parameter, designation);
+                ProcessOutDeclaration(model, methodSymbol, parameter, designation);
                 break;
             case IdentifierNameSyntax identifierName:
                 ProcessOutIdentifier(model, parameter, identifierName);
@@ -163,13 +163,13 @@ internal partial class MethodConvert
         }
     }
 
-    private void ProcessOutDeclaration(SemanticModel model, IParameterSymbol parameter, SingleVariableDesignationSyntax designation)
+    private void ProcessOutDeclaration(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, SingleVariableDesignationSyntax designation)
     {
         var local = (ILocalSymbol)model.GetDeclaredSymbol(designation)!;
-        _context._outParamToLocal.TryAdd(parameter, local);
         _context.TryAddCapturedStaticField(parameter, local);
-        PushDefault(parameter.Type);
-        StLocSlot(local);
+        _context.OutParamToLocal.TryAdd(parameter, local);
+        PushDefault(local.Type);
+        StLocSlot(local); // initialize the local variable with default value
     }
 
     private void ProcessOutIdentifier(SemanticModel model, IParameterSymbol parameter, IdentifierNameSyntax identifierName)
@@ -179,7 +179,7 @@ internal partial class MethodConvert
         {
             case ILocalSymbol local:
                 LdLocSlot(local);
-                _context._outParamToLocal.TryAdd(parameter, local);
+                _context.OutParamToLocal.TryAdd(parameter, local);
                 _context.TryAddCapturedStaticField(parameter, local);
                 StLocSlot(local);
                 break;
