@@ -51,27 +51,22 @@ jobs:
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-artifacts
-        path: ${{ github.workspace }}
 
   Test-Compiler:
     name: Test Neo.Compiler.CSharp
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
       with:
-        name: build-artifacts
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+        fetch-depth: 0
+        submodules: recursive
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Test Neo.Compiler.CSharp.UnitTests
+    - name: Build and Test Neo.Compiler.CSharp.UnitTests
       run: |
+        dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
@@ -82,16 +77,16 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
       with:
-        name: build-artifacts
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+        fetch-depth: 0
+        submodules: recursive
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Test Neo.SmartContract.Framework.UnitTests
+    - name: Build and Test Neo.SmartContract.Framework.UnitTests
       run: |
+        dotnet build ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
@@ -103,16 +98,16 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
       with:
-        name: build-artifacts
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+        fetch-depth: 0
+        submodules: recursive
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Test Neo.SmartContract.Testing.UnitTests
+    - name: Build and Test Neo.SmartContract.Testing.UnitTests
       run: |
+        dotnet build ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
@@ -124,16 +119,16 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
       with:
-        name: build-artifacts
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+        fetch-depth: 0
+        submodules: recursive
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Test Neo.SmartContract.Template.UnitTests
+    - name: Build and Test Neo.SmartContract.Template.UnitTests
       run: |
+        dotnet build ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_MERGE_WITH }} \
@@ -146,10 +141,7 @@ jobs:
     needs: [Test-Compiler, Test-Framework, Test-Testing, Test-Template]
     runs-on: ubuntu-latest
     steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: build-artifacts
+    - uses: actions/checkout@v4
     - name: Coveralls
       uses: coverallsapp/github-action@v2.3.0
       with:
