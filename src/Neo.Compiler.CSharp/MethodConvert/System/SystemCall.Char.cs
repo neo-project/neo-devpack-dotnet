@@ -16,7 +16,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private static void HandleCharParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -48,6 +48,8 @@ partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.AddInstruction(OpCode.SIZE);
     }
 
@@ -319,6 +321,59 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.SUB);
         methodConvert.Push((ushort)'A');
         methodConvert.AddInstruction(OpCode.ADD);
+        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+    }
+
+    private static void HandleCharToLowerInvariant(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'a');
+        methodConvert.Push((ushort)'z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+    }
+
+    private static void HandleCharToUpperInvariant(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'a');
+        methodConvert.Push((ushort)'z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+    }
+
+    private static void HandleCharIsAscii(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.Push(128);
+        methodConvert.AddInstruction(OpCode.LT);
+    }
+
+    private static void HandleCharIsAsciiDigit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.Push((ushort)'0');
+        methodConvert.Push((ushort)'9' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+    }
+
+    private static void HandleCharIsAsciiLetter(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        methodConvert.Push((ushort)'A');
+        methodConvert.Push((ushort)'Z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
+        var endTarget = new JumpTarget();
+        methodConvert.Jump(OpCode.JMPIF, endTarget);
+        methodConvert.Push((ushort)'a');
+        methodConvert.Push((ushort)'z' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 }

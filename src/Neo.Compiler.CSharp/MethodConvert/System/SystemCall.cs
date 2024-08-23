@@ -12,10 +12,10 @@ extern alias scfx;
 using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq.Expressions;
 using Neo.VM;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -43,19 +43,19 @@ internal partial class MethodConvert
 
     private static void RegisterHandler<T, TResult>(Expression<Func<T, TResult>> expression, SystemCallHandler handler)
     {
-        var key = GetKeyFromExpression(expression);
+        var key = GetKeyFromExpression(expression, typeof(T));
         SystemCallHandlers[key] = handler;
     }
 
     private static void RegisterHandler<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> expression, SystemCallHandler handler)
     {
-        var key = GetKeyFromExpression(expression);
+        var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2));
         SystemCallHandlers[key] = handler;
     }
 
     private static void RegisterHandler<T1, T2, T3, TResult>(Expression<Func<T1, T2, T3, TResult>> expression, SystemCallHandler handler)
     {
-        var key = GetKeyFromExpression(expression);
+        var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3));
         SystemCallHandlers[key] = handler;
     }
     private static void RegisterHandler<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, bool>> expression, SystemCallHandler handler)
@@ -64,60 +64,109 @@ internal partial class MethodConvert
         SystemCallHandlers[key] = handler;
     }
 
-    private static string GetKeyFromExpression(LambdaExpression expression)
+    private static void RegisterHandler<T>(Expression<Action<T>> expression, SystemCallHandler handler)
     {
-        switch (expression.Body)
-        {
-            case MethodCallExpression methodCall:
-                return GetMethodKey(methodCall.Method, methodCall.Arguments);
-
-            case MemberExpression { Member: PropertyInfo property }:
-                return $"{GetShortTypeName(property.DeclaringType)}.{property.Name}.get";
-
-            case MemberExpression { Member: FieldInfo field }:
-                return $"{GetShortTypeName(field.DeclaringType)}.{field.Name}";
-
-            case UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression:
-                var operandType = GetShortTypeName(unaryExpression.Operand.Type);
-                var targetType = GetShortTypeName(unaryExpression.Type);
-                return unaryExpression.Method.Name == "op_Implicit" ? $"{targetType}.implicit operator {targetType}({operandType})" : $"{operandType}.explicit operator {targetType}({operandType})";
-
-            case IndexExpression indexExpression:
-                var indexParams = string.Join(", ", indexExpression.Arguments.Select(arg => GetShortTypeName(arg.Type)));
-                return $"{GetShortTypeName(indexExpression.Object.Type)}.this[{indexParams}].get";
-
-            default:
-                throw new ArgumentException("Expression must be a method call, property, field access, or special member.", nameof(expression));
-        }
+        var key = GetKeyFromExpression(expression, typeof(T));
+        SystemCallHandlers[key] = handler;
     }
 
-    private static string GetMethodKey(MethodInfo method, IEnumerable<Expression> arguments)
+    private static void RegisterHandler<T1, T2>(Expression<Action<T1, T2>> expression, SystemCallHandler handler)
     {
-        var containingType = GetShortTypeName(method.DeclaringType);
-        var parameters = string.Join(", ", method.GetParameters().Select((p, i) => GetShortTypeName(arguments.ElementAt(i).Type)));
+        var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2));
+        SystemCallHandlers[key] = handler;
+    }
 
-        if (method.IsSpecialName && (method.Name.StartsWith("get_Char") || method.Name.StartsWith("set_Char")))
+    private static void RegisterHandler<T1, T2, T3>(Expression<Action<T1, T2, T3>> expression, SystemCallHandler handler)
+    {
+        var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3));
+        SystemCallHandlers[key] = handler;
+    }
+
+    private static string GetKeyFromExpression(LambdaExpression expression, params Type[] argumentTypes)
+    {
+        return expression.Body switch
         {
-            var accessorType = method.Name.StartsWith("get_Char") ? "get" : "set";
+            MethodCallExpression methodCall => GetMethodCallKey(methodCall, argumentTypes),
+            MemberExpression { Member: PropertyInfo property } => $"{GetShortTypeName(property.DeclaringType)}.{property.Name}.get",
+            MemberExpression { Member: FieldInfo field } => $"{GetShortTypeName(field.DeclaringType)}.{field.Name}",
+            UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression => GetUnaryExpressionKey(unaryExpression),
+            IndexExpression indexExpression => GetIndexExpressionKey(indexExpression),
+            _ => throw new ArgumentException("Expression must be a method call, property, field access, or special member.", nameof(expression)),
+        };
+    }
+
+    private static string GetMethodCallKey(MethodCallExpression methodCall, Type[] argumentTypes)
+    {
+        var method = methodCall.Method;
+        // Static method
+        if (methodCall.Object == null) return GetMethodKey(method, argumentTypes);
+
+        var methodName = method.Name;
+        var paramNames = argumentTypes.Select(GetShortTypeName).ToArray();
+        var parameters = paramNames.Length > 0 ? string.Join(", ", paramNames[1..]) : null;
+
+        if (method.IsSpecialName && (methodName.StartsWith("get_Char") || methodName.StartsWith("set_Char")))
+        {
+            var accessorType = methodName.StartsWith("get_Char") ? "get" : "set";
             return $"{GetShortTypeName(method.DeclaringType)}.this[{parameters}].{accessorType}";
         }
 
-        if (method.IsSpecialName && method.Name.StartsWith("op_"))
+        if (method.IsGenericMethod)
         {
-            var operatorName = GetOperatorName(method.Name);
-            if (operatorName is "implicit operator" or "explicit operator")
-            {
-                var returnType = GetShortTypeName(method.ReturnType);
-                return $"{containingType}.{operatorName} {returnType}({parameters})";
-            }
-            return $"{containingType}.{operatorName}({parameters})";
+            var containingType = GetShortTypeName(method.DeclaringType);
+            var genericArguments = $"<{string.Join(", ", method.GetGenericArguments().Select(GetShortTypeName))}>";
+            return $"{containingType}.{methodName}{genericArguments}({parameters})";
         }
 
-        var genericArguments = method.IsGenericMethod
-            ? $"<{string.Join(", ", method.GetGenericArguments().Select(GetShortTypeName))}>"
-            : "";
+        return $"{paramNames[0]}.{methodName}({parameters})";
+    }
 
-        return $"{containingType}.{method.Name}{genericArguments}({parameters})";
+    private static string GetUnaryExpressionKey(UnaryExpression unaryExpression)
+    {
+        var operandType = GetShortTypeName(unaryExpression.Operand.Type);
+        var targetType = GetShortTypeName(unaryExpression.Type);
+        return unaryExpression.Method.Name == "op_Implicit"
+            ? $"{targetType}.implicit operator {targetType}({operandType})"
+            : $"{operandType}.explicit operator {targetType}({operandType})";
+    }
+
+    private static string GetIndexExpressionKey(IndexExpression indexExpression)
+    {
+        var indexParams = string.Join(", ", indexExpression.Arguments.Select(arg => GetShortTypeName(arg.Type)));
+        return $"{GetShortTypeName(indexExpression.Object.Type)}.this[{indexParams}].get";
+    }
+
+    private static string GetMethodKey(MethodInfo method, Type[] argumentTypes)
+    {
+        var containingType = GetShortTypeName(method.DeclaringType);
+        var parameters = string.Join(", ", argumentTypes.Select(GetShortTypeName));
+
+        switch (method.IsSpecialName)
+        {
+            case true when method.Name.StartsWith("get_Char") || method.Name.StartsWith("set_Char"):
+                {
+                    var accessorType = method.Name.StartsWith("get_Char") ? "get" : "set";
+                    return $"{GetShortTypeName(method.DeclaringType)}.this[{parameters}].{accessorType}";
+                }
+            case true when method.Name.StartsWith("op_"):
+                {
+                    var operatorName = GetOperatorName(method.Name);
+                    if (operatorName is "implicit operator" or "explicit operator")
+                    {
+                        var returnType = GetShortTypeName(method.ReturnType);
+                        return $"{containingType}.{operatorName} {returnType}({parameters})";
+                    }
+                    return $"{containingType}.{operatorName}({parameters})";
+                }
+            default:
+                {
+                    var genericArguments = method.IsGenericMethod
+                        ? $"<{string.Join(", ", method.GetGenericArguments().Select(GetShortTypeName))}>"
+                        : "";
+
+                    return $"{containingType}.{method.Name}{genericArguments}({parameters})";
+                }
+        }
     }
 
     private static string GetShortTypeName(Type type)
@@ -125,6 +174,11 @@ internal partial class MethodConvert
         if (type.IsArray)
         {
             return GetShortTypeName(type.GetElementType()) + "[]";
+        }
+
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            return GetShortTypeName(type.GetGenericArguments()[0]) + "?";
         }
 
         return type switch
@@ -206,13 +260,11 @@ internal partial class MethodConvert
             return true;
         }
 
-        var key = symbol.ToString()!.Replace("?", "").Replace("out ", "");
+        var key = symbol.ToString()!.Replace("out ", "");
+        key = (from parameter in symbol.Parameters let parameterType = parameter.Type.ToString() where !parameter.Type.IsValueType && parameterType!.EndsWith('?') select parameterType).Aggregate(key, (current, parameterType) => current.Replace(parameterType, parameterType[..^1]));
         if (key == "string.ToString()") key = "object.ToString()";
-        if (SystemCallHandlers.TryGetValue(key, out var handler))
-        {
-            handler(this, model, symbol, instanceExpression, arguments);
-            return true;
-        }
-        return false;
+        if (!SystemCallHandlers.TryGetValue(key, out var handler)) return false;
+        handler(this, model, symbol, instanceExpression, arguments);
+        return true;
     }
 }
