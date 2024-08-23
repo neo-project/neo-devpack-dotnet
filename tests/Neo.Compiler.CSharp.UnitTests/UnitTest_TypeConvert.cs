@@ -11,7 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_TestTypeConvert()
         {
             var arr = (Array)Contract.TestType()!;
-            Assert.AreEqual(4207710, Engine.FeeConsumed.Value);
+            AssertGasConsumed(4207710);
 
             //test 0,1,2
             Assert.IsTrue(arr[0].Type == StackItemType.Integer);

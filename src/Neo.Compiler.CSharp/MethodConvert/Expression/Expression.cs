@@ -333,6 +333,23 @@ internal partial class MethodConvert
             case "Neo.SmartContract.Framework.UInt256":
                 ConvertExpression(model, expression);
                 break;
+            case "bool":
+                {
+                    ConvertExpression(model, expression);
+                    JumpTarget falseTarget = new();
+                    Jump(OpCode.JMPIFNOT_L, falseTarget);
+                    Push("True");
+                    JumpTarget endTarget = new();
+                    Jump(OpCode.JMP_L, endTarget);
+                    falseTarget.Instruction = Push("False");
+                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    break;
+                }
+            case "byte[]":
+                {
+                    Push("System.Byte[]");
+                    break;
+                }
             default:
                 throw new CompilationException(expression, DiagnosticId.InvalidToStringType, $"Unsupported interpolation: {expression}");
         }
