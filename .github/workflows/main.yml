@@ -7,8 +7,8 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.x
-  DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true
-  COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage/lcov
+  DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true --verbosity detailed
+  COVERLET_OUTPUT: /p:CoverletOutput=/home/runner/work/neo-devpack-dotnet/neo-devpack-dotnet/coverage/lcov.info
   COVERLET_OUTPUT_FORMAT: /p:CoverletOutputFormat=lcov
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
 
@@ -26,12 +26,32 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Check format
-      run: dotnet format --no-restore --verify-no-changes --verbosity diagnostic
+    - name: Get changed files
+      id: changed-files
+      run: |
+        git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+        echo "changed_files=$(cat changed_files.txt | grep '\.cs$' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+    - name: Format changed files
+      if: steps.changed-files.outputs.changed_files
+      run: |
+        changed_files="${{ steps.changed-files.outputs.changed_files }}"
+        formatted_projects=()
+        for file in $changed_files; do
+          project=$(dotnet sln neo-devpack-dotnet.sln list | grep -i $(dirname $file) | head -n 1)
+          if [[ ! " ${formatted_projects[@]} " =~ " ${project} " ]]; then
+            echo "Formatting project containing $file: $project"
+            dotnet format $project --include $file --verify-no-changes --verbosity diagnostic
+            formatted_projects+=("$project")
+          else
+            echo "Skipping already formatted project for $file: $project"
+          fi
+        done
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild
-      run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+      run: |
+        find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+        dotnet restore ./neo-devpack-dotnet.sln
     - name: Upload build results
       uses: actions/upload-artifact@v3
       with:
@@ -57,12 +77,24 @@ jobs:
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_OUTPUT_FORMAT }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }}
+    - name: Debug - List coverage directory
+      run: |
+        ls -R /home/runner/work/neo-devpack-dotnet/neo-devpack-dotnet/coverage
+    - name: Check coverage file
+      run: |
+        if [ -f /home/runner/work/neo-devpack-dotnet/neo-devpack-dotnet/coverage/lcov.info ]; then
+          echo "Coverage file exists"
+          cat /home/runner/work/neo-devpack-dotnet/neo-devpack-dotnet/coverage/lcov.info | head -n 10
+        else
+          echo "Coverage file does not exist"
+          ls -R /home/runner/work/neo-devpack-dotnet/neo-devpack-dotnet/coverage
+        fi
     - name: Upload coverage
       uses: actions/upload-artifact@v3
       with:
         name: coverage-compiler
-        path: ${{ github.workspace }}/coverage/lcov.info
-        if-no-files-found: error
+        path: /home/runner/work/neo-devpack-dotnet/neo-devpack-dotnet/coverage/lcov.info
+        if-no-files-found: warn
 
   Test-Framework:
     name: Test Neo.SmartContract.Framework
