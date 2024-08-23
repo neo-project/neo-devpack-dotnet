@@ -60,11 +60,12 @@ partial class MethodConvert
         HandleNumericTryParseWithOut(methodConvert, model, symbol, arguments, ulong.MinValue, ulong.MaxValue);
     }
 
-    private static void HandleNumericTryParseWithOut(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments, BigInteger minValue, BigInteger maxValue)
+    private static void HandleNumericTryParseWithOut(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments, BigInteger minValue, BigInteger maxValue)
     {
         if (arguments is null) return;
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        var local = methodConvert._context.OutParamToLocal[symbol.Parameters[1]];
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
 
         // Drop the out parameter since it's not needed
         // We use the static field to store the result
@@ -89,7 +90,7 @@ partial class MethodConvert
         methodConvert.Jump(OpCode.JMPIFNOT_L, failTarget);
 
         // If within range, store the value and push true
-        methodConvert.StLocSlot(local);
+        methodConvert.AccessSlot(OpCode.STSFLD, index);
         methodConvert.Push(true);
         JumpTarget endTarget = new();
         methodConvert.Jump(OpCode.JMP_L, endTarget);
@@ -106,7 +107,8 @@ partial class MethodConvert
     {
         if (arguments is null) return;
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        var local = methodConvert._context.OutParamToLocal[symbol.Parameters[1]];
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+
 
         JumpTarget endTarget = new();
 
@@ -120,7 +122,7 @@ partial class MethodConvert
 
         // If successful, store the value and push true
         methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.StLocSlot(local);
+        methodConvert.AccessSlot(OpCode.STSFLD, index);
         methodConvert.Push(true);
         methodConvert.Jump(OpCode.JMP_L, endTarget);
 
@@ -134,7 +136,7 @@ partial class MethodConvert
     {
         if (arguments is null) return;
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        var local = methodConvert._context.OutParamToLocal[symbol.Parameters[1]];
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
 
         JumpTarget trueTarget = new();
         JumpTarget falseTarget = new();
@@ -248,7 +250,7 @@ partial class MethodConvert
         // If parsing failed, clean up stack and push false
         methodConvert.AddInstruction(OpCode.DROP); //
         methodConvert.Push(false); // false
-        methodConvert.StLocSlot(local); // false
+        methodConvert.AccessSlot(OpCode.STSFLD, index); // false
         methodConvert.Push(false); // false
         methodConvert.Jump(OpCode.JMP_L, endTarget); // false
 
@@ -256,7 +258,7 @@ partial class MethodConvert
         trueTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // x
         methodConvert.AddInstruction(OpCode.DROP); //
         methodConvert.Push(true); //  true
-        methodConvert.StLocSlot(local); // true
+        methodConvert.AccessSlot(OpCode.STSFLD, index); // true
         methodConvert.Push(true); // true
         methodConvert.Jump(OpCode.JMP_L, endTarget); // true
 
@@ -264,7 +266,7 @@ partial class MethodConvert
         falseTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // x
         methodConvert.AddInstruction(OpCode.DROP); //
         methodConvert.Push(false); // false
-        methodConvert.StLocSlot(local); // false
+        methodConvert.AccessSlot(OpCode.STSFLD, index); // false
         methodConvert.Push(true); // true
 
         // End target
