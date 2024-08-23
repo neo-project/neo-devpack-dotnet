@@ -27,5 +27,6 @@ namespace Neo.Compiler
         public string? Output { get; set; }
         public bool Assembly { get; set; }
         public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.None;
+        public bool SecurityAnalysis { get; set; } = false;
     }
 }
