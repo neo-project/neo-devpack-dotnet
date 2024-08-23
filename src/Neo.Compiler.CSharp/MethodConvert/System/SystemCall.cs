@@ -64,7 +64,6 @@ internal partial class MethodConvert
         SystemCallHandlers[key] = handler;
     }
 
-
     private static string GetKeyFromExpression(LambdaExpression expression)
     {
         switch (expression.Body)
