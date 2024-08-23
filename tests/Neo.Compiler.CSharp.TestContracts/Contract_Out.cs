@@ -35,11 +35,11 @@ public class Contract_Out : SmartContract.Framework.SmartContract
     }
 
     // Using multiple out parameters
-    // public static string TestMultipleOut()
-    // {
-    //     MultipleOut(out int a, out string b, out bool c);
-    //     return $"{a}, {b}, {c}";
-    // }
+    public static string TestMultipleOut()
+    {
+        MultipleOut(out int a, out string b, out bool c);
+        return $"{a}, {b}, {c}";
+    }
 
     // Using out parameters with discard
     public static void TestOutDiscard()
@@ -92,9 +92,10 @@ public class Contract_Out : SmartContract.Framework.SmartContract
     }
 
     // Using out parameters in nested method calls
-    public static int TestNestedOut()
+    public static (int, int) TestNestedOut()
     {
-        return ProcessNestedOut(out int x);
+        var res = ProcessNestedOut(out int x);
+        return (res, x);
     }
 
     private static int ProcessNestedOut(out int x)
