@@ -7,7 +7,6 @@ namespace Neo.Compiler.CSharp.TestContracts
     {
         [ByteArray("0a0b0c0d0E0F")]
         private static readonly ByteString invalidECpoint = default!;
-
         [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
         private static readonly ByteString byteString2Ecpoint = default!;
         [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
