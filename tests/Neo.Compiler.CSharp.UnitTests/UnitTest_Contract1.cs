@@ -88,7 +88,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(0, Contract.TestArgs4(BigInteger.MinusOne, BigInteger.MinusOne));
             AssertGasConsumed(1048470);
 
-
             Assert.AreEqual(0, Contract.TestArgs4(int.MaxValue, int.MaxValue));
             AssertGasConsumed(1049160);
 
