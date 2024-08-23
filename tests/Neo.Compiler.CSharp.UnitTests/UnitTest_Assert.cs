@@ -33,7 +33,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertFalse()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertFalse());
-            Assert.AreEqual(1021590, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1021590);
             AssertsInFalse(exception);
         }
 
@@ -41,7 +41,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFunction()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFunction());
-            Assert.AreEqual(1039020, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1039020);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInTry()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInTry());
-            Assert.AreEqual(1039140, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1039140);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInCatch()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInCatch());
-            Assert.AreEqual(1055010, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1055010);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }
@@ -68,7 +68,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFinally()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFinally());
-            Assert.AreEqual(1039470, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1039470);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }

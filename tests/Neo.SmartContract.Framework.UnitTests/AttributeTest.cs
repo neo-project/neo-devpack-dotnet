@@ -24,17 +24,17 @@ namespace Neo.SmartContract.Framework.UnitTests
             // return in the middle
 
             Contract.ReentrantTest(0);
-            Assert.AreEqual(7224270, Engine.FeeConsumed.Value);
+            AssertGasConsumed(7224270);
 
             // Method end
 
             Contract.ReentrantTest(1);
-            Assert.AreEqual(7225320, Engine.FeeConsumed.Value);
+            AssertGasConsumed(7225320);
 
             // Reentrant test
 
             var ex = Assert.ThrowsException<TestException>(() => Contract.ReentrantTest(123));
-            Assert.AreEqual(7244250, Engine.FeeConsumed.Value);
+            AssertGasConsumed(7244250);
             Assert.IsTrue(ex.Message.Contains("Already entered"));
         }
     }

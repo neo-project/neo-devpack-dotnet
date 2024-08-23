@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestSubstring();
-            Assert.AreEqual(3075900, Engine.FeeConsumed.Value);
+            AssertGasConsumed(3075900);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(2, log.Count);
@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestMain();
-            Assert.AreEqual(7625310, Engine.FeeConsumed.Value);
+            AssertGasConsumed(7625310);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(1, log.Count);
@@ -56,7 +56,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestEqual();
-            Assert.AreEqual(1970970, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1970970);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(1, log.Count);
@@ -67,53 +67,53 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestEmpty()
         {
             Assert.AreEqual("", Contract.TestEmpty());
-            Assert.AreEqual(984270, Engine.FeeConsumed.Value);
+            AssertGasConsumed(984270);
         }
 
         [TestMethod]
         public void Test_TestIsNullOrEmpty()
         {
             Assert.IsTrue(Contract.TestIsNullOrEmpty(""));
-            Assert.AreEqual(1047870, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1047870);
 
             Assert.IsTrue(Contract.TestIsNullOrEmpty(null));
-            Assert.AreEqual(1047300, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1047300);
 
             Assert.IsFalse(Contract.TestIsNullOrEmpty("hello world"));
-            Assert.AreEqual(1047870, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1047870);
         }
 
         [TestMethod]
         public void Test_TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith("hello world"));
-            Assert.AreEqual(1357650, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1357650);
 
             Assert.IsFalse(Contract.TestEndWith("hel"));
-            Assert.AreEqual(1049250, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1049250);
 
             Assert.IsFalse(Contract.TestEndWith("hello"));
-            Assert.AreEqual(1049250, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1049250);
         }
 
         [TestMethod]
         public void Test_TestContains()
         {
             Assert.IsTrue(Contract.TestContains("hello world"));
-            Assert.AreEqual(2032740, Engine.FeeConsumed.Value);
+            AssertGasConsumed(2032740);
 
             Assert.IsFalse(Contract.TestContains("hello"));
-            Assert.AreEqual(2032740, Engine.FeeConsumed.Value);
+            AssertGasConsumed(2032740);
         }
 
         [TestMethod]
         public void Test_TestIndexOf()
         {
             Assert.AreEqual(6, Contract.TestIndexOf("hello world"));
-            Assert.AreEqual(2032470, Engine.FeeConsumed.Value);
+            AssertGasConsumed(2032470);
 
             Assert.AreEqual(-1, Contract.TestIndexOf("hello"));
-            Assert.AreEqual(2032470, Engine.FeeConsumed.Value);
+            AssertGasConsumed(2032470);
         }
 
         [TestMethod]
