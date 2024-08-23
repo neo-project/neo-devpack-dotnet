@@ -11,7 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Assign()
         {
             var tuple = Contract.T1()! as Struct;
-            Assert.AreEqual(4789620, Engine.FeeConsumed.Value);
+            AssertGasConsumed(4789620);
             Assert.AreEqual(5, tuple!.Count);
             Assert.AreEqual(1, tuple[2].GetInteger());
             Assert.AreEqual(4, tuple[3].GetInteger());
