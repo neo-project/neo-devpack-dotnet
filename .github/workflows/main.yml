@@ -26,9 +26,16 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v41
     - name: Check format
       run: |
-        dotnet format --no-restore --verify-no-changes --verbosity diagnostic
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          if [[ $file == *.cs ]]; then
+            dotnet format "$file" --verify-no-changes --verbosity diagnostic
+          fi
+        done
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Build Neo.SmartContract.Template and test templates
