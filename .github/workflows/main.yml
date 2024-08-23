@@ -12,10 +12,6 @@ env:
   COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage-join/
   COVERLET_MERGE_WITH: /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-  
 jobs:
 
   Test:
