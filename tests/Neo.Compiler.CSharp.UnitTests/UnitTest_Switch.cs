@@ -28,32 +28,32 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchLongLong()
         {
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("a")!).GetInteger());
-            Assert.AreEqual(1049490, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1049490);
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchLongLong("b")!).GetInteger());
-            Assert.AreEqual(1052130, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1052130);
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("c")!).GetInteger());
-            Assert.AreEqual(1050960, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1050960);
             Assert.AreEqual(-1, ((VM.Types.Integer)Contract.SwitchLongLong("d")!).GetInteger());
-            Assert.AreEqual(1053600, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1053600);
             Assert.AreEqual(1, ((VM.Types.Integer)Contract.SwitchLongLong("e")!).GetInteger());
-            Assert.AreEqual(1054950, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1054950);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("f")!).GetInteger());
-            Assert.AreEqual(1056240, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1056240);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("g")!).GetInteger());
-            Assert.AreEqual(1057560, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1057560);
         }
 
         [TestMethod]
         public void Test_SwitchInteger()
         {
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchInteger(1)!).GetInteger());
-            Assert.AreEqual(1048620, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1048620);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchInteger(2)!).GetInteger());
-            Assert.AreEqual(1049730, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1049730);
             Assert.AreEqual(6, ((VM.Types.Integer)Contract.SwitchInteger(3)!).GetInteger());
-            Assert.AreEqual(1050840, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1050840);
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchInteger(0)!).GetInteger());
-            Assert.AreEqual(1050840, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1050840);
         }
 
         [TestMethod]
@@ -70,9 +70,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Test default
 
             Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6(6.ToString())!).GetInteger());
-            Assert.AreEqual(1055310, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1055310);
             Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6Inline(6.ToString())!).GetInteger());
-            Assert.AreEqual(1055400, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1055400);
         }
     }
 }
