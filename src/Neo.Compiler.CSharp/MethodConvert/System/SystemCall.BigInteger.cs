@@ -555,7 +555,6 @@ internal partial class MethodConvert
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // NOP
     }
 
-
     private static void HandleBigIntegerCreateSaturating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
