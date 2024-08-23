@@ -128,6 +128,26 @@ internal partial class MethodConvert
             CallVirtual(symbol);
         else
             EmitCall(convert);
+
+        var parameters = symbol.Parameters;
+        parameters.Where(p => _context.OutStaticFieldsSync.ContainsKey(p)).ForEach(p =>
+        {
+            foreach (var sync in _context.OutStaticFieldsSync[p])
+            {
+                LdArgSlot(p);
+                switch (sync)
+                {
+                    case IParameterSymbol param:
+                        StArgSlot(param);
+                        break;
+                    case ILocalSymbol local:
+                        StLocSlot(local);
+                        break;
+                    default:
+                        throw new CompilationException(sync, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {sync}");
+                }
+            }
+        });
     }
 
     private bool TryProcessSpecialMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments)
@@ -149,7 +169,6 @@ internal partial class MethodConvert
 
     private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, ArgumentSyntax argument)
     {
-        _context.GetOrAddCapturedStaticField(parameter);
         switch (argument.Expression)
         {
             case DeclarationExpressionSyntax { Designation: SingleVariableDesignationSyntax designation }:
@@ -166,8 +185,7 @@ internal partial class MethodConvert
     private void ProcessOutDeclaration(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, SingleVariableDesignationSyntax designation)
     {
         var local = (ILocalSymbol)model.GetDeclaredSymbol(designation)!;
-        _context.TryAddCapturedStaticField(parameter, local);
-        _context.OutParamToLocal.TryAdd(parameter, local);
+        ProcessOutSymbol(parameter, local);
         PushDefault(local.Type);
         StLocSlot(local); // initialize the local variable with default value
     }
@@ -179,13 +197,12 @@ internal partial class MethodConvert
         {
             case ILocalSymbol local:
                 LdLocSlot(local);
-                _context.OutParamToLocal.TryAdd(parameter, local);
-                _context.TryAddCapturedStaticField(parameter, local);
+                ProcessOutSymbol(parameter, local);
                 StLocSlot(local);
                 break;
             case IParameterSymbol param:
                 LdArgSlot(param);
-                _context.GetOrAddCapturedStaticField(parameter);
+                ProcessOutSymbol(parameter, param);
                 StArgSlot(param);
                 break;
             case IDiscardSymbol:
@@ -196,7 +213,37 @@ internal partial class MethodConvert
             default:
                 throw new CompilationException(identifierName, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {identifierName}");
         }
+    }
 
+    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol)
+    {
+        bool parameterCaptured = _context.TryGetCapturedStaticField(parameter, out var parameterIndex);
+        bool symbolCaptured = _context.TryGetCapturedStaticField(symbol, out var symbolIndex);
+
+        if (parameterCaptured && !symbolCaptured)
+        {
+            _context.AssociateCapturedStaticField(symbol, parameterIndex);
+        }
+        else if (!parameterCaptured && symbolCaptured)
+        {
+            _context.AssociateCapturedStaticField(parameter, symbolIndex);
+        }
+        else if (parameterCaptured && symbolCaptured && parameterIndex != symbolIndex)
+        {
+            // both values are already captured in different indirectly connected methods,
+            // but they are different, thus need to sync value from symbol to parameter
+            if (!_context.OutStaticFieldsSync.TryGetValue(parameter, out var syncList))
+            {
+                syncList = new List<ISymbol>();
+                _context.OutStaticFieldsSync[parameter] = syncList;
+            }
+            syncList.Add(symbol);
+        }
+        else if (!parameterCaptured && !symbolCaptured)
+        {
+            var index = _context.GetOrAddCapturedStaticField(symbol);
+            _context.AssociateCapturedStaticField(parameter, index);
+        }
     }
 
     private void HandleConstructorDuplication(bool instanceOnStack, CallingConvention methodCallingConvention, IMethodSymbol symbol)
@@ -223,6 +270,26 @@ internal partial class MethodConvert
             CallVirtual(symbol);
         else
             EmitCall(convert);
+
+        var parameters = symbol.Parameters;
+        parameters.Where(p => _context.OutStaticFieldsSync.ContainsKey(p)).ForEach(p =>
+        {
+            foreach (var sync in _context.OutStaticFieldsSync[p])
+            {
+                LdArgSlot(p);
+                switch (sync)
+                {
+                    case IParameterSymbol param:
+                        StArgSlot(param);
+                        break;
+                    case ILocalSymbol local:
+                        StLocSlot(local);
+                        break;
+                    default:
+                        throw new CompilationException(sync, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {sync}");
+                }
+            }
+        });
     }
 
     // Helper method to get MethodConvert and CallingConvention

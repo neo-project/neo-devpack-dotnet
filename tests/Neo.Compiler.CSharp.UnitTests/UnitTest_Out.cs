@@ -1,5 +1,7 @@
+using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.VM.Types;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -40,6 +42,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             // This test is mainly to ensure that the method compiles and runs without error
             // Since we're discarding values, we can't really assert on them
             Contract.TestOutDiscard();
+        }
+
+        [TestMethod]
+        public void Test_NestedOut()
+        {
+            var result = Contract.TestNestedOut()!;
+            Assert.AreEqual((BigInteger)84, result[0], "TestNestedOut should return 84 as the first element");
+            Assert.AreEqual((BigInteger)42, result[1], "TestNestedOut should return 42 as the second element");
         }
     }
 }
