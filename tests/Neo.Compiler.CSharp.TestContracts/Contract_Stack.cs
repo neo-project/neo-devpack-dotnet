@@ -4,7 +4,6 @@ namespace Neo.Compiler.CSharp.TestContracts;
 
 public class Contract_Stack : SmartContract.Framework.SmartContract
 {
-
     public static BigInteger Test_Push_Integer(BigInteger value)
     {
         return value;
@@ -21,6 +20,5 @@ public class Contract_Stack : SmartContract.Framework.SmartContract
         const long longValue = -1000000000000;
 
         return (intValue, longValue);
-
     }
 }
