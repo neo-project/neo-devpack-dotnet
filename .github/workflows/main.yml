@@ -28,45 +28,30 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Check format
       run: dotnet format --no-restore --verify-no-changes --verbosity diagnostic
-    - name: Build Neo.Compiler.CSharp
-      run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-    - name: Build Neo.SmartContract.Template and test templates
-      run: |
-        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug
-        dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
-        dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/nep17/ --force
-        dotnet new neocontractowner -n Ownable -o ./src/Neo.SmartContract.Template/bin/Debug/ownable/ --force
-        dotnet new neocontractoracle -n OracleRequest -o ./src/Neo.SmartContract.Template/bin/Debug/oracle/ --force
-        dotnet new uninstall Neo.SmartContract.Template
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net8.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net8.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net8.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+    - name: Upload build results
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-results
+        path: ${{ github.workspace }}
+        retention-days: 1
 
   Test-Compiler:
     name: Test Neo.Compiler.CSharp
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v3
       with:
-        fetch-depth: 0
-        submodules: recursive
+        name: build-results
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Build and Test Neo.Compiler.CSharp.UnitTests
+    - name: Test Neo.Compiler.CSharp.UnitTests
       run: |
-        dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
@@ -77,17 +62,15 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v3
       with:
-        fetch-depth: 0
-        submodules: recursive
+        name: build-results
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Build and Test Neo.SmartContract.Framework.UnitTests
+    - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
-        dotnet build ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
+        dotnet test ./tests/Neo.SmartContract.Framework.UnitTests/Neo.SmartContract.Framework.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
@@ -98,17 +81,15 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v3
       with:
-        fetch-depth: 0
-        submodules: recursive
+        name: build-results
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Build and Test Neo.SmartContract.Testing.UnitTests
+    - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
-        dotnet build ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
-        dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
+        dotnet test ./tests/Neo.SmartContract.Testing.UnitTests/Neo.SmartContract.Testing.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
@@ -119,17 +100,15 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v3
       with:
-        fetch-depth: 0
-        submodules: recursive
+        name: build-results
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Build and Test Neo.SmartContract.Template.UnitTests
+    - name: Test Neo.SmartContract.Template.UnitTests
       run: |
-        dotnet build ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
-        dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
+        dotnet test ./tests/Neo.SmartContract.Template.UnitTests/Neo.SmartContract.Template.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
@@ -141,13 +120,25 @@ jobs:
     needs: [Test-Compiler, Test-Framework, Test-Testing, Test-Template]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/download-artifact@v3
+      with:
+        name: build-results
     - name: Coveralls
       uses: coverallsapp/github-action@v2.3.0
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         format: lcov
         file: ${{ github.workspace }}/coverage/lcov.info
+
+  Cleanup:
+    name: Cleanup Artifacts
+    needs: Coverage
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: build-results
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
