@@ -302,8 +302,7 @@ internal partial class MethodConvert
     {
         try
         {
-            var local = _context.OutParamToLocal[parameter];
-            LdLocSlot(local);
+            LdArgSlot(parameter);
         }
         catch
         {
