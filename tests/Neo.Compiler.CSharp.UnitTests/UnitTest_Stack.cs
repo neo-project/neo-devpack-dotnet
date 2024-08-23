@@ -93,7 +93,8 @@ public class UnitTest_Stack : DebugAndTestBase<Contract_Stack>
     public void Test_External()
     {
         var result = Contract.Test_External();
-        Assert.AreEqual(new BigInteger(-1000000), result[0]); // Previous error value 15777216
-        Assert.AreEqual(new BigInteger(-1000000000000), result[1]); // previous error value 280474976710656
+        Assert.AreEqual(BigInteger.MinusOne, result[0]);
+        Assert.AreEqual(new BigInteger(-1000000), result[1]); // Previous error value 15777216
+        Assert.AreEqual(new BigInteger(-1000000000000), result[2]); // previous error value 280474976710656
     }
 }

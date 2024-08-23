@@ -70,7 +70,7 @@ internal partial class MethodConvert
 
     private Instruction Push(BigInteger number)
     {
-        if (number >= -1 && number <= 16) return AddInstruction(OpCode.PUSH0 + (byte)(int)number);
+        if (number >= -1 && number <= 16) return AddInstruction(number == -1 ? OpCode.PUSHM1 : OpCode.PUSH0 + (byte)(int)number);
         Span<byte> buffer = stackalloc byte[32];
         if (!number.TryWriteBytes(buffer, out var bytesWritten, isUnsigned: false, isBigEndian: false))
             throw new ArgumentOutOfRangeException(nameof(number));

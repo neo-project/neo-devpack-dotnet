@@ -14,11 +14,12 @@ public class Contract_Stack : SmartContract.Framework.SmartContract
         return (byte.MinValue, byte.MaxValue, sbyte.MinValue, sbyte.MaxValue, short.MinValue, short.MaxValue, ushort.MaxValue, uint.MaxValue, int.MinValue, int.MaxValue, ulong.MaxValue, long.MinValue, long.MaxValue);
     }
 
-    public static (int, long) Test_External()
+    public static (int, int, long) Test_External()
     {
+        const int minusOne = -1;
         const int intValue = -1000000;
         const long longValue = -1000000000000;
 
-        return (intValue, longValue);
+        return (minusOne, intValue, longValue);
     }
 }
