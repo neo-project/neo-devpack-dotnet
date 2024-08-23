@@ -18,7 +18,7 @@ using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private static void HandleULongParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
@@ -126,5 +126,80 @@ partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DROP);
         methodConvert.Jump(OpCode.JMP, endTarget);
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+    }
+
+    /// <summary>
+    /// Handles the ULong.RotateLeft operation by converting it to the appropriate VM instructions.
+    /// </summary>
+    /// <param name="methodConvert">The MethodConvert instance to add instructions to.</param>
+    /// <param name="model">The semantic model of the code being converted.</param>
+    /// <param name="symbol">The method symbol representing the RotateLeft operation.</param>
+    /// <param name="instanceExpression">The instance expression, if any (null for static methods).</param>
+    /// <param name="arguments">The list of arguments passed to the method.</param>
+    private static void HandleULongRotateLeft(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        // public static ulong RotateLeft(ulong value, int rotateAmount) => (ulong)(value << rotateAmount) | (value >> (64 - rotateAmount));
+        var bitWidth = sizeof(ulong) * 8;
+        methodConvert.Push(bitWidth - 1);  // Push 63 (64-bit - 1)
+        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & 63
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.AddInstruction(OpCode.SWAP);
+        methodConvert.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 63)
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);    // Ensure SHL result is 64-bit
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load value
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        methodConvert.Push(bitWidth);  // Push 64
+        methodConvert.AddInstruction(OpCode.SWAP);   // Swap top two elements
+        methodConvert.AddInstruction(OpCode.SUB);    // 64 - rotateAmount
+        methodConvert.Push(bitWidth - 1);  // Push 63
+        methodConvert.AddInstruction(OpCode.AND);    // (64 - rotateAmount) & 63
+        methodConvert.AddInstruction(OpCode.SHR);    // (ulong)value >> ((64 - rotateAmount) & 63)
+        methodConvert.AddInstruction(OpCode.OR);
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
+        methodConvert.AddInstruction(OpCode.AND);    // Ensure final result is 64-bit
+    }
+
+    // HandleULongRotateRight
+    /// <summary>
+    /// Handles the ULong.RotateRight operation by converting it to the appropriate VM instructions.
+    /// </summary>
+    /// <param name="methodConvert">The MethodConvert instance to add instructions to.</param>
+    /// <param name="model">The semantic model of the code being converted.</param>
+    /// <param name="symbol">The method symbol representing the RotateRight operation.</param>
+    /// <param name="instanceExpression">The instance expression, if any (null for static methods).</param>
+    /// <param name="arguments">The list of arguments passed to the method.</param>
+    /// <remark>This method implements the rotation using bitwise operations.</remark>
+    private static void HandleULongRotateRight(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        // public static ulong RotateRight(ulong value, int rotateAmount) => (ulong)(value >> rotateAmount) | (value << (64 - rotateAmount));
+        var bitWidth = sizeof(ulong) * 8;
+        methodConvert.Push(bitWidth - 1);  // Push (bitWidth - 1)
+        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & (bitWidth - 1)
+        methodConvert.AddInstruction(OpCode.SHR);    // value >> (rotateAmount & (bitWidth - 1))
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load value again
+        methodConvert.Push(bitWidth);  // Push bitWidth
+        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        methodConvert.AddInstruction(OpCode.SUB);    // bitWidth - rotateAmount
+        methodConvert.Push(bitWidth - 1);  // Push (bitWidth - 1)
+        methodConvert.AddInstruction(OpCode.AND);    // (bitWidth - rotateAmount) & (bitWidth - 1)
+        methodConvert.AddInstruction(OpCode.SHL);    // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
+        methodConvert.AddInstruction(OpCode.OR);     // Combine the results with OR
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);  // Push (2^bitWidth - 1) as bitmask
+        methodConvert.AddInstruction(OpCode.AND);    // Ensure final result is bitWidth-bit
     }
 }
