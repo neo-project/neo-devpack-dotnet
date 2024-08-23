@@ -70,25 +70,46 @@ internal partial class MethodConvert
 
     private Instruction Push(BigInteger number)
     {
-        if (number == BigInteger.MinusOne) return AddInstruction(OpCode.PUSHM1);
-        if (number >= BigInteger.Zero && number <= 16) return AddInstruction(OpCode.PUSH0 + (byte)number);
-        byte n = number.GetByteCount() switch
+        if (number >= -1 && number <= 16) return AddInstruction(number == -1 ? OpCode.PUSHM1 : OpCode.PUSH0 + (byte)(int)number);
+        Span<byte> buffer = stackalloc byte[32];
+        if (!number.TryWriteBytes(buffer, out var bytesWritten, isUnsigned: false, isBigEndian: false))
+            throw new ArgumentOutOfRangeException(nameof(number));
+        var instruction = bytesWritten switch
         {
-            <= 1 => 0,
-            <= 2 => 1,
-            <= 4 => 2,
-            <= 8 => 3,
-            <= 16 => 4,
-            <= 32 => 5,
-            _ => throw new ArgumentOutOfRangeException(nameof(number))
+            1 => new Instruction
+            {
+                OpCode = OpCode.PUSHINT8,
+                Operand = PadRight(buffer, bytesWritten, 1, number.Sign < 0).ToArray()
+            },
+            2 => new Instruction
+            {
+                OpCode = OpCode.PUSHINT16,
+                Operand = PadRight(buffer, bytesWritten, 2, number.Sign < 0).ToArray()
+            },
+            <= 4 => new Instruction
+            {
+                OpCode = OpCode.PUSHINT32,
+                Operand = PadRight(buffer, bytesWritten, 4, number.Sign < 0).ToArray()
+            },
+            <= 8 => new Instruction
+            {
+                OpCode = OpCode.PUSHINT64,
+                Operand = PadRight(buffer, bytesWritten, 8, number.Sign < 0).ToArray()
+            },
+            <= 16 => new Instruction
+            {
+                OpCode = OpCode.PUSHINT128,
+                Operand = PadRight(buffer, bytesWritten, 16, number.Sign < 0).ToArray()
+            },
+            <= 32 => new Instruction
+            {
+                OpCode = OpCode.PUSHINT256,
+                Operand = PadRight(buffer, bytesWritten, 32, number.Sign < 0).ToArray()
+            },
+            _ => throw new ArgumentOutOfRangeException($"Number too large: {bytesWritten}")
         };
-        byte[] buffer = new byte[1 << n];
-        number.TryWriteBytes(buffer, out _);
-        return AddInstruction(new Instruction
-        {
-            OpCode = OpCode.PUSHINT8 + n,
-            Operand = buffer
-        });
+        AddInstruction(instruction);
+        return instruction;
     }
 
     private Instruction Push(string s)
@@ -272,6 +293,14 @@ internal partial class MethodConvert
         _breakTargets.Pop();
         if (_tryStack.TryPeek(out ExceptionHandling? result))
             result.BreakTargetCount--;
+    }
+
+    private static ReadOnlySpan<byte> PadRight(Span<byte> buffer, int dataLength, int padLength, bool negative)
+    {
+        byte pad = negative ? (byte)0xff : (byte)0;
+        for (int x = dataLength; x < padLength; x++)
+            buffer[x] = pad;
+        return buffer[..padLength];
     }
 
     /// <summary>
