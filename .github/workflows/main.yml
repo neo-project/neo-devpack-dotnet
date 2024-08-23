@@ -7,10 +7,11 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.x
-  DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
+  DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
-  COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage-join/
-  COVERLET_MERGE_WITH: /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json
+  COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage/
+  COVERLET_MERGE_WITH: /p:MergeWith=${{ github.workspace }}/coverage/coverage.json
+  COVERLET_OUTPUT_FORMAT: /p:CoverletOutputFormat=lcov
 
 jobs:
   Build:
@@ -26,103 +27,163 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Cache .NET packages and build output
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.nuget/packages
+          ${{ github.workspace }}/**/bin
+          ${{ github.workspace }}/**/obj
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-
     - name: Check format
       run: dotnet format --no-restore --verify-no-changes --verbosity diagnostic
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
-    - name: Upload build results
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-results
-        path: ${{ github.workspace }}
-        retention-days: 1
 
   Test-Compiler:
     name: Test Neo.Compiler.CSharp
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: build-results
+    - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Restore .NET packages and build output
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.nuget/packages
+          ${{ github.workspace }}/**/bin
+          ${{ github.workspace }}/**/obj
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
     - name: Test Neo.Compiler.CSharp.UnitTests
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }}
+        ${{ env.COVERLET_OUTPUT_FORMAT }}
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-compiler
+        path: ${{ github.workspace }}/coverage/coverage.info
+        if-no-files-found: error
 
   Test-Framework:
     name: Test Neo.SmartContract.Framework
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: build-results
+    - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Restore .NET packages and build output
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.nuget/packages
+          ${{ github.workspace }}/**/bin
+          ${{ github.workspace }}/**/obj
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests/Neo.SmartContract.Framework.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }}
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+        ${{ env.COVERLET_OUTPUT_FORMAT }}
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-framework
+        path: ${{ github.workspace }}/coverage/coverage.info
+        if-no-files-found: error
 
   Test-Testing:
     name: Test Neo.SmartContract.Testing
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: build-results
+    - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Restore .NET packages and build output
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.nuget/packages
+          ${{ github.workspace }}/**/bin
+          ${{ github.workspace }}/**/obj
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
     - name: Test Neo.SmartContract.Testing.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Testing.UnitTests/Neo.SmartContract.Testing.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_MERGE_WITH }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }}
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+        ${{ env.COVERLET_OUTPUT_FORMAT }}
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-testing
+        path: ${{ github.workspace }}/coverage/coverage.info
+        if-no-files-found: error
 
   Test-Template:
     name: Test Neo.SmartContract.Template
     needs: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: build-results
+    - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Restore .NET packages and build output
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.nuget/packages
+          ${{ github.workspace }}/**/bin
+          ${{ github.workspace }}/**/obj
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
     - name: Test Neo.SmartContract.Template.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Template.UnitTests/Neo.SmartContract.Template.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
-        /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
-        /p:CoverletOutputFormat=lcov
+        ${{ env.COVERLET_OUTPUT }} \
+        ${{ env.COVERLET_OUTPUT_FORMAT }}
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-template
+        path: ${{ github.workspace }}/coverage/coverage.info
+        if-no-files-found: error
 
   Coverage:
     name: Coverage
     needs: [Test-Compiler, Test-Framework, Test-Testing, Test-Template]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/checkout@v4
+    - name: Download coverage reports
+      uses: actions/download-artifact@v3
       with:
-        name: build-results
+        path: ${{ github.workspace }}/coverage
+    - name: Merge coverage reports
+      run: |
+        sudo apt-get install -y lcov
+        lcov $(find ${{ github.workspace }}/coverage -name '*.info' -printf '-a %p ') -o ${{ github.workspace }}/coverage/lcov.info
     - name: Coveralls
       uses: coverallsapp/github-action@v2.3.0
       with:
