@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var logs = new Queue<string>();
             Contract.OnRuntimeLog += (sender, log) => logs.Enqueue(log);
             Contract.TestMain();
-            Assert.AreEqual(32096340, Engine.FeeConsumed.Value);
+            AssertGasConsumed(32096340);
 
             // Check logs
             Assert.AreEqual(18, logs.Count);

@@ -10,11 +10,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Initializer_Test()
         {
             Assert.AreEqual(3, Contract.Sum());
-            Assert.AreEqual(1596420, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1596420);
             Assert.AreEqual(12, Contract.Sum1(5, 7));
-            Assert.AreEqual(2149290, Engine.FeeConsumed.Value);
+            AssertGasConsumed(2149290);
             Assert.AreEqual(12, Contract.Sum2(5, 7));
-            Assert.AreEqual(2149650, Engine.FeeConsumed.Value);
+            AssertGasConsumed(2149650);
         }
     }
 }

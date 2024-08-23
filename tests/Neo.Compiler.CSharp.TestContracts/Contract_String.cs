@@ -1,3 +1,5 @@
+using System.Numerics;
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
@@ -50,6 +52,27 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int TestIndexOf(string str)
         {
             return str.IndexOf("world");
+        }
+
+        public static string TestInterpolatedStringHandler()
+        {
+            const sbyte sbyteValue = -42;
+            const byte byteValue = 42;
+            const ushort ushortValue = 1000;
+            const uint uintValue = 1000000;
+            const ulong ulongValue = 1000000000000;
+            var bigIntValue = BigInteger.Parse("1000000000000000000000");
+            const char charValue = 'A';
+            const string stringValue = "Hello";
+            ECPoint ecPointValue = "NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq";
+            var byteStringValue = new byte[] { 1, 2, 3 };
+            const bool boolValue = true;
+
+            var str = $"SByte: {sbyteValue}, Byte: {byteValue}, UShort: {ushortValue}, " +
+                      $"UInt: {uintValue}, ULong: {ulongValue}, " +
+                      $"BigInteger: {bigIntValue}, Char: {charValue}, String: {stringValue}, " +
+                      $"ECPoint: {ecPointValue}, ByteString: {byteStringValue}, Bool: {boolValue}";
+            return str;
         }
     }
 }

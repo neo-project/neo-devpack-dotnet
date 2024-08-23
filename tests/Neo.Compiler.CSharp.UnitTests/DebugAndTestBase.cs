@@ -14,6 +14,8 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class DebugAndTestBase<T> : TestBase<T>
     where T : SmartContract.Testing.SmartContract, IContractInfo
 {
+    internal bool TestGasConsume { set; get; } = true;
+
     static DebugAndTestBase()
     {
         var context = TestCleanup.TestInitialize(typeof(T));
@@ -83,5 +85,11 @@ public class DebugAndTestBase<T> : TestBase<T>
                 Assert.IsFalse(includedInstructions.Contains(instruction));
                 includedInstructions.Add(instruction);
             }
+    }
+
+    protected void AssertGasConsumed(long gasConsumed)
+    {
+        if (TestGasConsume)
+            Assert.AreEqual(gasConsumed, Engine.FeeConsumed.Value);
     }
 }
