@@ -12,11 +12,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse(Contract.Test());
             Assert.AreEqual(984060, Engine.FeeConsumed.Value);
         }
-
-        [TestMethod]
-        public void Test2()
-        {
-            // Test if the workflow format is working
-        }
     }
 }
