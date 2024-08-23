@@ -42,8 +42,17 @@ jobs:
       if: steps.changed-files.outputs.cs_files != ''
       run: |
         changed_files="${{ steps.changed-files.outputs.cs_files }}"
+        formatted_projects=()
+
         for file in $changed_files; do
-          dotnet format --no-restore --verify-no-changes --verbosity detailed --include $file
+          project=$(dotnet sln neo-devpack-dotnet.sln list | grep -i $(dirname $file) | head -n 1)
+          if [[ ! " ${formatted_projects[@]} " =~ " ${project} " ]]; then
+            echo "Formatting project containing $file: $project"
+            dotnet format $project --include $file --verify-no-changes --verbosity diagnostic
+            formatted_projects+=("$project")
+          else
+            echo "Skipping already formatted project for $file: $project"
+          fi
         done
 
     - name: Check format of changed JSON files
