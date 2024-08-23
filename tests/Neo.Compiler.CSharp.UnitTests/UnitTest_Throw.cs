@@ -11,7 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Throw()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestMain([]));
-            Assert.AreEqual(1063530, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1063530);
             Assert.IsTrue(exception.Message.Contains("Please supply at least one argument."));
         }
 
@@ -19,7 +19,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_NotThrow()
         {
             Contract.TestMain(["test"]);
-            Assert.AreEqual(1111290, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1111290);
         }
     }
 }
