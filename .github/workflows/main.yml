@@ -67,7 +67,7 @@ jobs:
     - name: Build and Test Neo.Compiler.CSharp.UnitTests
       run: |
         dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-        dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
+        dotnet test ./tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj \
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }}
