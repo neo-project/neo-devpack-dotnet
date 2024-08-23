@@ -122,25 +122,6 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        public async Task TestQueryExpression()
-        {
-            var test = """
-                       using System.Linq;
-
-                       class MyClass
-                       {
-                           public void MyMethod()
-                           {
-                               var query = from x in new int[0] select x;
-                           }
-                       }
-                       """;
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(7, 21, 7, 25).WithArguments("from");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
         public async Task TestImplicitKeyword()
         {
             var test = """

@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Analyzer
             return keyword switch
             {
                 "unsafe" or "lock" or "fixed" or "stackalloc" or "await" or
-                "from" or "yield" or "explicit" or "implicit" or "dynamic" => true,
+                "yield" or "explicit" or "implicit" or "dynamic" => true,
                 _ => false
             };
         }

@@ -15,12 +15,10 @@ namespace Neo.SmartContract.Analyzer
 
         private readonly string[] _unsupportedBigIntegerMethods = {
             "BitwiseAnd", "BitwiseOr",
-            "CompareTo",
-            "Exp", "LeftShift", "Log",
+            "Exp", "LeftShift",
             "Log10", "OnesComplement",
             "RightShift",
-            "TryParse", "Xor",
-            "IsPowerOfTwo",
+            "Xor"
         };
 
         private static readonly DiagnosticDescriptor Rule = new(
