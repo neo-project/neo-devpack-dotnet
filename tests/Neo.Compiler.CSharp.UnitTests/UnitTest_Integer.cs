@@ -1159,5 +1159,186 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(sbyte.IsOddInteger(sbyte.MinValue), Contract.IsOddSbyte(sbyte.MinValue));
         }
 
+        [TestMethod]
+        public void TestRotateLeftByte()
+        {
+            Assert.AreEqual(byte.RotateLeft(1, 1), Contract.RotateLeftByte(1, 1));
+            Assert.AreEqual(byte.RotateLeft(0x12, 4), Contract.RotateLeftByte(0x12, 4));
+            Assert.AreEqual(byte.RotateLeft(byte.MaxValue, 1), Contract.RotateLeftByte(byte.MaxValue, 1));
+            Assert.AreEqual(byte.RotateLeft(0x80, 1), Contract.RotateLeftByte(0x80, 1));
+            Assert.AreEqual(byte.RotateLeft(0x01, 8), Contract.RotateLeftByte(0x01, 8));
+            Assert.AreEqual(byte.RotateLeft(0x01, 9), Contract.RotateLeftByte(0x01, 9));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftSByte()
+        {
+            Assert.AreEqual(sbyte.RotateLeft((sbyte)1, 1), Contract.RotateLeftSByte((sbyte)1, 1));
+            Assert.AreEqual(sbyte.RotateLeft((sbyte)0x12, 4), Contract.RotateLeftSByte((sbyte)0x12, 4));
+            Assert.AreEqual(sbyte.RotateLeft(sbyte.MaxValue, 1), Contract.RotateLeftSByte(sbyte.MaxValue, 1));
+            Assert.AreEqual(sbyte.RotateLeft(sbyte.MinValue, 1), Contract.RotateLeftSByte(sbyte.MinValue, 1));
+            Assert.AreEqual(sbyte.RotateLeft((sbyte)0x01, 8), Contract.RotateLeftSByte((sbyte)0x01, 8));
+            Assert.AreEqual(sbyte.RotateLeft((sbyte)0x01, 9), Contract.RotateLeftSByte((sbyte)0x01, 9));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftShort()
+        {
+            Assert.AreEqual(short.RotateLeft((short)1, 1), Contract.RotateLeftShort((short)1, 1));
+            Assert.AreEqual(short.RotateLeft((short)0x1234, 4), Contract.RotateLeftShort((short)0x1234, 4));
+            Assert.AreEqual(short.RotateLeft(short.MaxValue, 1), Contract.RotateLeftShort(short.MaxValue, 1));
+            Assert.AreEqual(short.RotateLeft(short.MinValue, 1), Contract.RotateLeftShort(short.MinValue, 1));
+            Assert.AreEqual(short.RotateLeft((short)0x0001, 16), Contract.RotateLeftShort((short)0x0001, 16));
+            Assert.AreEqual(short.RotateLeft((short)0x0001, 17), Contract.RotateLeftShort((short)0x0001, 17));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftUShort()
+        {
+            Assert.AreEqual(ushort.RotateLeft((ushort)1, 1), Contract.RotateLeftUShort((ushort)1, 1));
+            Assert.AreEqual(ushort.RotateLeft((ushort)0x1234, 4), Contract.RotateLeftUShort((ushort)0x1234, 4));
+            Assert.AreEqual(ushort.RotateLeft(ushort.MaxValue, 1), Contract.RotateLeftUShort(ushort.MaxValue, 1));
+            Assert.AreEqual(ushort.RotateLeft((ushort)0x8000, 1), Contract.RotateLeftUShort((ushort)0x8000, 1));
+            Assert.AreEqual(ushort.RotateLeft((ushort)0x0001, 16), Contract.RotateLeftUShort((ushort)0x0001, 16));
+            Assert.AreEqual(ushort.RotateLeft((ushort)0x0001, 17), Contract.RotateLeftUShort((ushort)0x0001, 17));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftInt()
+        {
+            Assert.AreEqual(int.RotateLeft(1, 1), Contract.RotateLeftInt(1, 1));
+            Assert.AreEqual(int.RotateLeft(0x12345678, 4), Contract.RotateLeftInt(0x12345678, 4));
+            Assert.AreEqual(int.RotateLeft(-1, 1), Contract.RotateLeftInt(-1, 1));
+            Assert.AreEqual(int.RotateLeft(int.MaxValue, 1), Contract.RotateLeftInt(int.MaxValue, 1));
+            Assert.AreEqual(int.RotateLeft(int.MinValue, 1), Contract.RotateLeftInt(int.MinValue, 1));
+            Assert.AreEqual(int.RotateLeft(0x00000001, 32), Contract.RotateLeftInt(0x00000001, 32));
+            Assert.AreEqual(int.RotateLeft(0x00000001, 33), Contract.RotateLeftInt(0x00000001, 33));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftUInt()
+        {
+
+            Assert.AreEqual(uint.RotateLeft(1U, 1), Contract.RotateLeftUInt(1U, 1));
+            Assert.AreEqual(uint.RotateLeft(0x12345678U, 4), Contract.RotateLeftUInt(0x12345678U, 4));
+            Assert.AreEqual(uint.RotateLeft(uint.MaxValue, 1), Contract.RotateLeftUInt(uint.MaxValue, 1));
+            Assert.AreEqual(uint.RotateLeft(0x80000000U, 1), Contract.RotateLeftUInt(0x80000000U, 1));
+            Assert.AreEqual(uint.RotateLeft(0x00000001U, 32), Contract.RotateLeftUInt(0x00000001U, 32));
+            Assert.AreEqual(uint.RotateLeft(0x00000001U, 33), Contract.RotateLeftUInt(0x00000001U, 33));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftLong()
+        {
+            Assert.AreEqual(long.RotateLeft(1L, 1), Contract.RotateLeftLong(1L, 1));
+            Assert.AreEqual(long.RotateLeft(0x123456789ABCDEFL, 4), Contract.RotateLeftLong(0x123456789ABCDEFL, 4));
+            Assert.AreEqual(long.RotateLeft(-1L, 1), Contract.RotateLeftLong(-1L, 1));
+            Assert.AreEqual(long.RotateLeft(long.MaxValue, 1), Contract.RotateLeftLong(long.MaxValue, 1));
+            Assert.AreEqual(long.RotateLeft(long.MinValue, 1), Contract.RotateLeftLong(long.MinValue, 1));
+            Assert.AreEqual(long.RotateLeft(0x0000000000000001L, 64), Contract.RotateLeftLong(0x0000000000000001L, 64));
+            Assert.AreEqual(long.RotateLeft(0x0000000000000001L, 65), Contract.RotateLeftLong(0x0000000000000001L, 65));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftULong()
+        {
+            Assert.AreEqual(ulong.RotateLeft(1UL, 1), Contract.RotateLeftULong(1UL, 1));
+            Assert.AreEqual(ulong.RotateLeft(0x123456789ABCDEFFUL, 4), Contract.RotateLeftULong(0x123456789ABCDEFFUL, 4));
+            Assert.AreEqual(ulong.RotateLeft(ulong.MaxValue, 1), Contract.RotateLeftULong(ulong.MaxValue, 1));
+            Assert.AreEqual(ulong.RotateLeft(0x8000000000000000UL, 1), Contract.RotateLeftULong(0x8000000000000000UL, 1));
+            Assert.AreEqual(ulong.RotateLeft(0x0000000000000001UL, 64), Contract.RotateLeftULong(0x0000000000000001UL, 64));
+            Assert.AreEqual(ulong.RotateLeft(0x0000000000000001UL, 65), Contract.RotateLeftULong(0x0000000000000001UL, 65));
+        }
+
+        [TestMethod]
+        public void TestRotateRightByte()
+        {
+            Assert.AreEqual(byte.RotateRight(1, 1), Contract.RotateRightByte(1, 1));
+            Assert.AreEqual(byte.RotateRight(0x12, 4), Contract.RotateRightByte(0x12, 4));
+            Assert.AreEqual(byte.RotateRight(byte.MaxValue, 1), Contract.RotateRightByte(byte.MaxValue, 1));
+            Assert.AreEqual(byte.RotateRight(0x01, 1), Contract.RotateRightByte(0x01, 1));
+            Assert.AreEqual(byte.RotateRight(0x01, 8), Contract.RotateRightByte(0x01, 8));
+            Assert.AreEqual(byte.RotateRight(0x01, 9), Contract.RotateRightByte(0x01, 9));
+        }
+
+        [TestMethod]
+        public void TestRotateRightSByte()
+        {
+            Assert.AreEqual(sbyte.RotateRight((sbyte)1, 1), Contract.RotateRightSByte((sbyte)1, 1));
+            Assert.AreEqual(sbyte.RotateRight((sbyte)0x12, 4), Contract.RotateRightSByte((sbyte)0x12, 4));
+            Assert.AreEqual(sbyte.RotateRight(sbyte.MaxValue, 1), Contract.RotateRightSByte(sbyte.MaxValue, 1));
+            Assert.AreEqual(sbyte.RotateRight(sbyte.MinValue, 1), Contract.RotateRightSByte(sbyte.MinValue, 1));
+            Assert.AreEqual(sbyte.RotateRight((sbyte)0x01, 8), Contract.RotateRightSByte((sbyte)0x01, 8));
+            Assert.AreEqual(sbyte.RotateRight((sbyte)0x01, 9), Contract.RotateRightSByte((sbyte)0x01, 9));
+        }
+
+        [TestMethod]
+        public void TestRotateRightShort()
+        {
+
+            Assert.AreEqual(short.RotateRight((short)1, 1), Contract.RotateRightShort((short)1, 1));
+            Assert.AreEqual(short.RotateRight((short)0x1234, 4), Contract.RotateRightShort((short)0x1234, 4));
+            Assert.AreEqual(short.RotateRight(short.MaxValue, 1), Contract.RotateRightShort(short.MaxValue, 1));
+            Assert.AreEqual(short.RotateRight(short.MinValue, 1), Contract.RotateRightShort(short.MinValue, 1));
+            Assert.AreEqual(short.RotateRight((short)0x0001, 16), Contract.RotateRightShort((short)0x0001, 16));
+            Assert.AreEqual(short.RotateRight((short)0x0001, 17), Contract.RotateRightShort((short)0x0001, 17));
+        }
+
+        [TestMethod]
+        public void TestRotateRightUShort()
+        {
+            Assert.AreEqual(ushort.RotateRight((ushort)1, 1), Contract.RotateRightUShort((ushort)1, 1));
+            Assert.AreEqual(ushort.RotateRight((ushort)0x1234, 4), Contract.RotateRightUShort((ushort)0x1234, 4));
+            Assert.AreEqual(ushort.RotateRight(ushort.MaxValue, 1), Contract.RotateRightUShort(ushort.MaxValue, 1));
+            Assert.AreEqual(ushort.RotateRight((ushort)0x0001, 1), Contract.RotateRightUShort((ushort)0x0001, 1));
+            Assert.AreEqual(ushort.RotateRight((ushort)0x0001, 16), Contract.RotateRightUShort((ushort)0x0001, 16));
+            Assert.AreEqual(ushort.RotateRight((ushort)0x0001, 17), Contract.RotateRightUShort((ushort)0x0001, 17));
+        }
+
+        [TestMethod]
+        public void TestRotateRightInt()
+        {
+
+            Assert.AreEqual(int.RotateRight(1, 1), Contract.RotateRightInt(1, 1));
+            Assert.AreEqual(int.RotateRight(0x12345678, 4), Contract.RotateRightInt(0x12345678, 4));
+            Assert.AreEqual(int.RotateRight(-1, 1), Contract.RotateRightInt(-1, 1));
+            Assert.AreEqual(int.RotateRight(int.MaxValue, 1), Contract.RotateRightInt(int.MaxValue, 1));
+            Assert.AreEqual(int.RotateRight(int.MinValue, 1), Contract.RotateRightInt(int.MinValue, 1));
+            Assert.AreEqual(int.RotateRight(0x00000001, 32), Contract.RotateRightInt(0x00000001, 32));
+            Assert.AreEqual(int.RotateRight(0x00000001, 33), Contract.RotateRightInt(0x00000001, 33));
+        }
+
+        [TestMethod]
+        public void TestRotateRightUInt()
+        {
+            Assert.AreEqual(uint.RotateRight(1U, 1), Contract.RotateRightUInt(1U, 1));
+            Assert.AreEqual(uint.RotateRight(0x12345678U, 4), Contract.RotateRightUInt(0x12345678U, 4));
+            Assert.AreEqual(uint.RotateRight(uint.MaxValue, 1), Contract.RotateRightUInt(uint.MaxValue, 1));
+            Assert.AreEqual(uint.RotateRight(0x00000001U, 1), Contract.RotateRightUInt(0x00000001U, 1));
+            Assert.AreEqual(uint.RotateRight(0x00000001U, 32), Contract.RotateRightUInt(0x00000001U, 32));
+            Assert.AreEqual(uint.RotateRight(0x00000001U, 33), Contract.RotateRightUInt(0x00000001U, 33));
+        }
+
+        [TestMethod]
+        public void TestRotateRightLong()
+        {
+            Assert.AreEqual(long.RotateRight(1L, 1), Contract.RotateRightLong(1L, 1));
+            Assert.AreEqual(long.RotateRight(0x123456789ABCDEFL, 4), Contract.RotateRightLong(0x123456789ABCDEFL, 4));
+            Assert.AreEqual(long.RotateRight(-1L, 1), Contract.RotateRightLong(-1L, 1));
+            Assert.AreEqual(long.RotateRight(long.MaxValue, 1), Contract.RotateRightLong(long.MaxValue, 1));
+            Assert.AreEqual(long.RotateRight(long.MinValue, 1), Contract.RotateRightLong(long.MinValue, 1));
+            Assert.AreEqual(long.RotateRight(0x0000000000000001L, 64), Contract.RotateRightLong(0x0000000000000001L, 64));
+            Assert.AreEqual(long.RotateRight(0x0000000000000001L, 65), Contract.RotateRightLong(0x0000000000000001L, 65));
+        }
+        [TestMethod]
+        public void TestRotateRightULong()
+        {
+            Assert.AreEqual(ulong.RotateRight(1UL, 1), Contract.RotateRightULong(1UL, 1));
+            Assert.AreEqual(ulong.RotateRight(0x123456789ABCDEFFUL, 4), Contract.RotateRightULong(0x123456789ABCDEFFUL, 4));
+            Assert.AreEqual(ulong.RotateRight(ulong.MaxValue, 1), Contract.RotateRightULong(ulong.MaxValue, 1));
+            Assert.AreEqual(ulong.RotateRight(0x0000000000000001UL, 1), Contract.RotateRightULong(0x0000000000000001UL, 1));
+            Assert.AreEqual(ulong.RotateRight(0x0000000000000001UL, 64), Contract.RotateRightULong(0x0000000000000001UL, 64));
+            Assert.AreEqual(ulong.RotateRight(0x0000000000000001UL, 65), Contract.RotateRightULong(0x0000000000000001UL, 65));
+        }
     }
 }

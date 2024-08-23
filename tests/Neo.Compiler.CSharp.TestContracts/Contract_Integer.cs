@@ -369,7 +369,6 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return sbyte.LeadingZeroCount(value);
     }
 
-
     public static int Log2Int(int value)
     {
         return int.Log2(value);
@@ -403,5 +402,85 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
     public static int Log2Sbyte(sbyte value)
     {
         return sbyte.Log2(value);
+    }
+
+    public static int RotateLeftInt(int value, int offset)
+    {
+        return int.RotateLeft(value, offset);
+    }
+
+    public static uint RotateLeftUInt(uint value, int offset)
+    {
+        return uint.RotateLeft(value, offset);
+    }
+
+    public static long RotateLeftLong(long value, int offset)
+    {
+        return long.RotateLeft(value, offset);
+    }
+
+    public static ulong RotateLeftULong(ulong value, int offset)
+    {
+        return ulong.RotateLeft(value, offset);
+    }
+
+    public static short RotateLeftShort(short value, int offset)
+    {
+        return short.RotateLeft(value, offset);
+    }
+
+    public static ushort RotateLeftUShort(ushort value, int offset)
+    {
+        return ushort.RotateLeft(value, offset);
+    }
+
+    public static byte RotateLeftByte(byte value, int offset)
+    {
+        return byte.RotateLeft(value, offset);
+    }
+
+    public static sbyte RotateLeftSByte(sbyte value, int offset)
+    {
+        return sbyte.RotateLeft(value, offset);
+    }
+
+    public static int RotateRightInt(int value, int offset)
+    {
+        return int.RotateRight(value, offset);
+    }
+
+    public static uint RotateRightUInt(uint value, int offset)
+    {
+        return uint.RotateRight(value, offset);
+    }
+
+    public static long RotateRightLong(long value, int offset)
+    {
+        return long.RotateRight(value, offset);
+    }
+
+    public static ulong RotateRightULong(ulong value, int offset)
+    {
+        return ulong.RotateRight(value, offset);
+    }
+
+    public static short RotateRightShort(short value, int offset)
+    {
+        return short.RotateRight(value, offset);
+    }
+
+    public static ushort RotateRightUShort(ushort value, int offset)
+    {
+        return ushort.RotateRight(value, offset);
+    }
+
+    public static byte RotateRightByte(byte value, int offset)
+    {
+        return byte.RotateRight(value, offset);
+    }
+
+    public static sbyte RotateRightSByte(sbyte value, int offset)
+    {
+        return sbyte.RotateRight(value, offset);
     }
 }
