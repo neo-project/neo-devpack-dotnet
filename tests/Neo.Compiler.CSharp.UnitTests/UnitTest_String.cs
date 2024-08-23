@@ -115,5 +115,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(-1, Contract.TestIndexOf("hello"));
             AssertGasConsumed(2032470);
         }
+
+        [TestMethod]
+        public void Test_TestInterpolatedStringHandler()
+        {
+            Assert.AreEqual("SByte: -42, Byte: 42, UShort: 1000, UInt: 1000000, ULong: 1000000000000, BigInteger: 1000000000000000000000, Char: A, String: Hello, ECPoint: NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq, ByteString: System.Byte[], Bool: True", Contract.TestInterpolatedStringHandler());
+            Assert.AreEqual(12298590, Engine.FeeConsumed.Value);
+        }
     }
 }
