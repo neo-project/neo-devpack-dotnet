@@ -10,9 +10,9 @@ namespace Neo.SmartContract.Analyzer
     public class KeywordUsageAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "NC4015";
-        private static readonly string Title = "Restricted keyword usage";
-        private static readonly string MessageFormat = "Use of '{0}' is not allowed";
-        private static readonly string Description = "This keyword is restricted in this project.";
+        private static readonly LocalizableString Title = "Restricted keyword usage";
+        private static readonly LocalizableString MessageFormat = "Use of '{0}' is not allowed";
+        private static readonly LocalizableString Description = "This keyword is restricted in this project.";
         private const string Category = "Usage";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
@@ -24,66 +24,57 @@ namespace Neo.SmartContract.Analyzer
             isEnabledByDefault: true,
             description: Description);
 
-        private static readonly ImmutableArray<SyntaxKind> bannedSyntaxKinds = ImmutableArray.Create(
-            SyntaxKind.LockKeyword,
-            SyntaxKind.FixedKeyword,
-            SyntaxKind.UnsafeKeyword,
-            SyntaxKind.StackAllocKeyword,
-            SyntaxKind.AwaitKeyword,
-            SyntaxKind.UnmanagedKeyword,
-            SyntaxKind.SelectKeyword,
-            SyntaxKind.OrderByKeyword,
-            SyntaxKind.ImplicitKeyword,
-            SyntaxKind.ExplicitKeyword,
-            SyntaxKind.YieldKeyword,
-            SyntaxKind.WhereKeyword
-        );
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode, bannedSyntaxKinds);
-            context.RegisterSyntaxNodeAction(AnalyzeDynamicType, SyntaxKind.IdentifierName);
+            context.RegisterSyntaxNodeAction(AnalyzeNode,
+                SyntaxKind.UnsafeStatement,
+                SyntaxKind.LockStatement,
+                SyntaxKind.FixedStatement,
+                SyntaxKind.StackAllocArrayCreationExpression,
+                SyntaxKind.AwaitExpression,
+                SyntaxKind.QueryExpression,
+                SyntaxKind.YieldReturnStatement,
+                SyntaxKind.YieldBreakStatement,
+                SyntaxKind.ConversionOperatorDeclaration,
+                SyntaxKind.IdentifierName);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
-            var token = context.Node switch
+            SyntaxToken keywordToken = context.Node.Kind() switch
             {
-                LockStatementSyntax lockStmt => lockStmt.LockKeyword,
-                FixedStatementSyntax fixedStmt => fixedStmt.FixedKeyword,
-                UnsafeStatementSyntax unsafeStmt => unsafeStmt.UnsafeKeyword,
-                StackAllocArrayCreationExpressionSyntax stackAlloc => stackAlloc.StackAllocKeyword,
-                AwaitExpressionSyntax awaitExpr => awaitExpr.AwaitKeyword,
-                QueryExpressionSyntax queryExpr => queryExpr.FromClause.FromKeyword,
-                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword,
-                WhereClauseSyntax whereClause => whereClause.WhereKeyword,
-                ConversionOperatorDeclarationSyntax convOp => convOp.ImplicitOrExplicitKeyword,
+                SyntaxKind.UnsafeStatement => ((UnsafeStatementSyntax)context.Node).UnsafeKeyword,
+                SyntaxKind.LockStatement => ((LockStatementSyntax)context.Node).LockKeyword,
+                SyntaxKind.FixedStatement => ((FixedStatementSyntax)context.Node).FixedKeyword,
+                SyntaxKind.StackAllocArrayCreationExpression => ((StackAllocArrayCreationExpressionSyntax)context.Node).StackAllocKeyword,
+                SyntaxKind.AwaitExpression => ((AwaitExpressionSyntax)context.Node).AwaitKeyword,
+                SyntaxKind.QueryExpression => ((QueryExpressionSyntax)context.Node).FromClause.FromKeyword,
+                SyntaxKind.YieldReturnStatement => ((YieldStatementSyntax)context.Node).YieldKeyword,
+                SyntaxKind.YieldBreakStatement => ((YieldStatementSyntax)context.Node).YieldKeyword,
+                SyntaxKind.ConversionOperatorDeclaration => ((ConversionOperatorDeclarationSyntax)context.Node).ImplicitOrExplicitKeyword,
+                SyntaxKind.IdentifierName => ((IdentifierNameSyntax)context.Node).Identifier,
                 _ => default
             };
 
-            if (token != default)
+            if (keywordToken != default && IsRestrictedKeyword(keywordToken.ValueText))
             {
-                var diagnostic = Diagnostic.Create(Rule, token.GetLocation(), token.Text);
+                var diagnostic = Diagnostic.Create(Rule, keywordToken.GetLocation(), keywordToken.Text);
                 context.ReportDiagnostic(diagnostic);
             }
         }
 
-        private void AnalyzeDynamicType(SyntaxNodeAnalysisContext context)
+        private bool IsRestrictedKeyword(string keyword)
         {
-            if (context.Node is IdentifierNameSyntax identifierName &&
-                identifierName.Identifier.ValueText == "dynamic")
+            return keyword switch
             {
-                var typeInfo = context.SemanticModel.GetTypeInfo(identifierName);
-                if (typeInfo.Type != null && typeInfo.Type.TypeKind == TypeKind.Dynamic)
-                {
-                    var diagnostic = Diagnostic.Create(Rule, identifierName.GetLocation(), "dynamic");
-                    context.ReportDiagnostic(diagnostic);
-                }
-            }
+                "unsafe" or "lock" or "fixed" or "stackalloc" or "await" or
+                "from" or "yield" or "explicit" or "implicit" or "dynamic" => true,
+                _ => false
+            };
         }
     }
 }
