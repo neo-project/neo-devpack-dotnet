@@ -56,8 +56,9 @@ namespace Neo.Compiler
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
-        // This dictionary is used to map out parameters/arguments to local variables (in the method where the out argument is declared)
-        internal Dictionary<IParameterSymbol, ILocalSymbol> OutParamToLocal { get; } = new(SymbolEqualityComparer.Default);
+        // This dictionary is used to sync value from key symbol to value symbol
+        // We need to sync the value symbol to the key symbol when the key symbol is updated
+        internal Dictionary<ISymbol, System.Collections.Generic.List<ISymbol>> OutStaticFieldsSync { get; } = new Dictionary<ISymbol, System.Collections.Generic.List<ISymbol>>(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
@@ -554,24 +555,6 @@ namespace Neo.Compiler
         internal bool TryGetCapturedStaticField(ISymbol local, out byte staticFieldIndex)
         {
             return _capturedStaticFields.TryGetValue(local, out staticFieldIndex);
-        }
-
-
-        /// <summary>
-        /// This method tries to associate a local symbol to a parameter symbol.
-        /// </summary>
-        /// <param name="parameter"> The parameter symbol to associate with the local symbol.</param>
-        /// <param name="local"> The local symbol to associate with the parameter symbol. </param>
-        /// <returns> True if the association was successful, false otherwise. </returns>
-        /// <exception cref="CompilationException">Thrown if the parameter symbol is not found in the captured static fields. </exception>
-        internal bool TryAddCapturedStaticField(IParameterSymbol parameter, ILocalSymbol local)
-        {
-            if (TryGetCapturedStaticField(parameter, out var index))
-            {
-                return _capturedStaticFields.TryAdd(local, index);
-            }
-
-            throw new CompilationException(parameter, DiagnosticId.CapturedStaticFieldNotFound, $"Captured static field not found for parameter {parameter.Name}");
         }
 
         internal byte AddVTable(ITypeSymbol type)

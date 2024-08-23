@@ -36,7 +36,7 @@ namespace Neo.Compiler
         /// CalculateSum(10, 20);
         /// </code>
         /// In this example, the expression is a method call to 'CalculateSum'.
-        /// If 'CalculateSum' returns a value and it is not used, a 'DROP' instruction will be added.
+        /// If 'CalculateSum' returns a value, and it is not used, a 'DROP' instruction will be added.
         /// </example>
         private void ConvertExpressionStatement(SemanticModel model, ExpressionStatementSyntax syntax)
         {
