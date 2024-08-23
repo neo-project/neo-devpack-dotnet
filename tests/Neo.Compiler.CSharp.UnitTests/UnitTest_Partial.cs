@@ -10,9 +10,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Partial()
         {
             Assert.AreEqual(1, Contract.Test1());
-            Assert.AreEqual(984060, Engine.FeeConsumed.Value);
+            AssertGasConsumed(984060);
             Assert.AreEqual(2, Contract.Test2());
-            Assert.AreEqual(984060, Engine.FeeConsumed.Value);
+            AssertGasConsumed(984060);
         }
     }
 }
