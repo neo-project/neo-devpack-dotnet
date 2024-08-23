@@ -453,11 +453,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1049490);
         }
 
-
         [TestMethod]
         public void TestMethodSByteCopySign()
         {
-            // Test with notmal and edge cases
+            // Test with normal and edge cases
             Assert.AreEqual(sbyte.CopySign(5, 1), Contract.CopySignSbyte(5, 1));
             AssertGasConsumed(1049460);
             Assert.AreEqual(sbyte.CopySign(5, 0), Contract.CopySignSbyte(5U, 0));
