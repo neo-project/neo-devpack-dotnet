@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     /// <summary>
     /// Converts initialization of array fields into OpCodes.
@@ -32,7 +32,7 @@ partial class MethodConvert
     /// static int[] B = { 1, 2 };
     /// static byte[] C = { 1, 2 };
     /// static UInt160 D = UInt160.Zero;
-    /// 
+    ///
     /// public static void MyMethod()
     /// {
     ///     Runtime.Log(A[0]);

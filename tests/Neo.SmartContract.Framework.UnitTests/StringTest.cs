@@ -11,22 +11,22 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // ab => 3
             Assert.AreEqual(3, Contract.TestStringAdd("a", "b"));
-            Assert.AreEqual(1357590, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1357590);
 
             // hello => 4
             Assert.AreEqual(4, Contract.TestStringAdd("he", "llo"));
-            Assert.AreEqual(1356540, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1356540);
 
             // world => 5
             Assert.AreEqual(5, Contract.TestStringAdd("wo", "rld"));
-            Assert.AreEqual(1357800, Engine.FeeConsumed.Value);
+            AssertGasConsumed(1357800);
         }
 
         [TestMethod]
         public void TestStringAddInt()
         {
             Assert.AreEqual("Neo3", Contract.TestStringAddInt("Neo", 3));
-            Assert.AreEqual(2460480, Engine.FeeConsumed.Value);
+            AssertGasConsumed(2460480);
         }
     }
 }

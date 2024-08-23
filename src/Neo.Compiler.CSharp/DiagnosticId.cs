@@ -35,5 +35,6 @@ namespace Neo.Compiler
         public const string EventNameConflict = "NC3004";
         public const string InvalidInitialValue = "NC3005";
         public const string IncorrectNEPStandard = "NC3006";
+        public const string CapturedStaticFieldNotFound = "NC3007";
     }
 }

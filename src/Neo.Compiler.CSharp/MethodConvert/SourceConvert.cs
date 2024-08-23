@@ -9,14 +9,13 @@
 // modifications are permitted.
 
 extern alias scfx;
-using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
     private void ConvertSource(SemanticModel model)
     {
@@ -27,6 +26,11 @@ partial class MethodConvert
             byte index = i;
             if (IsInstanceMethod(Symbol)) index++;
             _parameters.Add(parameter, index);
+
+            if (parameter.RefKind == RefKind.Out)
+            {
+                _context.GetOrAddCapturedStaticField(parameter);
+            }
         }
         switch (SyntaxNode)
         {
@@ -49,7 +53,7 @@ partial class MethodConvert
                     // but the expression body has a return value, example: a+=1;
                     // drop the return value
                     // Problem:
-                    //   public void Test() => a+=1; // this will push a int value to the stack
+                    //   public void Test() => a+=1; // this will push an int value to the stack
                     //   public void Test() { a+=1; } // this will not push value to the stack
                     if (syntax is MethodDeclarationSyntax methodSyntax
                         && methodSyntax.ReturnType.ToString() == "void"
@@ -89,14 +93,16 @@ partial class MethodConvert
             default:
                 throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
         }
-        _initslot = !_inline;
+        // Set _initSlot to true for non-inline methods
+        // This ensures that regular methods will have the INITSLOT instruction added
+        _initSlot = !_inline;
     }
 
     private void ConvertDefaultRecordConstruct(RecordDeclarationSyntax recordDeclarationSyntax)
     {
         if (Symbol.MethodKind == MethodKind.Constructor && Symbol.ContainingType.IsRecord)
         {
-            _initslot = true;
+            _initSlot = true;
             IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
             for (byte i = 1; i <= fields.Length; i++)
             {
@@ -117,10 +123,10 @@ partial class MethodConvert
     private static bool IsExpressionReturningValue(SemanticModel semanticModel, MethodDeclarationSyntax methodDeclaration)
     {
         // Check if it's a method declaration with an expression body
-        if (methodDeclaration is { ExpressionBody: not null } methodSyntax)
+        if (methodDeclaration is { ExpressionBody: not null })
         {
             // Retrieve the expression from the expression body
-            var expression = methodSyntax.ExpressionBody.Expression;
+            var expression = methodDeclaration.ExpressionBody.Expression;
 
             // Use the semantic model to get the type information of the expression
             var typeInfo = semanticModel.GetTypeInfo(expression);

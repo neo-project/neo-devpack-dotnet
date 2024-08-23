@@ -12,6 +12,10 @@ env:
   COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage-join/
   COVERLET_MERGE_WITH: /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
 
   Test:
@@ -26,9 +30,38 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Check format
+    - name: Get changed files
+      id: changed-files
       run: |
-        dotnet format --no-restore --verify-no-changes --verbosity diagnostic
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          base_sha=$(git rev-parse ${{ github.event.pull_request.base.sha }})
+          echo "cs_files=$(git diff --name-only $base_sha HEAD | grep '\.cs$' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "json_files=$(git diff --name-only $base_sha HEAD | grep '\.json$' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+        else
+          echo "cs_files=$(git diff --name-only HEAD^ HEAD | grep '\.cs$' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "json_files=$(git diff --name-only HEAD^ HEAD | grep '\.json$' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Check format of changed C# files
+      if: steps.changed-files.outputs.cs_files != ''
+      run: |
+        changed_files="${{ steps.changed-files.outputs.cs_files }}"
+        for file in $changed_files; do
+          dotnet format --no-restore --verify-no-changes --verbosity detailed --include $file
+        done
+
+    - name: Check format of changed JSON files
+      if: steps.changed-files.outputs.json_files != ''
+      run: |
+        npm install -g jsonlint
+        changed_files="${{ steps.changed-files.outputs.json_files }}"
+        for file in $changed_files; do
+          if ! jsonlint -q $file; then
+            echo "Error: $file is not properly formatted JSON."
+            exit 1
+          fi
+        done
+
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
     - name: Build Neo.SmartContract.Template and test templates
