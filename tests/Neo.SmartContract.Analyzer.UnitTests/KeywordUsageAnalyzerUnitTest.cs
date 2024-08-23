@@ -141,22 +141,6 @@ namespace Neo.SmartContract.Analyzer.UnitTests
         }
 
         [TestMethod]
-        public async Task TestNameofExpression()
-        {
-            var test = """
-                       class MyClass
-                       {
-                           public void MyMethod()
-                           {
-                               var name = nameof(MyClass);
-                           }
-                       }
-                       """;
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId).WithSpan(5, 20, 5, 35).WithArguments("nameof");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
         public async Task TestImplicitKeyword()
         {
             var test = """

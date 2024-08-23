@@ -15,10 +15,10 @@ namespace Neo.SmartContract.Analyzer
 
         private readonly string[] _unsupportedBigIntegerMethods = {
             "BitwiseAnd", "BitwiseOr",
-            "CompareTo", "DivRem",
-            "Exp", "GreatestCommonDivisor", "LeftShift", "Log",
-            "Log10", "OnesComplement", "Parse",
-            "RightShift", "Subtract",
+            "CompareTo",
+            "Exp", "LeftShift", "Log",
+            "Log10", "OnesComplement",
+            "RightShift",
             "TryParse", "Xor",
             "IsPowerOfTwo",
         };

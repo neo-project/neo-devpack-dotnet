@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Analyzer
             "ToLowerInvariant",
             "ToUpperInvariant", "TryParse",
             "ConvertFromUtf32", "ConvertToUtf32",
-            "GetNumericValue", "GetUnicodeCategory",
+            "GetUnicodeCategory",
             "IsSurrogatePair"
         };
 

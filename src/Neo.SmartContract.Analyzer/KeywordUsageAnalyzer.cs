@@ -1,14 +1,8 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Editing;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -30,7 +24,20 @@ namespace Neo.SmartContract.Analyzer
             isEnabledByDefault: true,
             description: Description);
 
-        private static readonly string[] bannedKeywords = new[] { "lock", "fixed", "unsafe", "stackalloc", "await", "dynamic", "unmanaged", "select", "orderby", "nameof", "implicit", "explicit", "yield", "where" };
+        private static readonly ImmutableArray<SyntaxKind> bannedSyntaxKinds = ImmutableArray.Create(
+            SyntaxKind.LockKeyword,
+            SyntaxKind.FixedKeyword,
+            SyntaxKind.UnsafeKeyword,
+            SyntaxKind.StackAllocKeyword,
+            SyntaxKind.AwaitKeyword,
+            SyntaxKind.UnmanagedKeyword,
+            SyntaxKind.SelectKeyword,
+            SyntaxKind.OrderByKeyword,
+            SyntaxKind.ImplicitKeyword,
+            SyntaxKind.ExplicitKeyword,
+            SyntaxKind.YieldKeyword,
+            SyntaxKind.WhereKeyword
+        );
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -38,35 +45,34 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode,
-                SyntaxKind.LockStatement,
-                SyntaxKind.FixedStatement,
-                SyntaxKind.UnsafeStatement,
-                SyntaxKind.StackAllocArrayCreationExpression,
-                SyntaxKind.AwaitExpression,
-                SyntaxKind.QueryExpression,
-                SyntaxKind.YieldKeyword,
-                SyntaxKind.InvocationExpression,
-                SyntaxKind.WhereClause,
-                SyntaxKind.ConversionOperatorDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzeType, SyntaxKind.IdentifierName);
+            context.RegisterSyntaxNodeAction(AnalyzeNode, bannedSyntaxKinds);
+            context.RegisterSyntaxNodeAction(AnalyzeDynamicType, SyntaxKind.IdentifierName);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
         {
-            var nodeText = context.Node.ToString();
-            foreach (var keyword in bannedKeywords)
+            var token = context.Node switch
             {
-                if (nodeText.Contains(keyword))
-                {
-                    var diagnostic = Diagnostic.Create(Rule, context.Node.GetLocation(), keyword);
-                    context.ReportDiagnostic(diagnostic);
-                    break;
-                }
+                LockStatementSyntax lockStmt => lockStmt.LockKeyword,
+                FixedStatementSyntax fixedStmt => fixedStmt.FixedKeyword,
+                UnsafeStatementSyntax unsafeStmt => unsafeStmt.UnsafeKeyword,
+                StackAllocArrayCreationExpressionSyntax stackAlloc => stackAlloc.StackAllocKeyword,
+                AwaitExpressionSyntax awaitExpr => awaitExpr.AwaitKeyword,
+                QueryExpressionSyntax queryExpr => queryExpr.FromClause.FromKeyword,
+                YieldStatementSyntax yieldStmt => yieldStmt.YieldKeyword,
+                WhereClauseSyntax whereClause => whereClause.WhereKeyword,
+                ConversionOperatorDeclarationSyntax convOp => convOp.ImplicitOrExplicitKeyword,
+                _ => default
+            };
+
+            if (token != default)
+            {
+                var diagnostic = Diagnostic.Create(Rule, token.GetLocation(), token.Text);
+                context.ReportDiagnostic(diagnostic);
             }
         }
 
-        private void AnalyzeType(SyntaxNodeAnalysisContext context)
+        private void AnalyzeDynamicType(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is IdentifierNameSyntax identifierName &&
                 identifierName.Identifier.ValueText == "dynamic")

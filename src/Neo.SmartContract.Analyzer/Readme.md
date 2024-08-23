@@ -1,38 +1,44 @@
 # Neo Smart Contract Roslyn Analyzers
 
-This repository contains a set of Roslyn analyzers and code fix providers.
+This repository contains a set of Roslyn analyzers and code fix providers for Neo smart contracts.
 
 ## Content
 ### NeoContractAnalyzer
-A set of neo smart contract syntax analyzers. **To see the effects of these analyzers in the IDE, you must build this project.**
 
-- [BigIntegerCreationAnalyzer.cs](NeoContractAnalyzer/BigIntegerCreationAnalyzer.cs): This analyzer checks for creation patterns of the `BigInteger` class that are not supported.
-- [BigIntegerUsageAnalyzer.cs](NeoContractAnalyzer/BigIntegerUsageAnalyzer.cs): This analyzer checks for specific methods of the `BigInteger` class, like `Add` and `Multiply`, and reports if they are used.
-- [CharMethodsUsageAnalyzer.cs](NeoContractAnalyzer/CharMethodsUsageAnalyzer.cs): An analyzer that reports specific methods of the `char` class that are not recommended for use in smart contracts.
-- [CollectionTypesUsageAnalyzer.cs](NeoContractAnalyzer/CollectionTypesUsageAnalyzer.cs): This analyzer flags the usage of unsupported collection types like `List` and `Dictionary`.
-- [DecimalUsageAnalyzer.cs](NeoContractAnalyzer/DecimalUsageAnalyzer.cs): This analyzer checks for specific methods of the `decimal` class, like `Add` and `Multiply`, and reports if they are used.
-- [DoubleUsageAnalyzer.cs](NeoContractAnalyzer/DoubleUsageAnalyzer.cs): This analyzer checks for specific methods of the `double` class, like `Add` and `Multiply`, and reports if they are used.
-- [LinqUsageAnalyzer.cs](NeoContractAnalyzer/LinqUsageAnalyzer.cs): An analyzer that flags the usage of LINQ methods which are not supported in smart contracts.
-- [OutKeywordUsageAnalyzer.cs](NeoContractAnalyzer/OutKeywordUsageAnalyzer.cs): An analyzer that flags the usage of the `out` keyword, which might not be supported in smart contracts.
-- [RefKeywordUsageAnalyzer.cs](NeoContractAnalyzer/RefKeywordUsageAnalyzer.cs): An analyzer that flags the usage of the `ref` keyword, which might not be supported in smart contracts.
-- [StringMethodUsageAnalyzer.cs](NeoContractAnalyzer/StringMethodUsageAnalyzer.cs): An analyzer that identifies and reports specific methods of the `string` class, such as `Substring` and `Join`.
-- [SystemMathUsageAnalyzer.cs](NeoContractAnalyzer/SystemMathUsageAnalyzer.cs): An analyzer that flags certain `System.Math` method calls, such as `Math.Pow`, for being unsupported or deprecated.
-- [SmartContractMethodNamingAnalyzer.cs](NeoContractAnalyzer/SmartContractMethodNamingAnalyzer.cs): An analyzer that flags smart contract methods that do not follow the naming convention.
-### NeoContractAnalyzer.Sample
-A sample project that references the NeoContract analyzers. Notice the `ProjectReference` parameters in [NeoContractAnalyzer.Sample.csproj](../NeoContractAnalyzer.Sample/NeoContractAnalyzer.Sample.csproj), which ensure that the project is referenced as a set of analyzers.
+- [FloatUsageAnalyzer.cs](NeoContractAnalyzer/FloatUsageAnalyzer.cs): This analyzer checks for usage of float type, which is not supported in Neo smart contracts.
+- [DecimalUsageAnalyzer.cs](NeoContractAnalyzer/DecimalUsageAnalyzer.cs): This analyzer detects usage of decimal type, which is not supported in Neo smart contracts.
+- [DoubleUsageAnalyzer.cs](NeoContractAnalyzer/DoubleUsageAnalyzer.cs): This analyzer identifies usage of double type, which is not supported in Neo smart contracts.
+- [SystemMathUsageAnalyzer.cs](NeoContractAnalyzer/SystemMathUsageAnalyzer.cs): This analyzer flags usage of certain System.Math methods that are not supported in Neo smart contracts.
+- [BigIntegerUsageAnalyzer.cs](NeoContractAnalyzer/BigIntegerUsageAnalyzer.cs): This analyzer checks for specific methods of the BigInteger class that are not supported.
+- [StringMethodUsageAnalyzer.cs](NeoContractAnalyzer/StringMethodUsageAnalyzer.cs): This analyzer identifies and reports specific methods of the string class that are not supported.
+- [BigIntegerCreationAnalyzer.cs](NeoContractAnalyzer/BigIntegerCreationAnalyzer.cs): This analyzer checks for creation patterns of the BigInteger class that are not supported.
+- [InitialValueAnalyzer.cs](NeoContractAnalyzer/InitialValueAnalyzer.cs): This analyzer suggests converting attribute-based initializations to literal initializations for certain types.
+- [RefKeywordUsageAnalyzer.cs](NeoContractAnalyzer/RefKeywordUsageAnalyzer.cs): This analyzer flags the usage of the 'ref' keyword, which might not be supported in smart contracts.
+- [LinqUsageAnalyzer.cs](NeoContractAnalyzer/LinqUsageAnalyzer.cs): This analyzer detects usage of LINQ methods which are not supported in smart contracts.
+- [CharMethodsUsageAnalyzer.cs](NeoContractAnalyzer/CharMethodsUsageAnalyzer.cs): This analyzer reports specific methods of the char class that are not recommended for use in smart contracts.
+- [CollectionTypesUsageAnalyzer.cs](NeoContractAnalyzer/CollectionTypesUsageAnalyzer.cs): This analyzer flags the usage of unsupported collection types like List and Dictionary.
+- [VolatileKeywordUsageAnalyzer.cs](NeoContractAnalyzer/VolatileKeywordUsageAnalyzer.cs): This analyzer warns about the usage of the 'volatile' keyword, which might not be supported in smart contracts.
+- [KeywordUsageAnalyzer.cs](NeoContractAnalyzer/KeywordUsageAnalyzer.cs): This analyzer detects usage of restricted keywords in smart contracts.
+- [BanCastMethodAnalyzer.cs](NeoContractAnalyzer/BanCastMethodAnalyzer.cs): This analyzer flags usage of certain cast methods that are not supported in smart contracts.
+- [SmartContractMethodNamingAnalyzer.cs](NeoContractAnalyzer/SmartContractMethodNamingAnalyzer.cs): This analyzer ensures smart contract methods follow the correct naming convention.
+- [NotifyEventNameAnalyzer.cs](NeoContractAnalyzer/NotifyEventNameAnalyzer.cs): This analyzer checks for correct usage of event names in notify calls.
+- [SmartContractMethodNamingAnalyzerUnderline.cs](NeoContractAnalyzer/SmartContractMethodNamingAnalyzerUnderline.cs): This analyzer warns about smart contract method names containing underscores.
+- [SupportedStandardsAnalyzer.cs](NeoContractAnalyzer/SupportedStandardsAnalyzer.cs): This analyzer checks for correct implementation of supported standards in smart contracts.
+- [BigIntegerUsingUsageAnalyzer.cs](NeoContractAnalyzer/BigIntegerUsingUsageAnalyzer.cs): This analyzer warns about incorrect usage of BigInteger in using statements.
+- [StaticFieldInitializationAnalyzer.cs](NeoContractAnalyzer/StaticFieldInitializationAnalyzer.cs): This analyzer checks for proper initialization of static fields in smart contracts.
 
-### NeoContractAnalyzer.Tests
-Unit tests for the sample analyzers. Unit testing is a highly recommended approach when developing language-related features, as it allows for precise and controlled testing scenarios.
+## How to Use
 
-## How To?
-### How to debug?
-- Use the [launchSettings.json](Properties/launchSettings.json) profile for setting up the debugging environment.
-- Debug the unit tests to step through the analyzer code.
+To use these analyzers in your Neo smart contract project:
 
-### How to add a new analyzer?
-- Create a new analyzer class that inherits from `DiagnosticAnalyzer`.
-- Add the new analyzer to the [Analyzers](Analyzers) folder.
+1. Add a reference to the Neo.SmartContract.Analyzer project in your smart contract project.
+2. Build the Neo.SmartContract.Analyzer project.
+3. The analyzers will automatically run when you build your smart contract project.
 
-### How to use the analyzers?
-- Build the [NeoContractAnalyzer](NeoContractAnalyzer/NeoContractAnalyzer.csproj) project.
-- Add the [NeoContractAnalyzer](NeoContractAnalyzer/NeoContractAnalyzer.csproj) project as a reference to your project.
+## Contributing
+
+Contributions to improve existing analyzers or add new ones are welcome. Please submit a pull request with your changes.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
