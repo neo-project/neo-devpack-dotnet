@@ -30,11 +30,12 @@ jobs:
       id: changed-files
       run: |
         git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
-        echo "changed_files=$(cat changed_files.txt | grep '\.cs$' | tr '\n' ' ')" >> $GITHUB_OUTPUT
-    - name: Format changed files
-      if: steps.changed-files.outputs.changed_files
+        echo "cs_files=$(grep '\.cs$' changed_files.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
+        echo "json_files=$(grep '\.json$' changed_files.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
+    - name: Format changed C# files
+      if: steps.changed-files.outputs.cs_files
       run: |
-        changed_files="${{ steps.changed-files.outputs.changed_files }}"
+        changed_files="${{ steps.changed-files.outputs.cs_files }}"
         formatted_projects=()
         for file in $changed_files; do
           project=$(dotnet sln neo-devpack-dotnet.sln list | grep -i $(dirname $file) | head -n 1)
@@ -45,6 +46,14 @@ jobs:
           else
             echo "Skipping already formatted project for $file: $project"
           fi
+        done
+    - name: Format changed JSON files
+      if: steps.changed-files.outputs.json_files
+      run: |
+        changed_files="${{ steps.changed-files.outputs.json_files }}"
+        for file in $changed_files; do
+          echo "Formatting JSON file: $file"
+          jq . $file > temp.json && mv temp.json $file
         done
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
