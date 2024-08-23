@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Numerics;
 
 namespace Neo.Compiler;
@@ -474,5 +475,20 @@ partial class MethodConvert
         RegisterHandler((char c) => char.GetNumericValue(c), HandleCharGetNumericValue);
         RegisterHandler((char c) => char.IsLetterOrDigit(c), HandleCharIsLetterOrDigit);
         RegisterHandler((char x, char min, char max) => char.IsBetween(x, min, max), HandleCharIsBetween);
+
+        #region Out Methods
+        // Numeric types
+        RegisterHandler((string? s, byte result) => byte.TryParse(s, out result), HandleByteTryParseWithOut);
+        RegisterHandler((string? s, sbyte result) => sbyte.TryParse(s, out result), HandleSByteTryParseWithOut);
+        RegisterHandler((string? s, short result) => short.TryParse(s, out result), HandleShortTryParseWithOut);
+        RegisterHandler((string? s, ushort result) => ushort.TryParse(s, out result), HandleUShortTryParseWithOut);
+        RegisterHandler((string? s, int result) => int.TryParse(s, out result), HandleIntTryParseWithOut);
+        RegisterHandler((string? s, uint result) => uint.TryParse(s, out result), HandleUIntTryParseWithOut);
+        RegisterHandler((string? s, long result) => long.TryParse(s, out result), HandleLongTryParseWithOut);
+        RegisterHandler((string? s, ulong result) => ulong.TryParse(s, out result), HandleULongTryParseWithOut);
+
+        // Bool
+        RegisterHandler((string? value, bool result) => bool.TryParse(value, out result), HandleBoolTryParseWithOut);
+        #endregion
     }
 }
