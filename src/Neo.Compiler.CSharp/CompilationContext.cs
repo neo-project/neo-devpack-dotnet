@@ -57,7 +57,7 @@ namespace Neo.Compiler
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
         // This dictionary is used to map out parameters/arguments to local variables (in the method where the out argument is declared)
-        internal readonly Dictionary<IParameterSymbol, ILocalSymbol> _outParamToLocal = new(SymbolEqualityComparer.Default);
+        internal Dictionary<IParameterSymbol, ILocalSymbol> OutParamToLocal { get; } = new(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);

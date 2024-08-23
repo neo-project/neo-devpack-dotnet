@@ -20,6 +20,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Array = System.Array;
+using Akka.Util.Internal;
 
 namespace Neo.Compiler;
 
@@ -55,6 +56,11 @@ internal partial class MethodConvert
     private static void RegisterHandler<T1, T2, T3, TResult>(Expression<Func<T1, T2, T3, TResult>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3));
+        SystemCallHandlers[key] = handler;
+    }
+    private static void RegisterHandler<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, bool>> expression, SystemCallHandler handler)
+    {
+        var key = GetKeyFromExpression(expression);
         SystemCallHandlers[key] = handler;
     }
 
@@ -254,7 +260,7 @@ internal partial class MethodConvert
             return true;
         }
 
-        var key = symbol.ToString()!;
+        var key = symbol.ToString()!.Replace("out ", "");
         key = (from parameter in symbol.Parameters let parameterType = parameter.Type.ToString() where !parameter.Type.IsValueType && parameterType!.EndsWith('?') select parameterType).Aggregate(key, (current, parameterType) => current.Replace(parameterType, parameterType[..^1]));
         if (key == "string.ToString()") key = "object.ToString()";
         if (!SystemCallHandlers.TryGetValue(key, out var handler)) return false;

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Numerics;
 
 namespace Neo.Compiler;
@@ -698,5 +699,20 @@ internal partial class MethodConvert
         RegisterHandler((BigInteger x, object? y) => x.Equals(y), HandleNullableBigIntegerEqualsWithNonNullable);
         RegisterHandler((string x, string? y) => x.Equals(y), HandleObjectEquals);
         #endregion Equals
+
+        #region Out Methods
+        // Numeric types
+        RegisterHandler((string? s, byte result) => byte.TryParse(s, out result), HandleByteTryParseWithOut);
+        RegisterHandler((string? s, sbyte result) => sbyte.TryParse(s, out result), HandleSByteTryParseWithOut);
+        RegisterHandler((string? s, short result) => short.TryParse(s, out result), HandleShortTryParseWithOut);
+        RegisterHandler((string? s, ushort result) => ushort.TryParse(s, out result), HandleUShortTryParseWithOut);
+        RegisterHandler((string? s, int result) => int.TryParse(s, out result), HandleIntTryParseWithOut);
+        RegisterHandler((string? s, uint result) => uint.TryParse(s, out result), HandleUIntTryParseWithOut);
+        RegisterHandler((string? s, long result) => long.TryParse(s, out result), HandleLongTryParseWithOut);
+        RegisterHandler((string? s, ulong result) => ulong.TryParse(s, out result), HandleULongTryParseWithOut);
+
+        // Bool
+        RegisterHandler((string? value, bool result) => bool.TryParse(value, out result), HandleBoolTryParseWithOut);
+        #endregion
     }
 }
