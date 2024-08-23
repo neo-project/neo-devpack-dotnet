@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test2()
         {
-           // Test if the workflow format is working
+            // Test if the workflow format is working
         }
     }
 }
