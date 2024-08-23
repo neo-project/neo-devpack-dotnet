@@ -364,4 +364,22 @@ internal partial class MethodConvert
         }
         AddInstruction(OpCode.THROW);
     }
+
+    private Instruction IsType(VM.Types.StackItemType type)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = OpCode.ISTYPE,
+            Operand = [(byte)type]
+        });
+    }
+
+    private Instruction ChangeType(VM.Types.StackItemType type)
+    {
+        return AddInstruction(new Instruction
+        {
+            OpCode = OpCode.CONVERT,
+            Operand = [(byte)type]
+        });
+    }
 }
