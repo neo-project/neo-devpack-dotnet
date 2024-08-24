@@ -6,7 +6,6 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
-
     private Instruction Nop()
     {
         return AddInstruction(OpCode.NOP);
