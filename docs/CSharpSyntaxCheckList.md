@@ -509,7 +509,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
       // code
   }
   ```
-- [ ] **Namespaces**: Organize code into logical groupings. Example: `namespace MyNamespace { /* code */ }`
+- [x] **Namespaces**: Organize code into logical groupings. Example: `namespace MyNamespace { /* code */ }`
 - [ ] **Threads and Concurrency**: Manage concurrent execution using threads and tasks. Example: 
   ```csharp
   Task.Run(() =>
