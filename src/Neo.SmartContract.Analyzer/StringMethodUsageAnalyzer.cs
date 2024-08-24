@@ -16,12 +16,12 @@ namespace Neo.SmartContract.Analyzer
         private readonly string[] _unsupportedStringMethods =
         {
             "Clone", "Compare", "CompareOrdinal", "CompareTo",
-            "Concat", "Copy", "CopyTo", "Equals", "Format", "GetEnumerator",
+            "Copy", "CopyTo", "Format", "GetEnumerator",
             "GetHashCode", "GetType", "GetTypeCode",
             "IndexOfAny", "Insert", "Intern", "IsInterned",
             "IsNormalized", "Join", "LastIndexOf", "LastIndexOfAny",
             "Normalize", "PadLeft", "PadRight", "Remove",
-            "Replace", "Split", "StartsWith",
+            "Replace", "Split",
             "ToCharArray", "ToLower", "ToLowerInvariant",
             "ToUpper", "ToUpperInvariant", "Trim", "TrimEnd",
             "TrimStart"

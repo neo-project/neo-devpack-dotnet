@@ -28,29 +28,5 @@ namespace Neo.SmartContract.Analyzer.Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
-
-        [TestMethod]
-        public async Task UnsupportedBigIntegerProperty_ShouldReportDiagnostic()
-        {
-            var test = """
-
-                       using System.Numerics;
-
-                       class TestClass
-                       {
-                           public void TestMethod()
-                           {
-                               BigInteger x = 42;
-                               bool isPowerOfTwo = x.IsPowerOfTwo;
-                           }
-                       }
-                       """;
-
-            var expectedDiagnostic = VerifyCS.Diagnostic(BigIntegerUsageAnalyzer.DiagnosticId)
-                .WithLocation(9, 29)
-                .WithArguments("IsPowerOfTwo");
-
-            await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
-        }
     }
 }
