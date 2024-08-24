@@ -773,7 +773,7 @@ Note: These methods are supported for both bool and bool? types unless otherwise
 - [ ] `char.CompareTo(char1, char2)`: Compares two characters and returns a value indicating their relative order.
 
 ## Char Conversions
-- [ ] `char.GetNumericValue(char)`: Converts a numeric character to its double-precision floating-point equivalent.
+- [x] `char.GetNumericValue(char)`: Converts a numeric character to its double-precision floating-point equivalent.
 - [ ] `char.GetUnicodeCategory(char)`: Returns the Unicode category of a character.
 
 ## Char Testing
