@@ -6,6 +6,47 @@ namespace Neo.Compiler;
 
 partial class MethodConvert
 {
+
+    private Instruction Nop()
+    {
+        return AddInstruction(OpCode.NOP);
+    }
+
+    private Instruction PushM1()
+    {
+        return AddInstruction(OpCode.PUSHM1);
+    }
+
+    private Instruction Push0()
+    {
+        return AddInstruction(OpCode.PUSH0);
+    }
+
+    private Instruction Push1()
+    {
+        return AddInstruction(OpCode.PUSH1);
+    }
+
+    private Instruction Push2()
+    {
+        return AddInstruction(OpCode.PUSH2);
+    }
+
+    private Instruction Push3()
+    {
+        return AddInstruction(OpCode.PUSH3);
+    }
+
+    private Instruction Push4()
+    {
+        return AddInstruction(OpCode.PUSH4);
+    }
+
+    private Instruction Push5()
+    {
+        return AddInstruction(OpCode.PUSH5);
+    }
+
     #region Constants
 
     private Instruction Abort()

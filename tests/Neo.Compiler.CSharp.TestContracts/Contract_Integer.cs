@@ -483,4 +483,49 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
     {
         return sbyte.RotateRight(value, offset);
     }
+
+    public static byte PopCountByte(byte value)
+    {
+        return byte.PopCount(value);
+    }
+
+    public static sbyte PopCountSByte(sbyte value)
+    {
+        return sbyte.PopCount(value);
+    }
+
+    public static short PopCountShort(short value)
+    {
+        return short.PopCount(value);
+    }
+
+    public static ushort PopCountUShort(ushort value)
+    {
+        return ushort.PopCount(value);
+    }
+
+    public static int PopCountInt(int value)
+    {
+        return int.PopCount(value);
+    }
+
+    public static uint PopCountUInt(uint value)
+    {
+        return uint.PopCount(value);
+    }
+
+    public static long PopCountLong(long value)
+    {
+        return long.PopCount(value);
+    }
+
+    public static ulong PopCountULong(ulong value)
+    {
+        return ulong.PopCount(value);
+    }
+
+    public static BigInteger PopCountBigInteger(BigInteger value)
+    {
+        return BigInteger.PopCount(value);
+    }
 }

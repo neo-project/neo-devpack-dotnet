@@ -32,6 +32,9 @@ internal partial class MethodConvert
 
         // Nullable type handlers
         RegisterNullableTypeHandlers();
+
+        // BitOperations handlers
+        RegisterBitOperationsHandlers();
     }
 
     private static void RegisterBigIntegerHandlers()
@@ -478,6 +481,19 @@ internal partial class MethodConvert
         // RegisterHandler((string s) => bool.Parse(s), HandleBoolParse);
         RegisterHandler((string s) => BigInteger.Parse(s), HandleBigIntegerParse);
         #endregion
+
+        // Numeric PopCount
+        #region PopCount
+        RegisterHandler((byte value) => byte.PopCount(value), HandleBytePopCount);
+        RegisterHandler((sbyte value) => sbyte.PopCount(value), HandleSBytePopCount);
+        RegisterHandler((short value) => short.PopCount(value), HandleShortPopCount);
+        RegisterHandler((ushort value) => ushort.PopCount(value), HandleUShortPopCount);
+        RegisterHandler((int value) => int.PopCount(value), HandleIntPopCount);
+        RegisterHandler((uint value) => uint.PopCount(value), HandleUIntPopCount);
+        RegisterHandler((long value) => long.PopCount(value), HandleLongPopCount);
+        RegisterHandler((ulong value) => ulong.PopCount(value), HandleULongPopCount);
+        RegisterHandler((BigInteger value) => BigInteger.PopCount(value), HandleBigIntegerPopCount);
+        #endregion PopCount
     }
 
     private static void RegisterMathHandlers()
@@ -715,4 +731,20 @@ internal partial class MethodConvert
         RegisterHandler((string? value, bool result) => bool.TryParse(value, out result), HandleBoolTryParseWithOut);
         #endregion
     }
+
+    private static void RegisterBitOperationsHandlers()
+    {
+        // Static Methods
+        RegisterHandler((uint value) => BitOperations.LeadingZeroCount(value), HandleUIntLeadingZeroCount);
+        RegisterHandler((ulong value) => BitOperations.LeadingZeroCount(value), HandleULongLeadingZeroCount);
+        RegisterHandler((uint value) => BitOperations.Log2(value), HandleBigIntegerLog2);
+        RegisterHandler((ulong value) => BitOperations.Log2(value), HandleBigIntegerLog2);
+        RegisterHandler((uint value) => BitOperations.PopCount(value), HandleUIntPopCount);
+        RegisterHandler((ulong value) => BitOperations.PopCount(value), HandleULongPopCount);
+        RegisterHandler((uint value, int offset) => BitOperations.RotateLeft(value, offset), HandleUIntRotateLeft);
+        RegisterHandler((ulong value, int offset) => BitOperations.RotateLeft(value, offset), HandleULongRotateLeft);
+        RegisterHandler((uint value, int offset) => BitOperations.RotateRight(value, offset), HandleUIntRotateRight);
+        RegisterHandler((ulong value, int offset) => BitOperations.RotateRight(value, offset), HandleULongRotateRight);
+    }
+
 }
