@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
             sourceCode.WriteLine("");
-            sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance) + ", IContractInfo");
+            sourceCode.WriteLine($"public abstract class {name}({typeof(SmartContractInitialize).FullName} initialize) : " + FormatInheritance(inheritance, "initialize") + ", IContractInfo");
             sourceCode.WriteLine("{");
 
             // Write compiled data
@@ -171,14 +171,6 @@ namespace Neo.SmartContract.Testing.Extensions
                 sourceCode.WriteLine("    #endregion");
                 sourceCode.WriteLine();
             }
-
-            // Create constructor
-
-            sourceCode.WriteLine("    #region Constructor for internal use only");
-            sourceCode.WriteLine();
-            sourceCode.WriteLine($"    protected {name}({typeof(SmartContractInitialize).FullName} initialize) : base(initialize) {{ }}");
-            sourceCode.WriteLine();
-            sourceCode.WriteLine("    #endregion");
 
             sourceCode.WriteLine("}");
 
@@ -369,7 +361,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 if (isLast && arg.Type == ContractParameterType.Any)
                 {
-                    // it will be object X, we can add a default value
+                    // it will be `object X`, we can add a default value
 
                     sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)} = null");
                 }
@@ -435,6 +427,23 @@ namespace Neo.SmartContract.Testing.Extensions
                 ContractParameterType.Void => "void",
                 _ => "object?",
             };
+        }
+
+        private static string FormatInheritance(List<Type> inheritance, string initializeParam)
+        {
+            var formattedInheritance = new List<string>();
+            foreach (var type in inheritance)
+            {
+                if (type == typeof(SmartContract))
+                {
+                    formattedInheritance.Add($"{type.FullName}({initializeParam})");
+                }
+                else
+                {
+                    formattedInheritance.Add(type.FullName);
+                }
+            }
+            return string.Join(", ", formattedInheritance);
         }
     }
 }
