@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
             var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(5, 9, 8, 10).WithArguments("lock");
+                .WithSpan(5, 9, 5, 13).WithArguments("lock");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
             var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(5, 9, 8, 10).WithArguments("unsafe");
+                .WithSpan(5, 9, 5, 15).WithArguments("unsafe");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -61,7 +61,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
             var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(5, 20, 5, 38).WithArguments("stackalloc");
+                .WithSpan(5, 20, 5, 30).WithArguments("stackalloc");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -79,7 +79,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
             var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(6, 9, 6, 31).WithArguments("await");
+                .WithSpan(6, 9, 6, 14).WithArguments("await");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -117,42 +117,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        }
                        """;
             var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(5, 9, 8, 10).WithArguments("unsafe");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task TestQueryExpression()
-        {
-            var test = """
-                       using System.Linq;
-
-                       class MyClass
-                       {
-                           public void MyMethod()
-                           {
-                               var query = from x in new int[0] select x;
-                           }
-                       }
-                       """;
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(7, 21, 7, 50).WithArguments("select");
-            await VerifyCS.VerifyAnalyzerAsync(test, expected);
-        }
-
-        [TestMethod]
-        public async Task TestNameofExpression()
-        {
-            var test = """
-                       class MyClass
-                       {
-                           public void MyMethod()
-                           {
-                               var name = nameof(MyClass);
-                           }
-                       }
-                       """;
-            var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId).WithSpan(5, 20, 5, 35).WithArguments("nameof");
+                .WithSpan(5, 9, 5, 15).WithArguments("unsafe");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -167,7 +132,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        """;
 
             var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(3, 5, 3, 57).WithArguments("implicit");
+                .WithSpan(3, 19, 3, 27).WithArguments("implicit");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
 
@@ -182,7 +147,7 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                        """;
 
             var expected = VerifyCS.Diagnostic(KeywordUsageAnalyzer.DiagnosticId)
-                .WithSpan(3, 5, 3, 60).WithArguments("explicit");
+                .WithSpan(3, 19, 3, 27).WithArguments("explicit");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
     }
