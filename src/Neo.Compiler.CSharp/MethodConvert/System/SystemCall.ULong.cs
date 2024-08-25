@@ -202,4 +202,38 @@ internal partial class MethodConvert
         methodConvert.Push((BigInteger.One << bitWidth) - 1);  // Push (2^bitWidth - 1) as bitmask
         methodConvert.AddInstruction(OpCode.AND);    // Ensure final result is bitWidth-bit
     }
+
+    private static void HandleULongPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        // Determine bit width of int
+        var bitWidth = sizeof(ulong) * 8;
+
+        // Mask to ensure the value is treated as a 64-bit unsigned integer
+        methodConvert.Push((BigInteger.One << bitWidth) - 1); // 0xFFFFFFFFFFFFFFFF
+        methodConvert.And(); // value = value & 0xFFFFFFFFFFFFFFFF
+        // Initialize count to 0
+        methodConvert.Push(0); // value count
+        methodConvert.Swap(); // count value
+        // Loop to count the number of 1 bits
+        JumpTarget loopStart = new();
+        JumpTarget endLoop = new();
+        loopStart.Instruction = methodConvert.Dup(); // count value value
+        methodConvert.Push0(); // count value value 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop); // count value
+        methodConvert.Dup(); // count value value
+        methodConvert.Push1(); // count value value 1
+        methodConvert.And(); // count value (value & 1)
+        methodConvert.Rot(); // value (value & 1) count
+        methodConvert.Add(); // value count += (value & 1)
+        methodConvert.Swap(); // count value
+        methodConvert.Push1(); // count value 1
+        methodConvert.ShR(); // count value >>= 1
+        methodConvert.Jump(OpCode.JMP, loopStart);
+
+        endLoop.Instruction = methodConvert.Drop(); // Drop the remaining value
+    }
 }
