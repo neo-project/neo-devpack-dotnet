@@ -316,9 +316,19 @@ namespace Neo.Compiler
 
         internal Instruction ModPow() => AddInstruction(OpCode.MODPOW);
 
-        internal Instruction ShL() => AddInstruction(OpCode.SHL);
+        internal Instruction ShL(BigInteger? count = null)
+        {
+            if (count.HasValue)
+                Push(count.Value);
+            return AddInstruction(OpCode.SHL);
+        }
 
-        internal Instruction ShR() => AddInstruction(OpCode.SHR);
+        internal Instruction ShR(BigInteger? count = null)
+        {
+            if (count.HasValue)
+                Push(count.Value);
+            return AddInstruction(OpCode.SHR);
+        }
 
         internal Instruction Not() => AddInstruction(OpCode.NOT);
 
@@ -335,7 +345,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.NUMEQUAL);
         }
 
-        internal Instruction NumNotEqual() => AddInstruction(OpCode.NUMNOTEQUAL);
+        internal Instruction NumNotEqual(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.NUMNOTEQUAL);
+        }
 
         internal Instruction Lt() => AddInstruction(OpCode.LT);
 
