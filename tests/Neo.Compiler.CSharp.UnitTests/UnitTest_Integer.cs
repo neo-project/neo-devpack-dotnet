@@ -1340,5 +1340,96 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(ulong.RotateRight(0x0000000000000001UL, 64), Contract.RotateRightULong(0x0000000000000001UL, 64));
             Assert.AreEqual(ulong.RotateRight(0x0000000000000001UL, 65), Contract.RotateRightULong(0x0000000000000001UL, 65));
         }
+
+        [TestMethod]
+        public void TestPopCountByte()
+        {
+            Assert.AreEqual(byte.PopCount((byte)0), Contract.PopCountByte((byte)0));
+            Assert.AreEqual(byte.PopCount((byte)1), Contract.PopCountByte((byte)1));
+            Assert.AreEqual(byte.PopCount((byte)255), Contract.PopCountByte((byte)255));
+            Assert.AreEqual(byte.PopCount((byte)170), Contract.PopCountByte((byte)170));
+            Assert.AreEqual(byte.PopCount((byte)85), Contract.PopCountByte((byte)85));
+        }
+
+        [TestMethod]
+        public void TestPopCountSByte()
+        {
+            Assert.AreEqual(sbyte.PopCount((sbyte)0), Contract.PopCountSByte((sbyte)0));
+            Assert.AreEqual(sbyte.PopCount((sbyte)1), Contract.PopCountSByte((sbyte)1));
+            Assert.AreEqual(sbyte.PopCount((sbyte)-1), Contract.PopCountSByte((sbyte)-1));
+            Assert.AreEqual(sbyte.PopCount(sbyte.MaxValue), Contract.PopCountSByte(sbyte.MaxValue));
+            Assert.AreEqual(sbyte.PopCount(sbyte.MinValue), Contract.PopCountSByte(sbyte.MinValue));
+        }
+
+        [TestMethod]
+        public void TestPopCountShort()
+        {
+
+            Assert.AreEqual(short.PopCount((short)0), Contract.PopCountShort((short)0));
+            Assert.AreEqual(short.PopCount((short)1), Contract.PopCountShort((short)1));
+            Assert.AreEqual(short.PopCount((short)-1), Contract.PopCountShort((short)-1));
+            Assert.AreEqual(short.PopCount(short.MaxValue), Contract.PopCountShort(short.MaxValue));
+            Assert.AreEqual(short.PopCount(short.MinValue), Contract.PopCountShort(short.MinValue));
+        }
+
+        [TestMethod]
+        public void TestPopCountUShort()
+        {
+            Assert.AreEqual(ushort.PopCount((ushort)0), Contract.PopCountUShort((ushort)0));
+            Assert.AreEqual(ushort.PopCount((ushort)1), Contract.PopCountUShort((ushort)1));
+            Assert.AreEqual(ushort.PopCount(ushort.MaxValue), Contract.PopCountUShort(ushort.MaxValue));
+            Assert.AreEqual(ushort.PopCount((ushort)43690), Contract.PopCountUShort((ushort)43690));
+            Assert.AreEqual(ushort.PopCount((ushort)21845), Contract.PopCountUShort((ushort)21845));
+        }
+
+        [TestMethod]
+        public void TestPopCountInt()
+        {
+            Assert.AreEqual(int.PopCount(0), Contract.PopCountInt(0));
+            Assert.AreEqual(int.PopCount(1), Contract.PopCountInt(1));
+            Assert.AreEqual(int.PopCount(-1), Contract.PopCountInt(-1));
+            Assert.AreEqual(int.PopCount(int.MaxValue), Contract.PopCountInt(int.MaxValue));
+            Assert.AreEqual(int.PopCount(int.MinValue), Contract.PopCountInt(int.MinValue));
+        }
+
+        [TestMethod]
+        public void TestPopCountUInt()
+        {
+            Assert.AreEqual(uint.PopCount(0U), Contract.PopCountUInt(0U));
+            Assert.AreEqual(uint.PopCount(1U), Contract.PopCountUInt(1U));
+            Assert.AreEqual(uint.PopCount(uint.MaxValue), Contract.PopCountUInt(uint.MaxValue));
+            Assert.AreEqual(uint.PopCount(2863311530U), Contract.PopCountUInt(2863311530U));
+            Assert.AreEqual(uint.PopCount(1431655765U), Contract.PopCountUInt(1431655765U));
+        }
+
+        [TestMethod]
+        public void TestPopCountLong()
+        {
+            Assert.AreEqual(long.PopCount(0L), Contract.PopCountLong(0L));
+            Assert.AreEqual(long.PopCount(1L), Contract.PopCountLong(1L));
+            Assert.AreEqual(long.PopCount(-1L), Contract.PopCountLong(-1L));
+            Assert.AreEqual(long.PopCount(long.MaxValue), Contract.PopCountLong(long.MaxValue));
+            Assert.AreEqual(long.PopCount(long.MinValue), Contract.PopCountLong(long.MinValue));
+        }
+
+        [TestMethod]
+        public void TestPopCountULong()
+        {
+            Assert.AreEqual(ulong.PopCount(0UL), Contract.PopCountULong(0UL));
+            Assert.AreEqual(ulong.PopCount(1UL), Contract.PopCountULong(1UL));
+            Assert.AreEqual(ulong.PopCount(ulong.MaxValue), Contract.PopCountULong(ulong.MaxValue));
+            Assert.AreEqual(ulong.PopCount(12297829382473034410UL), Contract.PopCountULong(12297829382473034410UL));
+            Assert.AreEqual(ulong.PopCount(6148914691236517205UL), Contract.PopCountULong(6148914691236517205UL));
+        }
+
+        [TestMethod]
+        public void TestPopCountBigInteger()
+        {
+            Assert.AreEqual(BigInteger.PopCount(BigInteger.Zero), Contract.PopCountBigInteger(BigInteger.Zero));
+            Assert.AreEqual(BigInteger.PopCount(BigInteger.One), Contract.PopCountBigInteger(BigInteger.One));
+            Assert.AreEqual(BigInteger.PopCount(BigInteger.MinusOne), Contract.PopCountBigInteger(BigInteger.MinusOne));
+            Assert.ThrowsException<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("123456789123456789")));
+            Assert.ThrowsException<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("-987654321987654321")));
+        }
     }
 }
