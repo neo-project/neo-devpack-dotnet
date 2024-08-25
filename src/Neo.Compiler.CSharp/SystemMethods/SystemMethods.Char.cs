@@ -112,10 +112,6 @@ internal static partial class SystemMethods
         sb.Dup();
         sb.Within((ushort)'[', (ushort)'`');
         sb.JmpIf(endTarget);
-        sb.Dup();
-        sb.Within((ushort)'{', (ushort)'~');
-        sb.JmpIf(endTarget);
-        sb.Dup();
         sb.Within((ushort)'{', (ushort)'~');
         endTarget.Instruction = sb.Nop();
     }
@@ -134,18 +130,11 @@ internal static partial class SystemMethods
         sb.Within((ushort)'<', (ushort)'=');
         sb.JmpIf(endTarget);
         sb.Dup();
-        sb.Within((ushort)'<', (ushort)'=');
-        sb.JmpIf(endTarget);
-        sb.Dup();
-        sb.Within((ushort)'>', (ushort)'@');
-        sb.JmpIf(endTarget);
-        sb.Dup();
         sb.Within((ushort)'>', (ushort)'@');
         sb.JmpIf(endTarget);
         sb.Dup();
         sb.Within((ushort)'[', (ushort)'`');
         sb.JmpIf(endTarget);
-        sb.Dup();
         sb.Within((ushort)'{', (ushort)'~');
         endTarget.Instruction = sb.Nop();
     }
@@ -209,7 +198,6 @@ internal static partial class SystemMethods
         sb.Dup();
         sb.IsUpperChar();
         sb.JmpIf(endTarget);
-        sb.Dup();
         sb.IsLowerChar();
         endTarget.Instruction = sb.Nop();
     }
@@ -229,11 +217,11 @@ internal static partial class SystemMethods
         sb.JmpIfNot(validTarget);
         sb.Reverse3();
         sb.Drop();
+        sb.Drop();
         sb.Jmp(endTarget);
         validTarget.Instruction = sb.Nop();
         sb.Drop();
-        sb.Push1();
-        sb.Sub();
+        sb.Lt();
         endTarget.Instruction = sb.Nop();
     }
 

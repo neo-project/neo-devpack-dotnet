@@ -57,7 +57,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(((long)int.MinValue) * int.MinValue, Contract.BigMul(int.MinValue, int.MinValue));
             AssertGasConsumed(1047870);
             Assert.ThrowsException<TestException>(() => Contract.BigMul(long.MaxValue, long.MaxValue));
-            AssertGasConsumed(1063230);
+            AssertGasConsumed(1063470);
         }
 
         [TestMethod]

@@ -320,19 +320,17 @@ internal static partial class SystemMethods
         sb.Dup();// 5 5 10 10
         sb.Rot();// 5 10 10 5
         sb.JmpLt(maxTarget);// 5 10
-        sb.Drop();// 5
-        sb.Dup();// 5 5
-        sb.Rot();// 5 5 5
-        sb.Jump(OpCode.JMP, endTarget);
+        sb.Drop();
+        sb.Jmp(endTarget);
         minTarget.Instruction = sb.Nop();
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
-        sb.Jump(OpCode.JMP, endTarget);
+        sb.Jmp(endTarget);
         maxTarget.Instruction = sb.Nop();
         sb.Swap();
         sb.Drop();
-        sb.Jump(OpCode.JMP, endTarget);
+        sb.Jmp(endTarget);
         endTarget.Instruction = sb.Nop();
     }
 
