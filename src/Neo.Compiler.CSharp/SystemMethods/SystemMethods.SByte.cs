@@ -73,4 +73,10 @@ internal static partial class SystemMethods
     {
         HandleSignedRotateRight<sbyte>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(sbyte) * 8);
     }
+
+    private static void HandleSBytePopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        HandlePopCount<sbyte>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(sbyte) * 8);
+    }
 }

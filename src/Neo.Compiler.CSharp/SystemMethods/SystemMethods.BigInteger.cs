@@ -546,4 +546,52 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         sb.NumEqual();
     }
+
+    private static void HandleBigIntegerPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        var sb = methodConvert.InstructionsBuilder;
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        // Check if the value is within int range
+        sb.AddInstruction(OpCode.DUP);
+        sb.Within(int.MinValue, int.MaxValue);
+        var endIntCheck = new JumpTarget();
+        sb.Jump(OpCode.JMPIFNOT, endIntCheck);
+
+        // If within int range, mask with 0xFFFFFFFF
+        sb.Push(0xFFFFFFFF);
+        sb.AddInstruction(OpCode.AND);
+        var endMask = new JumpTarget();
+        sb.Jump(OpCode.JMP, endMask);
+
+        // If larger than int, throw exception, cause too many check will make the script too long.
+        endIntCheck.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.Push("Value out of range, must be between int.MinValue and int.MaxValue.");
+        sb.Throw();
+        endMask.Instruction = sb.AddInstruction(OpCode.NOP);
+
+        // Initialize count to 0
+        sb.Push(0); // value count
+        sb.Swap(); // count value
+        // Loop to count the number of 1 bit
+        JumpTarget loopStart = new();
+        JumpTarget endLoop = new();
+        loopStart.Instruction = sb.Dup(); // count value value
+        sb.Push0(); // count value value 0
+        sb.Jump(OpCode.JMPEQ, endLoop); // count value
+        sb.Dup(); // count value value
+        sb.Push1(); // count value value 1
+        sb.And(); // count value (value & 1)
+        sb.Rot(); // value (value & 1) count
+        sb.Add(); // value count += (value & 1)
+        sb.Swap(); // count value
+        sb.Push1(); // count value 1
+        sb.ShR(); // count value >>= 1
+        sb.Jump(OpCode.JMP, loopStart);
+
+        endLoop.Instruction = sb.Drop(); // Drop the remaining value
+    }
 }

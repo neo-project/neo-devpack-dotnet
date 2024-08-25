@@ -76,4 +76,10 @@ internal static partial class SystemMethods
     {
         HandleSignedRotateRight<long>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(long) * 8);
     }
+
+    private static void HandleLongPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        HandlePopCount<long>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(long) * 8);
+    }
 }

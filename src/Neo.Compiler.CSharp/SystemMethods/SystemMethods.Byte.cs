@@ -61,4 +61,10 @@ internal static partial class SystemMethods
     {
         HandleUnsignedRotateRight<byte>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(byte) * 8);
     }
+
+    private static void HandleBytePopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        HandlePopCount<byte>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(byte) * 8);
+    }
 }

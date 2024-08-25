@@ -84,4 +84,11 @@ internal static partial class SystemMethods
     {
         HandleUnsignedRotateRight<ulong>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(ulong) * 8);
     }
+
+    // HandleULongPopCount
+    private static void HandleULongPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        HandlePopCount<ulong>(methodConvert, model, symbol, instanceExpression, arguments, sizeof(ulong) * 8);
+    }
 }

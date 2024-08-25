@@ -269,4 +269,41 @@ internal static partial class SystemMethods
         sb.Sub();
         sb.SetTarget(endTarget);
     }
+
+    private static void HandlePopCount<T>(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, int bitWidth)
+        where T : struct
+    {
+        var sb = methodConvert.InstructionsBuilder;
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        // Mask to ensure the value is treated as an unsigned integer of the given bit width
+        sb.Push((BigInteger.One << bitWidth) - 1); // 0xFFFFFFFF for 32-bit, 0xFFFF for 16-bit, etc.
+        sb.And(); // value = value & mask
+
+        // Initialize count to 0
+        sb.Push(0); // value count
+        sb.Swap(); // count value
+
+        // Loop to count the number of 1 bits
+        JumpTarget loopStart = new();
+        JumpTarget endLoop = new();
+        loopStart.Instruction = sb.Dup(); // count value value
+        sb.Push0(); // count value value 0
+        sb.Jump(OpCode.JMPEQ, endLoop); // count value
+        sb.Dup(); // count value value
+        sb.Push1(); // count value value 1
+        sb.And(); // count value (value & 1)
+        sb.Rot(); // value (value & 1) count
+        sb.Add(); // value count += (value & 1)
+        sb.Swap(); // count value
+        sb.Push1(); // count value 1
+        sb.ShR(); // count value >>= 1
+        sb.Jump(OpCode.JMP, loopStart);
+
+        endLoop.Instruction = sb.Drop(); // Drop the remaining value
+    }
 }

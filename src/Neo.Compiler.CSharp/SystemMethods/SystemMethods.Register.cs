@@ -477,6 +477,19 @@ internal static partial class SystemMethods
         // RegisterHandler((string s) => bool.Parse(s), HandleBoolParse);
         RegisterHandler((string s) => BigInteger.Parse(s), HandleBigIntegerParse);
         #endregion
+
+        // Numeric PopCount
+        #region PopCount
+        RegisterHandler((byte value) => byte.PopCount(value), HandleBytePopCount);
+        RegisterHandler((sbyte value) => sbyte.PopCount(value), HandleSBytePopCount);
+        RegisterHandler((short value) => short.PopCount(value), HandleShortPopCount);
+        RegisterHandler((ushort value) => ushort.PopCount(value), HandleUShortPopCount);
+        RegisterHandler((int value) => int.PopCount(value), HandleIntPopCount);
+        RegisterHandler((uint value) => uint.PopCount(value), HandleUIntPopCount);
+        RegisterHandler((long value) => long.PopCount(value), HandleLongPopCount);
+        RegisterHandler((ulong value) => ulong.PopCount(value), HandleULongPopCount);
+        RegisterHandler((BigInteger value) => BigInteger.PopCount(value), HandleBigIntegerPopCount);
+        #endregion PopCount
     }
 
     private static void RegisterMathHandlers()
