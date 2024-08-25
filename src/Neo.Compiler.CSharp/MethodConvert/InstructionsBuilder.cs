@@ -409,7 +409,7 @@ namespace Neo.Compiler
 
         internal Instruction MemorySearch(MethodConvert methodConvert)
         {
-            return methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorysearch", 2, true);
+            return methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
         }
 
         #endregion

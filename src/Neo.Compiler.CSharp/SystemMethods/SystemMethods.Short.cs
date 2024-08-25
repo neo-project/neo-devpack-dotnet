@@ -13,6 +13,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.VM;
 
 namespace Neo.Compiler;
 
@@ -78,30 +79,37 @@ internal static partial class SystemMethods
         JumpTarget nonZeroTarget = new();
         JumpTarget nonZeroTarget2 = new();
         // a b
-        sb.Sign();         // a 1
-        sb.Dup(); // a 1 1
+        sb.AddInstruction(OpCode.SIGN);         // a 1
+        sb.AddInstruction(OpCode.DUP); // a 1 1
         sb.Push(0); // a 1 1 0
-        sb.JmpLt(nonZeroTarget); // a 1
-        sb.Drop();
+        sb.Jump(OpCode.JMPLT, nonZeroTarget); // a 1
+        sb.AddInstruction(OpCode.DROP);
         sb.Push(1); // a 1
-        nonZeroTarget.Instruction = sb.Nop(); // a 1
-        sb.Swap();         // 1 a
-        sb.Dup();// 1 a a
-        sb.Sign();// 1 a 0
-        sb.Dup();// 1 a 0 0
+        nonZeroTarget.Instruction = sb.AddInstruction(OpCode.NOP); // a 1
+        sb.AddInstruction(OpCode.SWAP);         // 1 a
+        sb.AddInstruction(OpCode.DUP);// 1 a a
+        sb.AddInstruction(OpCode.SIGN);// 1 a 0
+        sb.AddInstruction(OpCode.DUP);// 1 a 0 0
         sb.Push(0); // 1 a 0 0 0
-        sb.JmpLt(nonZeroTarget2); // 1 a 0
-        sb.Drop();
+        sb.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
+        sb.AddInstruction(OpCode.DROP);
         sb.Push(1);
-        nonZeroTarget2.Instruction = sb.Nop(); // 1 a 1
-        sb.Rot();// a 1 1
-        sb.Equal();// a 1 1
+        nonZeroTarget2.Instruction = sb.AddInstruction(OpCode.NOP); // 1 a 1
+        sb.AddInstruction(OpCode.ROT);// a 1 1
+        sb.AddInstruction(OpCode.EQUAL);// a 1 1
         JumpTarget endTarget = new();
-        sb.Jmp(endTarget); // a
-        sb.Negate();
-        endTarget.Instruction = sb.Nop();
+        sb.Jump(OpCode.JMPIF, endTarget); // a
+        sb.AddInstruction(OpCode.NEGATE);
+        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
 
-        sb.IsShortCheck();
+        var endTarget2 = new JumpTarget();
+        sb.AddInstruction(OpCode.DUP);
+        sb.Push(short.MinValue);
+        sb.Push(new BigInteger(short.MaxValue) + 1);
+        sb.AddInstruction(OpCode.WITHIN);
+        sb.Jump(OpCode.JMPIF, endTarget2);
+        sb.AddInstruction(OpCode.THROW);
+        endTarget2.Instruction = sb.AddInstruction(OpCode.NOP);
     }
 
     // HandleShortCreateChecked
@@ -214,42 +222,41 @@ internal static partial class SystemMethods
         // public static short RotateRight(short value, int rotateAmount) => (short)((value >> (rotateAmount & 15)) | ((ushort)value << ((16 - rotateAmount) & 15)));
         var bitWidth = sizeof(short) * 8;
         sb.Push(bitWidth - 1);  // Push 15 (16-bit - 1)
-        sb.And();    // rotateAmount & 15
+        sb.AddInstruction(OpCode.AND);    // rotateAmount & 15
         sb.Push(bitWidth);
-        sb.Mod();
+        sb.AddInstruction(OpCode.MOD);
         sb.Push(bitWidth);
-        sb.Swap();
-        sb.Sub();
-        sb.Swap();
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SUB);
+        sb.AddInstruction(OpCode.SWAP);
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();
-        sb.Swap();
-        sb.ShL();    // value << (rotateAmount & 15)
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 15)
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();    // Ensure SHL result is 16-bit
-        sb.LdArg0(); // Load value
+        sb.AddInstruction(OpCode.AND);    // Ensure SHL result is 16-bit
+        sb.AddInstruction(OpCode.LDARG0); // Load value
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();
-        sb.LdArg1(); // Load rotateAmount
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.LDARG1); // Load rotateAmount
         sb.Push(bitWidth);
-        sb.Swap();
-        sb.Sub();
+        sb.AddInstruction(OpCode.MOD);
         sb.Push(bitWidth);
-        sb.Swap();
-        sb.Sub();
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SUB);
         sb.Push(bitWidth);  // Push 16
-        sb.Swap();   // Swap top two elements
-        sb.Sub();    // 16 - rotateAmount
+        sb.AddInstruction(OpCode.SWAP);   // Swap top two elements
+        sb.AddInstruction(OpCode.SUB);    // 16 - rotateAmount
         sb.Push(bitWidth - 1);  // Push 15
-        sb.And();    // (16 - rotateAmount) & 15
-        sb.ShR();    // (ushort)value >> ((16 - rotateAmount) & 15)
-        sb.Or();
-        sb.Dup();    // Duplicate the result
+        sb.AddInstruction(OpCode.AND);    // (16 - rotateAmount) & 15
+        sb.AddInstruction(OpCode.SHR);    // (ushort)value >> ((16 - rotateAmount) & 15)
+        sb.AddInstruction(OpCode.OR);
+        sb.AddInstruction(OpCode.DUP);    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 15 (0x8000)
         var endTarget = new JumpTarget();
-        sb.JmpLt(endTarget);
+        sb.Jump(OpCode.JMPLT, endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 16 (0x10000)
-        sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.AddInstruction(OpCode.SUB);
+        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
     }
 }

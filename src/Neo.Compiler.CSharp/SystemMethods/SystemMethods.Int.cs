@@ -78,10 +78,10 @@ internal static partial class SystemMethods
         // a b
         sb.Sign();         // a 1
         sb.Dup(); // a 1 1
-        sb.Push0(); // a 1 1 0
+        sb.Push(0); // a 1 1 0
         sb.JmpLt(nonZeroTarget); // a 1
         sb.Drop();
-        sb.Push1(); // a 1
+        sb.Push(1); // a 1
         nonZeroTarget.Instruction = sb.Nop(); // a 1
         sb.Swap();         // 1 a
         sb.Dup();// 1 a a
@@ -214,6 +214,7 @@ internal static partial class SystemMethods
         sb.And();    // rotateAmount & 31
         sb.Push(bitWidth);
         sb.Mod();
+        sb.Push(bitWidth);
         sb.Swap();
         sb.Sub();
         sb.Swap();
@@ -229,6 +230,7 @@ internal static partial class SystemMethods
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);
         sb.Mod();
+        sb.Push(bitWidth);
         sb.Swap();
         sb.Sub();
         sb.Push(bitWidth);  // Push 32

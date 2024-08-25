@@ -432,7 +432,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.CopySign(int.MaxValue, -1), Contract.CopySignInt(int.MaxValue, -1));
             AssertGasConsumed(1049490);
             Assert.ThrowsException<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
-            AssertGasConsumed(1064850);
+            AssertGasConsumed(1065090);
             Assert.AreEqual(int.CopySign(int.MinValue, -1), Contract.CopySignInt(int.MinValue, -1));
             AssertGasConsumed(1049280);
 
@@ -442,7 +442,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(-int.MaxValue, Contract.CopySignInt(int.MaxValue, -1));
             AssertGasConsumed(1049490);
             Assert.ThrowsException<TestException>(() => Contract.CopySignInt(int.MinValue, 1));
-            AssertGasConsumed(1064850);
+            AssertGasConsumed(1065090);
             Assert.AreEqual(int.MinValue, Contract.CopySignInt(int.MinValue, -1));
             AssertGasConsumed(1049280);
 
@@ -1275,7 +1275,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestRotateRightShort()
         {
-
             Assert.AreEqual(short.RotateRight((short)1, 1), Contract.RotateRightShort((short)1, 1));
             Assert.AreEqual(short.RotateRight((short)0x1234, 4), Contract.RotateRightShort((short)0x1234, 4));
             Assert.AreEqual(short.RotateRight(short.MaxValue, 1), Contract.RotateRightShort(short.MaxValue, 1));
@@ -1298,7 +1297,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestRotateRightInt()
         {
-
             Assert.AreEqual(int.RotateRight(1, 1), Contract.RotateRightInt(1, 1));
             Assert.AreEqual(int.RotateRight(0x12345678, 4), Contract.RotateRightInt(0x12345678, 4));
             Assert.AreEqual(int.RotateRight(-1, 1), Contract.RotateRightInt(-1, 1));

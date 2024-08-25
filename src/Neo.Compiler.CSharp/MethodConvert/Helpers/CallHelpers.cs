@@ -315,10 +315,10 @@ internal partial class MethodConvert
                 if (isConstructor) _instructionsBuilder.Dup();
                 break;
             case 1:
-                _ = isConstructor?_instructionsBuilder.Over():_instructionsBuilder.Swap();
+                _ = isConstructor ? _instructionsBuilder.Over() : _instructionsBuilder.Swap();
                 break;
             default:
-                _ = isConstructor?_instructionsBuilder.Pick(symbol.Parameters.Length):_instructionsBuilder.Roll(symbol.Parameters.Length);
+                _ = isConstructor ? _instructionsBuilder.Pick(symbol.Parameters.Length) : _instructionsBuilder.Roll(symbol.Parameters.Length);
                 break;
         }
     }

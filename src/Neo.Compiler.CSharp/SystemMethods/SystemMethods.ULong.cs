@@ -13,6 +13,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.VM;
 
 namespace Neo.Compiler;
 
@@ -85,37 +86,37 @@ internal static partial class SystemMethods
         var exceptionTarget = new JumpTarget();
         var minTarget = new JumpTarget();
         var maxTarget = new JumpTarget();
-        sb.Dup();// 5 0 10 10
-        sb.Rot();// 5 10 10 0
-        sb.Dup();// 5 10 10 0 0
-        sb.Rot();// 5 10 0 0 10
-        sb.Jmp(exceptionTarget);// 5 10 0
-        sb.Throw();
-        exceptionTarget.Instruction = sb.Nop();
-        sb.Rot();// 10 0 5
-        sb.Dup();// 10 0 5 5
-        sb.Rot();// 10 5 5 0
-        sb.Dup();// 10 5 5 0 0
-        sb.Rot();// 10 5 0 0 5
-        sb.Jmp(minTarget);// 10 5 0
-        sb.Drop();// 10 5
-        sb.Dup();// 10 5 5
-        sb.Rot();// 5 5 10
-        sb.Dup();// 5 5 10 10
-        sb.Rot();// 5 10 10 5
-        sb.Jmp(maxTarget);// 5 10
-        sb.Drop();
-        sb.Jmp(endTarget);
-        minTarget.Instruction = sb.Nop();
-        sb.Reverse3();
-        sb.Drop();
-        sb.Drop();
-        sb.Jmp(endTarget);
-        maxTarget.Instruction = sb.Nop();
-        sb.Swap();
-        sb.Drop();
-        sb.Jmp(endTarget);
-        endTarget.Instruction = sb.Nop();
+        sb.AddInstruction(OpCode.DUP);// 5 0 10 10
+        sb.AddInstruction(OpCode.ROT);// 5 10 10 0
+        sb.AddInstruction(OpCode.DUP);// 5 10 10 0 0
+        sb.AddInstruction(OpCode.ROT);// 5 10 0 0 10
+        sb.Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
+        sb.AddInstruction(OpCode.THROW);
+        exceptionTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.AddInstruction(OpCode.ROT);// 10 0 5
+        sb.AddInstruction(OpCode.DUP);// 10 0 5 5
+        sb.AddInstruction(OpCode.ROT);// 10 5 5 0
+        sb.AddInstruction(OpCode.DUP);// 10 5 5 0 0
+        sb.AddInstruction(OpCode.ROT);// 10 5 0 0 5
+        sb.Jump(OpCode.JMPGT, minTarget);// 10 5 0
+        sb.AddInstruction(OpCode.DROP);// 10 5
+        sb.AddInstruction(OpCode.DUP);// 10 5 5
+        sb.AddInstruction(OpCode.ROT);// 5 5 10
+        sb.AddInstruction(OpCode.DUP);// 5 5 10 10
+        sb.AddInstruction(OpCode.ROT);// 5 10 10 5
+        sb.Jump(OpCode.JMPLT, maxTarget);// 5 10
+        sb.AddInstruction(OpCode.DROP);
+        sb.Jump(OpCode.JMP, endTarget);
+        minTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.AddInstruction(OpCode.REVERSE3);
+        sb.AddInstruction(OpCode.DROP);
+        sb.AddInstruction(OpCode.DROP);
+        sb.Jump(OpCode.JMP, endTarget);
+        maxTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.DROP);
+        sb.Jump(OpCode.JMP, endTarget);
+        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
     }
 
     /// <summary>

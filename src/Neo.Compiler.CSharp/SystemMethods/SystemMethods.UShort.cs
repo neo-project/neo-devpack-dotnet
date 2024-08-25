@@ -13,6 +13,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.VM;
 
 namespace Neo.Compiler;
 
@@ -131,27 +132,27 @@ internal static partial class SystemMethods
         // public static ushort RotateLeft(ushort value, int rotateAmount) => (ushort)((value << (rotateAmount & 15)) | (value >> ((16 - rotateAmount) & 15)));
         var bitWidth = sizeof(ushort) * 8;
         sb.Push(bitWidth - 1);  // Push 31 (32-bit - 1)
-        sb.And();    // rotateAmount & 31
-        sb.Swap();
+        sb.AddInstruction(OpCode.AND);    // rotateAmount & 31
+        sb.AddInstruction(OpCode.SWAP);
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();
-        sb.Swap();
-        sb.ShL();    // value << (rotateAmount & 31)
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 31)
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();    // Ensure SHL result is 32-bit
-        sb.Swap();
+        sb.AddInstruction(OpCode.AND);    // Ensure SHL result is 32-bit
+        sb.AddInstruction(OpCode.LDARG0); // Load value
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();
-        sb.Swap();
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.LDARG1); // Load rotateAmount
         sb.Push(bitWidth);  // Push 32
-        sb.Swap();   // Swap top two elements
-        sb.Sub();    // 32 - rotateAmount
+        sb.AddInstruction(OpCode.SWAP);   // Swap top two elements
+        sb.AddInstruction(OpCode.SUB);    // 32 - rotateAmount
         sb.Push(bitWidth - 1);  // Push 31
-        sb.And();    // (32 - rotateAmount) & 31
-        sb.ShR();    // (uint)value >> ((32 - rotateAmount) & 31)
-        sb.Or();
+        sb.AddInstruction(OpCode.AND);    // (32 - rotateAmount) & 31
+        sb.AddInstruction(OpCode.SHR);    // (uint)value >> ((32 - rotateAmount) & 31)
+        sb.AddInstruction(OpCode.OR);
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();    // Ensure final result is 32-bit
+        sb.AddInstruction(OpCode.AND);    // Ensure final result is 32-bit
     }
 
     // HandleUShortRotateRight
@@ -165,17 +166,17 @@ internal static partial class SystemMethods
         // public static ushort RotateRight(ushort value, int rotateAmount) => (ushort)((value >> (rotateAmount & 15)) | ((ushort)value << ((16 - rotateAmount) & 15)));
         var bitWidth = sizeof(ushort) * 8;
         sb.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        sb.And();    // rotateAmount & (bitWidth - 1)
-        sb.ShR();    // value >> (rotateAmount & (bitWidth - 1))
-        sb.Dup(); // Load value again
+        sb.AddInstruction(OpCode.AND);    // rotateAmount & (bitWidth - 1)
+        sb.AddInstruction(OpCode.SHR);    // value >> (rotateAmount & (bitWidth - 1))
+        sb.AddInstruction(OpCode.LDARG0); // Load value again
         sb.Push(bitWidth);  // Push bitWidth
-        sb.Swap(); // Load rotateAmount
-        sb.Sub();    // bitWidth - rotateAmount
+        sb.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        sb.AddInstruction(OpCode.SUB);    // bitWidth - rotateAmount
         sb.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        sb.And();    // (bitWidth - rotateAmount) & (bitWidth - 1)
-        sb.ShL();    // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
-        sb.Or();     // Combine the results with OR
+        sb.AddInstruction(OpCode.AND);    // (bitWidth - rotateAmount) & (bitWidth - 1)
+        sb.AddInstruction(OpCode.SHL);    // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
+        sb.AddInstruction(OpCode.OR);     // Combine the results with OR
         sb.Push((BigInteger.One << bitWidth) - 1);  // Push (2^bitWidth - 1) as bitmask
-        sb.And();    // Ensure final result is bitWidth-bit
+        sb.AddInstruction(OpCode.AND);    // Ensure final result is bitWidth-bit
     }
 }

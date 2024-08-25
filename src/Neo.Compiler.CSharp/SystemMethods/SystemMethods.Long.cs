@@ -49,7 +49,7 @@ internal static partial class SystemMethods
         sb.Push0();
         sb.Jmp(endTarget);
         notNegative.Instruction = sb.Nop();
-        sb.Push(0); // count 5 0
+        sb.Push0(); // count 5 0
         loopStart.Instruction = sb.Swap(); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
@@ -93,7 +93,7 @@ internal static partial class SystemMethods
         sb.Push0(); // 1 a 0 0 0
         sb.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
         sb.Drop();
-        sb.Push(1);
+        sb.Push1();
         nonZeroTarget2.Instruction = sb.Nop(); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
@@ -152,8 +152,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 10 5
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();
-        sb.Dup();
-        sb.Rot();
+        sb.Jmp(endTarget);
         minTarget.Instruction = sb.Nop();
         sb.Reverse3();
         sb.Drop();
@@ -179,32 +178,32 @@ internal static partial class SystemMethods
         // public static long RotateLeft(long value, int rotateAmount) => (long)((value << (rotateAmount & 63)) | ((ulong)value >> (64 - (rotateAmount & 63))));
         var bitWidth = sizeof(long) * 8;
         sb.Push(bitWidth - 1);  // Push 63 (64-bit - 1)
-        sb.And();    // rotateAmount & 63
-        sb.Swap();
+        sb.AddInstruction(OpCode.AND);    // rotateAmount & 63
+        sb.AddInstruction(OpCode.SWAP);
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
-        sb.Swap();
-        sb.ShL();    // value << (rotateAmount & 63)
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 63)
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();    // Ensure SHL result is 64-bit
-        sb.LdArg0(); // Load value
+        sb.AddInstruction(OpCode.AND);    // Ensure SHL result is 64-bit
+        sb.AddInstruction(OpCode.LDARG0); // Load value
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
-        sb.LdArg1(); // Load rotateAmount
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.LDARG1); // Load rotateAmount
         sb.Push(bitWidth);  // Push 64
-        sb.Swap();   // Swap top two elements
-        sb.Sub();    // 64 - rotateAmount
+        sb.AddInstruction(OpCode.SWAP);   // Swap top two elements
+        sb.AddInstruction(OpCode.SUB);    // 64 - rotateAmount
         sb.Push(bitWidth - 1);  // Push 63
-        sb.And();    // (64 - rotateAmount) & 63
-        sb.ShR();    // (ulong)value >> ((64 - rotateAmount) & 63)
-        sb.Or();
-        sb.Dup();    // Duplicate the result
+        sb.AddInstruction(OpCode.AND);    // (64 - rotateAmount) & 63
+        sb.AddInstruction(OpCode.SHR);    // (ulong)value >> ((64 - rotateAmount) & 63)
+        sb.AddInstruction(OpCode.OR);
+        sb.AddInstruction(OpCode.DUP);    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 63 (0x8000000000000000)
         var endTarget = new JumpTarget();
-        sb.JmpLt(endTarget);
+        sb.Jump(OpCode.JMPLT, endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 64 (0x10000000000000000)
-        sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.AddInstruction(OpCode.SUB);
+        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
     }
 
     // HandleLongRotateRight
@@ -218,42 +217,41 @@ internal static partial class SystemMethods
         // public static long RotateRight(long value, int rotateAmount) => (long)(((ulong)value >> (rotateAmount & 63)) | ((long)value << (64 - (rotateAmount & 63))));
         var bitWidth = sizeof(long) * 8;
         sb.Push(bitWidth - 1);  // Push 63 (64-bit - 1)
-        sb.And();    // rotateAmount & 63
+        sb.AddInstruction(OpCode.AND);    // rotateAmount & 63
         sb.Push(bitWidth);
-        sb.Mod();
+        sb.AddInstruction(OpCode.MOD);
         sb.Push(bitWidth);
-        sb.Swap();
-        sb.Sub();
-        sb.Swap();
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SUB);
+        sb.AddInstruction(OpCode.SWAP);
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
-        sb.Swap();
-        sb.ShL();    // value << (rotateAmount & 63)
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 63)
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();    // Ensure SHL result is 64-bit
-        sb.LdArg0(); // Load value
+        sb.AddInstruction(OpCode.AND);    // Ensure SHL result is 64-bit
+        sb.AddInstruction(OpCode.LDARG0); // Load value
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
-        sb.LdArg1(); // Load rotateAmount
+        sb.AddInstruction(OpCode.AND);
+        sb.AddInstruction(OpCode.LDARG1); // Load rotateAmount
         sb.Push(bitWidth);
-        sb.Mod();
+        sb.AddInstruction(OpCode.MOD);
         sb.Push(bitWidth);
-        sb.Swap();
-        sb.Sub();
-        sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
-        sb.Swap();
+        sb.AddInstruction(OpCode.SWAP);
+        sb.AddInstruction(OpCode.SUB);
+        sb.Push(bitWidth);  // Push 64
+        sb.AddInstruction(OpCode.SWAP);   // Swap top two elements
+        sb.AddInstruction(OpCode.SUB);    // 64 - rotateAmount
         sb.Push(bitWidth - 1);  // Push 63
-        sb.And();    // (64 - rotateAmount) & 63
-        sb.ShR();    // (ulong)value >> ((64 - rotateAmount) & 63)
-        sb.Or();
-        sb.Dup();    // Duplicate the result
+        sb.AddInstruction(OpCode.AND);    // (64 - rotateAmount) & 63
+        sb.AddInstruction(OpCode.SHR);    // (ulong)value >> ((64 - rotateAmount) & 63)
+        sb.AddInstruction(OpCode.OR);
+        sb.AddInstruction(OpCode.DUP);    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 63 (0x8000000000000000)
         var endTarget = new JumpTarget();
         sb.Jump(OpCode.JMPLT, endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 64 (0x10000000000000000)
-        sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.AddInstruction(OpCode.SUB);
+        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
     }
 }

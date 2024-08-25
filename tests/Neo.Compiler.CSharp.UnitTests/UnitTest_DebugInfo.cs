@@ -37,7 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsInstanceOfType(debugInfo["methods"], typeof(JArray));
             Assert.AreEqual(1, (debugInfo["methods"] as JArray)!.Count);
             Assert.AreEqual("Neo.Compiler.CSharp.TestContracts.Contract_Event,test", (debugInfo["methods"] as JArray)![0]!["name"]!.AsString());
-            Assert.AreEqual("0[0]19:28-19:29;1[0]19:13-19:29;2[0]19:13-19:29;3[0]19:13-19:29;4[0]20:28-20:32;5[0]20:13-20:32;6[0]20:13-20:32;7[0]20:13-20:32;8[0]21:13-21:86;9[0]21:13-21:86;10[0]21:25-21:47;15[0]21:25-21:47;17[0]21:13-21:86;18[0]21:13-21:86;19[0]21:49-21:71;24[0]21:49-21:71;26[0]21:13-21:86;27[0]21:13-21:86;28[0]21:73-21:85;29[0]21:13-21:86;30[0]21:13-21:86;40[0]21:13-21:86;45[0]22:9-22:10",
+            Assert.AreEqual("0[0]19:28-19:29;1[0]19:13-19:29;2[0]19:13-19:29;3[0]19:13-19:29;4[0]20:28-20:32;5[0]20:13-20:32;6[0]20:13-20:32;7[0]20:13-20:32;8[0]21:13-21:86;9[0]21:13-21:86;10[0]21:25-21:47;15[0]21:25-21:47;17[0]21:13-21:86;18[0]21:13-21:86;19[0]21:49-21:71;24[0]21:49-21:71;26[0]21:13-21:86;27[0]21:13-21:86;28[0]21:73-21:85;30[0]21:13-21:86;31[0]21:13-21:86;41[0]21:13-21:86;46[0]22:9-22:10",
                 string.Join(';', ((debugInfo["methods"] as JArray)![0]!["sequence-points"] as JArray)!.Select(u => u!.AsString())));
             Assert.IsTrue(debugInfo.ContainsProperty("events"));
             Assert.IsInstanceOfType(debugInfo["events"], typeof(JArray));
