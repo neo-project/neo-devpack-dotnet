@@ -194,12 +194,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(sbyte.MinValue, sbyte.MaxValue);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsSByteCheck();
     }
 
     // Handler for explicit conversion of BigInteger to sbyte
@@ -208,12 +203,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(sbyte.MinValue, sbyte.MaxValue);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsSByteCheck();
     }
 
     // Handler for explicit conversion of BigInteger to byte
@@ -222,12 +212,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(byte.MinValue, byte.MaxValue);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsByteCheck();
     }
 
     // Handler for explicit conversion of BigInteger to short
@@ -236,12 +221,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(short.MinValue, short.MaxValue);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsShortCheck();
     }
 
     // Handler for explicit conversion of BigInteger to ushort
@@ -250,12 +230,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(ushort.MinValue, ushort.MaxValue);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsUShortCheck();
     }
 
     // Handler for explicit conversion of BigInteger to int
@@ -264,13 +239,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Push(int.MinValue);
-        sb.Within(int.MinValue, new BigInteger(int.MaxValue) + 1);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsIntCheck();
     }
 
     // Handler for explicit conversion of BigInteger to uint
@@ -279,12 +248,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(uint.MinValue, new BigInteger(uint.MaxValue) + 1);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsUIntCheck();
     }
 
     // Handler for explicit conversion of BigInteger to long
@@ -293,12 +257,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(long.MinValue, new BigInteger(long.MaxValue) + 1);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsLongCheck();
     }
 
     // Handler for explicit conversion of BigInteger to ulong
@@ -307,12 +266,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        sb.Dup();
-        sb.Within(ulong.MinValue, new BigInteger(ulong.MaxValue) + 1);
-        sb.JmpIfNot(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.IsULongCheck();
     }
 
     // Handler for implicit conversion of various types to BigInteger
