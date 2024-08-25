@@ -59,6 +59,12 @@ namespace Neo.Compiler
             }
         }
 
+        internal Instruction SetTarget(JumpTarget target)
+        {
+            target.Instruction = this;
+            return this;
+        }
+
         public Instruction Clone()
         {
             if (Target is not null || Target2 is not null)

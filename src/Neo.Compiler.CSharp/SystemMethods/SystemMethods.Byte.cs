@@ -40,7 +40,7 @@ internal static partial class SystemMethods
         JumpTarget endTarget = new();
         JumpTarget notNegative = new();
         sb.Push(0); // count 5 0
-        loopStart.Instruction = sb.Swap(); //0 5
+        sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
@@ -49,11 +49,11 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
-        endLoop.Instruction = sb.Drop();
+        sb.Drop().SetTarget(endLoop);
         sb.Push8();
         sb.Swap();
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleByteCreateChecked
@@ -86,33 +86,33 @@ internal static partial class SystemMethods
         sb.AddInstruction(OpCode.ROT);// 5 10 10 0
         sb.AddInstruction(OpCode.DUP);// 5 10 10 0 0
         sb.AddInstruction(OpCode.ROT);// 5 10 0 0 10
-        sb.Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
-        sb.AddInstruction(OpCode.THROW);
-        exceptionTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.ROT);// 10 0 5
-        sb.AddInstruction(OpCode.DUP);// 10 0 5 5
-        sb.AddInstruction(OpCode.ROT);// 10 5 5 0
-        sb.AddInstruction(OpCode.DUP);// 10 5 5 0 0
-        sb.AddInstruction(OpCode.ROT);// 10 5 0 0 5
-        sb.Jump(OpCode.JMPGT, minTarget);// 10 5 0
-        sb.AddInstruction(OpCode.DROP);// 10 5
-        sb.AddInstruction(OpCode.DUP);// 10 5 5
-        sb.AddInstruction(OpCode.ROT);// 5 5 10
-        sb.AddInstruction(OpCode.DUP);// 5 5 10 10
-        sb.AddInstruction(OpCode.ROT);// 5 10 10 5
-        sb.Jump(OpCode.JMPLT, maxTarget);// 5 10
-        sb.AddInstruction(OpCode.DROP);
-        sb.Jump(OpCode.JMP, endTarget);
-        minTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.REVERSE3);
-        sb.AddInstruction(OpCode.DROP);
-        sb.AddInstruction(OpCode.DROP);
-        sb.Jump(OpCode.JMP, endTarget);
-        maxTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.SWAP);
-        sb.AddInstruction(OpCode.DROP);
-        sb.Jump(OpCode.JMP, endTarget);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpLt(exceptionTarget);// 5 10 0
+        sb.Throw();
+        sb.SetTarget(exceptionTarget);
+        sb.Rot();// 10 0 5
+        sb.Dup();// 10 0 5 5
+        sb.Rot();// 10 5 5 0
+        sb.Dup();// 10 5 5 0 0
+        sb.Rot();// 10 5 0 0 5
+        sb.JmpGt(minTarget);// 10 5 0
+        sb.Drop();// 10 5
+        sb.Dup();// 10 5 5
+        sb.Rot();// 5 5 10
+        sb.Dup();// 5 5 10 10
+        sb.Rot();// 5 10 10 5
+        sb.JmpLt(maxTarget);// 5 10
+        sb.Drop();
+        sb.Jmp(endTarget);
+        sb.SetTarget(minTarget);
+        sb.Reverse3();
+        sb.Drop();
+        sb.Drop();
+        sb.Jmp(endTarget);
+        sb.SetTarget(maxTarget);
+        sb.Swap();
+        sb.Drop();
+        sb.Jmp(endTarget);
+        sb.SetTarget(endTarget);
     }
 
 

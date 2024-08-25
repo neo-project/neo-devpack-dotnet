@@ -45,9 +45,9 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endTarget);
-        notNegative.Instruction = sb.Nop();
+        sb.SetTarget(notNegative);
         sb.Push0(); // count 5 0
-        loopStart.Instruction = sb.Swap(); //0 5
+        sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
@@ -56,11 +56,11 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
-        endLoop.Instruction = sb.Drop();
+        sb.Drop().SetTarget(endLoop);
         sb.Push(32);
         sb.Swap();
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleIntCopySign
@@ -82,7 +82,7 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget); // a 1
         sb.Drop();
         sb.Push(1); // a 1
-        nonZeroTarget.Instruction = sb.Nop(); // a 1
+        sb.SetTarget(nonZeroTarget); // a 1
         sb.Swap();         // 1 a
         sb.Dup();// 1 a a
         sb.Sign();// 1 a 0
@@ -91,13 +91,13 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
         sb.Push1();
-        nonZeroTarget2.Instruction = sb.Nop(); // 1 a 1
+        sb.SetTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
         JumpTarget endTarget = new();
         sb.JmpIf(endTarget); // a
         sb.Negate();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
         sb.IsIntCheck();
     }
 
@@ -134,7 +134,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
-        exceptionTarget.Instruction = sb.Nop();
+        sb.SetTarget(exceptionTarget);
         sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
@@ -149,16 +149,16 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();
         sb.Jmp(endTarget);
-        minTarget.Instruction = sb.Nop();
+        sb.SetTarget(minTarget);
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        maxTarget.Instruction = sb.Nop();
+        sb.SetTarget(maxTarget);
         sb.Swap();
         sb.Drop();
         sb.Jmp(endTarget);
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleIntRotateLeft
@@ -194,10 +194,10 @@ internal static partial class SystemMethods
         sb.Dup();    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 31 (0x80000000)
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPLT, endTarget);
+        sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 32 (0x100000000)
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleIntRotateRight
@@ -243,9 +243,9 @@ internal static partial class SystemMethods
         sb.Dup();    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 31 (0x80000000)
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPLT, endTarget);
+        sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 32 (0x100000000)
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 }

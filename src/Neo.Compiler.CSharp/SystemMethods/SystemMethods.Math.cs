@@ -78,9 +78,9 @@ internal static partial class SystemMethods
         sb.Sub();
         sb.Dup();
         sb.IsByte();
-        sb.Jump(OpCode.JMPIF, endTarget);
+        sb.JmpIf(endTarget);
         sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
         sb.Push(2);
         sb.Pack();
     }
@@ -110,7 +110,7 @@ internal static partial class SystemMethods
         sb.IsSByte();
         sb.JmpIf(endTarget);
         sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
         sb.Push(2);
         sb.Pack();
     }
@@ -140,11 +140,7 @@ internal static partial class SystemMethods
         sb.IsShort();
         sb.JmpIf(endTarget);
         sb.Throw();
-        endTarget.Instruction = sb.Nop();
-        sb.Push(2);
-        sb.Pack();
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
         sb.Push(2);
         sb.Pack();
     }
@@ -174,16 +170,7 @@ internal static partial class SystemMethods
         sb.IsUShort();
         sb.JmpIf(endTarget);
         sb.Throw();
-        endTarget.Instruction = sb.Nop();
-        sb.Push(2);
-        sb.Pack();
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
-        sb.Push(2);
-        sb.Pack();
-        sb.JmpIf(endTarget);
-        sb.Throw();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
         sb.Push(2);
         sb.Pack();
     }
@@ -307,7 +294,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
-        exceptionTarget.Instruction = sb.Nop();
+        sb.SetTarget(exceptionTarget);
         sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
@@ -322,16 +309,16 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();
         sb.Jmp(endTarget);
-        minTarget.Instruction = sb.Nop();
+        sb.SetTarget(minTarget);
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        maxTarget.Instruction = sb.Nop();
+        sb.SetTarget(maxTarget);
         sb.Swap();
         sb.Drop();
         sb.Jmp(endTarget);
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleMathBigMul(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)

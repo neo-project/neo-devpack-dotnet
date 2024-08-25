@@ -25,7 +25,6 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
         sb.Atoi(methodConvert);
         sb.IsLongCheck();
     }
@@ -48,9 +47,9 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endTarget);
-        notNegative.Instruction = sb.Nop();
+        sb.SetTarget(notNegative);
         sb.Push0(); // count 5 0
-        loopStart.Instruction = sb.Swap(); //0 5
+        sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
@@ -59,11 +58,11 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
-        endLoop.Instruction = sb.Drop();
+        sb.Drop().SetTarget(endLoop);
         sb.Push(64);
         sb.Swap();
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleLongCopySign

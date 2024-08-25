@@ -9,19 +9,13 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
-using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Text;
-using Neo.Extensions;
 using Buffer = System.Buffer;
 using Neo.SmartContract.Native;
 
@@ -181,6 +175,11 @@ namespace Neo.Compiler
         }
 
         internal Instruction Nip() => AddInstruction(OpCode.NIP);
+
+        internal void SetTarget(JumpTarget target)
+        {
+            target.Instruction = AddInstruction(OpCode.NOP);
+        }
 
         /// <summary>
         /// Remove n items from the stack.

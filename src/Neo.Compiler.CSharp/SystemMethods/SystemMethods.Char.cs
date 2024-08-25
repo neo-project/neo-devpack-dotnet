@@ -219,10 +219,10 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        validTarget.Instruction = sb.Nop();
+        sb.SetTarget(validTarget);
         sb.Drop();
         sb.Lt();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleCharGetNumericValue(MethodConvert methodConvert, SemanticModel model,
@@ -239,10 +239,10 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.PushM1();
         sb.Jmp(endTarget);
-        validTarget.Instruction = sb.Nop();
+        sb.SetTarget(validTarget);
         sb.Push((ushort)'0');
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleCharToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -259,7 +259,7 @@ internal static partial class SystemMethods
         sb.Sub();
         sb.Push((ushort)'a');
         sb.Add();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleCharToUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -276,7 +276,7 @@ internal static partial class SystemMethods
         sb.Sub();
         sb.Push((ushort)'A');
         sb.Add();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleCharToLowerInvariant(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -324,6 +324,6 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIf(endTarget);
         sb.Within((ushort)'a', (ushort)'z');
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 }
