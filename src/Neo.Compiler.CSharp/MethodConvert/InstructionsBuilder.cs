@@ -427,6 +427,11 @@ namespace Neo.Compiler
             return methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
         }
 
+        internal Instruction Itoa(MethodConvert methodConvert)
+        {
+            return methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+        }
+
         #endregion
 
         #region Compound-type

@@ -25,8 +25,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableByteValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -34,12 +34,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableByteGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -47,13 +47,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableSByteHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -61,8 +61,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableSByteValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -70,12 +70,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableSByteGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -83,13 +83,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableShortHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -97,8 +97,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableShortValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -106,12 +106,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableShortGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -119,13 +119,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableUShortHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -133,8 +133,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableUShortValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -142,12 +142,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableUShortGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -155,13 +155,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableUIntHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -169,8 +169,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableUIntValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -178,12 +178,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableUIntGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -191,13 +191,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableULongHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -205,8 +205,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableULongValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -214,12 +214,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableULongGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -227,13 +227,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBoolHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -241,8 +241,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableBoolValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -250,12 +250,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBoolGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -263,13 +263,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableCharHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -277,8 +277,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableCharValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -286,12 +286,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableCharGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -299,13 +299,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBigIntegerHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -313,8 +313,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableBigIntegerValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -322,12 +322,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBigIntegerGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -335,13 +335,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableIntHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -349,8 +349,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableIntValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -358,12 +358,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableIntGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -371,13 +371,13 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableLongHasValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -385,8 +385,8 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.AddInstruction(OpCode.NOT);
+        sb.IsNull();
+        sb.Not();
     }
 
     private static void HandleNullableLongValue(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -394,12 +394,12 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIfNot(endTarget);
+        sb.Throw();
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableLongGetValueOrDefault(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -407,11 +407,11 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endTarget);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpIfNot(endTarget);
+        sb.Drop();
         sb.Push(0);
         endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
     }
@@ -427,15 +427,15 @@ internal static partial class SystemMethods
         JumpTarget endTarget2 = new();
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
-        sb.Jump(OpCode.JMP_L, endTarget2);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP);
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIf(endTarget);
+        sb.Itoa(methodConvert);
+        sb.JmpL(endTarget2);
+        endTarget.Instruction = sb.Nop();
+        sb.Drop();
         sb.Push("");
-        endTarget2.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget2.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBoolToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -446,18 +446,18 @@ internal static partial class SystemMethods
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
+        sb.Dup();
+        sb.IsNull();
         sb.Jump(OpCode.JMPIF_L, nullTarget);
         sb.Jump(OpCode.JMPIF_L, trueTarget);
         sb.Push("False");
-        sb.Jump(OpCode.JMP_L, endTarget);
+        sb.JmpL(endTarget);
         trueTarget.Instruction = sb.Push("True");
-        sb.Jump(OpCode.JMP_L, endTarget);
-        nullTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP);
+        sb.JmpL(endTarget);
+        nullTarget.Instruction = sb.Nop();
+        sb.Drop();
         sb.Push("");
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -470,32 +470,32 @@ internal static partial class SystemMethods
 
         JumpTarget nullTarget1 = new(), nullTarget2 = new(), endTarget = new();
 
-        sb.AddInstruction(OpCode.DUP);// x y
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMPIF_L, nullTarget1);
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget1);
 
         // y is not null
-        sb.AddInstruction(OpCode.SWAP);// y x
-        sb.AddInstruction(OpCode.DUP); // y x x
-        sb.AddInstruction(OpCode.ISNULL); // y x
-        sb.Jump(OpCode.JMPIF_L, nullTarget2);
+        sb.Swap();
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget2);
 
         // y and x both are not null
-        sb.AddInstruction(OpCode.EQUAL);
-        sb.Jump(OpCode.JMP_L, endTarget);
+        sb.Equal();
+        sb.JmpL(endTarget);
 
         // y is null, then return true if x is null, false otherwise
-        nullTarget1.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP);// x
-        sb.AddInstruction(OpCode.ISNULL); // true is null, otherwise false
+        nullTarget1.Instruction = sb.Nop();
+        sb.Drop();
+        sb.IsNull();
         sb.Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget2.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP); // drop x
-        sb.AddInstruction(OpCode.DROP); // drop y
-        sb.Push(false); // y not null but x is null
+        nullTarget2.Instruction = sb.Nop();
+        sb.Drop();
+        sb.Drop();
+        sb.Push(false);
 
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBigIntegerEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -508,32 +508,32 @@ internal static partial class SystemMethods
 
         JumpTarget nullTarget1 = new(), nullTarget2 = new(), endTarget = new();
 
-        sb.AddInstruction(OpCode.DUP);// x y
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMPIF_L, nullTarget1);
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget1);
 
         // y is not null
-        sb.AddInstruction(OpCode.SWAP);// y x
-        sb.AddInstruction(OpCode.DUP); // y x x
-        sb.AddInstruction(OpCode.ISNULL); // y x
-        sb.Jump(OpCode.JMPIF_L, nullTarget2);
+        sb.Swap();
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget2);
 
         // y and x both are not null
-        sb.AddInstruction(OpCode.NUMEQUAL);
-        sb.Jump(OpCode.JMP_L, endTarget);
+        sb.NumEqual();
+        sb.JmpL(endTarget);
 
         // y is null, then return true if x is null, false otherwise
-        nullTarget1.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP);// x
-        sb.AddInstruction(OpCode.ISNULL); // true is null, otherwise false
+        nullTarget1.Instruction = sb.Nop();
+        sb.Drop();
+        sb.IsNull();
         sb.Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget2.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP); // drop x
-        sb.AddInstruction(OpCode.DROP); // drop y
+        nullTarget2.Instruction = sb.Nop();
+        sb.Drop(); // drop x
+        sb.Drop(); // drop y
         sb.Push(false); // y not null but x is null
 
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBoolEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -546,27 +546,27 @@ internal static partial class SystemMethods
 
         JumpTarget nullTarget1 = new(), nullTarget2 = new(), endTarget = new();
 
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMPIF_L, nullTarget1);
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget1);
 
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMPIF_L, nullTarget2);
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget2);
 
-        sb.AddInstruction(OpCode.EQUAL);
+        sb.Equal();
+        sb.JmpL(endTarget);
+
+        nullTarget1.Instruction = sb.Nop();
+        sb.Drop();
+        sb.IsNull();
         sb.Jump(OpCode.JMP_L, endTarget);
 
-        nullTarget1.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMP_L, endTarget);
-
-        nullTarget2.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP);
+        nullTarget2.Instruction = sb.Nop();
+        sb.Drop();
         sb.Push(false);
 
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBigIntegerEqualsWithNonNullable(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -579,20 +579,20 @@ internal static partial class SystemMethods
 
         JumpTarget nullTarget = new(), endTarget = new();
 
-        sb.AddInstruction(OpCode.DUP);// x y
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMPIF_L, nullTarget);
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget);
 
         // y is not null
-        sb.AddInstruction(OpCode.NUMEQUAL);
-        sb.Jump(OpCode.JMP_L, endTarget);
+        sb.NumEqual();
+        sb.JmpL(endTarget);
 
         // y is null, then return false
-        nullTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP); // drop x
+        nullTarget.Instruction = sb.Nop();
+        sb.Drop(); // drop x
         sb.Push(false); // y is null
 
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 
     private static void HandleNullableBoolEqualsWithNonNullable(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -605,17 +605,17 @@ internal static partial class SystemMethods
 
         JumpTarget nullTarget = new(), endTarget = new();
 
-        sb.AddInstruction(OpCode.DUP);
-        sb.AddInstruction(OpCode.ISNULL);
-        sb.Jump(OpCode.JMPIF_L, nullTarget);
+        sb.Dup();
+        sb.IsNull();
+        sb.JmpIfL(nullTarget);
 
-        sb.AddInstruction(OpCode.EQUAL);
-        sb.Jump(OpCode.JMP_L, endTarget);
+        sb.Equal();
+        sb.JmpL(endTarget);
 
-        nullTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.DROP);
+        nullTarget.Instruction = sb.Nop();
+        sb.Drop();
         sb.Push(false);
 
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = sb.Nop();
     }
 }

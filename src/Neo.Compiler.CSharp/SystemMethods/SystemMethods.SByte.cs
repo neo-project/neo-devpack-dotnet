@@ -225,7 +225,7 @@ internal static partial class SystemMethods
         sb.Push(bitWidth - 1);  // Push 7 (8-bit - 1)
         sb.And();    // rotateAmount & 7   
         sb.Push(bitWidth);
-        sb.Mod();  
+        sb.Mod();
         sb.Push(bitWidth);
         sb.Swap();
         sb.Sub();

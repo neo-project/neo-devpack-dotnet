@@ -107,7 +107,7 @@ internal static partial class SystemMethods
         sb.Push(new BigInteger(short.MaxValue) + 1);
         sb.AddInstruction(OpCode.WITHIN);
         sb.Jump(OpCode.JMPIF, endTarget2);
-        sb.Throw();    
+        sb.Throw();
         endTarget2.Instruction = sb.Nop();
     }
 

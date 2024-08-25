@@ -482,7 +482,7 @@ internal static partial class SystemMethods
         replaceEnd.Instruction = sb.Nop();
 
         // Continue the loop
-        sb.Jmp( loopStart);
+        sb.Jmp(loopStart);
 
         // End of the loop
         loopEnd.Instruction = sb.Nop();
