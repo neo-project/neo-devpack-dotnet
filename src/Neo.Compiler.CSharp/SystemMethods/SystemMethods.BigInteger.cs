@@ -594,4 +594,51 @@ internal static partial class SystemMethods
 
         endLoop.Instruction = sb.Drop(); // Drop the remaining value
     }
+
+    private static void HandleBigIntegerPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        // Check if the value is within int range
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Within(int.MinValue, int.MaxValue);
+        var endIntCheck = new JumpTarget();
+        methodConvert.Jump(OpCode.JMPIFNOT, endIntCheck);
+
+        // If within int range, mask with 0xFFFFFFFF
+        methodConvert.Push(0xFFFFFFFF);
+        methodConvert.AddInstruction(OpCode.AND);
+        var endMask = new JumpTarget();
+        methodConvert.Jump(OpCode.JMP, endMask);
+
+        // If larger than int, throw exception, cause too many check will make the script too long.
+        endIntCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push("Value out of range, must be between int.MinValue and int.MaxValue.");
+        methodConvert.Throw();
+        endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+
+        // Initialize count to 0
+        methodConvert.Push(0); // value count
+        methodConvert.Swap(); // count value
+        // Loop to count the number of 1 bit
+        JumpTarget loopStart = new();
+        JumpTarget endLoop = new();
+        loopStart.Instruction = methodConvert.Dup(); // count value value
+        methodConvert.Push0(); // count value value 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop); // count value
+        methodConvert.Dup(); // count value value
+        methodConvert.Push1(); // count value value 1
+        methodConvert.And(); // count value (value & 1)
+        methodConvert.Rot(); // value (value & 1) count
+        methodConvert.Add(); // value count += (value & 1)
+        methodConvert.Swap(); // count value
+        methodConvert.Push1(); // count value 1
+        methodConvert.ShR(); // count value >>= 1
+        methodConvert.Jump(OpCode.JMP, loopStart);
+
+        endLoop.Instruction = methodConvert.Drop(); // Drop the remaining value
+    }
 }

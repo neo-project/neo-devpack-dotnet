@@ -31,6 +31,9 @@ internal static partial class SystemMethods
 
         // Nullable type handlers
         RegisterNullableTypeHandlers();
+
+        // BitOperations handlers
+        RegisterBitOperationsHandlers();
     }
 
     private static void RegisterBigIntegerHandlers()
@@ -727,4 +730,20 @@ internal static partial class SystemMethods
         RegisterHandler((string? value, bool result) => bool.TryParse(value, out result), HandleBoolTryParseWithOut);
         #endregion
     }
+
+    private static void RegisterBitOperationsHandlers()
+    {
+        // Static Methods
+        RegisterHandler((uint value) => BitOperations.LeadingZeroCount(value), HandleUIntLeadingZeroCount);
+        RegisterHandler((ulong value) => BitOperations.LeadingZeroCount(value), HandleULongLeadingZeroCount);
+        RegisterHandler((uint value) => BitOperations.Log2(value), HandleBigIntegerLog2);
+        RegisterHandler((ulong value) => BitOperations.Log2(value), HandleBigIntegerLog2);
+        RegisterHandler((uint value) => BitOperations.PopCount(value), HandleUIntPopCount);
+        RegisterHandler((ulong value) => BitOperations.PopCount(value), HandleULongPopCount);
+        RegisterHandler((uint value, int offset) => BitOperations.RotateLeft(value, offset), HandleUIntRotateLeft);
+        RegisterHandler((ulong value, int offset) => BitOperations.RotateLeft(value, offset), HandleULongRotateLeft);
+        RegisterHandler((uint value, int offset) => BitOperations.RotateRight(value, offset), HandleUIntRotateRight);
+        RegisterHandler((ulong value, int offset) => BitOperations.RotateRight(value, offset), HandleULongRotateRight);
+    }
+
 }
