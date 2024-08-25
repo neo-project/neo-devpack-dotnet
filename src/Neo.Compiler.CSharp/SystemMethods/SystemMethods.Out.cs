@@ -94,11 +94,11 @@ internal static partial class SystemMethods
         sb.JmpL(endTarget);
 
         // Fail target: push false
-        sb.Drop().SetTarget(failTarget);
+        failTarget.Instruction = sb.Drop();
         sb.Push(false);
 
         // End target
-        sb.Nop().SetTarget(endTarget);
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleBigIntegerTryParseWithOut(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -124,7 +124,7 @@ internal static partial class SystemMethods
         sb.JmpL(endTarget);
 
         // End target: clean up stack and push false if parsing failed
-        sb.Nop().SetTarget(endTarget);
+        sb.SetTarget(endTarget);
         sb.Drop();
         sb.Push(false);
     }
@@ -253,7 +253,7 @@ internal static partial class SystemMethods
         sb.JmpL(endTarget); // false
 
         // True case
-        sb.Nop().SetTarget(trueTarget); // x
+        trueTarget.Instruction = sb.Nop(); // x
         sb.Drop(); //
         sb.Push(true); //  true
         sb.StSFld(index); // true
@@ -261,13 +261,13 @@ internal static partial class SystemMethods
         sb.JmpL(endTarget); // true
 
         // False case
-        sb.Nop().SetTarget(falseTarget); // x
+        falseTarget.Instruction = sb.Nop(); // x
         sb.Drop(); //
         sb.Push(false); // false
         sb.StSFld(index); // false
         sb.Push(true); // true
 
         // End target
-        sb.Nop().SetTarget(endTarget);
+        sb.SetTarget(endTarget);
     }
 }

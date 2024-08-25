@@ -50,7 +50,7 @@ internal static partial class SystemMethods
         sb.Jmp(endTarget);
         notNegative.Instruction = sb.Nop();
         sb.Push0(); // count 5 0
-        loopStart.Instruction = sb.Swap(); //0 5
+        sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
@@ -58,11 +58,11 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
-        endLoop.Instruction = sb.Drop();
+        sb.Drop().SetTarget(endLoop);
         sb.Push16();
         sb.Swap();
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleShortCopySign
@@ -93,13 +93,13 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
         sb.Push1();
-        nonZeroTarget2.Instruction = sb.Nop(); // 1 a 1
+        sb.SetTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
         JumpTarget endTarget = new();
         sb.JmpIf(endTarget); // a
         sb.Negate();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
 
         var endTarget2 = new JumpTarget();
         sb.Dup();
@@ -144,7 +144,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
-        exceptionTarget.Instruction = sb.Nop();
+        sb.SetTarget(exceptionTarget);
         sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
@@ -159,16 +159,15 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();
         sb.Jmp(endTarget);
-        minTarget.Instruction = sb.Nop();
+        sb.SetTarget(minTarget);
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        maxTarget.Instruction = sb.Nop();
+        sb.SetTarget(maxTarget);
         sb.Swap();
         sb.Drop();
-        sb.Jmp(endTarget);
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // implement HandleShortRotateLeft
@@ -181,24 +180,19 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static short RotateLeft(short value, int rotateAmount) => (short)((value << (rotateAmount & 15)) | ((ushort)value >> ((16 - rotateAmount) & 15)));
         var bitWidth = sizeof(short) * 8;
-        sb.Push(bitWidth - 1);  // Push 15 (16-bit - 1)
-        sb.And();    // rotateAmount & 15
+        sb.And(bitWidth - 1);    // rotateAmount & 15
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 15)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();    // Ensure SHL result is 16-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure SHL result is 16-bit
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);  // Push 16
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 16 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 15
-        sb.And();    // (16 - rotateAmount) & 15
+        sb.And(bitWidth - 1);    // (16 - rotateAmount) & 15
         sb.ShR();    // (ushort)value >> ((16 - rotateAmount) & 15)
         sb.Or();
         sb.Dup();    // Duplicate the result
@@ -207,7 +201,7 @@ internal static partial class SystemMethods
         sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 16 (0x10000)
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleShortRotateRight
@@ -220,23 +214,19 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static short RotateRight(short value, int rotateAmount) => (short)((value >> (rotateAmount & 15)) | ((ushort)value << ((16 - rotateAmount) & 15)));
         var bitWidth = sizeof(short) * 8;
-        sb.Push(bitWidth - 1);  // Push 15 (16-bit - 1)
-        sb.And();    // rotateAmount & 15
+        sb.And(bitWidth - 1);    // rotateAmount & 15
         sb.Push(bitWidth);
         sb.Mod();
         sb.Push(bitWidth);
         sb.Swap();
         sb.Sub();
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 15)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();    // Ensure SHL result is 16-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure SHL result is 16-bit
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFF (16-bit mask)
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);
         sb.Mod();
@@ -246,8 +236,7 @@ internal static partial class SystemMethods
         sb.Push(bitWidth);  // Push 16
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 16 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 15
-        sb.And();    // (16 - rotateAmount) & 15
+        sb.And(bitWidth - 1);    // (16 - rotateAmount) & 15
         sb.ShR();    // (ushort)value >> ((16 - rotateAmount) & 15)
         sb.Or();
         sb.Dup();    // Duplicate the result
@@ -256,6 +245,6 @@ internal static partial class SystemMethods
         sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 16 (0x10000)
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 }

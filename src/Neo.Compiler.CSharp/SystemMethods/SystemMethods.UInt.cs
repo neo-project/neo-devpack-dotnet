@@ -40,7 +40,7 @@ internal static partial class SystemMethods
         JumpTarget loopStart = new();
         JumpTarget endTarget = new();
         sb.Push(0); // count 5 0
-        loopStart.Instruction = sb.Swap(); //0 5
+        sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.Jump(OpCode.JMPEQ, endLoop); //0 5
@@ -49,11 +49,11 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jump(OpCode.JMP, loopStart);
-        endLoop.Instruction = sb.Drop();
+        sb.Drop().SetTarget(endLoop);
         sb.Push(32);
         sb.Swap();
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleUIntCreateChecked
@@ -89,7 +89,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
-        exceptionTarget.Instruction = sb.Nop();
+        sb.SetTarget(exceptionTarget);
         sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
@@ -104,16 +104,15 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();// 5 10
         sb.Jmp(endTarget);
-        minTarget.Instruction = sb.Nop();
+        sb.SetTarget(minTarget);
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        maxTarget.Instruction = sb.Nop();
+        sb.SetTarget(maxTarget);
         sb.Swap();
         sb.Drop();
-        sb.Jmp(endTarget);
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleUIntRotateLeft

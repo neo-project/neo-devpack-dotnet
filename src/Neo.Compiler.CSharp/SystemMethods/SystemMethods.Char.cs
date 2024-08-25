@@ -113,7 +113,7 @@ internal static partial class SystemMethods
         sb.Within((ushort)'[', (ushort)'`');
         sb.JmpIf(endTarget);
         sb.Within((ushort)'{', (ushort)'~');
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleCharIsSymbol(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -136,7 +136,7 @@ internal static partial class SystemMethods
         sb.Within((ushort)'[', (ushort)'`');
         sb.JmpIf(endTarget);
         sb.Within((ushort)'{', (ushort)'~');
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleCharIsControl(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -199,7 +199,7 @@ internal static partial class SystemMethods
         sb.IsUpperChar();
         sb.JmpIf(endTarget);
         sb.IsLowerChar();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleCharIsBetween(MethodConvert methodConvert, SemanticModel model,
@@ -320,10 +320,10 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        sb.Within((ushort)'A', (ushort)'Z');
+        sb.IsUpperChar();
         var endTarget = new JumpTarget();
         sb.JmpIf(endTarget);
-        sb.Within((ushort)'a', (ushort)'z');
+        sb.IsLowerChar();
         sb.SetTarget(endTarget);
     }
 }

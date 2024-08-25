@@ -30,7 +30,7 @@ internal static partial class SystemMethods
         sb.IsUShort();
         sb.JmpIf(endTarget);
         sb.Throw("Not a valid ushort value.");
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleUShortLeadingZeroCount
@@ -44,7 +44,7 @@ internal static partial class SystemMethods
         JumpTarget loopStart = new();
         JumpTarget endTarget = new();
         sb.Push(0); // count 5 0
-        loopStart.Instruction = sb.Swap(); //0 5
+        sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push(0);// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
@@ -53,11 +53,11 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
-        endLoop.Instruction = sb.Drop();
+        sb.Drop().SetTarget(endLoop);
         sb.Push(16);
         sb.Swap();
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleUShortCreateChecked
@@ -94,7 +94,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
-        exceptionTarget.Instruction = sb.Nop();
+        sb.SetTarget(exceptionTarget);
         sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
@@ -109,16 +109,15 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();
         sb.Jmp(endTarget);
-        minTarget.Instruction = sb.Nop();
+        sb.SetTarget(minTarget);
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        maxTarget.Instruction = sb.Nop();
+        sb.SetTarget(maxTarget);
         sb.Swap();
         sb.Drop();
-        sb.Jmp(endTarget);
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // implement HandleUShortRotateLeft
@@ -131,28 +130,22 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static ushort RotateLeft(ushort value, int rotateAmount) => (ushort)((value << (rotateAmount & 15)) | (value >> ((16 - rotateAmount) & 15)));
         var bitWidth = sizeof(ushort) * 8;
-        sb.Push(bitWidth - 1);  // Push 31 (32-bit - 1)
-        sb.And();    // rotateAmount & 31
+        sb.And(bitWidth - 1);    // rotateAmount & 31
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 31)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();    // Ensure SHL result is 32-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);  // Push 32
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 32 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 31
-        sb.And();    // (32 - rotateAmount) & 31
+        sb.And(bitWidth - 1);  // Push 31
         sb.ShR();    // (uint)value >> ((32 - rotateAmount) & 31)
         sb.Or();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();    // Ensure final result is 32-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure final result is 32-bit
     }
 
     // HandleUShortRotateRight
@@ -166,17 +159,17 @@ internal static partial class SystemMethods
         // public static ushort RotateRight(ushort value, int rotateAmount) => (ushort)((value >> (rotateAmount & 15)) | ((ushort)value << ((16 - rotateAmount) & 15)));
         var bitWidth = sizeof(ushort) * 8;
         sb.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        sb.And();    // rotateAmount & (bitWidth - 1)
-        sb.ShR();    // value >> (rotateAmount & (bitWidth - 1))
-        sb.LdArg0(); // Load value again
+        sb.AddInstruction(OpCode.AND);    // rotateAmount & (bitWidth - 1)
+        sb.AddInstruction(OpCode.SHR);    // value >> (rotateAmount & (bitWidth - 1))
+        sb.AddInstruction(OpCode.LDARG0); // Load value again
         sb.Push(bitWidth);  // Push bitWidth
-        sb.LdArg1(); // Load rotateAmount
-        sb.Sub();    // bitWidth - rotateAmount
+        sb.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        sb.AddInstruction(OpCode.SUB);    // bitWidth - rotateAmount
         sb.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        sb.And();    // (bitWidth - rotateAmount) & (bitWidth - 1)
-        sb.ShL();    // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
-        sb.Or();     // Combine the results with OR
+        sb.AddInstruction(OpCode.AND);    // (bitWidth - rotateAmount) & (bitWidth - 1)
+        sb.AddInstruction(OpCode.SHL);    // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
+        sb.AddInstruction(OpCode.OR);     // Combine the results with OR
         sb.Push((BigInteger.One << bitWidth) - 1);  // Push (2^bitWidth - 1) as bitmask
-        sb.And();    // Ensure final result is bitWidth-bit
+        sb.AddInstruction(OpCode.AND);    // Ensure final result is bitWidth-bit
     }
 }

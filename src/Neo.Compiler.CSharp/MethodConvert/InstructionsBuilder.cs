@@ -273,15 +273,40 @@ namespace Neo.Compiler
 
         internal Instruction Invert() => AddInstruction(OpCode.INVERT);
 
-        internal Instruction And() => AddInstruction(OpCode.AND);
+        internal Instruction And(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.AND);
+        }
 
-        internal Instruction Or() => AddInstruction(OpCode.OR);
+        internal Instruction Or(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.OR);
+        }
 
-        internal Instruction Xor() => AddInstruction(OpCode.XOR);
+        internal Instruction Xor(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.XOR);
+        }
 
-        internal Instruction Equal() => AddInstruction(OpCode.EQUAL);
+        internal Instruction Equal(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.EQUAL);
+        }
 
-        internal Instruction NotEqual() => AddInstruction(OpCode.NOTEQUAL);
+        internal Instruction NotEqual(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.NOTEQUAL);
+        }
 
         #endregion
 
@@ -297,15 +322,40 @@ namespace Neo.Compiler
 
         internal Instruction Dec() => AddInstruction(OpCode.DEC);
 
-        internal Instruction Add() => AddInstruction(OpCode.ADD);
+        internal Instruction Add(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.ADD);
+        }
 
-        internal Instruction Sub() => AddInstruction(OpCode.SUB);
+        internal Instruction Sub(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.SUB);
+        }
 
-        internal Instruction Mul() => AddInstruction(OpCode.MUL);
+        internal Instruction Mul(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.MUL);
+        }
 
-        internal Instruction Div() => AddInstruction(OpCode.DIV);
+        internal Instruction Div(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.DIV);
+        }
 
-        internal Instruction Mod() => AddInstruction(OpCode.MOD);
+        internal Instruction Mod(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.MOD);
+        }
 
         internal Instruction Pow() => AddInstruction(OpCode.POW);
 
@@ -351,19 +401,37 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.NUMNOTEQUAL);
         }
 
-        internal Instruction Lt() => AddInstruction(OpCode.LT);
+        internal Instruction Lt(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.LT);
+        }
 
-        internal Instruction Le() => AddInstruction(OpCode.LE);
+        internal Instruction Le(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.LE);
+        }
 
-        internal Instruction Gt() => AddInstruction(OpCode.GT);
+        internal Instruction Gt(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.GT);
+        }
 
-        internal Instruction Ge() => AddInstruction(OpCode.GE);
+        internal Instruction Ge(BigInteger? value = null)
+        {
+            if (value.HasValue)
+                Push(value.Value);
+            return AddInstruction(OpCode.GE);
+        }
 
         internal Instruction Min() => AddInstruction(OpCode.MIN);
 
         internal Instruction Max() => AddInstruction(OpCode.MAX);
-
-
 
         internal Instruction Within(BigInteger min, BigInteger max)
         {

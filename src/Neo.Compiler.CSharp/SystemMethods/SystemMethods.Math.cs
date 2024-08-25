@@ -78,7 +78,7 @@ internal static partial class SystemMethods
         sb.Sub();
         sb.Dup();
         sb.IsByte();
-        sb.JmpIf(endTarget);
+        sb.Jump(OpCode.JMPIF, endTarget);
         sb.Throw();
         sb.SetTarget(endTarget);
         sb.Push(2);
@@ -167,9 +167,11 @@ internal static partial class SystemMethods
         sb.Swap();
         sb.Sub();
         sb.Dup();
-        sb.IsUShort();
-        sb.JmpIf(endTarget);
-        sb.Throw();
+        sb.Push(ushort.MinValue);
+        sb.Push(new BigInteger(ushort.MaxValue) + 1);
+        sb.AddInstruction(OpCode.WITHIN);
+        sb.Jump(OpCode.JMPIF, endTarget);
+        sb.AddInstruction(OpCode.THROW);
         sb.SetTarget(endTarget);
         sb.Push(2);
         sb.Pack();

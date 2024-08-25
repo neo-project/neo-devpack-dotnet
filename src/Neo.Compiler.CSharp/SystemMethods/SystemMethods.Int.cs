@@ -45,7 +45,7 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endTarget);
-        sb.SetTarget(notNegative);
+        notNegative.Instruction = sb.Nop();
         sb.Push0(); // count 5 0
         sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
@@ -82,15 +82,15 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget); // a 1
         sb.Drop();
         sb.Push(1); // a 1
-        sb.SetTarget(nonZeroTarget); // a 1
+        nonZeroTarget.Instruction = sb.Nop(); // a 1
         sb.Swap();         // 1 a
         sb.Dup();// 1 a a
         sb.Sign();// 1 a 0
         sb.Dup();// 1 a 0 0
-        sb.Push0(); // 1 a 0 0 0
+        sb.Push(0); // 1 a 0 0 0
         sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
-        sb.Push1();
+        sb.Push(1);
         sb.SetTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
@@ -157,7 +157,6 @@ internal static partial class SystemMethods
         sb.SetTarget(maxTarget);
         sb.Swap();
         sb.Drop();
-        sb.Jmp(endTarget);
         sb.SetTarget(endTarget);
     }
 
@@ -194,7 +193,7 @@ internal static partial class SystemMethods
         sb.Dup();    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 31 (0x80000000)
         var endTarget = new JumpTarget();
-        sb.JmpLt(endTarget);
+        sb.Jump(OpCode.JMPLT, endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 32 (0x100000000)
         sb.Sub();
         sb.SetTarget(endTarget);
@@ -243,7 +242,7 @@ internal static partial class SystemMethods
         sb.Dup();    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 31 (0x80000000)
         var endTarget = new JumpTarget();
-        sb.JmpLt(endTarget);
+        sb.Jump(OpCode.JMPLT, endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 32 (0x100000000)
         sb.Sub();
         sb.SetTarget(endTarget);

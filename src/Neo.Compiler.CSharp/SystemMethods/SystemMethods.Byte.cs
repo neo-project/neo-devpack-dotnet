@@ -82,14 +82,14 @@ internal static partial class SystemMethods
         var exceptionTarget = new JumpTarget();
         var minTarget = new JumpTarget();
         var maxTarget = new JumpTarget();
-        sb.AddInstruction(OpCode.DUP);// 5 0 10 10
-        sb.AddInstruction(OpCode.ROT);// 5 10 10 0
-        sb.AddInstruction(OpCode.DUP);// 5 10 10 0 0
-        sb.AddInstruction(OpCode.ROT);// 5 10 0 0 10
+        sb.Dup();// 5 0 10 10
+        sb.Rot();// 5 10 10 0
+        sb.Dup();// 5 10 10 0 0
+        sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
         sb.SetTarget(exceptionTarget);
-        sb.Rot();// 10 0 5
+        sb.Rot();// 10 0 5 
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
         sb.Dup();// 10 5 5 0 0

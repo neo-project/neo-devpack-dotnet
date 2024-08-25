@@ -25,6 +25,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        JumpTarget endTarget = new();
         sb.Atoi(methodConvert);
         sb.IsLongCheck();
     }
@@ -47,7 +48,7 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endTarget);
-        sb.SetTarget(notNegative);
+        notNegative.Instruction = sb.Nop();
         sb.Push0(); // count 5 0
         sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
@@ -93,13 +94,13 @@ internal static partial class SystemMethods
         sb.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
         sb.Drop();
         sb.Push1();
-        nonZeroTarget2.Instruction = sb.Nop(); // 1 a 1
+        sb.SetTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
         JumpTarget endTarget = new();
         sb.Jump(OpCode.JMPIF, endTarget); // a
         sb.Negate();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
         sb.IsLongCheck();
     }
 
@@ -137,7 +138,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
-        exceptionTarget.Instruction = sb.Nop();
+        sb.SetTarget(exceptionTarget);
         sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
@@ -152,16 +153,15 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();
         sb.Jmp(endTarget);
-        minTarget.Instruction = sb.Nop();
+        sb.SetTarget(minTarget);
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        maxTarget.Instruction = sb.Nop();
+        sb.SetTarget(maxTarget);
         sb.Swap();
         sb.Drop();
-        sb.Jmp(endTarget);
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleLongRotateLeft
@@ -202,7 +202,7 @@ internal static partial class SystemMethods
         sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 64 (0x10000000000000000)
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleLongRotateRight
@@ -251,6 +251,6 @@ internal static partial class SystemMethods
         sb.Jump(OpCode.JMPLT, endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 64 (0x10000000000000000)
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 }

@@ -361,7 +361,7 @@ internal static partial class SystemMethods
         sb.Jump(OpCode.JMP, endTarget);
         endTrue.Instruction = sb.Nop();
         sb.Push(true);
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleBigIntegerLog2
@@ -383,7 +383,7 @@ internal static partial class SystemMethods
         sb.JmpLt(negativeInput); // 5
         sb.PushM1();// 5 -1
         JumpTarget loopStart = new();
-        loopStart.Instruction = sb.Swap(); // -1 5
+        sb.Swap().SetTarget(loopStart); // -1 5
         sb.Dup(); // -1 5 5
         sb.Push0(); // -1 5 5 0
         sb.Jump(OpCode.JMPEQ, endLoop);  // -1 5
@@ -434,13 +434,13 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
         sb.Push(1);
-        nonZeroTarget2.Instruction = sb.Nop(); // 1 a 1
+        sb.SetTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
         JumpTarget endTarget = new();
         sb.JmpIf(endTarget); // a
         sb.Negate();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     // HandleMathBigIntegerDivRem
@@ -488,7 +488,7 @@ internal static partial class SystemMethods
         sb.Jmp(endTarget);
         notNegative.Instruction = sb.Nop();
         sb.Push0(); // count 5 0
-        loopStart.Instruction = sb.Swap(); //0 5
+        sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
@@ -497,12 +497,12 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
-        endLoop.Instruction = sb.Nop();
+        sb.SetTarget(endLoop);
         sb.Drop();
         sb.Push(256);
         sb.Swap();
         sb.Sub();
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleBigIntegerCreatedChecked(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -528,7 +528,7 @@ internal static partial class SystemMethods
         sb.JmpEq(endTarget); // a&(a-1)
         sb.Push0(); // 0
         sb.Jmp(endTarget); // 0
-        endTarget.Instruction = sb.Nop();
+        sb.SetTarget(endTarget);
     }
 
     private static void HandleBigIntegerCreateSaturating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
