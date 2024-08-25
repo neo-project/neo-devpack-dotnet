@@ -386,8 +386,7 @@ internal static partial class SystemMethods
         sb.Dup(); // -1 5 5
         sb.Push0(); // -1 5 5 0
         sb.Jump(OpCode.JMPEQ, endLoop);  // -1 5
-        sb.Push1(); // -1 5 1
-        sb.ShR(); // -1 5>>1
+        sb.ShR(1); // -1 5>>1
         sb.Swap(); // 5>>1 -1
         sb.Inc(); // 5>>1 -1+1
         sb.Jmp(loopStart);
@@ -399,9 +398,9 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endMethod);
-        negativeInput.Instruction = sb.Drop();
-        sb.Throw();
-        endMethod.Instruction = sb.Nop();
+        sb.Drop().SetTarget(negativeInput);
+        sb.Throw("BigInteger.Log2: Input must be positive.");
+        sb.SetTarget(endMethod); //endMethod.Instruction = sb.Nop();   
 
     }
 
@@ -485,7 +484,7 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endTarget);
-        notNegative.Instruction = sb.Nop();
+        sb.SetTarget(notNegative);
         sb.Push0(); // count 5 0
         sb.Swap().SetTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
@@ -556,22 +555,20 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         // Check if the value is within int range
-        sb.AddInstruction(OpCode.DUP);
-        sb.Within(int.MinValue, int.MaxValue);
+        sb.Dup();
+        sb.IsInt();
         var endIntCheck = new JumpTarget();
         sb.Jump(OpCode.JMPIFNOT, endIntCheck);
 
         // If within int range, mask with 0xFFFFFFFF
-        sb.Push(0xFFFFFFFF);
-        sb.AddInstruction(OpCode.AND);
+        sb.And(0xFFFFFFFF);
         var endMask = new JumpTarget();
-        sb.Jump(OpCode.JMP, endMask);
+        sb.Jmp(endMask);
 
         // If larger than int, throw exception, cause too many check will make the script too long.
-        endIntCheck.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.Push("Value out of range, must be between int.MinValue and int.MaxValue.");
-        sb.Throw();
-        endMask.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.SetTarget(endIntCheck);
+        sb.Throw("Value out of range, must be between int.MinValue and int.MaxValue.");
+        sb.SetTarget(endMask);
 
         // Initialize count to 0
         sb.Push(0); // value count
@@ -579,66 +576,17 @@ internal static partial class SystemMethods
         // Loop to count the number of 1 bit
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        loopStart.Instruction = sb.Dup(); // count value value
-        sb.Push0(); // count value value 0
-        sb.Jump(OpCode.JMPEQ, endLoop); // count value
         sb.Dup(); // count value value
-        sb.Push1(); // count value value 1
-        sb.And(); // count value (value & 1)
+        sb.Push0(); // count value value 0
+        sb.JmpEq(endLoop); // count value
+        sb.Dup(); // count value value
+        sb.And(1); // count value (value & 1)
         sb.Rot(); // value (value & 1) count
         sb.Add(); // value count += (value & 1)
         sb.Swap(); // count value
-        sb.Push1(); // count value 1
-        sb.ShR(); // count value >>= 1
-        sb.Jump(OpCode.JMP, loopStart);
+        sb.ShR(1); // count value >>= 1
+        sb.Jmp(loopStart);
 
-        endLoop.Instruction = sb.Drop(); // Drop the remaining value
-    }
-
-    private static void HandleBigIntegerPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-
-        // Check if the value is within int range
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Within(int.MinValue, int.MaxValue);
-        var endIntCheck = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endIntCheck);
-
-        // If within int range, mask with 0xFFFFFFFF
-        methodConvert.Push(0xFFFFFFFF);
-        methodConvert.AddInstruction(OpCode.AND);
-        var endMask = new JumpTarget();
-        methodConvert.Jump(OpCode.JMP, endMask);
-
-        // If larger than int, throw exception, cause too many check will make the script too long.
-        endIntCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Push("Value out of range, must be between int.MinValue and int.MaxValue.");
-        methodConvert.Throw();
-        endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        // Initialize count to 0
-        methodConvert.Push(0); // value count
-        methodConvert.Swap(); // count value
-        // Loop to count the number of 1 bit
-        JumpTarget loopStart = new();
-        JumpTarget endLoop = new();
-        loopStart.Instruction = methodConvert.Dup(); // count value value
-        methodConvert.Push0(); // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop); // count value
-        methodConvert.Dup(); // count value value
-        methodConvert.Push1(); // count value value 1
-        methodConvert.And(); // count value (value & 1)
-        methodConvert.Rot(); // value (value & 1) count
-        methodConvert.Add(); // value count += (value & 1)
-        methodConvert.Swap(); // count value
-        methodConvert.Push1(); // count value 1
-        methodConvert.ShR(); // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);
-
-        endLoop.Instruction = methodConvert.Drop(); // Drop the remaining value
+        sb.Drop().SetTarget(endLoop); // Drop the remaining value
     }
 }
