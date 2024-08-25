@@ -55,8 +55,7 @@ internal partial class MethodConvert
             Optional<object?>[] values = expression.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
             if (values.Any(p => !p.HasValue))
             {
-                _instructionsBuilder.Push(values.Length);
-                _instructionsBuilder.NewBuffer();
+                _instructionsBuilder.NewBuffer(values.Length);
                 for (int i = 0; i < expression.Expressions.Count; i++)
                 {
                     _instructionsBuilder.Dup();

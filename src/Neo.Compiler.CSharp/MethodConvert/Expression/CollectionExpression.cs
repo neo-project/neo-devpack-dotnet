@@ -93,8 +93,7 @@ internal partial class MethodConvert
     /// <param name="length">The length of the array.</param>
     private void ConvertNonConstantByteArray(SemanticModel model, CollectionExpressionSyntax expression, int length)
     {
-        _instructionsBuilder.Push(length);
-        _instructionsBuilder.NewBuffer();
+        _instructionsBuilder.NewBuffer(length);
         for (var i = 0; i < expression.Elements.Count; i++)
         {
             _instructionsBuilder.Dup();
