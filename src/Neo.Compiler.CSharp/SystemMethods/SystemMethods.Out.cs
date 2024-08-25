@@ -12,8 +12,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.SmartContract.Native;
-using Neo.VM;
 
 namespace Neo.Compiler;
 

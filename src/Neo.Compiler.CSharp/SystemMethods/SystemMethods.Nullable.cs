@@ -9,11 +9,8 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.SmartContract.Native;
 using Neo.VM;
 
 namespace Neo.Compiler;
@@ -52,7 +49,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -88,7 +85,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -124,7 +121,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -160,7 +157,7 @@ internal static partial class SystemMethods
         sb.IsNull();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -196,7 +193,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -232,7 +229,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -268,7 +265,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -304,7 +301,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -340,7 +337,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -376,7 +373,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 
@@ -412,7 +409,7 @@ internal static partial class SystemMethods
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.SetTarget(endTarget);
     }
 

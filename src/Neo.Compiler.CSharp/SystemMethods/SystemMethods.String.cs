@@ -83,7 +83,7 @@ internal static partial class SystemMethods
         sb.AddInstruction(OpCode.SWAP);
         sb.AddInstruction(OpCode.SUB);
         sb.AddInstruction(OpCode.DUP);
-        sb.Push(0);
+        sb.Push0();
         sb.Jump(OpCode.JMPGT, validCountTarget);
         sb.AddInstruction(OpCode.DROP);
         sb.AddInstruction(OpCode.DROP);
@@ -141,7 +141,7 @@ internal static partial class SystemMethods
         sb.Push0();
         sb.NumEqual();
         sb.Jmp(endTarget);
-        sb.Drop().SetTarget(nullOrEmptyTarget); // nullOrEmptyTarget.Instruction = sb.Drop(); // drop the duped item
+        nullOrEmptyTarget.Instruction = sb.Drop(); // drop the duped item
         sb.Push(true);
         sb.SetTarget(endTarget);
     }
@@ -174,7 +174,7 @@ internal static partial class SystemMethods
         sb.Jump(OpCode.JMPIF_L, trueTarget);
         sb.Push("False");
         sb.Jmp(endTarget);
-        sb.Push("True").SetTarget(trueTarget);
+        trueTarget.Instruction = sb.Push("True");
         sb.SetTarget(endTarget);
     }
 
@@ -201,7 +201,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        sb.Itoa(methodConvert);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
     }
 
     private static void HandleStringToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -386,7 +386,7 @@ internal static partial class SystemMethods
 
         // Trim leading characters
         sb.AddInstruction(OpCode.DUP); // Duplicate the string
-        sb.Push(0); // Push 0 to start from the beginning
+        sb.Push0(); // Push 0 to start from the beginning
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = sb.AddInstruction(OpCode.NOP);

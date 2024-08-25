@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -166,7 +165,7 @@ internal static partial class SystemMethods
         sb.Swap();
         sb.Mod();
         sb.Dup();
-        sb.Push(0);
+        sb.Push0();
         sb.NumEqual();
         sb.JmpIfNot(gcdTarget);
         sb.Drop();
@@ -398,7 +397,7 @@ internal static partial class SystemMethods
         sb.Jmp(endMethod);
         zeroTarget.Instruction = sb.Nop();
         sb.Drop();
-        sb.Push(0);
+        sb.Push0();
         sb.Jmp(endMethod);
         negativeInput.Instruction = sb.Drop();
         sb.Throw();
@@ -421,19 +420,19 @@ internal static partial class SystemMethods
         // a b
         sb.Sign();         // a 1
         sb.Dup(); // a 1 1
-        sb.Push(0); // a 1 1 0
+        sb.Push0(); // a 1 1 0
         sb.JmpLt(nonZeroTarget); // a 1
         sb.Drop();
-        sb.Push(1); // a 1
+        sb.Push1(); // a 1
         nonZeroTarget.Instruction = sb.Nop(); // a 1
         sb.Swap();         // 1 a
         sb.Dup();// 1 a a
         sb.Sign();// 1 a 0
         sb.Dup();// 1 a 0 0
-        sb.Push(0); // 1 a 0 0 0
+        sb.Push0(); // 1 a 0 0 0
         sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
-        sb.Push(1);
+        sb.Push1();
         sb.SetTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1

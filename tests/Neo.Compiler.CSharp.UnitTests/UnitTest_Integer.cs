@@ -502,7 +502,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(short.CopySign(short.MaxValue, -1), Contract.CopySignShort(short.MaxValue, -1));
             AssertGasConsumed(1049490);
             Assert.ThrowsException<TestException>(() => Contract.CopySignShort(short.MinValue, 1));
-            AssertGasConsumed(1064850);
+            AssertGasConsumed(1065090);
             Assert.AreEqual(short.CopySign(short.MinValue, -1), Contract.CopySignShort(short.MinValue, -1));
             AssertGasConsumed(1049280);
         }

@@ -81,8 +81,7 @@ internal static partial class SystemMethods
         sb.Jump(OpCode.JMPIF, endTarget);
         sb.Throw();
         sb.SetTarget(endTarget);
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathSByteDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -111,8 +110,7 @@ internal static partial class SystemMethods
         sb.JmpIf(endTarget);
         sb.Throw();
         sb.SetTarget(endTarget);
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -141,8 +139,7 @@ internal static partial class SystemMethods
         sb.JmpIf(endTarget);
         sb.Throw();
         sb.SetTarget(endTarget);
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathUShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -173,8 +170,7 @@ internal static partial class SystemMethods
         sb.Jump(OpCode.JMPIF, endTarget);
         sb.AddInstruction(OpCode.THROW);
         sb.SetTarget(endTarget);
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathIntDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -198,8 +194,7 @@ internal static partial class SystemMethods
         sb.Swap();
         sb.Sub();
         sb.IsIntCheck();
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathUIntDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
