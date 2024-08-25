@@ -150,7 +150,7 @@ internal partial class MethodConvert
         ConvertExpression(model, left);
         _instructionsBuilder.Dup();
         _instructionsBuilder.IsNull();
-        _instructionsBuilder.JmpIfL(endTarget);
+        _instructionsBuilder.JmpIfNotL(endTarget);
         _instructionsBuilder.Drop();
         ConvertExpression(model, right);
         endTarget.Instruction = _instructionsBuilder.Nop();

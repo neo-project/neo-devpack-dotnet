@@ -78,7 +78,7 @@ internal partial class MethodConvert
         {
             case SpecialType.System_Boolean:
                 {
-                    _instructionsBuilder.Push(true);
+                    _instructionsBuilder.Push(false);
                     break;
                 }
             case SpecialType.System_Byte:

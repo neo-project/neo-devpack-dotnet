@@ -80,7 +80,7 @@ internal partial class MethodConvert
                     {
                         _instructionsBuilder.LdArg(0);
                         _instructionsBuilder.Push(backingFieldIndex);
-                        _instructionsBuilder.Rot();
+                        _instructionsBuilder.LdArg(1);
                     }
                     _instructionsBuilder.SetItem();
                     break;

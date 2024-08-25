@@ -101,7 +101,7 @@ internal partial class MethodConvert
             _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.PickItem();
             _instructionsBuilder.JmpL(endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Drop();
+            assignmentTarget.Instruction = _instructionsBuilder.Nop();
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.Reverse4();
@@ -161,7 +161,7 @@ internal partial class MethodConvert
             _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
             _instructionsBuilder.LdSFld(index);
             _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Drop();
+            assignmentTarget.Instruction = _instructionsBuilder.Nop();
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.StSFld(index);
@@ -178,7 +178,7 @@ internal partial class MethodConvert
             _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
             _instructionsBuilder.PickItem();
             _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Drop();
+            assignmentTarget.Instruction = _instructionsBuilder.Nop();
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.Reverse4();

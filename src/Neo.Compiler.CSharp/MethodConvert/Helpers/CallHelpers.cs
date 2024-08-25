@@ -315,11 +315,10 @@ internal partial class MethodConvert
                 if (isConstructor) _instructionsBuilder.Dup();
                 break;
             case 1:
-                _instructionsBuilder.Over();
+                _ = isConstructor?_instructionsBuilder.Over():_instructionsBuilder.Swap();
                 break;
             default:
-                _instructionsBuilder.Push(symbol.Parameters.Length);
-                _instructionsBuilder.Pick();
+                _ = isConstructor?_instructionsBuilder.Pick(symbol.Parameters.Length):_instructionsBuilder.Roll(symbol.Parameters.Length);
                 break;
         }
     }
@@ -340,7 +339,7 @@ internal partial class MethodConvert
     private void ConvertInstanceExpression(SemanticModel model, ExpressionSyntax? instanceExpression)
     {
         if (instanceExpression is null)
-            _instructionsBuilder.LdArg(0);
+            _instructionsBuilder.LdArg0();
         else
             ConvertExpression(model, instanceExpression);
     }

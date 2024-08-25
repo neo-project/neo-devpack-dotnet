@@ -94,7 +94,7 @@ namespace Neo.Compiler
                 _tryStack.Peek().State = ExceptionHandlingState.Finally;
                 finallyTarget.Instruction = _instructionsBuilder.Nop();
                 ConvertStatement(model, syntax.Finally.Block);
-                _instructionsBuilder.Jump(OpCode.ENDFINALLY, endTarget);
+                _instructionsBuilder.AddInstruction(OpCode.ENDFINALLY);
             }
             endTarget.Instruction = _instructionsBuilder.Nop();
             _tryStack.Pop();

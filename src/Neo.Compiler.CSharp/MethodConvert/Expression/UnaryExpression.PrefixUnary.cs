@@ -160,7 +160,7 @@ internal partial class MethodConvert
             _instructionsBuilder.PickItem(index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             _instructionsBuilder.Tuck();
-            _instructionsBuilder.PickItem(index);
+            _instructionsBuilder.Push(index);
             _instructionsBuilder.Swap();
             _instructionsBuilder.SetItem();
         }
@@ -198,7 +198,6 @@ internal partial class MethodConvert
             CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             _instructionsBuilder.Tuck();
-            _instructionsBuilder.PickItem();
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
@@ -237,7 +236,7 @@ internal partial class MethodConvert
             _instructionsBuilder.PickItem(index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             _instructionsBuilder.Tuck();
-            _instructionsBuilder.PickItem(index);
+            _instructionsBuilder.Push(index);
             _instructionsBuilder.Swap();
             _instructionsBuilder.SetItem();
         }

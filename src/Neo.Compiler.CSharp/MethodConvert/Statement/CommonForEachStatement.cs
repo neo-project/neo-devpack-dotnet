@@ -90,7 +90,7 @@ namespace Neo.Compiler
             {
                 continueTarget.Instruction = _instructionsBuilder.LdLoc(iteratorIndex);
                 CallInteropMethod(ApplicationEngine.System_Iterator_Next);
-                _instructionsBuilder.JmpL(startTarget);
+                _instructionsBuilder.JmpIfL(startTarget);
             }
             breakTarget.Instruction = _instructionsBuilder.Nop();
             RemoveAnonymousVariable(iteratorIndex);
@@ -181,7 +181,7 @@ namespace Neo.Compiler
             {
                 continueTarget.Instruction = _instructionsBuilder.LdLoc(iteratorIndex);
                 CallInteropMethod(ApplicationEngine.System_Iterator_Next);
-                _instructionsBuilder.JmpL(startTarget);
+                _instructionsBuilder.JmpIfL(startTarget);
             }
             breakTarget.Instruction = _instructionsBuilder.Nop();
             RemoveAnonymousVariable(iteratorIndex);

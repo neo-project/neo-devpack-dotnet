@@ -92,7 +92,7 @@ namespace Neo.Compiler
             else
             {
                 ConvertExpression(model, syntax.Condition);
-                _instructionsBuilder.JmpL(startTarget);
+                _instructionsBuilder.JmpIfL(startTarget);
             }
             breakTarget.Instruction = _instructionsBuilder.Nop();
             foreach (var (_, symbol) in variables)

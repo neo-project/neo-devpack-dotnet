@@ -52,7 +52,7 @@ namespace Neo.Compiler
             ConvertStatement(model, syntax.Statement);
             continueTarget.Instruction = _instructionsBuilder.Nop();
             ConvertExpression(model, syntax.Condition);
-            _instructionsBuilder.JmpL(startTarget);
+            _instructionsBuilder.JmpIfL(startTarget);
             breakTarget.Instruction = _instructionsBuilder.Nop();
             PopContinueTarget();
             PopBreakTarget();
