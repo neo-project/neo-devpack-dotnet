@@ -349,7 +349,7 @@ internal partial class MethodConvert
         if (target._inline && !Context.Options.NoInline)
             EmitInlineInstructions(target);
         else
-            _instructionsBuilder.Jump(OpCode.CALL_L, target._startTarget);
+            _instructionsBuilder.Jump(OpCode.CALL_L, target._startTarget);  
     }
 
     // Helper method to emit inline instructions

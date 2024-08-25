@@ -169,7 +169,7 @@ internal partial class MethodConvert
                         _instructionsBuilder.Drop();
                         _instructionsBuilder.Push(0);
                     }
-                    ifFalse.Instruction = _instructionsBuilder.Nop();
+                    _instructionsBuilder.AddTarget(ifFalse);
                     break;
                 case "String":
                 case "ByteString":
@@ -197,7 +197,7 @@ internal partial class MethodConvert
                 _instructionsBuilder.Rot();
                 _instructionsBuilder.SetItem();
             }
-            endTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(endTarget);
         }
         else
         {

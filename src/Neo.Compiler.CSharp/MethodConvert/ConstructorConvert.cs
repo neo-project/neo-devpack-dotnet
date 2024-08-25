@@ -88,8 +88,7 @@ internal partial class MethodConvert
                     InvokeMethod(model, method);
                 }
             }
-            _instructionsBuilder.Push(virtualMethods.Length);
-            _instructionsBuilder.Pack();
+            _instructionsBuilder.Pack(virtualMethods.Length);
             _instructionsBuilder.StSFld(fieldIndex);
         }
     }

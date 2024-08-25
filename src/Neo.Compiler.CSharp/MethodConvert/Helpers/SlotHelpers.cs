@@ -287,8 +287,7 @@ internal partial class MethodConvert
             var expression = ExtractExpression(arguments[i]);
             ConvertExpression(model, expression);
         }
-        _instructionsBuilder.Push(arguments.Count - parameter.Ordinal);
-        _instructionsBuilder.Pack();
+        _instructionsBuilder.Pack(arguments.Count - parameter.Ordinal);
     }
 
     private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)

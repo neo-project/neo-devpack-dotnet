@@ -96,7 +96,7 @@ internal static partial class SystemMethods
         sb.Push(false);
 
         // End target
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleBigIntegerTryParseWithOut(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -122,7 +122,7 @@ internal static partial class SystemMethods
         sb.JmpL(endTarget);
 
         // End target: clean up stack and push false if parsing failed
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
         sb.Drop();
         sb.Push(false);
     }
@@ -143,104 +143,84 @@ internal static partial class SystemMethods
 
         // Check for true values
         sb.Dup(); // x x
-        sb.Push("true"); // x x "true"
-        sb.Equal(); // x
+        sb.Equal("true"); // x
         sb.JmpIfL(trueTarget);
 
         sb.Dup(); // x x
-        sb.Push("TRUE"); // x x "TRUE"
-        sb.Equal(); // x
+        sb.Equal("TRUE"); // x
         sb.JmpIfL(trueTarget);
 
         sb.Dup(); // x x
-        sb.Push("True"); // x x "True"
-        sb.Equal(); // x
+        sb.Equal("True"); // x
         sb.JmpIfL(trueTarget);
 
         sb.Dup(); // x x
-        sb.Push("t"); // x x "t"
-        sb.Equal(); // x
+        sb.Equal("t"); // x
         sb.JmpIfL(trueTarget);
 
         sb.Dup(); // x x
-        sb.Push("T"); // x x "T"
-        sb.Equal(); // x
+        sb.Equal("T"); // x
         sb.JmpIfL(trueTarget);
 
         sb.Dup(); // x x
-        sb.Push("1"); // x x "1"
-        sb.Equal(); // x
+        sb.Equal("1"); // x
         sb.JmpIfL(trueTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("yes"); // x x "yes"
-        sb.Equal(); // x
+        sb.Equal("yes"); // x
         sb.JmpIfL(trueTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("YES"); // x x "YES"
-        sb.Equal(); // x
+        sb.Equal("YES"); // x
         sb.JmpIfL(trueTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("y"); // x x "y"
-        sb.Equal(); // x
+        sb.Equal("y"); // x
         sb.JmpIfL(trueTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("Y"); // x x "Y"
-        sb.Equal(); // x
+        sb.Equal("Y"); // x
         sb.JmpIfL(trueTarget); // x
 
         // Check for false values
         sb.Dup();
-        sb.Push("false"); // x x "false"
-        sb.Equal(); // x
+        sb.Equal("false"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("FALSE"); // x x "FALSE"
-        sb.Equal(); // x
+        sb.Equal("FALSE"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("False"); // x x "False"
-        sb.Equal(); // x
+        sb.Equal("False"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("f"); // x x "f"
-        sb.Equal(); // x
+        sb.Equal("f"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("F"); // x x "F"
-        sb.Equal(); // x
+        sb.Equal("F"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("0"); // x x "0"
-        sb.Equal(); // x
+        sb.Equal("0"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup();
-        sb.Push("no"); // x x "no"
-        sb.Equal(); // x
+        sb.Equal("no"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("NO"); // x x "NO"
-        sb.Equal(); // x
+        sb.Equal("NO"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("n"); // x x "n"
-        sb.Equal(); // x
+        sb.Equal("n"); // x
         sb.JmpIfL(falseTarget); // x
 
         sb.Dup(); // x x
-        sb.Push("N"); // x x "N"
-        sb.Equal(); // x
+        sb.Equal("N"); // x
         sb.JmpIfL(falseTarget); // x
 
         // If parsing failed, clean up stack and push false
@@ -266,6 +246,6 @@ internal static partial class SystemMethods
         sb.Push(true); // true
 
         // End target
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 }

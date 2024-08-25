@@ -73,9 +73,9 @@ namespace Neo.Compiler
                     }
             }
             _instructionsBuilder.JmpL(conditionTarget);
-            startTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(startTarget);
             ConvertStatement(model, syntax.Statement);
-            continueTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(continueTarget);
             foreach (ExpressionSyntax expression in syntax.Incrementors)
                 using (InsertSequencePoint(expression))
                 {
@@ -84,7 +84,7 @@ namespace Neo.Compiler
                     if (type.SpecialType != SpecialType.System_Void)
                         _instructionsBuilder.Drop();
                 }
-            conditionTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(conditionTarget);
             if (syntax.Condition is null)
             {
                 _instructionsBuilder.JmpL(startTarget);
@@ -94,7 +94,7 @@ namespace Neo.Compiler
                 ConvertExpression(model, syntax.Condition);
                 _instructionsBuilder.JmpIfL(startTarget);
             }
-            breakTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(breakTarget);
             foreach (var (_, symbol) in variables)
                 RemoveLocalVariable(symbol);
             PopContinueTarget();

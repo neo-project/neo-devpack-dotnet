@@ -80,11 +80,11 @@ internal partial class MethodConvert
             CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             _instructionsBuilder.Dup();
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.Nip();
             _instructionsBuilder.Nip();
-            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Drop();
+            _instructionsBuilder.JmpL(endTarget);
+            _instructionsBuilder.Drop().AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.Reverse4();
@@ -101,14 +101,14 @@ internal partial class MethodConvert
             _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.PickItem();
             _instructionsBuilder.JmpL(endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.Reverse4();
             _instructionsBuilder.Reverse3();
             _instructionsBuilder.SetItem();
         }
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertIdentifierNameCoalesceAssignment(SemanticModel model, IdentifierNameSyntax left, ExpressionSyntax right)
@@ -161,7 +161,7 @@ internal partial class MethodConvert
             _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
             _instructionsBuilder.LdSFld(index);
             _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.StSFld(index);
@@ -175,17 +175,17 @@ internal partial class MethodConvert
             _instructionsBuilder.Over();
             _instructionsBuilder.PickItem();
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.PickItem();
-            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.JmpL(endTarget);
+            _instructionsBuilder.AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.Reverse4();
             _instructionsBuilder.Reverse3();
             _instructionsBuilder.SetItem();
         }
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertLocalIdentifierNameCoalesceAssignment(SemanticModel model, ILocalSymbol left, ExpressionSyntax right)
@@ -194,14 +194,14 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         LdLocSlot(left);
         _instructionsBuilder.IsNull();
-        _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+        _instructionsBuilder.JmpIfL(assignmentTarget);
         LdLocSlot(left);
         _instructionsBuilder.JmpL(endTarget);
-        assignmentTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(assignmentTarget);
         ConvertExpression(model, right);
         _instructionsBuilder.Dup();
         StLocSlot(left);
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertParameterIdentifierNameCoalesceAssignment(SemanticModel model, IParameterSymbol left, ExpressionSyntax right)
@@ -210,14 +210,14 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         LdArgSlot(left);
         _instructionsBuilder.IsNull();
-        _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+        _instructionsBuilder.JmpIfL(assignmentTarget);
         LdArgSlot(left);
         _instructionsBuilder.JmpL(endTarget);
-        assignmentTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(assignmentTarget);
         ConvertExpression(model, right);
         _instructionsBuilder.Dup();
         StArgSlot(left);
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertPropertyIdentifierNameCoalesceAssignment(SemanticModel model, IPropertySymbol left, ExpressionSyntax right)
@@ -247,7 +247,7 @@ internal partial class MethodConvert
             _instructionsBuilder.Tuck();
             CallMethodWithConvention(model, left.SetMethod!, CallingConvention.StdCall);
         }
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertFieldMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, IFieldSymbol field)
@@ -259,10 +259,10 @@ internal partial class MethodConvert
             byte index = Context.AddStaticField(field);
             _instructionsBuilder.LdSFld(index);
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.LdSFld(index);
-            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.JmpL(endTarget);
+            _instructionsBuilder.AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.StSFld(index);
@@ -276,17 +276,17 @@ internal partial class MethodConvert
             _instructionsBuilder.Over();
             _instructionsBuilder.PickItem();
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.PickItem();
-            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.JmpL(endTarget);
+            _instructionsBuilder.AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
             _instructionsBuilder.Reverse4();
             _instructionsBuilder.Reverse3();
             _instructionsBuilder.SetItem();
         }
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertPropertyMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, IPropertySymbol property)
@@ -311,14 +311,14 @@ internal partial class MethodConvert
             CallMethodWithConvention(model, property.GetMethod!);
             _instructionsBuilder.Dup();
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.Nip();
-            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = _instructionsBuilder.Drop();
+            _instructionsBuilder.JmpL(endTarget);
+            _instructionsBuilder.Drop().AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Tuck();
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 }

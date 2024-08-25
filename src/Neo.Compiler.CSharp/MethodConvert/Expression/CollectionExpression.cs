@@ -145,7 +145,6 @@ internal partial class MethodConvert
         {
             ConvertElement(model, expression.Elements[i]);
         }
-        _instructionsBuilder.Push(expression.Elements.Count);
-        _instructionsBuilder.Pack();
+        _instructionsBuilder.Pack(expression.Elements.Count);
     }
 }

@@ -92,11 +92,11 @@ namespace Neo.Compiler
             if (syntax.Finally is not null)
             {
                 _tryStack.Peek().State = ExceptionHandlingState.Finally;
-                finallyTarget.Instruction = _instructionsBuilder.Nop();
+                _instructionsBuilder.AddTarget(finallyTarget);
                 ConvertStatement(model, syntax.Finally.Block);
                 _instructionsBuilder.AddInstruction(OpCode.ENDFINALLY);
             }
-            endTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(endTarget);
             _tryStack.Pop();
         }
     }

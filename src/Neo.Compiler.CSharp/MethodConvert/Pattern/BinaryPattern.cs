@@ -81,11 +81,11 @@ internal partial class MethodConvert
         _instructionsBuilder.JmpL(endTarget);
 
         // Define an instruction for the right pattern and convert it
-        rightTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(rightTarget);
         ConvertPattern(model, right, localIndex);
 
         // Define an instruction for the end of the conversion process
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     /// <summary>
@@ -129,10 +129,10 @@ internal partial class MethodConvert
         _instructionsBuilder.JmpL(endTarget);
 
         // Define an instruction for the right pattern and convert it
-        rightTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(rightTarget);
         ConvertPattern(model, right, localIndex);
 
         // Define an instruction for the end of the conversion process
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 }

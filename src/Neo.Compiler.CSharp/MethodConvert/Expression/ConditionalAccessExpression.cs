@@ -62,12 +62,12 @@ internal partial class MethodConvert
         {
             JumpTarget endTarget = new();
             _instructionsBuilder.JmpL(endTarget);
-            nullTarget.Instruction = _instructionsBuilder.Drop();
-            endTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.Drop().AddTarget(nullTarget);
+            _instructionsBuilder.AddTarget(endTarget);
         }
         else
         {
-            nullTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(nullTarget);
         }
     }
 }

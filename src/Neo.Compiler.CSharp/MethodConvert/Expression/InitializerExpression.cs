@@ -76,8 +76,7 @@ internal partial class MethodConvert
         {
             for (int i = expression.Expressions.Count - 1; i >= 0; i--)
                 ConvertExpression(model, expression.Expressions[i]);
-            _instructionsBuilder.Push(expression.Expressions.Count);
-            _instructionsBuilder.Pack();
+            _instructionsBuilder.Pack(expression.Expressions.Count);
         }
     }
 }

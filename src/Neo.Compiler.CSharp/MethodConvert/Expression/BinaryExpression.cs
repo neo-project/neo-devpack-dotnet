@@ -106,9 +106,9 @@ internal partial class MethodConvert
         _instructionsBuilder.JmpIfNotL(rightTarget);
         _instructionsBuilder.Push(true);
         _instructionsBuilder.JmpL(endTarget);
-        rightTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(rightTarget);
         ConvertExpression(model, right);
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertLogicalAndExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
@@ -119,9 +119,9 @@ internal partial class MethodConvert
         _instructionsBuilder.JmpIfL(rightTarget);
         _instructionsBuilder.Push(false);
         _instructionsBuilder.JmpL(endTarget);
-        rightTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(rightTarget);
         ConvertExpression(model, right);
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertIsExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
@@ -141,7 +141,7 @@ internal partial class MethodConvert
         _instructionsBuilder.JmpIfL(endTarget);
         _instructionsBuilder.Drop();
         _instructionsBuilder.Push((object?)null);
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     private void ConvertCoalesceExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
@@ -153,6 +153,6 @@ internal partial class MethodConvert
         _instructionsBuilder.JmpIfNotL(endTarget);
         _instructionsBuilder.Drop();
         ConvertExpression(model, right);
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 }

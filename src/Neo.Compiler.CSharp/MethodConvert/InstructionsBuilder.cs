@@ -176,7 +176,7 @@ namespace Neo.Compiler
 
         internal Instruction Nip() => AddInstruction(OpCode.NIP);
 
-        internal void SetTarget(JumpTarget target)
+        internal void AddTarget(JumpTarget target)
         {
             target.Instruction = AddInstruction(OpCode.NOP);
         }
@@ -294,10 +294,17 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.XOR);
         }
 
-        internal Instruction Equal(BigInteger? value = null)
+        // internal Instruction Equal(BigInteger? value = null)
+        // {
+        //     if (value.HasValue)
+        //         Push(value.Value);
+        //     return AddInstruction(OpCode.EQUAL);
+        // }
+
+        internal Instruction Equal(string? value = null)
         {
-            if (value.HasValue)
-                Push(value.Value);
+            if (value is not null)
+                Push(value);
             return AddInstruction(OpCode.EQUAL);
         }
 

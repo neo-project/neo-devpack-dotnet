@@ -69,11 +69,11 @@ internal partial class MethodConvert
             }
             ConvertExpression(model, arm.Expression);
             _instructionsBuilder.JmpL(breakTarget);
-            nextTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(nextTarget);
         }
         _instructionsBuilder.LdLoc(anonymousIndex);
         _instructionsBuilder.Throw();
-        breakTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(breakTarget);
         RemoveAnonymousVariable(anonymousIndex);
     }
 }

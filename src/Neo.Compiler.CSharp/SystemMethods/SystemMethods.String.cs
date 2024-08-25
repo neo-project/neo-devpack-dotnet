@@ -143,7 +143,7 @@ internal static partial class SystemMethods
         sb.Jmp(endTarget);
         nullOrEmptyTarget.Instruction = sb.Drop(); // drop the duped item
         sb.Push(true);
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleObjectEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -175,7 +175,7 @@ internal static partial class SystemMethods
         sb.Push("False");
         sb.Jmp(endTarget);
         trueTarget.Instruction = sb.Push("True");
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleCharToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)

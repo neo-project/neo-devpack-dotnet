@@ -80,7 +80,7 @@ internal static partial class SystemMethods
         sb.IsByte();
         sb.Jump(OpCode.JMPIF, endTarget);
         sb.Throw();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
         sb.Pack(2);
     }
 
@@ -109,7 +109,7 @@ internal static partial class SystemMethods
         sb.IsSByte();
         sb.JmpIf(endTarget);
         sb.Throw();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
         sb.Pack(2);
     }
 
@@ -138,7 +138,7 @@ internal static partial class SystemMethods
         sb.IsShort();
         sb.JmpIf(endTarget);
         sb.Throw();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
         sb.Pack(2);
     }
 
@@ -169,7 +169,7 @@ internal static partial class SystemMethods
         sb.AddInstruction(OpCode.WITHIN);
         sb.Jump(OpCode.JMPIF, endTarget);
         sb.AddInstruction(OpCode.THROW);
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
         sb.Pack(2);
     }
 
@@ -288,7 +288,7 @@ internal static partial class SystemMethods
         sb.Rot();// 5 10 0 0 10
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
-        sb.SetTarget(exceptionTarget);
+        sb.AddTarget(exceptionTarget);
         sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
@@ -303,16 +303,16 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);// 5 10
         sb.Drop();
         sb.Jmp(endTarget);
-        sb.SetTarget(minTarget);
+        sb.AddTarget(minTarget);
         sb.Reverse3();
         sb.Drop();
         sb.Drop();
         sb.Jmp(endTarget);
-        sb.SetTarget(maxTarget);
+        sb.AddTarget(maxTarget);
         sb.Swap();
         sb.Drop();
         sb.Jmp(endTarget);
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleMathBigMul(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)

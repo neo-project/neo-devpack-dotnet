@@ -39,7 +39,7 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget); // a 1
         sb.Drop();
         sb.Push1(); // a 1
-        sb.SetTarget(nonZeroTarget); // a 1
+        sb.AddTarget(nonZeroTarget); // a 1
         sb.Swap();         // 1 a
         sb.Dup();// 1 a a
         sb.Sign();// 1 a 0
@@ -48,13 +48,13 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
         sb.Push1();
-        sb.SetTarget(nonZeroTarget2); // 1 a 1
+        sb.AddTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
         JumpTarget endTarget = new();
         sb.JmpIf(endTarget); // a
         sb.Negate();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
         typeCheck(sb);
     }
 
@@ -80,7 +80,7 @@ internal static partial class SystemMethods
         sb.Rot();
         sb.JmpLt(exceptionTarget);
         sb.Throw();
-        sb.SetTarget(exceptionTarget);
+        sb.AddTarget(exceptionTarget);
         sb.Rot();
         sb.Dup();
         sb.Rot();
@@ -95,14 +95,14 @@ internal static partial class SystemMethods
         sb.JmpLt(maxTarget);
         sb.Drop();
         sb.Jmp(endTarget);
-        sb.SetTarget(minTarget);
+        sb.AddTarget(minTarget);
         sb.Reverse3();
         sb.Drop(2);
         sb.Jmp(endTarget);
-        sb.SetTarget(maxTarget);
+        sb.AddTarget(maxTarget);
         sb.Swap();
         sb.Drop();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleUnsignedRotateLeft<T>(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -162,7 +162,7 @@ internal static partial class SystemMethods
         sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << bitWidth
         sb.Sub();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
     private static void HandleUnsignedRotateRight<T>(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, int bitWidth)
@@ -226,7 +226,7 @@ internal static partial class SystemMethods
         sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << bitWidth
         sb.Sub();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleLeadingZeroCount<T>(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -254,7 +254,7 @@ internal static partial class SystemMethods
         }
 
         sb.Push0(); // count 0
-        sb.Swap().SetTarget(loopStart); // 0 a
+        sb.Swap().AddTarget(loopStart); // 0 a
         sb.Dup(); // 0 a a
         sb.Push0(); // 0 a a 0
         sb.JmpEq(endLoop); // 0 a
@@ -262,11 +262,11 @@ internal static partial class SystemMethods
         sb.Swap(); // a>>1 0
         sb.Inc(); // a>>1 1
         sb.Jmp(loopStart);
-        sb.Drop().SetTarget(endLoop);
+        sb.Drop().AddTarget(endLoop);
         sb.Push(bitWidth);
         sb.Swap();
         sb.Sub();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandlePopCount<T>(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -289,7 +289,7 @@ internal static partial class SystemMethods
         // Loop to count the number of 1 bits
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        sb.Dup().SetTarget(loopStart); // count value value
+        sb.Dup().AddTarget(loopStart); // count value value
         sb.Push0(); // count value value 0
         sb.JmpEq(endLoop); // count value
         sb.Dup(); // count value value
@@ -300,6 +300,6 @@ internal static partial class SystemMethods
         sb.ShR(1); // count value >>= 1
         sb.Jmp(loopStart);
 
-        sb.Drop().SetTarget(endLoop); // Drop the remaining value
+        sb.Drop().AddTarget(endLoop); // Drop the remaining value
     }
 }

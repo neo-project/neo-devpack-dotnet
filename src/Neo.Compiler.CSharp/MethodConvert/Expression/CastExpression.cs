@@ -65,7 +65,7 @@ internal partial class MethodConvert
                     _instructionsBuilder.Push(33);
                     _instructionsBuilder.JmpEqL(endTarget);
                     _instructionsBuilder.Throw();
-                    endTarget.Instruction = _instructionsBuilder.Nop();
+                    _instructionsBuilder.AddTarget(endTarget);
                 }
                 break;
             case ("ByteString", "UInt160"):
@@ -79,7 +79,7 @@ internal partial class MethodConvert
                     _instructionsBuilder.Push(20);
                     _instructionsBuilder.JmpEqL(endTarget);
                     _instructionsBuilder.Throw();
-                    endTarget.Instruction = _instructionsBuilder.Nop();
+                    _instructionsBuilder.AddTarget(endTarget);
                 }
                 break;
             case ("ByteString", "UInt256"):
@@ -93,7 +93,7 @@ internal partial class MethodConvert
                     _instructionsBuilder.Push(32);
                     _instructionsBuilder.JmpEqL(endTarget);
                     _instructionsBuilder.Throw();
-                    endTarget.Instruction = _instructionsBuilder.Nop();
+                    _instructionsBuilder.AddTarget(endTarget);
                 }
                 break;
             case ("SByte", "Byte"):

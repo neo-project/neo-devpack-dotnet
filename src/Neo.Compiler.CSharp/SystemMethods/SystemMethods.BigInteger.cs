@@ -361,7 +361,7 @@ internal static partial class SystemMethods
         sb.Jump(OpCode.JMP, endTarget);
         endTrue.Instruction = sb.Nop();
         sb.Push(true);
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     // HandleBigIntegerLog2
@@ -383,7 +383,7 @@ internal static partial class SystemMethods
         sb.JmpLt(negativeInput); // 5
         sb.PushM1();// 5 -1
         JumpTarget loopStart = new();
-        sb.Swap().SetTarget(loopStart); // -1 5
+        sb.Swap().AddTarget(loopStart); // -1 5
         sb.Dup(); // -1 5 5
         sb.Push0(); // -1 5 5 0
         sb.Jump(OpCode.JMPEQ, endLoop);  // -1 5
@@ -399,9 +399,9 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endMethod);
-        sb.Drop().SetTarget(negativeInput);
+        sb.Drop().AddTarget(negativeInput);
         sb.Throw("BigInteger.Log2: Input must be positive.");
-        sb.SetTarget(endMethod); //endMethod.Instruction = sb.Nop();
+        sb.AddTarget(endMethod); //endMethod.Instruction = sb.Nop();
 
     }
 
@@ -433,13 +433,13 @@ internal static partial class SystemMethods
         sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
         sb.Push1();
-        sb.SetTarget(nonZeroTarget2); // 1 a 1
+        sb.AddTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
         JumpTarget endTarget = new();
         sb.JmpIf(endTarget); // a
         sb.Negate();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     // HandleMathBigIntegerDivRem
@@ -465,8 +465,7 @@ internal static partial class SystemMethods
         sb.Rot();
         sb.Swap();
         sb.Sub();
-        sb.Push2();
-        sb.Pack();
+        sb.Pack(2);
     }
 
     //implement HandleBigIntegerLeadingZeroCount
@@ -485,9 +484,9 @@ internal static partial class SystemMethods
         sb.Drop();
         sb.Push0();
         sb.Jmp(endTarget);
-        sb.SetTarget(notNegative);
+        sb.AddTarget(notNegative);
         sb.Push0(); // count 5 0
-        sb.Swap().SetTarget(loopStart); //0 5
+        sb.Swap().AddTarget(loopStart); //0 5
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
@@ -496,12 +495,12 @@ internal static partial class SystemMethods
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
-        sb.SetTarget(endLoop);
+        sb.AddTarget(endLoop);
         sb.Drop();
         sb.Push(256);
         sb.Swap();
         sb.Sub();
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleBigIntegerCreatedChecked(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -527,7 +526,7 @@ internal static partial class SystemMethods
         sb.JmpEq(endTarget); // a&(a-1)
         sb.Push0(); // 0
         sb.Jmp(endTarget); // 0
-        sb.SetTarget(endTarget);
+        sb.AddTarget(endTarget);
     }
 
     private static void HandleBigIntegerCreateSaturating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -567,16 +566,16 @@ internal static partial class SystemMethods
         sb.Jmp(endMask);
 
         // If larger than int, throw exception, cause too many check will make the script too long.
-        sb.SetTarget(endIntCheck);
+        sb.AddTarget(endIntCheck);
         sb.Throw("Value out of range, must be between int.MinValue and int.MaxValue.");
-        sb.SetTarget(endMask);
+        sb.AddTarget(endMask);
         // Initialize count to 0
         sb.Push(0); // value count
         sb.Swap(); // count value
         // Loop to count the number of 1 bit
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        sb.Dup().SetTarget(loopStart);
+        sb.Dup().AddTarget(loopStart);
         sb.Push0(); // count value value 0
         sb.Jump(OpCode.JMPEQ, endLoop); // count value
         sb.Dup(); // count value value
@@ -587,6 +586,6 @@ internal static partial class SystemMethods
         sb.ShR(1); // count value >>= 1
         sb.Jmp(loopStart);
 
-        sb.Drop().SetTarget(endLoop); //endLoop.Instruction = sb.Drop(); // Drop the remaining value
+        sb.Drop().AddTarget(endLoop); //endLoop.Instruction = sb.Drop(); // Drop the remaining value
     }
 }

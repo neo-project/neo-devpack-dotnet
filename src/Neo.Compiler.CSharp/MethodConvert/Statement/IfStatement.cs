@@ -57,7 +57,7 @@ namespace Neo.Compiler
 
                 if (syntax.Else is null)
                 {
-                    elseTarget.Instruction = _instructionsBuilder.Nop();
+                    _instructionsBuilder.AddTarget(elseTarget);
                 }
                 else
                 {
@@ -66,11 +66,11 @@ namespace Neo.Compiler
 
                     using (InsertSequencePoint(syntax.Else.Statement))
                     {
-                        elseTarget.Instruction = _instructionsBuilder.Nop();
+                        _instructionsBuilder.AddTarget(elseTarget);
                         ConvertStatement(model, syntax.Else.Statement);
                     }
 
-                    endTarget.Instruction = _instructionsBuilder.Nop();
+                    _instructionsBuilder.AddTarget(endTarget);
                 }
             }
         }

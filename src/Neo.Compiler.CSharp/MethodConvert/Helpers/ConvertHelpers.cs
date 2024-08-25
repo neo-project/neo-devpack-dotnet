@@ -223,8 +223,7 @@ internal partial class MethodConvert
         {
             for (int i = fields.Length - 1; i >= 0; i--)
                 InitializeFieldForObject(model, fields[i], initializer);
-            _instructionsBuilder.Push(fields.Length);
-            _instructionsBuilder.Pack();
+            _instructionsBuilder.Pack(fields.Length);
         }
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
         if (type.IsRecord || virtualMethods.Length <= 0) return;

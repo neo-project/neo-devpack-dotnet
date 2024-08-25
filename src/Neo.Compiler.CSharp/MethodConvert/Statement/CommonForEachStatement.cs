@@ -81,18 +81,18 @@ namespace Neo.Compiler
             }
             using (InsertSequencePoint(syntax.Identifier))
             {
-                startTarget.Instruction = _instructionsBuilder.LdLoc(iteratorIndex);
+                _instructionsBuilder.LdLoc(iteratorIndex).AddTarget(startTarget);
                 CallInteropMethod(ApplicationEngine.System_Iterator_Value);
                 _instructionsBuilder.StLoc(elementIndex);
             }
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
             {
-                continueTarget.Instruction = _instructionsBuilder.LdLoc(iteratorIndex);
+                _instructionsBuilder.LdLoc(iteratorIndex).AddTarget(continueTarget);
                 CallInteropMethod(ApplicationEngine.System_Iterator_Next);
                 _instructionsBuilder.JmpIfL(startTarget);
             }
-            breakTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(breakTarget);
             RemoveAnonymousVariable(iteratorIndex);
             RemoveLocalVariable(elementSymbol);
             PopContinueTarget();
@@ -179,11 +179,11 @@ namespace Neo.Compiler
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
             {
-                continueTarget.Instruction = _instructionsBuilder.LdLoc(iteratorIndex);
+                _instructionsBuilder.LdLoc(iteratorIndex).AddTarget(continueTarget);
                 CallInteropMethod(ApplicationEngine.System_Iterator_Next);
                 _instructionsBuilder.JmpIfL(startTarget);
             }
-            breakTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(breakTarget);
             RemoveAnonymousVariable(iteratorIndex);
             foreach (ILocalSymbol symbol in symbols)
                 if (symbol is not null)
@@ -233,7 +233,7 @@ namespace Neo.Compiler
             }
             using (InsertSequencePoint(syntax.Identifier))
             {
-                startTarget.Instruction = _instructionsBuilder.LdLoc(arrayIndex);
+                _instructionsBuilder.LdLoc(arrayIndex).AddTarget(startTarget);
                 _instructionsBuilder.LdLoc(iIndex);
                 _instructionsBuilder.PickItem();
                 _instructionsBuilder.StLoc(elementIndex);
@@ -241,14 +241,14 @@ namespace Neo.Compiler
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
             {
-                continueTarget.Instruction = _instructionsBuilder.LdLoc(iIndex);
+                _instructionsBuilder.LdLoc(iIndex).AddTarget(continueTarget);
                 _instructionsBuilder.Inc();
                 _instructionsBuilder.StLoc(iIndex);
-                conditionTarget.Instruction = _instructionsBuilder.LdLoc(iIndex);
+                _instructionsBuilder.LdLoc(iIndex).AddTarget(conditionTarget);
                 _instructionsBuilder.LdLoc(lengthIndex);
                 _instructionsBuilder.JmpLt(startTarget);
             }
-            breakTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(breakTarget);
             RemoveAnonymousVariable(arrayIndex);
             RemoveAnonymousVariable(lengthIndex);
             RemoveAnonymousVariable(iIndex);
@@ -325,7 +325,7 @@ namespace Neo.Compiler
                 _instructionsBuilder.LdLoc(lengthIndex);
                 _instructionsBuilder.JmpLt(startTarget);
             }
-            breakTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(breakTarget);
             RemoveAnonymousVariable(arrayIndex);
             RemoveAnonymousVariable(lengthIndex);
             RemoveAnonymousVariable(iIndex);

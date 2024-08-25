@@ -45,7 +45,7 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
-            continueTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(continueTarget);
             using (InsertSequencePoint(syntax.Condition))
             {
                 ConvertExpression(model, syntax.Condition);
@@ -53,7 +53,7 @@ namespace Neo.Compiler
             }
             ConvertStatement(model, syntax.Statement);
             _instructionsBuilder.JmpL(continueTarget);
-            breakTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(breakTarget);
             PopContinueTarget();
             PopBreakTarget();
         }

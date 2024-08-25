@@ -267,14 +267,14 @@ internal partial class MethodConvert
         JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();
         _instructionsBuilder.Dup();
         _instructionsBuilder.Push(minValue);
-        _instructionsBuilder.Jump(OpCode.JMPGE_L, checkUpperBoundTarget);
+        _instructionsBuilder.JmpGeL(checkUpperBoundTarget);
         if (_checkedStack.Peek())
             _instructionsBuilder.Throw();
         else
-            _instructionsBuilder.Jump(OpCode.JMP_L, adjustTarget);
-        checkUpperBoundTarget.Instruction = _instructionsBuilder.Dup();
+            _instructionsBuilder.JmpL(adjustTarget);
+        _instructionsBuilder.Dup().AddTarget(checkUpperBoundTarget);
         _instructionsBuilder.Push(maxValue);
-        _instructionsBuilder.Jump(OpCode.JMPLE_L, endTarget);
+        _instructionsBuilder.JmpLeL(endTarget);
         if (_checkedStack.Peek())
         {
             _instructionsBuilder.Throw();
@@ -287,12 +287,12 @@ internal partial class MethodConvert
             {
                 _instructionsBuilder.Dup();
                 _instructionsBuilder.Push(maxValue);
-                _instructionsBuilder.Jump(OpCode.JMPLE_L, endTarget);
+                _instructionsBuilder.JmpLeL(endTarget);
                 _instructionsBuilder.Push(mask + 1);
                 _instructionsBuilder.Sub();
             }
         }
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     /// <summary>
@@ -337,12 +337,12 @@ internal partial class MethodConvert
                 {
                     ConvertExpression(model, expression);
                     JumpTarget falseTarget = new();
-                    _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, falseTarget);
+                    _instructionsBuilder.JmpIfNotL(falseTarget);
                     _instructionsBuilder.Push("True");
                     JumpTarget endTarget = new();
-                    _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
-                    falseTarget.Instruction = _instructionsBuilder.Push("False");
-                    endTarget.Instruction = _instructionsBuilder.Nop();
+                    _instructionsBuilder.JmpL(endTarget);
+                    _instructionsBuilder.Push("False").AddTarget(falseTarget);
+                    _instructionsBuilder.AddTarget(endTarget);
                     break;
                 }
             case "byte[]":

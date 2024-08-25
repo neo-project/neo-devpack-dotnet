@@ -78,7 +78,7 @@ namespace Neo.Compiler
                                 _instructionsBuilder.JmpIfNotL(endTarget);
                             }
                             _instructionsBuilder.JmpL(target);
-                            endTarget.Instruction = _instructionsBuilder.Nop();
+                            _instructionsBuilder.AddTarget(endTarget);
                         }
                         break;
                     case CaseSwitchLabelSyntax caseSwitchLabel:
@@ -104,11 +104,11 @@ namespace Neo.Compiler
             _instructionsBuilder.JmpL(breakTarget);
             foreach (var (_, statements, target) in sections)
             {
-                target.Instruction = _instructionsBuilder.Nop();
+                _instructionsBuilder.AddTarget(target);
                 foreach (StatementSyntax statement in statements)
                     ConvertStatement(model, statement);
             }
-            breakTarget.Instruction = _instructionsBuilder.Nop();
+            _instructionsBuilder.AddTarget(breakTarget);
             PopSwitchLabels();
             PopBreakTarget();
         }

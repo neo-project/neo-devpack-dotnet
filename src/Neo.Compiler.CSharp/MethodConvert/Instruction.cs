@@ -59,7 +59,7 @@ namespace Neo.Compiler
             }
         }
 
-        internal Instruction SetTarget(JumpTarget target)
+        internal Instruction AddTarget(JumpTarget target)
         {
             target.Instruction = this;
             return this;

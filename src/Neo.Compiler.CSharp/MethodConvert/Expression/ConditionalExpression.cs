@@ -43,8 +43,8 @@ internal partial class MethodConvert
         _instructionsBuilder.JmpIfNotL(falseTarget);
         ConvertExpression(model, expression.WhenTrue);
         _instructionsBuilder.JmpL(endTarget);
-        falseTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(falseTarget);
         ConvertExpression(model, expression.WhenFalse);
-        endTarget.Instruction = _instructionsBuilder.Nop();
+        _instructionsBuilder.AddTarget(endTarget);
     }
 }
