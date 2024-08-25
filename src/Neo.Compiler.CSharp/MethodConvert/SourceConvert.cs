@@ -29,7 +29,7 @@ internal partial class MethodConvert
 
             if (parameter.RefKind == RefKind.Out)
             {
-                _context.GetOrAddCapturedStaticField(parameter);
+                Context.GetOrAddCapturedStaticField(parameter);
             }
         }
         switch (SyntaxNode)
@@ -58,7 +58,7 @@ internal partial class MethodConvert
                     if (syntax is MethodDeclarationSyntax methodSyntax
                         && methodSyntax.ReturnType.ToString() == "void"
                         && IsExpressionReturningValue(model, methodSyntax))
-                        AddInstruction(OpCode.DROP);
+                        _instructionsBuilder.Drop();
                 }
                 else
                     ConvertStatement(model, syntax.Body);
@@ -106,10 +106,10 @@ internal partial class MethodConvert
             IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
             for (byte i = 1; i <= fields.Length; i++)
             {
-                AddInstruction(OpCode.LDARG0);
-                Push(i - 1);
-                AccessSlot(OpCode.LDARG, i);
-                AddInstruction(OpCode.SETITEM);
+                _instructionsBuilder.LdArg(0);
+                _instructionsBuilder.Push(i - 1);
+                _instructionsBuilder.LdArg(i);
+                _instructionsBuilder.SetItem();
             }
         }
     }

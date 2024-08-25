@@ -45,7 +45,7 @@ internal partial class MethodConvert
         }
         else if (expression.IsKind(SyntaxKind.NullLiteralExpression))
         {
-            AddInstruction(OpCode.PUSHNULL);
+            _instructionsBuilder.PushNull();
         }
         else
         {
@@ -78,7 +78,7 @@ internal partial class MethodConvert
         {
             case SpecialType.System_Boolean:
                 {
-                    AddInstruction(OpCode.PUSHF);
+                    _instructionsBuilder.Push(true);
                     break;
                 }
             case SpecialType.System_Byte:
@@ -93,26 +93,26 @@ internal partial class MethodConvert
             case SpecialType.System_Single:
             case SpecialType.System_Double:
             case SpecialType.System_Char:
-                AddInstruction(OpCode.PUSH0);
+                _instructionsBuilder.Push(0);
                 break;
             case SpecialType.System_String:
             case SpecialType.System_Object:
-                AddInstruction(OpCode.PUSHNULL);
+                _instructionsBuilder.PushNull();
                 break;
             default:
                 if (type.ToString() == "System.Numerics.BigInteger")
                 {
                     // BigInteger's default value is 0
-                    AddInstruction(OpCode.PUSH0);
+                    _instructionsBuilder.Push(0);
                 }
                 else if (type.IsReferenceType)
                 {
-                    AddInstruction(OpCode.PUSHNULL);
+                    _instructionsBuilder.PushNull();
                 }
                 else if (type.IsValueType)
                 {
                     // For structs and other value types, we need to create a default instance
-                    AddInstruction(OpCode.NEWSTRUCT0);
+                    _instructionsBuilder.NewStruct0();
                 }
                 else
                 {

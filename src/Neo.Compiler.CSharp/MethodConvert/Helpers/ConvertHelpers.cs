@@ -50,12 +50,12 @@ internal partial class MethodConvert
     // Helper methods
     private void InsertStaticFieldInitialization()
     {
-        if (_context.StaticFieldCount > 0)
+        if (Context.StaticFieldCount > 0)
         {
-            _instructions.Insert(0, new Instruction
+            _instructionsBuilder.Insert(0, new Instruction
             {
                 OpCode = OpCode.INITSSLOT,
-                Operand = [(byte)_context.StaticFieldCount]
+                Operand = [(byte)Context.StaticFieldCount]
             });
         }
     }
@@ -82,7 +82,7 @@ internal partial class MethodConvert
 
     private void InsertInitializationInstructions()
     {
-        if (Symbol.MethodKind == MethodKind.StaticConstructor && _context.StaticFieldCount > 0)
+        if (Symbol.MethodKind == MethodKind.StaticConstructor && Context.StaticFieldCount > 0)
         {
             InsertStaticFieldInitialization();
         }
@@ -98,7 +98,7 @@ internal partial class MethodConvert
             // Insert INITSLOT at the beginning of the method
             // lc: number of local variables
             // pc: number of parameters (including 'this' for instance methods)
-            _instructions.Insert(0, new Instruction
+            _instructionsBuilder.Insert(0, new Instruction
             {
                 OpCode = OpCode.INITSLOT,
                 Operand = [lc, pc]
@@ -122,20 +122,20 @@ internal partial class MethodConvert
     {
         if (_returnTarget.Instruction is null)
         {
-            if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+            if (Instructions.Count > 0 && Instructions[^1].OpCode == OpCode.NOP && Instructions[^1].SourceLocation is not null)
             {
-                _instructions[^1].OpCode = OpCode.RET;
-                _returnTarget.Instruction = _instructions[^1];
+                Instructions[^1].OpCode = OpCode.RET;
+                _returnTarget.Instruction = Instructions[^1];
             }
             else
             {
-                _returnTarget.Instruction = AddInstruction(OpCode.RET);
+                _returnTarget.Instruction = _instructionsBuilder.Ret();
             }
         }
         else
         {
             // it comes from modifier clean up
-            AddInstruction(OpCode.RET);
+            _instructionsBuilder.Ret();
         }
     }
 
@@ -147,25 +147,25 @@ internal partial class MethodConvert
                 continue;
 
             JumpTarget notNullTarget = new();
-            byte fieldIndex = _context.AddAnonymousStaticField();
-            AccessSlot(OpCode.LDSFLD, fieldIndex);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIFNOT_L, notNullTarget);
+            byte fieldIndex = Context.AddAnonymousStaticField();
+            _instructionsBuilder.LdSFld(fieldIndex);
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.JmpIfNotL(notNullTarget);
 
-            MethodConvert constructor = _context.ConvertMethod(model, attribute.AttributeConstructor!);
+            MethodConvert constructor = Context.ConvertMethod(model, attribute.AttributeConstructor!);
             CreateObject(model, attribute.AttributeClass, null);
             foreach (var arg in attribute.ConstructorArguments.Reverse())
-                Push(arg.Value);
-            Push(attribute.ConstructorArguments.Length);
-            AddInstruction(OpCode.PICK);
+                _instructionsBuilder.Push(arg.Value);
+            _instructionsBuilder.Push(attribute.ConstructorArguments.Length);
+            _instructionsBuilder.Pick();
             EmitCall(constructor);
-            AccessSlot(OpCode.STSFLD, fieldIndex);
+            _instructionsBuilder.StSFld(fieldIndex);
 
-            notNullTarget.Instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+            notNullTarget.Instruction = _instructionsBuilder.LdSFld(fieldIndex);
             var enterSymbol = attribute.AttributeClass.GetAllMembers()
                 .OfType<IMethodSymbol>()
                 .First(p => p.Name == nameof(ModifierAttribute.Enter) && p.Parameters.Length == 0);
-            MethodConvert enterMethod = _context.ConvertMethod(model, enterSymbol);
+            MethodConvert enterMethod = Context.ConvertMethod(model, enterSymbol);
             EmitCall(enterMethod);
             yield return (fieldIndex, attribute);
         }
@@ -176,9 +176,9 @@ internal partial class MethodConvert
         var exitSymbol = attribute.AttributeClass!.GetAllMembers()
             .OfType<IMethodSymbol>()
             .First(p => p is { Name: nameof(ModifierAttribute.Exit), Parameters.Length: 0 });
-        MethodConvert exitMethod = _context.ConvertMethod(model, exitSymbol);
+        MethodConvert exitMethod = Context.ConvertMethod(model, exitSymbol);
         if (exitMethod.IsEmpty) return null;
-        var instruction = AccessSlot(OpCode.LDSFLD, fieldIndex);
+        var instruction = _instructionsBuilder.LdSFld(fieldIndex);
         EmitCall(exitMethod);
         return instruction;
     }
@@ -200,7 +200,7 @@ internal partial class MethodConvert
             }
         }
         if (expression is null)
-            PushDefault(field.Type);
+            _instructionsBuilder.PushDefault(field.Type);
         else
             ConvertExpression(model, expression);
     }
@@ -211,26 +211,26 @@ internal partial class MethodConvert
         var fields = members.OfType<IFieldSymbol>().ToArray();
         if (fields.Length == 0 || type.IsValueType || type.IsRecord)
         {
-            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+            _instructionsBuilder.AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
             foreach (var field in fields)
             {
-                AddInstruction(OpCode.DUP);
+                _instructionsBuilder.Dup();
                 InitializeFieldForObject(model, field, initializer);
-                AddInstruction(OpCode.APPEND);
+                _instructionsBuilder.Append();
             }
         }
         else
         {
             for (int i = fields.Length - 1; i >= 0; i--)
                 InitializeFieldForObject(model, fields[i], initializer);
-            Push(fields.Length);
-            AddInstruction(OpCode.PACK);
+            _instructionsBuilder.Push(fields.Length);
+            _instructionsBuilder.Pack();
         }
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
         if (type.IsRecord || virtualMethods.Length <= 0) return;
-        var index = _context.AddVTable(type);
-        AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.LDSFLD, index);
-        AddInstruction(OpCode.APPEND);
+        var index = Context.AddVTable(type);
+        _instructionsBuilder.Dup();
+        _instructionsBuilder.LdSFld(index);
+        _instructionsBuilder.Append();
     }
 }

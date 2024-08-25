@@ -132,33 +132,33 @@ internal partial class MethodConvert
         {
             if (range.RightOperand is null)
             {
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.SIZE);
+                _instructionsBuilder.Dup();
+                _instructionsBuilder.Size();
             }
             else
             {
                 ConvertExpression(model, range.RightOperand);
             }
-            AddInstruction(OpCode.SWAP);
+            _instructionsBuilder.Swap();
             if (range.LeftOperand is null)
             {
-                Push(0);
+                _instructionsBuilder.Push(0);
             }
             else
             {
                 ConvertExpression(model, range.LeftOperand);
             }
-            AddInstruction(OpCode.ROT);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.SUB);
+            _instructionsBuilder.Rot();
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Sub();
             switch (type.ToString())
             {
                 case "byte[]":
-                    AddInstruction(OpCode.SUBSTR);
+                    _instructionsBuilder.SubStr();
                     break;
                 case "string":
-                    AddInstruction(OpCode.SUBSTR);
-                    ChangeType(VM.Types.StackItemType.ByteString);
+                    _instructionsBuilder.SubStr();
+                    _instructionsBuilder.ChangeType(VM.Types.StackItemType.ByteString);
                     break;
                 default:
                     throw new CompilationException(indexOrRange, DiagnosticId.ArrayRange, $"The type {type} does not support range access.");
@@ -167,7 +167,7 @@ internal partial class MethodConvert
         else
         {
             ConvertExpression(model, indexOrRange);
-            AddInstruction(OpCode.PICKITEM);
+            _instructionsBuilder.PickItem();
         }
     }
 }

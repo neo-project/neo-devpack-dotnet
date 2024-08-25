@@ -32,7 +32,7 @@ internal partial class MethodConvert
     /// <param name="descriptor">The interop descriptor representing the method to call.</param>
     /// <returns>The instruction to perform the interop call.</returns>
     private Instruction CallInteropMethod(InteropDescriptor descriptor)
-        => AddInstruction(new Instruction
+        => _instructionsBuilder.AddInstruction(new Instruction
         {
             OpCode = OpCode.SYSCALL,
             Operand = BitConverter.GetBytes(descriptor)
@@ -47,10 +47,10 @@ internal partial class MethodConvert
     /// <param name="hasReturnValue">Whether the method returns a value.</param>
     /// <param name="callFlags">The call flags to use for the method call.</param>
     /// <returns>The instruction to perform the contract method call.</returns>
-    private Instruction CallContractMethod(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags = CallFlags.All)
+    internal Instruction CallContractMethod(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags = CallFlags.All)
     {
-        ushort token = _context.AddMethodToken(hash, method, parametersCount, hasReturnValue, callFlags);
-        return AddInstruction(new Instruction
+        ushort token = Context.AddMethodToken(hash, method, parametersCount, hasReturnValue, callFlags);
+        return _instructionsBuilder.AddInstruction(new Instruction
         {
             OpCode = OpCode.CALLT,
             Operand = BitConverter.GetBytes(token)
@@ -122,7 +122,7 @@ internal partial class MethodConvert
 
         int pc = symbol.Parameters.Length + (symbol.IsStatic ? 0 : 1);
         if (pc > 1 && methodCallingConvention != callingConvention)
-            ReverseStackItems(pc);
+            _instructionsBuilder.ReverseStackItems(pc);
 
         if (convert is null)
             CallVirtual(symbol);
@@ -130,9 +130,9 @@ internal partial class MethodConvert
             EmitCall(convert);
 
         var parameters = symbol.Parameters;
-        parameters.Where(p => _context.OutStaticFieldsSync.ContainsKey(p)).ForEach(p =>
+        parameters.Where(p => Context.OutStaticFieldsSync.ContainsKey(p)).ForEach(p =>
         {
-            foreach (var sync in _context.OutStaticFieldsSync[p])
+            foreach (var sync in Context.OutStaticFieldsSync[p])
             {
                 LdArgSlot(p);
                 switch (sync)
@@ -186,7 +186,7 @@ internal partial class MethodConvert
     {
         var local = (ILocalSymbol)model.GetDeclaredSymbol(designation)!;
         ProcessOutSymbol(parameter, local);
-        PushDefault(local.Type);
+        _instructionsBuilder.PushDefault(local.Type);
         StLocSlot(local); // initialize the local variable with default value
     }
 
@@ -206,8 +206,8 @@ internal partial class MethodConvert
                 StArgSlot(param);
                 break;
             case IDiscardSymbol:
-                PushDefault(parameter.Type);
-                _context.GetOrAddCapturedStaticField(parameter);
+                _instructionsBuilder.PushDefault(parameter.Type);
+                Context.GetOrAddCapturedStaticField(parameter);
                 StArgSlot(parameter);
                 break;
             default:
@@ -217,39 +217,39 @@ internal partial class MethodConvert
 
     private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol)
     {
-        bool parameterCaptured = _context.TryGetCapturedStaticField(parameter, out var parameterIndex);
-        bool symbolCaptured = _context.TryGetCapturedStaticField(symbol, out var symbolIndex);
+        bool parameterCaptured = Context.TryGetCapturedStaticField(parameter, out var parameterIndex);
+        bool symbolCaptured = Context.TryGetCapturedStaticField(symbol, out var symbolIndex);
 
         if (parameterCaptured && !symbolCaptured)
         {
-            _context.AssociateCapturedStaticField(symbol, parameterIndex);
+            Context.AssociateCapturedStaticField(symbol, parameterIndex);
         }
         else if (!parameterCaptured && symbolCaptured)
         {
-            _context.AssociateCapturedStaticField(parameter, symbolIndex);
+            Context.AssociateCapturedStaticField(parameter, symbolIndex);
         }
         else if (parameterCaptured && symbolCaptured && parameterIndex != symbolIndex)
         {
             // both values are already captured in different indirectly connected methods,
             // but they are different, thus need to sync value from symbol to parameter
-            if (!_context.OutStaticFieldsSync.TryGetValue(parameter, out var syncList))
+            if (!Context.OutStaticFieldsSync.TryGetValue(parameter, out var syncList))
             {
                 syncList = new List<ISymbol>();
-                _context.OutStaticFieldsSync[parameter] = syncList;
+                Context.OutStaticFieldsSync[parameter] = syncList;
             }
             syncList.Add(symbol);
         }
         else if (!parameterCaptured && !symbolCaptured)
         {
-            var index = _context.GetOrAddCapturedStaticField(symbol);
-            _context.AssociateCapturedStaticField(parameter, index);
+            var index = Context.GetOrAddCapturedStaticField(symbol);
+            Context.AssociateCapturedStaticField(parameter, index);
         }
     }
 
     private void HandleConstructorDuplication(bool instanceOnStack, CallingConvention methodCallingConvention, IMethodSymbol symbol)
     {
         if (instanceOnStack && methodCallingConvention != CallingConvention.Cdecl && symbol.MethodKind == MethodKind.Constructor)
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
     }
 
     private void HandleInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
@@ -272,9 +272,9 @@ internal partial class MethodConvert
             EmitCall(convert);
 
         var parameters = symbol.Parameters;
-        parameters.Where(p => _context.OutStaticFieldsSync.ContainsKey(p)).ForEach(p =>
+        parameters.Where(p => Context.OutStaticFieldsSync.ContainsKey(p)).ForEach(p =>
         {
-            foreach (var sync in _context.OutStaticFieldsSync[p])
+            foreach (var sync in Context.OutStaticFieldsSync[p])
             {
                 LdArgSlot(p);
                 switch (sync)
@@ -298,7 +298,7 @@ internal partial class MethodConvert
         if (symbol.IsVirtualMethod())
             return (null, CallingConvention.Cdecl);
 
-        var convert = _context.ConvertMethod(model, symbol);
+        var convert = Context.ConvertMethod(model, symbol);
         return (convert, convert._callingConvention);
     }
 
@@ -312,14 +312,14 @@ internal partial class MethodConvert
         switch (symbol.Parameters.Length)
         {
             case 0:
-                if (isConstructor) AddInstruction(OpCode.DUP);
+                if (isConstructor) _instructionsBuilder.Dup();
                 break;
             case 1:
-                AddInstruction(isConstructor ? OpCode.OVER : OpCode.SWAP);
+                _instructionsBuilder.Over();
                 break;
             default:
-                Push(symbol.Parameters.Length);
-                AddInstruction(isConstructor ? OpCode.PICK : OpCode.ROLL);
+                _instructionsBuilder.Push(symbol.Parameters.Length);
+                _instructionsBuilder.Pick();
                 break;
         }
     }
@@ -331,8 +331,8 @@ internal partial class MethodConvert
             return (null, CallingConvention.Cdecl);
 
         var convert = symbol.ReducedFrom is null
-            ? _context.ConvertMethod(model, symbol)
-            : _context.ConvertMethod(model, symbol.ReducedFrom);
+            ? Context.ConvertMethod(model, symbol)
+            : Context.ConvertMethod(model, symbol.ReducedFrom);
         return (convert, convert._callingConvention);
     }
 
@@ -340,24 +340,24 @@ internal partial class MethodConvert
     private void ConvertInstanceExpression(SemanticModel model, ExpressionSyntax? instanceExpression)
     {
         if (instanceExpression is null)
-            AddInstruction(OpCode.LDARG0);
+            _instructionsBuilder.LdArg(0);
         else
             ConvertExpression(model, instanceExpression);
     }
 
     private void EmitCall(MethodConvert target)
     {
-        if (target._inline && !_context.Options.NoInline)
+        if (target._inline && !Context.Options.NoInline)
             EmitInlineInstructions(target);
         else
-            Jump(OpCode.CALL_L, target._startTarget);
+            _instructionsBuilder.Jump(OpCode.CALL_L, target._startTarget);
     }
 
     // Helper method to emit inline instructions
     private void EmitInlineInstructions(MethodConvert target)
     {
-        for (int i = 0; i < target._instructions.Count - 1; i++)
-            AddInstruction(target._instructions[i].Clone());
+        for (int i = 0; i < target.Instructions.Count - 1; i++)
+            _instructionsBuilder.AddInstruction(target.Instructions[i].Clone());
     }
 
     private void CallVirtual(IMethodSymbol symbol)
@@ -373,20 +373,125 @@ internal partial class MethodConvert
         if (index < 0)
             throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {symbol.OriginalDefinition}.");
 
-        AddInstruction(OpCode.DUP);
-        Push(fields.Length);
-        AddInstruction(OpCode.PICKITEM);
-        Push(index);
-        AddInstruction(OpCode.PICKITEM);
-        AddInstruction(OpCode.CALLA);
+        _instructionsBuilder.Dup();
+        _instructionsBuilder.Push(fields.Length);
+        _instructionsBuilder.PickItem();
+        _instructionsBuilder.Push(index);
+        _instructionsBuilder.PickItem();
+        _instructionsBuilder.AddInstruction(OpCode.CALLA);
     }
 
     private void InvokeMethod(SemanticModel model, IMethodSymbol method)
     {
-        var convert = _context.ConvertMethod(model, method);
-        Jump(OpCode.PUSHA, convert._startTarget);
+        var convert = Context.ConvertMethod(model, method);
+        _instructionsBuilder.Jump(OpCode.PUSHA, convert._startTarget);
     }
 
     private void InvokeMethod(MethodConvert convert)
-        => Jump(OpCode.PUSHA, convert._startTarget);
+        => _instructionsBuilder.Jump(OpCode.PUSHA, convert._startTarget);
+
+    /// <summary>
+    /// Attempts to process system constructors. Performs different processing operations based on the method symbol.
+    /// </summary>
+    /// <param name="model">The semantic model used to obtain detailed information about the symbol.</param>
+    /// <param name="symbol">The method symbol to be processed.</param>
+    /// <param name="arguments">A list of syntax nodes representing the arguments of the method.</param>
+    /// <returns>True if system constructors are successfully processed; otherwise, false.</returns>
+    private bool TryProcessSystemConstructors(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
+    {
+        switch (symbol.ToString())
+        {
+            //For the BigInteger(byte[]) constructor, prepares method arguments and changes the return type to integer.
+            case "System.Numerics.BigInteger.BigInteger(byte[])":
+                PrepareArgumentsForMethod(model, symbol, arguments);
+                _instructionsBuilder.ChangeType(VM.Types.StackItemType.Integer);
+                return true;
+            //For other constructors, such as List<T>(), return processing failure.
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempts to process system methods. Performs different processing operations based on the method symbol.
+    /// </summary>
+    /// <param name="model">The semantic model used to obtain detailed information about the symbol.</param>
+    /// <param name="symbol">The method symbol to be processed.</param>
+    /// <param name="instanceExpression">The instance expression representing the instance of method invocation, if any.</param>
+    /// <param name="arguments">A list of syntax nodes representing the arguments of the method.</param>
+    /// <returns>True if system methods are successfully processed; otherwise, false.</returns>
+    private bool TryProcessSystemMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        //If the method belongs to a delegate and the method name is "Invoke",
+        //calls the PrepareArgumentsForMethod method with CallingConvention.Cdecl convention and changes the return type to integer.
+        //Example: Func<int, int, int>(privateSum).Invoke(a, b);
+        //see ~/tests/Neo.Compiler.CSharp.TestContracts/Contract_Delegate.cs
+        if (symbol.ContainingType.TypeKind == TypeKind.Delegate && symbol.Name == "Invoke")
+        {
+            if (arguments is not null)
+                PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
+            ConvertExpression(model, instanceExpression!);
+            _instructionsBuilder.AddInstruction(OpCode.CALLA);
+            return true;
+        }
+
+        var key = symbol.ToString()!.Replace("out ", "");
+        key = (from parameter in symbol.Parameters let parameterType = parameter.Type.ToString() where !parameter.Type.IsValueType && parameterType!.EndsWith('?') select parameterType).Aggregate(key, (current, parameterType) => current.Replace(parameterType, parameterType[..^1]));
+        if (key == "string.ToString()") key = "object.ToString()";
+        if (!SystemMethods.SystemCallHandlers.TryGetValue(key, out var handler)) return false;
+        handler(this, model, symbol, instanceExpression, arguments);
+        return true;
+    }
+
+    /// <summary>
+    /// Attempts to process system operators. Performs different processing operations based on the method symbol.
+    /// </summary>
+    /// <param name="model">The semantic model used to obtain detailed information about the symbol.</param>
+    /// <param name="symbol">The method symbol to be processed.</param>
+    /// <param name="arguments">An array of expression parameters.</param>
+    /// <returns>True if system operators are successfully processed; otherwise, false.</returns>
+    private bool TryProcessSystemOperators(SemanticModel model, IMethodSymbol symbol, params ExpressionSyntax[] arguments)
+    {
+        switch (symbol.ToString())
+        {
+            //Handles cases of equality operator (==), comparing whether two objects or strings are equal.
+            case "object.operator ==(object, object)":
+            case "string.operator ==(string, string)":
+                ConvertExpression(model, arguments[0]);
+                ConvertExpression(model, arguments[1]);
+                _instructionsBuilder.Equal();
+                return true;
+            //Handles cases of inequality operator (!=), comparing whether two objects are not equal.
+            case "object.operator !=(object, object)":
+                ConvertExpression(model, arguments[0]);
+                ConvertExpression(model, arguments[1]);
+                _instructionsBuilder.NotEqual();
+                return true;
+            //Handles cases of string concatenation operator (+), concatenating two strings into one.
+            case "string.operator +(string, string)":
+                ConvertExpression(model, arguments[0]);
+                ConvertExpression(model, arguments[1]);
+                _instructionsBuilder.Cat();
+                _instructionsBuilder.ChangeType(VM.Types.StackItemType.ByteString);
+                return true;
+            //Handles cases of string concatenation operator (+), concatenating a string with an object.
+            //Unsupported interpolation: object
+            case "string.operator +(string, object)":
+                ConvertExpression(model, arguments[0]);
+                ConvertObjectToString(model, arguments[1]);
+                _instructionsBuilder.Cat();
+                _instructionsBuilder.ChangeType(VM.Types.StackItemType.ByteString);
+                return true;
+            //Handles cases of string concatenation operator (+), concatenating an object with a string.
+            //Unsupported interpolation: object
+            case "string.operator +(object, string)":
+                ConvertObjectToString(model, arguments[0]);
+                ConvertExpression(model, arguments[1]);
+                _instructionsBuilder.Cat();
+                _instructionsBuilder.ChangeType(VM.Types.StackItemType.ByteString);
+                return true;
+            default:
+                return false;
+        }
+    }
 }

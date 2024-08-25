@@ -43,9 +43,9 @@ namespace Neo.Compiler
         {
             using (InsertSequencePoint(syntax))
                 if (_tryStack.TryPeek(out ExceptionHandling? result) && result.ContinueTargetCount == 0)
-                    Jump(OpCode.ENDTRY_L, _continueTargets.Peek());
+                    _instructionsBuilder.Jump(OpCode.ENDTRY_L, _continueTargets.Peek());
                 else
-                    Jump(OpCode.JMP_L, _continueTargets.Peek());
+                    _instructionsBuilder.JmpL(_continueTargets.Peek());
         }
     }
 }

@@ -42,7 +42,7 @@ internal partial class MethodConvert
     private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ConvertExpression(model, expression.Right);
-        AddInstruction(OpCode.DUP);
+        _instructionsBuilder.Dup();
         switch (expression.Left)
         {
             case DeclarationExpressionSyntax left:
@@ -71,8 +71,8 @@ internal partial class MethodConvert
         ITypeSymbol type = model.GetTypeInfo(left).Type!;
         if (!type.IsValueType)
             throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment type: {type}");
-        AddInstruction(OpCode.UNPACK);
-        AddInstruction(OpCode.DROP);
+        _instructionsBuilder.UnPack();
+        _instructionsBuilder.Drop();
         foreach (VariableDesignationSyntax variable in ((ParenthesizedVariableDesignationSyntax)left.Designation).Variables)
         {
             switch (variable)
@@ -80,10 +80,10 @@ internal partial class MethodConvert
                 case SingleVariableDesignationSyntax singleVariableDesignation:
                     ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
                     byte index = AddLocalVariable(local);
-                    AccessSlot(OpCode.STLOC, index);
+                    _instructionsBuilder.StLoc(index);
                     break;
                 case DiscardDesignationSyntax:
-                    AddInstruction(OpCode.DROP);
+                    _instructionsBuilder.Drop();
                     break;
                 default:
                     throw new CompilationException(variable, DiagnosticId.SyntaxNotSupported, $"Unsupported designation: {variable}");
@@ -105,8 +105,8 @@ internal partial class MethodConvert
         {
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.ROT);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Rot();
+            _instructionsBuilder.SetItem();
         }
     }
 
@@ -116,21 +116,21 @@ internal partial class MethodConvert
         switch (symbol)
         {
             case IDiscardSymbol:
-                AddInstruction(OpCode.DROP);
+                _instructionsBuilder.Drop();
                 break;
             case IFieldSymbol field:
                 if (field.IsStatic)
                 {
-                    byte index = _context.AddStaticField(field);
-                    AccessSlot(OpCode.STSFLD, index);
+                    byte index = Context.AddStaticField(field);
+                    _instructionsBuilder.StSFld(index);
                 }
                 else
                 {
                     int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                    AddInstruction(OpCode.LDARG0);
-                    Push(index);
-                    AddInstruction(OpCode.ROT);
-                    AddInstruction(OpCode.SETITEM);
+                    _instructionsBuilder.LdArg0();
+                    _instructionsBuilder.Push(index);
+                    _instructionsBuilder.Rot();
+                    _instructionsBuilder.SetItem();
                 }
                 break;
             case ILocalSymbol local:
@@ -154,14 +154,14 @@ internal partial class MethodConvert
                     IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
                     fields = fields.Where(p => !p.IsStatic).ToArray();
                     int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                    AccessSlot(OpCode.LDARG, 0);
-                    Push(backingFieldIndex);
-                    AddInstruction(OpCode.ROT);
-                    AddInstruction(OpCode.SETITEM);
+                    _instructionsBuilder.LdArg0();
+                    _instructionsBuilder.Push(backingFieldIndex);
+                    _instructionsBuilder.Rot();
+                    _instructionsBuilder.SetItem();
                 }
                 else if (property.SetMethod != null)
                 {
-                    if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
+                    if (!property.IsStatic) _instructionsBuilder.LdArg0();
                     CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
                 }
                 else
@@ -182,16 +182,16 @@ internal partial class MethodConvert
             case IFieldSymbol field:
                 if (field.IsStatic)
                 {
-                    byte index = _context.AddStaticField(field);
-                    AccessSlot(OpCode.STSFLD, index);
+                    byte index = Context.AddStaticField(field);
+                    _instructionsBuilder.StSFld(index);
                 }
                 else
                 {
                     int index = Array.IndexOf(field.ContainingType.GetFields(), field);
                     ConvertExpression(model, left.Expression);
-                    Push(index);
-                    AddInstruction(OpCode.ROT);
-                    AddInstruction(OpCode.SETITEM);
+                    _instructionsBuilder.Push(index);
+                    _instructionsBuilder.Rot();
+                    _instructionsBuilder.SetItem();
                 }
                 break;
             case IPropertySymbol property:
@@ -205,8 +205,8 @@ internal partial class MethodConvert
 
     private void ConvertTupleAssignment(SemanticModel model, TupleExpressionSyntax left)
     {
-        AddInstruction(OpCode.UNPACK);
-        AddInstruction(OpCode.DROP);
+        _instructionsBuilder.UnPack();
+        _instructionsBuilder.Drop();
         foreach (ArgumentSyntax argument in left.Arguments)
         {
             switch (argument.Expression)
@@ -217,10 +217,10 @@ internal partial class MethodConvert
                         case SingleVariableDesignationSyntax singleVariableDesignation:
                             ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(singleVariableDesignation)!;
                             byte index = AddLocalVariable(local);
-                            AccessSlot(OpCode.STLOC, index);
+                            _instructionsBuilder.StLoc(index);
                             break;
                         case DiscardDesignationSyntax:
-                            AddInstruction(OpCode.DROP);
+                            _instructionsBuilder.Drop();
                             break;
                         default:
                             throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported designation: {argument}");

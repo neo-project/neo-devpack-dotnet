@@ -46,25 +46,25 @@ internal partial class MethodConvert
                 break;
             case "-":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.NEGATE);
+                _instructionsBuilder.Negate();
                 break;
             case "~":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.INVERT);
+                _instructionsBuilder.Invert();
                 break;
             case "!":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.NOT);
+                _instructionsBuilder.Not();
                 break;
             case "++":
             case "--":
                 ConvertPreIncrementOrDecrementExpression(model, expression);
                 break;
             case "^":
-                AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.SIZE);
+                _instructionsBuilder.Dup();
+                _instructionsBuilder.Size();
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.SUB);
+                _instructionsBuilder.Sub();
                 break;
             default:
                 throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}");
@@ -97,26 +97,26 @@ internal partial class MethodConvert
         {
             ConvertExpression(model, operand.Expression);
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
             CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             EmitIncrementOrDecrement(operatorToken, property.Type);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
             ConvertExpression(model, operand.Expression);
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
+            _instructionsBuilder.PickItem();
             EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
+            _instructionsBuilder.Reverse3();
+            _instructionsBuilder.SetItem();
         }
     }
 
@@ -146,24 +146,23 @@ internal partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            byte index = _context.AddStaticField(symbol);
-            AccessSlot(OpCode.LDSFLD, index);
+            byte index = Context.AddStaticField(symbol);
+            _instructionsBuilder.LdSFld(index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.DUP);
-            AccessSlot(OpCode.STSFLD, index);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.StSFld(index);
         }
         else
         {
             int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
-            AddInstruction(OpCode.LDARG0);
-            AddInstruction(OpCode.DUP);
-            Push(index);
-            AddInstruction(OpCode.PICKITEM);
+            _instructionsBuilder.LdArg0();
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.PickItem(index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.TUCK);
-            Push(index);
-            AddInstruction(OpCode.SWAP);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Tuck();
+            _instructionsBuilder.PickItem(index);
+            _instructionsBuilder.Swap();
+            _instructionsBuilder.SetItem();
         }
     }
 
@@ -171,7 +170,7 @@ internal partial class MethodConvert
     {
         LdLocSlot(symbol);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
-        AddInstruction(OpCode.DUP);
+        _instructionsBuilder.Dup();
         StLocSlot(symbol);
     }
 
@@ -179,7 +178,7 @@ internal partial class MethodConvert
     {
         LdArgSlot(symbol);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
-        AddInstruction(OpCode.DUP);
+        _instructionsBuilder.Dup();
         StArgSlot(symbol);
     }
 
@@ -189,16 +188,17 @@ internal partial class MethodConvert
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
-            AddInstruction(OpCode.LDARG0);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.LdArg0();
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.Tuck();
+            _instructionsBuilder.PickItem();
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
@@ -223,24 +223,23 @@ internal partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            byte index = _context.AddStaticField(symbol);
-            AccessSlot(OpCode.LDSFLD, index);
+            byte index = Context.AddStaticField(symbol);
+            _instructionsBuilder.LdSFld(index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.DUP);
-            AccessSlot(OpCode.STSFLD, index);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.StSFld(index);
         }
         else
         {
             int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
             ConvertExpression(model, operand.Expression);
-            AddInstruction(OpCode.DUP);
-            Push(index);
-            AddInstruction(OpCode.PICKITEM);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.PickItem(index);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.TUCK);
-            Push(index);
-            AddInstruction(OpCode.SWAP);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Tuck();
+            _instructionsBuilder.PickItem(index);
+            _instructionsBuilder.Swap();
+            _instructionsBuilder.SetItem();
         }
     }
 
@@ -250,23 +249,23 @@ internal partial class MethodConvert
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             ConvertExpression(model, operand.Expression);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.Tuck();
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 
     private void EmitIncrementOrDecrement(SyntaxToken operatorToken, ITypeSymbol? typeSymbol)
     {
-        AddInstruction(operatorToken.ValueText switch
+        _instructionsBuilder.AddInstruction(operatorToken.ValueText switch
         {
             "++" => OpCode.INC,
             "--" => OpCode.DEC,

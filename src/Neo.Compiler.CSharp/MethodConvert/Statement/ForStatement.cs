@@ -54,7 +54,7 @@ namespace Neo.Compiler
                     ITypeSymbol type = model.GetTypeInfo(expression).Type!;
                     ConvertExpression(model, expression);
                     if (type.SpecialType != SpecialType.System_Void)
-                        AddInstruction(OpCode.DROP);
+                        _instructionsBuilder.Drop();
                 }
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
@@ -69,32 +69,32 @@ namespace Neo.Compiler
                     using (InsertSequencePoint(variable))
                     {
                         ConvertExpression(model, variable.Initializer.Value);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        _instructionsBuilder.StLoc(variableIndex);
                     }
             }
-            Jump(OpCode.JMP_L, conditionTarget);
-            startTarget.Instruction = AddInstruction(OpCode.NOP);
+            _instructionsBuilder.JmpL(conditionTarget);
+            startTarget.Instruction = _instructionsBuilder.Nop();
             ConvertStatement(model, syntax.Statement);
-            continueTarget.Instruction = AddInstruction(OpCode.NOP);
+            continueTarget.Instruction = _instructionsBuilder.Nop();
             foreach (ExpressionSyntax expression in syntax.Incrementors)
                 using (InsertSequencePoint(expression))
                 {
                     ITypeSymbol type = model.GetTypeInfo(expression).Type!;
                     ConvertExpression(model, expression);
                     if (type.SpecialType != SpecialType.System_Void)
-                        AddInstruction(OpCode.DROP);
+                        _instructionsBuilder.Drop();
                 }
-            conditionTarget.Instruction = AddInstruction(OpCode.NOP);
+            conditionTarget.Instruction = _instructionsBuilder.Nop();
             if (syntax.Condition is null)
             {
-                Jump(OpCode.JMP_L, startTarget);
+                _instructionsBuilder.JmpL(startTarget);
             }
             else
             {
                 ConvertExpression(model, syntax.Condition);
-                Jump(OpCode.JMPIF_L, startTarget);
+                _instructionsBuilder.JmpL(startTarget);
             }
-            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            breakTarget.Instruction = _instructionsBuilder.Nop();
             foreach (var (_, symbol) in variables)
                 RemoveLocalVariable(symbol);
             PopContinueTarget();

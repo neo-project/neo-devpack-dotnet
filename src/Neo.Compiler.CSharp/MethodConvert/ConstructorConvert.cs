@@ -28,11 +28,11 @@ internal partial class MethodConvert
         {
             ProcessFieldInitializer(model, fields[i], () =>
             {
-                AddInstruction(OpCode.LDARG0);
-                Push(i);
+                _instructionsBuilder.LdArg0();
+                _instructionsBuilder.Push(i);
             }, () =>
             {
-                AddInstruction(OpCode.SETITEM);
+                _instructionsBuilder.SetItem();
             });
         }
     }
@@ -61,19 +61,19 @@ internal partial class MethodConvert
 
     private void ProcessStaticFields(SemanticModel model)
     {
-        foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
+        foreach (INamedTypeSymbol @class in Context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
         {
             foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
             {
                 if (field.IsConst || !field.IsStatic) continue;
                 ProcessFieldInitializer(model, field, null, () =>
                 {
-                    byte index = _context.AddStaticField(field);
-                    AccessSlot(OpCode.STSFLD, index);
+                    byte index = Context.AddStaticField(field);
+                    _instructionsBuilder.StSFld(index);
                 });
             }
         }
-        foreach (var (fieldIndex, type) in _context.VTables)
+        foreach (var (fieldIndex, type) in Context.VTables)
         {
             IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
             for (int i = virtualMethods.Length - 1; i >= 0; i--)
@@ -81,16 +81,16 @@ internal partial class MethodConvert
                 IMethodSymbol method = virtualMethods[i];
                 if (method.IsAbstract)
                 {
-                    Push((object?)null);
+                    _instructionsBuilder.Push((object?)null);
                 }
                 else
                 {
                     InvokeMethod(model, method);
                 }
             }
-            Push(virtualMethods.Length);
-            AddInstruction(OpCode.PACK);
-            AccessSlot(OpCode.STSFLD, fieldIndex);
+            _instructionsBuilder.Push(virtualMethods.Length);
+            _instructionsBuilder.Pack();
+            _instructionsBuilder.StSFld(fieldIndex);
         }
     }
 }

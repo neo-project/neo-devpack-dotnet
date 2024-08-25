@@ -46,11 +46,11 @@ namespace Neo.Compiler
         {
             _blockSymbols.Push(new List<ILocalSymbol>());
             using (InsertSequencePoint(syntax.OpenBraceToken))
-                AddInstruction(OpCode.NOP);
+                _instructionsBuilder.Nop();
             foreach (StatementSyntax child in syntax.Statements)
                 ConvertStatement(model, child);
             using (InsertSequencePoint(syntax.CloseBraceToken))
-                AddInstruction(OpCode.NOP);
+                _instructionsBuilder.Nop();
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
                 RemoveLocalVariable(symbol);
         }

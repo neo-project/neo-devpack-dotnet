@@ -52,25 +52,25 @@ namespace Neo.Compiler
             {
                 ConvertExpression(model, syntax.Condition);
 
-                Jump(OpCode.JMPIFNOT_L, elseTarget);
+                _instructionsBuilder.JmpIfNotL(elseTarget);
                 ConvertStatement(model, syntax.Statement);
 
                 if (syntax.Else is null)
                 {
-                    elseTarget.Instruction = AddInstruction(OpCode.NOP);
+                    elseTarget.Instruction = _instructionsBuilder.Nop();
                 }
                 else
                 {
                     JumpTarget endTarget = new();
-                    Jump(OpCode.JMP_L, endTarget);
+                    _instructionsBuilder.JmpL(endTarget);
 
                     using (InsertSequencePoint(syntax.Else.Statement))
                     {
-                        elseTarget.Instruction = AddInstruction(OpCode.NOP);
+                        elseTarget.Instruction = _instructionsBuilder.Nop();
                         ConvertStatement(model, syntax.Else.Statement);
                     }
 
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    endTarget.Instruction = _instructionsBuilder.Nop();
                 }
             }
         }

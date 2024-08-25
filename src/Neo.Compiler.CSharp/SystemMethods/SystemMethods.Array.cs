@@ -9,23 +9,20 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.SmartContract.Native;
-using Neo.VM;
 
 namespace Neo.Compiler;
 
-internal partial class MethodConvert
+internal static partial class SystemMethods
 {
     private static void HandleArrayReverse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        var sb = methodConvert.InstructionsBuilder;
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.REVERSEITEMS);
+        sb.ReverseItems();
     }
 }

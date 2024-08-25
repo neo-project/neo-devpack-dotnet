@@ -49,7 +49,7 @@ namespace Neo.Compiler
                 foreach (Instruction instruction in result.PendingGotoStatments)
                     if (instruction.Target == target)
                         instruction.OpCode = OpCode.JMP_L;
-            target.Instruction = AddInstruction(OpCode.NOP);
+            target.Instruction = _instructionsBuilder.Nop();
             ConvertStatement(model, syntax.Statement);
         }
     }

@@ -80,12 +80,12 @@ internal partial class MethodConvert
         {
             ConvertExpression(model, operand.Expression);
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
             CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
+            _instructionsBuilder.Reverse3();
             EmitIncrementOrDecrement(operatorToken, property.Type);
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
@@ -93,14 +93,14 @@ internal partial class MethodConvert
         {
             ConvertExpression(model, operand.Expression);
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
+            _instructionsBuilder.Reverse3();
             EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.SetItem();
         }
     }
 
@@ -130,31 +130,31 @@ internal partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            byte index = _context.AddStaticField(symbol);
-            AccessSlot(OpCode.LDSFLD, index);
-            AddInstruction(OpCode.DUP);
+            byte index = Context.AddStaticField(symbol);
+            _instructionsBuilder.LdSFld(index);
+            _instructionsBuilder.Dup();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AccessSlot(OpCode.STSFLD, index);
+            _instructionsBuilder.StSFld(index);
         }
         else
         {
             int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
-            AddInstruction(OpCode.LDARG0);
-            AddInstruction(OpCode.DUP);
-            Push(index);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.LdArg0();
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Push(index);
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.Tuck();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Push(index);
-            AddInstruction(OpCode.SWAP);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Push(index);
+            _instructionsBuilder.Swap();
+            _instructionsBuilder.SetItem();
         }
     }
 
     private void ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
     {
         LdLocSlot(symbol);
-        AddInstruction(OpCode.DUP);
+        _instructionsBuilder.Dup();
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
         StLocSlot(symbol);
     }
@@ -162,7 +162,7 @@ internal partial class MethodConvert
     private void ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
     {
         LdArgSlot(symbol);
-        AddInstruction(OpCode.DUP);
+        _instructionsBuilder.Dup();
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
         StArgSlot(symbol);
     }
@@ -172,16 +172,16 @@ internal partial class MethodConvert
         if (symbol.IsStatic)
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
-            AddInstruction(OpCode.LDARG0);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.LdArg0();
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, symbol.GetMethod!);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.Tuck();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
@@ -207,24 +207,24 @@ internal partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            byte index = _context.AddStaticField(symbol);
-            AccessSlot(OpCode.LDSFLD, index);
-            AddInstruction(OpCode.DUP);
+            byte index = Context.AddStaticField(symbol);
+            _instructionsBuilder.LdSFld(index);
+            _instructionsBuilder.Dup();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            AccessSlot(OpCode.STSFLD, index);
+            _instructionsBuilder.StSFld(index);
         }
         else
         {
             int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
             ConvertExpression(model, operand.Expression);
-            AddInstruction(OpCode.DUP);
-            Push(index);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Push(index);
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.Tuck();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Push(index);
-            AddInstruction(OpCode.SWAP);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Push(index);
+            _instructionsBuilder.Swap();
+            _instructionsBuilder.SetItem();
         }
     }
 
@@ -233,16 +233,16 @@ internal partial class MethodConvert
         if (symbol.IsStatic)
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             ConvertExpression(model, operand.Expression);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, symbol.GetMethod!);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.Tuck();
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }

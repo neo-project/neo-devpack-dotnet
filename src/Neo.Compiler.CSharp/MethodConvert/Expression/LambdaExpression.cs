@@ -33,7 +33,7 @@ internal partial class MethodConvert
     private void ConvertSimpleLambdaExpression(SemanticModel model, SimpleLambdaExpressionSyntax expression)
     {
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
+        var mc = Context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc);
     }
@@ -56,7 +56,7 @@ internal partial class MethodConvert
     private void ConvertParenthesizedLambdaExpression(SemanticModel model, ParenthesizedLambdaExpressionSyntax expression)
     {
         var symbol = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
-        var mc = _context.ConvertMethod(model, symbol);
+        var mc = Context.ConvertMethod(model, symbol);
         ConvertLocalToStaticFields(mc);
         InvokeMethod(mc);
     }
@@ -72,19 +72,19 @@ internal partial class MethodConvert
         foreach (var local in mc.CapturedLocalSymbols)
         {
             // copy captured local variable/parameter value to related static fields
-            var staticFieldIndex = _context.GetOrAddCapturedStaticField(local);
+            var staticFieldIndex = Context.GetOrAddCapturedStaticField(local);
             switch (local)
             {
                 case ILocalSymbol localSymbol:
                     var localIndex = _localVariables[localSymbol];
-                    AccessSlot(OpCode.LDLOC, localIndex);
+                    _instructionsBuilder.LdLoc(localIndex);
                     break;
                 case IParameterSymbol parameterSymbol:
                     var paraIndex = _parameters[parameterSymbol];
-                    AccessSlot(OpCode.LDARG, paraIndex);
+                    _instructionsBuilder.LdArg(paraIndex);
                     break;
             }
-            AccessSlot(OpCode.STSFLD, staticFieldIndex);
+            _instructionsBuilder.StSFld(staticFieldIndex);
         }
     }
 }

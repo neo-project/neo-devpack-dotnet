@@ -57,43 +57,43 @@ internal partial class MethodConvert
             case ("ByteString", "ECPoint"):
                 {
                     JumpTarget endTarget = new();
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    Jump(OpCode.JMPIF_L, endTarget);
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.SIZE);
-                    Push(33);
-                    Jump(OpCode.JMPEQ_L, endTarget);
-                    AddInstruction(OpCode.THROW);
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.IsNull();
+                    _instructionsBuilder.JmpIfL(endTarget);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.Size();
+                    _instructionsBuilder.Push(33);
+                    _instructionsBuilder.JmpEqL(endTarget);
+                    _instructionsBuilder.Throw();
+                    endTarget.Instruction = _instructionsBuilder.Nop();
                 }
                 break;
             case ("ByteString", "UInt160"):
                 {
                     JumpTarget endTarget = new();
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    Jump(OpCode.JMPIF_L, endTarget);
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.SIZE);
-                    Push(20);
-                    Jump(OpCode.JMPEQ_L, endTarget);
-                    AddInstruction(OpCode.THROW);
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.IsNull();
+                    _instructionsBuilder.JmpIfL(endTarget);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.Size();
+                    _instructionsBuilder.Push(20);
+                    _instructionsBuilder.JmpEqL(endTarget);
+                    _instructionsBuilder.Throw();
+                    endTarget.Instruction = _instructionsBuilder.Nop();
                 }
                 break;
             case ("ByteString", "UInt256"):
                 {
                     JumpTarget endTarget = new();
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
-                    Jump(OpCode.JMPIF_L, endTarget);
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.SIZE);
-                    Push(32);
-                    Jump(OpCode.JMPEQ_L, endTarget);
-                    AddInstruction(OpCode.THROW);
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.IsNull();
+                    _instructionsBuilder.JmpIfL(endTarget);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.Size();
+                    _instructionsBuilder.Push(32);
+                    _instructionsBuilder.JmpEqL(endTarget);
+                    _instructionsBuilder.Throw();
+                    endTarget.Instruction = _instructionsBuilder.Nop();
                 }
                 break;
             case ("SByte", "Byte"):

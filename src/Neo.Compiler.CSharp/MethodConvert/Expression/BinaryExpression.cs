@@ -90,7 +90,7 @@ internal partial class MethodConvert
             ">=" => (OpCode.GE, false),
             _ => throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}")
         };
-        AddInstruction(opcode);
+        _instructionsBuilder.AddInstruction(opcode);
         if (checkResult)
         {
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
@@ -103,12 +103,12 @@ internal partial class MethodConvert
         JumpTarget rightTarget = new();
         JumpTarget endTarget = new();
         ConvertExpression(model, left);
-        Jump(OpCode.JMPIFNOT_L, rightTarget);
-        Push(true);
-        Jump(OpCode.JMP_L, endTarget);
-        rightTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.JmpIfNotL(rightTarget);
+        _instructionsBuilder.Push(true);
+        _instructionsBuilder.JmpL(endTarget);
+        rightTarget.Instruction = _instructionsBuilder.Nop();
         ConvertExpression(model, right);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertLogicalAndExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
@@ -116,19 +116,19 @@ internal partial class MethodConvert
         JumpTarget rightTarget = new();
         JumpTarget endTarget = new();
         ConvertExpression(model, left);
-        Jump(OpCode.JMPIF_L, rightTarget);
-        Push(false);
-        Jump(OpCode.JMP_L, endTarget);
-        rightTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.JmpIfL(rightTarget);
+        _instructionsBuilder.Push(false);
+        _instructionsBuilder.JmpL(endTarget);
+        rightTarget.Instruction = _instructionsBuilder.Nop();
         ConvertExpression(model, right);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertIsExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
     {
         ITypeSymbol type = model.GetTypeInfo(right).Type!;
         ConvertExpression(model, left);
-        IsType(type.GetPatternType());
+        _instructionsBuilder.IsType(type.GetPatternType());
     }
 
     private void ConvertAsExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
@@ -136,23 +136,23 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         ITypeSymbol type = model.GetTypeInfo(right).Type!;
         ConvertExpression(model, left);
-        AddInstruction(OpCode.DUP);
-        IsType(type.GetPatternType());
-        Jump(OpCode.JMPIF_L, endTarget);
-        AddInstruction(OpCode.DROP);
-        Push((object?)null);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.Dup();
+        _instructionsBuilder.IsType(type.GetPatternType());
+        _instructionsBuilder.JmpIfL(endTarget);
+        _instructionsBuilder.Drop();
+        _instructionsBuilder.Push((object?)null);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertCoalesceExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
     {
         JumpTarget endTarget = new();
         ConvertExpression(model, left);
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ISNULL);
-        Jump(OpCode.JMPIFNOT_L, endTarget);
-        AddInstruction(OpCode.DROP);
+        _instructionsBuilder.Dup();
+        _instructionsBuilder.IsNull();
+        _instructionsBuilder.JmpIfL(endTarget);
+        _instructionsBuilder.Drop();
         ConvertExpression(model, right);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 }

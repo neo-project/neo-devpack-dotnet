@@ -45,15 +45,15 @@ internal partial class MethodConvert
         if (Symbol.IsStatic)
         {
             IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-            byte backingFieldIndex = _context.AddStaticField(backingField);
+            byte backingFieldIndex = Context.AddStaticField(backingField);
             switch (Symbol.MethodKind)
             {
                 case MethodKind.PropertyGet:
-                    AccessSlot(OpCode.LDSFLD, backingFieldIndex);
+                    _instructionsBuilder.LdSFld(backingFieldIndex);
                     break;
                 case MethodKind.PropertySet:
-                    if (!_inline) AccessSlot(OpCode.LDARG, 0);
-                    AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                    if (!_inline) _instructionsBuilder.LdArg(0);
+                    _instructionsBuilder.StSFld(backingFieldIndex);
                     break;
                 default:
                     throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
@@ -66,23 +66,23 @@ internal partial class MethodConvert
             switch (Symbol.MethodKind)
             {
                 case MethodKind.PropertyGet:
-                    if (!_inline) AccessSlot(OpCode.LDARG, 0);
-                    Push(backingFieldIndex);
-                    AddInstruction(OpCode.PICKITEM);
+                    if (!_inline) _instructionsBuilder.LdArg(0);
+                    _instructionsBuilder.Push(backingFieldIndex);
+                    _instructionsBuilder.PickItem();
                     break;
                 case MethodKind.PropertySet:
                     if (_inline)
                     {
-                        Push(backingFieldIndex);
-                        AddInstruction(OpCode.ROT);
+                        _instructionsBuilder.Push(backingFieldIndex);
+                        _instructionsBuilder.Rot();
                     }
                     else
                     {
-                        AccessSlot(OpCode.LDARG, 0);
-                        Push(backingFieldIndex);
-                        AccessSlot(OpCode.LDARG, 1);
+                        _instructionsBuilder.LdArg(0);
+                        _instructionsBuilder.Push(backingFieldIndex);
+                        _instructionsBuilder.Rot();
                     }
-                    AddInstruction(OpCode.SETITEM);
+                    _instructionsBuilder.SetItem();
                     break;
                 default:
                     throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
@@ -126,16 +126,16 @@ internal partial class MethodConvert
             if (Symbol.IsStatic)
             {
                 // AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.ISNULL);
+                _instructionsBuilder.IsNull();
                 // Ensure that no object was sent
-                Jump(OpCode.JMPIFNOT_L, endTarget);
+                _instructionsBuilder.JmpIfNotL(endTarget);
             }
             else
             {
                 // Check class
-                Jump(OpCode.JMPIF_L, endTarget);
+                _instructionsBuilder.JmpIfL(endTarget);
             }
-            Push(key);
+            _instructionsBuilder.Push(key);
             CallInteropMethod(ApplicationEngine.System_Storage_GetReadOnlyContext);
             CallInteropMethod(ApplicationEngine.System_Storage_Get);
             switch (property.Type.Name)
@@ -161,15 +161,15 @@ internal partial class MethodConvert
                 case "UInt64":
                 case "BigInteger":
                     // Replace NULL with 0
-                    AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.IsNull();
                     JumpTarget ifFalse = new();
-                    Jump(OpCode.JMPIFNOT_L, ifFalse);
+                    _instructionsBuilder.JmpIfNotL(ifFalse);
                     {
-                        AddInstruction(OpCode.DROP);
-                        AddInstruction(OpCode.PUSH0);
+                        _instructionsBuilder.Drop();
+                        _instructionsBuilder.Push(0);
                     }
-                    ifFalse.Instruction = AddInstruction(OpCode.NOP);
+                    ifFalse.Instruction = _instructionsBuilder.Nop();
                     break;
                 case "String":
                 case "ByteString":
@@ -181,30 +181,30 @@ internal partial class MethodConvert
                     CallContractMethod(NativeContract.StdLib.Hash, "deserialize", 1, true);
                     break;
             }
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             if (Symbol.IsStatic)
             {
                 IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-                byte backingFieldIndex = _context.AddStaticField(backingField);
-                AccessSlot(OpCode.STSFLD, backingFieldIndex);
+                byte backingFieldIndex = Context.AddStaticField(backingField);
+                _instructionsBuilder.StSFld(backingFieldIndex);
             }
             else
             {
                 fields = fields.Where(p => !p.IsStatic).ToArray();
                 int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                AccessSlot(OpCode.LDARG, 0);
-                Push(backingFieldIndex);
-                AddInstruction(OpCode.ROT);
-                AddInstruction(OpCode.SETITEM);
+                _instructionsBuilder.LdArg(0);
+                _instructionsBuilder.Push(backingFieldIndex);
+                _instructionsBuilder.Rot();
+                _instructionsBuilder.SetItem();
             }
-            endTarget.Instruction = AddInstruction(OpCode.NOP);
+            endTarget.Instruction = _instructionsBuilder.Nop();
         }
         else
         {
             if (Symbol.IsStatic)
-                AccessSlot(OpCode.LDARG, 0);
+                _instructionsBuilder.LdArg(0);
             else
-                AccessSlot(OpCode.LDARG, 1);
+                _instructionsBuilder.LdArg(1);
             switch (property.Type.Name)
             {
                 case "byte":
@@ -237,7 +237,7 @@ internal partial class MethodConvert
                     CallContractMethod(NativeContract.StdLib.Hash, "serialize", 1, true);
                     break;
             }
-            Push(key);
+            _instructionsBuilder.Push(key);
             CallInteropMethod(ApplicationEngine.System_Storage_GetContext);
             CallInteropMethod(ApplicationEngine.System_Storage_Put);
         }

@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Neo.Compiler;
 
-internal partial class MethodConvert
+internal static partial class SystemMethods
 {
     private static void RegisterSystemCallHandlers()
     {

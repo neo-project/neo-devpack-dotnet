@@ -54,14 +54,14 @@ internal partial class MethodConvert
     /// <example><see href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/examples/Example.SmartContract.Event/Event.cs"/></example>
     private void ConvertEventInvocationExpression(SemanticModel model, IEventSymbol symbol, ArgumentSyntax[] arguments)
     {
-        AddInstruction(OpCode.NEWARRAY0);
+        _instructionsBuilder.NewArray0();
         foreach (ArgumentSyntax argument in arguments)
         {
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             ConvertExpression(model, argument.Expression);
-            AddInstruction(OpCode.APPEND);
+            _instructionsBuilder.Append();
         }
-        Push(symbol.GetDisplayName());
+        _instructionsBuilder.Push(symbol.GetDisplayName());
         CallInteropMethod(ApplicationEngine.System_Runtime_Notify);
     }
 
@@ -123,6 +123,6 @@ internal partial class MethodConvert
         INamedTypeSymbol type = (INamedTypeSymbol)model.GetTypeInfo(expression).Type!;
         PrepareArgumentsForMethod(model, type.DelegateInvokeMethod!, arguments);
         ConvertExpression(model, expression);
-        AddInstruction(OpCode.CALLA);
+        _instructionsBuilder.AddInstruction(OpCode.CALLA);
     }
 }

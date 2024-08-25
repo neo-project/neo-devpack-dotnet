@@ -42,7 +42,7 @@ internal partial class MethodConvert
     {
         byte anonymousIndex = AddAnonymousVariable();
         ConvertExpression(model, expression.Expression);
-        AccessSlot(OpCode.STLOC, anonymousIndex);
+        _instructionsBuilder.StLoc(anonymousIndex);
         ConvertPattern(model, expression.Pattern, anonymousIndex);
         RemoveAnonymousVariable(anonymousIndex);
     }

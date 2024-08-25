@@ -39,6 +39,6 @@ internal partial class MethodConvert
     private void ConvertNotPattern(SemanticModel model, UnaryPatternSyntax pattern, byte localIndex)
     {
         ConvertPattern(model, pattern.Pattern, localIndex);
-        AddInstruction(OpCode.NOT);
+        _instructionsBuilder.Not();
     }
 }

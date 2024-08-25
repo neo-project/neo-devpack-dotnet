@@ -22,7 +22,7 @@ internal partial class MethodConvert
     {
         if (pattern.PropertyPatternClause is { } propertyClause)
         {
-            AccessSlot(OpCode.LDLOC, localIndex);
+            _instructionsBuilder.LdLoc(localIndex);
             foreach (var subpattern in propertyClause.Subpatterns)
             {
                 if (subpattern is { Pattern: ConstantPatternSyntax constantPattern })
@@ -42,8 +42,8 @@ internal partial class MethodConvert
                         throw new CompilationException(subpattern, DiagnosticId.SyntaxNotSupported, $"Unsupported property or field: {subpattern.NameColon.Name}");
                     }
                     object? constantValue = model.GetConstantValue(constantPattern.Expression).Value;
-                    Push(constantValue);
-                    AddInstruction(OpCode.EQUAL);
+                    _instructionsBuilder.Push(constantValue);
+                    _instructionsBuilder.Equal();
                 }
                 else
                 {

@@ -53,10 +53,10 @@ namespace Neo.Compiler
             JumpTarget catchTarget = new();
             JumpTarget finallyTarget = new();
             JumpTarget endTarget = new();
-            AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget });
+            _instructionsBuilder.AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget });
             _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
             ConvertStatement(model, syntax.Block);
-            Jump(OpCode.ENDTRY_L, endTarget);
+            _instructionsBuilder.Jump(OpCode.ENDTRY_L, endTarget);
             if (syntax.Catches.Count > 1)
                 throw new CompilationException(syntax.Catches[1], DiagnosticId.MultiplyCatches, "Only support one single catch.");
             if (syntax.Catches.Count > 0)
@@ -79,10 +79,10 @@ namespace Neo.Compiler
                         : AddLocalVariable(exceptionSymbol);
                 }
                 using (InsertSequencePoint(catchClause.CatchKeyword))
-                    catchTarget.Instruction = AccessSlot(OpCode.STLOC, exceptionIndex);
+                    catchTarget.Instruction = _instructionsBuilder.StLoc(exceptionIndex);
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(model, catchClause.Block);
-                Jump(OpCode.ENDTRY_L, endTarget);
+                _instructionsBuilder.Jump(OpCode.ENDTRY_L, endTarget);
                 if (exceptionSymbol is null)
                     RemoveAnonymousVariable(exceptionIndex);
                 else
@@ -92,11 +92,11 @@ namespace Neo.Compiler
             if (syntax.Finally is not null)
             {
                 _tryStack.Peek().State = ExceptionHandlingState.Finally;
-                finallyTarget.Instruction = AddInstruction(OpCode.NOP);
+                finallyTarget.Instruction = _instructionsBuilder.Nop();
                 ConvertStatement(model, syntax.Finally.Block);
-                AddInstruction(OpCode.ENDFINALLY);
+                _instructionsBuilder.Jump(OpCode.ENDFINALLY, endTarget);
             }
-            endTarget.Instruction = AddInstruction(OpCode.NOP);
+            endTarget.Instruction = _instructionsBuilder.Nop();
             _tryStack.Pop();
         }
     }

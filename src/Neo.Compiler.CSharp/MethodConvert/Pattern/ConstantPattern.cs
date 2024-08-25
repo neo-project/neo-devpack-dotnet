@@ -44,8 +44,8 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertConstantPattern(SemanticModel model, ConstantPatternSyntax pattern, byte localIndex)
     {
-        AccessSlot(OpCode.LDLOC, localIndex);
+        _instructionsBuilder.LdLoc(localIndex);
         ConvertExpression(model, pattern.Expression);
-        AddInstruction(OpCode.EQUAL);
+        _instructionsBuilder.Equal();
     }
 }

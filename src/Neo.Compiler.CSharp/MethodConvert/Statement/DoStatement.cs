@@ -48,12 +48,12 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
-            startTarget.Instruction = AddInstruction(OpCode.NOP);
+            startTarget.Instruction = _instructionsBuilder.Nop();
             ConvertStatement(model, syntax.Statement);
-            continueTarget.Instruction = AddInstruction(OpCode.NOP);
+            continueTarget.Instruction = _instructionsBuilder.Nop();
             ConvertExpression(model, syntax.Condition);
-            Jump(OpCode.JMPIF_L, startTarget);
-            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            _instructionsBuilder.JmpL(startTarget);
+            breakTarget.Instruction = _instructionsBuilder.Nop();
             PopContinueTarget();
             PopBreakTarget();
         }

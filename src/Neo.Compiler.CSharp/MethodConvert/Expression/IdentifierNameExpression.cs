@@ -51,24 +51,24 @@ internal partial class MethodConvert
             case IFieldSymbol field:
                 if (field.IsConst)
                 {
-                    Push(field.ConstantValue);
+                    _instructionsBuilder.Push(field.ConstantValue);
                 }
                 else if (field.IsStatic)
                 {
-                    byte index = _context.AddStaticField(field);
-                    AccessSlot(OpCode.LDSFLD, index);
+                    byte index = Context.AddStaticField(field);
+                    _instructionsBuilder.LdSFld(index);
                 }
                 else
                 {
                     int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                    AddInstruction(OpCode.LDARG0);
-                    Push(index);
-                    AddInstruction(OpCode.PICKITEM);
+                    _instructionsBuilder.LdArg0();
+                    _instructionsBuilder.Push(index);
+                    _instructionsBuilder.PickItem();
                 }
                 break;
             case ILocalSymbol local:
                 if (local.IsConst)
-                    Push(local.ConstantValue);
+                    _instructionsBuilder.Push(local.ConstantValue);
                 else
                     LdLocSlot(local);
                 break;
@@ -82,12 +82,12 @@ internal partial class MethodConvert
                 break;
             case IPropertySymbol property:
                 if (!property.IsStatic)
-                    AddInstruction(OpCode.LDARG0);
+                    _instructionsBuilder.LdArg0();
                 CallMethodWithConvention(model, property.GetMethod!);
                 break;
             case ITypeSymbol type:
-                IsType(type.GetPatternType());
-                Push(true);
+                _instructionsBuilder.IsType(type.GetPatternType());
+                _instructionsBuilder.Push(true);
                 break;
             default:
                 throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");

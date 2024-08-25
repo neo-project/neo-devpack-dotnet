@@ -32,7 +32,7 @@ internal partial class MethodConvert
     /// <param name="model">The semantic model of the compilation.</param>
     /// <param name="syntax">The expression syntax to convert.</param>
     /// <param name="syntaxNode">Optional parent syntax node for context.</param>
-    private void ConvertExpression(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode = null)
+    internal void ConvertExpression(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode = null)
     {
         // Insert a sequence point for debugging purposes
         using var sequence = InsertSequencePoint(syntax);
@@ -59,7 +59,7 @@ internal partial class MethodConvert
             value = ConvertComplexConstantTypes(typeSymbol, value, syntax);
         }
 
-        Push(value);
+        _instructionsBuilder.Push(value);
         return true;
     }
 
@@ -162,7 +162,7 @@ internal partial class MethodConvert
             case BaseExpressionSyntax:
             case ThisExpressionSyntax:
                 // Example: base.Method() or this.Property
-                AddInstruction(OpCode.LDARG0);
+                _instructionsBuilder.LdArg0();
                 break;
             case ThrowExpressionSyntax expression:
                 // Example: throw new Exception("Error")
@@ -226,7 +226,7 @@ internal partial class MethodConvert
     {
         return (UInt160.TryParse(strValue, out var hash)
             ? hash
-            : strValue.ToScriptHash(_context.Options.AddressVersion)).ToArray();
+            : strValue.ToScriptHash(Context.Options.AddressVersion)).ToArray();
     }
 
     private static byte[] ConvertToUInt256(string strValue, ExpressionSyntax syntax)
@@ -265,34 +265,34 @@ internal partial class MethodConvert
             _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type: {type}")
         };
         JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(minValue);
-        Jump(OpCode.JMPGE_L, checkUpperBoundTarget);
+        _instructionsBuilder.Dup();
+        _instructionsBuilder.Push(minValue);
+        _instructionsBuilder.Jump(OpCode.JMPGE_L, checkUpperBoundTarget);
         if (_checkedStack.Peek())
-            AddInstruction(OpCode.THROW);
+            _instructionsBuilder.Throw();
         else
-            Jump(OpCode.JMP_L, adjustTarget);
-        checkUpperBoundTarget.Instruction = AddInstruction(OpCode.DUP);
-        Push(maxValue);
-        Jump(OpCode.JMPLE_L, endTarget);
+            _instructionsBuilder.Jump(OpCode.JMP_L, adjustTarget);
+        checkUpperBoundTarget.Instruction = _instructionsBuilder.Dup();
+        _instructionsBuilder.Push(maxValue);
+        _instructionsBuilder.Jump(OpCode.JMPLE_L, endTarget);
         if (_checkedStack.Peek())
         {
-            AddInstruction(OpCode.THROW);
+            _instructionsBuilder.Throw();
         }
         else
         {
-            adjustTarget.Instruction = Push(mask);
-            AddInstruction(OpCode.AND);
+            adjustTarget.Instruction = _instructionsBuilder.Push(mask);
+            _instructionsBuilder.And();
             if (minValue < 0)
             {
-                AddInstruction(OpCode.DUP);
-                Push(maxValue);
-                Jump(OpCode.JMPLE_L, endTarget);
-                Push(mask + 1);
-                AddInstruction(OpCode.SUB);
+                _instructionsBuilder.Dup();
+                _instructionsBuilder.Push(maxValue);
+                _instructionsBuilder.Jump(OpCode.JMPLE_L, endTarget);
+                _instructionsBuilder.Push(mask + 1);
+                _instructionsBuilder.Sub();
             }
         }
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     /// <summary>
@@ -324,7 +324,7 @@ internal partial class MethodConvert
                 break;
             case "char":
                 ConvertExpression(model, expression);
-                ChangeType(StackItemType.ByteString);
+                _instructionsBuilder.ChangeType(StackItemType.ByteString);
                 break;
             case "string":
             case "Neo.SmartContract.Framework.ECPoint":
@@ -337,17 +337,17 @@ internal partial class MethodConvert
                 {
                     ConvertExpression(model, expression);
                     JumpTarget falseTarget = new();
-                    Jump(OpCode.JMPIFNOT_L, falseTarget);
-                    Push("True");
+                    _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, falseTarget);
+                    _instructionsBuilder.Push("True");
                     JumpTarget endTarget = new();
-                    Jump(OpCode.JMP_L, endTarget);
-                    falseTarget.Instruction = Push("False");
-                    endTarget.Instruction = AddInstruction(OpCode.NOP);
+                    _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+                    falseTarget.Instruction = _instructionsBuilder.Push("False");
+                    endTarget.Instruction = _instructionsBuilder.Nop();
                     break;
                 }
             case "byte[]":
                 {
-                    Push("System.Byte[]");
+                    _instructionsBuilder.Push("System.Byte[]");
                     break;
                 }
             default:

@@ -60,7 +60,7 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.Expression))
             {
                 ConvertExpression(model, syntax.Expression);
-                AccessSlot(OpCode.STLOC, anonymousIndex);
+                _instructionsBuilder.StLoc(anonymousIndex);
             }
             foreach (var (label, target) in labels)
             {
@@ -71,29 +71,29 @@ namespace Neo.Compiler
                         {
                             JumpTarget endTarget = new();
                             ConvertPattern(model, casePatternSwitchLabel.Pattern, anonymousIndex);
-                            Jump(OpCode.JMPIFNOT_L, endTarget);
+                            _instructionsBuilder.JmpIfNotL(endTarget);
                             if (casePatternSwitchLabel.WhenClause is not null)
                             {
                                 ConvertExpression(model, casePatternSwitchLabel.WhenClause.Condition);
-                                Jump(OpCode.JMPIFNOT_L, endTarget);
+                                _instructionsBuilder.JmpIfNotL(endTarget);
                             }
-                            Jump(OpCode.JMP_L, target);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
+                            _instructionsBuilder.JmpL(target);
+                            endTarget.Instruction = _instructionsBuilder.Nop();
                         }
                         break;
                     case CaseSwitchLabelSyntax caseSwitchLabel:
                         using (InsertSequencePoint(caseSwitchLabel))
                         {
-                            AccessSlot(OpCode.LDLOC, anonymousIndex);
+                            _instructionsBuilder.LdLoc(anonymousIndex);
                             ConvertExpression(model, caseSwitchLabel.Value);
-                            AddInstruction(OpCode.EQUAL);
-                            Jump(OpCode.JMPIF_L, target);
+                            _instructionsBuilder.Equal();
+                            _instructionsBuilder.JmpIfL(target);
                         }
                         break;
                     case DefaultSwitchLabelSyntax defaultSwitchLabel:
                         using (InsertSequencePoint(defaultSwitchLabel))
                         {
-                            Jump(OpCode.JMP_L, target);
+                            _instructionsBuilder.JmpL(target);
                         }
                         break;
                     default:
@@ -101,14 +101,14 @@ namespace Neo.Compiler
                 }
             }
             RemoveAnonymousVariable(anonymousIndex);
-            Jump(OpCode.JMP_L, breakTarget);
+            _instructionsBuilder.JmpL(breakTarget);
             foreach (var (_, statements, target) in sections)
             {
-                target.Instruction = AddInstruction(OpCode.NOP);
+                target.Instruction = _instructionsBuilder.Nop();
                 foreach (StatementSyntax statement in statements)
                     ConvertStatement(model, statement);
             }
-            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            breakTarget.Instruction = _instructionsBuilder.Nop();
             PopSwitchLabels();
             PopBreakTarget();
         }

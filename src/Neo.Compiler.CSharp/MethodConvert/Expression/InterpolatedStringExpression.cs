@@ -46,17 +46,17 @@ internal partial class MethodConvert
     {
         if (expression.Contents.Count == 0)
         {
-            Push(string.Empty);
+            _instructionsBuilder.Push(string.Empty);
             return;
         }
         ConvertInterpolatedStringContent(model, expression.Contents[0]);
         for (int i = 1; i < expression.Contents.Count; i++)
         {
             ConvertInterpolatedStringContent(model, expression.Contents[i]);
-            AddInstruction(OpCode.CAT);
+            _instructionsBuilder.Cat();
         }
         if (expression.Contents.Count >= 2)
-            ChangeType(VM.Types.StackItemType.ByteString);
+            _instructionsBuilder.ChangeType(VM.Types.StackItemType.ByteString);
     }
 
     private void ConvertInterpolatedStringContent(SemanticModel model, InterpolatedStringContentSyntax content)
@@ -64,7 +64,7 @@ internal partial class MethodConvert
         switch (content)
         {
             case InterpolatedStringTextSyntax syntax:
-                Push(syntax.TextToken.ValueText);
+                _instructionsBuilder.Push(syntax.TextToken.ValueText);
                 break;
             case InterpolationSyntax syntax:
                 if (syntax.AlignmentClause is not null)

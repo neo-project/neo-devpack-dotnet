@@ -55,13 +55,13 @@ internal partial class MethodConvert
 
     private void RemoveAnonymousVariable(byte index)
     {
-        if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+        if (Context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
             _anonymousVariables.Remove(index);
     }
 
     private void RemoveLocalVariable(ILocalSymbol symbol)
     {
-        if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+        if (Context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
             _localVariables.Remove(symbol);
     }
 
@@ -77,23 +77,23 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the load operation.</returns>
     private Instruction LdArgSlot(IParameterSymbol parameter)
     {
-        if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
+        if (Context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
         {
             //using created static fields
-            return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
+            return _instructionsBuilder.LdSFld(staticFieldIndex);
         }
 
         if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter)) ||
             (Symbol.MethodKind == MethodKind.Ordinary && parameter.RefKind == RefKind.Out))
         {
             //create static fields from captured parameter
-            var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
+            var staticIndex = Context.GetOrAddCapturedStaticField(parameter);
             CapturedLocalSymbols.Add(parameter);
-            return AccessSlot(OpCode.LDSFLD, staticIndex);
+            return _instructionsBuilder.LdSFld(staticIndex);
         }
         // local parameter in current method
         var index = _parameters[parameter];
-        return AccessSlot(OpCode.LDARG, index);
+        return _instructionsBuilder.LdArg(index);
     }
 
     /// <summary>
@@ -104,23 +104,23 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the store operation.</returns>
     private Instruction StArgSlot(IParameterSymbol parameter)
     {
-        if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
+        if (Context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
         {
             //using created static fields
-            return AccessSlot(OpCode.STSFLD, staticFieldIndex);
+            return _instructionsBuilder.StSFld(staticFieldIndex);
         }
 
         if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_parameters.ContainsKey(parameter)) ||
             (Symbol.MethodKind == MethodKind.Ordinary && parameter.RefKind == RefKind.Out))
         {
             //create static fields from captured parameter
-            var staticIndex = _context.GetOrAddCapturedStaticField(parameter);
+            var staticIndex = Context.GetOrAddCapturedStaticField(parameter);
             CapturedLocalSymbols.Add(parameter);
-            return AccessSlot(OpCode.STSFLD, staticIndex);
+            return _instructionsBuilder.StSFld(staticIndex);
         }
         // local parameter in current method
         var index = _parameters[parameter];
-        return AccessSlot(OpCode.STARG, index);
+        return _instructionsBuilder.StArg(index);
     }
 
     /// <summary>
@@ -131,23 +131,23 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the load operation.</returns>
     private Instruction LdLocSlot(ILocalSymbol local)
     {
-        if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
+        if (Context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
             //using created static fields
-            return AccessSlot(OpCode.LDSFLD, staticFieldIndex);
+            return _instructionsBuilder.LdSFld(staticFieldIndex);
         }
 
         if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local)) ||
             (Symbol.MethodKind == MethodKind.Ordinary && local.RefKind == RefKind.Out))
         {
             //create static fields from captured local
-            var staticIndex = _context.GetOrAddCapturedStaticField(local);
+            var staticIndex = Context.GetOrAddCapturedStaticField(local);
             CapturedLocalSymbols.Add(local);
-            return AccessSlot(OpCode.LDSFLD, staticIndex);
+            return _instructionsBuilder.LdSFld(staticIndex);
         }
         // local variables in current method
         var index = _localVariables[local];
-        return AccessSlot(OpCode.LDLOC, index);
+        return _instructionsBuilder.LdLoc(index);
     }
 
     /// <summary>
@@ -158,29 +158,22 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the store operation.</returns>
     private Instruction StLocSlot(ILocalSymbol local)
     {
-        if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
+        if (Context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
             //using created static fields
-            return AccessSlot(OpCode.STSFLD, staticFieldIndex);
+            return _instructionsBuilder.StSFld(staticFieldIndex);
         }
 
         if ((Symbol.MethodKind == MethodKind.AnonymousFunction && !_localVariables.ContainsKey(local)) ||
             (Symbol.MethodKind == MethodKind.Ordinary && local.RefKind == RefKind.Out))
         {
             //create static fields from captured local
-            var staticIndex = _context.GetOrAddCapturedStaticField(local);
+            var staticIndex = Context.GetOrAddCapturedStaticField(local);
             CapturedLocalSymbols.Add(local);
-            return AccessSlot(OpCode.STSFLD, staticIndex);
+            return _instructionsBuilder.StSFld(staticIndex);
         }
         var index = _localVariables[local];
-        return AccessSlot(OpCode.STLOC, index);
-    }
-
-    private Instruction AccessSlot(OpCode opcode, byte index)
-    {
-        return index >= 7
-            ? AddInstruction(new Instruction { OpCode = opcode, Operand = new[] { index } })
-            : AddInstruction(opcode - 7 + index);
+        return _instructionsBuilder.StLoc(index);
     }
 
     /// <summary>
@@ -196,7 +189,7 @@ internal partial class MethodConvert
     /// and handles regular, params, and out arguments. It also takes into account system calls for
     /// special processing of out parameters.
     /// </remarks>
-    private void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
+    internal void PrepareArgumentsForMethod(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
         // 1. Process named arguments
         var namedArguments = ProcessNamedArguments(model, arguments);
@@ -273,7 +266,7 @@ internal partial class MethodConvert
         }
         else
         {
-            AddInstruction(OpCode.NEWARRAY0);
+            _instructionsBuilder.NewArray0();
         }
     }
 
@@ -294,8 +287,8 @@ internal partial class MethodConvert
             var expression = ExtractExpression(arguments[i]);
             ConvertExpression(model, expression);
         }
-        Push(arguments.Count - parameter.Ordinal);
-        AddInstruction(OpCode.PACK);
+        _instructionsBuilder.Push(arguments.Count - parameter.Ordinal);
+        _instructionsBuilder.Pack();
     }
 
     private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
@@ -332,7 +325,7 @@ internal partial class MethodConvert
                     throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {argument}");
             }
         }
-        Push(parameter.ExplicitDefaultValue);
+        _instructionsBuilder.Push(parameter.ExplicitDefaultValue);
     }
 
     private static ExpressionSyntax ExtractExpression(SyntaxNode node)

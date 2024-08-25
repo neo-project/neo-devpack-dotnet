@@ -34,7 +34,7 @@ namespace Neo.Compiler
     {
         #region Fields
 
-        private readonly CompilationContext _context;
+        internal CompilationContext Context { init; get; }
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
         private bool _internalInline;
@@ -53,7 +53,8 @@ namespace Neo.Compiler
         private readonly List<byte> _anonymousVariables = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
-        private readonly List<Instruction> _instructions = new();
+
+        private readonly InstructionsBuilder _instructionsBuilder = new();
         private readonly JumpTarget _startTarget = new();
         private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
@@ -70,11 +71,10 @@ namespace Neo.Compiler
 
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
-        public IReadOnlyList<Instruction> Instructions => _instructions;
+        internal InstructionsBuilder InstructionsBuilder => _instructionsBuilder;
+        public IReadOnlyList<Instruction> Instructions => _instructionsBuilder.Instructions;
         public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
-        public bool IsEmpty => _instructions.Count == 0
-            || _instructions is [{ OpCode: OpCode.RET }]
-            || _instructions is [{ OpCode: OpCode.INITSLOT }, { OpCode: OpCode.RET }];
+        public bool IsEmpty => _instructionsBuilder.IsEmpty;
 
         /// <summary>
         /// captured local variable/parameter symbols when converting current method
@@ -88,7 +88,7 @@ namespace Neo.Compiler
         public MethodConvert(CompilationContext context, IMethodSymbol symbol)
         {
             this.Symbol = symbol;
-            this._context = context;
+            this.Context = context;
             this._checkedStack.Push(context.Options.Checked);
         }
         #endregion
@@ -194,12 +194,12 @@ namespace Neo.Compiler
 
             // Step 10: Optimize the instructions if needed
             // Basic optimization to remove unnecessary NOP instructions
-            if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
-                BasicOptimizer.RemoveNops(_instructions);
+            if (Context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+                BasicOptimizer.RemoveNops(_instructionsBuilder.Instructions);
 
             // Step 11: Set the start target
             // Mark the first instruction as the entry point of the method
-            _startTarget.Instruction = _instructions[0];
+            _startTarget.Instruction = _instructionsBuilder.Instructions[0];
         }
 
         public void ConvertForward(SemanticModel model, MethodConvert target)
@@ -209,8 +209,8 @@ namespace Neo.Compiler
             IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0)
                 ?? throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
             CallInstanceMethod(model, constructor, true, Array.Empty<ArgumentSyntax>());
-            _returnTarget.Instruction = Jump(OpCode.JMP_L, target._startTarget);
-            _startTarget.Instruction = _instructions[0];
+            _returnTarget.Instruction = _instructionsBuilder.JmpL(target._startTarget);
+            _startTarget.Instruction = _instructionsBuilder.Instructions[0];
         }
 
         private void ProcessFieldInitializer(SemanticModel model, IFieldSymbol field, Action? preInitialize, Action? postInitialize)
@@ -227,7 +227,7 @@ namespace Neo.Compiler
                     if (field.ContainingType.ToString() == "string" && field.Name == "Empty")
                     {
                         preInitialize?.Invoke();
-                        Push(string.Empty);
+                        _instructionsBuilder.Push(string.Empty);
                         postInitialize?.Invoke();
                         return;
                     }
@@ -275,19 +275,19 @@ namespace Neo.Compiler
                     switch (parameterType)
                     {
                         case ContractParameterType.String:
-                            Push(value);
+                            _instructionsBuilder.Push(value);
                             break;
                         case ContractParameterType.Integer:
-                            Push(BigInteger.Parse(value));
+                            _instructionsBuilder.Push(BigInteger.Parse(value));
                             break;
                         case ContractParameterType.ByteArray:
-                            Push(value.HexToBytes(true));
+                            _instructionsBuilder.Push(value.HexToBytes(true));
                             break;
                         case ContractParameterType.Hash160:
-                            Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(_context.Options.AddressVersion)).ToArray());
+                            _instructionsBuilder.Push((UInt160.TryParse(value, out var hash) ? hash : value.ToScriptHash(Context.Options.AddressVersion)).ToArray());
                             break;
                         case ContractParameterType.PublicKey:
-                            Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
+                            _instructionsBuilder.Push(ECPoint.Parse(value, ECCurve.Secp256r1).EncodePoint(true));
                             break;
                         default:
                             throw new CompilationException(field, DiagnosticId.InvalidInitialValueType, $"Unsupported initial value type: {parameterType}");

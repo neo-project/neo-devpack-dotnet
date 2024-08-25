@@ -55,29 +55,29 @@ internal partial class MethodConvert
             Optional<object?>[] values = expression.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
             if (values.Any(p => !p.HasValue))
             {
-                Push(values.Length);
-                AddInstruction(OpCode.NEWBUFFER);
+                _instructionsBuilder.Push(values.Length);
+                _instructionsBuilder.NewBuffer();
                 for (int i = 0; i < expression.Expressions.Count; i++)
                 {
-                    AddInstruction(OpCode.DUP);
-                    Push(i);
+                    _instructionsBuilder.Dup();
+                    _instructionsBuilder.Push(i);
                     ConvertExpression(model, expression.Expressions[i]);
-                    AddInstruction(OpCode.SETITEM);
+                    _instructionsBuilder.SetItem();
                 }
             }
             else
             {
                 byte[] data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
-                Push(data);
-                ChangeType(VM.Types.StackItemType.Buffer);
+                _instructionsBuilder.Push(data);
+                _instructionsBuilder.ChangeType(VM.Types.StackItemType.Buffer);
             }
         }
         else
         {
             for (int i = expression.Expressions.Count - 1; i >= 0; i--)
                 ConvertExpression(model, expression.Expressions[i]);
-            Push(expression.Expressions.Count);
-            AddInstruction(OpCode.PACK);
+            _instructionsBuilder.Push(expression.Expressions.Count);
+            _instructionsBuilder.Pack();
         }
     }
 }

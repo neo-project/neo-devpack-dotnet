@@ -93,14 +93,14 @@ internal partial class MethodConvert
     /// <param name="length">The length of the array.</param>
     private void ConvertNonConstantByteArray(SemanticModel model, CollectionExpressionSyntax expression, int length)
     {
-        Push(length);
-        AddInstruction(OpCode.NEWBUFFER);
+        _instructionsBuilder.Push(length);
+        _instructionsBuilder.NewBuffer();
         for (var i = 0; i < expression.Elements.Count; i++)
         {
-            AddInstruction(OpCode.DUP);
-            Push(i);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Push(i);
             ConvertElement(model, expression.Elements[i]);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.SetItem();
         }
     }
 
@@ -129,8 +129,8 @@ internal partial class MethodConvert
     private void ConvertConstantByteArray(Optional<object?>[] values)
     {
         var data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
-        Push(data);
-        ChangeType(VM.Types.StackItemType.Buffer);
+        _instructionsBuilder.Push(data);
+        _instructionsBuilder.ChangeType(VM.Types.StackItemType.Buffer);
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ internal partial class MethodConvert
         {
             ConvertElement(model, expression.Elements[i]);
         }
-        Push(expression.Elements.Count);
-        AddInstruction(OpCode.PACK);
+        _instructionsBuilder.Push(expression.Elements.Count);
+        _instructionsBuilder.Pack();
     }
 }

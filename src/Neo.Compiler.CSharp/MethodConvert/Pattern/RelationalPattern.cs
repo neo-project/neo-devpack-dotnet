@@ -46,9 +46,9 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertRelationalPattern(SemanticModel model, RelationalPatternSyntax pattern, byte localIndex)
     {
-        AccessSlot(OpCode.LDLOC, localIndex);
+        _instructionsBuilder.LdLoc(localIndex);
         ConvertExpression(model, pattern.Expression);
-        AddInstruction(pattern.OperatorToken.ValueText switch
+        _instructionsBuilder.AddInstruction(pattern.OperatorToken.ValueText switch
         {
             "<" => OpCode.LT,
             "<=" => OpCode.LE,

@@ -44,9 +44,9 @@ namespace Neo.Compiler
                 if (syntax.Expression is not null)
                     ConvertExpression(model, syntax.Expression);
                 if (_tryStack.Count > 0)
-                    Jump(OpCode.ENDTRY_L, _returnTarget);
+                    _instructionsBuilder.Jump(OpCode.ENDTRY_L, _returnTarget);
                 else
-                    Jump(OpCode.JMP_L, _returnTarget);
+                    _instructionsBuilder.JmpL(_returnTarget);
             }
         }
     }

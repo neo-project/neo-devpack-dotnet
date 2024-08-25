@@ -37,12 +37,12 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/value-tuples">Tuple types</seealso>
     private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
     {
-        AddInstruction(OpCode.NEWSTRUCT0);
+        _instructionsBuilder.NewStruct0();
         foreach (ArgumentSyntax argument in expression.Arguments)
         {
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             ConvertExpression(model, argument.Expression);
-            AddInstruction(OpCode.APPEND);
+            _instructionsBuilder.Append();
         }
     }
 }

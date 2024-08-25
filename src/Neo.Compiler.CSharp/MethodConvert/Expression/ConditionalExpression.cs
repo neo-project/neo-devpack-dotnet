@@ -40,11 +40,11 @@ internal partial class MethodConvert
         JumpTarget falseTarget = new();
         JumpTarget endTarget = new();
         ConvertExpression(model, expression.Condition);
-        Jump(OpCode.JMPIFNOT_L, falseTarget);
+        _instructionsBuilder.JmpIfNotL(falseTarget);
         ConvertExpression(model, expression.WhenTrue);
-        Jump(OpCode.JMP_L, endTarget);
-        falseTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.JmpL(endTarget);
+        falseTarget.Instruction = _instructionsBuilder.Nop();
         ConvertExpression(model, expression.WhenFalse);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 }

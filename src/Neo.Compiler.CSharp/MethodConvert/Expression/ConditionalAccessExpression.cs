@@ -54,20 +54,20 @@ internal partial class MethodConvert
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
         JumpTarget nullTarget = new();
         ConvertExpression(model, expression.Expression);
-        AddInstruction(OpCode.DUP);
-        AddInstruction(OpCode.ISNULL);
-        Jump(OpCode.JMPIF_L, nullTarget);
+        _instructionsBuilder.Dup();
+        _instructionsBuilder.IsNull();
+        _instructionsBuilder.JmpIfL(nullTarget);
         ConvertExpression(model, expression.WhenNotNull);
         if (type.SpecialType == SpecialType.System_Void)
         {
             JumpTarget endTarget = new();
-            Jump(OpCode.JMP_L, endTarget);
-            nullTarget.Instruction = AddInstruction(OpCode.DROP);
-            endTarget.Instruction = AddInstruction(OpCode.NOP);
+            _instructionsBuilder.JmpL(endTarget);
+            nullTarget.Instruction = _instructionsBuilder.Drop();
+            endTarget.Instruction = _instructionsBuilder.Nop();
         }
         else
         {
-            nullTarget.Instruction = AddInstruction(OpCode.NOP);
+            nullTarget.Instruction = _instructionsBuilder.Nop();
         }
     }
 }

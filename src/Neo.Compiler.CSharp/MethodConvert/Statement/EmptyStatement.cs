@@ -36,7 +36,7 @@ namespace Neo.Compiler
         private void ConvertEmptyStatement(EmptyStatementSyntax syntax)
         {
             using (InsertSequencePoint(syntax))
-                AddInstruction(OpCode.NOP);
+                _instructionsBuilder.Nop();
         }
     }
 }

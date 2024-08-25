@@ -75,40 +75,40 @@ internal partial class MethodConvert
         {
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
             CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.NIP);
-            AddInstruction(OpCode.NIP);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.Nip();
+            _instructionsBuilder.Nip();
+            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = _instructionsBuilder.Drop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.PICKITEM);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.JmpIfL(assignmentTarget);
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.JmpL(endTarget);
+            assignmentTarget.Instruction = _instructionsBuilder.Drop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
+            _instructionsBuilder.Reverse3();
+            _instructionsBuilder.SetItem();
         }
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertIdentifierNameCoalesceAssignment(SemanticModel model, IdentifierNameSyntax left, ExpressionSyntax right)
@@ -155,37 +155,37 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         if (left.IsStatic)
         {
-            byte index = _context.AddStaticField(left);
-            AccessSlot(OpCode.LDSFLD, index);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AccessSlot(OpCode.LDSFLD, index);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            byte index = Context.AddStaticField(left);
+            _instructionsBuilder.LdSFld(index);
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.LdSFld(index);
+            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = _instructionsBuilder.Drop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AccessSlot(OpCode.STSFLD, index);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.StSFld(index);
         }
         else
         {
             int index = Array.IndexOf(left.ContainingType.GetFields(), left);
-            AddInstruction(OpCode.LDARG0);
-            Push(index);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.PICKITEM);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            _instructionsBuilder.LdArg0();
+            _instructionsBuilder.Push(index);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = _instructionsBuilder.Drop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
+            _instructionsBuilder.Reverse3();
+            _instructionsBuilder.SetItem();
         }
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertLocalIdentifierNameCoalesceAssignment(SemanticModel model, ILocalSymbol left, ExpressionSyntax right)
@@ -193,15 +193,15 @@ internal partial class MethodConvert
         JumpTarget assignmentTarget = new();
         JumpTarget endTarget = new();
         LdLocSlot(left);
-        AddInstruction(OpCode.ISNULL);
-        Jump(OpCode.JMPIF_L, assignmentTarget);
+        _instructionsBuilder.IsNull();
+        _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
         LdLocSlot(left);
-        Jump(OpCode.JMP_L, endTarget);
-        assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.JmpL(endTarget);
+        assignmentTarget.Instruction = _instructionsBuilder.Nop();
         ConvertExpression(model, right);
-        AddInstruction(OpCode.DUP);
+        _instructionsBuilder.Dup();
         StLocSlot(left);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertParameterIdentifierNameCoalesceAssignment(SemanticModel model, IParameterSymbol left, ExpressionSyntax right)
@@ -209,15 +209,15 @@ internal partial class MethodConvert
         JumpTarget assignmentTarget = new();
         JumpTarget endTarget = new();
         LdArgSlot(left);
-        AddInstruction(OpCode.ISNULL);
-        Jump(OpCode.JMPIF_L, assignmentTarget);
+        _instructionsBuilder.IsNull();
+        _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
         LdArgSlot(left);
-        Jump(OpCode.JMP_L, endTarget);
-        assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.JmpL(endTarget);
+        assignmentTarget.Instruction = _instructionsBuilder.Nop();
         ConvertExpression(model, right);
-        AddInstruction(OpCode.DUP);
+        _instructionsBuilder.Dup();
         StArgSlot(left);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertPropertyIdentifierNameCoalesceAssignment(SemanticModel model, IPropertySymbol left, ExpressionSyntax right)
@@ -226,28 +226,28 @@ internal partial class MethodConvert
         if (left.IsStatic)
         {
             CallMethodWithConvention(model, left.GetMethod!);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIFNOT_L, endTarget);
-            AddInstruction(OpCode.DROP);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, endTarget);
+            _instructionsBuilder.Drop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, left.SetMethod!);
         }
         else
         {
-            AddInstruction(OpCode.LDARG0);
+            _instructionsBuilder.LdArg0();
             CallMethodWithConvention(model, left.GetMethod!);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIFNOT_L, endTarget);
-            AddInstruction(OpCode.DROP);
-            AddInstruction(OpCode.LDARG0);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, endTarget);
+            _instructionsBuilder.Drop();
+            _instructionsBuilder.LdArg0();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.Tuck();
             CallMethodWithConvention(model, left.SetMethod!, CallingConvention.StdCall);
         }
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertFieldMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, IFieldSymbol field)
@@ -256,37 +256,37 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         if (field.IsStatic)
         {
-            byte index = _context.AddStaticField(field);
-            AccessSlot(OpCode.LDSFLD, index);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AccessSlot(OpCode.LDSFLD, index);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            byte index = Context.AddStaticField(field);
+            _instructionsBuilder.LdSFld(index);
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.LdSFld(index);
+            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = _instructionsBuilder.Nop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AccessSlot(OpCode.STSFLD, index);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.StSFld(index);
         }
         else
         {
             int index = Array.IndexOf(field.ContainingType.GetFields(), field);
             ConvertExpression(model, left.Expression);
-            Push(index);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.PICKITEM);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+            _instructionsBuilder.Push(index);
+            _instructionsBuilder.Over();
+            _instructionsBuilder.Over();
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.PickItem();
+            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = _instructionsBuilder.Nop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.Reverse4();
+            _instructionsBuilder.Reverse3();
+            _instructionsBuilder.SetItem();
         }
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 
     private void ConvertPropertyMemberAccessCoalesceAssignment(SemanticModel model, MemberAccessExpressionSyntax left, ExpressionSyntax right, IPropertySymbol property)
@@ -295,30 +295,30 @@ internal partial class MethodConvert
         if (property.IsStatic)
         {
             CallMethodWithConvention(model, property.GetMethod!);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIFNOT_L, endTarget);
-            AddInstruction(OpCode.DROP);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, endTarget);
+            _instructionsBuilder.Drop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, property.SetMethod!);
         }
         else
         {
             JumpTarget assignmentTarget = new();
             ConvertExpression(model, left.Expression);
-            AddInstruction(OpCode.DUP);
+            _instructionsBuilder.Dup();
             CallMethodWithConvention(model, property.GetMethod!);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.NIP);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+            _instructionsBuilder.Dup();
+            _instructionsBuilder.IsNull();
+            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.Nip();
+            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+            assignmentTarget.Instruction = _instructionsBuilder.Drop();
             ConvertExpression(model, right);
-            AddInstruction(OpCode.TUCK);
+            _instructionsBuilder.Tuck();
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = _instructionsBuilder.Nop();
     }
 }

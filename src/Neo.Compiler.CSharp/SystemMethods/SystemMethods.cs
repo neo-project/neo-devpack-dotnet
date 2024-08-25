@@ -18,19 +18,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Array = System.Array;
-using Akka.Util.Internal;
 
 namespace Neo.Compiler;
 
-internal partial class MethodConvert
+internal static partial class SystemMethods
 {
-    private delegate void SystemCallHandler(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments);
+    internal delegate void SystemCallHandler(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments);
 
-    private static readonly Dictionary<string, SystemCallHandler> SystemCallHandlers = new();
+    internal static readonly Dictionary<string, SystemCallHandler> SystemCallHandlers = new();
 
-    static MethodConvert()
+    static SystemMethods()
     {
         RegisterSystemCallHandlers();
     }
@@ -213,58 +211,5 @@ internal partial class MethodConvert
             "op_Explicit" => "explicit operator",
             _ => methodName.StartsWith("op_") ? methodName[3..] : methodName
         };
-    }
-
-    /// <summary>
-    /// Attempts to process system constructors. Performs different processing operations based on the method symbol.
-    /// </summary>
-    /// <param name="model">The semantic model used to obtain detailed information about the symbol.</param>
-    /// <param name="symbol">The method symbol to be processed.</param>
-    /// <param name="arguments">A list of syntax nodes representing the arguments of the method.</param>
-    /// <returns>True if system constructors are successfully processed; otherwise, false.</returns>
-    private bool TryProcessSystemConstructors(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
-    {
-        switch (symbol.ToString())
-        {
-            //For the BigInteger(byte[]) constructor, prepares method arguments and changes the return type to integer.
-            case "System.Numerics.BigInteger.BigInteger(byte[])":
-                PrepareArgumentsForMethod(model, symbol, arguments);
-                ChangeType(VM.Types.StackItemType.Integer);
-                return true;
-            //For other constructors, such as List<T>(), return processing failure.
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>
-    /// Attempts to process system methods. Performs different processing operations based on the method symbol.
-    /// </summary>
-    /// <param name="model">The semantic model used to obtain detailed information about the symbol.</param>
-    /// <param name="symbol">The method symbol to be processed.</param>
-    /// <param name="instanceExpression">The instance expression representing the instance of method invocation, if any.</param>
-    /// <param name="arguments">A list of syntax nodes representing the arguments of the method.</param>
-    /// <returns>True if system methods are successfully processed; otherwise, false.</returns>
-    private bool TryProcessSystemMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        //If the method belongs to a delegate and the method name is "Invoke",
-        //calls the PrepareArgumentsForMethod method with CallingConvention.Cdecl convention and changes the return type to integer.
-        //Example: Func<int, int, int>(privateSum).Invoke(a, b);
-        //see ~/tests/Neo.Compiler.CSharp.TestContracts/Contract_Delegate.cs
-        if (symbol.ContainingType.TypeKind == TypeKind.Delegate && symbol.Name == "Invoke")
-        {
-            if (arguments is not null)
-                PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
-            ConvertExpression(model, instanceExpression!);
-            AddInstruction(OpCode.CALLA);
-            return true;
-        }
-
-        var key = symbol.ToString()!.Replace("out ", "");
-        key = (from parameter in symbol.Parameters let parameterType = parameter.Type.ToString() where !parameter.Type.IsValueType && parameterType!.EndsWith('?') select parameterType).Aggregate(key, (current, parameterType) => current.Replace(parameterType, parameterType[..^1]));
-        if (key == "string.ToString()") key = "object.ToString()";
-        if (!SystemCallHandlers.TryGetValue(key, out var handler)) return false;
-        handler(this, model, symbol, instanceExpression, arguments);
-        return true;
     }
 }
