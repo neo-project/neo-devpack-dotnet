@@ -9,6 +9,7 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -400,7 +401,7 @@ internal static partial class SystemMethods
         sb.Jmp(endMethod);
         sb.Drop().SetTarget(negativeInput);
         sb.Throw("BigInteger.Log2: Input must be positive.");
-        sb.SetTarget(endMethod); //endMethod.Instruction = sb.Nop();   
+        sb.SetTarget(endMethod); //endMethod.Instruction = sb.Nop();
 
     }
 
@@ -558,7 +559,7 @@ internal static partial class SystemMethods
         sb.Dup();
         sb.IsInt();
         var endIntCheck = new JumpTarget();
-        sb.Jump(OpCode.JMPIFNOT, endIntCheck);
+        sb.JmpIfNot(endIntCheck);
 
         // If within int range, mask with 0xFFFFFFFF
         sb.And(0xFFFFFFFF);
@@ -569,16 +570,15 @@ internal static partial class SystemMethods
         sb.SetTarget(endIntCheck);
         sb.Throw("Value out of range, must be between int.MinValue and int.MaxValue.");
         sb.SetTarget(endMask);
-
         // Initialize count to 0
         sb.Push(0); // value count
         sb.Swap(); // count value
         // Loop to count the number of 1 bit
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        sb.Dup(); // count value value
+        sb.Dup().SetTarget(loopStart);
         sb.Push0(); // count value value 0
-        sb.JmpEq(endLoop); // count value
+        sb.Jump(OpCode.JMPEQ, endLoop); // count value
         sb.Dup(); // count value value
         sb.And(1); // count value (value & 1)
         sb.Rot(); // value (value & 1) count
@@ -587,6 +587,6 @@ internal static partial class SystemMethods
         sb.ShR(1); // count value >>= 1
         sb.Jmp(loopStart);
 
-        sb.Drop().SetTarget(endLoop); // Drop the remaining value
+        sb.Drop().SetTarget(endLoop); //endLoop.Instruction = sb.Drop(); // Drop the remaining value
     }
 }

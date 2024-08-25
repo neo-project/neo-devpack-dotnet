@@ -223,7 +223,7 @@ internal static partial class SystemMethods
         sb.Dup();    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << (bitWidth - 1)
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPLT, endTarget);
+        sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << bitWidth
         sb.Sub();
         sb.SetTarget(endTarget);
@@ -258,8 +258,7 @@ internal static partial class SystemMethods
         sb.Dup(); // 0 a a
         sb.Push0(); // 0 a a 0
         sb.JmpEq(endLoop); // 0 a
-        sb.Push1(); // 0 a 1
-        sb.ShR(); // 0 a>>1
+        sb.ShR(1); // 0 a>>1
         sb.Swap(); // a>>1 0
         sb.Inc(); // a>>1 1
         sb.Jmp(loopStart);
@@ -281,8 +280,7 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         // Mask to ensure the value is treated as an unsigned integer of the given bit width
-        sb.Push((BigInteger.One << bitWidth) - 1); // 0xFFFFFFFF for 32-bit, 0xFFFF for 16-bit, etc.
-        sb.And(); // value = value & mask
+        sb.And((BigInteger.One << bitWidth) - 1); // value = value & mask
 
         // Initialize count to 0
         sb.Push(0); // value count
@@ -291,19 +289,17 @@ internal static partial class SystemMethods
         // Loop to count the number of 1 bits
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        loopStart.Instruction = sb.Dup(); // count value value
+        sb.Dup().SetTarget(loopStart); // count value value
         sb.Push0(); // count value value 0
-        sb.Jump(OpCode.JMPEQ, endLoop); // count value
+        sb.JmpEq(endLoop); // count value
         sb.Dup(); // count value value
-        sb.Push1(); // count value value 1
-        sb.And(); // count value (value & 1)
+        sb.And(1); // count value (value & 1)
         sb.Rot(); // value (value & 1) count
         sb.Add(); // value count += (value & 1)
         sb.Swap(); // count value
-        sb.Push1(); // count value 1
-        sb.ShR(); // count value >>= 1
-        sb.Jump(OpCode.JMP, loopStart);
+        sb.ShR(1); // count value >>= 1
+        sb.Jmp(loopStart);
 
-        endLoop.Instruction = sb.Drop(); // Drop the remaining value
+        sb.Drop().SetTarget(endLoop); // Drop the remaining value
     }
 }
