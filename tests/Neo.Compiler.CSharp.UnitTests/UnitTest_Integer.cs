@@ -468,7 +468,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(sbyte.CopySign(sbyte.MaxValue, 0), Contract.CopySignSbyte(sbyte.MaxValue, 0));
             AssertGasConsumed(1049460);
             Assert.ThrowsException<TestException>(() => Contract.CopySignSbyte(sbyte.MinValue, 0));
-            AssertGasConsumed(1064850);
+            AssertGasConsumed(1065090);
             Assert.AreEqual(sbyte.CopySign(sbyte.MaxValue, 0), Contract.CopySignSbyte(sbyte.MaxValue, 0));
             AssertGasConsumed(1049460);
 

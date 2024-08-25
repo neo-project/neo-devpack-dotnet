@@ -223,8 +223,7 @@ internal static partial class SystemMethods
         sb.Swap();
         sb.Sub();
         sb.IsUIntCheck();
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathLongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -249,8 +248,7 @@ internal static partial class SystemMethods
         sb.Swap();
         sb.Sub();
         sb.IsLongCheck();
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathULongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -274,8 +272,7 @@ internal static partial class SystemMethods
         sb.Swap();
         sb.Sub();
         sb.IsULongCheck();
-        sb.Push(2);
-        sb.Pack();
+        sb.Pack(2);
     }
 
     private static void HandleMathClamp(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)

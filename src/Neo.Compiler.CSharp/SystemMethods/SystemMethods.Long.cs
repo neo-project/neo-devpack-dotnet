@@ -54,8 +54,7 @@ internal static partial class SystemMethods
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
-        sb.Push1();//0 5 1
-        sb.ShR(); //0  5>>1
+        sb.ShR(1); //0  5>>1
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
@@ -82,23 +81,23 @@ internal static partial class SystemMethods
         sb.Sign();         // a 1
         sb.Dup(); // a 1 1
         sb.Push0(); // a 1 1 0
-        sb.Jump(OpCode.JMPLT, nonZeroTarget); // a 1
+        sb.JmpLt(nonZeroTarget); // a 1
         sb.Drop();
         sb.Push1(); // a 1
-        nonZeroTarget.Instruction = sb.Nop(); // a 1
+        sb.SetTarget(nonZeroTarget); // nonZeroTarget.Instruction = sb.Nop(); // a 1
         sb.Swap();         // 1 a
         sb.Dup();// 1 a a
         sb.Sign();// 1 a 0
         sb.Dup();// 1 a 0 0
         sb.Push0(); // 1 a 0 0 0
-        sb.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
+        sb.JmpLt(nonZeroTarget2); // 1 a 0
         sb.Drop();
         sb.Push1();
         sb.SetTarget(nonZeroTarget2); // 1 a 1
         sb.Rot();// a 1 1
         sb.Equal();// a 1 1
         JumpTarget endTarget = new();
-        sb.Jump(OpCode.JMPIF, endTarget); // a
+        sb.JmpIf(endTarget); // a
         sb.Negate();
         sb.SetTarget(endTarget);
         sb.IsLongCheck();
@@ -155,8 +154,7 @@ internal static partial class SystemMethods
         sb.Jmp(endTarget);
         sb.SetTarget(minTarget);
         sb.Reverse3();
-        sb.Drop();
-        sb.Drop();
+        sb.Drop(2);
         sb.Jmp(endTarget);
         sb.SetTarget(maxTarget);
         sb.Swap();
@@ -176,24 +174,19 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static long RotateLeft(long value, int rotateAmount) => (long)((value << (rotateAmount & 63)) | ((ulong)value >> (64 - (rotateAmount & 63))));
         var bitWidth = sizeof(long) * 8;
-        sb.Push(bitWidth - 1);  // Push 63 (64-bit - 1)
-        sb.And();    // rotateAmount & 63
+        sb.And(bitWidth - 1);    // rotateAmount & 63
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 63)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();    // Ensure SHL result is 64-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure SHL result is 64-bit
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);  // Push 64
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 64 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 63
-        sb.And();    // (64 - rotateAmount) & 63
+        sb.And(bitWidth - 1);    // (64 - rotateAmount) & 63
         sb.ShR();    // (ulong)value >> ((64 - rotateAmount) & 63)
         sb.Or();
         sb.Dup();    // Duplicate the result
@@ -215,23 +208,19 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static long RotateRight(long value, int rotateAmount) => (long)(((ulong)value >> (rotateAmount & 63)) | ((long)value << (64 - (rotateAmount & 63))));
         var bitWidth = sizeof(long) * 8;
-        sb.Push(bitWidth - 1);  // Push 63 (64-bit - 1)
-        sb.And();    // rotateAmount & 63
+        sb.And(bitWidth - 1);    // rotateAmount & 63
         sb.Push(bitWidth);
         sb.Mod();
         sb.Push(bitWidth);
         sb.Swap();
         sb.Sub();
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1);
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 63)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();    // Ensure SHL result is 64-bit
+        sb.And((BigInteger.One << bitWidth) - 1);    // Ensure SHL result is 64-bit
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1);
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);
         sb.Mod();
@@ -241,8 +230,7 @@ internal static partial class SystemMethods
         sb.Push(bitWidth);  // Push 64
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 64 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 63
-        sb.And();    // (64 - rotateAmount) & 63
+        sb.And(bitWidth - 1);    // (64 - rotateAmount) & 63
         sb.ShR();    // (ulong)value >> ((64 - rotateAmount) & 63)
         sb.Or();
         sb.Dup();    // Duplicate the result

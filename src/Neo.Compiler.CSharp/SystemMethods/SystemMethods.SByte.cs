@@ -8,6 +8,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -79,37 +80,30 @@ internal static partial class SystemMethods
         JumpTarget nonZeroTarget = new();
         JumpTarget nonZeroTarget2 = new();
         // a b
-        sb.AddInstruction(OpCode.SIGN);         // a 1
-        sb.AddInstruction(OpCode.DUP); // a 1 1
-        sb.Push(0); // a 1 1 0
-        sb.Jump(OpCode.JMPLT, nonZeroTarget); // a 1
-        sb.AddInstruction(OpCode.DROP);
-        sb.Push(1); // a 1
-        nonZeroTarget.Instruction = sb.AddInstruction(OpCode.NOP); // a 1
-        sb.AddInstruction(OpCode.SWAP);         // 1 a
-        sb.AddInstruction(OpCode.DUP);// 1 a a
-        sb.AddInstruction(OpCode.SIGN);// 1 a 0
-        sb.AddInstruction(OpCode.DUP);// 1 a 0 0
-        sb.Push(0); // 1 a 0 0 0
-        sb.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
-        sb.AddInstruction(OpCode.DROP);
-        sb.Push(1);
-        nonZeroTarget2.Instruction = sb.AddInstruction(OpCode.NOP); // 1 a 1
-        sb.AddInstruction(OpCode.ROT);// a 1 1
-        sb.AddInstruction(OpCode.EQUAL);// a 1 1
+        sb.Sign();         // a 1
+        sb.Dup(); // a 1 1
+        sb.Push0(); // a 1 1 0
+        sb.JmpLt(nonZeroTarget); // a 1
+        sb.Drop();
+        sb.Push1(); // a 1
+        sb.SetTarget(nonZeroTarget); // a 1
+        sb.Swap();         // 1 a
+        sb.Dup();// 1 a a
+        sb.Sign();// 1 a 0
+        sb.Dup();// 1 a 0 0
+        sb.Push0(); // 1 a 0 0 0
+        sb.JmpLt(nonZeroTarget2); // 1 a 0
+        sb.Drop();
+        sb.Push1();
+        sb.SetTarget(nonZeroTarget2); // 1 a 1
+        sb.Rot();// a 1 1
+        sb.Equal();// a 1 1
         JumpTarget endTarget = new();
-        sb.Jump(OpCode.JMPIF, endTarget); // a
-        sb.AddInstruction(OpCode.NEGATE);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.JmpIf(endTarget); // a
+        sb.Negate();
+        sb.SetTarget(endTarget);
 
-        var endTarget2 = new JumpTarget();
-        sb.AddInstruction(OpCode.DUP);
-        sb.Push(sbyte.MinValue);
-        sb.Push(new BigInteger(sbyte.MaxValue) + 1);
-        sb.AddInstruction(OpCode.WITHIN);
-        sb.Jump(OpCode.JMPIF, endTarget2);
-        sb.AddInstruction(OpCode.THROW);
-        endTarget2.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.IsSByteCheck();
     }
 
     // HandleSByteCreateChecked
@@ -140,37 +134,36 @@ internal static partial class SystemMethods
         var exceptionTarget = new JumpTarget();
         var minTarget = new JumpTarget();
         var maxTarget = new JumpTarget();
-        sb.AddInstruction(OpCode.DUP);// 5 0 10 10
-        sb.AddInstruction(OpCode.ROT);// 5 10 10 0
-        sb.AddInstruction(OpCode.DUP);// 5 10 10 0 0
-        sb.AddInstruction(OpCode.ROT);// 5 10 0 0 10
-        sb.Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
-        sb.AddInstruction(OpCode.THROW);
-        exceptionTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.ROT);// 10 0 5
-        sb.AddInstruction(OpCode.DUP);// 10 0 5 5
-        sb.AddInstruction(OpCode.ROT);// 10 5 5 0
-        sb.AddInstruction(OpCode.DUP);// 10 5 5 0 0
-        sb.AddInstruction(OpCode.ROT);// 10 5 0 0 5
-        sb.Jump(OpCode.JMPGT, minTarget);// 10 5 0
-        sb.AddInstruction(OpCode.DROP);// 10 5
-        sb.AddInstruction(OpCode.DUP);// 10 5 5
-        sb.AddInstruction(OpCode.ROT);// 5 5 10
-        sb.AddInstruction(OpCode.DUP);// 5 5 10 10
-        sb.AddInstruction(OpCode.ROT);// 5 10 10 5
-        sb.Jump(OpCode.JMPLT, maxTarget);// 5 10
-        sb.AddInstruction(OpCode.DROP);
-        sb.Jump(OpCode.JMP, endTarget);
-        minTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.REVERSE3);
-        sb.AddInstruction(OpCode.DROP);
-        sb.AddInstruction(OpCode.DROP);
-        sb.Jump(OpCode.JMP, endTarget);
-        maxTarget.Instruction = sb.AddInstruction(OpCode.NOP);
-        sb.AddInstruction(OpCode.SWAP);
-        sb.AddInstruction(OpCode.DROP);
-        sb.Jump(OpCode.JMP, endTarget);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.Dup();// 5 0 10 10
+        sb.Rot();// 5 10 10 0
+        sb.Dup();// 5 10 10 0 0
+        sb.Rot();// 5 10 0 0 10
+        sb.JmpLt(exceptionTarget);// 5 10 0
+        sb.Throw();
+        sb.SetTarget(exceptionTarget);
+        sb.Rot();// 10 0 5
+        sb.Dup();// 10 0 5 5
+        sb.Rot();// 10 5 5 0
+        sb.Dup();// 10 5 5 0 0
+        sb.Rot();// 10 5 0 0 5
+        sb.JmpGt(minTarget);// 10 5 0
+        sb.Drop();// 10 5
+        sb.Dup();// 10 5 5
+        sb.Rot();// 5 5 10
+        sb.Dup();// 5 5 10 10
+        sb.Rot();// 5 10 10 5
+        sb.JmpLt(maxTarget);// 5 10
+        sb.Drop();
+        sb.Jmp(endTarget);
+        sb.SetTarget(minTarget);
+        sb.Reverse3();
+        sb.Drop(2);
+        sb.Jmp(endTarget);
+        sb.SetTarget(maxTarget);
+        sb.Swap();
+        sb.Drop();
+        sb.Jmp(endTarget);
+        endTarget.Instruction = sb.Nop();
     }
 
     // HandleSByteRotateLeft
@@ -183,24 +176,19 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static sbyte RotateLeft(sbyte value, int rotateAmount) => (sbyte)((value << (rotateAmount & 7)) | ((byte)value >> ((8 - rotateAmount) & 7)));
         var bitWidth = sizeof(sbyte) * 8;
-        sb.Push(bitWidth - 1);  // Push 7 (8-bit - 1)
-        sb.And();    // rotateAmount & 7
+        sb.And(bitWidth - 1);    // rotateAmount & 7
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 7)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.And();    // Ensure SHL result is 8-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure SHL result is 8-bit
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);  // Push 8
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 8 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 7
-        sb.And();    // (8 - rotateAmount) & 7
+        sb.And(bitWidth - 1);    // (8 - rotateAmount) & 7
         sb.ShR();    // (byte)value >> ((8 - rotateAmount) & 7)
         sb.Or();
         sb.Dup();    // Duplicate the result
@@ -220,44 +208,44 @@ internal static partial class SystemMethods
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // public static sbyte RotateRight(sbyte value, int rotateAmount) => (sbyte)(((value & 0xFF) >> (rotateAmount & 7)) | ((value & 0xFF) << ((8 - rotateAmount) & 7)));
+           // public static sbyte RotateRight(sbyte value, int rotateAmount) => (sbyte)(((value & 0xFF) >> (rotateAmount & 7)) | ((value & 0xFF) << ((8 - rotateAmount) & 7)));
         var bitWidth = sizeof(sbyte) * 8;
         sb.Push(bitWidth - 1);  // Push 7 (8-bit - 1)
-        sb.AddInstruction(OpCode.AND);    // rotateAmount & 7
+        sb.And();    // rotateAmount & 7
         sb.Push(bitWidth);
-        sb.AddInstruction(OpCode.MOD);
+        sb.Mod();
         sb.Push(bitWidth);
-        sb.AddInstruction(OpCode.SWAP);
-        sb.AddInstruction(OpCode.SUB);
-        sb.AddInstruction(OpCode.SWAP);
+        sb.Swap();
+        sb.Sub();
+        sb.Swap();
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.AddInstruction(OpCode.AND);
-        sb.AddInstruction(OpCode.SWAP);
-        sb.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 7)
+        sb.And();
+        sb.Swap();
+        sb.ShL();    // value << (rotateAmount & 7)
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.AddInstruction(OpCode.AND);    // Ensure SHL result is 8-bit
-        sb.AddInstruction(OpCode.LDARG0); // Load value
+        sb.And();    // Ensure SHL result is 8-bit
+        sb.LdArg0(); // Load value
         sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.AddInstruction(OpCode.AND);
-        sb.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        sb.And();
+        sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);
-        sb.AddInstruction(OpCode.MOD);
+        sb.Mod();
         sb.Push(bitWidth);
-        sb.AddInstruction(OpCode.SWAP);
-        sb.AddInstruction(OpCode.SUB);
+        sb.Swap();
+        sb.Sub();
         sb.Push(bitWidth);  // Push 8
-        sb.AddInstruction(OpCode.SWAP);   // Swap top two elements
-        sb.AddInstruction(OpCode.SUB);    // 8 - rotateAmount
+        sb.Swap();   // Swap top two elements
+        sb.Sub();    // 8 - rotateAmount
         sb.Push(bitWidth - 1);  // Push 7
-        sb.AddInstruction(OpCode.AND);    // (8 - rotateAmount) & 7
-        sb.AddInstruction(OpCode.SHR);    // (byte)value >> ((8 - rotateAmount) & 7)
-        sb.AddInstruction(OpCode.OR);
-        sb.AddInstruction(OpCode.DUP);    // Duplicate the result
+        sb.And();    // (8 - rotateAmount) & 7
+        sb.ShR();    // (byte)value >> ((8 - rotateAmount) & 7)
+        sb.Or();
+        sb.Dup();    // Duplicate the result
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 7 (0x80)
         var endTarget = new JumpTarget();
-        sb.Jump(OpCode.JMPLT, endTarget);
+        sb.JmpLt(endTarget);
         sb.Push(BigInteger.One << bitWidth); // BigInteger.One << 8 (0x100)
-        sb.AddInstruction(OpCode.SUB);
-        endTarget.Instruction = sb.AddInstruction(OpCode.NOP);
+        sb.Sub();
+        endTarget.Instruction = sb.Nop();
     }
 }

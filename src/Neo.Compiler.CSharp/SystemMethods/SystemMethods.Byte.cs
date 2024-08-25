@@ -44,8 +44,7 @@ internal static partial class SystemMethods
         sb.Dup();//  0 5 5
         sb.Push0();// 0 5 5 0
         sb.JmpEq(endLoop); //0 5
-        sb.Push1();//0 5 1
-        sb.ShR(); //0  5>>1
+        sb.ShR(1); //0  5>>1
         sb.Swap();//5>>1 0
         sb.Inc();// 5>>1 1
         sb.Jmp(loopStart);
@@ -89,7 +88,7 @@ internal static partial class SystemMethods
         sb.JmpLt(exceptionTarget);// 5 10 0
         sb.Throw();
         sb.SetTarget(exceptionTarget);
-        sb.Rot();// 10 0 5 
+        sb.Rot();// 10 0 5
         sb.Dup();// 10 0 5 5
         sb.Rot();// 10 5 5 0
         sb.Dup();// 10 5 5 0 0
@@ -105,8 +104,7 @@ internal static partial class SystemMethods
         sb.Jmp(endTarget);
         sb.SetTarget(minTarget);
         sb.Reverse3();
-        sb.Drop();
-        sb.Drop();
+        sb.Drop(2);
         sb.Jmp(endTarget);
         sb.SetTarget(maxTarget);
         sb.Swap();
@@ -114,7 +112,6 @@ internal static partial class SystemMethods
         sb.Jmp(endTarget);
         sb.SetTarget(endTarget);
     }
-
 
     // HandleByteRotateLeft
     private static void HandleByteRotateLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -126,28 +123,22 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static byte RotateLeft(byte value, int rotateAmount) => (byte)((value << (rotateAmount & 7)) | (value >> ((8 - rotateAmount) & 7)));
         var bitWidth = sizeof(byte) * 8;
-        sb.Push(bitWidth - 1);  // Push 7 (8-bit - 1)
-        sb.And();    // rotateAmount & 7
+        sb.And(bitWidth - 1);    // rotateAmount & 7
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1);
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 7)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.And();    // Ensure SHL result is 8-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure SHL result is 8-bit
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure SHL result is 8-bit
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);  // Push 8
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 8 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 7
-        sb.And();    // (8 - rotateAmount) & 7
+        sb.And(bitWidth - 1);    // (8 - rotateAmount) & 7
         sb.ShR();    // (byte)value >> ((8 - rotateAmount) & 7)
         sb.Or();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        sb.And();    // Ensure final result is 8-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure final result is 8-bit
     }
 
     // HandleByteRotateRight
@@ -160,18 +151,15 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static byte RotateRight(byte value, int rotateAmount) => (byte)((value >> (rotateAmount & 7)) | (value << ((8 - rotateAmount) & 7)));
         var bitWidth = sizeof(byte) * 8;
-        sb.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        sb.And();    // rotateAmount & (bitWidth - 1)
+        sb.And(bitWidth - 1);    // rotateAmount & (bitWidth - 1)
         sb.ShR();    // value >> (rotateAmount & (bitWidth - 1))
         sb.LdArg0(); // Load value again
         sb.Push(bitWidth);  // Push bitWidth
         sb.LdArg1(); // Load rotateAmount
         sb.Sub();    // bitWidth - rotateAmount
-        sb.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        sb.And();    // (bitWidth - rotateAmount) & (bitWidth - 1)
+        sb.And(bitWidth - 1);    // (bitWidth - rotateAmount) & (bitWidth - 1)
         sb.ShL();    // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
         sb.Or();     // Combine the results with OR
-        sb.Push((BigInteger.One << bitWidth) - 1);  // Push (2^bitWidth - 1) as bitmask
-        sb.And();    // Ensure final result is bitWidth-bit
+        sb.And((BigInteger.One << bitWidth) - 1);  // Ensure final result is bitWidth-bit
     }
 }

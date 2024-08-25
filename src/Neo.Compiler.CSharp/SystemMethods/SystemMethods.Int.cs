@@ -209,23 +209,19 @@ internal static partial class SystemMethods
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         // public static int RotateRight(int value, int rotateAmount) => (int)(((uint)value >> (rotateAmount & 31)) | (value << ((32 - rotateAmount) & 31)));
         var bitWidth = sizeof(int) * 8;
-        sb.Push(bitWidth - 1);  // Push 31 (32-bit - 1)
-        sb.And();    // rotateAmount & 31
+        sb.And(bitWidth - 1);    // rotateAmount & 31
         sb.Push(bitWidth);
         sb.Mod();
         sb.Push(bitWidth);
         sb.Swap();
         sb.Sub();
         sb.Swap();
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
         sb.Swap();
         sb.ShL();    // value << (rotateAmount & 31)
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();    // Ensure SHL result is 32-bit
+        sb.And((BigInteger.One << bitWidth) - 1); // Ensure SHL result is 32-bit
         sb.LdArg0(); // Load value
-        sb.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        sb.And();
+        sb.And((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
         sb.LdArg1(); // Load rotateAmount
         sb.Push(bitWidth);
         sb.Mod();
@@ -235,8 +231,7 @@ internal static partial class SystemMethods
         sb.Push(bitWidth);  // Push 32
         sb.Swap();   // Swap top two elements
         sb.Sub();    // 32 - rotateAmount
-        sb.Push(bitWidth - 1);  // Push 31
-        sb.And();    // (32 - rotateAmount) & 31
+        sb.And(bitWidth - 1);    // (32 - rotateAmount) & 31
         sb.ShR();    // (uint)value >> ((32 - rotateAmount) & 31)
         sb.Or();
         sb.Dup();    // Duplicate the result
