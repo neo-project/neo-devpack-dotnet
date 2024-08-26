@@ -281,15 +281,14 @@ internal partial class MethodConvert
         }
         else
         {
-            adjustTarget.Instruction = _instructionsBuilder.Push(mask);
+            _instructionsBuilder.Push(mask).AddTarget(adjustTarget);
             _instructionsBuilder.And();
             if (minValue < 0)
             {
                 _instructionsBuilder.Dup();
                 _instructionsBuilder.Push(maxValue);
                 _instructionsBuilder.JmpLeL(endTarget);
-                _instructionsBuilder.Push(mask + 1);
-                _instructionsBuilder.Sub();
+                _instructionsBuilder.Sub(mask + 1);
             }
         }
         _instructionsBuilder.AddTarget(endTarget);
@@ -320,7 +319,7 @@ internal partial class MethodConvert
             case "ulong":
             case "System.Numerics.BigInteger":
                 ConvertExpression(model, expression);
-                CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+                _instructionsBuilder.Itoa(this);
                 break;
             case "char":
                 ConvertExpression(model, expression);

@@ -240,8 +240,7 @@ internal static partial class SystemMethods
         sb.PushM1();
         sb.Jmp(endTarget);
         sb.AddTarget(validTarget);
-        sb.Push((ushort)'0');
-        sb.Sub();
+        sb.Sub((ushort)'0');
         sb.AddTarget(endTarget);
     }
 
@@ -255,10 +254,8 @@ internal static partial class SystemMethods
         sb.IsUpperChar();
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
-        sb.Push((ushort)'A');
-        sb.Sub();
-        sb.Push((ushort)'a');
-        sb.Add();
+        sb.Sub((ushort)'A');
+        sb.Add((ushort)'a');
         sb.AddTarget(endTarget);
     }
 
@@ -272,10 +269,8 @@ internal static partial class SystemMethods
         sb.IsLowerChar();
         var endTarget = new JumpTarget();
         sb.JmpIfNot(endTarget);
-        sb.Push((ushort)'a');
-        sb.Sub();
-        sb.Push((ushort)'A');
-        sb.Add();
+        sb.Sub((ushort)'a');
+        sb.Add((ushort)'A');
         sb.AddTarget(endTarget);
     }
 
@@ -301,8 +296,7 @@ internal static partial class SystemMethods
         var sb = methodConvert.InstructionsBuilder;
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        sb.Push(128);
-        sb.Lt();
+        sb.Lt(128);
     }
 
     private static void HandleCharIsAsciiDigit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,

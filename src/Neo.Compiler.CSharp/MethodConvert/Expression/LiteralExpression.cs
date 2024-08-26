@@ -93,7 +93,7 @@ internal partial class MethodConvert
             case SpecialType.System_Single:
             case SpecialType.System_Double:
             case SpecialType.System_Char:
-                _instructionsBuilder.Push(0);
+                _instructionsBuilder.Push0();
                 break;
             case SpecialType.System_String:
             case SpecialType.System_Object:
@@ -103,7 +103,7 @@ internal partial class MethodConvert
                 if (type.ToString() == "System.Numerics.BigInteger")
                 {
                     // BigInteger's default value is 0
-                    _instructionsBuilder.Push(0);
+                    _instructionsBuilder.Push0();
                 }
                 else if (type.IsReferenceType)
                 {

@@ -167,7 +167,7 @@ internal partial class MethodConvert
                     _instructionsBuilder.JmpIfNotL(ifFalse);
                     {
                         _instructionsBuilder.Drop();
-                        _instructionsBuilder.Push(0);
+                        _instructionsBuilder.Push0();
                     }
                     _instructionsBuilder.AddTarget(ifFalse);
                     break;

@@ -227,7 +227,7 @@ namespace Neo.Compiler
                 _instructionsBuilder.StLoc(arrayIndex);
                 _instructionsBuilder.Size();
                 _instructionsBuilder.StLoc(lengthIndex);
-                _instructionsBuilder.Push(0);
+                _instructionsBuilder.Push0();
                 _instructionsBuilder.StLoc(iIndex);
                 _instructionsBuilder.JmpL(conditionTarget);
             }
@@ -291,7 +291,7 @@ namespace Neo.Compiler
                 _instructionsBuilder.StLoc(arrayIndex);
                 _instructionsBuilder.Size();
                 _instructionsBuilder.StLoc(lengthIndex);
-                _instructionsBuilder.Push(0);
+                _instructionsBuilder.Push0();
                 _instructionsBuilder.StLoc(iIndex);
                 _instructionsBuilder.JmpL(conditionTarget);
             }

@@ -160,8 +160,7 @@ internal static partial class SystemMethods
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << (bitWidth - 1)
         var endTarget = new JumpTarget();
         sb.JmpLt(endTarget);
-        sb.Push(BigInteger.One << bitWidth); // BigInteger.One << bitWidth
-        sb.Sub();
+        sb.Sub(BigInteger.One << bitWidth);
         sb.AddTarget(endTarget);
     }
     private static void HandleUnsignedRotateRight<T>(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -224,8 +223,7 @@ internal static partial class SystemMethods
         sb.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << (bitWidth - 1)
         var endTarget = new JumpTarget();
         sb.JmpLt(endTarget);
-        sb.Push(BigInteger.One << bitWidth); // BigInteger.One << bitWidth
-        sb.Sub();
+        sb.Sub(BigInteger.One << bitWidth);
         sb.AddTarget(endTarget);
     }
 

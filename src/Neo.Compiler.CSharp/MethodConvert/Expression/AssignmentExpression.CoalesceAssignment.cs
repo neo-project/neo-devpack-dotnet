@@ -158,9 +158,9 @@ internal partial class MethodConvert
             byte index = Context.AddStaticField(left);
             _instructionsBuilder.LdSFld(index);
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIF_L, assignmentTarget);
+            _instructionsBuilder.JmpIfL(assignmentTarget);
             _instructionsBuilder.LdSFld(index);
-            _instructionsBuilder.Jump(OpCode.JMP_L, endTarget);
+            _instructionsBuilder.JmpL(endTarget);
             _instructionsBuilder.AddTarget(assignmentTarget);
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
@@ -228,7 +228,7 @@ internal partial class MethodConvert
             CallMethodWithConvention(model, left.GetMethod!);
             _instructionsBuilder.Dup();
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, endTarget);
+            _instructionsBuilder.JmpIfNotL(endTarget);
             _instructionsBuilder.Drop();
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();
@@ -240,7 +240,7 @@ internal partial class MethodConvert
             CallMethodWithConvention(model, left.GetMethod!);
             _instructionsBuilder.Dup();
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, endTarget);
+            _instructionsBuilder.JmpIfNotL(endTarget);
             _instructionsBuilder.Drop();
             _instructionsBuilder.LdArg0();
             ConvertExpression(model, right);
@@ -297,7 +297,7 @@ internal partial class MethodConvert
             CallMethodWithConvention(model, property.GetMethod!);
             _instructionsBuilder.Dup();
             _instructionsBuilder.IsNull();
-            _instructionsBuilder.Jump(OpCode.JMPIFNOT_L, endTarget);
+            _instructionsBuilder.JmpIfNotL(endTarget);
             _instructionsBuilder.Drop();
             ConvertExpression(model, right);
             _instructionsBuilder.Dup();

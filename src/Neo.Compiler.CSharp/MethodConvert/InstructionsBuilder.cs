@@ -149,6 +149,13 @@ namespace Neo.Compiler
 
         internal Instruction Assert() => AddInstruction(OpCode.ASSERT);
 
+        internal Instruction Debug(string message)
+        {
+            PushTrue();
+            Push(message);
+            return AddInstruction(OpCode.ASSERTMSG);
+        }
+
         internal Instruction Nop() => AddInstruction(OpCode.NOP);
 
         internal Instruction Throw(string? message = null)
@@ -183,15 +190,11 @@ namespace Neo.Compiler
 
         /// <summary>
         /// Remove n items from the stack.
-        ///
-        /// <remarks>
         /// Try to use <see cref="OpCode.DROP"/> as much as possible,
         /// it is more efficient.
-        /// </remarks>
-        ///
         /// </summary>
         /// <param name="count">Number of stack items to be removed.</param>
-        /// <returns></returns>
+        /// <returns>The instruction of XDrop.</returns>
         internal Instruction XDrop(int? count = null)
         {
             if (count.HasValue)
@@ -229,6 +232,12 @@ namespace Neo.Compiler
 
         internal Instruction Reverse4() => AddInstruction(OpCode.REVERSE4);
 
+        /// <summary>
+        /// Reverse the order of the top N items on the stack.
+        /// stack bottom: item0 item1 ... itemN -> stack: itemN-1 ... item0
+        /// </summary>
+        /// <param name="count">The number of items to reverse.</param>
+        /// <returns>The instruction of ReverseN.</returns>
         internal Instruction ReverseN(int? count)
         {
             if (count.HasValue)
@@ -240,6 +249,12 @@ namespace Neo.Compiler
 
         #region Splice
 
+        /// <summary>
+        /// Create a new buffer.
+        /// stack bottom: size -> stack: sized-buffer
+        /// </summary>
+        /// <param name="size">The size of the buffer to create.</param>
+        /// <returns>The instruction of NewBuffer.</returns>
         internal Instruction NewBuffer(int? size = null)
         {
             if (size.HasValue)
@@ -294,13 +309,6 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.XOR);
         }
 
-        // internal Instruction Equal(BigInteger? value = null)
-        // {
-        //     if (value.HasValue)
-        //         Push(value.Value);
-        //     return AddInstruction(OpCode.EQUAL);
-        // }
-
         internal Instruction Equal(string? value = null)
         {
             if (value is not null)
@@ -338,11 +346,18 @@ namespace Neo.Compiler
 
         internal Instruction Sub(BigInteger? value = null)
         {
+            // stack bottom: a b -> stack: a-b
             if (value.HasValue)
                 Push(value.Value);
             return AddInstruction(OpCode.SUB);
         }
 
+        /// <summary>
+        /// Multiply two values.
+        /// stack bottom: a b -> stack: a*b
+        /// </summary>
+        /// <param name="value">The value to multiply with.</param>
+        /// <returns>The instruction of Mul.</returns>
         internal Instruction Mul(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -350,6 +365,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.MUL);
         }
 
+        /// <summary>
+        /// Divide two values.
+        /// stack bottom: a b -> stack: a/b
+        /// </summary>
+        /// <param name="value">The value to divide by.</param>
+        /// <returns>The instruction of Div.</returns>  
         internal Instruction Div(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -357,6 +378,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.DIV);
         }
 
+        /// <summary>
+        /// Calculate the remainder of two values.
+        /// stack bottom: a b -> stack: a%b
+        /// </summary>
+        /// <param name="value">The value to divide by.</param>
+        /// <returns>The instruction of Mod.</returns>  
         internal Instruction Mod(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -372,6 +399,12 @@ namespace Neo.Compiler
 
         internal Instruction ModPow() => AddInstruction(OpCode.MODPOW);
 
+        /// <summary>
+        /// Calculate the result of bitwise left shift operation.
+        /// stack bottom: value count -> stack: value << count
+        /// </summary>
+        /// <param name="count">The number of bits to shift.</param>
+        /// <returns>The instruction of ShL.</returns>
         internal Instruction ShL(BigInteger? count = null)
         {
             if (count.HasValue)
@@ -379,6 +412,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.SHL);
         }
 
+        /// <summary>
+        /// Calculate the result of bitwise right shift operation.
+        /// stack bottom: value count -> stack: value >> count
+        /// </summary>
+        /// <param name="count">The number of bits to shift.</param>
+        /// <returns>The instruction of ShR.</returns>
         internal Instruction ShR(BigInteger? count = null)
         {
             if (count.HasValue)
@@ -394,6 +433,12 @@ namespace Neo.Compiler
 
         internal Instruction Nz() => AddInstruction(OpCode.NZ);
 
+        /// <summary>
+        /// Compare two values for equality.
+        /// stack bottom: a b -> stack: a == b
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>The instruction of NumEqual.</returns>
         internal Instruction NumEqual(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -401,6 +446,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.NUMEQUAL);
         }
 
+        /// <summary>
+        /// Compare two values for inequality.
+        /// stack bottom: a b -> stack: a != b
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>The instruction of NumNotEqual.</returns>
         internal Instruction NumNotEqual(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -408,6 +459,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.NUMNOTEQUAL);
         }
 
+        /// <summary>
+        /// Compare two values for less than.
+        /// stack bottom: a b -> stack: a < b
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>The instruction of Lt.</returns>
         internal Instruction Lt(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -415,6 +472,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.LT);
         }
 
+        /// <summary>
+        /// Compare two values for less than or equal to.
+        /// stack bottom: a b -> stack: a <= b
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>The instruction of Le.</returns>    
         internal Instruction Le(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -422,6 +485,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.LE);
         }
 
+        /// <summary>
+        /// Compare two values for greater than.
+        /// stack bottom: a b -> stack: a > b
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>The instruction of Gt.</returns>
         internal Instruction Gt(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -429,6 +498,12 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.GT);
         }
 
+        /// <summary>
+        /// Compare two values for greater than or equal to.
+        /// stack bottom: a b -> stack: a >= b
+        /// </summary>
+        /// <param name="value">The value to compare with.</param>
+        /// <returns>The instruction of Ge.</returns>
         internal Instruction Ge(BigInteger? value = null)
         {
             if (value.HasValue)
@@ -436,10 +511,27 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.GE);
         }
 
+        /// <summary>
+        /// Compare two values and return the smaller one.
+        /// stack bottom: a b -> stack: min(a, b)
+        /// </summary>
+        /// <returns>The instruction of Min.</returns>
         internal Instruction Min() => AddInstruction(OpCode.MIN);
 
+        /// <summary>
+        /// Compare two values and return the larger one.
+        /// stack bottom: a b -> stack: max(a, b)
+        /// </summary>
+        /// <returns>The instruction of Max.</returns>
         internal Instruction Max() => AddInstruction(OpCode.MAX);
 
+        /// <summary>
+        /// Check if a value is within a range, inclusive.
+        /// stack bottom: value min max -> stack: result of the comparison
+        /// </summary>
+        /// <param name="min">The minimum value.</param>
+        /// <param name="max">The maximum value.</param>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction Within(BigInteger min, BigInteger max)
         {
             Push(min);
@@ -447,24 +539,90 @@ namespace Neo.Compiler
             return AddInstruction(OpCode.WITHIN);
         }
 
+        /// <summary>
+        /// Check if a value is a valid byte.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsByte() => Within(byte.MinValue, byte.MaxValue);
+
+        /// <summary>
+        /// Check if a value is a valid signed byte.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsSByte() => Within(sbyte.MinValue, sbyte.MaxValue);
+
+        /// <summary>
+        /// Check if a value is a valid short.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsShort() => Within(short.MinValue, short.MaxValue);
+
+        /// <summary>
+        /// Check if a value is a valid unsigned short.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsUShort() => Within(ushort.MinValue, ushort.MaxValue);
+
+        /// <summary>
+        /// Check if a value is a valid int.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsInt() => Within(int.MinValue, int.MaxValue);
-        internal Instruction IsUInt() => Within(uint.MinValue, uint.MaxValue);
+
+        /// <summary>
+        /// Check if a value is a valid unsigned int.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsLong() => Within(long.MinValue, long.MaxValue);
+
+        /// <summary>
+        /// Check if a value is a valid unsigned long.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsULong() => Within(ulong.MinValue, ulong.MaxValue);
 
+        /// <summary>
+        /// Check if a value is an uppercase character.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsUpperChar() => Within((ushort)'A', (ushort)'Z');
+
+        /// <summary>
+        /// Check if a value is a lowercase character.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
+        /// <returns>The instruction of Within.</returns>
         internal Instruction IsLowerChar() => Within((ushort)'a', (ushort)'z');
+
+        /// <summary>
+        /// Check if a value is a digit character.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
         internal Instruction IsDigitChar() => Within((ushort)'0', (ushort)'9');
+
+        /// <summary>
+        /// Check if a value is a letter character.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
         internal void IsLetterChar()
         {
             Within((ushort)'A', (ushort)'Z');
             Or();
             Within((ushort)'a', (ushort)'z');
         }
+
+        /// <summary>
+        /// Check if a value is a digit or letter character.
+        /// stack bottom: value -> stack: result of the comparison
+        /// </summary>
         internal void IsDigitOrLetterChar()
         {
             IsDigitChar();
@@ -472,6 +630,15 @@ namespace Neo.Compiler
             IsLetterChar();
         }
 
+
+        /// <summary>
+        /// Check if a value is within a range, inclusive.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="min">The minimum value.</param>
+        /// <param name="max">The maximum value.</param>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void WithinCheck(BigInteger min, BigInteger max, string? message = null)
         {
             JumpTarget endTarget = new();
@@ -482,25 +649,98 @@ namespace Neo.Compiler
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
 
+        /// <summary>
+        /// Check if a value is a valid byte.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsByteCheck() => WithinCheck(byte.MinValue, byte.MaxValue, "Not a valid byte value.");
+
+        /// <summary>
+        /// Check if a value is a valid signed byte.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsSByteCheck() => WithinCheck(sbyte.MinValue, sbyte.MaxValue, "Not a valid sbyte value.");
+
+        /// <summary>
+        /// Check if a value is a valid short.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsShortCheck() => WithinCheck(short.MinValue, short.MaxValue, "Not a valid short value.");
+
+        /// <summary>
+        /// Check if a value is a valid unsigned short.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsUShortCheck() => WithinCheck(ushort.MinValue, ushort.MaxValue, "Not a valid ushort value.");
+
+        /// <summary>
+        /// Check if a value is a valid int.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsIntCheck() => WithinCheck(int.MinValue, int.MaxValue, "Not a valid int value.");
+
+        /// <summary>
+        /// Check if a value is a valid unsigned int.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsUIntCheck() => WithinCheck(uint.MinValue, uint.MaxValue, "Not a valid uint value.");
+
+        /// <summary>
+        /// Check if a value is a valid long.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsLongCheck() => WithinCheck(long.MinValue, long.MaxValue, "Not a valid long value.");
+
+        /// <summary>
+        /// Check if a value is a valid unsigned long.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="message">The message to display if the value is not within the range.</param>
+        /// <exception cref="Exception">Thrown if the value is not within the range.</exception>
         internal void IsULongCheck() => WithinCheck(ulong.MinValue, ulong.MaxValue, "Not a valid ulong value.");
 
+        /// <summary>
+        /// Convert a string to an integer.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="methodConvert">The method convert.</param>
+        /// <returns>The instruction of the conversion.</returns>
         internal Instruction Atoi(MethodConvert methodConvert)
         {
             return methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
         }
 
+        /// <summary>
+        /// Search for a value in memory span.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="methodConvert">The method convert.</param>
+        /// <returns>The instruction of the search.</returns>
         internal Instruction MemorySearch(MethodConvert methodConvert)
         {
             return methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
         }
 
+        /// <summary>
+        /// Convert an integer to a string.
+        /// stack bottom: value -> stack: value
+        /// </summary>
+        /// <param name="methodConvert">The method convert.</param>
+        /// <returns>The instruction of the conversion.</returns>
         internal Instruction Itoa(MethodConvert methodConvert)
         {
             return methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
@@ -514,6 +754,12 @@ namespace Neo.Compiler
 
         internal Instruction PackStruct() => AddInstruction(OpCode.PACKSTRUCT);
 
+        /// <summary>
+        /// Pack the stack into a byte array.   
+        /// stack bottom: item0 item1 ... itemN -> stack: n-sized array
+        /// </summary>
+        /// <param name="size">The number of items in the stack to be packed.</param>
+        /// <returns>The instruction of Pack.</returns>
         internal Instruction Pack(int? size = null)
         {
             if (size.HasValue)
@@ -525,10 +771,21 @@ namespace Neo.Compiler
 
         internal Instruction NewArray0() => AddInstruction(OpCode.NEWARRAY0);
 
+        /// <summary>
+        /// Create a new array.
+        /// stack bottom: count -> stack: array     
+        /// </summary>
+        /// <param name="count">The number of elements in the array.</param>
+        /// <returns>The instruction of NewArray.</returns>
         internal Instruction NewArray(int? count)
         {
             if (count.HasValue)
+            {
+                if (count.Value == 0)
+                    return NewArray0();
                 Push(count.Value);
+            }
+
             return AddInstruction(OpCode.NEWARRAY);
         }
 
@@ -891,6 +1148,12 @@ namespace Neo.Compiler
 
         internal Instruction Ret() => AddInstruction(OpCode.RET);
 
+        /// <summary>
+        /// Insert an instruction into the instruction list.
+        /// </summary>
+        /// <param name="index">The index at which to insert the instruction.</param>
+        /// <param name="instruction">The instruction to insert.</param>
+        /// <returns>The inserted instruction.</returns>
         internal Instruction Insert(int index, Instruction instruction)
         {
             Instructions.Insert(index, instruction);
@@ -1099,6 +1362,14 @@ namespace Neo.Compiler
             });
         }
 
+        /// <summary>
+        /// Pad the buffer with the specified length.   
+        /// </summary>
+        /// <param name="buffer">The buffer to pad.</param>
+        /// <param name="dataLength">The length of the data to pad.</param>
+        /// <param name="padLength">The length of the padding to add.</param>
+        /// <param name="negative">Whether the padding should be negative.</param>
+        /// <returns>The padded buffer.</returns>
         internal static ReadOnlySpan<byte> PadRight(Span<byte> buffer, int dataLength, int padLength, bool negative)
         {
             byte pad = negative ? (byte)0xff : (byte)0;

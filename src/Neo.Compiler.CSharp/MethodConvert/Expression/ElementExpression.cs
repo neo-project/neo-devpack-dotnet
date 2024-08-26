@@ -142,7 +142,7 @@ internal partial class MethodConvert
             _instructionsBuilder.Swap();
             if (range.LeftOperand is null)
             {
-                _instructionsBuilder.Push(0);
+                _instructionsBuilder.Push0();
             }
             else
             {
