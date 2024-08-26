@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
 
-public abstract class OracleRequestTemplate : Neo.SmartContract.Testing.SmartContract, IContractInfo
+public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize), IContractInfo
 {
     #region Compiled data
 
@@ -44,9 +44,4 @@ public abstract class OracleRequestTemplate : Neo.SmartContract.Testing.SmartCon
 
     #endregion
 
-    #region Constructor for internal use only
-
-    protected OracleRequestTemplate(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
-
-    #endregion
 }
