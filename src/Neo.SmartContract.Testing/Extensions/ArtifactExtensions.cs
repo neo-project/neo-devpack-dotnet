@@ -431,18 +431,10 @@ namespace Neo.SmartContract.Testing.Extensions
 
         private static string FormatInheritance(List<Type> inheritance, string initializeParam)
         {
-            var formattedInheritance = new List<string>();
-            foreach (var type in inheritance)
-            {
-                if (type == typeof(SmartContract))
-                {
-                    formattedInheritance.Add($"{type.FullName}({initializeParam})");
-                }
-                else
-                {
-                    formattedInheritance.Add(type.FullName);
-                }
-            }
+            var formattedInheritance = inheritance.Select(type => (type == typeof(SmartContract)
+                    ? $"{type.FullName}({initializeParam})"
+                    : type.FullName)!)
+                .ToList();
             return string.Join(", ", formattedInheritance);
         }
     }
