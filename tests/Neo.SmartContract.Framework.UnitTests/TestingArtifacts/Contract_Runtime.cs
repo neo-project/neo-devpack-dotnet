@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
 
-public abstract class Contract_Runtime : Neo.SmartContract.Testing.SmartContract, IContractInfo
+public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize), IContractInfo
 {
     #region Compiled data
 
@@ -161,9 +161,4 @@ public abstract class Contract_Runtime : Neo.SmartContract.Testing.SmartContract
 
     #endregion
 
-    #region Constructor for internal use only
-
-    protected Contract_Runtime(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
-
-    #endregion
 }

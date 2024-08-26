@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
 
-public abstract class Nep17ContractTemplate : Neo.SmartContract.Testing.SmartContract, Neo.SmartContract.Testing.TestingStandards.INep17Standard, Neo.SmartContract.Testing.TestingStandards.IOwnable, Neo.SmartContract.Testing.TestingStandards.IVerificable, IContractInfo
+public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize), Neo.SmartContract.Testing.TestingStandards.INep17Standard, Neo.SmartContract.Testing.TestingStandards.IOwnable, Neo.SmartContract.Testing.TestingStandards.IVerificable, IContractInfo
 {
     #region Compiled data
 
@@ -102,9 +102,4 @@ public abstract class Nep17ContractTemplate : Neo.SmartContract.Testing.SmartCon
 
     #endregion
 
-    #region Constructor for internal use only
-
-    protected Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
-
-    #endregion
 }
