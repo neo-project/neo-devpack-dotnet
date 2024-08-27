@@ -123,7 +123,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [x] **as**: Used for type casting or conversion. Example: `object obj = "Hello"; string str = obj as string;`
 - [x] **is**: Checks if an object is of a specified type. Example: `if (myObject is MyClass) { /* code */ }`
 - [ ] **typeof**: Gets the Type object for a type. Example: `Type type = typeof(MyClass);`
-- [ ] **sizeof**: Gets the size of an unmanaged type. Example: `int size = sizeof(int);`
+- [x] **sizeof**: Gets the size of an unmanaged type. Example: `int size = sizeof(int);`
 - [x] **checked**: Enables overflow checking for arithmetic operations. Example: `checked { int result = int.MaxValue + 1; }`
 - [x] **unchecked**: Disables overflow checking for arithmetic operations. Example: `unchecked { int result = int.MaxValue + 1; }`
 - [ ] **implicit**: Defines an implicit user-defined type conversion operator. Example: `public static implicit operator MyType(int value) { /* conversion logic */ }`
