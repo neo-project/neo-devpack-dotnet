@@ -141,7 +141,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [ ] **lock**: Defines a synchronized block of code. Example: `lock (myLockObject) { /* code */ }`
 - [ ] **fixed**: Specifies a pointer to a fixed memory location. Example: `fixed (int* ptr = &myVariable) { /* code */ }`
 - [ ] **unsafe**: Allows the use of unsafe code blocks. Example: `unsafe { /* unsafe code */ }`
-- [ ] **in**: Specifies the iteration variable in a foreach loop. Example: `foreach (var item in myCollection) { /* code */ }`
+- [x] **in**: Specifies the iteration variable in a foreach loop. Example: `foreach (var item in myCollection) { /* code */ }`
 - [x] **null**: Represents a null value. Example: `object obj = null;`
 - [x] **true**: Represents the Boolean true value. Example: `bool isTrue = true;`
 - [x] **false**: Represents the Boolean false value. Example: `bool isTrue = false;`
