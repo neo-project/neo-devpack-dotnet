@@ -249,7 +249,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
               let fullName = $"{person.FirstName} {person.LastName}"
               select fullName;
   ```
-- [ ] **nameof**: Returns the name of a variable, type, or member as a string. Example:
+- [x] **nameof**: Returns the name of a variable, type, or member as a string. Example:
   ```csharp
   string propertyName = nameof(MyClass.MyProperty);
   ```
