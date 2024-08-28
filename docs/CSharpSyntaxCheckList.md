@@ -213,7 +213,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
   var query = from person in people
               select person.Name;
   ```
-- [ ] **get**: Defines a property's getter method. Example:
+- [x] **get**: Defines a property's getter method. Example:
   ```csharp
   public int MyProperty
   {
@@ -265,7 +265,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
   ```csharp
   var sortedNumbers = numbers.OrderBy(x => x);
   ```
-- [ ] **partial**: Indicates that a class, struct, or interface is defined in multiple files. Example:
+- [x] **partial**: Indicates that a class, struct, or interface is defined in multiple files. Example:
   ```csharp
   partial class MyClass
   {
