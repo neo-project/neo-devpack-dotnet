@@ -83,7 +83,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [x] **delegate**: Declares a delegate. Example: `delegate int MyDelegate(int x, int y);`
 - [x] **interface**: Declares an interface. Example: `interface IMyInterface { /* interface members */ }`
 
-### Control Flow Keywords (https://github.com/neo-project/neo-devpack-dotnet/blob/master/src/Neo.Compiler.CSharp/MethodConvert.cs)
+### Control Flow Keywords
 - [x] **if**: Starts an if statement. Example: `if (condition) { /* code */ }`
 - [x] **else**: Defines an alternative branch in an if statement. Example: `if (condition) { /* true branch */ } else { /* else branch */ }`
 - [x] **switch**: Starts a switch statement. Example: `switch (dayOfWeek) { case DayOfWeek.Monday: /* code */ break; }`
@@ -100,6 +100,8 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [x] **throw**: Throws an exception. Example: `throw new Exception("An error occurred.");`
 - [x] **try**: Starts a try-catch block. Example: `try { /* code */ } catch (Exception ex) { /* handle exception */ }`
 - [x] **catch**: Catches and handles exceptions in a try-catch block. Example: `try { /* code that may throw an exception */ } catch (Exception ex) { /* handle exception */ }`
+> [!WARNING]
+> In Neo smart contracts, at most one catch block is allowed for each try block.
 - [x] **finally**: Defines a block of code to be executed in a try-catch-finally block. Example: `try { /* code */ } catch (Exception ex) { /* handle exception */ } finally { /* cleanup code */ }`
 
 ### Access Modifiers and Member Control
@@ -121,7 +123,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [x] **as**: Used for type casting or conversion. Example: `object obj = "Hello"; string str = obj as string;`
 - [x] **is**: Checks if an object is of a specified type. Example: `if (myObject is MyClass) { /* code */ }`
 - [ ] **typeof**: Gets the Type object for a type. Example: `Type type = typeof(MyClass);`
-- [ ] **sizeof**: Gets the size of an unmanaged type. Example: `int size = sizeof(int);`
+- [x] **sizeof**: Gets the size of an unmanaged type. Example: `int size = sizeof(int);`
 - [x] **checked**: Enables overflow checking for arithmetic operations. Example: `checked { int result = int.MaxValue + 1; }`
 - [x] **unchecked**: Disables overflow checking for arithmetic operations. Example: `unchecked { int result = int.MaxValue + 1; }`
 - [ ] **implicit**: Defines an implicit user-defined type conversion operator. Example: `public static implicit operator MyType(int value) { /* conversion logic */ }`
@@ -141,7 +143,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [ ] **lock**: Defines a synchronized block of code. Example: `lock (myLockObject) { /* code */ }`
 - [ ] **fixed**: Specifies a pointer to a fixed memory location. Example: `fixed (int* ptr = &myVariable) { /* code */ }`
 - [ ] **unsafe**: Allows the use of unsafe code blocks. Example: `unsafe { /* unsafe code */ }`
-- [ ] **in**: Specifies the iteration variable in a foreach loop. Example: `foreach (var item in myCollection) { /* code */ }`
+- [x] **in**: Specifies the iteration variable in a foreach loop. Example: `foreach (var item in myCollection) { /* code */ }`
 - [x] **null**: Represents a null value. Example: `object obj = null;`
 - [x] **true**: Represents the Boolean true value. Example: `bool isTrue = true;`
 - [x] **false**: Represents the Boolean false value. Example: `bool isTrue = false;`
@@ -211,7 +213,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
   var query = from person in people
               select person.Name;
   ```
-- [ ] **get**: Defines a property's getter method. Example:
+- [x] **get**: Defines a property's getter method. Example:
   ```csharp
   public int MyProperty
   {
@@ -247,7 +249,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
               let fullName = $"{person.FirstName} {person.LastName}"
               select fullName;
   ```
-- [ ] **nameof**: Returns the name of a variable, type, or member as a string. Example:
+- [x] **nameof**: Returns the name of a variable, type, or member as a string. Example:
   ```csharp
   string propertyName = nameof(MyClass.MyProperty);
   ```
@@ -263,7 +265,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
   ```csharp
   var sortedNumbers = numbers.OrderBy(x => x);
   ```
-- [ ] **partial**: Indicates that a class, struct, or interface is defined in multiple files. Example:
+- [x] **partial**: Indicates that a class, struct, or interface is defined in multiple files. Example:
   ```csharp
   partial class MyClass
   {
@@ -434,7 +436,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
   ```
 - [x] **String Interpolation**: Provides a more readable way to format strings with embedded expressions. Example: `string name = $"Hello, {firstName} {lastName}!";`
 - [ ] **Anonymous Types**: Allow the creation of objects with dynamically defined properties. Example: `var person = new { Name = "John", Age = 30 };`
-- [ ] **Lambda Expressions**: Enable the creation of inline delegate functions. Example: `(x, y) => x + y`
+- [x] **Lambda Expressions**: Enable the creation of inline delegate functions. Example: `(x, y) => x + y`
 - [ ] **LINQ Queries**: Provide a language-integrated query syntax for collections. Example: 
   ```csharp
   var result = from num in numbers
@@ -470,8 +472,8 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
   ```csharp
   public record Person(string FirstName, string LastName);
   ```
-- [ ] **Nullable Reference Types (C# 8.0+)**: Enhance null safety by introducing nullable annotations. Example: `string? nullableString = null;`
-- [ ] **Ranges and Indices (C# 8.0+)**: Allow slicing and indexing collections with a more expressive syntax. Example: `var subArray = myArray[1..4];`
+- [x] **Nullable Reference Types (C# 8.0+)**: Enhance null safety by introducing nullable annotations. Example: `string? nullableString = null;`
+- [x] **Ranges and Indices (C# 8.0+)**: Allow slicing and indexing collections with a more expressive syntax. Example: `var subArray = myArray[1..4];`
 
 ## 5. Other Features
 
@@ -492,10 +494,8 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
       // handle exception
   }
   ```
-
   > [!WARNING]
   > In Neo smart contracts, at most one catch block is allowed for each try block.
-
 - [ ] **Reflection**: Provides information about types and objects at runtime. Example: 
   ```csharp
   Type type = typeof(MyClass);
@@ -664,13 +664,13 @@ Note: These methods are supported for both bool and bool? types unless otherwise
 # Common Mathematical Methods and Functions in C#
 
 **Basic Arithmetic Operations:**
-- [ ] `Math.Add(x, y)`: Adds two numbers `x` and `y`.
-- [ ] `Math.Subtract(x, y)`: Subtracts `y` from `x`.
-- [ ] `Math.Multiply(x, y)`: Multiplies two numbers `x` and `y`.
-- [ ] `Math.Divide(x, y)`: Divides `x` by `y`.
+- [x] `Math.Add(x, y)`: Adds two numbers `x` and `y`.
+- [x] `Math.Subtract(x, y)`: Subtracts `y` from `x`.
+- [x] `Math.Multiply(x, y)`: Multiplies two numbers `x` and `y`.
+- [x] `Math.Divide(x, y)`: Divides `x` by `y`.
 
 **Exponentiation and Logarithms:**
-- [ ] `Math.Pow(x, y)`: Returns `x` raised to the power of `y`.
+- [x] `Math.Pow(x, y)`: Returns `x` raised to the power of `y`.
 - [ ] `Math.Sqrt(x)`: Calculates the square root of `x`.
 - [ ] `Math.Log(x)`: Returns the natural logarithm of `x`.
 - [ ] `Math.Log10(x)`: Returns the base 10 logarithm of `x`.
@@ -803,7 +803,6 @@ Note: These methods are supported for both bool and bool? types unless otherwise
 - [x] `char.IsLowSurrogate(char)`: Indicates whether the specified Char object is a low surrogate.
 - [x] `char.IsSurrogate(char)`: Indicates whether the specified Char object is a surrogate.
 - [x] `char.IsSurrogatePair(char, char)`: Indicates whether the two specified Char objects form a surrogate pair.
-
 
 # Common LINQ Query Methods and Operations in C#
 
@@ -1060,14 +1059,14 @@ LINQ is a powerful language feature in C# that allows you to query and manipulat
 - [x] `Rectangle { Width: var w, Height: var h }`: Matches a `Rectangle` object and assigns `Width` and `Height` to `w` and `h`.
 
 ## Recursive Pattern (C# 8.0+)
-- [ ] `int[] { 1, 2, int rest }`: Matches an array starting with elements 1 and 2, and assigns the rest to `rest`.
-- [ ] `(1, 2, var rest)`: Matches a tuple starting with elements 1 and 2, and assigns the rest to `rest`.
+- [x] `int[] { 1, 2, int rest }`: Matches an array starting with elements 1 and 2, and assigns the rest to `rest`.
+- [x] `(1, 2, var rest)`: Matches a tuple starting with elements 1 and 2, and assigns the rest to `rest`.
 
 ## Logical Patterns (C# 9.0+)
-- [ ] `and` pattern: `and` combines patterns.
-  - [ ] `int x and > 10`: Matches an integer greater than 10.
-- [ ] `or` pattern: `or` combines patterns.
-  - [ ] `int x or string s`: Matches an integer or a string.
+- [x] `and` pattern: `and` combines patterns.
+  - [x] `int x and > 10`: Matches an integer greater than 10.
+- [x] `or` pattern: `or` combines patterns.
+  - [x] `int x or string s`: Matches an integer or a string.
 
 ## Type Patterns with When Clause (C# 7.0+)
 - [x] `int x when x > 10`: Matches an integer greater than 10 and assigns it to `x`.
@@ -1122,8 +1121,8 @@ LINQ is a powerful language feature in C# that allows you to query and manipulat
 - [x] `new { Name = "John", Age = 30 }`: Creating an anonymous type.
 
 ## Lambda Expressions
-- [ ] `(x, y) => x + y`: Lambda expression.
-- [ ] `(int x) => { Console.WriteLine(x); }`: Example lambda expression.
+- [x] `(x, y) => x + y`: Lambda expression.
+- [x] `(int x) => { Console.WriteLine(x); }`: Example lambda expression.
 
 ## Anonymous Types (C# 3.0+)
 - [x] `new { Name = "John", Age = 30 }`: Creating an anonymous type.
@@ -1220,9 +1219,9 @@ LINQ is a powerful language feature in C# that allows you to query and manipulat
 - [x] `BigInteger.CreateTruncating(T value)`: Creates a `BigInteger` from various numeric types with truncation.
 - [ ] `BigInteger.Log(BigInteger value)`: Returns the natural logarithm of a specified number.
 - [ ] `BigInteger.Log10(BigInteger value)`: Returns the base 10 logarithm of a specified number.
-- [ ] `BigInteger.One`: Gets a value that represents the number one.
-- [ ] `BigInteger.Zero`: Gets a value that represents the number zero.
-- [ ] `BigInteger.MinusOne`: Gets a value that represents the number negative one.
+- [x] `BigInteger.One`: Gets a value that represents the number one.
+- [x] `BigInteger.Zero`: Gets a value that represents the number zero.
+- [x] `BigInteger.MinusOne`: Gets a value that represents the number negative one.
 
 ## Properties
 - [x] `IsEven`: Returns `true` if the `BigInteger` is an even number.
@@ -1230,8 +1229,8 @@ LINQ is a powerful language feature in C# that allows you to query and manipulat
 - [x] `IsZero`: Returns `true` if the `BigInteger` is equal to 0.
 - [x] `Sign`: Gets a value indicating the sign of the `BigInteger` (-1 for negative, 0 for zero, 1 for positive).
 - [x] `IsPowerOfTwo`: Returns `true` if the `BigInteger` is a power of two.
-- [ ] `IsNegative`: Returns `true` if the `BigInteger` is negative.
-- [ ] `IsPositive`: Returns `true` if the `BigInteger` is positive.
+- [x] `IsNegative`: Returns `true` if the `BigInteger` is negative.
+- [x] `IsPositive`: Returns `true` if the `BigInteger` is positive.
 
 ## Instance Methods
 - [x] `ToByteArray()`: Returns the `BigInteger` as a byte array.
@@ -1248,7 +1247,7 @@ LINQ is a powerful language feature in C# that allows you to query and manipulat
 - [x] `BigInteger.Log2(BigInteger value)`: Returns the base-2 logarithm of a specified `BigInteger`.
 - [x] `BigInteger.IsEvenInteger(BigInteger value)`: Determines if the `BigInteger` is even.
 - [x] `BigInteger.IsOddInteger(BigInteger value)`: Determines if the `BigInteger` is odd.
-- [ ] `BigInteger.PopCount(BigInteger value)`: Returns the number of one-bits in the two's complement binary representation of a specified BigInteger value.
+- [x] `BigInteger.PopCount(BigInteger value)`: Returns the number of one-bits in the two's complement binary representation of a specified BigInteger value.
 
 ## Conversion Methods
 - [x] Explicit casting to various numeric types (sbyte, byte, short, ushort, int, uint, long, ulong, char)
