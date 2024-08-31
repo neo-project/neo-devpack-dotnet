@@ -48,7 +48,7 @@ namespace Neo.Compiler
                     using (InsertSequencePoint(variable))
                     {
                         ConvertExpression(model, variable.Initializer.Value);
-                        AccessSlot(OpCode.STLOC, variableIndex);
+                        _instructionsBuilder.StLoc(variableIndex);
                     }
             }
         }

@@ -30,8 +30,8 @@ internal partial class MethodConvert
         //load record
         ConvertExpression(model, expression.Expression);
         //clone record struct
-        AddInstruction(new Instruction { OpCode = OpCode.UNPACK });
-        AddInstruction(new Instruction { OpCode = OpCode.PACKSTRUCT });
+        _instructionsBuilder.UnPack();
+        _instructionsBuilder.PackStruct();
         //convert InitializerExpression
         ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
     }

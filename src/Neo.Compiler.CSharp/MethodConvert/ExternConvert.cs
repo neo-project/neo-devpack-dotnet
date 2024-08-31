@@ -43,7 +43,7 @@ internal partial class MethodConvert
                             emitted = true;
                             _callingConvention = CallingConvention.StdCall;
                         }
-                        AddInstruction(new Instruction
+                        _instructionsBuilder.AddInstruction(new Instruction
                         {
                             OpCode = (OpCode)attribute.ConstructorArguments[0].Value!,
                             Operand = ((string)attribute.ConstructorArguments[1].Value!).HexToBytes(true)
@@ -55,7 +55,7 @@ internal partial class MethodConvert
                             emitted = true;
                             _callingConvention = CallingConvention.Cdecl;
                         }
-                        AddInstruction(new Instruction
+                        _instructionsBuilder.AddInstruction(new Instruction
                         {
                             OpCode = OpCode.SYSCALL,
                             Operand = Encoding.ASCII.GetBytes((string)attribute.ConstructorArguments[0].Value!).Sha256()[..4]
@@ -70,11 +70,11 @@ internal partial class MethodConvert
             if (Symbol.ToString()?.StartsWith("System.Array.Empty") == true)
             {
                 emitted = true;
-                AddInstruction(OpCode.NEWARRAY0);
+                _instructionsBuilder.NewArray0();
             }
             else if (Symbol.ToString()?.Equals("Neo.SmartContract.Framework.Services.Runtime.Debug(string)") == true)
             {
-                _context.AddEvent(new AbiEvent(Symbol, "Debug", new SmartContract.Manifest.ContractParameterDefinition() { Name = "message", Type = ContractParameterType.String }), false);
+                Context.AddEvent(new AbiEvent(Symbol, "Debug", new SmartContract.Manifest.ContractParameterDefinition() { Name = "message", Type = ContractParameterType.String }), false);
             }
             if (!emitted) throw new CompilationException(Symbol, DiagnosticId.ExternMethod, $"Unknown method: {Symbol}");
         }
@@ -88,7 +88,7 @@ internal partial class MethodConvert
                 AttributeData? attribute = Symbol.AssociatedSymbol!.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(ContractHashAttribute));
                 if (attribute is not null)
                 {
-                    Push(hash.ToArray());
+                    _instructionsBuilder.Push(hash.ToArray());
                     return;
                 }
             }

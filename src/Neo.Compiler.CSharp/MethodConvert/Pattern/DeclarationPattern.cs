@@ -45,8 +45,8 @@ internal partial class MethodConvert
     private void ConvertDeclarationPattern(SemanticModel model, DeclarationPatternSyntax pattern, byte localIndex)
     {
         ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
-        AccessSlot(OpCode.LDLOC, localIndex);
-        IsType(type.GetPatternType());
+        _instructionsBuilder.LdLoc(localIndex);
+        _instructionsBuilder.IsType(type.GetPatternType());
         switch (pattern.Designation)
         {
             case DiscardDesignationSyntax:
@@ -54,8 +54,8 @@ internal partial class MethodConvert
             case SingleVariableDesignationSyntax variable:
                 ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
                 byte index = AddLocalVariable(local);
-                AccessSlot(OpCode.LDLOC, localIndex);
-                AccessSlot(OpCode.STLOC, index);
+                _instructionsBuilder.LdLoc(localIndex);
+                _instructionsBuilder.StLoc(index);
                 break;
             default:
                 throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");

@@ -45,7 +45,7 @@ namespace Neo.Compiler
             {
                 ConvertExpression(model, syntax.Expression);
                 if (type.SpecialType != SpecialType.System_Void)
-                    AddInstruction(OpCode.DROP);
+                    _instructionsBuilder.Drop();
             }
         }
     }

@@ -51,7 +51,7 @@ internal partial class MethodConvert
             //Convet discard pattern (_) to OpCodes.
             //Example: if (greeting2 is string _)
             case DiscardPatternSyntax:
-                Push(true);
+                _instructionsBuilder.Push(true);
                 break;
             //Convet relational pattern to OpCodes.
             //Example: return value is > 1;

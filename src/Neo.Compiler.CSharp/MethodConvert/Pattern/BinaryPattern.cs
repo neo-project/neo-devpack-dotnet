@@ -74,18 +74,18 @@ internal partial class MethodConvert
         ConvertPattern(model, left, localIndex);
 
         // Jump to the right pattern if the left pattern matches
-        Jump(OpCode.JMPIF_L, rightTarget);
+        _instructionsBuilder.JmpIfL(rightTarget);
 
         // Push 'false' onto the evaluation stack and jump to the end if the left pattern does not match
-        Push(false);
-        Jump(OpCode.JMP_L, endTarget);
+        _instructionsBuilder.Push(false);
+        _instructionsBuilder.JmpL(endTarget);
 
         // Define an instruction for the right pattern and convert it
-        rightTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.AddTarget(rightTarget);
         ConvertPattern(model, right, localIndex);
 
         // Define an instruction for the end of the conversion process
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.AddTarget(endTarget);
     }
 
     /// <summary>
@@ -122,17 +122,17 @@ internal partial class MethodConvert
         ConvertPattern(model, left, localIndex);
 
         // Jump to the right pattern if the left pattern does not match
-        Jump(OpCode.JMPIFNOT_L, rightTarget);
+        _instructionsBuilder.JmpIfNotL(rightTarget);
 
         // Push 'true' onto the evaluation stack and jump to the end if the left pattern matches
-        Push(true);
-        Jump(OpCode.JMP_L, endTarget);
+        _instructionsBuilder.Push(true);
+        _instructionsBuilder.JmpL(endTarget);
 
         // Define an instruction for the right pattern and convert it
-        rightTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.AddTarget(rightTarget);
         ConvertPattern(model, right, localIndex);
 
         // Define an instruction for the end of the conversion process
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.AddTarget(endTarget);
     }
 }

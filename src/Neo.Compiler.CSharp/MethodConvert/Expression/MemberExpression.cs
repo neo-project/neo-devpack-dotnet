@@ -51,7 +51,7 @@ internal partial class MethodConvert
                 {
                     // This branch is not covered, is there any c# code that matches the conditions?
                     // Const member field access is handled via ConvertMethodInvocationExpression
-                    Push(field.ConstantValue);
+                    _instructionsBuilder.Push(field.ConstantValue);
                 }
                 else if (field.IsStatic)
                 {
@@ -59,19 +59,18 @@ internal partial class MethodConvert
                     // thus will return directly without this if check.
                     if (field.ContainingType.ToString() == "string" && field.Name == "Empty")
                     {
-                        Push(string.Empty);
+                        _instructionsBuilder.Push(string.Empty);
                         return;
                     }
 
-                    byte index = _context.AddStaticField(field);
-                    AccessSlot(OpCode.LDSFLD, index);
+                    byte index = Context.AddStaticField(field);
+                    _instructionsBuilder.LdSFld(index);
                 }
                 else
                 {
                     int index = Array.IndexOf(field.ContainingType.GetFields(), field);
                     ConvertExpression(model, expression.Expression);
-                    Push(index);
-                    AddInstruction(OpCode.PICKITEM);
+                    _instructionsBuilder.PickItem(index);
                 }
                 break;
             case IMethodSymbol method:
@@ -118,8 +117,7 @@ internal partial class MethodConvert
         {
             case IFieldSymbol field:
                 int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                Push(index);
-                AddInstruction(OpCode.PICKITEM);
+                _instructionsBuilder.PickItem(index);
                 break;
             case IPropertySymbol property:
                 CallMethodWithConvention(model, property.GetMethod!);

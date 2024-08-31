@@ -45,7 +45,7 @@ internal partial class MethodConvert
     private void ConvertTypePattern(SemanticModel model, TypePatternSyntax pattern, byte localIndex)
     {
         ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
-        AccessSlot(OpCode.LDLOC, localIndex);
-        IsType(type.GetPatternType());
+        _instructionsBuilder.LdLoc(localIndex);
+        _instructionsBuilder.IsType(type.GetPatternType());
     }
 }

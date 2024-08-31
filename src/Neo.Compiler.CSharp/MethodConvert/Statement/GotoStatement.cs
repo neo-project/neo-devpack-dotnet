@@ -62,9 +62,9 @@ namespace Neo.Compiler
                     ILabelSymbol symbol = (ILabelSymbol)model.GetSymbolInfo(syntax.Expression!).Symbol!;
                     JumpTarget target = AddLabel(symbol, false);
                     if (_tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally && !result.Labels.Contains(symbol))
-                        result.PendingGotoStatments.Add(Jump(OpCode.ENDTRY_L, target));
+                        result.PendingGotoStatments.Add(_instructionsBuilder.Jump(OpCode.ENDTRY_L, target));
                     else
-                        Jump(OpCode.JMP_L, target);
+                        _instructionsBuilder.JmpL(target);
                 }
                 else
                 {
@@ -100,9 +100,9 @@ namespace Neo.Compiler
                         }
                     }
                     if (_tryStack.TryPeek(out ExceptionHandling? result) && result.SwitchCount == 0)
-                        Jump(OpCode.ENDTRY_L, target);
+                        _instructionsBuilder.Jump(OpCode.ENDTRY_L, target);
                     else
-                        Jump(OpCode.JMP_L, target);
+                        _instructionsBuilder.JmpL(target);
                 }
         }
     }

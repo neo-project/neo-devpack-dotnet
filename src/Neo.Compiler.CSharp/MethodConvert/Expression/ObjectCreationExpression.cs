@@ -56,15 +56,15 @@ internal partial class MethodConvert
             switch (symbol)
             {
                 case IFieldSymbol field:
-                    AddInstruction(OpCode.DUP);
+                    _instructionsBuilder.Dup();
                     int index = Array.IndexOf(field.ContainingType.GetFields(), field);
-                    Push(index);
+                    _instructionsBuilder.Push(index);
                     ConvertExpression(model, ae.Right);
-                    AddInstruction(OpCode.SETITEM);
+                    _instructionsBuilder.SetItem();
                     break;
                 case IPropertySymbol property:
                     ConvertExpression(model, ae.Right);
-                    AddInstruction(OpCode.OVER);
+                    _instructionsBuilder.Over();
                     CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                     break;
                 default:

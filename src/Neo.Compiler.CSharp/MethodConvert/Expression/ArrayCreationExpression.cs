@@ -48,9 +48,9 @@ internal partial class MethodConvert
         {
             ConvertExpression(model, specifier.Sizes[0]);
             if (type.ElementType.SpecialType == SpecialType.System_Byte)
-                AddInstruction(OpCode.NEWBUFFER);
+                _instructionsBuilder.NewBuffer();
             else
-                AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.ElementType.GetStackItemType() } });
+                _instructionsBuilder.AddInstruction(new Instruction { OpCode = OpCode.NEWARRAY_T, Operand = new[] { (byte)type.ElementType.GetStackItemType() } });
         }
         else
         {

@@ -57,23 +57,23 @@ internal partial class MethodConvert
         JumpTarget breakTarget = new();
         byte anonymousIndex = AddAnonymousVariable();
         ConvertExpression(model, expression.GoverningExpression);
-        AccessSlot(OpCode.STLOC, anonymousIndex);
+        _instructionsBuilder.StLoc(anonymousIndex);
         foreach (var (arm, nextTarget) in arms)
         {
             ConvertPattern(model, arm.Pattern, anonymousIndex);
-            Jump(OpCode.JMPIFNOT_L, nextTarget);
+            _instructionsBuilder.JmpIfNotL(nextTarget);
             if (arm.WhenClause is not null)
             {
                 ConvertExpression(model, arm.WhenClause.Condition);
-                Jump(OpCode.JMPIFNOT_L, nextTarget);
+                _instructionsBuilder.JmpIfNotL(nextTarget);
             }
             ConvertExpression(model, arm.Expression);
-            Jump(OpCode.JMP_L, breakTarget);
-            nextTarget.Instruction = AddInstruction(OpCode.NOP);
+            _instructionsBuilder.JmpL(breakTarget);
+            _instructionsBuilder.AddTarget(nextTarget);
         }
-        AccessSlot(OpCode.LDLOC, anonymousIndex);
-        AddInstruction(OpCode.THROW);
-        breakTarget.Instruction = AddInstruction(OpCode.NOP);
+        _instructionsBuilder.LdLoc(anonymousIndex);
+        _instructionsBuilder.Throw();
+        _instructionsBuilder.AddTarget(breakTarget);
         RemoveAnonymousVariable(anonymousIndex);
     }
 }
