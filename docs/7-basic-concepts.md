@@ -25,23 +25,14 @@ If more than one method qualifying as an entry point is declared within a smart 
 >
 > ```csharp
 > using Neo.SmartContract.Framework;
-> 
+>
 > public class MyContract : SmartContract
 > {
->     public static bool Main(string operation, object[] args)
->     {
->         if (operation == "add")
->             return Add((int)args[0], (int)args[1]);
->         if (operation == "subtract")
->             return Subtract((int)args[0], (int)args[1]);
->         return false;
->     }
-> 
 >     public static int Add(int a, int b)
 >     {
 >         return a + b;
 >     }
-> 
+>
 >     public static int Subtract(int a, int b)
 >     {
 >         return a - b;
@@ -49,13 +40,15 @@ If more than one method qualifying as an entry point is declared within a smart 
 > }
 > ```
 >
-> In this example, `Main`, `Add`, and `Subtract` are all valid entry points. The `Main` method acts as a dispatcher, allowing callers to specify which operation to perform.
+> In this example, `Add` and `Subtract` are all valid entry points.
 >
 > *end example*
 
-Unlike traditional C# applications, smart contracts are not directly executed by users. Instead, users interact with smart contracts by building and submitting transactions to the Neo blockchain. These transactions specify which contract to invoke, which method to call, and what parameters to pass.
+Unlike traditional C# applications, smart contracts are not directly executed by users. Instead, users interact with smart contracts by submitting transactions to the Neo blockchain. These transactions specify which contract to invoke, which method to call, and what parameters to pass.
 
-The execution environment can access the smart contract's entry points regardless of their declared accessibility. However, it's a best practice to declare all entry points as `public` to clearly indicate their intended use.
+Entry points in a Neo smart contract must be declared as `public`. They can be either instance methods or static methods. The execution environment will only recognize public methods as valid entry points, regardless of whether they are static or not.
+
+Example:
 
 ## 7.2 Smart Contract Termination
 
@@ -72,7 +65,7 @@ Smart contract developers should be aware of the gas costs associated with contr
 > ```csharp
 > using Neo.SmartContract.Framework;
 > using Neo.SmartContract.Framework.Services.Neo;
-> 
+>
 > public class GasAwareContract : SmartContract
 > {
 >     public static bool Main()
@@ -83,7 +76,7 @@ Smart contract developers should be aware of the gas costs associated with contr
 >             Runtime.Log("Not enough gas to continue execution safely");
 >             return false;
 >         }
->         
+>
 >         // Proceed with contract logic
 >         return true;
 >     }
@@ -101,9 +94,9 @@ Declarations in a Neo smart contract define the structure and behavior of the co
 The kinds of members permitted in a Neo smart contract class declaration include:
 
 - Constants
-- Fields (with limitations)
+- Fields
 - Methods
-- Properties (with limitations)
+- Properties
 - Events
 - Nested types (with limitations)
 
@@ -111,46 +104,46 @@ The kinds of members permitted in a Neo smart contract class declaration include
 > - Instance constructors (use the `_deploy` method instead)
 > - Static constructors
 > - Finalizers
-> - Indexers
-> - Operators
 > - Unsafe code
+> - File I/O
+> - Networking
 > - Threading and parallel processing
 >
-> These limitations are due to the deterministic and single-threaded nature of blockchain execution, as well as security considerations. *end note*
+> These limitations are due to the isolated, deterministic, and single-threaded nature of smart contract execution on the blockchain. Smart contracts must produce consistent results across all nodes in the network, ensuring predictable behavior and maintaining the integrity of the blockchain. The restrictions also help prevent potential security vulnerabilities and ensure efficient execution within the constrained environment of the blockchain. *end note*
 
-It is a compile-time error to declare multiple members with the same name in a Neo smart contract, except in the case of method overloading.
+In Neo smart contracts, method overloading is supported with limitations. Multiple methods can have the same name, but they must have a different number of parameters. This is because Neo indexes contract methods by their name and the number of parameters they accept.
 
 > *Example*: Here's an example of a Neo smart contract with various member declarations:
 >
 > ```csharp
 > using Neo.SmartContract.Framework;
-> 
+>
 > public class TokenContract : SmartContract
 > {
 >     private const string MapName = "balances";
->     
+>
 >     public static string Name() => "MyToken";
 >     public static string Symbol() => "MYT";
->     
+>
 >     public static bool Transfer(byte[] from, byte[] to, BigInteger amount)
 >     {
 >         if (amount <= 0) return false;
 >         if (!Runtime.CheckWitness(from)) return false;
->         
+>
 >         StorageMap balances = Storage.CurrentContext.CreateMap(MapName);
 >         BigInteger fromBalance = balances.Get(from).ToBigInteger();
 >         if (fromBalance < amount) return false;
->         
+>
 >         if (from == to) return true;
->         
+>
 >         BigInteger toBalance = balances.Get(to).ToBigInteger();
 >         balances.Put(from, fromBalance - amount);
 >         balances.Put(to, toBalance + amount);
->         
+>
 >         OnTransfer(from, to, amount);
 >         return true;
 >     }
->     
+>
 >     public static event Action<byte[], byte[], BigInteger> OnTransfer;
 > }
 > ```
@@ -160,59 +153,85 @@ It is a compile-time error to declare multiple members with the same name in a N
 > *end example*
 
 
-## 7.1 Application startup
+## 7.1 Smart Contract Entry Points
 
-A program may be compiled either as a ***class library*** to be used as part of other applications, or as an ***application*** that may be started directly. The mechanism for determining this mode of compilation is implementation-specific and external to this specification.
+A Neo smart contract is compiled as a special type of class library that runs on the Neo blockchain. Unlike traditional C# programs, smart contracts do not have a `Main()` method as an entry point. Instead, entry points in a Neo smart contract are public methods within a class that inherits from the `SmartContract` base class.
 
-A program compiled as an application shall contain at least one method qualifying as an entry point by satisfying the following requirements:
+A Neo smart contract shall contain at least one public method qualifying as an entry point by satisfying the following requirements:
 
-- It shall have the name `Main`.
-- It shall be `static`.
+- It shall be `public`.
 - It shall not be generic.
-- It shall be declared in a non-generic type. If the type declaring the method is a nested type, none of its enclosing types may be generic.
-- The return type shall be `void`, or `int`.
-- It shall not be a partial method ([§15.6.9](15-classes.md#1569-partial-methods)) without an implementation.
-- The formal parameter list shall either be empty, or have a single value parameter of type `string[]`.
+- It shall be declared in a non-generic type that inherits from `SmartContract`.
+- The return type shall be one of the supported types in Neo (e.g., `void`, `bool`, `int`, `string`, `byte[]`, etc.)[$8](8-types.md#8-types).
+- The parameter types shall be supported Neo types.
 
-If more than one method qualifying as an entry point is declared within a program, an external mechanism may be used to specify which method is deemed to be the actual entry point for the application. If a qualifying method having a return type of `int` or `void` is found, any qualifying method having a return type of `System.Threading.Tasks.Task` or `System.Threading.Tasks.Task<int>` is not considered an entry point method. It is a compile-time error for a program to be compiled as an application without exactly one entry point. A program compiled as a class library may contain methods that would qualify as application entry points, but the resulting library has no entry point.
+> *Note*: Neo smart contracts do not support `float`, `double`, or `decimal` types. Use `int` or `long` for numerical values. *end note*
 
-Ordinarily, the declared accessibility ([§7.5.2](7-basic-concepts.md#752-declared-accessibility)) of a method is determined by the access modifiers ([§15.3.6](15-classes.md#1536-access-modifiers)) specified in its declaration, and similarly the declared accessibility of a type is determined by the access modifiers specified in its declaration. In order for a given method of a given type to be callable, both the type and the member shall be accessible. However, the application entry point is a special case. Specifically, the execution environment can access the application’s entry point regardless of its declared accessibility and regardless of the declared accessibility of its enclosing type declarations.
+If more than one method qualifying as an entry point is declared within a smart contract, external mechanisms (such as the Neo blockchain's invocation process) are used to specify which method is called when the contract is invoked.
 
-When the entry point method has a return type of `System.Threading.Tasks.Task` or `System.Threading.Tasks.Task<int>`, the compiler synthesizes a synchronous entry-point method that calls the corresponding `Main` method. The synthesized method has parameters and return types based on the `Main` method:
+Unlike traditional C# applications, smart contracts are not directly executed by users. Instead, users interact with smart contracts by submitting transactions to the Neo blockchain. These transactions specify which contract to invoke, which method to call, and what parameters to pass.
 
-- The formal parameter list of the synthesized method is the same as the formal parameter list of the `Main` method
+Entry points in a Neo smart contract must be declared as `public`. They can be either instance methods or static methods. The execution environment will only recognize public methods as valid entry points, regardless of whether they are static or not.
 
-Execution of the synthesized method proceeds as follows:
+> *Example*: Here's a simple Neo smart contract with multiple entry points:
+>
+> ```csharp
+> using Neo.SmartContract.Framework;
+>
+> public class MyContract : SmartContract
+> {
+>     public static int Add(int a, int b)
+>     {
+>         return a + b;
+>     }
+>
+>     public static int Subtract(int a, int b)
+>     {
+>         return a - b;
+>     }
+> }
+> ```
+>
+> In this example, `Add` and `Subtract` are both valid entry points.
+>
+> *end example*
 
-- The synthesized method calls the `Main` method, passing its `string[]` parameter value as an argument if the `Main` method has such a parameter.
-- If the `Main` method throws an exception, the exception is propagated by the synthesized method.
-- Otherwise, the synthesized entry point waits for the returned task to complete, calling `GetAwaiter().GetResult()` on the task, using either the parameterless instance method or the extension method described by [§C.3](standard-library.md#c3-standard-library-types-not-defined-in-isoiec-23271). If the task fails, `GetResult()` will throw an exception, and this exception is propagated by the synthesized method.
-- For a `Main` method with a return type of `System.Threading.Tasks.Task<int>`, if the task completes successfully, the `int` value returned by `GetResult()` is returned from the synthesized method.
+## 7.2 Smart Contract Termination
 
-The ***effective entry point*** of an application is the entry point declared within the program, or the synthesized method if one is required as described above. The return type of the effective entry point is therefore always `void` or `int`.
+Smart contract execution terminates when all operations in the invoked method have completed, or when an unhandled exception occurs. Unlike traditional C# programs, there is no concept of "application termination" in Neo smart contracts.
 
-When an application is run, a new ***application domain*** is created. Several different instantiations of an application may exist on the same machine at the same time, and each has its own application domain.
-An application domain enables application isolation by acting as a container for application state. An application domain acts as a container and boundary for the types defined in the application and the class libraries it uses. Types loaded into one application domain are distinct from the same types loaded into another application domain, and instances of objects are not directly shared between application domains. For instance, each application domain has its own copy of static variables for these types, and a static constructor for a type is run at most once per application domain. Implementations are free to provide implementation-specific policy or mechanisms for the creation and destruction of application domains.
+The outcome of a smart contract execution is determined by the blockchain's consensus mechanism. If the execution completes without exceptions, the changes made by the contract (such as storage modifications or asset transfers) are committed to the blockchain. If an exception occurs, all changes are rolled back, and the contract execution is considered failed.
 
-Application startup occurs when the execution environment calls the application’s effective entry point. If the effective entry point declares a parameter, then during application startup, the implementation shall ensure that the initial value of that parameter is a non-null reference to a string array. This array shall consist of non-null references to strings, called ***application parameters***, which are given implementation-defined values by the host environment prior to application startup. The intent is to supply to the application information determined prior to application startup from elsewhere in the hosted environment.
+> *Note*: Neo smart contracts do not support finalizers or destructors. The concept of "cleaning up" resources doesn't apply in the same way as in traditional C# programming, as the contract's state is managed by the blockchain. *end note*
 
-> *Note*: On systems supporting a command line, application parameters correspond to what are generally known as command-line arguments. *end note*
+Smart contract developers should be aware of the gas costs associated with contract execution. Each operation in a smart contract consumes a certain amount of GAS, which is the fuel for running contracts on the Neo blockchain. If a contract execution exceeds the gas limit specified in the invoking transaction, execution is halted and all changes are reverted.
 
-If the effective entry point’s return type is `int`, the return value from the method invocation by the execution environment is used in application termination ([§7.2](7-basic-concepts.md#72-application-termination)).
-
-Other than the situations listed above, entry point methods behave like those that are not entry points in every respect. In particular, if the entry point is invoked at any other point during the application’s lifetime, such as by regular method invocation, there is no special handling of the method: if there is a parameter, it may have an initial value of `null`, or a non-`null` value referring to an array that contains null references. Likewise, the return value of the entry point has no special significance other than in the invocation from the execution environment.
-
-## 7.2 Application termination
-
-***Application termination*** returns control to the execution environment.
-
-If the return type of the application’s effective entry point method is `int` and execution completes without resulting in an exception, the value of the `int` returned serves as the application’s ***termination status code***. The purpose of this code is to allow communication of success or failure to the execution environment. If the return type of the effective entry point method is `void` and execution completes without resulting in an exception, the termination status code is `0`.
-
-If the effective entry point method terminates due to an exception ([§21.4](21-exceptions.md#214-how-exceptions-are-handled)), the exit code is implementation-specific. Additionally, the implementation may provide alternative APIs for specifying the exit code.
-
-Whether or not finalizers ([§15.13](15-classes.md#1513-finalizers)) are run as part of application termination is implementation-specific.
-
-> *Note*: The .NET Framework implementation makes every reasonable effort to call finalizers ([§15.13](15-classes.md#1513-finalizers)) for all of its objects that have not yet been garbage collected, unless such cleanup has been suppressed (by a call to the library method `GC.SuppressFinalize`, for example). *end note*
+> *Example*: Here's an example of how to check the remaining gas in a contract:
+>
+> ```csharp
+> using Neo.SmartContract.Framework;
+> using Neo.SmartContract.Framework.Services.Neo;
+>
+> public class GasAwareContract : SmartContract
+> {
+>     public static bool Main()
+>     {
+>         ulong gasLeft = Runtime.GasLeft;
+>         if (gasLeft < 10)
+>         {
+>             Runtime.Log("Not enough gas to continue execution safely");
+>             return false;
+>         }
+>
+>         // Proceed with contract logic
+>         return true;
+>     }
+> }
+> ```
+>
+> This contract checks the remaining gas before proceeding with its main logic, helping to prevent unexpected halts due to out-of-gas conditions.
+>
+> *end example*
 
 ## 7.3 Declarations
 
@@ -221,7 +240,7 @@ Declarations in a C# program define the constituent elements of the program. C#
 A declaration defines a name in the ***declaration space*** to which the declaration belongs. It is a compile-time error to have two or more declarations that introduce members with the same name in a declaration space, except in the following cases:
 
 - Two or more namespace declarations with the same name are allowed in the same declaration space. Such namespace declarations are aggregated to form a single logical namespace and share a single declaration space.
-- Declarations in separate programs but in the same namespace declaration space are allowed to share the same name.  
+- Declarations in separate programs but in the same namespace declaration space are allowed to share the same name.
     > *Note*: However, these declarations could introduce ambiguities if included in the same application. *end note*
 - Two or more methods with the same name but distinct signatures are allowed in the same declaration space ([§7.6](7-basic-concepts.md#76-signatures-and-overloading)).
 - Two or more type declarations with the same name but distinct numbers of type parameters are allowed in the same declaration space ([§7.8.2](7-basic-concepts.md#782-unqualified-names)).
@@ -433,9 +452,9 @@ Depending on the context in which a member declaration takes place, only certain
 
 - Namespaces implicitly have `public` declared accessibility. No access modifiers are allowed on namespace declarations.
 - Types declared directly in compilation units or namespaces (as opposed to within other types) can have `public` or `internal` declared accessibility and default to `internal` declared accessibility.
-- Class members can have any of the permitted kinds of declared accessibility and default to `private` declared accessibility.  
+- Class members can have any of the permitted kinds of declared accessibility and default to `private` declared accessibility.
     > *Note*: A type declared as a member of a class can have any of the permitted kinds of declared accessibility, whereas a type declared as a member of a namespace can have only `public` or `internal` declared accessibility. *end note*
-- Struct members can have `public`, `internal`, or `private` declared accessibility and default to `private` declared accessibility because structs are implicitly sealed. Struct members introduced in a `struct` (that is, not inherited by that struct) cannot have `protected`, `protected internal`, or `private protected` declared accessibility.  
+- Struct members can have `public`, `internal`, or `private` declared accessibility and default to `private` declared accessibility because structs are implicitly sealed. Struct members introduced in a `struct` (that is, not inherited by that struct) cannot have `protected`, `protected internal`, or `private protected` declared accessibility.
     > *Note*: A type declared as a member of a struct can have `public`, `internal`, or `private` declared accessibility, whereas a type declared as a member of a namespace can have only `public` or `internal` declared accessibility. *end note*
 - Interface members implicitly have `public` declared accessibility. No access modifiers are allowed on interface member declarations.
 - Enumeration members implicitly have `public` declared accessibility. No access modifiers are allowed on enumeration member declarations.
@@ -759,7 +778,7 @@ The ***scope*** of a name is the region of program text within which it is possi
 - The scope of a namespace member declared by a *namespace_member_declaration* within a *namespace_declaration* whose fully qualified name is `N`, is the *namespace_body* of every *namespace_declaration* whose fully qualified name is `N` or starts with `N`, followed by a period.
 - The scope of a name defined by an *extern_alias_directive* ([§14.4](14-namespaces.md#144-extern-alias-directives)) extends over the *using_directive*s, *global_attributes* and *namespace_member_declaration*s of its immediately containing *compilation_unit* or *namespace_body*. An *extern_alias_directive* does not contribute any new members to the underlying declaration space. In other words, an *extern_alias_directive* is not transitive, but, rather, affects only the *compilation_unit* or *namespace_body* in which it occurs.
 - The scope of a name defined or imported by a *using_directive* ([§14.5](14-namespaces.md#145-using-directives)) extends over the *global_attributes* and *namespace_member_declaration*s of the *compilation_unit* or *namespace_body* in which the *using_directive* occurs. A *using_directive* may make zero or more namespace or type names available within a particular *compilation_unit* or *namespace_body*, but does not contribute any new members to the underlying declaration space. In other words, a *using_directive* is not transitive but rather affects only the *compilation_unit* or *namespace_body* in which it occurs.
-- The scope of a type parameter declared by a *type_parameter_list* on a *class_declaration* ([§15.2](15-classes.md#152-class-declarations)) is the *class_base*, *type_parameter_constraints_clauses*, and *class_body* of that *class_declaration*.  
+- The scope of a type parameter declared by a *type_parameter_list* on a *class_declaration* ([§15.2](15-classes.md#152-class-declarations)) is the *class_base*, *type_parameter_constraints_clauses*, and *class_body* of that *class_declaration*.
     > *Note*: Unlike members of a class, this scope does not extend to derived classes. *end note*
 - The scope of a type parameter declared by a *type_parameter_list* on a *struct_declaration* ([§16.2](16-structs.md#162-struct-declarations)) is the *struct_interfaces*, *type_parameter_constraints_clause*s, and *struct_body* of that *struct_declaration*.
 - The scope of a type parameter declared by a *type_parameter_list* on an *interface_declaration* ([§18.2](18-interfaces.md#182-interface-declarations)) is the *interface_base*, *type_parameter_constraints_clause*s, and *interface_body* of that *interface_declaration*.
@@ -885,7 +904,7 @@ Name hiding through nesting can occur as a result of nesting namespaces or types
 >     void F()
 >     {
 >         int i = 1;
-> 
+>
 >         void M1()
 >         {
 >             float i = 1.0f;
@@ -1027,7 +1046,7 @@ namespace_name
 type_name
     : namespace_or_type_name
     ;
-    
+
 namespace_or_type_name
     : identifier type_argument_list?
     | namespace_or_type_name '.' identifier type_argument_list?
@@ -1057,7 +1076,7 @@ The meaning of a *namespace_or_type_name* is determined as follows:
   - If `x` is zero and the *namespace_or_type_name* appears within a generic method declaration ([§15.6](15-classes.md#156-methods)) but outside the *attributes* of its *method-header,* and if that declaration includes a type parameter ([§15.2.3](15-classes.md#1523-type-parameters)) with name `I`, then the *namespace_or_type_name* refers to that type parameter.
   - Otherwise, if the *namespace_or_type_name* appears within a type declaration, then for each instance type `T` ([§15.3.2](15-classes.md#1532-the-instance-type)), starting with the instance type of that type declaration and continuing with the instance type of each enclosing class or struct declaration (if any):
     - If `x` is zero and the declaration of `T` includes a type parameter with name `I`, then the *namespace_or_type_name* refers to that type parameter.
-    - Otherwise, if the *namespace_or_type_name* appears within the body of the type declaration, and `T` or any of its base types contain a nested accessible type having name `I` and `x` type parameters, then the *namespace_or_type_name* refers to that type constructed with the given type arguments. If there is more than one such type, the type declared within the more derived type is selected.  
+    - Otherwise, if the *namespace_or_type_name* appears within the body of the type declaration, and `T` or any of its base types contain a nested accessible type having name `I` and `x` type parameters, then the *namespace_or_type_name* refers to that type constructed with the given type arguments. If there is more than one such type, the type declared within the more derived type is selected.
     > *Note*: Non-type members (constants, fields, methods, properties, indexers, operators, instance constructors, finalizers, and static constructors) and type members with a different number of type parameters are ignored when determining the meaning of the *namespace_or_type_name*. *end note*
   - Otherwise, for each namespace `N`, starting with the namespace in which the *namespace_or_type_name* occurs, continuing with each enclosing namespace (if any), and ending with the global namespace, the following steps are evaluated until an entity is located:
     - If `x` is zero and `I` is the name of a namespace in `N`, then:
@@ -1124,11 +1143,11 @@ In other words, the fully qualified name of `N` is the complete hierarchical pa
 > {
 >     class E {}             // X.Y.E
 >     class G<T>             // X.Y.G<>
->     {           
+>     {
 >         class H {}         // X.Y.G<>.H
 >     }
 >     class G<S,T>           // X.Y.G<,>
->     {         
+>     {
 >         class H<U> {}      // X.Y.G<,>.H<>
 >     }
 > }
@@ -1141,10 +1160,10 @@ In other words, the fully qualified name of `N` is the complete hierarchical pa
 C# employs automatic memory management, which frees developers from manually allocating and freeing the memory occupied by objects. Automatic memory management policies are implemented by a garbage collector. The memory management life cycle of an object is as follows:
 
 1. When the object is created, memory is allocated for it, the constructor is run, and the object is considered ***live***.
-1. If neither the object nor any of its instance fields can be accessed by any possible continuation of execution, other than the running of finalizers, the object is considered ***no longer in use*** and it becomes eligible for finalization.  
+1. If neither the object nor any of its instance fields can be accessed by any possible continuation of execution, other than the running of finalizers, the object is considered ***no longer in use*** and it becomes eligible for finalization.
     > *Note*: The C# compiler and the garbage collector might choose to analyze code to determine which references to an object might be used in the future. For instance, if a local variable that is in scope is the only existing reference to an object, but that local variable is never referred to in any possible continuation of execution from the current execution point in the procedure, the garbage collector might (but is not required to) treat the object as no longer in use. *end note*
 1. Once the object is eligible for finalization, at some unspecified later time the finalizer ([§15.13](15-classes.md#1513-finalizers)) (if any) for the object is run. Under normal circumstances the finalizer for the object is run once only, though implementation-specific APIs may allow this behavior to be overridden.
-1. Once the finalizer for an object is run, if neither the object nor any of its instance fields can be accessed by any possible continuation of execution, including the running of finalizers, the object is considered inaccessible and the object becomes eligible for collection.  
+1. Once the finalizer for an object is run, if neither the object nor any of its instance fields can be accessed by any possible continuation of execution, including the running of finalizers, the object is considered inaccessible and the object becomes eligible for collection.
     > *Note*: An object which could previously not be accessed may become accessible again due to its finalizer. An example of this is provided below. *end note*
 1. Finally, at some time after the object becomes eligible for collection, the garbage collector frees the memory associated with that object.
 

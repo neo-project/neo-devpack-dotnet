@@ -41,7 +41,7 @@ input_element
 // Source: §6.3.2 Line terminators
 New_Line
     : New_Line_Character
-    | '\u000D\u000A'    // carriage return, line feed 
+    | '\u000D\u000A'    // carriage return, line feed
     ;
 
 // Source: §6.3.3 Comments
@@ -58,7 +58,7 @@ fragment Input_Character
     // anything but New_Line_Character
     : ~('\u000D' | '\u000A'   | '\u0085' | '\u2028' | '\u2029')
     ;
-    
+
 fragment New_Line_Character
     : '\u000D'  // carriage return
     | '\u000A'  // line feed
@@ -66,11 +66,11 @@ fragment New_Line_Character
     | '\u2028'  // line separator
     | '\u2029'  // paragraph separator
     ;
-    
+
 fragment Delimited_Comment
     : '/*' Delimited_Comment_Section* ASTERISK+ '/'
     ;
-    
+
 fragment Delimited_Comment_Section
     : SLASH
     | ASTERISK* Not_Slash_Or_Asterisk
@@ -125,7 +125,7 @@ fragment Available_Identifier
 fragment Escaped_Identifier
     // Includes keywords and contextual keywords prefixed by '@'.
     // See note below.
-    : '@' Basic_Identifier 
+    : '@' Basic_Identifier
     ;
 
 fragment Basic_Identifier
@@ -190,10 +190,10 @@ fragment Formatting_Character
 keyword
     : 'abstract' | 'as'       | 'base'       | 'bool'      | 'break'
     | 'byte'     | 'case'     | 'catch'      | 'char'      | 'checked'
-    | 'class'    | 'const'    | 'continue'   | 'decimal'   | DEFAULT
+    | 'class'    | 'const'    | 'continue'   | ''   | DEFAULT
     | 'delegate' | 'do'       | 'double'     | 'else'      | 'enum'
     | 'event'    | '' | ''     | FALSE       | 'finally'
-    | 'fixed'    | 'float'    | 'for'        | 'foreach'   | 'goto'
+    | ''    | ''    | 'for'        | 'foreach'   | 'goto'
     | 'if'       | '' | 'in'         | 'int'       | 'interface'
     | 'internal' | 'is'       | ''       | 'long'      | 'namespace'
     | 'new'      | NULL       | 'object'     | ''  | 'out'
@@ -202,7 +202,7 @@ keyword
     | 'short'    | 'sizeof'   | '' | 'static'    | 'string'
     | 'struct'   | 'switch'   | 'this'       | 'throw'     | TRUE
     | 'try'      | 'typeof'   | 'uint'       | 'ulong'     | 'unchecked'
-    | 'while'    | 'ushort'   | 'using'      | 'virtual'   | 'void' 
+    | 'while'    | 'ushort'   | 'using'      | 'virtual'   | 'void'
     ;
 
 // Source: §6.4.4 Keywords
@@ -245,16 +245,16 @@ fragment Decimal_Integer_Literal
 fragment Decorated_Decimal_Digit
     : '_'* Decimal_Digit
     ;
-       
+
 fragment Decimal_Digit
     : '0'..'9'
     ;
-    
+
 fragment Integer_Type_Suffix
     : 'U' | 'u' | 'L' | 'l' |
       'UL' | 'Ul' | 'uL' | 'ul' | 'LU' | 'Lu' | 'lU' | 'lu'
     ;
-    
+
 fragment Hexadecimal_Integer_Literal
     : ('0x' | '0X') Decorated_Hex_Digit+ Integer_Type_Suffix?
     ;
@@ -262,11 +262,11 @@ fragment Hexadecimal_Integer_Literal
 fragment Decorated_Hex_Digit
     : '_'* Hex_Digit
     ;
-       
+
 fragment Hex_Digit
     : '0'..'9' | 'A'..'F' | 'a'..'f'
     ;
-   
+
 fragment Binary_Integer_Literal
     : ('0b' | '0B') Decorated_Binary_Digit+ Integer_Type_Suffix?
     ;
@@ -274,7 +274,7 @@ fragment Binary_Integer_Literal
 fragment Decorated_Binary_Digit
     : '_'* Binary_Digit
     ;
-       
+
 fragment Binary_Digit
     : '0' | '1'
     ;
@@ -304,24 +304,24 @@ fragment Real_Type_Suffix
 Character_Literal
     : '\'' Character '\''
     ;
-    
+
 fragment Character
     : Single_Character
     | Simple_Escape_Sequence
     | Hexadecimal_Escape_Sequence
     | Unicode_Escape_Sequence
     ;
-    
+
 fragment Single_Character
     // anything but ', \, and New_Line_Character
     : ~['\\\u000D\u000A\u0085\u2028\u2029]
     ;
-    
+
 fragment Simple_Escape_Sequence
     : '\\\'' | '\\"' | '\\\\' | '\\0' | '\\a' | '\\b' |
       '\\f' | '\\n' | '\\r' | '\\t' | '\\v'
     ;
-    
+
 fragment Hexadecimal_Escape_Sequence
     : '\\x' Hex_Digit Hex_Digit? Hex_Digit? Hex_Digit?
     ;
@@ -331,11 +331,11 @@ String_Literal
     : Regular_String_Literal
     | Verbatim_String_Literal
     ;
-    
+
 fragment Regular_String_Literal
     : '"' Regular_String_Literal_Character* '"'
     ;
-    
+
 fragment Regular_String_Literal_Character
     : Single_Regular_String_Literal_Character
     | Simple_Escape_Sequence
@@ -351,16 +351,16 @@ fragment Single_Regular_String_Literal_Character
 fragment Verbatim_String_Literal
     : '@"' Verbatim_String_Literal_Character* '"'
     ;
-    
+
 fragment Verbatim_String_Literal_Character
     : Single_Verbatim_String_Literal_Character
     | Quote_Escape_Sequence
     ;
-    
+
 fragment Single_Verbatim_String_Literal_Character
     : ~["]     // anything but quotation mark (U+0022)
     ;
-    
+
 fragment Quote_Escape_Sequence
     : '""'
     ;
@@ -430,11 +430,11 @@ fragment PP_Conditional_Symbol
 fragment PP_Expression
     : PP_Whitespace? PP_Or_Expression PP_Whitespace?
     ;
-    
+
 fragment PP_Or_Expression
     : PP_And_Expression (PP_Whitespace? '||' PP_Whitespace? PP_And_Expression)*
     ;
-    
+
 fragment PP_And_Expression
     : PP_Equality_Expression (PP_Whitespace? '&&' PP_Whitespace?
       PP_Equality_Expression)*
@@ -444,12 +444,12 @@ fragment PP_Equality_Expression
     : PP_Unary_Expression (PP_Whitespace? ('==' | '!=') PP_Whitespace?
       PP_Unary_Expression)*
     ;
-    
+
 fragment PP_Unary_Expression
     : PP_Primary_Expression
     | '!' PP_Whitespace? PP_Unary_Expression
     ;
-    
+
 fragment PP_Primary_Expression
     : TRUE
     | FALSE
@@ -474,15 +474,15 @@ fragment PP_Conditional
 fragment PP_If_Section
     : 'if' PP_Whitespace PP_Expression
     ;
-    
+
 fragment PP_Elif_Section
     : 'elif' PP_Whitespace PP_Expression
     ;
-    
+
 fragment PP_Else_Section
     : 'else'
     ;
-    
+
 fragment PP_Endif
     : 'endif'
     ;
@@ -522,11 +522,11 @@ fragment PP_Line_Indicator
     | DEFAULT
     | 'hidden'
     ;
-    
+
 fragment PP_Compilation_Unit_Name
     : '"' PP_Compilation_Unit_Name_Character+ '"'
     ;
-    
+
 fragment PP_Compilation_Unit_Name_Character
     // Any Input_Character except "
     : ~('\u000D' | '\u000A'   | '\u0085' | '\u2028' | '\u2029' | '#')
@@ -568,7 +568,7 @@ namespace_name
 type_name
     : namespace_or_type_name
     ;
-    
+
 namespace_or_type_name
     : identifier type_argument_list?
     | namespace_or_type_name '.' identifier type_argument_list?
@@ -668,11 +668,11 @@ floating_point_type
 tuple_type
     : '(' tuple_type_element (',' tuple_type_element)+ ')'
     ;
-    
+
 tuple_type_element
     : type identifier?
     ;
-    
+
 enum_type
     : type_name
     ;
@@ -688,7 +688,7 @@ type_argument_list
 
 type_arguments
     : type_argument (',' type_argument)*
-    ;   
+    ;
 
 type_argument
     : type
@@ -789,7 +789,7 @@ primary_no_array_creation_expression
     | checked_expression
     | unchecked_expression
     | default_value_expression
-    | nameof_expression    
+    | nameof_expression
     | anonymous_method_expression
     | stackalloc_expression
     ;
@@ -918,15 +918,15 @@ tuple_expression
     : '(' tuple_element (',' tuple_element)+ ')'
     | deconstruction_expression
     ;
-    
+
 tuple_element
     : (identifier ':')? expression
     ;
-    
+
 deconstruction_expression
     : 'var' deconstruction_tuple
     ;
-    
+
 deconstruction_tuple
     : '(' deconstruction_element (',' deconstruction_element)+ ')'
     ;
@@ -954,7 +954,7 @@ null_conditional_member_access
     : primary_expression '?' '.' identifier type_argument_list?
       dependent_access*
     ;
-    
+
 dependent_access
     : '.' identifier type_argument_list?    // member access
     | '[' argument_list ']'                 // element access
@@ -1155,7 +1155,7 @@ stackalloc_initializer
 stackalloc_initializer_element_list
      : stackalloc_element_initializer (',' stackalloc_element_initializer)* ','?
      ;
-    
+
 stackalloc_element_initializer
     : expression
     ;
@@ -1164,16 +1164,16 @@ stackalloc_element_initializer
 nameof_expression
     : 'nameof' '(' named_entity ')'
     ;
-    
+
 named_entity
     : named_entity_target ('.' identifier type_argument_list?)*
     ;
-    
+
 named_entity_target
     : simple_name
     | 'this'
     | 'base'
-    | predefined_type 
+    | predefined_type
     | qualified_alias_member
     ;
 
@@ -1707,7 +1707,7 @@ statement_expression_list
 
 // Source: §13.9.5 The foreach statement
 foreach_statement
-    : 'foreach' '(' ref_kind? local_variable_type identifier 'in' 
+    : 'foreach' '(' ref_kind? local_variable_type identifier 'in'
       expression ')' embedded_statement
     ;
 
@@ -1830,7 +1830,7 @@ extern_alias_directive
 using_directive
     : using_alias_directive
     | using_namespace_directive
-    | using_static_directive    
+    | using_static_directive
     ;
 
 // Source: §14.5.2 Using alias directives
@@ -1913,7 +1913,7 @@ type_parameter_constraints_clauses
     : type_parameter_constraints_clause
     | type_parameter_constraints_clauses type_parameter_constraints_clause
     ;
-    
+
 type_parameter_constraints_clause
     : 'where' type_parameter ':' type_parameter_constraints
     ;
@@ -2111,7 +2111,7 @@ parameter_array
 property_declaration
     : attributes? property_modifier* type member_name property_body
     | attributes? property_modifier* ref_kind type member_name ref_property_body
-    ;    
+    ;
 
 property_modifier
     : 'new'
@@ -2126,7 +2126,7 @@ property_modifier
     | 'abstract'
     | 'extern'
     ;
-    
+
 property_body
     : '{' accessor_declarations '}' property_initializer?
     | '=>' expression ';'
@@ -2168,13 +2168,13 @@ accessor_modifier
 accessor_body
     : block
     | '=>' expression ';'
-    | ';' 
+    | ';'
     ;
 
 ref_get_accessor_declaration
     : attributes? accessor_modifier? 'get' ref_accessor_body
     ;
-    
+
 ref_accessor_body
     : block
     | '=>' 'ref' variable_reference ';'
@@ -2200,11 +2200,6 @@ event_modifier
     | 'override'
     | 'abstract'
     | 'extern'
-    ;
-
-event_accessor_declarations
-    : add_accessor_declaration remove_accessor_declaration
-    | remove_accessor_declaration add_accessor_declaration
     ;
 
 add_accessor_declaration
@@ -2240,9 +2235,9 @@ indexer_declarator
     ;
 
 indexer_body
-    : '{' accessor_declarations '}' 
+    : '{' accessor_declarations '}'
     | '=>' expression ';'
-    ;  
+    ;
 
 ref_indexer_body
     : '{' ref_get_accessor_declaration '}'
@@ -2280,7 +2275,7 @@ binary_operator_declarator
     ;
 
 overloadable_binary_operator
-    : '+'  | '-'  | '*'  | '/'  | '%'  | '&' | '|' | '^'  | '<<' 
+    : '+'  | '-'  | '*'  | '/'  | '%'  | '&' | '|' | '^'  | '<<'
     | right_shift | '==' | '!=' | '>' | '<' | '>=' | '<='
     ;
 
@@ -2400,7 +2395,7 @@ array_initializer
 variable_initializer_list
     : variable_initializer (',' variable_initializer)*
     ;
-    
+
 variable_initializer
     : expression
     | array_initializer
@@ -2550,7 +2545,7 @@ delegate_header
     | identifier variant_type_parameter_list '(' formal_parameter_list? ')'
       type_parameter_constraints_clause* ';'
     ;
-    
+
 delegate_modifier
     : 'new'
     | 'public'

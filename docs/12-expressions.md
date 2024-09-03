@@ -24,12 +24,12 @@ For expressions which occur as subexpressions of larger expressions, with the no
 - A namespace. An expression with this classification can only appear as the left-hand side of a *member_access* ([§12.8.7](12-expressions.md#1287-member-access)). In any other context, an expression classified as a namespace causes a compile-time error.
 - A type. An expression with this classification can only appear as the left-hand side of a *member_access* ([§12.8.7](12-expressions.md#1287-member-access)). In any other context, an expression classified as a type causes a compile-time error.
 - A method group, which is a set of overloaded methods resulting from a member lookup ([§12.5](12-expressions.md#125-member-lookup)). A method group may have an associated instance expression and an associated type argument list. When an instance method is invoked, the result of evaluating the instance expression becomes the instance represented by `this` ([§12.8.13](12-expressions.md#12813-this-access)). A method group is permitted in an *invocation_expression* ([§12.8.9](12-expressions.md#1289-invocation-expressions)) or a *delegate_creation_expression* ([§12.8.16.6](12-expressions.md#128166-delegate-creation-expressions)), and can be implicitly converted to a compatible delegate type ([§10.8](10-conversions.md#108-method-group-conversions)). In any other context, an expression classified as a method group causes a compile-time error.
-- An event access. Every event access has an associated type, namely the type of the event. Furthermore, an event access may have an associated instance expression. An event access may appear as the left operand of the `+=` and `-=` operators ([§12.21.5](12-expressions.md#12215-event-assignment)). In any other context, an expression classified as an event access causes a compile-time error. When an accessor of an instance event access is invoked, the result of evaluating the instance expression becomes the instance represented by `this` ([§12.8.13](12-expressions.md#12813-this-access)).
+- An event access. In Neo smart contracts, events are used for logging and external notification purposes. Every event access has an associated type, which is the type of the event parameters. Events in Neo smart contracts do not support the `+=` and `-=` operators as in traditional C#. Instead, events are triggered (or "emitted") using a method-like syntax, typically through the `Runtime.Notify()` method or a similar framework-provided method. Events cannot be directly accessed or assigned to; they can only be declared and emitted. When an event is emitted, it incurs a GAS cost and creates a notification that can be observed by external systems monitoring the blockchain.
 - A throw expression, which may be used is several contexts to throw an exception in an expression. A throw expression may be converted by an implicit conversion to any type.
 
 A property access or indexer access is always reclassified as a value by performing an invocation of the get accessor or the set accessor. The particular accessor is determined by the context of the property or indexer access: If the access is the target of an assignment, the set accessor is invoked to assign a new value ([§12.21.2](12-expressions.md#12212-simple-assignment)). Otherwise, the get accessor is invoked to obtain the current value ([§12.2.2](12-expressions.md#1222-values-of-expressions)).
 
-An ***instance accessor*** is a property access on an instance, an event access on an instance, or an indexer access.
+An ***instance accessor*** is a property access on an instance or an indexer access. In Neo smart contracts, event access is not considered an instance accessor as events are typically static and do not operate on instances.
 
 ### 12.2.2 Values of expressions
 
@@ -438,11 +438,11 @@ Once a particular function member has been identified at binding-time, possibly 
 >   <tr>
 >     <td><code>P = value</code></td>
 >     <td>The set accessor of the property <code>P</code> in the containing class or struct is invoked with the argument list <code>(value)</code>. A compile-time error occurs if <code>P</code> is read-only. If <code>P</code> is not <code>static</code>, the instance expression is <code>this</code>.</td>
->   </tr>  
+>   </tr>
 >   <tr>
 >     <td><code>T.P</code></td>
 >     <td>The get accessor of the property <code>P</code> in the class or struct <code>T</code> is invoked. A compile-time error occurs if <code>P</code> is not <code>static</code> or if <code>P</code> is write-only.</td>
->   </tr>  
+>   </tr>
 >   <tr>
 >     <td><code>T.P = value</code></td>
 >     <td>The set accessor of the property <code>P</code> in the class or struct <code>T</code> is invoked with the argument list <code>(value)</code>. A compile-time error occurs if <code>P</code> is not <code>static</code> or if <code>P</code> is read-only.</td>
@@ -454,7 +454,7 @@ Once a particular function member has been identified at binding-time, possibly 
 >   <tr>
 >     <td><code>e.P = value</code></td>
 >     <td>The set accessor of the property <code>P</code> in the class, struct, or interface given by the type of <code>E</code> is invoked with the instance expression <code>e</code> and the argument list <code>(value)</code>. A binding-time error occurs if <code>P</code> is <code>static</code> or if <code>P</code> is read-only.</td>
->   </tr>  
+>   </tr>
 >   <tr>
 >     <td rowspan="6">Event access</td>
 >     <td><code>E += value</code></td>
@@ -515,7 +515,7 @@ Once a particular function member has been identified at binding-time, possibly 
 
 Every function member and delegate invocation includes an argument list, which provides actual values or variable references for the parameters of the function member. The syntax for specifying the argument list of a function member invocation depends on the function member category:
 
-- For instance constructors, methods, indexers and delegates, the arguments are specified as an *argument_list*, as described below. For indexers, when invoking the set accessor, the argument list additionally includes the expression specified as the right operand of the assignment operator.  
+- For instance constructors, methods, indexers and delegates, the arguments are specified as an *argument_list*, as described below. For indexers, when invoking the set accessor, the argument list additionally includes the expression specified as the right operand of the assignment operator.
    > *Note*: This additional argument is not used for overload resolution, just during invocation of the set accessor. *end note*
 - For properties, the argument list is empty when invoking the get accessor, and consists of the expression specified as the right operand of the assignment operator when invoking the set accessor.
 - For events, the argument list consists of the expression specified as the right operand of the `+=` or `-=` operator.
@@ -802,7 +802,7 @@ An *exact inference* *from* a type `U` *to* a type `V` is made as follows:
 - Otherwise, sets `V₁...Vₑ` and `U₁...Uₑ` are determined by checking if any of the following cases apply:
   - `V` is an array type `V₁[...]` and `U` is an array type `U₁[...]` of the same rank
   - `V` is the type `V₁?` and `U` is the type `U₁`
-  - `V` is a constructed type `C<V₁...Vₑ>` and `U` is a constructed type `C<U₁...Uₑ>`  
+  - `V` is a constructed type `C<V₁...Vₑ>` and `U` is a constructed type `C<U₁...Uₑ>`
   If any of these cases apply then an *exact inference* is made from each `Uᵢ` to the corresponding `Vᵢ`.
 - Otherwise, no inferences are made.
 
@@ -816,7 +816,7 @@ A *lower-bound inference from* a type `U` *to* a type `V` is made as follows:
   - `V` is an array type `V₁[...]`and `U` is an array type `U₁[...]`of the same rank
   - `V` is one of `IEnumerable<V₁>`, `ICollection<V₁>`, `IReadOnlyList<V₁>>`, `IReadOnlyCollection<V₁>` or `IList<V₁>` and `U` is a single-dimensional array type `U₁[]`
   - `V` is a constructed `class`, `struct`, `interface` or `delegate` type `C<V₁...Vₑ>` and there is a unique type `C<U₁...Uₑ>` such that `U` (or, if `U` is a type `parameter`, its effective base class or any member of its effective interface set) is identical to, `inherits` from (directly or indirectly), or implements (directly or indirectly) `C<U₁...Uₑ>`.
-  - (The “uniqueness” restriction means that in the case interface `C<T>{} class U: C<X>, C<Y>{}`, then no inference is made when inferring from `U` to `C<T>` because `U₁` could be `X` or `Y`.)  
+  - (The “uniqueness” restriction means that in the case interface `C<T>{} class U: C<X>, C<Y>{}`, then no inference is made when inferring from `U` to `C<T>` because `U₁` could be `X` or `Y`.)
   If any of these cases apply then an inference is made from each `Uᵢ` to the corresponding `Vᵢ` as follows:
   - If `Uᵢ` is not known to be a reference type then an *exact inference* is made
   - Otherwise, if `U` is an array type then a *lower-bound inference* is made
@@ -836,7 +836,7 @@ An *upper-bound inference from* a type `U` *to* a type `V` is made as follows:
   - `U` is one of `IEnumerable<Uₑ>`, `ICollection<Uₑ>`, `IReadOnlyList<Uₑ>`, `IReadOnlyCollection<Uₑ>` or `IList<Uₑ>` and `V` is a single-dimensional array type `Vₑ[]`
   - `U` is the type `U1?` and `V` is the type `V1?`
   - `U` is constructed class, struct, interface or delegate type `C<U₁...Uₑ>` and `V` is a `class, struct, interface` or `delegate` type which is `identical` to, `inherits` from (directly or indirectly), or implements (directly or indirectly) a unique type `C<V₁...Vₑ>`
-  - (The “uniqueness” restriction means that given an interface `C<T>{} class V<Z>: C<X<Z>>, C<Y<Z>>{}`, then no inference is made when inferring from `C<U₁>` to `V<Q>`. Inferences are not made from `U₁` to either `X<Q>` or `Y<Q>`.)  
+  - (The “uniqueness” restriction means that given an interface `C<T>{} class V<Z>: C<X<Z>>, C<Y<Z>>{}`, then no inference is made when inferring from `C<U₁>` to `V<Q>`. Inferences are not made from `U₁` to either `X<Q>` or `Y<Q>`.)
   If any of these cases apply then an inference is made from each `Uᵢ` to the corresponding `Vᵢ` as follows:
   - If `Uᵢ` is not known to be a reference type then an *exact inference* is made
   - Otherwise, if `V` is an array type then an *upper-bound inference* is made
@@ -1020,7 +1020,7 @@ When the implicit conversion from the argument type to the parameter type of an 
 > ```
 >
 > *end example*
-  
+
 - A static method is only applicable if the method group results from a *simple_name* or a *member_access* through a type.
 - An instance method is only applicable if the method group results from a *simple_name*, a *member_access* through a variable or value, or a *base_access*.
   - If the method group results from a *simple_name*, an instance method is only applicable if `this` access is permitted [§12.8.13](12-expressions.md#12813-this-access).
@@ -1231,7 +1231,7 @@ An expression `E` is ***deconstructed*** to a tuple expression with `n` elements
 - Otherwise, if the expression `E.Deconstruct(out var __v1, ..., out var __vn)` resolves at compile-time to a unique instance or extension method, that expression is evaluated, and the result of deconstruction is the expression `(__v1, ..., __vn)`. Such a method is referred to as a ***deconstructor***.
 - Otherwise, `E` cannot be deconstructed.
 
-Here, `__v` and `__v1, ..., __vn` refer to otherwise invisible and inaccessible temporary variables.  
+Here, `__v` and `__v1, ..., __vn` refer to otherwise invisible and inaccessible temporary variables.
 > *Note*: An expression of type `dynamic` cannot be deconstructed. *end note*
 
 ## 12.8 Primary expressions
@@ -1269,7 +1269,7 @@ primary_no_array_creation_expression
     | checked_expression
     | unchecked_expression
     | default_value_expression
-    | nameof_expression    
+    | nameof_expression
     | anonymous_method_expression
     | stackalloc_expression
     ;
@@ -1533,7 +1533,7 @@ A *simple_name* is either of the form `I` or of the form `I<A₁, ..., Aₑ>`, 
   - Otherwise, if the location where the *simple_name* occurs is enclosed by a namespace declaration for `N`:
     - If `e` is zero and the namespace declaration contains an *extern_alias_directive* or *using_alias_directive* that associates the name `I` with an imported namespace or type, then the *simple_name* refers to that namespace or type.
     - Otherwise, if the namespaces imported by the *using_namespace_directive*s of the namespace declaration contain exactly one type having name `I` and `e` type parameters, then the *simple_name* refers to that type constructed with the given type arguments.
-    - Otherwise, if the namespaces imported by the *using_namespace_directive*s of the namespace declaration contain more than one type having name `I` and `e` type parameters, then the *simple_name* is ambiguous and a compile-time error occurs.  
+    - Otherwise, if the namespaces imported by the *using_namespace_directive*s of the namespace declaration contain more than one type having name `I` and `e` type parameters, then the *simple_name* is ambiguous and a compile-time error occurs.
   > *Note*: This entire step is exactly parallel to the corresponding step in the processing of a *namespace_or_type_name* ([§7.8](7-basic-concepts.md#78-namespace-and-type-names)). *end note*
 - Otherwise, if `e` is zero and `I` is the identifier `_`, the *simple_name* is a *simple discard*, which is a form of declaration expression ([§12.17](12-expressions.md#1217-declaration-expressions)).
 - Otherwise, the *simple_name* is undefined and a compile-time error occurs.
@@ -1559,15 +1559,15 @@ tuple_expression
     : '(' tuple_element (',' tuple_element)+ ')'
     | deconstruction_expression
     ;
-    
+
 tuple_element
     : (identifier ':')? expression
     ;
-    
+
 deconstruction_expression
     : 'var' deconstruction_tuple
     ;
-    
+
 deconstruction_tuple
     : '(' deconstruction_element (',' deconstruction_element)+ ')'
     ;
@@ -1645,7 +1645,7 @@ The *member_access* is evaluated and classified as follows:
 
 - If `e` is zero and `E` is a namespace and `E` contains a nested namespace with name `I`, then the result is that namespace.
 - Otherwise, if `E` is a namespace and `E` contains an accessible type having name `I` and `K` type parameters, then the result is that type constructed with the given type arguments.
-- If `E` is classified as a type, if `E` is not a type parameter, and if a member lookup ([§12.5](12-expressions.md#125-member-lookup)) of `I` in `E` with `K` type parameters produces a match, then `E.I` is evaluated and classified as follows:  
+- If `E` is classified as a type, if `E` is not a type parameter, and if a member lookup ([§12.5](12-expressions.md#125-member-lookup)) of `I` in `E` with `K` type parameters produces a match, then `E.I` is evaluated and classified as follows:
   > *Note*: When the result of such a member lookup is a method group and `K` is zero, the method group can contain methods having type parameters. This allows such methods to be considered for type argument inferencing. *end note*
   - If `I` identifies a type, then the result is that type constructed with any given type arguments.
   - If `I` identifies one or more methods, then the result is a method group with no associated instance expression.
@@ -1722,7 +1722,7 @@ null_conditional_member_access
     : primary_expression '?' '.' identifier type_argument_list?
       dependent_access*
     ;
-    
+
 dependent_access
     : '.' identifier type_argument_list?    // member access
     | '[' argument_list ']'                 // element access
@@ -1833,7 +1833,7 @@ The binding-time processing of a method invocation of the form `M(A)`, where `M`
   - If `F` is generic and `M` includes a type argument list, `F` is a candidate when:
     - `F` has the same number of method type parameters as were supplied in the type argument list, and
     - Once the type arguments are substituted for the corresponding method type parameters, all constructed types in the parameter list of `F` satisfy their constraints ([§8.4.5](8-types.md#845-satisfying-constraints)), and the parameter list of `F` is applicable with respect to `A` ([§12.6.4.2](12-expressions.md#12642-applicable-function-member)).
-- The set of candidate methods is reduced to contain only methods from the most derived types: For each method `C.F` in the set, where `C` is the type in which the method `F` is declared, all methods declared in a base type of `C` are removed from the set. Furthermore, if `C` is a class type other than `object`, all methods declared in an interface type are removed from the set.  
+- The set of candidate methods is reduced to contain only methods from the most derived types: For each method `C.F` in the set, where `C` is the type in which the method `F` is declared, all methods declared in a base type of `C` are removed from the set. Furthermore, if `C` is a class type other than `object`, all methods declared in an interface type are removed from the set.
   > *Note*: This latter rule only has an effect when the method group was the result of a member lookup on a type parameter having an effective base class other than `object` and a non-empty effective interface set. *end note*
 - If the resulting set of candidate methods is empty, then further processing along the following steps are abandoned, and instead an attempt is made to process the invocation as an extension method invocation ([§12.8.9.3](12-expressions.md#12893-extension-method-invocations)). If this fails, then no applicable methods exist, and a binding-time error occurs.
 - The best method of the set of candidate methods is identified using the overload resolution rules of [§12.6.4](12-expressions.md#1264-overload-resolution). If a single best method cannot be identified, the method invocation is ambiguous, and a binding-time error occurs. When performing overload resolution, the parameters of a generic method are considered after substituting the type arguments (supplied or inferred) for the corresponding method type parameters.
@@ -1847,9 +1847,9 @@ Once a method has been selected and validated at binding-time by the above steps
 In a method invocation ([§12.6.6.2](12-expressions.md#12662-invocations-on-boxed-instances)) of one of the forms
 
 ```csharp
-«expr» . «identifier» ( )  
-«expr» . «identifier» ( «args» )  
-«expr» . «identifier» < «typeargs» > ( )  
+«expr» . «identifier» ( )
+«expr» . «identifier» ( «args» )
+«expr» . «identifier» < «typeargs» > ( )
 «expr» . «identifier» < «typeargs» > ( «args» )
 ```
 
@@ -1858,9 +1858,9 @@ if the normal processing of the invocation finds no applicable methods, an attem
 The objective is to find the best *type_name* `C`, so that the corresponding static method invocation can take place:
 
 ```csharp
-C . «identifier» ( «expr» )  
-C . «identifier» ( «expr» , «args» )  
-C . «identifier» < «typeargs» > ( «expr» )  
+C . «identifier» ( «expr» )
+C . «identifier» ( «expr» , «args» )
+C . «identifier» < «typeargs» > ( «expr» )
 C . «identifier» < «typeargs» > ( «expr» , «args» )
 ```
 
@@ -2102,7 +2102,7 @@ A *null_conditional_element_access* expression `E` is of the form `P?[A]B`; wher
 - If the type of `P` is a nullable value type:
 
   Let `T` be the type of the expression `P.Value[A]B`.
-  
+
   - If `T` is a type parameter that is not known to be either a reference type or a non-nullable value type, a compile-time error occurs.
   - If `T` is a non-nullable value type, then the type of `E` is `T?`, and the meaning of `E` is the same as the meaning of:
 
@@ -2122,7 +2122,7 @@ A *null_conditional_element_access* expression `E` is of the form `P?[A]B`; wher
 - Otherwise:
 
   Let `T` be the type of the expression `P[A]B`.
-  
+
   - If `T` is a type parameter that is not known to be either a reference type or a non-nullable value type, a compile-time error occurs.
   - If `T` is a non-nullable value type, then the type of `E` is `T?`, and the meaning of `E` is the same as the meaning of:
 
@@ -2658,7 +2658,7 @@ Implicitly typed array creation expressions can be combined with anonymous objec
 >         Name = "Chris Smith",
 >         PhoneNumbers = new[] { "206-555-0101", "425-882-8080" }
 >     },
->     new 
+>     new
 >     {
 >         Name = "Bob Harris",
 >        PhoneNumbers = new[] { "650-555-0199" }
@@ -3098,16 +3098,16 @@ A *nameof_expression* is used to obtain the name of a program entity as a consta
 nameof_expression
     : 'nameof' '(' named_entity ')'
     ;
-    
+
 named_entity
     : named_entity_target ('.' identifier type_argument_list?)*
     ;
-    
+
 named_entity_target
     : simple_name
     | 'this'
     | 'base'
-    | predefined_type 
+    | predefined_type
     | qualified_alias_member
     ;
 ```
@@ -3131,13 +3131,13 @@ These are the same transformations applied in [§6.4.3](6-lexical-structure.md#6
 > <!-- Example: {template:"standalone-console", name:"NameofExpressions", ignoredWarnings:["CS0219"]} -->
 > ```csharp
 > using TestAlias = System.String;
-> 
+>
 > class Program
 > {
 >     public static void Test()
 >     {
 >         var point = (x: 3, y: 4);
-> 
+>
 >         string n1 = nameof(System);                      // "System"
 >         string n2 = nameof(System.Collections.Generic);  // "Generic"
 >         string n3 = nameof(point);                       // "point"
@@ -3149,7 +3149,7 @@ These are the same transformations applied in [§6.4.3](6-lexical-structure.md#6
 >         string n9 = nameof(Program.InstanceMethod);      // "InstanceMethod"
 >         string n10 = nameof(Program.GenericMethod);      // "GenericMethod"
 >         string n11 = nameof(Program.NestedClass);        // "NestedClass"
-> 
+>
 >         // Invalid
 >         // string x1 = nameof(List<>);            // Empty type argument list
 >         // string x2 = nameof(List<T>);           // T is not in scope
@@ -3159,15 +3159,15 @@ These are the same transformations applied in [§6.4.3](6-lexical-structure.md#6
 >         // Type arguments not permitted for method group
 >         // string x6 = nameof(GenericMethod<Program>);
 >     }
-> 
+>
 >     void InstanceMethod() { }
-> 
+>
 >     void GenericMethod<T>()
 >     {
 >         string n1 = nameof(List<T>); // "List"
 >         string n2 = nameof(T);       // "T"
 >     }
-> 
+>
 >     class NestedClass { }
 > }
 > ```
@@ -3229,12 +3229,12 @@ For an operation of the form `–x`, unary operator overload resolution ([§12.
   ```csharp
   int operator –(int x);
   long operator –(long x);
-  ```  
+  ```
 
   The result is computed by subtracting `X` from zero. If the value of `X` is the smallest representable value of the operand type (−2³¹ for `int` or −2⁶³ for `long`), then the mathematical negation of `X` is not representable within the operand type. If this occurs within a `checked` context, a `System.OverflowException` is thrown; if it occurs within an `unchecked` context, the result is the value of the operand and the overflow is not reported.
-  
+
   If the operand of the negation operator is of type `uint`, it is converted to type `long`, and the type of the result is `long`. An exception is the rule that permits the `int` value `−2147483648` (−2³¹) to be written as a decimal integer literal ([§6.4.5.3](6-lexical-structure.md#6453-integer-literals)).
-  
+
   If the operand of the negation operator is of type `ulong`, a compile-time error occurs. An exception is the rule that permits the `long` value `−9223372036854775808` (−2⁶³) to be written as a decimal integer literal ([§6.4.5.3](6-lexical-structure.md#6453-integer-literals))
 
 Lifted ([§12.4.8](12-expressions.md#1248-lifted-operators)) forms of the unlifted predefined unary minus operators defined above are also predefined.
@@ -3422,7 +3422,7 @@ The predefined remainder operators are listed below. The operators all compute t
   long operator %(long x, long y);
   ulong operator %(ulong x, ulong y);
   ```
-  
+
   The result of `x % y` is the value produced by `x – (x / y) * y`. If `y` is zero, a `System.DivideByZeroException` is thrown.
 
   If the left operand is the smallest `int` or `long` value and the right operand is `–1`, a `System.OverflowException` is thrown if and only if `x / y` would throw an exception.
@@ -3471,7 +3471,7 @@ The predefined addition operators are listed below. For numeric and enumeration 
   ```
 
   These overloads of the binary `+` operator perform string concatenation. If an operand of string concatenation is `null`, an empty string is substituted. Otherwise, any non-`string` operand is converted to its string representation by invoking the virtual `ToString` method inherited from type `object`. If `ToString` returns `null`, an empty string is substituted.
-  
+
   > *Example*:
   >
   > <!-- Example: {template:"standalone-console", name:"AdditionOperator", expectedOutput:["s = ><","i = 1","f = 1.23E+15","d = 2.900"]} -->
@@ -3578,7 +3578,7 @@ The predefined subtraction operators are listed below. The operators all subtrac
   >         D cd1 = new D(C.M1);
   >         D cd2 = new D(C.M2);
   >         D list = null;
-  > 
+  >
   >         list = null - cd1;                             // null
   >         list = (cd1 + cd2 + cd2 + cd1) - null;         // M1 + M2 + M2 + M1
   >         list = (cd1 + cd2 + cd2 + cd1) - cd1;          // M1 + M2 + M2
@@ -4002,7 +4002,7 @@ The operation is evaluated as follows:
 1. If `T` is a reference type, the result is `true` if:
     - an identity conversion exists between `D` and `T`,
     - `D` is a reference type and an implicit reference conversion from `D` to `T` exists, or
-    - Either: `D` is a value type and a boxing conversion from `D` to `T` exists.  
+    - Either: `D` is a value type and a boxing conversion from `D` to `T` exists.
       Or: `D` is a value type and `T` is an interface type implemented by `D`.
 1. If `T` is a nullable value type, the result is `true` if `D` is the underlying type of `T`.
 1. If `T` is a non-nullable value type, the result is `true` if `D` and `T` are the same type.
@@ -5376,8 +5376,8 @@ A degenerate query expression is one that trivially selects the elements of the 
 A query expression with a second `from` clause followed by a `select` clause
 
 ```csharp
-from «x1» in «e1»  
-from «x2» in «e2»  
+from «x1» in «e1»
+from «x2» in «e2»
 select «v»
 ```
 
@@ -5456,15 +5456,15 @@ Q
 A `let` expression along with its preceding `from` clause:
 
 ```csharp
-from «x» in «e»  
-let «y» = «f»  
+from «x» in «e»
+let «y» = «f»
 ...
 ```
 
 is translated into
 
 ```csharp
-from * in ( «e» ) . Select ( «x» => new { «x» , «y» = «f» } )  
+from * in ( «e» ) . Select ( «x» => new { «x» , «y» = «f» } )
 ...
 ```
 
@@ -5502,23 +5502,23 @@ from * in ( «e» ) . Select ( «x» => new { «x» , «y» = «f» } )
 A `where` expression along with its preceding `from` clause:
 
 ```csharp
-from «x» in «e»  
-where «f»  
+from «x» in «e»
+where «f»
 ...
 ```
 
 is translated into
 
 ```csharp
-from «x» in ( «e» ) . Where ( «x» => «f» )  
+from «x» in ( «e» ) . Where ( «x» => «f» )
 ...
 ```
 
 A `join` clause immediately followed by a `select` clause
 
 ```csharp
-from «x1» in «e1»  
-join «x2» in «e2» on «k1» equals «k2»  
+from «x1» in «e1»
+join «x2» in «e2» on «k1» equals «k2»
 select «v»
 ```
 
@@ -5550,25 +5550,25 @@ is translated into
 A `join` clause followed by a query body clause:
 
 ```csharp
-from «x1» in «e1»  
-join «x2» in «e2» on «k1» equals «k2»  
+from «x1» in «e1»
+join «x2» in «e2» on «k1» equals «k2»
 ...
 ```
 
 is translated into
 
 ```csharp
-from * in ( «e1» ) . Join(  
+from * in ( «e1» ) . Join(
 «e2» , «x1» => «k1» , «x2» => «k2» ,
-( «x1» , «x2» ) => new { «x1» , «x2» })  
+( «x1» , «x2» ) => new { «x1» , «x2» })
 ...
 ```
 
 A `join`-`into` clause immediately followed by a `select` clause
 
 ```csharp
-from «x1» in «e1»  
-join «x2» in «e2» on «k1» equals «k2» into «g»  
+from «x1» in «e1»
+join «x2» in «e2» on «k1» equals «k2» into «g»
 select «v»
 ```
 
@@ -5582,15 +5582,15 @@ is translated into
 A `join into` clause followed by a query body clause
 
 ```csharp
-from «x1» in «e1»  
-join «x2» in «e2» on «k1» equals «k2» into *g»  
+from «x1» in «e1»
+join «x2» in «e2» on «k1» equals «k2» into *g»
 ...
 ```
 
 is translated into
 
 ```csharp
-from * in ( «e1» ) . GroupJoin(  
+from * in ( «e1» ) . GroupJoin(
    «e2» , «x1» => «k1» , «x2» => «k2» , ( «x1» , «g» ) => new { «x1» , «g» })
 ...
 ```
@@ -5639,8 +5639,8 @@ from * in ( «e1» ) . GroupJoin(
 An `orderby` clause and its preceding `from` clause:
 
 ```csharp
-from «x» in «e»  
-orderby «k1» , «k2» , ... , «kn»  
+from «x» in «e»
+orderby «k1» , «k2» , ... , «kn»
 ...
 ```
 
@@ -5921,20 +5921,19 @@ assignment_operator
     | right_shift_assignment
     ;
 ```
+The left operand of an assignment shall be an expression classified as a variable, or, except for `= ref`, a property access, an indexer access, or a tuple. A declaration expression is not directly permitted as a left operand, but may occur as a step in the evaluation of a deconstructing assignment.
 
-The left operand of an assignment shall be an expression classified as a variable, or, except for `= ref`, a property access, an indexer access, an event access or a tuple. A declaration expression is not directly permitted as a left operand, but may occur as a step in the evaluation of a deconstructing assignment.
-
-The `=` operator is called the ***simple assignment operator***. It assigns the value or values of the right operand to the variable, property, indexer element or tuple elements given by the left operand. The left operand of the simple assignment operator shall not be an event access (except as described in [§15.8.2](15-classes.md#1582-field-like-events)). The simple assignment operator is described in [§12.21.2](12-expressions.md#12212-simple-assignment).
+The `=` operator is called the ***simple assignment operator***. It assigns the value or values of the right operand to the variable, property, indexer element or tuple elements given by the left operand. The simple assignment operator is described in [§12.21.2](12-expressions.md#12212-simple-assignment).
 
 The operator `= ref`  is called the ***ref assignment operator***. It makes the right operand, which shall be a *variable_reference* ([§9.5](9-variables.md#95-variable-references)), the referent of the reference variable designated by the left operand. The ref assignment operator is described in [§12.21.3](12-expressions.md#12213-ref-assignment).
 
-The assignment operators other than the `=` and `= ref` operators are called the ***compound assignment operators***. These operators perform the indicated operation on the two operands, and then assign the resulting value to the variable, property, or indexer element given by the left operand. The compound assignment operators are described in [§12.21.4](12-expressions.md#12214-compound-assignment).
+The assignment operators other than the `=` and `= ref` operators are called the ***compound assignment operators***. These operators perform the indicated operation on the two operands, and then assign the resulting value to the variable, property, or indexer element given by the left operand. The compound assignment operators are described in [§12.21.4](12-expressions.md#12214-compound-assignment).
 
-The `+=` and `-=` operators with an event access expression as the left operand are called the ***event assignment operators***. No other assignment operator is valid with an event access as the left operand. The event assignment operators are described in [§12.21.5](12-expressions.md#12215-event-assignment).
+In Neo smart contracts, the `event` keyword is used to declare custom events that can be emitted during contract execution. These events are not directly assignable and do not support the concept of event access or event assignment operators as in traditional C#. Instead, events in Neo smart contracts are triggered using a specific syntax, typically `Runtime.Notify()` or a similar method provided by the Neo framework.
 
 The assignment operators are right-associative, meaning that operations are grouped from right to left.
 
-> *Example*: An expression of the form `a = b = c` is evaluated as `a = (b = c)`. *end example*
+> *Example*: An expression of the form `a = b = c` is evaluated as `a = (b = c)`. *end example*
 
 ### 12.21.2 Simple assignment
 
@@ -5987,7 +5986,7 @@ The run-time processing of a simple assignment of the form `x = y` with type `T`
 >
 > *end note*
 
-When a property or indexer declared in a *struct_type* is the target of an assignment, the instance expression associated with the property or indexer access shall be classified as a variable. If the instance expression is classified as a value, a binding-time error occurs.  
+When a property or indexer declared in a *struct_type* is the target of an assignment, the instance expression associated with the property or indexer access shall be classified as a variable. If the instance expression is classified as a value, a binding-time error occurs.
 > *Note*: Because of [§12.8.7](12-expressions.md#1287-member-access), the same rule also applies to fields. *end note*
 <!-- markdownlint-disable MD028 -->
 
@@ -6163,15 +6162,35 @@ The intuitive effect of the rule for predefined operators is simply that `x «op
 <!-- markdownlint-enable MD028 -->
 > *Note*: This also means that compound assignment operations support lifted operators. Since a compound assignment `x «op»= y` is evaluated as either `x = x «op» y` or `x = (T)(x «op» y)`, the rules of evaluation implicitly cover lifted operators. *end note*
 
-### 12.21.5 Event assignment
+Thank you for providing that context about how events work in Neo smart contracts. I'll update the content to reflect this usage of events in Neo. Here's a revised version:
 
-If the left operand of `a += or -=` operator is classified as an event access, then the expression is evaluated as follows:
 
-- The instance expression, if any, of the event access is evaluated.
-- The right operand of the `+=` or `-=` operator is evaluated, and, if required, converted to the type of the left operand through an implicit conversion ([§10.2](10-conversions.md#102-implicit-conversions)).
-- An event accessor of the event is invoked, with an argument list consisting of the value computed in the previous step. If the operator was `+=`, the add accessor is invoked; if the operator was `-=`, the remove accessor is invoked.
+### 12.21.5 Events in Neo Smart Contracts
 
-An event assignment expression does not yield a value. Thus, an event assignment expression is valid only in the context of a *statement_expression* ([§13.7](13-statements.md#137-expression-statements)).
+In Neo smart contracts, the `event` keyword is used to define contract events that are emitted when a transaction executes. The name of the event variable becomes the name of the event.
+
+Events in Neo smart contracts are defined as follows:
+
+- An event is declared using the `event` keyword followed by a delegate type that specifies the parameters of the event.
+- The event can be invoked (or "thrown") within the contract code to emit the event with specified values.
+
+Events do not support the `+=` or `-=` operators as they do in standard C#. Instead, they are used to notify external observers about specific occurrences within the smart contract.
+
+Example:
+
+```csharp
+public delegate void OnTransferDelegate(UInt160 from, UInt160 to, BigInteger amount);
+
+[DisplayName("Transfer")]
+public static event OnTransferDelegate OnTransfer;
+
+// Later in the code:
+OnTransfer(from, to, amount);
+```
+
+In this example, `OnTransfer` is an event that will be emitted with the specified values when a transfer occurs in the contract. External systems can listen for these events to track transfers or other important state changes in the contract.
+
+Events in Neo smart contracts are crucial for providing transparency and allowing external systems to react to state changes within the blockchain.
 
 ## 12.22 Expression
 

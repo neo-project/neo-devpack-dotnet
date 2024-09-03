@@ -156,12 +156,12 @@ The ***base interfaces*** of an interface are the explicit base interfaces and t
 > {
 >     void Paint();
 > }
-> 
+>
 > interface ITextBox : IControl
 > {
 >     void SetText(string text);
 > }
-> 
+>
 > interface IListBox : IControl
 > {
 >     void SetItems(string[] items);
@@ -296,7 +296,7 @@ These rules ensure that any covariant or contravariant usage of the interface re
 > class E : B {}
 > class C : I<D>
 > {
->     public void M<U>() {...} 
+>     public void M<U>() {...}
 > }
 >
 > ...
@@ -388,7 +388,7 @@ For interfaces that are strictly single-inheritance (each interface in the inher
 > {
 >     int Count { get; set; }
 > }
-> 
+>
 > interface ICounter
 > {
 >     void Count(int i);
@@ -427,9 +427,9 @@ For interfaces that are strictly single-inheritance (each interface in the inher
 > {
 >     void Add(double d);
 > }
-> 
+>
 > interface INumber : IInteger, IDouble {}
-> 
+>
 > class C
 > {
 >     void Test(INumber n)
@@ -499,7 +499,7 @@ An interface member is sometimes referred to by its ***qualified interface membe
 > {
 >     void Paint();
 > }
-> 
+>
 > interface ITextBox : IControl
 > {
 >     void SetText(string text);
@@ -551,7 +551,7 @@ Interfaces may be implemented by classes and structs. To indicate that a class o
 >
 > class ListEntry : ICloneable, IComparable
 > {
->     public object Clone() {...}    
+>     public object Clone() {...}
 >     public int CompareTo(object other) {...}
 > }
 > ```
@@ -644,7 +644,7 @@ For purposes of implementing interfaces, a class or struct may declare ***explic
 > {
 >     void Dispose();
 > }
-> 
+>
 > class MyFile : IDisposable
 > {
 >     void IDisposable.Dispose() => Close();
@@ -694,7 +694,7 @@ For an explicit interface member implementation to be valid, the class or struct
 > {
 >     object ICloneable.Clone() {...}
 > }
-> 
+>
 > class Ellipse : Shape
 > {
 >     object ICloneable.Clone() {...} // invalid
@@ -720,7 +720,7 @@ The qualified interface member name of an explicit interface member implementati
 > {
 >     void SetText(string text);
 > }
-> 
+>
 > class TextBox : ITextBox
 > {
 >     void IControl.Paint() {...}
@@ -1137,7 +1137,7 @@ Since explicit interface member implementations cannot be declared virtual, it i
 >     void IControl.Paint() { PaintControl(); }
 >     protected virtual void PaintControl() {...}
 > }
-> 
+>
 > class TextBox : Control
 > {
 >     protected override void PaintControl() {...}

@@ -41,8 +41,8 @@ The attribute `AttributeUsage` ([§22.5.2](22-attributes.md#2252-the-attributeus
 > ```csharp
 > [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 > public class SimpleAttribute : Attribute
-> { 
->     ... 
+> {
+>     ...
 > }
 >
 > [Simple] class Class1 {...}
@@ -74,7 +74,7 @@ The attribute `AttributeUsage` ([§22.5.2](22-attributes.md#2252-the-attributeus
 > }
 >
 > [Author("Brian Kernighan"), Author("Dennis Ritchie")]
-> class Class1 
+> class Class1
 > {
 >     ...
 > }
@@ -116,13 +116,13 @@ Attribute classes can have ***positional parameters*** and ***named parameters**
 > public class HelpAttribute : Attribute
 > {
 >     public HelpAttribute(string url) // url is a positional parameter
->     { 
+>     {
 >         ...
 >     }
 >
 >     // Topic is a named parameter
 >     public string Topic
->     { 
+>     {
 >         get;
 >         set;
 >     }
@@ -252,10 +252,10 @@ No other values for *global_attribute_target* are allowed.
 
 The standardized *attribute_target* names are `event`, `field`, `method`, `param`, `property`, `return`, `type`, and `typevar`. These target names shall only be used in the following contexts:
 
-- `event` — an event.
+- `event` — a smartcontract event.
 - `field` — a field. A field-like event (i.e., one without accessors) ([§15.8.2](15-classes.md#1582-field-like-events)) and an automatically implemented property ([§15.7.4](15-classes.md#1574-automatically-implemented-properties)) can also have an attribute with this target.
-- `method` — a constructor, finalizer, method, operator, property get and set accessors, indexer get and set accessors, and event add and remove accessors. A field-like event (i.e., one without accessors) can also have an attribute with this target.
-- `param` — a property set accessor, an indexer set accessor, event add and remove accessors, and a parameter in a constructor, method, and operator.
+- `method` — a constructor, finalizer, method, operator, property get and set accessors, indexer get and set accessors.
+- `param` — a property set accessor, an indexer set accessor, and a parameter in a constructor, method, and operator.
 - `property` — a property and an indexer.
 - `return` — a delegate, method, operator, property get accessor, and indexer get accessor.
 - `type` — a delegate, class, struct, enum, and interface.
@@ -280,8 +280,8 @@ Certain contexts permit the specification of an attribute on more than one targe
   - `param` — the target is the lone implicit parameter
 - For an attribute on an automatically implemented property declaration the default target is the property. Otherwise when the *attribute_target* is equal to:
   - `field` — the target is the compiler-generated backing field for the property
-- For an attribute specified on an event declaration that omits *event_accessor_declarations* the default target is the event declaration. Otherwise when the *attribute_target* is equal to:
-  - `event` — the target is the event declaration
+- For an attribute specified on a smartcontract event declaration that omits *event_accessor_declarations* the default target is the event declaration. Otherwise when the *attribute_target* is equal to:
+  - `event` — the target is the smartcontract event declaration
   - `field` — the target is the field
   - `method` — the targets are the methods
 - In the case of an event declaration that does not omit *event_accessor_declarations* the default target is the method.
@@ -296,7 +296,7 @@ In all other contexts, inclusion of an *attribute_target_specifier* is permitted
 > ```csharp
 > [type: Author("Brian Kernighan")]
 > class Class1 {}
-> 
+>
 > [Author("Dennis Ritchie")]
 > class Class2 {}
 > ```
@@ -321,7 +321,7 @@ If exactly one of the two steps above results in a type derived from `System.Att
 > [AttributeUsage(AttributeTargets.All)]
 > public class Example : Attribute
 > {}
-> 
+>
 > [AttributeUsage(AttributeTargets.All)]
 > public class ExampleAttribute : Attribute
 > {}
@@ -499,7 +499,7 @@ Using the terms defined in [§22.4.2](22-attributes.md#2242-compilation-of-an-at
 >     {
 >         Type helpType = typeof(HelpAttribute);
 >         string assemblyName = args[0];
->         foreach (Type t in Assembly.Load(assemblyName).GetTypes()) 
+>         foreach (Type t in Assembly.Load(assemblyName).GetTypes())
 >         {
 >             Runtime.Log($"Type : {t}");
 >             var attributes = t.GetCustomAttributes(helpType, false);
@@ -623,7 +623,7 @@ It is important to understand that the inclusion or exclusion of a call to a con
 >         Runtime.Log("Executed Class1.F");
 >     }
 > }
-> 
+>
 > // File Class2.cs:
 > #define DEBUG
 > class Class2
@@ -633,7 +633,7 @@ It is important to understand that the inclusion or exclusion of a call to a con
 >         Class1.F(); // F is called
 >     }
 > }
-> 
+>
 > // File Class3.cs:
 > #undef DEBUG
 > class Class3
@@ -662,7 +662,7 @@ The use of conditional methods in an inheritance chain can be confusing. Calls m
 >     [Conditional("DEBUG")]
 >     public virtual void M() => Runtime.Log("Class1.M executed");
 > }
-> 
+>
 > // File Class2.cs
 > class Class2 : Class1
 > {
@@ -672,7 +672,7 @@ The use of conditional methods in an inheritance chain can be confusing. Calls m
 >         base.M(); // base.M is not called!
 >     }
 > }
-> 
+>
 > // File Class3.cs
 > #define DEBUG
 > class Class3
@@ -718,12 +718,12 @@ It is important to note that the inclusion or exclusion of an attribute specific
 > using System.Diagnostics;
 > [Conditional("DEBUG")]
 > public class TestAttribute : Attribute {}
-> 
+>
 > // File Class1.cs:
 > #define DEBUG
 > [Test] // TestAttribute is specified
 > class Class1 {}
-> 
+>
 > // File Class2.cs:
 > #undef DEBUG
 > [Test] // TestAttribute is not specified
@@ -845,11 +845,11 @@ For invocations that occur within generic methods, only the method name itself i
 
 For invocations that occur within explicit interface member implementations, only the method name itself is used, without the preceding interface qualification.
 
-For invocations that occur within property or event accessors, the member name used is that of the property or event itself.
+For invocations that occur within property accessors, the member name used is that of the property itself.
 
 For invocations that occur within indexer accessors, the member name used is that supplied by an `IndexerNameAttribute` ([§22.6](22-attributes.md#226-attributes-for-interoperation)) on the indexer member, if present, or the default name `Item` otherwise.
 
-For invocations that occur within field or event initializers, the member name used is the name of the field or event being initialized.
+For invocations that occur within field initializers, the member name used is the name of the field being initialized.
 
 For invocations that occur within declarations of instance constructors, static constructors, finalizers and operators the member name used is implementation-dependent.
 

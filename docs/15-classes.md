@@ -112,7 +112,7 @@ A static class declaration is subject to the following restrictions:
 
 - A static class shall not include a `sealed` or `abstract` modifier. (However, since a static class cannot be instantiated or derived from, it behaves as if it was both sealed and abstract.)
 - A static class shall not include a *class_base* specification ([§15.2.4](15-classes.md#1524-class-base-specification)) and cannot explicitly specify a base class or a list of implemented interfaces. A static class implicitly inherits from type `object`.
-- A static class shall only contain static members ([§15.3.8](15-classes.md#1538-static-and-instance-members)).  
+- A static class shall only contain static members ([§15.3.8](15-classes.md#1538-static-and-instance-members)).
    > *Note*: All constants and nested types are classified as static members. *end note*
 - A static class shall not have members with `protected`, `private protected`, or `protected internal` declared accessibility.
 
@@ -393,7 +393,7 @@ type_parameter_constraints_clauses
     : type_parameter_constraints_clause
     | type_parameter_constraints_clauses type_parameter_constraints_clause
     ;
-    
+
 type_parameter_constraints_clause
     : 'where' type_parameter ':' type_parameter_constraints
     ;
@@ -2389,7 +2389,7 @@ When performing overload resolution, a method with a parameter array might be ap
 > {
 >     static void F(params string[] array) =>
 >         Runtime.Log(array == null);
-> 
+>
 >     public static void Test()
 >     {
 >         F(null);
@@ -2688,7 +2688,7 @@ Only by including an `override` modifier can a method override another method. I
 > {
 >     private new void F() {} // Hides A.F within body of B
 > }
-> 
+>
 > class C : B
 > {
 >     public override void F() {} // Ok, overrides A.F
@@ -3112,7 +3112,7 @@ Properties are declared using *property_declaration*s:
 property_declaration
     : attributes? property_modifier* type member_name property_body
     | attributes? property_modifier* ref_kind type member_name ref_property_body
-    ;    
+    ;
 
 property_modifier
     : 'new'
@@ -3127,7 +3127,7 @@ property_modifier
     | 'abstract'
     | 'extern'
     ;
-    
+
 property_body
     : '{' accessor_declarations '}' property_initializer?
     | '=>' expression ';'
@@ -3213,13 +3213,13 @@ accessor_modifier
 accessor_body
     : block
     | '=>' expression ';'
-    | ';' 
+    | ';'
     ;
 
 ref_get_accessor_declaration
     : attributes? accessor_modifier? 'get' ref_accessor_body
     ;
-    
+
 ref_accessor_body
     : block
     | '=>' 'ref' variable_reference ';'
@@ -3348,13 +3348,13 @@ The get and set accessors of a property are not distinct members, and it is not 
 >
 >     // Error, duplicate member name
 >     public string Name
->     { 
+>     {
 >         get => name;
 >     }
 >
 >     // Error, duplicate member name
 >     public string Name
->     { 
+>     {
 >         set => name = value;
 >     }
 > }
@@ -3676,12 +3676,12 @@ Once a particular non-ref-valued property or non-ref-valued indexer has been sel
 >         set { }
 >     }
 > }
-> 
+>
 > class B : A
 > {
 >     private string text = "goodbye";
 >     private int count = 0;
-> 
+>
 >     public new string Text
 >     {
 >         get => text;
@@ -3839,286 +3839,115 @@ When a property is declared as an override, any overridden accessors shall be ac
 >
 > *end example*
 
+Here's an updated version of the content on events, tailored for Neo smart contract development:
+
+
 ## 15.8 Events
 
 ### 15.8.1 General
 
-An ***event*** is a member that enables an object or class to provide notifications. Clients can attach executable code for events by supplying ***event handlers***.
+An ***event*** is a member that enables a smart contract to provide notifications. Clients can attach executable code for events by supplying ***event handlers***.
 
 Events are declared using *event_declaration*s:
 
 ```ANTLR
 event_declaration
     : attributes? event_modifier* 'event' type variable_declarators ';'
-    | attributes? event_modifier* 'event' type member_name
-        '{' event_accessor_declarations '}'
     ;
 
 event_modifier
-    : 'new'
-    | 'public'
-    | 'protected'
-    | 'internal'
+    : 'public'
     | 'private'
-    | 'static'
-    | 'virtual'
-    | 'sealed'
-    | 'override'
-    | 'abstract'
-    | 'extern'
-    ;
-
-event_accessor_declarations
-    : add_accessor_declaration remove_accessor_declaration
-    | remove_accessor_declaration add_accessor_declaration
-    ;
-
-add_accessor_declaration
-    : attributes? 'add' block
-    ;
-
-remove_accessor_declaration
-    : attributes? 'remove' block
     ;
 ```
 
-An *event_declaration* may include a set of *attributes* ([§22](22-attributes.md#22-attributes)) and any one of the permitted kinds of declared accessibility ([§15.3.6](15-classes.md#1536-access-modifiers)), the `new` ([§15.3.5](15-classes.md#1535-the-new-modifier)), `static` ([§15.6.3](15-classes.md#1563-static-and-instance-methods), [§15.8.4](15-classes.md#1584-static-and-instance-events)), `virtual` ([§15.6.4](15-classes.md#1564-virtual-methods), [§15.8.5](15-classes.md#1585-virtual-sealed-override-and-abstract-accessors)), `override` ([§15.6.5](15-classes.md#1565-override-methods), [§15.8.5](15-classes.md#1585-virtual-sealed-override-and-abstract-accessors)), `sealed` ([§15.6.6](15-classes.md#1566-sealed-methods)), `abstract` ([§15.6.7](15-classes.md#1567-abstract-methods), [§15.8.5](15-classes.md#1585-virtual-sealed-override-and-abstract-accessors)), and `extern` ([§15.6.8](15-classes.md#1568-external-methods)) modifiers.
+In Neo smart contracts, events are simplified compared to general C# events. They are primarily used for logging and notifying external systems about state changes or important occurrences within the contract.
 
-Event declarations are subject to the same rules as method declarations ([§15.6](15-classes.md#156-methods)) with regard to valid combinations of modifiers.
+An *event_declaration* may include a set of *attributes* and either `public` or `private` accessibility modifiers. The `static`, `virtual`, `override`, `sealed`, `abstract`, and `extern` modifiers are not supported in Neo smart contract events.
 
-The *type* of an event declaration shall be a *delegate_type* ([§8.2.8](8-types.md#828-delegate-types)), and that *delegate_type* shall be at least as accessible as the event itself ([§7.5.5](7-basic-concepts.md#755-accessibility-constraints)).
+The *type* of an event declaration in a Neo smart contract must be compatible with the Neo blockchain's event system. Typically, this involves using simple types or structs that can be easily serialized.
 
-An event declaration can include *event_accessor_declaration*s. However, if it does not, for non-extern, non-abstract events, the compiler shall supply them automatically ([§15.8.2](15-classes.md#1582-field-like-events)); for `extern` events, the accessors are provided externally.
-
-An event declaration that omits *event_accessor_declaration*s defines one or more events—one for each of the *variable_declarator*s. The attributes and modifiers apply to all of the members declared by such an *event_declaration*.
-
-It is a compile-time error for an *event_declaration* to include both the `abstract` modifier and *event_accessor_declaration*s.
-
-When an event declaration includes an `extern` modifier, the event is said to be an ***external event***. Because an external event declaration provides no actual implementation, it is an error for it to include both the `extern` modifier and *event_accessor_declaration*s.
-
-It is a compile-time error for a *variable_declarator* of an event declaration with an `abstract` or `external` modifier to include a *variable_initializer*.
-
-An event can be used as the left operand of the `+=` and `-=` operators. These operators are used, respectively, to attach event handlers to, or to remove event handlers from an event, and the access modifiers of the event control the contexts in which such operations are permitted.
-
-The only operations that are permitted on an event by code that is outside the type in which that event is declared, are `+=` and `-=`. Therefore, while such code can add and remove handlers for an event, it cannot directly obtain or modify the underlying list of event handlers.
-
-In an operation of the form `x += y` or `x –= y`, when `x` is an event the result of the operation has type `void` ([§12.21.5](12-expressions.md#12215-event-assignment)) (as opposed to having the type of `x`, with the value of `x` after the assignment, as for other the `+=` and `-=` operators defined on non-event types). This prevents external code from indirectly examining the underlying delegate of an event.
-
-> *Example*: The following example shows how event handlers are attached to instances of the `Button` class:
+> *Example*: The following example shows how events are declared and used in a Neo smart contract:
 >
-> <!-- Example: {template:"standalone-lib-without-using", name:"Events", replaceEllipsis:true, expectedWarnings:["CS0067"], additionalFiles:["Control.cs","Graphics.cs","Rectangle.cs","Point.cs","Form.cs"]} -->
 > ```csharp
-> public delegate void EventHandler(object sender, EventArgs e);
->
-> public class Button : Control
+> public class TokenContract : SmartContract
 > {
->     public event EventHandler Click;
-> }
+>     public static event Action<UInt160, UInt160, BigInteger> Transfer;
 >
-> public class LoginDialog : Form
-> {
->     Button okButton;
->     Button cancelButton;
->
->     public LoginDialog()
+>     public static bool TransferTokens(UInt160 from, UInt160 to, BigInteger amount)
 >     {
->         okButton = new Button(...);
->         okButton.Click += new EventHandler(OkButtonClick);
->         cancelButton = new Button(...);
->         cancelButton.Click += new EventHandler(CancelButtonClick);
->     }
+>         // Perform transfer logic here
+>         // ...
 >
->     void OkButtonClick(object sender, EventArgs e)
->     {
->         // Handle okButton.Click event
->     }
+>         // Notify about the transfer
+>         Transfer(from, to, amount);
 >
->     void CancelButtonClick(object sender, EventArgs e)
->     {
->         // Handle cancelButton.Click event
+>         return true;
 >     }
 > }
 > ```
 >
-> Here, the `LoginDialog` instance constructor creates two `Button` instances and attaches event handlers to the `Click` events.
+> Here, the `Transfer` event is declared to notify about token transfers. It's triggered within the `TransferTokens` method after the transfer logic is executed.
 >
 > *end example*
 
-### 15.8.2 Field-like events
+### 15.8.2 Event Usage in Neo Smart Contracts
 
-Within the program text of the class or struct that contains the declaration of an event, certain events can be used like fields. To be used in this way, an event shall not be abstract or extern, and shall not explicitly include *event_accessor_declaration*s. Such an event can be used in any context that permits a field. The field contains a delegate ([§20](20-delegates.md#20-delegates)), which refers to the list of event handlers that have been added to the event. If no event handlers have been added, the field contains `null`.
+In Neo smart contracts, events serve a different purpose compared to traditional C# events. They are used primarily for the following:
 
-> *Example*: In the following code
+1. Logging: Events provide a way to record important occurrences within the smart contract execution.
+
+2. External Notification: They allow external systems (like blockchain explorers or dApps) to be notified about state changes or significant actions within the contract.
+
+3. Indexing: Events can be indexed by blockchain nodes, allowing for efficient querying of contract activity.
+
+Events in Neo smart contracts do not support the concept of event handlers or the `+=` and `-=` operators as in traditional C#. Instead, they are triggered (or "emitted") using a method-like syntax.
+
+> *Note*: The storage and execution of events in Neo smart contracts incur a GAS cost. Contract developers should be mindful of this when designing their event emission strategy. *end note*
+
+### 15.8.3 Event Parameters
+
+Event parameters in Neo smart contracts should be carefully chosen to balance information content with GAS costs. Complex types should be avoided in favor of simple, easily serializable types.
+
+> *Example*: Here's an example of an event with multiple parameters:
 >
-> <!-- Example: {template:"standalone-lib-without-using", name:"FieldlikeEvents1", additionalFiles:["Control.cs","Graphics.cs","Rectangle.cs","Point.cs"]} -->
 > ```csharp
-> public delegate void EventHandler(object sender, EventArgs e);
->
-> public class Button : Control
+> public class MarketplaceContract : SmartContract
 > {
->     public event EventHandler Click;
+>     public static event Action<UInt160, UInt160, ByteString, BigInteger> ItemSold;
 >
->     protected void OnClick(EventArgs e)
+>     public static void SellItem(UInt160 seller, UInt160 buyer, ByteString itemId, BigInteger price)
 >     {
->         EventHandler handler = Click;
->         if (handler != null)
->         {
->             handler(this, e);
->         }
->     }
+>         // Perform sale logic here
+>         // ...
 >
->     public void Reset() => Click = null;
+>         // Notify about the sale
+>         ItemSold(seller, buyer, itemId, price);
+>     }
 > }
 > ```
 >
-> `Click` is used as a field within the `Button` class. As the example demonstrates, the field can be examined, modified, and used in delegate invocation expressions. The `OnClick` method in the `Button` class “raises” the `Click` event. The notion of raising an event is precisely equivalent to invoking the delegate represented by the event—thus, there are no special language constructs for raising events. Note that the delegate invocation is preceded by a check that ensures the delegate is non-null and that the check is made on a local copy.
->
-> Outside the declaration of the `Button` class, the `Click` member can only be used on the left-hand side of the `+=` and `–=` operators, as in
->
-> ```csharp
-> b.Click += new EventHandler(...);
-> ```
->
-> which appends a delegate to the invocation list of the `Click` event, and
->
-> ```csharp
-> Click –= new EventHandler(...);
-> ```
->
-> which removes a delegate from the invocation list of the `Click` event.
+> This event provides detailed information about a sale in a marketplace contract, including the seller, buyer, item identifier, and price.
 >
 > *end example*
 
-When compiling a field-like event, the compiler automatically creates storage to hold the delegate, and creates accessors for the event that add or remove event handlers to the delegate field.
+### 15.8.4 Event Visibility
 
-> *Note*: Thus, an instance event declaration of the form:
->
-> <!-- Example: {template:"standalone-lib-without-using", name:"FieldlikeEvents2", expectedWarnings:["CS0067"], additionalFiles:["D.cs"]} -->
-> ```csharp
-> class X
-> {
->     public event D Ev;
-> }
-> ```
->
-> shall be compiled to something equivalent to:
->
-> <!-- Example: {template:"standalone-lib-without-using", name:"FieldlikeEvents3", expectedWarnings:["CS0169"], additionalFiles:["D.cs"]} -->
-> ```csharp
-> class X
-> {
->     private D __Ev; // field to hold the delegate
->
->     public event D Ev
->     {
->         add
->         {
->             /* Add the delegate in a thread safe way */
->         }
->         remove
->         {
->             /* Remove the delegate in a thread safe way */
->         }
->     }
-> }
-> ```
->
-> Within the class `X`, references to `Ev` on the left-hand side of the `+=` and `–=` operators cause the add and remove accessors to be invoked. All other references to `Ev` are compiled to reference the hidden field `__Ev` instead ([§12.8.7](12-expressions.md#1287-member-access)). The name “`__Ev`” is arbitrary; the hidden field could have any name or no name at all.
->
-> *end note*
+Events in Neo smart contracts can be declared as either `public` or `private`. Public events are visible and can be subscribed to by external systems, while private events are only for internal contract use.
 
-### 15.8.3 Event accessors
+The concept of static vs. instance events does not apply in Neo smart contracts, as all contract methods and events are effectively static in the context of the blockchain.
 
-> *Note*: Event declarations typically omit *event_accessor_declaration*s, as in the `Button` example above. For example, they might be included if the storage cost of one field per event is not acceptable. In such cases, a class can include *event_accessor_declaration*s and use a private mechanism for storing the list of event handlers. *end note*
+### 15.8.5 Limitations
 
-The *event_accessor_declarations* of an event specify the executable statements associated with adding and removing event handlers.
+It's important to note that Neo smart contracts have several limitations regarding events compared to full C#:
 
-The accessor declarations consist of an *add_accessor_declaration* and a *remove_accessor_declaration*. Each accessor declaration consists of the token add or remove followed by a *block*. The *block* associated with an *add_accessor_declaration* specifies the statements to execute when an event handler is added, and the *block* associated with a *remove_accessor_declaration* specifies the statements to execute when an event handler is removed.
+1. No custom event accessors (`add` and `remove` methods) are supported.
+2. Events cannot be virtual, sealed, overridden, or abstract.
+3. The `event` keyword is used primarily for declaration and does not provide the full event functionality found in standard C#.
+4. Event invocation is unidirectional - contracts can only emit events, not listen for or handle them.
 
-Each *add_accessor_declaration* and *remove_accessor_declaration* corresponds to a method with a single value parameter of the event type, and a `void` return type. The implicit parameter of an event accessor is named `value`. When an event is used in an event assignment, the appropriate event accessor is used. Specifically, if the assignment operator is `+=` then the add accessor is used, and if the assignment operator is `–=` then the remove accessor is used. In either case, the right operand of the assignment operator is used as the argument to the event accessor. The block of an *add_accessor_declaration* or a *remove_accessor_declaration* shall conform to the rules for `void` methods described in [§15.6.9](15-classes.md#1569-partial-methods). In particular, `return` statements in such a block are not permitted to specify an expression.
+These limitations reflect the specialized nature of smart contract development and the constraints of the blockchain environment.
 
-Since an event accessor implicitly has a parameter named `value`, it is a compile-time error for a local variable or constant declared in an event accessor to have that name.
-
-> *Example*: In the following code
->
-> <!-- Example: {template:"standalone-lib-without-using", name:"EventAccessors", replaceEllipsis:true, customEllipsisReplacements:["return null;"], additionalFiles:["Component.cs","MouseEventHandler.cs","MouseEventArgs.cs"]} -->
-> ```csharp
->
-> class Control : Component
-> {
->     // Unique keys for events
->     static readonly object mouseDownEventKey = new object();
->     static readonly object mouseUpEventKey = new object();
->
->     // Return event handler associated with key
->     protected Delegate GetEventHandler(object key) {...}
->
->     // Add event handler associated with key
->     protected void AddEventHandler(object key, Delegate handler) {...}
->
->     // Remove event handler associated with key
->     protected void RemoveEventHandler(object key, Delegate handler) {...}
->
->     // MouseDown event
->     public event MouseEventHandler MouseDown
->     {
->         add { AddEventHandler(mouseDownEventKey, value); }
->         remove { RemoveEventHandler(mouseDownEventKey, value); }
->     }
->
->     // MouseUp event
->     public event MouseEventHandler MouseUp
->     {
->         add { AddEventHandler(mouseUpEventKey, value); }
->         remove { RemoveEventHandler(mouseUpEventKey, value); }
->     }
->
->     // Invoke the MouseUp event
->     protected void OnMouseUp(MouseEventArgs args)
->     {
->         MouseEventHandler handler;
->         handler = (MouseEventHandler)GetEventHandler(mouseUpEventKey);
->         if (handler != null)
->         {
->             handler(this, args);
->         }
->     }
-> }
-> ```
->
-> the `Control` class implements an internal storage mechanism for events. The `AddEventHandler` method associates a delegate value with a key, the `GetEventHandler` method returns the delegate currently associated with a key, and the `RemoveEventHandler` method removes a delegate as an event handler for the specified event. Presumably, the underlying storage mechanism is designed such that there is no cost for associating a null delegate value with a key, and thus unhandled events consume no storage.
->
-> *end example*
-
-### 15.8.4 Static and instance events
-
-When an event declaration includes a `static` modifier, the event is said to be a ***static event***. When no `static` modifier is present, the event is said to be an ***instance event***.
-
-A static event is not associated with a specific instance, and it is a compile-time error to refer to `this` in the accessors of a static event.
-
-An instance event is associated with a given instance of a class, and this instance can be accessed as `this` ([§12.8.13](12-expressions.md#12813-this-access)) in the accessors of that event.
-
-The differences between static and instance members are discussed further in [§15.3.8](15-classes.md#1538-static-and-instance-members).
-
-### 15.8.5 Virtual, sealed, override, and abstract accessors
-
-A virtual event declaration specifies that the accessors of that event are virtual. The `virtual` modifier applies to both accessors of an event.
-
-An abstract event declaration specifies that the accessors of the event are virtual, but does not provide an actual implementation of the accessors. Instead, non-abstract derived classes are required to provide their own implementation for the accessors by overriding the event. Because an accessor for an abstract event declaration provides no actual implementation, it shall not provide *event_accessor_declaration*s.
-
-An event declaration that includes both the `abstract` and `override` modifiers specifies that the event is abstract and overrides a base event. The accessors of such an event are also abstract.
-
-Abstract event declarations are only permitted in abstract classes ([§15.2.2.2](15-classes.md#15222-abstract-classes)).
-
-The accessors of an inherited virtual event can be overridden in a derived class by including an event declaration that specifies an `override` modifier. This is known as an ***overriding event declaration***. An overriding event declaration does not declare a new event. Instead, it simply specializes the implementations of the accessors of an existing virtual event.
-
-An overriding event declaration shall specify the exact same accessibility modifiers and name as the overridden event, there shall be an identity conversion between the type of the overriding and the overridden event, and both the add and remove accessors shall be specified within the declaration.
-
-An overriding event declaration can include the `sealed` modifier. Use of `this` modifier prevents a derived class from further overriding the event. The accessors of a sealed event are also sealed.
-
-It is a compile-time error for an overriding event declaration to include a `new` modifier.
-
-Except for differences in declaration and invocation syntax, virtual, sealed, override, and abstract accessors behave exactly like virtual, sealed, override and abstract methods. Specifically, the rules described in [§15.6.4](15-classes.md#1564-virtual-methods), [§15.6.5](15-classes.md#1565-override-methods), [§15.6.6](15-classes.md#1566-sealed-methods), and [§15.6.7](15-classes.md#1567-abstract-methods) apply as if accessors were methods of a corresponding form. Each accessor corresponds to a method with a single value parameter of the event type, a `void` return type, and the same modifiers as the containing event.
 
 ## 15.9 Indexers
 
@@ -4151,9 +3980,9 @@ indexer_declarator
     ;
 
 indexer_body
-    : '{' accessor_declarations '}' 
+    : '{' accessor_declarations '}'
     | '=>' expression ';'
-    ;  
+    ;
 
 ref_indexer_body
     : '{' ref_get_accessor_declaration '}'
@@ -4181,7 +4010,7 @@ The *formal_parameter_list* specifies the parameters of the indexer. The formal 
 The *type* of an indexer and each of the types referenced in the *formal_parameter_list* shall be at least as accessible as the indexer itself ([§7.5.5](7-basic-concepts.md#755-accessibility-constraints)).
 
 An *indexer_body* may either consist of a statement body ([§15.7.1](15-classes.md#1571-general)) or an expression body ([§15.6.1](15-classes.md#1561-general)). In a statement body, *accessor_declarations*, which shall be enclosed in “`{`” and “`}`” tokens, declare the accessors ([§15.7.3](15-classes.md#1573-accessors)) of the indexer. The accessors specify the executable statements associated with reading and writing indexer elements.
-  
+
 In an *indexer_body* an expression body consisting of “`=>`” followed by an expression `E` and a semicolon is exactly equivalent to the statement body `{ get { return E; } }`, and can therefore only be used to specify read-only indexers where the result of the get accessor is given by a single expression.
 
 A *ref_indexer_body* may either consist of a statement body or an expression body. In a statement body a *get_accessor_declaration* declares the get accessor ([§15.7.3](15-classes.md#1573-accessors)) of the indexer. The accessor specifies the executable statements associated with reading the indexer.
@@ -4272,7 +4101,7 @@ When an indexer declaration includes an `extern` modifier, the indexer is said t
 >         }
 >         return count;
 >     }
-> 
+>
 >     static void Main(string[] args)
 >     {
 >         int max = int.Parse(args[0]);
@@ -4382,7 +4211,7 @@ binary_operator_declarator
     ;
 
 overloadable_binary_operator
-    : '+'  | '-'  | '*'  | '/'  | '%'  | '&' | '|' | '^'  | '<<' 
+    : '+'  | '-'  | '*'  | '/'  | '%'  | '&' | '|' | '^'  | '<<'
     | right_shift | '==' | '!=' | '>' | '<' | '>=' | '<='
     ;
 
@@ -4452,7 +4281,7 @@ The `true` and `false` unary operators require pair-wise declaration. A compile-
 >         return temp;
 >     }
 > }
-> 
+>
 > class Test : SmartContract.Framework.SmartContract
 > {
 >     public static void Test()
@@ -4705,7 +4534,7 @@ The scope of the parameters given by the *formal_parameter_list* of an instance 
 > {
 >     public A(int x, int y) {}
 > }
-> 
+>
 > class B: A
 > {
 >     public B(int x, int y) : base(x + y, x - y) {}
@@ -5216,7 +5045,7 @@ The `MoveNext` method of an enumerator object encapsulates the code of an iterat
 - If the state of the enumerator object is **running**, the result of invoking `MoveNext` is unspecified.
 - If the state of the enumerator object is **suspended**, invoking MoveNext:
   - Changes the state to **running**.
-  - Restores the values of all local variables and parameters (including `this`) to the values saved when execution of the iterator block was last suspended.  
+  - Restores the values of all local variables and parameters (including `this`) to the values saved when execution of the iterator block was last suspended.
     > *Note*: The contents of any objects referenced by these variables may have changed since the previous call to `MoveNext`. *end note*
   - Resumes execution of the iterator block immediately following the yield return statement that caused the suspension of execution and continues until execution is interrupted (as described below).
 - If the state of the enumerator object is **after**, invoking `MoveNext` returns false.
