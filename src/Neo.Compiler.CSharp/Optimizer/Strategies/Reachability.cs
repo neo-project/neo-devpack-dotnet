@@ -22,7 +22,7 @@ namespace Neo.Optimizer
 {
     static class Reachability
     {
-        [Strategy(Priority = int.MaxValue)]
+        [Strategy(Priority = int.MaxValue - 4)]
         public static (NefFile, ContractManifest, JObject?) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             InstructionCoverage oldContractCoverage = new InstructionCoverage(nef, manifest);
@@ -107,6 +107,77 @@ namespace Neo.Optimizer
                             jumpTargetToSources[nextInstruction] = sources;
                         }
                         continue;  // do not add this JMP into simplified instructions
+                    }
+                }
+                simplifiedInstructionsToAddress.Add(i, currentAddress);
+                currentAddress += i.Size;
+            }
+
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction);
+        }
+
+        /// <summary>
+        /// If a JMP or JMP_L jumps to a RET, replace the JMP with RET
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = int.MaxValue)]
+        public static (NefFile, ContractManifest, JObject?) ReplaceJumpWithRet(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            Script script = nef.Script;
+            List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
+            Dictionary<int, Instruction> oldAddressToInstruction = new();
+            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+                oldAddressToInstruction.Add(a, i);
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+            {
+                if (unconditionalJump.Contains(i.OpCode))
+                {
+                    int target = ComputeJumpTarget(a, i);
+                    if (!oldAddressToInstruction.TryGetValue(target, out Instruction? dstRet))
+                        throw new BadScriptException($"Bad {nameof(oldAddressToInstruction)}. No target found for {i} jumping from {a} to {target}");
+                    if (dstRet.OpCode == OpCode.RET)
+                    {
+                        // handle the reference of the deleted JMP
+                        jumpSourceToTargets.Remove(i);
+                        jumpTargetToSources[dstRet].Remove(i);
+                        if (jumpTargetToSources[dstRet].Count == 0)
+                            jumpTargetToSources.Remove(dstRet);
+                        // handle the reference of the added RET
+                        Instruction newRet = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
+                        // above is a workaround of new Instruction(OpCode.RET)
+                        if (jumpTargetToSources.TryGetValue(i, out HashSet<Instruction>? othersJumpingToCurrentJmp))
+                        {
+                            foreach (Instruction iJumpingToCurrentRet in othersJumpingToCurrentJmp)
+                            {
+                                if (SingleJumpInOperand(iJumpingToCurrentRet))
+                                    jumpSourceToTargets[iJumpingToCurrentRet] = newRet;
+                                if (iJumpingToCurrentRet.OpCode == OpCode.TRY || iJumpingToCurrentRet.OpCode == OpCode.TRY_L)
+                                {
+                                    (Instruction t1, Instruction t2) = trySourceToTargets[iJumpingToCurrentRet];
+                                    if (t1 == i) t1 = newRet;
+                                    if (t2 == i) t2 = newRet;
+                                    trySourceToTargets[iJumpingToCurrentRet] = (t1, t2);
+                                }
+                            }
+                            jumpTargetToSources.Remove(i);
+                            jumpTargetToSources[newRet] = othersJumpingToCurrentJmp;
+                        }
+                        simplifiedInstructionsToAddress.Add(newRet, currentAddress);
+                        currentAddress += newRet.Size;
+                        continue;
                     }
                 }
                 simplifiedInstructionsToAddress.Add(i, currentAddress);
