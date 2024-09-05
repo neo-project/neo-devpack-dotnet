@@ -22,7 +22,7 @@ namespace Neo.Optimizer
 {
     static class Reachability
     {
-        [Strategy(Priority = int.MaxValue - 4)]
+        [Strategy(Priority = int.MaxValue - 16)]
         public static (NefFile, ContractManifest, JObject?) RemoveUncoveredInstructions(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             InstructionCoverage oldContractCoverage = new InstructionCoverage(nef, manifest);
@@ -63,7 +63,7 @@ namespace Neo.Optimizer
         /// <param name="manifest"></param>
         /// <param name="debugInfo"></param>
         /// <returns></returns>
-        [Strategy(Priority = int.MaxValue - 16)]
+        [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveUnnecessaryJumps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             Script script = nef.Script;
@@ -126,7 +126,7 @@ namespace Neo.Optimizer
         /// <param name="manifest"></param>
         /// <param name="debugInfo"></param>
         /// <returns></returns>
-        [Strategy(Priority = int.MaxValue)]
+        [Strategy(Priority = int.MaxValue - 4)]
         public static (NefFile, ContractManifest, JObject?) ReplaceJumpWithRet(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             Script script = nef.Script;
@@ -138,6 +138,7 @@ namespace Neo.Optimizer
                 Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
                 Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
                 FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
 
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
@@ -150,6 +151,7 @@ namespace Neo.Optimizer
                         throw new BadScriptException($"Bad {nameof(oldAddressToInstruction)}. No target found for {i} jumping from {a} to {target}");
                     if (dstRet.OpCode == OpCode.RET)
                     {
+                        oldSequencePointAddressToNew[a] = currentAddress;
                         // handle the reference of the deleted JMP
                         jumpSourceToTargets.Remove(i);
                         jumpTargetToSources[dstRet].Remove(i);
@@ -187,7 +189,8 @@ namespace Neo.Optimizer
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
-                oldAddressToInstruction);
+                oldAddressToInstruction,
+                oldSequencePointAddressToNew: oldSequencePointAddressToNew);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             {
                 var instruction = script.GetInstruction(ip);
 
-                if (instruction.OpCode != OpCode.INITSLOT && instruction.OpCode != OpCode.RET)
+                if (ip != 0) // Avoid INITSLOT
                 {
                     Assert.IsTrue(points.Contains(ip), $"Offset {ip} with '{instruction.OpCode}' is not in sequence points.");
                 }
