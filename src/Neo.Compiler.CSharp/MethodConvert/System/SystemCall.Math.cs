@@ -313,8 +313,8 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.OVER);  // 5 0 10 0
         methodConvert.AddInstruction(OpCode.OVER);  // 5 0 10 0 10 <- top
         methodConvert.Jump(OpCode.JMPLE, exceptionTarget);  // 5 0 10  // if 0 <= 10, continue execution
-        methodConvert.Push("min>max");
-        methodConvert.AddInstruction(OpCode.ABORTMSG);
+        //methodConvert.Push("min>max");
+        methodConvert.AddInstruction(OpCode.THROW);
         exceptionTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         methodConvert.AddInstruction(OpCode.REVERSE3);  // 10 0 5
         methodConvert.AddInstruction(OpCode.OVER);  // 10 0 5 0
