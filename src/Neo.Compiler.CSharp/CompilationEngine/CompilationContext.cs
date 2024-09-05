@@ -159,6 +159,7 @@ namespace Neo.Compiler
                 try
                 {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo!.Clone() as JObject);
                     (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo!.Clone() as JObject);
                     (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo!.Clone() as JObject);
                     (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo!.Clone() as JObject);
