@@ -633,13 +633,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.IsPow2(0), Contract.IsPow2Int(0));
             AssertGasConsumed(1047390);
             Assert.AreEqual(int.IsPow2(1), Contract.IsPow2Int(1));
-            AssertGasConsumed(1047960);
+            AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(2), Contract.IsPow2Int(2));
-            AssertGasConsumed(1047960);
+            AssertGasConsumed(1047720);
             Assert.AreEqual(int.IsPow2(3), Contract.IsPow2Int(3));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047780);
             Assert.AreEqual(int.IsPow2(4), Contract.IsPow2Int(4));
-            AssertGasConsumed(1047960);
+            AssertGasConsumed(1047720);
         }
 
         [TestMethod]
@@ -660,7 +660,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.IsPositive(5), Contract.IsPositiveInt(5));
             AssertGasConsumed(1047420);
             Assert.AreEqual(int.IsPow2(5), Contract.IsPow2Int(5));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047780);
             Assert.AreEqual(int.LeadingZeroCount(5), Contract.LeadingZeroCountInt(5));
             AssertGasConsumed(1049970);
             Assert.AreEqual(int.Log2(5), Contract.Log2Int(5));
