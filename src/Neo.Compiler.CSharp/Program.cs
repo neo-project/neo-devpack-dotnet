@@ -124,6 +124,8 @@ namespace Neo.Compiler
                     if (debugInfo != null)
                         File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nefdbgnfo"), DumpNef.ZipDebugInfo(debugInfo.ToByteArray(true), filename + ".optimized.debug.json"));
                     Console.WriteLine($"Optimization finished.");
+                    if (options.SecurityAnalysis)
+                        ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
                     return;
                 }
                 if (extension != ".cs")
