@@ -307,8 +307,6 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
         var exceptionTarget = new JumpTarget();
-        var minTarget = new JumpTarget();
-        var maxTarget = new JumpTarget();
         // Evaluation stack: value=5 min=0 max=10 <- top
         methodConvert.AddInstruction(OpCode.OVER);  // 5 0 10 0
         methodConvert.AddInstruction(OpCode.OVER);  // 5 0 10 0 10 <- top
@@ -317,22 +315,27 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.THROW);
         exceptionTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         methodConvert.AddInstruction(OpCode.REVERSE3);  // 10 0 5
-        methodConvert.AddInstruction(OpCode.OVER);  // 10 0 5 0
-        methodConvert.AddInstruction(OpCode.OVER);  // 10 0 5 0 5
-        methodConvert.Jump(OpCode.JMPGE, minTarget);  // 10 0 5; should return 0 if JMPed
-        methodConvert.AddInstruction(OpCode.NIP);  // 10 5
-        methodConvert.AddInstruction(OpCode.OVER);  // 10 5 10
-        methodConvert.AddInstruction(OpCode.OVER);  // 10 5 10 5
-        methodConvert.Jump(OpCode.JMPLE, maxTarget);  // 10 5; should return 10 if JMPed
-        methodConvert.AddInstruction(OpCode.NIP);  // 5; should return 5
-        methodConvert.AddInstruction(OpCode.RET);
-        minTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);  // 10 0 5; should return 0
-        methodConvert.AddInstruction(OpCode.DROP);  // 10 0; should return 0
-        methodConvert.AddInstruction(OpCode.NIP);  // 0; should return 0
-        methodConvert.AddInstruction(OpCode.RET);
-        maxTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);  // 10 5; should return 10
-        methodConvert.AddInstruction(OpCode.DROP);  // 10; should return 10
-        methodConvert.AddInstruction(OpCode.RET);
+        // MAX&MIN costs 1<<3 each; 16 Datoshi more expensive at runtime
+        methodConvert.AddInstruction(OpCode.MAX);  // 10 5
+        methodConvert.AddInstruction(OpCode.MIN);  // 5
+        //methodConvert.AddInstruction(OpCode.RET);
+        // Alternatively, a slightly cheaper way at runtime; 10 to 16 Datoshi
+        //methodConvert.AddInstruction(OpCode.OVER);  // 10 0 5 0
+        //methodConvert.AddInstruction(OpCode.OVER);  // 10 0 5 0 5
+        //methodConvert.Jump(OpCode.JMPGE, minTarget);  // 10 0 5; should return 0 if JMPed
+        //methodConvert.AddInstruction(OpCode.NIP);  // 10 5
+        //methodConvert.AddInstruction(OpCode.OVER);  // 10 5 10
+        //methodConvert.AddInstruction(OpCode.OVER);  // 10 5 10 5
+        //methodConvert.Jump(OpCode.JMPLE, maxTarget);  // 10 5; should return 10 if JMPed
+        //methodConvert.AddInstruction(OpCode.NIP);  // 5; should return 5
+        //methodConvert.AddInstruction(OpCode.RET);
+        //minTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);  // 10 0 5; should return 0
+        //methodConvert.AddInstruction(OpCode.DROP);  // 10 0; should return 0
+        //methodConvert.AddInstruction(OpCode.NIP);  // 0; should return 0
+        //methodConvert.AddInstruction(OpCode.RET);
+        //maxTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);  // 10 5; should return 10
+        //methodConvert.AddInstruction(OpCode.DROP);  // 10; should return 10
+        //methodConvert.AddInstruction(OpCode.RET);
     }
 
     private static void HandleMathBigMul(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
