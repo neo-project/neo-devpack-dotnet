@@ -92,7 +92,41 @@ namespace Neo.Compiler
             }
             foreach (string path in paths)
             {
-                if (Path.GetExtension(path).ToLowerInvariant() != ".cs")
+                string extension = Path.GetExtension(path).ToLowerInvariant();
+                if (extension == ".nef")
+                {
+                    string directory = Path.GetDirectoryName(path)!;
+                    string filename = Path.GetFileNameWithoutExtension(path)!;
+                    Console.WriteLine($"Optimizing {filename}.nef to {filename}.optimized.nef...");
+                    NefFile nef = NefFile.Parse(File.ReadAllBytes(path));
+                    string manifestPath = Path.Join(directory, filename + ".manifest.json");
+                    if (!File.Exists(manifestPath))
+                        throw new FileNotFoundException($"{filename}.manifest.json required for optimization");
+                    ContractManifest manifest = ContractManifest.Parse(File.ReadAllText(manifestPath));
+                    string debugInfoPath = Path.Join(directory, filename + ".nefdbgnfo");
+                    JObject? debugInfo;
+                    if (File.Exists(debugInfoPath))
+                        debugInfo = (JObject?)JObject.Parse(DumpNef.UnzipDebugInfo(File.ReadAllBytes(debugInfoPath)));
+                    else
+                        debugInfo = null;
+                    (nef, manifest, debugInfo) = Neo.Optimizer.Optimizer.Optimize(nef, manifest, debugInfo, optimizationType: CompilationOptions.OptimizationType.All);
+                    // Define the optimization type inside the manifest
+                    manifest.Extra ??= new JObject();
+                    manifest.Extra["nef"] = new JObject();
+                    manifest.Extra["nef"]!["optimization"] = CompilationOptions.OptimizationType.All.ToString();
+                    File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nef"), nef.ToArray());
+                    File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.manifest.json"), manifest.ToJson().ToByteArray(true));
+                    if (options.Assembly)
+                    {
+                        string dumpnef = DumpNef.GenerateDumpNef(nef, debugInfo);
+                        File.WriteAllText(Path.Combine(directory, filename + ".optimized.nef.txt"), dumpnef);
+                    }
+                    if (debugInfo != null)
+                        File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nefdbgnfo"), DumpNef.ZipDebugInfo(debugInfo.ToByteArray(true), filename + ".optimized.debug.json"));
+                    Console.WriteLine($"Optimization finished.");
+                    return;
+                }
+                if (extension != ".cs")
                 {
                     Console.Error.WriteLine("The files must have a .cs extension.");
                     context.ExitCode = 1;
