@@ -26,6 +26,7 @@ This repository contains a set of Roslyn analyzers and code fix providers for Ne
 - [SupportedStandardsAnalyzer.cs](NeoContractAnalyzer/SupportedStandardsAnalyzer.cs): This analyzer checks for correct implementation of supported standards in smart contracts.
 - [BigIntegerUsingUsageAnalyzer.cs](NeoContractAnalyzer/BigIntegerUsingUsageAnalyzer.cs): This analyzer warns about incorrect usage of BigInteger in using statements.
 - [StaticFieldInitializationAnalyzer.cs](NeoContractAnalyzer/StaticFieldInitializationAnalyzer.cs): This analyzer checks for proper initialization of static fields in smart contracts.
+- [MultipleCatchBlockAnalyzer.cs](NeoContractAnalyzer/MultipleCatchBlockAnalyzer.cs): This analyzer checks for multiple catch blocks in try statements.
 
 ## How to Use
 
