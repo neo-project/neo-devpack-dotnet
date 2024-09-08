@@ -278,17 +278,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampByte()
         {
             Assert.AreEqual((byte)5, Contract.ClampByte(5, 0, 10));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.ThrowsException<TestException>(() => Contract.ClampByte(5, 10, 0));
             AssertGasConsumed(1062870);
             Assert.AreEqual((byte)5, Contract.ClampByte(0, 5, 10));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual((byte)5, Contract.ClampByte(10, 0, 5));
             AssertGasConsumed(1048350);
             Assert.AreEqual((byte)0, Contract.ClampByte(0, 0, 10));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual((byte)10, Contract.ClampByte(10, 0, 10));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual((byte)10, Contract.ClampByte(255, 0, 10));
             AssertGasConsumed(1048350);
             Assert.AreEqual((byte)10, Contract.ClampByte(20, 0, 10));
@@ -299,13 +299,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampSByte()
         {
             Assert.AreEqual((sbyte)0, Contract.ClampSByte(0, -5, 5));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual((sbyte)-5, Contract.ClampSByte(-10, -5, 5));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual((sbyte)5, Contract.ClampSByte(10, -5, 5));
             AssertGasConsumed(1048350);
             Assert.AreEqual((sbyte)-5, Contract.ClampSByte(sbyte.MinValue, -5, 5));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual((sbyte)5, Contract.ClampSByte(sbyte.MaxValue, -5, 5));
             AssertGasConsumed(1048350);
         }
@@ -314,13 +314,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampShort()
         {
             Assert.AreEqual((short)0, Contract.ClampShort(0, -1000, 1000));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual((short)-1000, Contract.ClampShort(-2000, -1000, 1000));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual((short)1000, Contract.ClampShort(2000, -1000, 1000));
             AssertGasConsumed(1048350);
             Assert.AreEqual((short)-1000, Contract.ClampShort(short.MinValue, -1000, 1000));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual((short)1000, Contract.ClampShort(short.MaxValue, -1000, 1000));
             AssertGasConsumed(1048350);
         }
@@ -329,11 +329,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampUShort()
         {
             Assert.AreEqual((ushort)500, Contract.ClampUShort(500, 0, 1000));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual((ushort)0, Contract.ClampUShort(0, 0, 1000));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual((ushort)1000, Contract.ClampUShort(1000, 0, 1000));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual((ushort)1000, Contract.ClampUShort(ushort.MaxValue, 0, 1000));
             AssertGasConsumed(1048350);
         }
@@ -342,13 +342,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampInt()
         {
             Assert.AreEqual(0, Contract.ClampInt(0, -1000000, 1000000));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(-1000000, Contract.ClampInt(-2000000, -1000000, 1000000));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual(1000000, Contract.ClampInt(2000000, -1000000, 1000000));
             AssertGasConsumed(1048350);
             Assert.AreEqual(-1000000, Contract.ClampInt(int.MinValue, -1000000, 1000000));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual(1000000, Contract.ClampInt(int.MaxValue, -1000000, 1000000));
             AssertGasConsumed(1048350);
         }
@@ -357,11 +357,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampUInt()
         {
             Assert.AreEqual(500000U, Contract.ClampUInt(500000U, 0U, 1000000U));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(0U, Contract.ClampUInt(0U, 0U, 1000000U));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(1000000U, Contract.ClampUInt(1000000U, 0U, 1000000U));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(1000000U, Contract.ClampUInt(uint.MaxValue, 0U, 1000000U));
             AssertGasConsumed(1048350);
         }
@@ -370,13 +370,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampLong()
         {
             Assert.AreEqual(0L, Contract.ClampLong(0L, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(-1000000000000L, Contract.ClampLong(-2000000000000L, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual(1000000000000L, Contract.ClampLong(2000000000000L, -1000000000000L, 1000000000000L));
             AssertGasConsumed(1048350);
             Assert.AreEqual(-1000000000000L, Contract.ClampLong(long.MinValue, -1000000000000L, 1000000000000L));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1048050);
             Assert.AreEqual(1000000000000L, Contract.ClampLong(long.MaxValue, -1000000000000L, 1000000000000L));
             AssertGasConsumed(1048350);
         }
@@ -385,11 +385,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampULong()
         {
             Assert.AreEqual(500000000000UL, Contract.ClampULong(500000000000UL, 0UL, 1000000000000UL));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(0UL, Contract.ClampULong(0UL, 0UL, 1000000000000UL));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(1000000000000UL, Contract.ClampULong(1000000000000UL, 0UL, 1000000000000UL));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(1000000000000UL, Contract.ClampULong(ulong.MaxValue, 0UL, 1000000000000UL));
             AssertGasConsumed(1048440);
         }
@@ -398,11 +398,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestClampBigInteger()
         {
             Assert.AreEqual(BigInteger.Zero, Contract.ClampBigInteger(BigInteger.Zero, BigInteger.MinusOne, BigInteger.One));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(BigInteger.MinusOne, Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.MinusOne, BigInteger.One));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.AreEqual(BigInteger.One, Contract.ClampBigInteger(BigInteger.One, BigInteger.MinusOne, BigInteger.One));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048290);
             Assert.ThrowsException<TestException>(() => Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.MinusOne, BigInteger.MinusOne));
             AssertGasConsumed(1062870);
             Assert.AreEqual(BigInteger.One, Contract.ClampBigInteger(BigInteger.One, BigInteger.MinusOne, BigInteger.One));
@@ -551,15 +551,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // Test with notmal and edge cases
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
-            AssertGasConsumed(1048230);
+            AssertGasConsumed(1048170);
             Assert.AreEqual(int.CreateSaturating(0), Contract.CreateSaturatingInt(0));
-            AssertGasConsumed(1048230);
+            AssertGasConsumed(1048170);
             Assert.AreEqual(int.CreateSaturating(-5), Contract.CreateSaturatingInt(-5));
-            AssertGasConsumed(1048230);
+            AssertGasConsumed(1048170);
 
             // Test with max values
             Assert.AreEqual(int.MaxValue, Contract.CreateSaturatingInt(int.MaxValue));
-            AssertGasConsumed(1048230);
+            AssertGasConsumed(1048170);
         }
 
 
@@ -631,13 +631,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestIsPow2Int()
         {
             Assert.AreEqual(int.IsPow2(0), Contract.IsPow2Int(0));
-            AssertGasConsumed(1047390);
+            AssertGasConsumed(1047330);
             Assert.AreEqual(int.IsPow2(1), Contract.IsPow2Int(1));
             AssertGasConsumed(1047960);
             Assert.AreEqual(int.IsPow2(2), Contract.IsPow2Int(2));
             AssertGasConsumed(1047960);
             Assert.AreEqual(int.IsPow2(3), Contract.IsPow2Int(3));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047960);
             Assert.AreEqual(int.IsPow2(4), Contract.IsPow2Int(4));
             AssertGasConsumed(1047960);
         }
@@ -650,7 +650,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.CreateChecked(5), Contract.CreateCheckedInt(5));
             AssertGasConsumed(1047450);
             Assert.AreEqual(int.CreateSaturating(5), Contract.CreateSaturatingInt(5));
-            AssertGasConsumed(1048230);
+            AssertGasConsumed(1048170);
             Assert.AreEqual(int.IsEvenInteger(5), Contract.IsEvenIntegerInt(5));
             AssertGasConsumed(1047570);
             Assert.AreEqual(int.IsOddInteger(5), Contract.IsOddIntegerInt(5));
@@ -660,11 +660,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(int.IsPositive(5), Contract.IsPositiveInt(5));
             AssertGasConsumed(1047420);
             Assert.AreEqual(int.IsPow2(5), Contract.IsPow2Int(5));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047960);
             Assert.AreEqual(int.LeadingZeroCount(5), Contract.LeadingZeroCountInt(5));
             AssertGasConsumed(1049970);
             Assert.AreEqual(int.Log2(5), Contract.Log2Int(5));
-            AssertGasConsumed(1049850);
+            AssertGasConsumed(1049790);
         }
 
         [TestMethod]
