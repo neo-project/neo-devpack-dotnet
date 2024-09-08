@@ -43,9 +43,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(9, Contract.TestCharGetNumericValue('9'));
             AssertGasConsumed(1047720);
             Assert.AreEqual(-1, Contract.TestCharGetNumericValue('a'));
-            AssertGasConsumed(1047600);
+            AssertGasConsumed(1047540);
             Assert.AreEqual(-1, Contract.TestCharGetNumericValue('$'));
-            AssertGasConsumed(1047600);
+            AssertGasConsumed(1047540);
         }
 
         [TestMethod]
@@ -128,9 +128,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestCharIsBetween()
         {
             Assert.IsTrue(Contract.TestCharIsBetween('a', 'a', 'z'));
-            AssertGasConsumed(1047930);
+            AssertGasConsumed(1047870);
             Assert.IsTrue(Contract.TestCharIsBetween('z', 'a', 'z'));
-            AssertGasConsumed(1047930);
+            AssertGasConsumed(1047870);
 
             Assert.IsFalse(Contract.TestCharIsBetween('A', 'a', 'z'));
             AssertGasConsumed(1047990);
