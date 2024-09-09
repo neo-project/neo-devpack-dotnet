@@ -128,7 +128,7 @@ namespace Neo.Compiler
                         ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
                     return;
                 }
-                if (extension != ".cs")
+                else if (extension != ".cs")
                 {
                     Console.Error.WriteLine("The files must have a .cs extension.");
                     context.ExitCode = 1;
