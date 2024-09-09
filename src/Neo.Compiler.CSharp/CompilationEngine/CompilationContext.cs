@@ -159,7 +159,7 @@ namespace Neo.Compiler
                 try
                 {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                    (nef, manifest, debugInfo) = Neo.Optimizer.Optimizer.Optimize(nef, manifest, debugInfo: debugInfo!.Clone(), optimizationType: Options.Optimize);
+                    (nef, manifest, debugInfo) = Neo.Optimizer.Optimizer.Optimize(nef, manifest, debugInfo: debugInfo!.Clone() as JObject, optimizationType: Options.Optimize);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
                 }
                 catch (Exception ex)
