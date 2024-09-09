@@ -60,7 +60,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(true.ToString(), Contract.CheckBoolString(true));
             AssertGasConsumed(1047330);
             Assert.AreEqual(false.ToString(), Contract.CheckBoolString(false));
-            AssertGasConsumed(1047390);
+            AssertGasConsumed(1047330);
         }
 
         [TestMethod]

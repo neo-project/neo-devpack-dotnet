@@ -72,7 +72,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6(6.ToString())!).GetInteger());
             AssertGasConsumed(1055310);
             Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6Inline(6.ToString())!).GetInteger());
-            AssertGasConsumed(1055400);
+            AssertGasConsumed(1055340);
         }
     }
 }
