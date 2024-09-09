@@ -54,15 +54,12 @@ namespace Neo.Optimizer
 
         public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
         {
-            // Define the optimization type inside the manifest
-            if (optimizationType != CompilationOptions.OptimizationType.None)
-            {
-                manifest.Extra ??= new JObject();
-                manifest.Extra["nef"] = new JObject();
-                manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
-            }
             if (!optimizationType.HasFlag(CompilationOptions.OptimizationType.Experimental))
                 return (nef, manifest, debugInfo);  // do nothing
+            // Define the optimization type inside the manifest
+            manifest.Extra ??= new JObject();
+            manifest.Extra["nef"] = new JObject();
+            manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
             // TODO in the future: optimize by StrategyAttribute in a loop
             debugInfo = debugInfo?.Clone() as JObject;  // do not pollute the input when optimization fails
             (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);

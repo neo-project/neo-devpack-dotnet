@@ -95,6 +95,13 @@ namespace Neo.Compiler
                 string extension = Path.GetExtension(path).ToLowerInvariant();
                 if (extension == ".nef")
                 {
+                    if (options.Optimize != CompilationOptions.OptimizationType.Experimental)
+                    {
+                        Console.Error.WriteLine($"Required {nameof(options.Optimize).ToLower()}={options.Optimize}, " +
+                            $"but the .nef optimizer supports only {CompilationOptions.OptimizationType.Experimental} level of optimization. ");
+                        Console.Error.WriteLine($"Still using {nameof(options.Optimize).ToLower()}={CompilationOptions.OptimizationType.Experimental}");
+                        options.Optimize = CompilationOptions.OptimizationType.Experimental;
+                    }
                     string directory = Path.GetDirectoryName(path)!;
                     string filename = Path.GetFileNameWithoutExtension(path)!;
                     Console.WriteLine($"Optimizing {filename}.nef to {filename}.optimized.nef...");
@@ -109,11 +116,7 @@ namespace Neo.Compiler
                         debugInfo = (JObject?)JObject.Parse(DumpNef.UnzipDebugInfo(File.ReadAllBytes(debugInfoPath)));
                     else
                         debugInfo = null;
-                    (nef, manifest, debugInfo) = Neo.Optimizer.Optimizer.Optimize(nef, manifest, debugInfo, optimizationType: CompilationOptions.OptimizationType.All);
-                    // Define the optimization type inside the manifest
-                    manifest.Extra ??= new JObject();
-                    manifest.Extra["nef"] = new JObject();
-                    manifest.Extra["nef"]!["optimization"] = CompilationOptions.OptimizationType.All.ToString();
+                    (nef, manifest, debugInfo) = Neo.Optimizer.Optimizer.Optimize(nef, manifest, debugInfo, optimizationType: options.Optimize);
                     File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nef"), nef.ToArray());
                     File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.manifest.json"), manifest.ToJson().ToByteArray(true));
                     if (options.Assembly)
