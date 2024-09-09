@@ -19,11 +19,11 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             result = Contract.TestConditionalLogicalAnd(false, true);
             Assert.AreEqual(false && true, result);
-            AssertGasConsumed(1047210);
+            AssertGasConsumed(1047150);
 
             result = Contract.TestConditionalLogicalAnd(false, false);
             Assert.AreEqual(false && false, result);
-            AssertGasConsumed(1047210);
+            AssertGasConsumed(1047150);
         }
 
         [TestMethod]
@@ -31,11 +31,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var result = Contract.TestConditionalLogicalOr(true, true);
             Assert.AreEqual(true || true, result);
-            AssertGasConsumed(1047210);
+            AssertGasConsumed(1047150);
 
             result = Contract.TestConditionalLogicalOr(true, false);
             Assert.AreEqual(true || false, result);
-            AssertGasConsumed(1047210);
+            AssertGasConsumed(1047150);
 
             result = Contract.TestConditionalLogicalOr(false, true);
             Assert.AreEqual(false || true, result);

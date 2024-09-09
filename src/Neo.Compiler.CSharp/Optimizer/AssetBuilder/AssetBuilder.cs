@@ -26,7 +26,8 @@ namespace Neo.Optimizer
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress,
             Dictionary<Instruction, Instruction> jumpSourceToTargets,
             Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
-            Dictionary<int, Instruction> oldAddressToInstruction)
+            Dictionary<int, Instruction> oldAddressToInstruction,
+            Dictionary<int, int>? oldSequencePointAddressToNew = null)
         {
             nef.Script = OptimizedScriptBuilder.BuildScriptWithJumpTargets(
                 simplifiedInstructionsToAddress,
@@ -36,7 +37,9 @@ namespace Neo.Optimizer
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
                 method.Offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]]!;
-            debugInfo = DebugInfoBuilder.ModifyDebugInfo(debugInfo, simplifiedInstructionsToAddress, oldAddressToInstruction);
+            debugInfo = DebugInfoBuilder.ModifyDebugInfo(
+                debugInfo, simplifiedInstructionsToAddress, oldAddressToInstruction,
+                oldSequencePointAddressToNew: oldSequencePointAddressToNew);
             return (nef, manifest, debugInfo);
         }
     }

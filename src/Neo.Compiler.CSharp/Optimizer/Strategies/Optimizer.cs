@@ -64,8 +64,11 @@ namespace Neo.Optimizer
             if (!optimizationType.HasFlag(CompilationOptions.OptimizationType.Experimental))
                 return (nef, manifest, debugInfo);  // do nothing
             // TODO in the future: optimize by StrategyAttribute in a loop
-            (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo?.Clone() as JObject);
-            (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo?.Clone() as JObject);
+            (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo!.Clone() as JObject);
+            (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo!.Clone() as JObject);
+            (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo!.Clone() as JObject);
+            (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo!.Clone() as JObject);
+            (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo!.Clone() as JObject);
             return (nef, manifest, debugInfo);
         }
     }
