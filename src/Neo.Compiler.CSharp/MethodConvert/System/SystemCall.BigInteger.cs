@@ -384,8 +384,7 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DEC);
         methodConvert.AddInstruction(OpCode.AND);
         methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
-        methodConvert.Jump(OpCode.JMPIF, endTrue);
+        methodConvert.Jump(OpCode.JMPEQ, endTrue);
         endFalse.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         methodConvert.Push(false);
         methodConvert.Jump(OpCode.JMP, endTarget);
