@@ -35,6 +35,8 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
+        public bool IsValidAndNotZero => IsValid && !IsZero;
+
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
