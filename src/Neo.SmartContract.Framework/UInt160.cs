@@ -8,7 +8,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using System;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
@@ -37,6 +36,8 @@ namespace Neo.SmartContract.Framework
             [OpCode(OpCode.BOOLAND)]
             get;
         }
+
+        public bool IsValidAndNotZero => IsValid && !IsZero;
 
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
