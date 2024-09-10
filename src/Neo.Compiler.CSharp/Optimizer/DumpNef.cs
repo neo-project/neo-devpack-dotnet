@@ -17,8 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Neo.Optimizer
@@ -31,6 +33,41 @@ namespace Neo.Optimizer
 
         static readonly Lazy<IReadOnlyDictionary<uint, string>> sysCallNames = new(
             () => ApplicationEngine.Services.ToImmutableDictionary(kvp => kvp.Value.Hash, kvp => kvp.Value.Name));
+
+        public static byte[] ZipDebugInfo(byte[] content, string innerFilename)
+        {
+            using (var compressedFileStream = new MemoryStream())
+            {
+                using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Update, false))
+                {
+                    var zipEntry = zipArchive.CreateEntry(innerFilename);
+                    using (var originalFileStream = new MemoryStream(content))
+                    {
+                        using (var zipEntryStream = zipEntry.Open())
+                        {
+                            originalFileStream.CopyTo(zipEntryStream);
+                        }
+                    }
+                }
+                return compressedFileStream.ToArray();
+            }
+        }
+
+        public static string UnzipDebugInfo(byte[] zippedBuffer)
+        {
+            using var zippedStream = new MemoryStream(zippedBuffer);
+            using var archive = new ZipArchive(zippedStream, ZipArchiveMode.Read, false, Encoding.UTF8);
+            var entry = archive.Entries.FirstOrDefault();
+            if (entry != null)
+            {
+                using var unzippedEntryStream = entry.Open();
+                using var ms = new MemoryStream();
+                unzippedEntryStream.CopyTo(ms);
+                var unzippedArray = ms.ToArray();
+                return Encoding.UTF8.GetString(unzippedArray);
+            }
+            throw new ArgumentException("No file found in zip archive");
+        }
 
         public static string GetInstructionAddressPadding(this Script script)
         {
