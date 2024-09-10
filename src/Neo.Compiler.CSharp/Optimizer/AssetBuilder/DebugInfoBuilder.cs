@@ -20,7 +20,8 @@ namespace Neo.Optimizer
         /// <returns></returns>
         public static JObject? ModifyDebugInfo(JObject? debugInfo,
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress,
-            Dictionary<int, Instruction> oldAddressToInstruction)
+            Dictionary<int, Instruction> oldAddressToInstruction,
+            Dictionary<int, int>? oldSequencePointAddressToNew = null)
         {
             if (debugInfo == null) return null;
             //Dictionary<int, (int docId, int startLine, int startCol, int endLine, int endCol)> newAddrToSequencePoint = new();
@@ -56,6 +57,12 @@ namespace Neo.Optimizer
                     {
                         startInstructionAddress = (int)simplifiedInstructionsToAddress[oldInstruction]!;
                         newSequencePoints.Add(new JString($"{startInstructionAddress}{sequencePointGroups[2]}"));
+                        previousSequencePoint = startInstructionAddress;
+                    }
+                    else if (oldSequencePointAddressToNew != null
+                        && oldSequencePointAddressToNew.TryGetValue(startInstructionAddress, out int newStartInstructionAddress))
+                    {
+                        newSequencePoints.Add(new JString($"{newStartInstructionAddress}{sequencePointGroups[2]}"));
                         previousSequencePoint = startInstructionAddress;
                     }
                     else

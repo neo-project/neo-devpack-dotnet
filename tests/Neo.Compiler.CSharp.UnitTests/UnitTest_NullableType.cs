@@ -11,7 +11,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestBigInteger()
         {
             Assert.AreEqual(BigInteger.Parse("3"), Contract.TestBigIntegerAdd(BigInteger.One, new BigInteger(2)));
-            Assert.AreEqual(1048380, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.AreEqual(BigInteger.Zero, Contract.TestBigIntegerAdd(null, BigInteger.One));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual(BigInteger.Parse("3"), Contract.TestBigIntegerAddNonNullable(BigInteger.One, new BigInteger(2)));
@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestBigIntegerCompare(new BigInteger(2), BigInteger.One));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestBigIntegerCompare(null, BigInteger.One));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestBigIntegerCompareNonNullable(new BigInteger(2), BigInteger.One));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -36,7 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestInt()
         {
             Assert.AreEqual(3, Contract.TestIntAdd(1, 2));
-            Assert.AreEqual(1048680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048620, Engine.FeeConsumed.Value);
             Assert.AreEqual(0, Contract.TestIntAdd(null, 1));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual(3, Contract.TestIntAddNonNullable(1, 2));
@@ -45,7 +45,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestIntCompare(2, 1));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestIntCompare(null, 1));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestIntCompareNonNullable(2, 1));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -61,7 +61,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestUInt()
         {
             Assert.AreEqual(3u, Contract.TestUIntAdd(1u, 2u));
-            Assert.AreEqual(1048680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048620, Engine.FeeConsumed.Value);
             Assert.AreEqual(0u, Contract.TestUIntAdd(null, 1u));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual(3u, Contract.TestUIntAddNonNullable(1u, 2u));
@@ -70,7 +70,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestUIntCompare(2u, 1u));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestUIntCompare(null, 1u));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestUIntCompareNonNullable(2u, 1u));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -86,7 +86,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestLong()
         {
             Assert.AreEqual(3L, Contract.TestLongAdd(1L, 2L));
-            Assert.AreEqual(1048680, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048620, Engine.FeeConsumed.Value);
             Assert.AreEqual(0L, Contract.TestLongAdd(null, 1L));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual(3L, Contract.TestLongAddNonNullable(1L, 2L));
@@ -95,7 +95,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestLongCompare(2L, 1L));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestLongCompare(null, 1L));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestLongCompareNonNullable(2L, 1L));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -111,7 +111,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestULong()
         {
             Assert.AreEqual(3UL, Contract.TestULongAdd(1UL, 2UL));
-            Assert.AreEqual(1048770, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048710, Engine.FeeConsumed.Value);
             Assert.AreEqual(0UL, Contract.TestULongAdd(null, 1UL));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual(3UL, Contract.TestULongAddNonNullable(1UL, 2UL));
@@ -120,7 +120,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestULongCompare(2UL, 1UL));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestULongCompare(null, 1UL));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestULongCompareNonNullable(2UL, 1UL));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -136,7 +136,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestShort()
         {
             Assert.AreEqual((short)3, Contract.TestShortAdd((short)1, (short)2));
-            Assert.AreEqual(1048980, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048920, Engine.FeeConsumed.Value);
             Assert.AreEqual((short)0, Contract.TestShortAdd(null, (short)1));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual((short)3, Contract.TestShortAddNonNullable((short)1, (short)2));
@@ -145,7 +145,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestShortCompare((short)2, (short)1));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestShortCompare(null, (short)1));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestShortCompareNonNullable((short)2, (short)1));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -161,7 +161,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestUShort()
         {
             Assert.AreEqual((ushort)3, Contract.TestUShortAdd((ushort)1, (ushort)2));
-            Assert.AreEqual(1048980, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048920, Engine.FeeConsumed.Value);
             Assert.AreEqual((ushort)0, Contract.TestUShortAdd(null, (ushort)1));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual((ushort)3, Contract.TestUShortAddNonNullable((ushort)1, (ushort)2));
@@ -170,7 +170,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestUShortCompare((ushort)2, (ushort)1));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestUShortCompare(null, (ushort)1));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestUShortCompareNonNullable((ushort)2, (ushort)1));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -186,7 +186,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestSByte()
         {
             Assert.AreEqual((sbyte)3, Contract.TestSByteAdd((sbyte)1, (sbyte)2));
-            Assert.AreEqual(1048980, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048920, Engine.FeeConsumed.Value);
             Assert.AreEqual((sbyte)0, Contract.TestSByteAdd(null, (sbyte)1));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual((sbyte)3, Contract.TestSByteAddNonNullable((sbyte)1, (sbyte)2));
@@ -195,7 +195,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestSByteCompare((sbyte)2, (sbyte)1));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestSByteCompare(null, (sbyte)1));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestSByteCompareNonNullable((sbyte)2, (sbyte)1));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -211,7 +211,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestByte()
         {
             Assert.AreEqual((byte)3, Contract.TestByteAdd((byte)1, (byte)2));
-            Assert.AreEqual(1048980, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1048920, Engine.FeeConsumed.Value);
             Assert.AreEqual((byte)0, Contract.TestByteAdd(null, (byte)1));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual((byte)3, Contract.TestByteAddNonNullable((byte)1, (byte)2));
@@ -220,7 +220,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestByteCompare((byte)2, (byte)1));
             Assert.AreEqual(1048320, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestByteCompare(null, (byte)1));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestByteCompareNonNullable((byte)2, (byte)1));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
 
@@ -238,16 +238,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestBoolAnd(true, true));
             Assert.AreEqual(1048140, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestBoolAnd(null, true));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestBoolAndNonNullable(true, true));
             Assert.AreEqual(1047180, Engine.FeeConsumed.Value);
 
             Assert.IsTrue(Contract.TestBoolOr(true, false));
-            Assert.AreEqual(1047990, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047930, Engine.FeeConsumed.Value);
             Assert.IsFalse(Contract.TestBoolOr(null, false));
-            Assert.AreEqual(1047540, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.IsTrue(Contract.TestBoolOrNonNullable(true, false));
-            Assert.AreEqual(1047210, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047150, Engine.FeeConsumed.Value);
 
             Assert.IsTrue(Contract.TestBoolDefault(true));
             Assert.AreEqual(1047210, Engine.FeeConsumed.Value);

@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(true, Contract.Between(50));
             AssertGasConsumed(1083030);
             Assert.AreEqual(false, Contract.Between(1));
-            AssertGasConsumed(1082790);
+            AssertGasConsumed(1082730);
             Assert.AreEqual(false, Contract.Between(100));
             AssertGasConsumed(1083030);
             Assert.AreEqual(false, Contract.Between(200));
