@@ -92,7 +92,46 @@ namespace Neo.Compiler
             }
             foreach (string path in paths)
             {
-                if (Path.GetExtension(path).ToLowerInvariant() != ".cs")
+                string extension = Path.GetExtension(path).ToLowerInvariant();
+                if (extension == ".nef")
+                {
+                    if (options.Optimize != CompilationOptions.OptimizationType.Experimental)
+                    {
+                        Console.Error.WriteLine($"Required {nameof(options.Optimize).ToLower()}={options.Optimize}, " +
+                            $"but the .nef optimizer supports only {CompilationOptions.OptimizationType.Experimental} level of optimization. ");
+                        Console.Error.WriteLine($"Still using {nameof(options.Optimize).ToLower()}={CompilationOptions.OptimizationType.Experimental}");
+                        options.Optimize = CompilationOptions.OptimizationType.Experimental;
+                    }
+                    string directory = Path.GetDirectoryName(path)!;
+                    string filename = Path.GetFileNameWithoutExtension(path)!;
+                    Console.WriteLine($"Optimizing {filename}.nef to {filename}.optimized.nef...");
+                    NefFile nef = NefFile.Parse(File.ReadAllBytes(path));
+                    string manifestPath = Path.Join(directory, filename + ".manifest.json");
+                    if (!File.Exists(manifestPath))
+                        throw new FileNotFoundException($"{filename}.manifest.json required for optimization");
+                    ContractManifest manifest = ContractManifest.Parse(File.ReadAllText(manifestPath));
+                    string debugInfoPath = Path.Join(directory, filename + ".nefdbgnfo");
+                    JObject? debugInfo;
+                    if (File.Exists(debugInfoPath))
+                        debugInfo = (JObject?)JObject.Parse(DumpNef.UnzipDebugInfo(File.ReadAllBytes(debugInfoPath)));
+                    else
+                        debugInfo = null;
+                    (nef, manifest, debugInfo) = Neo.Optimizer.Optimizer.Optimize(nef, manifest, debugInfo, optimizationType: options.Optimize);
+                    File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nef"), nef.ToArray());
+                    File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.manifest.json"), manifest.ToJson().ToByteArray(true));
+                    if (options.Assembly)
+                    {
+                        string dumpnef = DumpNef.GenerateDumpNef(nef, debugInfo);
+                        File.WriteAllText(Path.Combine(directory, filename + ".optimized.nef.txt"), dumpnef);
+                    }
+                    if (debugInfo != null)
+                        File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nefdbgnfo"), DumpNef.ZipDebugInfo(debugInfo.ToByteArray(true), filename + ".optimized.debug.json"));
+                    Console.WriteLine($"Optimization finished.");
+                    if (options.SecurityAnalysis)
+                        ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
+                    return;
+                }
+                else if (extension != ".cs")
                 {
                     Console.Error.WriteLine("The files must have a .cs extension.");
                     context.ExitCode = 1;
