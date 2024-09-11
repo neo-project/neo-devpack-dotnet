@@ -68,21 +68,21 @@ namespace Neo.Optimizer
         public static (Dictionary<Instruction, Instruction>,
             Dictionary<Instruction, (Instruction, Instruction)>,
             Dictionary<Instruction, HashSet<Instruction>>)
-            FindAllJumpAndTrySourceToTargets(NefFile nef)
+            FindAllJumpAndTrySourceToTargets(NefFile nef, bool includePUSHA = true)
         {
             Script script = nef.Script;
-            return FindAllJumpAndTrySourceToTargets(script);
+            return FindAllJumpAndTrySourceToTargets(script, includePUSHA);
         }
         public static (Dictionary<Instruction, Instruction>,
             Dictionary<Instruction, (Instruction, Instruction)>,
             Dictionary<Instruction, HashSet<Instruction>>)
-            FindAllJumpAndTrySourceToTargets(Script script) => FindAllJumpAndTrySourceToTargets(script.EnumerateInstructions().ToList());
+            FindAllJumpAndTrySourceToTargets(Script script, bool includePUSHA = true) => FindAllJumpAndTrySourceToTargets(script.EnumerateInstructions().ToList(), includePUSHA);
         public static (
             Dictionary<Instruction, Instruction>,  // jump source to target
             Dictionary<Instruction, (Instruction, Instruction)>,  // try source to targets
             Dictionary<Instruction, HashSet<Instruction>>  // target to source
             )
-            FindAllJumpAndTrySourceToTargets(List<Instruction> instructionsList)
+            FindAllJumpAndTrySourceToTargets(List<Instruction> instructionsList, bool includePUSHA = true)
         {
             int addr = 0;
             List<(int, Instruction)> addressAndInstructionsList = new();
@@ -91,14 +91,14 @@ namespace Neo.Optimizer
                 addressAndInstructionsList.Add((addr, i));
                 addr += i.Size;
             }
-            return FindAllJumpAndTrySourceToTargets(addressAndInstructionsList);
+            return FindAllJumpAndTrySourceToTargets(addressAndInstructionsList, includePUSHA);
         }
         public static (
             Dictionary<Instruction, Instruction>,  // jump source to target
             Dictionary<Instruction, (Instruction, Instruction)>,  // try source to targets
             Dictionary<Instruction, HashSet<Instruction>>  // target to source
             )
-            FindAllJumpAndTrySourceToTargets(List<(int, Instruction)> addressAndInstructionsList)
+            FindAllJumpAndTrySourceToTargets(List<(int, Instruction)> addressAndInstructionsList, bool includePUSHA = true)
         {
             Dictionary<int, Instruction> addressToInstruction = new();
             foreach ((int a, Instruction i) in addressAndInstructionsList)
@@ -108,7 +108,7 @@ namespace Neo.Optimizer
             Dictionary<Instruction, HashSet<Instruction>> targetToSources = new();
             foreach ((int a, Instruction i) in addressAndInstructionsList)
             {
-                if (SingleJumpInOperand(i))
+                if ((SingleJumpInOperand(i) && i.OpCode != CALLA) || (includePUSHA && i.OpCode == PUSHA))
                 {
                     int targetAddr = ComputeJumpTarget(a, i);
                     Instruction target = addressToInstruction[targetAddr];
