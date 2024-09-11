@@ -84,7 +84,11 @@ namespace Neo.Optimizer
                 BasicBlock thisBlock = new(startAddr, block);
                 basicBlocksByStartInstruction.Add(block.First(), thisBlock);
                 if (prevBlock != null)
-                    prevBlock.nextBlock = thisBlock;
+                {
+                    OpCode prevLastOpCode = prevBlock.instructions.Last().OpCode;
+                    if (!OpCodeTypes.unconditionalJump.Contains(prevLastOpCode) && prevLastOpCode != OpCode.RET)
+                        prevBlock.nextBlock = thisBlock;
+                }
                 prevBlock = thisBlock;
             }
             // handle jumps between blocks
