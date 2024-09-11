@@ -10,14 +10,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestFunc()
         {
             Assert.AreEqual(5, Contract.SumFunc(2, 3));
-            AssertGasConsumed(1065300);
+            AssertGasConsumed(1065180);
         }
 
         [TestMethod]
         public void TestDelegate()
         {
             Contract.TestDelegate();
-            AssertGasConsumed(3436020);
+            AssertGasConsumed(3435960);
         }
     }
 }

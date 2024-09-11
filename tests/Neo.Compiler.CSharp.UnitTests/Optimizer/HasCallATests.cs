@@ -10,6 +10,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         [TestMethod]
         public void Test_HasCallA()
         {
+            Assert.IsTrue(EntryPoint.HasCallA(Contract_Lambda.Nef));
+            Assert.IsTrue(EntryPoint.HasCallA(Contract_Linq.Nef));
+            Assert.IsTrue(EntryPoint.HasCallA(Contract_Delegate.Nef));
             Assert.IsFalse(EntryPoint.HasCallA(Contract_Polymorphism.Nef));
             Assert.IsFalse(EntryPoint.HasCallA(Contract_TryCatch.Nef));
         }

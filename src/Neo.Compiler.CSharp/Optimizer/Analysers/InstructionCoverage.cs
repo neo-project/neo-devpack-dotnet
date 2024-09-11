@@ -57,10 +57,10 @@ namespace Neo.Optimizer
 
     public enum BranchType
     {
-        OK,     // One of the branches may return without exception
-        THROW,  // All branches surely have exceptions, but can be catched
-        ABORT,  // All branches abort, and cannot be catched
-        UNCOVERED,
+        OK = 1,     // One of the branches may return without exception
+        THROW = 2,  // All branches surely have exceptions, but can be catched
+        ABORT = 3,  // All branches abort, and cannot be catched
+        UNCOVERED = 4,
     }
 
     public class InstructionCoverage
@@ -77,6 +77,7 @@ namespace Neo.Optimizer
         /// value: sources of that jump target
         /// </summary>
         public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
+        public Dictionary<int, EntryType> pushaTargets { get; init; }
         public InstructionCoverage(NefFile nef, ContractManifest manifest)
         {
             this.script = nef.Script;
@@ -85,6 +86,7 @@ namespace Neo.Optimizer
             addressAndInstructions = script.EnumerateInstructions().ToList();
             (jumpInstructionSourceToTargets, tryInstructionSourceToTargets, jumpTargetToSources) =
                 FindAllJumpAndTrySourceToTargets(addressAndInstructions);
+            pushaTargets = EntryPoint.EntryPointsByCallA(nef);
             foreach ((int addr, Instruction _) in addressAndInstructions)
                 coveredMap.Add(addr, BranchType.UNCOVERED);
 
@@ -238,8 +240,23 @@ namespace Neo.Optimizer
                     return HandleAbort(entranceAddr, addr, stack);
                 if (callWithJump.Contains(instruction.OpCode))
                 {
-                    int callTarget = ComputeJumpTarget(addr, instruction);
-                    BranchType returnedType = CoverInstruction(callTarget, stack);
+                    BranchType returnedType;
+                    if (instruction.OpCode == OpCode.CALLA)
+                    {
+                        returnedType = BranchType.ABORT;
+                        foreach (int callaTarget in pushaTargets.Keys)
+                        {
+                            BranchType singleCallaResult = CoverInstruction(callaTarget, stack);
+                            if (singleCallaResult < returnedType)
+                                returnedType = singleCallaResult;
+                            // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
+                        }
+                    }
+                    else
+                    {
+                        int callTarget = ComputeJumpTarget(addr, instruction);
+                        returnedType = CoverInstruction(callTarget, stack);
+                    }
                     if (returnedType == BranchType.OK)
                         return CoverInstruction(addr + instruction.Size, stack);
                     if (returnedType == BranchType.ABORT)

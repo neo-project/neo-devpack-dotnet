@@ -70,7 +70,7 @@ namespace Neo.Optimizer
                     {
                         int target = JumpTarget.ComputeJumpTarget(addr, instruction);
                         if (target != addr && target >= 0)
-                            result.Add(addr, EntryType.PUSHA);
+                            result.Add(target, EntryType.PUSHA);
                     }
             return result;
         }
