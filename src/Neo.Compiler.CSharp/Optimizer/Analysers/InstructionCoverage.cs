@@ -78,6 +78,7 @@ namespace Neo.Optimizer
         /// </summary>
         public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
         public Dictionary<int, EntryType> pushaTargets { get; init; }
+
         public InstructionCoverage(NefFile nef, ContractManifest manifest)
         {
             this.script = nef.Script;
