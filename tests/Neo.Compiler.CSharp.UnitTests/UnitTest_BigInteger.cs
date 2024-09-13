@@ -143,25 +143,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_IsEven()
         {
-            // Test 0
-            Assert.AreEqual(new BigInteger(0).IsEven, Contract.TestIsEven(0));
-            AssertGasConsumed(1047570);
-
-            // Test 1
-            Assert.AreEqual(new BigInteger(1).IsEven, Contract.TestIsEven(1));
-            AssertGasConsumed(1047570);
-
-            // Test 2
-            Assert.AreEqual(new BigInteger(2).IsEven, Contract.TestIsEven(2));
-            AssertGasConsumed(1047570);
-
-            // Test -1
-            Assert.AreEqual(new BigInteger(-1).IsEven, Contract.TestIsEven(-1));
-            AssertGasConsumed(1047570);
-
-            // Test -2
-            Assert.AreEqual(new BigInteger(-2).IsEven, Contract.TestIsEven(-2));
-            AssertGasConsumed(1047570);
+            for (int i = -2; i <= 2; ++i)
+            {
+                Assert.AreEqual(new BigInteger(i).IsEven, Contract.TestIsEven(i));
+                AssertGasConsumed(1047420);
+            }
         }
 
         [TestMethod]

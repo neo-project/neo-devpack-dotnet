@@ -75,44 +75,13 @@ internal partial class MethodConvert
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        JumpTarget nonZeroTarget = new();
-        JumpTarget nonZeroTarget2 = new();
-        // a b
-        methodConvert.AddInstruction(OpCode.SIGN);         // a 1
-        methodConvert.AddInstruction(OpCode.DUP); // a 1 1
-        methodConvert.Push(0); // a 1 1 0
-        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget); // a 1
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Push(1); // a 1
-        nonZeroTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // a 1
-        methodConvert.AddInstruction(OpCode.SWAP);         // 1 a
-        methodConvert.AddInstruction(OpCode.DUP);// 1 a a
-        methodConvert.AddInstruction(OpCode.SIGN);// 1 a 0
-        methodConvert.AddInstruction(OpCode.DUP);// 1 a 0 0
-        methodConvert.Push(0); // 1 a 0 0 0
-        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Push(1);
-        nonZeroTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP); // 1 a 1
-        methodConvert.AddInstruction(OpCode.ROT);// a 1 1
-        methodConvert.AddInstruction(OpCode.EQUAL);// a 1 1
-        JumpTarget endTarget = new();
-        methodConvert.Jump(OpCode.JMPIF, endTarget); // a
-        methodConvert.AddInstruction(OpCode.NEGATE);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        var endTarget2 = new JumpTarget();
+        HandleBigIntegerCopySign(methodConvert, model, symbol, instanceExpression, arguments);
+        JumpTarget noOverflowTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(sbyte.MinValue);
-        methodConvert.Push(new BigInteger(sbyte.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget2);
+        methodConvert.Push(sbyte.MaxValue);
+        methodConvert.Jump(OpCode.JMPLE, noOverflowTarget);
         methodConvert.AddInstruction(OpCode.THROW);
-        endTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        noOverflowTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 
     // HandleSByteCreateChecked
