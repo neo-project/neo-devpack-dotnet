@@ -44,6 +44,12 @@ namespace Neo.Optimizer
             Dictionary<int, Instruction> oldAddressToInstruction = new();
             foreach ((int a, Instruction i) in oldContractCoverage.addressAndInstructions)
                 oldAddressToInstruction.Add(a, i);
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
             foreach (List<Instruction> basicBlock in contractInBasicBlocks.sortedBasicBlocks.Select(i => i.block))
@@ -54,16 +60,22 @@ namespace Neo.Optimizer
                      && basicBlock[index].OpCode == OpCode.DUP
                      && basicBlock[index + 2].OpCode == OpCode.DROP)
                     {
-                        OpCode opAfterDup = basicBlock[index + 1].OpCode;
+                        Instruction currentDup = basicBlock[index];
+                        Instruction nextInstruction = basicBlock[index + 1];
+                        OpCode opAfterDup = nextInstruction.OpCode;
                         if (OpCodeTypes.storeArguments.Contains(opAfterDup)
                          || OpCodeTypes.storeStaticFields.Contains(opAfterDup)
                          || OpCodeTypes.storeLocalVariables.Contains(opAfterDup)
                          || RemoveDupDropOpCodes.Contains(opAfterDup))
                         {
-                            // Include only the instruction betwenn DUP and DROP
-                            simplifiedInstructionsToAddress.Add(basicBlock[index + 1], currentAddress);
-                            currentAddress += basicBlock[index + 1].Size;
+                            // Include only the instruction between DUP and DROP
+                            simplifiedInstructionsToAddress.Add(nextInstruction, currentAddress);
+                            currentAddress += nextInstruction.Size;
                             index += 2;
+
+                            // If the old DUP is target of jump, re-target to the next instruction
+                            OptimizedScriptBuilder.RetargetJump(currentDup, nextInstruction,
+                                jumpSourceToTargets, jumpTargetToSources, trySourceToTargets);
                             continue;
                         }
                     }
@@ -73,7 +85,7 @@ namespace Neo.Optimizer
             }
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
-                oldContractCoverage.jumpInstructionSourceToTargets, oldContractCoverage.tryInstructionSourceToTargets,
+                jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction);
         }
     }

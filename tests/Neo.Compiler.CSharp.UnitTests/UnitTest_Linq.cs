@@ -20,14 +20,14 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(new BigInteger(-101), Contract.AggregateSum(array));
-            AssertGasConsumed(1226820);
+            AssertGasConsumed(1226460);
 
             array.Add(1);
             array.Add(5);
             array.Add(100);
 
             Assert.AreEqual(new BigInteger(5), Contract.AggregateSum(array));
-            AssertGasConsumed(1289370);
+            AssertGasConsumed(1288650);
         }
 
         [TestMethod]
@@ -111,10 +111,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(2);
 
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1159170);
+            AssertGasConsumed(1158810);
             array.Add(3);
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1163220);
+            AssertGasConsumed(1162740);
         }
 
         [TestMethod]
@@ -130,10 +130,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(1);
             array.Add(2);
             Assert.AreEqual(2, Contract.AverageTwice(array));
-            AssertGasConsumed(1231890);
+            AssertGasConsumed(1231530);
             array.Add(3);
             Assert.AreEqual(3, Contract.AverageTwice(array));
-            AssertGasConsumed(1253910);
+            AssertGasConsumed(1253430);
         }
 
         [TestMethod]
@@ -346,16 +346,16 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(-101, Contract.Sum(array));
-            AssertGasConsumed(1155690);
+            AssertGasConsumed(1155330);
 
             array.Add(1);
             array.Add(5);
             array.Add(100);
 
             Assert.AreEqual(5, Contract.Sum(array));
-            AssertGasConsumed(1165860);
+            AssertGasConsumed(1165140);
             Assert.AreEqual(10, Contract.SumTwice(array));
-            AssertGasConsumed(1292490);
+            AssertGasConsumed(1291770);
         }
 
         [TestMethod]

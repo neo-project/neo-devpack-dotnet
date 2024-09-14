@@ -165,6 +165,9 @@ namespace Neo.Compiler
                 catch (Exception ex)
                 {
                     Console.Error.WriteLine($"Failed to optimize: {ex}");
+                    Console.Error.WriteLine("Please try again without using the experimental optimizer.");
+                    Console.Error.WriteLine($"e.g. --{nameof(Options.Optimize).ToLower()}={CompilationOptions.OptimizationType.Basic}");
+                    throw;
                 }
             }
 

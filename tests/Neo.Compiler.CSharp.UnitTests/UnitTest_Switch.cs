@@ -32,28 +32,28 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchLongLong("b")!).GetInteger());
             AssertGasConsumed(1052130);
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("c")!).GetInteger());
-            AssertGasConsumed(1050960);
+            AssertGasConsumed(1050840);
             Assert.AreEqual(-1, ((VM.Types.Integer)Contract.SwitchLongLong("d")!).GetInteger());
-            AssertGasConsumed(1053600);
+            AssertGasConsumed(1053480);
             Assert.AreEqual(1, ((VM.Types.Integer)Contract.SwitchLongLong("e")!).GetInteger());
-            AssertGasConsumed(1054950);
+            AssertGasConsumed(1054830);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("f")!).GetInteger());
-            AssertGasConsumed(1056240);
+            AssertGasConsumed(1056120);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("g")!).GetInteger());
-            AssertGasConsumed(1057560);
+            AssertGasConsumed(1057440);
         }
 
         [TestMethod]
         public void Test_SwitchInteger()
         {
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchInteger(1)!).GetInteger());
-            AssertGasConsumed(1048620);
+            AssertGasConsumed(1048500);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchInteger(2)!).GetInteger());
-            AssertGasConsumed(1049730);
+            AssertGasConsumed(1049610);
             Assert.AreEqual(6, ((VM.Types.Integer)Contract.SwitchInteger(3)!).GetInteger());
-            AssertGasConsumed(1050840);
+            AssertGasConsumed(1050720);
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchInteger(0)!).GetInteger());
-            AssertGasConsumed(1050840);
+            AssertGasConsumed(1050720);
         }
 
         [TestMethod]

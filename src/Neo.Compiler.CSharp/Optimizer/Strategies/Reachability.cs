@@ -89,23 +89,13 @@ namespace Neo.Optimizer
                         // This is unnecessary jump. The jump should be deleted.
                         // And, if this JMP is the target of other jump instructions,
                         // re-target to the next instruction after this JMP.
-                        if (jumpTargetToSources.Remove(i, out HashSet<Instruction>? sources))
-                        {
-                            Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
-                            foreach (Instruction s in sources)
-                            {
-                                if (jumpSourceToTargets.TryGetValue(s, out Instruction? t0) && t0 == i)
-                                    jumpSourceToTargets[s] = nextInstruction;
-                                if (trySourceToTargets.TryGetValue(s, out (Instruction t1, Instruction t2) t))
-                                {
-                                    Instruction newT1 = (t.t1 == i ? nextInstruction : t.t1);
-                                    Instruction newT2 = (t.t2 == i ? nextInstruction : t.t2);
-                                    trySourceToTargets[s] = (newT1, newT2);
-                                }
-                            }
-
-                            jumpTargetToSources[nextInstruction] = sources;
-                        }
+                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
+                        // handle the reference of the deleted JMP
+                        jumpSourceToTargets.Remove(i);
+                        jumpTargetToSources[nextInstruction].Remove(i);
+                        if (jumpTargetToSources[nextInstruction].Count == 0)
+                            jumpTargetToSources.Remove(nextInstruction);
+                        OptimizedScriptBuilder.RetargetJump(i, nextInstruction, jumpSourceToTargets, jumpTargetToSources, trySourceToTargets);
                         continue;  // do not add this JMP into simplified instructions
                     }
                 }
@@ -160,23 +150,8 @@ namespace Neo.Optimizer
                         // handle the reference of the added RET
                         Instruction newRet = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
                         // above is a workaround of new Instruction(OpCode.RET)
-                        if (jumpTargetToSources.TryGetValue(i, out HashSet<Instruction>? othersJumpingToCurrentJmp))
-                        {
-                            foreach (Instruction iJumpingToCurrentRet in othersJumpingToCurrentJmp)
-                            {
-                                if (SingleJumpInOperand(iJumpingToCurrentRet))
-                                    jumpSourceToTargets[iJumpingToCurrentRet] = newRet;
-                                if (iJumpingToCurrentRet.OpCode == OpCode.TRY || iJumpingToCurrentRet.OpCode == OpCode.TRY_L)
-                                {
-                                    (Instruction t1, Instruction t2) = trySourceToTargets[iJumpingToCurrentRet];
-                                    if (t1 == i) t1 = newRet;
-                                    if (t2 == i) t2 = newRet;
-                                    trySourceToTargets[iJumpingToCurrentRet] = (t1, t2);
-                                }
-                            }
-                            jumpTargetToSources.Remove(i);
-                            jumpTargetToSources[newRet] = othersJumpingToCurrentJmp;
-                        }
+                        OptimizedScriptBuilder.RetargetJump(i, newRet,
+                            jumpSourceToTargets, jumpTargetToSources, trySourceToTargets);
                         simplifiedInstructionsToAddress.Add(newRet, currentAddress);
                         currentAddress += newRet.Size;
                         continue;
