@@ -57,10 +57,13 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(1);
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.Push(2);
+        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.AddInstruction(OpCode.NOT);  // BigInteger GetBoolean() => !value.IsZero;
+        //methodConvert.Push(1);
+        //methodConvert.AddInstruction(OpCode.AND);
+        //methodConvert.Push(0);
+        //methodConvert.AddInstruction(OpCode.NUMEQUAL);
     }
 
     private static void HandleBigIntegerSign(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -333,10 +336,13 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Push(1);
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.NUMNOTEQUAL);
+        methodConvert.Push(2);
+        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.AddInstruction(OpCode.NZ);
+        //methodConvert.Push(1);
+        //methodConvert.AddInstruction(OpCode.AND);
+        //methodConvert.Push(0);
+        //methodConvert.AddInstruction(OpCode.NUMNOTEQUAL);
     }
 
     // HandleBigIntegerIsNegative
@@ -346,9 +352,17 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.SIGN);
+        //methodConvert.AddInstruction(OpCode.SIGN);
         methodConvert.Push(0);
         methodConvert.AddInstruction(OpCode.LT);
+        // The following is cheaper than methodConvert.AddInstruction(OpCode.LT);
+        //JumpTarget isNegative = new();
+        //JumpTarget end = new();
+        //methodConvert.Jump(OpCode.JMPLT, isNegative);
+        //methodConvert.AddInstruction(OpCode.PUSHF);
+        //methodConvert.Jump(OpCode.JMP, end);
+        //isNegative.Instruction = methodConvert.AddInstruction(OpCode.PUSHT);
+        //end.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 
     // HandleBigIntegerIsPositive
@@ -358,9 +372,19 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.SIGN);
+        //methodConvert.AddInstruction(OpCode.SIGN);
         methodConvert.Push(0);
         methodConvert.AddInstruction(OpCode.GE);
+        // The following is cheaper than methodConvert.AddInstruction(OpCode.GE);
+        //JumpTarget isPositive = new();
+        //JumpTarget end = new();
+        //methodConvert.Jump(OpCode.JMPGE, isPositive);
+        //methodConvert.AddInstruction(OpCode.PUSHF);
+        //methodConvert.Jump(OpCode.JMP, end);
+        //isPositive.Instruction = methodConvert.AddInstruction(OpCode.PUSHT);
+        //end.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        // GE instead of GT, because C# BigInteger works like that
+        // https://github.com/dotnet/runtime/blob/5535e31a712343a63f5d7d796cd874e563e5ac14/src/libraries/System.Runtime.Numerics/src/System/Numerics/BigInteger.cs#L4098C13-L4098C37
     }
 
     //HandleBigIntegerIsPow2
@@ -370,6 +394,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        // (n & (n-1) == 0) and (n != 0)
         JumpTarget endFalse = new();
         JumpTarget endTrue = new();
         JumpTarget endTarget = new();
@@ -384,8 +409,7 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DEC);
         methodConvert.AddInstruction(OpCode.AND);
         methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
-        methodConvert.Jump(OpCode.JMPIF, endTrue);
+        methodConvert.Jump(OpCode.JMPEQ, endTrue);
         endFalse.Instruction = methodConvert.AddInstruction(OpCode.NOP);
         methodConvert.Push(false);
         methodConvert.Jump(OpCode.JMP, endTarget);
@@ -401,38 +425,33 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        JumpTarget endLoop = new();
-        JumpTarget negativeInput = new();
-        JumpTarget zeroTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);// 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
-        methodConvert.Jump(OpCode.JMPEQ, zeroTarget); // 5
-        methodConvert.AddInstruction(OpCode.DUP);// 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
-        methodConvert.Jump(OpCode.JMPLT, negativeInput); // 5
-        methodConvert.AddInstruction(OpCode.PUSHM1);// 5 -1
-        JumpTarget loopStart = new();
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); // -1 5
-        methodConvert.AddInstruction(OpCode.DUP); // -1 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0); // -1 5 5 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);  // -1 5
-        methodConvert.AddInstruction(OpCode.PUSH1); // -1 5 1
-        methodConvert.AddInstruction(OpCode.SHR); // -1 5>>1
-        methodConvert.AddInstruction(OpCode.SWAP); // 5>>1 -1
-        methodConvert.AddInstruction(OpCode.INC); // 5>>1 -1+1
-        methodConvert.Jump(OpCode.JMP, loopStart);
-        endLoop.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.DROP); // -1
+        JumpTarget nonNegativeTarget = new();
         JumpTarget endMethod = new();
-        methodConvert.Jump(OpCode.JMP, endMethod);
-        zeroTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Push(0);
-        methodConvert.Jump(OpCode.JMP, endMethod);
-        negativeInput.Instruction = methodConvert.AddInstruction(OpCode.DROP);
+        methodConvert.AddInstruction(OpCode.DUP);// 5 5
+        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
+        methodConvert.Jump(OpCode.JMPGE, nonNegativeTarget); // 5
         methodConvert.AddInstruction(OpCode.THROW);
+        nonNegativeTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.DUP);// 5 5
+        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
+        methodConvert.Jump(OpCode.JMPEQ, endMethod); // 0  // return 0 when input is 0
+        methodConvert.AddInstruction(OpCode.PUSH0);// 5 0
+        //input = 5 > 0; result = 0; 
+        //do
+        //  result += 1
+        //while (input >> result) > 0
+        //result -= 1
+        JumpTarget loopStart = new();
+        loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP); // 5 0
+        methodConvert.AddInstruction(OpCode.INC);// 5 1
+        methodConvert.AddInstruction(OpCode.OVER);// 5 1 5
+        methodConvert.AddInstruction(OpCode.OVER);// 5 1 5 1
+        methodConvert.AddInstruction(OpCode.SHR); // 5 1 5>>1
+        methodConvert.AddInstruction(OpCode.PUSH0); // 5 1 5>>1 0
+        methodConvert.Jump(OpCode.JMPGT, loopStart); // 5 1
+        methodConvert.AddInstruction(OpCode.NIP); // 1
+        methodConvert.AddInstruction(OpCode.DEC); // 0
         endMethod.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
     }
 
     // HandleBigIntegerCopySign
@@ -444,30 +463,19 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        JumpTarget nonZeroTarget = new();
-        JumpTarget nonZeroTarget2 = new();
-        // a b
-        methodConvert.AddInstruction(OpCode.SIGN);         // a 1
-        methodConvert.AddInstruction(OpCode.DUP); // a 1 1
-        methodConvert.Push(0); // a 1 1 0
-        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget); // a 1
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Push(1); // a 1
-        nonZeroTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // a 1
-        methodConvert.AddInstruction(OpCode.SWAP);         // 1 a
-        methodConvert.AddInstruction(OpCode.DUP);// 1 a a
-        methodConvert.AddInstruction(OpCode.SIGN);// 1 a 0
-        methodConvert.AddInstruction(OpCode.DUP);// 1 a 0 0
-        methodConvert.Push(0); // 1 a 0 0 0
-        methodConvert.Jump(OpCode.JMPLT, nonZeroTarget2); // 1 a 0
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Push(1);
-        nonZeroTarget2.Instruction = methodConvert.AddInstruction(OpCode.NOP); // 1 a 1
-        methodConvert.AddInstruction(OpCode.ROT);// a 1 1
-        methodConvert.AddInstruction(OpCode.EQUAL);// a 1 1
+        JumpTarget negativeTarget = new();
         JumpTarget endTarget = new();
-        methodConvert.Jump(OpCode.JMPIF, endTarget); // a
-        methodConvert.AddInstruction(OpCode.NEGATE);
+        // a b
+        // if a==0 return 0
+        // if b==0 return abs(a)
+        // return value has abs(value)==abs(a), sign(value)==sign(b)
+        methodConvert.AddInstruction(OpCode.PUSH0); // a b 0
+        methodConvert.Jump(OpCode.JMPLT, negativeTarget); // a
+        methodConvert.AddInstruction(OpCode.ABS);   // abs(a)
+        methodConvert.Jump(OpCode.JMP, endTarget);  // abs(a)
+        negativeTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.AddInstruction(OpCode.ABS);   // abs(a)
+        methodConvert.AddInstruction(OpCode.NEGATE);// -abs(a)
         endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
     }
 

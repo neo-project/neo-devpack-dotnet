@@ -45,10 +45,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                 foreach ((BasicBlock callBlock, HashSet<BasicBlock> writeBlocks) in vulnerabilityPairs)
                 {
                     string additional = $"[SEC] Potential Re-entrancy: Calling contracts at instruction address: " +
-                        $"{string.Join(", ", callOtherContractInstructions[callBlock])} before writing storage\n";
-                    //    $"before writing storage at:\n";
-                    //foreach (BasicBlock writeBlock in writeBlocks)
-                    //    additional += $"\t{string.Join(", ", writeStorageInstructions[writeBlock])}\n";
+                        $"{string.Join(", ", callOtherContractInstructions[callBlock])} before writing storage at\n";
+                    foreach (BasicBlock writeBlock in writeBlocks)
+                        additional += $"\t{string.Join(", ", writeStorageInstructions[writeBlock])}\n";
                     if (print)
                         Console.Write(additional);
                     result += additional;

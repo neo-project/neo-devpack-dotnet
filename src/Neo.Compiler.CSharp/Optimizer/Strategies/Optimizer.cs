@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Compiler;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -19,7 +20,7 @@ using System.Reflection;
 
 namespace Neo.Optimizer
 {
-    class Optimizer
+    public static class Optimizer
     {
         public static readonly int[] OperandSizePrefixTable = new int[256];
         public static readonly int[] OperandSizeTable = new int[256];
@@ -49,6 +50,24 @@ namespace Neo.Optimizer
                 string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
                 strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
             }
+        }
+
+        public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
+        {
+            if (!optimizationType.HasFlag(CompilationOptions.OptimizationType.Experimental))
+                return (nef, manifest, debugInfo);  // do nothing
+            // Define the optimization type inside the manifest
+            manifest.Extra ??= new JObject();
+            manifest.Extra["nef"] = new JObject();
+            manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
+            // TODO in the future: optimize by StrategyAttribute in a loop
+            debugInfo = debugInfo?.Clone() as JObject;  // do not pollute the input when optimization fails
+            (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            return (nef, manifest, debugInfo);
         }
     }
 }
