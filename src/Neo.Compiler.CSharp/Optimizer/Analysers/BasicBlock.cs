@@ -62,20 +62,22 @@ namespace Neo.Optimizer
 
         public List<BasicBlock> basicBlocks;
         public Dictionary<Instruction, BasicBlock> basicBlocksByStartInstruction;
+        public InstructionCoverage coverage;
+        public IEnumerable<(int startAddr, List<Instruction> block)> sortedBasicBlocks;
         public ContractManifest manifest;
         public JToken? debugInfo;
         public ContractInBasicBlocks(NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
             this.manifest = manifest;
             this.debugInfo = debugInfo;
-            InstructionCoverage coverage = new(nef, manifest);
-            IEnumerable<(int startAddr, List<Instruction> block)> sortedBasicBlocks =
-                from kv in coverage.basicBlocksInDict
-                orderby kv.Key ascending
-                select (kv.Key,
-                    // kv.Value sorted by address
-                    (from singleBlockKv in kv.Value orderby singleBlockKv.Key ascending select singleBlockKv.Value).ToList()
-                );
+            coverage = new(nef, manifest);
+            sortedBasicBlocks =
+                (from kv in coverage.basicBlocksInDict
+                 orderby kv.Key ascending
+                 select (kv.Key,
+                     // kv.Value sorted by address
+                     (from singleBlockKv in kv.Value orderby singleBlockKv.Key ascending select singleBlockKv.Value).ToList()
+                 ));
             basicBlocksByStartInstruction = new();
             BasicBlock? prevBlock = null;
             // build all blocks without handling jumps between blocks
