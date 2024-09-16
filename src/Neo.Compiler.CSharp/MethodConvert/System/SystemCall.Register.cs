@@ -633,9 +633,6 @@ internal partial class MethodConvert
         RegisterHandler((char c) => char.IsAscii(c), HandleCharIsAscii);
         RegisterHandler((char c) => char.IsAsciiDigit(c), HandleCharIsAsciiDigit);
         RegisterHandler((char c) => char.IsAsciiLetter(c), HandleCharIsAsciiLetter);
-        RegisterHandler((string s) => char.Parse(s), HandleCharParse);
-        // RegisterHandler((string s, char result) => char.TryParse(s, out result), HandleCharTryParse);
-
     }
 
     private static void RegisterNullableTypeHandlers()
