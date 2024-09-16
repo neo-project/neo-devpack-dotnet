@@ -587,13 +587,6 @@ internal partial class MethodConvert
         RegisterHandler((string s, char trimChar) => s.Trim(trimChar), HandleStringTrimChar);
         RegisterHandler((string s, string oldValue, string newValue) => s.Replace(oldValue, newValue), HandleStringReplace);
         RegisterHandler((string s) => s.Length, HandleStringLength);
-
-        // RegisterHandler((string s, char[] separator, StringSplitOptions options) => s.Split(separator, options), HandleStringSplit);
-        // RegisterHandler((string separator, IEnumerable<string?> values) => string.Join(separator, values), HandleStringJoin);
-        // RegisterHandler((string s, string value) => s.StartsWith(value), HandleStringStartsWith);
-        // RegisterHandler((string s, int totalWidth, char paddingChar) => s.PadLeft(totalWidth, paddingChar), HandleStringPadLeft);
-        // RegisterHandler((string s, int totalWidth, char paddingChar) => s.PadRight(totalWidth, paddingChar), HandleStringPadRight);
-        // RegisterHandler((string s, char[] trimChars) => s.Trim(trimChars), HandleStringTrimWithCharArray);
     }
 
     private static void RegisterArrayHandlers()
