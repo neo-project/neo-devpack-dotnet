@@ -36,7 +36,7 @@ internal partial class MethodConvert
 
         // BitOperations handlers
         RegisterBitOperationsHandlers();
-        
+
         RegisterEnumHandlers();
     }
 
