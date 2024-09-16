@@ -742,20 +742,6 @@ internal partial class MethodConvert
         // Bool
         RegisterHandler((string? value, bool result) => bool.TryParse(value, out result), HandleBoolTryParseWithOut);
         #endregion
-
-        #region GetValueOrDefault
-        // RegisterHandler((sbyte? x, sbyte defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableSByteGetValueOrDefaultWithParam);
-        // RegisterHandler((byte? x, byte defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableByteGetValueOrDefaultWithParam);
-        // RegisterHandler((short? x, short defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableShortGetValueOrDefaultWithParam);
-        // RegisterHandler((ushort? x, ushort defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableUShortGetValueOrDefaultWithParam);
-        // RegisterHandler((int? x, int defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableIntGetValueOrDefaultWithParam);
-        // RegisterHandler((uint? x, uint defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableUIntGetValueOrDefaultWithParam);
-        // RegisterHandler((long? x, long defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableLongGetValueOrDefaultWithParam);
-        // RegisterHandler((ulong? x, ulong defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableULongGetValueOrDefaultWithParam);
-        // RegisterHandler((BigInteger? x, BigInteger defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableBigIntegerGetValueOrDefaultWithParam);
-        // RegisterHandler((char? x, char defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableCharGetValueOrDefaultWithParam);
-        // RegisterHandler((bool? x, bool defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableBoolGetValueOrDefaultWithParam);
-        #endregion GetValueOrDefault
     }
 
     private static void RegisterBitOperationsHandlers()
