@@ -192,9 +192,25 @@ internal partial class MethodConvert
                 // Example: 42 or "Hello"
                 ConvertLiteralExpression(model, expression);
                 break;
+            case TypeOfExpressionSyntax expression:
+                // Example: typeof(int)
+                // Note: Neo currently does not support the Type type of C#. The typeof operator here
+                // will only return the string name of the class/type. This support is added
+                // to ensure we can process enum parse methods.
+                ConvertTypeOfExpression(model, expression);
+                break;
             default:
                 throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
         }
+    }
+
+    private void ConvertTypeOfExpression(SemanticModel model, TypeOfExpressionSyntax expression)
+    {
+        var typeInfo = model.GetTypeInfo(expression.Type);
+        if (typeInfo.Type == null)
+            throw new CompilationException(expression, DiagnosticId.InvalidType, $"Invalid type in typeof expression: {expression.Type}");
+
+        Push(typeInfo.Type.Name);
     }
 
     private static ITypeSymbol? GetTypeSymbol(SyntaxNode? syntaxNode, SemanticModel model)

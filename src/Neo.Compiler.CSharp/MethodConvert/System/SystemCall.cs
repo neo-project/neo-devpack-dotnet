@@ -41,15 +41,15 @@ internal partial class MethodConvert
         SystemCallHandlers[key] = handler;
     }
 
-    private static void RegisterHandler<T, TResult>(Expression<Func<T, TResult>> expression, SystemCallHandler handler)
+    private static void RegisterHandler<T, TResult>(Expression<Func<T, TResult>> expression, SystemCallHandler handler, string? key = null)
     {
-        var key = GetKeyFromExpression(expression, typeof(T));
+        key = key ?? GetKeyFromExpression(expression, typeof(T));
         SystemCallHandlers[key] = handler;
     }
 
-    private static void RegisterHandler<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> expression, SystemCallHandler handler)
+    private static void RegisterHandler<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> expression, SystemCallHandler handler, string? key = null)
     {
-        var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2));
+        key = key ?? GetKeyFromExpression(expression, typeof(T1), typeof(T2));
         SystemCallHandlers[key] = handler;
     }
 
@@ -60,9 +60,16 @@ internal partial class MethodConvert
     }
     private static void RegisterHandler<T1, T2, T3, T4>(Expression<Func<T1, T2, T3, T4, bool>> expression, SystemCallHandler handler)
     {
-        var key = GetKeyFromExpression(expression);
+        var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3), typeof(T4));
         SystemCallHandlers[key] = handler;
     }
+
+    private static void RegisterHandler<T1, T2, T3, T4, T5, TResult>(Expression<Func<T1, T2, T3, T4, T5, TResult>> expression, SystemCallHandler handler)
+    {
+        var key = GetKeyFromExpression(expression, typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5));
+        SystemCallHandlers[key] = handler;
+    }
+
 
     private static void RegisterHandler<T>(Expression<Action<T>> expression, SystemCallHandler handler)
     {
@@ -200,6 +207,8 @@ internal partial class MethodConvert
             _ when type == typeof(BigInteger) => "System.Numerics.BigInteger",
             _ when type == typeof(Array) => "System.Array",
             _ when type == typeof(Math) => "System.Math",
+            _ when type == typeof(Type) => "System.Type",
+            _ when type == typeof(Enum) => "System.Enum",
             _ when type.IsGenericType => $"{type.Name.Split('`')[0]}<{string.Join(", ", type.GetGenericArguments().Select(GetShortTypeName))}>",
             _ => type.Name,
         };
@@ -263,6 +272,8 @@ internal partial class MethodConvert
         var key = symbol.ToString()!.Replace("out ", "");
         key = (from parameter in symbol.Parameters let parameterType = parameter.Type.ToString() where !parameter.Type.IsValueType && parameterType!.EndsWith('?') select parameterType).Aggregate(key, (current, parameterType) => current.Replace(parameterType, parameterType[..^1]));
         if (key == "string.ToString()") key = "object.ToString()";
+        if (key.Contains("System.Enum.GetName<")) key = "System.Enum.GetName<>()";
+        if (key.Contains("System.Enum.GetName(")) key = "System.Enum.GetName()";
         if (!SystemCallHandlers.TryGetValue(key, out var handler)) return false;
         handler(this, model, symbol, instanceExpression, arguments);
         return true;

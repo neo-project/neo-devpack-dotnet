@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 
@@ -35,6 +36,13 @@ internal partial class MethodConvert
 
         // BitOperations handlers
         RegisterBitOperationsHandlers();
+
+        // Add new handler registrations
+        RegisterBigIntegerAdditionalHandlers();
+        RegisterArrayAdditionalHandlers();
+        RegisterMathAdditionalHandlers();
+        RegisterConvertHandlers();
+        RegisterEnumHandlers();
     }
 
     private static void RegisterBigIntegerHandlers()
@@ -584,6 +592,13 @@ internal partial class MethodConvert
         RegisterHandler((string s, char trimChar) => s.Trim(trimChar), HandleStringTrimChar);
         RegisterHandler((string s, string oldValue, string newValue) => s.Replace(oldValue, newValue), HandleStringReplace);
         RegisterHandler((string s) => s.Length, HandleStringLength);
+
+        // RegisterHandler((string s, char[] separator, StringSplitOptions options) => s.Split(separator, options), HandleStringSplit);
+        // RegisterHandler((string separator, IEnumerable<string?> values) => string.Join(separator, values), HandleStringJoin);
+        // RegisterHandler((string s, string value) => s.StartsWith(value), HandleStringStartsWith);
+        // RegisterHandler((string s, int totalWidth, char paddingChar) => s.PadLeft(totalWidth, paddingChar), HandleStringPadLeft);
+        // RegisterHandler((string s, int totalWidth, char paddingChar) => s.PadRight(totalWidth, paddingChar), HandleStringPadRight);
+        // RegisterHandler((string s, char[] trimChars) => s.Trim(trimChars), HandleStringTrimWithCharArray);
     }
 
     private static void RegisterArrayHandlers()
@@ -618,12 +633,14 @@ internal partial class MethodConvert
         RegisterHandler((char c) => char.IsLetterOrDigit(c), HandleCharIsLetterOrDigit);
         RegisterHandler((char x, char min, char max) => char.IsBetween(x, min, max), HandleCharIsBetween);
 
-        // Add missing char methods
         RegisterHandler((char c) => char.ToLowerInvariant(c), HandleCharToLowerInvariant);
         RegisterHandler((char c) => char.ToUpperInvariant(c), HandleCharToUpperInvariant);
         RegisterHandler((char c) => char.IsAscii(c), HandleCharIsAscii);
         RegisterHandler((char c) => char.IsAsciiDigit(c), HandleCharIsAsciiDigit);
         RegisterHandler((char c) => char.IsAsciiLetter(c), HandleCharIsAsciiLetter);
+        RegisterHandler((string s) => char.Parse(s), HandleCharParse);
+        // RegisterHandler((string s, char result) => char.TryParse(s, out result), HandleCharTryParse);
+
     }
 
     private static void RegisterNullableTypeHandlers()
@@ -730,6 +747,20 @@ internal partial class MethodConvert
         // Bool
         RegisterHandler((string? value, bool result) => bool.TryParse(value, out result), HandleBoolTryParseWithOut);
         #endregion
+
+        #region GetValueOrDefault
+        // RegisterHandler((sbyte? x, sbyte defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableSByteGetValueOrDefaultWithParam);
+        // RegisterHandler((byte? x, byte defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableByteGetValueOrDefaultWithParam);
+        // RegisterHandler((short? x, short defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableShortGetValueOrDefaultWithParam);
+        // RegisterHandler((ushort? x, ushort defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableUShortGetValueOrDefaultWithParam);
+        // RegisterHandler((int? x, int defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableIntGetValueOrDefaultWithParam);
+        // RegisterHandler((uint? x, uint defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableUIntGetValueOrDefaultWithParam);
+        // RegisterHandler((long? x, long defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableLongGetValueOrDefaultWithParam);
+        // RegisterHandler((ulong? x, ulong defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableULongGetValueOrDefaultWithParam);
+        // RegisterHandler((BigInteger? x, BigInteger defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableBigIntegerGetValueOrDefaultWithParam);
+        // RegisterHandler((char? x, char defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableCharGetValueOrDefaultWithParam);
+        // RegisterHandler((bool? x, bool defaultValue) => x.GetValueOrDefault(defaultValue), HandleNullableBoolGetValueOrDefaultWithParam);
+        #endregion GetValueOrDefault
     }
 
     private static void RegisterBitOperationsHandlers()
@@ -745,6 +776,90 @@ internal partial class MethodConvert
         RegisterHandler((ulong value, int offset) => BitOperations.RotateLeft(value, offset), HandleULongRotateLeft);
         RegisterHandler((uint value, int offset) => BitOperations.RotateRight(value, offset), HandleUIntRotateRight);
         RegisterHandler((ulong value, int offset) => BitOperations.RotateRight(value, offset), HandleULongRotateRight);
+        // RegisterHandler((sbyte value) => BitOperations.TrailingZeroCount(value), HandleSByteTrailingZeroCount);
+        // RegisterHandler((byte value) => BitOperations.TrailingZeroCount(value), HandleByteTrailingZeroCount);
+        // RegisterHandler((short value) => BitOperations.TrailingZeroCount(value), HandleShortTrailingZeroCount);
+        // RegisterHandler((ushort value) => BitOperations.TrailingZeroCount(value), HandleUShortTrailingZeroCount);
+        // RegisterHandler((int value) => BitOperations.TrailingZeroCount(value), HandleIntTrailingZeroCount);
+        // RegisterHandler((uint value) => BitOperations.TrailingZeroCount(value), HandleUIntTrailingZeroCount);
+        // RegisterHandler((long value) => BitOperations.TrailingZeroCount(value), HandleLongTrailingZeroCount);
+        // RegisterHandler((ulong value) => BitOperations.TrailingZeroCount(value), HandleULongTrailingZeroCount);
     }
 
+    private static void RegisterBigIntegerAdditionalHandlers()
+    {
+        // RegisterHandler((string s, NumberStyles style, IFormatProvider? provider) => BigInteger.Parse(s, style, provider), HandleBigIntegerParseWithStyleAndProvider);
+        // RegisterHandler((string s, BigInteger result) => BigInteger.TryParse(s, out result), HandleBigIntegerTryParse);
+        // RegisterHandler((BigInteger value, string? format, IFormatProvider? provider) => value.ToString(format, provider), HandleBigIntegerToStringWithFormatAndProvider);
+    }
+
+    private static void RegisterArrayAdditionalHandlers()
+    {
+        // RegisterHandler((Array sourceArray, Array destinationArray, int length) => Array.Copy(sourceArray, destinationArray, length), HandleArrayCopy);
+        // RegisterHandler((Array sourceArray, int sourceIndex, Array destinationArray, int destinationIndex, int length) => Array.Copy(sourceArray, sourceIndex, destinationArray, destinationIndex, length), HandleArrayCopyWithIndices);
+        // RegisterHandler((Array array) => Array.Clear(array), HandleArrayClear);
+        // RegisterHandler((Array array, int index, int length) => Array.Clear(array, index, length), HandleArrayClearWithRange);
+        // RegisterHandler((Array array) => Array.Reverse(array), HandleArrayReverse);
+        // RegisterHandler((Array array, int index, int length) => Array.Reverse(array, index, length), HandleArrayReverseWithRange);
+        // RegisterHandler((Array array) => Array.Sort(array), HandleArraySort);
+        // RegisterHandler((Array keys, Array? items) => Array.Sort(keys, items), HandleArraySortWithItems);
+        // RegisterHandler((Array array, int index, int length) => Array.Sort(array, index, length), HandleArraySortWithRange);
+        // RegisterHandler((Array keys, Array? items, int index, int length) => Array.Sort(keys, items, index, length), HandleArraySortWithItemsAndRange);
+        // RegisterHandler((Array array, object value) => Array.BinarySearch(array, value), HandleArrayBinarySearch);
+        // RegisterHandler((Array array, int index, int length, object value) => Array.BinarySearch(array, index, length, value), HandleArrayBinarySearchWithRange);
+        // RegisterHandler((Array array) => Array.IndexOf(array, null), HandleArrayIndexOf);
+        // RegisterHandler((Array array, object? value) => Array.IndexOf(array, value), HandleArrayIndexOfWithValue);
+        // RegisterHandler((Array array, object? value, int startIndex) => Array.IndexOf(array, value, startIndex), HandleArrayIndexOfWithValueAndStart);
+        // RegisterHandler((Array array, object? value, int startIndex, int count) => Array.IndexOf(array, value, startIndex, count), HandleArrayIndexOfWithValueStartAndCount);
+        // RegisterHandler((Array array) => Array.LastIndexOf(array, null), HandleArrayLastIndexOf);
+        // RegisterHandler((Array array, object? value) => Array.LastIndexOf(array, value), HandleArrayLastIndexOfWithValue);
+        // RegisterHandler((Array array, object? value, int startIndex) => Array.LastIndexOf(array, value, startIndex), HandleArrayLastIndexOfWithValueAndStart);
+        // RegisterHandler((Array array, object? value, int startIndex, int count) => Array.LastIndexOf(array, value, startIndex, count), HandleArrayLastIndexOfWithValueStartAndCount);
+        // RegisterHandler((Array array) => Array.Exists(array, _ => true), HandleArrayExists);
+        // RegisterHandler((Array array) => Array.TrueForAll(array, _ => true), HandleArrayTrueForAll);
+        // RegisterHandler((Array array) => Array.ConvertAll(array, o => o), HandleArrayConvertAll);
+    }
+
+    private static void RegisterMathAdditionalHandlers()
+    {
+        // RegisterHandler((long a) => Math.Sin(a), HandleMathSin);
+        // RegisterHandler((long a) => Math.Cos(a), HandleMathCos);
+        // RegisterHandler((long a) => Math.Tan(a), HandleMathTan);
+        // RegisterHandler((long a) => Math.Log(a), HandleMathLog);
+        // RegisterHandler((long a) => Math.Log10(a), HandleMathLog10);
+    }
+
+    private static void RegisterConvertHandlers()
+    {
+        // RegisterHandler((object value) => System.Convert.ToInt32(value), HandleConvertToInt32);
+        // RegisterHandler((object value) => System.Convert.ToString(value), HandleConvertToString);
+        // RegisterHandler((object value) => System.Convert.ToBoolean(value), HandleConvertToBoolean);
+        // RegisterHandler((object value) => System.Convert.ToByte(value), HandleConvertToByte);
+        // RegisterHandler((object value) => System.Convert.ToChar(value), HandleConvertToChar);
+        // RegisterHandler((object value) => System.Convert.ToInt16(value), HandleConvertToInt16);
+        // RegisterHandler((object value) => System.Convert.ToInt64(value), HandleConvertToInt64);
+        // RegisterHandler((object value) => System.Convert.ToSByte(value), HandleConvertToSByte);
+        // RegisterHandler((object value) => System.Convert.ToSingle(value), HandleConvertToSingle);
+        // RegisterHandler((object value) => System.Convert.ToUInt16(value), HandleConvertToUInt16);
+        // RegisterHandler((object value) => System.Convert.ToUInt32(value), HandleConvertToUInt32);
+        // RegisterHandler((object value) => System.Convert.ToUInt64(value), HandleConvertToUInt64);
+    }
+
+    private static void RegisterEnumHandlers()
+    {
+        RegisterHandler((Type enumType, string value) => Enum.Parse(enumType, value), HandleEnumParse);
+        RegisterHandler((Type enumType, string value, bool ignoreCase) => Enum.Parse(enumType, value, ignoreCase), HandleEnumParseIgnoreCase);
+        RegisterHandler((Type enumType, string value, object result) => Enum.TryParse(enumType, value, out result), HandleEnumTryParse);
+        RegisterHandler((Type enumType, string value, bool ignoreCase, object result) => Enum.TryParse(enumType, value, ignoreCase, out result), HandleEnumTryParseIgnoreCase);
+        RegisterHandler((Type enumType) => Enum.GetNames(enumType), HandleEnumGetNames);
+        RegisterHandler((Type enumType) => Enum.GetValues(enumType), HandleEnumGetValues);
+        RegisterHandler((Type enumType, object value) => Enum.IsDefined(enumType, value), HandleEnumIsDefined);
+        RegisterHandler((Type enumType, string name) => Enum.IsDefined(enumType, name), HandleEnumIsDefinedByName);
+        RegisterHandler((Enum value) => Enum.GetName(value.GetType(), value), HandleEnumGetName,"System.Enum.GetName<>()");
+        RegisterHandler((Type enumType, object value) => Enum.GetName(enumType, value), HandleEnumGetNameWithType, "System.Enum.GetName()");
+        // RegisterHandler((Enum value) => Enum.Format(value.GetType(), value, "G"), HandleEnumFormat);
+        // RegisterHandler((Type enumType, object value, string format) => Enum.Format(enumType, value, format), HandleEnumFormatWithType);
+        // RegisterHandler((Enum value) => Enum.GetUnderlyingType(value.GetType()), HandleEnumGetUnderlyingType);
+        // RegisterHandler((Type enumType) => Enum.GetUnderlyingType(enumType), HandleEnumGetUnderlyingTypeWithType);
+    }
 }
