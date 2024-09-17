@@ -61,10 +61,10 @@ namespace Neo.Optimizer
             manifest.Extra["nef"] = new JObject();
             manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
             // TODO in the future: optimize by StrategyAttribute in a loop
-            debugInfo = debugInfo?.Clone() as JObject;  // do not pollute the input when optimization fails
             (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.RemoveDupDrop(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
             return (nef, manifest, debugInfo);
