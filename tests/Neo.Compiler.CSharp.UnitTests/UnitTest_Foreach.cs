@@ -14,25 +14,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void IntForeachTest()
         {
             Assert.AreEqual(10, Contract.IntForeach());
-            AssertGasConsumed(1124550);
+            AssertGasConsumed(1124070);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1188330);
+            AssertGasConsumed(1187970);
         }
 
         [TestMethod]
         public void IntForloopTest()
         {
             Assert.AreEqual(10, Contract.IntForloop());
-            AssertGasConsumed(1127310);
+            AssertGasConsumed(1126710);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1188330);
+            AssertGasConsumed(1187970);
         }
 
         [TestMethod]
         public void StringForeachTest()
         {
             Assert.AreEqual("abcdefhij", Contract.StringForeach());
-            AssertGasConsumed(2041980);
+            AssertGasConsumed(2041620);
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void BytestringForeachTest()
         {
             Assert.AreEqual("abcdefhij", Encoding.ASCII.GetString(Contract.ByteStringForeach()!));
-            AssertGasConsumed(2662500);
+            AssertGasConsumed(2661900);
         }
 
         [TestMethod]

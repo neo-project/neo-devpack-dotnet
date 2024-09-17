@@ -150,8 +150,9 @@ namespace Neo.Optimizer
             JMPLE_L,
         };
 
-        public static readonly HashSet<OpCode> loadStaticFieldsConst = new()
+        public static readonly HashSet<OpCode> loadStaticFields = new()
         {
+            LDSFLD,
             LDSFLD0,
             LDSFLD1,
             LDSFLD2,
@@ -160,8 +161,9 @@ namespace Neo.Optimizer
             LDSFLD5,
             LDSFLD6,
         };
-        public static readonly HashSet<OpCode> storeStaticFieldsConst = new()
+        public static readonly HashSet<OpCode> storeStaticFields = new()
         {
+            STSFLD,
             STSFLD0,
             STSFLD1,
             STSFLD2,
@@ -170,8 +172,9 @@ namespace Neo.Optimizer
             STSFLD5,
             STSFLD6,
         };
-        public static readonly HashSet<OpCode> loadLocalVariablesConst = new()
+        public static readonly HashSet<OpCode> loadLocalVariables = new()
         {
+            LDLOC,
             LDLOC0,
             LDLOC1,
             LDLOC2,
@@ -180,8 +183,9 @@ namespace Neo.Optimizer
             LDLOC5,
             LDLOC6,
         };
-        public static readonly HashSet<OpCode> storeLocalVariablesConst = new()
+        public static readonly HashSet<OpCode> storeLocalVariables = new()
         {
+            STLOC,
             STLOC0,
             STLOC1,
             STLOC2,
@@ -190,8 +194,9 @@ namespace Neo.Optimizer
             STLOC5,
             STLOC6,
         };
-        public static readonly HashSet<OpCode> loadArgumentsConst = new()
+        public static readonly HashSet<OpCode> loadArguments = new()
         {
+            LDARG,
             LDARG0,
             LDARG1,
             LDARG2,
@@ -200,8 +205,9 @@ namespace Neo.Optimizer
             LDARG5,
             LDARG6,
         };
-        public static readonly HashSet<OpCode> storeArgumentsConst = new()
+        public static readonly HashSet<OpCode> storeArguments = new()
         {
+            STARG,
             STARG0,
             STARG1,
             STARG2,

@@ -33,7 +33,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertFalse()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertFalse());
-            AssertGasConsumed(1021590);
+            AssertGasConsumed(1021470);
             AssertsInFalse(exception);
         }
 
@@ -41,7 +41,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFunction()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFunction());
-            AssertGasConsumed(1039020);
+            AssertGasConsumed(1038900);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInTry()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInTry());
-            AssertGasConsumed(1039140);
+            AssertGasConsumed(1039020);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 0);  // v==0
         }
@@ -59,7 +59,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInCatch()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInCatch());
-            AssertGasConsumed(1055010);
+            AssertGasConsumed(1054770);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }
@@ -68,7 +68,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AssertInFinally()
         {
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestAssertInFinally());
-            AssertGasConsumed(1039470);
+            AssertGasConsumed(1039230);
             AssertsInFalse(exception);
             Assert.AreEqual(exception.InvocationStack?.ToArray()?[1]?.LocalVariables?[0].GetInteger(), 1);  // v==1
         }
