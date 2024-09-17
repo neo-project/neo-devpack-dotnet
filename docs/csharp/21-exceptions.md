@@ -1,8 +1,15 @@
 # 21 Exceptions
 
+Neo C# supports exceptions, including `try`, `catch`, `finally`, and `throw` statements. However, there are some limitations compared to standard C#:
+
+1. Only one `catch` block is allowed per `try` statement.
+2. Exceptions thrown by native methods cannot be caught and will directly cause the transaction execution to fail.
+
+Exception handling in neo C# provides a way to handle errors and exceptional conditions in smart contracts, but developers should be aware of these restrictions when designing their error handling logic.
+
 ## 21.1 General
 
-Exceptions in C# provide a structured, uniform, and type-safe way of handling both system level and application-level error conditions.
+Exceptions in neo C# provide a structured, uniform, and type-safe way of handling both system level and application-level error conditions.
 
 ## 21.2 Causes of exceptions
 

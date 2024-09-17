@@ -142,8 +142,8 @@ An error occurs if a program declares an extern alias for which no external defi
 > ```csharp
 > extern alias X;
 > extern alias Y;
-> 
-> class Test : SmartContract.Framework.SmartContract
+>
+> class Test
 > {
 >     X::N.A a;
 >     X::N.B b1;
@@ -165,7 +165,7 @@ An error occurs if a program declares an extern alias for which no external defi
 using_directive
     : using_alias_directive
     | using_namespace_directive
-    | using_static_directive    
+    | using_static_directive
     ;
 ```
 
@@ -640,7 +640,7 @@ Within member declarations in a compilation unit or namespace body that contains
 > ```csharp
 > namespace N1
 > {
->    class A 
+>    class A
 >    {
 >         public class B {}
 >         public static B M() => new B();
@@ -671,9 +671,9 @@ A *using_static_directive* specifically does not import extension methods direct
 >
 > <!-- Example: {template:"standalone-lib-without-using", name:"UsingStaticDirectives2", expectedErrors:["CS0103"]} -->
 > ```csharp
-> namespace N1 
+> namespace N1
 > {
->     static class A 
+>     static class A
 >     {
 >         public static void M(this string s){}
 >     }
@@ -705,9 +705,9 @@ A *using_static_directive* only imports members and types declared directly in t
 >
 > <!-- Example: {template:"standalone-lib-without-using", name:"UsingStaticDirectives3", expectedErrors:["CS0103"]} -->
 > ```csharp
-> namespace N1 
+> namespace N1
 > {
->     class A 
+>     class A
 >     {
 >         public static void M(string s){}
 >     }
@@ -727,7 +727,7 @@ A *using_static_directive* only imports members and types declared directly in t
 >         void N()
 >         {
 >             M2("B");      // OK, calls B.M2
->             M("C");       // Error. M unknown 
+>             M("C");       // Error. M unknown
 >         }
 >     }
 > }
@@ -869,7 +869,7 @@ Using this notation, the meaning of a *qualified_alias_member* is determined as 
 >
 > class A { }
 >
-> class C 
+> class C
 > {
 >     global.A x; // Valid: References MyGlobalTypes.A
 >     global::A y; // Valid: References A in the global namespace
