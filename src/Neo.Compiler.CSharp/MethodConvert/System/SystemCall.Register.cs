@@ -769,6 +769,5 @@ internal partial class MethodConvert
         // these two methods will not be supported, since we don't have `Type` class support in neo csharp.
         // RegisterHandler((Enum value) => Enum.GetUnderlyingType(value.GetType()), HandleEnumGetUnderlyingType);
         // RegisterHandler((Type enumType) => Enum.GetUnderlyingType(enumType), HandleEnumGetUnderlyingTypeWithType);
-
     }
 }

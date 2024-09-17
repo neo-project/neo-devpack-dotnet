@@ -70,7 +70,6 @@ internal partial class MethodConvert
         SystemCallHandlers[key] = handler;
     }
 
-
     private static void RegisterHandler<T>(Expression<Action<T>> expression, SystemCallHandler handler)
     {
         var key = GetKeyFromExpression(expression, typeof(T));
