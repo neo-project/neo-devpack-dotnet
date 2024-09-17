@@ -75,5 +75,39 @@ namespace Neo.Optimizer
             Script script = new(simplifiedScript.ToArray());
             return script;
         }
+
+        /// <summary>
+        /// Typically used when you delete the oldTarget from script
+        /// and the newTarget is the first following instruction undeleted in script
+        /// </summary>
+        /// <param name="oldTarget"></param>
+        /// <param name="newTarget"></param>
+        /// <param name="jumpSourceToTargets"></param>
+        /// <param name="jumpTargetToSources"></param>
+        /// <param name="trySourceToTargets"></param>
+        public static void RetargetJump(Instruction oldTarget, Instruction newTarget,
+            Dictionary<Instruction, Instruction> jumpSourceToTargets,
+            Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources,
+            Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets)
+        {
+            if (jumpTargetToSources.Remove(oldTarget, out HashSet<Instruction>? sources))
+            {
+                foreach (Instruction s in sources)
+                {
+                    if (jumpSourceToTargets.TryGetValue(s, out Instruction? t0) && t0 == oldTarget)
+                        jumpSourceToTargets[s] = newTarget;
+                    if (trySourceToTargets.TryGetValue(s, out (Instruction t1, Instruction t2) t))
+                    {
+                        Instruction newT1 = (t.t1 == oldTarget ? newTarget : t.t1);
+                        Instruction newT2 = (t.t2 == oldTarget ? newTarget : t.t2);
+                        trySourceToTargets[s] = (newT1, newT2);
+                    }
+                }
+                if (jumpTargetToSources.TryGetValue(newTarget, out HashSet<Instruction>? newTargetSources))
+                    newTargetSources.Union(sources);
+                else
+                    jumpTargetToSources[newTarget] = sources;
+            }
+        }
     }
 }

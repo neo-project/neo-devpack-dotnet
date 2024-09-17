@@ -15,11 +15,11 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             // hello => 4
             Assert.AreEqual(4, Contract.TestStringAdd("he", "llo"));
-            AssertGasConsumed(1356540);
+            AssertGasConsumed(1356420);
 
             // world => 5
             Assert.AreEqual(5, Contract.TestStringAdd("wo", "rld"));
-            AssertGasConsumed(1357800);
+            AssertGasConsumed(1357680);
         }
 
         [TestMethod]

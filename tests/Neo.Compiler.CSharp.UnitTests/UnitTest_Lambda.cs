@@ -110,7 +110,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ChangeName()
         {
             var result = Contract.ChangeName("L");
-            AssertGasConsumed(1371750);
+            AssertGasConsumed(1371630);
             Assert.AreEqual("L !!!", result);
         }
 
@@ -118,7 +118,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ChangeName2()
         {
             var result = Contract.ChangeName2("L");
-            AssertGasConsumed(1387470);
+            AssertGasConsumed(1387350);
             Assert.AreEqual("L !!!", result);
         }
 
@@ -142,15 +142,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Fibo()
         {
             var result = Contract.Fibo(2);
-            AssertGasConsumed(1103760);
+            AssertGasConsumed(1103640);
             Assert.AreEqual(1, result);
 
             result = Contract.Fibo(3);
-            AssertGasConsumed(1141080);
+            AssertGasConsumed(1140960);
             Assert.AreEqual(2, result);
 
             result = Contract.Fibo(4);
-            AssertGasConsumed(1215720);
+            AssertGasConsumed(1215600);
             Assert.AreEqual(3, result);
         }
 
