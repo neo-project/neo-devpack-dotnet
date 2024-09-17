@@ -4,7 +4,6 @@ using System.Numerics;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
-
     public class Contract_Enum : SmartContract.Framework.SmartContract
     {
         public enum TestEnum
