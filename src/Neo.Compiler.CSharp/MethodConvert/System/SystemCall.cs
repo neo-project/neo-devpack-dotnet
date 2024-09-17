@@ -271,8 +271,8 @@ internal partial class MethodConvert
         var key = symbol.ToString()!.Replace("out ", "");
         key = (from parameter in symbol.Parameters let parameterType = parameter.Type.ToString() where !parameter.Type.IsValueType && parameterType!.EndsWith('?') select parameterType).Aggregate(key, (current, parameterType) => current.Replace(parameterType, parameterType[..^1]));
         if (key == "string.ToString()") key = "object.ToString()";
-        if (key.Contains("System.Enum.GetName<")) key = "System.Enum.GetName<>()";
-        if (key.Contains("System.Enum.GetName(")) key = "System.Enum.GetName()";
+        if (key.StartsWith("System.Enum.GetName<")) key = "System.Enum.GetName<>()";
+        if (key.StartsWith("System.Enum.GetName(")) key = "System.Enum.GetName()";
         if (!SystemCallHandlers.TryGetValue(key, out var handler)) return false;
         handler(this, model, symbol, instanceExpression, arguments);
         return true;
