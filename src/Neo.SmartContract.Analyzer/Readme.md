@@ -27,6 +27,8 @@ This repository contains a set of Roslyn analyzers and code fix providers for Ne
 - [BigIntegerUsingUsageAnalyzer.cs](NeoContractAnalyzer/BigIntegerUsingUsageAnalyzer.cs): This analyzer warns about incorrect usage of BigInteger in using statements.
 - [StaticFieldInitializationAnalyzer.cs](NeoContractAnalyzer/StaticFieldInitializationAnalyzer.cs): This analyzer checks for proper initialization of static fields in smart contracts.
 - [MultipleCatchBlockAnalyzer.cs](NeoContractAnalyzer/MultipleCatchBlockAnalyzer.cs): This analyzer checks for multiple catch blocks in try statements.
+- [SystemDiagnosticsUsageAnalyzer.cs](NeoContractAnalyzer/SystemDiagnosticsUsageAnalyzer.cs): This analyzer detects and reports usage of System.Diagnostics namespace, which is not supported in Neo smart contracts.
+
 
 ## How to Use
 
