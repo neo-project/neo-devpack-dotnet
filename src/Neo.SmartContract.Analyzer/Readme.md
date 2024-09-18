@@ -29,7 +29,6 @@ This repository contains a set of Roslyn analyzers and code fix providers for Ne
 - [MultipleCatchBlockAnalyzer.cs](NeoContractAnalyzer/MultipleCatchBlockAnalyzer.cs): This analyzer checks for multiple catch blocks in try statements.
 - [SystemDiagnosticsUsageAnalyzer.cs](NeoContractAnalyzer/SystemDiagnosticsUsageAnalyzer.cs): This analyzer detects and reports usage of System.Diagnostics namespace, which is not supported in Neo smart contracts.
 
-
 ## How to Use
 
 To use these analyzers in your Neo smart contract project:
