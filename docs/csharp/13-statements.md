@@ -2,9 +2,9 @@
 
 ## 13.1 General
 
-C# provides a variety of statements.
+Neo C# provides a variety of statements.
 
-> *Note*: Most of these statements will be familiar to developers who have programmed in C and C++. *end note*
+> *Note*: Most of these statements will be the same as in C#. *end note*
 
 ```ANTLR
 statement
@@ -1090,7 +1090,7 @@ The `foreach` statement enumerates the elements of a collection, executing an em
 
 ```ANTLR
 foreach_statement
-    : 'foreach' '(' ref_kind? local_variable_type identifier 'in' 
+    : 'foreach' '(' ref_kind? local_variable_type identifier 'in'
       expression ')' embedded_statement
     ;
 ```
@@ -1238,7 +1238,7 @@ The body of the `finally` block is constructed according to the following steps:
   ```
 
 - Otherwise, the `finally` clause is expanded to:
-  
+
   ```csharp
   finally
   {
@@ -1680,14 +1680,14 @@ If an exception is thrown during execution of a `finally` block, and is not caug
 >         {
 >             Runtime.Log("Catch");
 >         }
-> 
+>
 >         bool ExceptionFilter(Exception ex)
 >         {
 >             Runtime.Log("Filter");
 >             return true;
 >         }
 >     }
-> 
+>
 >     static void Method()
 >     {
 >         try

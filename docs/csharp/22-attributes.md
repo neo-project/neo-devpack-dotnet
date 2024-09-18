@@ -149,7 +149,6 @@ The types of positional and named parameters for an attribute class are limited 
 
 - One of the following types: `bool`, `byte`, `char`, `int`, `long`, `sbyte`, `short`, `string`, `uint`, `ulong`, `ushort`.
 - The type `object`.
-- The type `System.Type`.
 - Enum types.
 - Single-dimensional arrays of the above types.
 - A constructor argument or public field that does not have one of these types, shall not be used as a positional or named parameter in an attribute specification.
@@ -389,7 +388,7 @@ An expression `E` is an *attribute_argument_expression* if all of the following 
 - The type of `E` is an attribute parameter type ([§22.2.4](22-attributes.md#2224-attribute-parameter-types)).
 - At compile-time, the value of `E` can be resolved to one of the following:
   - A constant value.
-  - A `System.Type` object obtained using a *typeof_expression* ([§12.8.17](12-expressions.md#12817-the-typeof-operator)) specifying a non-generic type, a closed constructed type ([§8.4.3](8-types.md#843-open-and-closed-types)), or an unbound generic type ([§8.4.4](8-types.md#844-bound-and-unbound-types)), but not an open type ([§8.4.3](8-types.md#843-open-and-closed-types)).
+  - A closed constructed type ([§8.4.3](8-types.md#843-open-and-closed-types)), or an unbound generic type ([§8.4.4](8-types.md#844-bound-and-unbound-types)), but not an open type ([§8.4.3](8-types.md#843-open-and-closed-types)).
   - A single-dimensional array of *attribute_argument_expression*s.
 
 > *Example*:

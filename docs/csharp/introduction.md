@@ -4,11 +4,12 @@ This specification is based on a subset of the standard C# language, specificall
 
 Neo C# is designed to provide developers with a familiar and powerful language for creating smart contracts, while ensuring compatibility with the NEO blockchain's execution environment. As such, it includes several important differences from standard C#:
 
-- NEO C# does not support floating-point types, to ensure deterministic execution across all nodes in the blockchain network.
+- Neo C# does not support floating-point types, to ensure deterministic execution across all nodes in the blockchain network.
 - File operations are not supported, as smart contracts operate in a sandboxed environment without direct access to the file system.
 - Threading is not available, as smart contracts are designed to execute as single-threaded, atomic operations.
 - Unsafe code and pointer operations are not supported, to maintain security and prevent direct memory manipulation.
 - The `dynamic` keyword is not supported, all types must be clearly defined with a type known at compile time, to ensure security and predictability in smart contract execution.
+- Reflection is not supported in neo C#, as it could introduce unpredictability and security risks in the smart contract environment.
 - Certain other features of standard C# may be limited or unavailable to maintain security and predictability in the blockchain context.
 
 The goals of neo C# include:
@@ -21,7 +22,7 @@ The goals of neo C# include:
 
 While NEO C# is based on the C# language, it is important for developers to be aware of its specific limitations and optimizations for blockchain use. This specification aims to provide a clear and comprehensive guide to writing smart contracts using NEO C#, highlighting both its capabilities and constraints within the NEO ecosystem.
 
-The name C# is pronounced "C Sharp". And in this specification, when we refer to C#, we mean neo C#.
+The name C# is pronounced "C Sharp". And in this specification, when we refer to C# in this specification, we mean neo C#.
 
 The name C# is written as the LATIN CAPITAL LETTER C (U+0043) followed by the NUMBER SIGN # (U+0023).
 

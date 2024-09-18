@@ -2840,80 +2840,28 @@ comma
 
 ```
 
-The first form of *typeof_expression* consists of a `typeof` keyword followed by a parenthesized type. The result of an expression of this form is the `System.Type` object for the indicated type. There is only one `System.Type` object for any given type. This means that for a type `T`, `typeof(T) == typeof(T)` is always true. The type cannot be `dynamic`.
+The `typeof` operator is not supported in neo C# smart contracts, as the `System.Type` type is not available in this context. However, there is one exception: `typeof` can be used directly as a parameter value in certain Neo-specific attributes or method calls.
 
-The second form of *typeof_expression* consists of a `typeof` keyword followed by a parenthesized *unbound_type_name*.
+> [!WARNING]
+> Using `typeof` in any other context within a Neo smart contract will result in a compilation error.
 
-> *Note*: An *unbound_type_name* is very similar to a *type_name* ([§7.8](7-basic-concepts.md#78-namespace-and-type-names)) except that an *unbound_type_name* contains *generic_dimension_specifier*s where a *type_name* contains *type_argument_list*s. *end note*
+For example, you might see `typeof` used in this way:
 
-When the operand of a *typeof_expression* is a sequence of tokens that satisfies the grammars of both *unbound_type_name* and *type_name*, namely when it contains neither a *generic_dimension_specifier* nor a *type_argument_list*, the sequence of tokens is considered to be a *type_name*. The meaning of an *unbound_type_name* is determined as follows:
+```csharp
+public static object TestEnumParse(string value)
+{
+    // var type = typeof(TestEnum);  // This will cause a compilation error
+    return System.Enum.Parse(typeof(TestEnum), value); // This will work
+}
 
-- Convert the sequence of tokens to a *type_name* by replacing each *generic_dimension_specifier* with a *type_argument_list* having the same number of commas and the keyword `object` as each *type_argument*.
-- Evaluate the resulting *type_name*, while ignoring all type parameter constraints.
-- The *unbound_type_name* resolves to the unbound generic type associated with the resulting constructed type ([§8.4](8-types.md#84-constructed-types)).
+public enum TestEnum
+{
+    Value1 = 1,
+    Value2 = 2,
+    Value3 = 3
+}
 
-The result of the *typeof_expression* is the `System.Type` object for the resulting unbound generic type.
-
-The third form of *typeof_expression* consists of a `typeof` keyword followed by a parenthesized `void` keyword. The result of an expression of this form is the `System.Type` object that represents the absence of a type. The type object returned by `typeof(void)` is distinct from the type object returned for any type.
-
-> *Note*: This special `System.Type` object is useful in class libraries that allow reflection onto methods in the language, where those methods wish to have a way to represent the return type of any method, including `void` methods, with an instance of `System.Type`. *end note*
-
-The `typeof` operator can be used on a type parameter. The result is the `System.Type` object for the run-time type that was bound to the type parameter. The `typeof` operator can also be used on a constructed type or an unbound generic type ([§8.4.4](8-types.md#844-bound-and-unbound-types)). The `System.Type` object for an unbound generic type is not the same as the `System.Type` object of the instance type ([§15.3.2](15-classes.md#1532-the-instance-type)). The instance type is always a closed constructed type at run-time so its `System.Type` object depends on the run-time type arguments in use. The unbound generic type, on the other hand, has no type arguments, and yields the same `System.Type` object regardless of runtime type arguments.
-
-> *Example*: The example
->
-> <!-- Example: {template:"standalone-console", name:"TypeofOperator", inferOutput:true} -->
-> ```csharp
-> class X<T>
-> {
->     public static void PrintTypes()
->     {
->         Type[] t =
->         {
->             typeof(int),
->             typeof(System.Int32),
->             typeof(string),
->             typeof(double[]),
->             typeof(void),
->             typeof(T),
->             typeof(X<T>),
->             typeof(X<X<T>>),
->             typeof(X<>)
->         };
->         for (int i = 0; i < t.Length; i++)
->         {
->             Runtime.Log(t[i]);
->         }
->     }
-> }
->
-> class Test : SmartContract.Framework.SmartContract
-> {
->     public static void Test()
->     {
->         X<int>.PrintTypes();
->     }
-> }
-> ```
->
-> produces the following output:
->
-> ```console
-> System.Int32
-> System.Int32
-> System.String
-> System.Double[]
-> System.Void
-> System.Int32
-> X`1[System.Int32]
-> X`1[X`1[System.Int32]]
-> X`1[T]
-> ```
->
-> Note that `int` and `System.Int32` are the same type.
-> The result of `typeof(X<>)` does not depend on the type argument but the result of `typeof(X<T>)` does.
->
-> *end example*
+```
 
 ### 12.8.18 The sizeof operator
 

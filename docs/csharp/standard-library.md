@@ -19,7 +19,7 @@ It is expected that a conforming C# implementation will supply a significantly 
 
 **End of informative text.**
 
-## C.2 Standard Library Types defined in ISO/IEC 23271
+## C.2 Standard Library Types defined in ISO/IEC 23271 and Supported by Neo C#
 
 > *Note:* Some `struct` types below have the `readonly` modifier. This modifier was not available
 > when ISO/IEC 23271 was released, but is required for conforming implementations of this specification. *end note*
@@ -97,7 +97,6 @@ namespace System
     public readonly struct Boolean { }
     public readonly struct Byte { }
     public readonly struct Char { }
-    public readonly struct Decimal { }
     public abstract class Delegate { }
 
     public class DivideByZeroException : ArithmeticException
@@ -107,7 +106,6 @@ namespace System
         public DivideByZeroException(string message, Exception innerException);
     }
 
-    public readonly struct Double { }
 
     public abstract class Enum : ValueType
     {
@@ -157,8 +155,8 @@ namespace System
     {
         public NotSupportedException();
         public NotSupportedException(string message);
-        public NotSupportedException(string message, 
-            Exception innerException);    
+        public NotSupportedException(string message,
+            Exception innerException);
     }
 
     public struct Nullable<T>
@@ -338,24 +336,11 @@ namespace System.Diagnostics
     }
 }
 
-namespace System.Reflection
-{
-    public abstract class MemberInfo
-    {
-        protected MemberInfo();
-    }
-}
-
 namespace System.Runtime.CompilerServices
 {
     public sealed class IndexerNameAttribute : Attribute
     {
         public IndexerNameAttribute(String indexerName);
-    }
-
-    public static class Unsafe
-    {
-        public static ref T NullRef<T>();
     }
 }
 ```
@@ -964,7 +949,6 @@ The following library types are referenced in this specification. The full names
 - `global::System.StackOverflowException`
 - `global::System.String`
 - `global::System.SystemException`
-- `global::System.Type`
 - `global::System.TypeInitializationException`
 - `global::System.UInt16`
 - `global::System.UInt32`

@@ -24,3 +24,4 @@ NC4021 | Usage | Warning | SupportedStandardsAnalyzer
 NC4022 | Usage | Warning | BigIntegerUsingUsageAnalyzer
 NC4023 | Usage | Error | StaticFieldInitializationAnalyzer
 NC4024 | Usage | Error | MultipleCatchBlockAnalyzer
+NC4025 | Method | Error | EnumMethodsUsageAnalyzer
