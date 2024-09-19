@@ -544,25 +544,6 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
     }
 
-    private static void HandleBigIntegerIsPowerOfTwo(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-
-        JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP); // a a
-        methodConvert.AddInstruction(OpCode.PUSH0); // a a 0
-        methodConvert.Jump(OpCode.JMPLE, endTarget); // a
-        methodConvert.AddInstruction(OpCode.DUP); // a a
-        methodConvert.AddInstruction(OpCode.DEC); // a a-1
-        methodConvert.AddInstruction(OpCode.AND); // a&(a-1)
-        methodConvert.AddInstruction(OpCode.PUSH0); // a&(a-1) 0
-        methodConvert.Jump(OpCode.JMPEQ, endTarget); // a&(a-1)
-        methodConvert.AddInstruction(OpCode.PUSH0); // 0
-        methodConvert.Jump(OpCode.JMP, endTarget); // 0
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // NOP
-    }
-
     private static void HandleBigIntegerCreateSaturating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
