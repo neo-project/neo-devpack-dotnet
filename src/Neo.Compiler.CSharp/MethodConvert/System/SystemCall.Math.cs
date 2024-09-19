@@ -53,250 +53,42 @@ internal partial class MethodConvert
 
     private static void HandleMathByteDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(byte.MinValue);
-        methodConvert.Push(new BigInteger(byte.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathSByteDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(sbyte.MinValue);
-        methodConvert.Push(new BigInteger(sbyte.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(short.MinValue);
-        methodConvert.Push(new BigInteger(short.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathUShortDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(ushort.MinValue);
-        methodConvert.Push(new BigInteger(ushort.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathIntDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(int.MinValue);
-        methodConvert.Push(new BigInteger(int.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathUIntDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(uint.MinValue);
-        methodConvert.Push(new BigInteger(uint.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathLongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(long.MinValue);
-        methodConvert.Push(new BigInteger(long.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathULongDivRem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
-
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(ulong.MinValue);
-        methodConvert.Push(new BigInteger(ulong.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
+        HandleMathBigIntegerDivRem(methodConvert, model, symbol, instanceExpression, arguments);
     }
 
     private static void HandleMathClamp(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
