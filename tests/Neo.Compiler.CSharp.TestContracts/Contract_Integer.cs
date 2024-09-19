@@ -528,4 +528,9 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
     {
         return BigInteger.PopCount(value);
     }
+
+    public static bool IsPow2BigInteger(BigInteger value)
+    {
+        return value.IsPowerOfTwo;
+    }
 }
