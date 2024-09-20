@@ -63,7 +63,7 @@ internal partial class MethodConvert
 
         // Add missing BigInteger methods
         // RegisterHandler((BigInteger x, double y) => BigInteger.Log(x, y), HandleBigIntegerLogBase);
-        RegisterHandler((BigInteger x) => x.IsPowerOfTwo, HandleBigIntegerIsPowerOfTwo);
+        RegisterHandler((BigInteger x) => x.IsPowerOfTwo, HandleBigIntegerIsPow2);
         // RegisterHandler((BigInteger x) => BigInteger.PopCount(x), HandleBigIntegerPopCount);
         RegisterHandler((BigInteger x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
     }
