@@ -1433,5 +1433,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.ThrowsException<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("123456789123456789")));
             Assert.ThrowsException<TestException>(() => Contract.PopCountBigInteger(BigInteger.Parse("-987654321987654321")));
         }
+
+        [TestMethod]
+        public void TestMethodBigIntgerIsPow2()
+        {
+            for (int i = -2; i <= 4; ++i)
+                Assert.AreEqual(new BigInteger(i).IsPowerOfTwo, Contract.IsPow2BigInteger(i));
+        }
     }
 }
