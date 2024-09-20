@@ -494,9 +494,10 @@ internal partial class MethodConvert
         methodConvert.Push(2);
         methodConvert.AddInstruction(OpCode.PICK);// r, l, l, r
         methodConvert.AddInstruction(OpCode.DIV);  // r, l, l/r
-        // TODO: for types that is restricted by range, check l/r <= MaxValue
-        // It's only possible to get l/r == MaxValue + 1 when l/r > MaxValue
-        // It's impossible to get l/r < MinValue
+        // For types that is restricted by range, there should be l/r <= MaxValue
+        // However it's only possible to get l/r == MaxValue + 1 when l/r > MaxValue
+        // and it's impossible to get l/r < MinValue
+        // Therefore we ignore this case; l/r <= MaxValue is not checked
 
         // Calculate remainder
         methodConvert.AddInstruction(OpCode.REVERSE3);  // l/r, l, r
