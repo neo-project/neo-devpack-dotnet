@@ -488,21 +488,23 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        // r, l -> l/r, l%r
         // Perform division
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.TUCK);
-        methodConvert.AddInstruction(OpCode.DIV);
+        methodConvert.AddInstruction(OpCode.DUP); // r, l, l
+        methodConvert.Push(2);
+        methodConvert.AddInstruction(OpCode.PICK);// r, l, l, r
+        methodConvert.AddInstruction(OpCode.DIV);  // r, l, l/r
+        // For types that is restricted by range, there should be l/r <= MaxValue
+        // However it's only possible to get l/r == MaxValue + 1 when l/r > MaxValue
+        // and it's impossible to get l/r < MinValue
+        // Therefore we ignore this case; l/r <= MaxValue is not checked
 
         // Calculate remainder
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.MUL);
-        methodConvert.AddInstruction(OpCode.ROT);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.REVERSE3);  // l/r, l, r
+        methodConvert.AddInstruction(OpCode.MOD);  // l/r, l%r
         methodConvert.AddInstruction(OpCode.PUSH2);
         methodConvert.AddInstruction(OpCode.PACK);
+        // It's impossible to get l%r out of range
     }
 
     //implement HandleBigIntegerLeadingZeroCount
@@ -542,25 +544,6 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-    }
-
-    private static void HandleBigIntegerIsPowerOfTwo(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
-    {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-
-        JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP); // a a
-        methodConvert.AddInstruction(OpCode.PUSH0); // a a 0
-        methodConvert.Jump(OpCode.JMPLE, endTarget); // a
-        methodConvert.AddInstruction(OpCode.DUP); // a a
-        methodConvert.AddInstruction(OpCode.DEC); // a a-1
-        methodConvert.AddInstruction(OpCode.AND); // a&(a-1)
-        methodConvert.AddInstruction(OpCode.PUSH0); // a&(a-1) 0
-        methodConvert.Jump(OpCode.JMPEQ, endTarget); // a&(a-1)
-        methodConvert.AddInstruction(OpCode.PUSH0); // 0
-        methodConvert.Jump(OpCode.JMP, endTarget); // 0
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP); // NOP
     }
 
     private static void HandleBigIntegerCreateSaturating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
