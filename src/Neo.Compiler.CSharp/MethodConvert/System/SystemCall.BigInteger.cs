@@ -170,7 +170,26 @@ internal partial class MethodConvert
     private static void HandleBigIntegerParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
+        {
+            if (arguments.Count == 1 && arguments[0] is ArgumentSyntax { NameColon: null } arg)
+            {
+                // Optimize call when is a constant string
+
+                Optional<object?> constant = model.GetConstantValue(arg.Expression);
+
+                if (constant.HasValue && constant.Value is string strValue)
+                {
+                    // Insert a sequence point for debugging purposes
+                    using var sequence = methodConvert.InsertSequencePoint(arg.Expression);
+                    var bi = BigInteger.Parse(strValue);
+                    methodConvert.Push(bi);
+                    return;
+                }
+            }
+
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        }
+
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
     }
 
