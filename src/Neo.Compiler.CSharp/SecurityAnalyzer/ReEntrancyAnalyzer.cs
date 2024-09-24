@@ -72,7 +72,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
-            List<BasicBlock> basicBlocks = contractInBasicBlocks.basicBlocks;
+            List<BasicBlock> basicBlocks = contractInBasicBlocks.sortedBasicBlocks;
             // key block calls another contract; value blocks write storage
             Dictionary<BasicBlock, HashSet<BasicBlock>> vulnerabilityPairs =
                 basicBlocks.ToDictionary(b => b, b => new HashSet<BasicBlock>());
@@ -109,8 +109,8 @@ namespace Neo.Compiler.SecurityAnalyzer
             foreach (BasicBlock b in basicBlocks)
             {
                 if (b.nextBlock != null) reverseRef[b.nextBlock].Add(b);
-                if (b.jumpTargetBlock1 != null) reverseRef[b.jumpTargetBlock1].Add(b);
-                if (b.jumpTargetBlock2 != null) reverseRef[b.jumpTargetBlock2].Add(b);
+                foreach (BasicBlock target in b.jumpTargetBlocks)
+                    reverseRef[target].Add(b);
             }
 
             // For each basic block that writes to storage,

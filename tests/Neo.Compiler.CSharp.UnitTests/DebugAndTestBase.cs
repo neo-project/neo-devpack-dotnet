@@ -61,7 +61,7 @@ public class DebugAndTestBase<T> : TestBase<T>
             prev = i;
         }
 
-        foreach (BasicBlock basicBlock in basicBlocks.basicBlocks)
+        foreach (BasicBlock basicBlock in basicBlocks.sortedBasicBlocks)
         {
             // Basic block ends with allowed OpCodes only, or the next instruction is a jump target
             Assert.IsTrue(OpCodeTypes.allowedBasicBlockEnds.Contains(basicBlock.instructions.Last().OpCode) || jumpTargets.ContainsKey(nextAddrTable[basicBlock.instructions.Last()]));
@@ -79,7 +79,7 @@ public class DebugAndTestBase<T> : TestBase<T>
 
         // Each instruction is included in only 1 basic block
         HashSet<VM.Instruction> includedInstructions = new();
-        foreach (BasicBlock basicBlock in basicBlocks.basicBlocks)
+        foreach (BasicBlock basicBlock in basicBlocks.sortedBasicBlocks)
             foreach (VM.Instruction instruction in basicBlock.instructions)
             {
                 Assert.IsFalse(includedInstructions.Contains(instruction));

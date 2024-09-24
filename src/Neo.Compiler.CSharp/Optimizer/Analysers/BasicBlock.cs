@@ -29,8 +29,7 @@ namespace Neo.Optimizer
         public readonly int startAddr;
         public List<Instruction> instructions { get; set; }  // instructions in this basic block
         public BasicBlock? nextBlock = null;  // the following basic block (with subseqent address)
-        public BasicBlock? jumpTargetBlock1 = null;  // jump target of the last instruction of this basic block
-        public BasicBlock? jumpTargetBlock2 = null;
+        public HashSet<BasicBlock> jumpTargetBlocks = new();  // jump target of the last instruction of this basic block
 
         public BasicBlock(int startAddr, List<Instruction> instructions)
         {
@@ -44,7 +43,9 @@ namespace Neo.Optimizer
         /// <param name="instructions">address -> <see cref="Instruction"/></param>
         public BasicBlock(Dictionary<int, Instruction> instructions)
         {
-            this.instructions = (from kv in instructions orderby kv.Key ascending select kv.Value).ToList();
+            IEnumerable<(int addr, Instruction i)> addrToInstructions = from kv in instructions orderby kv.Key ascending select (kv.Key, kv.Value);
+            this.startAddr = addrToInstructions.First().addr;
+            this.instructions = addrToInstructions.Select(kv => kv.i).ToList();
         }
 
         //public void SetNextBasicBlock(BasicBlock block) => this.nextBlock = block;
@@ -60,63 +61,51 @@ namespace Neo.Optimizer
         public static Dictionary<int, Dictionary<int, Instruction>> BasicBlocksInDict(NefFile nef, ContractManifest manifest)
             => new InstructionCoverage(nef, manifest).basicBlocksInDict;
 
-        public List<BasicBlock> basicBlocks;
         public Dictionary<Instruction, BasicBlock> basicBlocksByStartInstruction;
+        public Dictionary<int, BasicBlock> basicBlocksByStartAddr;
         public InstructionCoverage coverage;
-        public IEnumerable<(int startAddr, List<Instruction> block)> sortedBasicBlocks;
+        public IEnumerable<(int startAddr, List<Instruction> block)> sortedListInstructions;
+        public List<BasicBlock> sortedBasicBlocks;
         public ContractManifest manifest;
         public JToken? debugInfo;
         public ContractInBasicBlocks(NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
             this.manifest = manifest;
             this.debugInfo = debugInfo;
-            coverage = new(nef, manifest);
-            sortedBasicBlocks =
+            coverage = new InstructionCoverage(nef, manifest);
+            sortedListInstructions =
                 (from kv in coverage.basicBlocksInDict
                  orderby kv.Key ascending
                  select (kv.Key,
                      // kv.Value sorted by address
                      (from singleBlockKv in kv.Value orderby singleBlockKv.Key ascending select singleBlockKv.Value).ToList()
                  ));
+            sortedBasicBlocks = new();
             basicBlocksByStartInstruction = new();
-            BasicBlock? prevBlock = null;
-            // build all blocks without handling jumps between blocks
-            foreach ((int startAddr, List<Instruction> block) in sortedBasicBlocks)
+            basicBlocksByStartAddr = new();
+            // build all blocks without handling jumps or continuations between blocks
+            foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
             {
                 BasicBlock thisBlock = new(startAddr, block);
+                sortedBasicBlocks.Add(thisBlock);
                 basicBlocksByStartInstruction.Add(block.First(), thisBlock);
-                if (prevBlock != null)
-                {
-                    OpCode prevLastOpCode = prevBlock.instructions.Last().OpCode;
-                    if (!OpCodeTypes.unconditionalJump.Contains(prevLastOpCode) && prevLastOpCode != OpCode.RET)
-                        prevBlock.nextBlock = thisBlock;
-                }
-                prevBlock = thisBlock;
+                basicBlocksByStartAddr.Add(startAddr, thisBlock);
             }
-            // handle jumps between blocks
-            foreach ((int startAddr, List<Instruction> block) in sortedBasicBlocks)
+            // handle jumps and continuations between blocks
+            foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
             {
-                Instruction lastInstruction = block.Last();
-                if (coverage.jumpInstructionSourceToTargets.TryGetValue(lastInstruction, out Instruction? target))
-                    basicBlocksByStartInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartInstruction[target];
-                if (coverage.tryInstructionSourceToTargets.TryGetValue(lastInstruction, out (Instruction, Instruction) targets))
-                {
-                    // The reachability optimizer may ask the jumping instruction to point to itself,
-                    // because the original jump target may have been deleted.
-                    // We do not consider a jump to self.
-                    if (lastInstruction != targets.Item1)
-                        basicBlocksByStartInstruction[block.First()].jumpTargetBlock1 = basicBlocksByStartInstruction[targets.Item1];
-                    if (lastInstruction != targets.Item2)
-                        basicBlocksByStartInstruction[block.First()].jumpTargetBlock2 = basicBlocksByStartInstruction[targets.Item2];
-                }
+                if (coverage.basicBlockContinuation.TryGetValue(startAddr, out int continuationTarget))
+                    basicBlocksByStartAddr[startAddr].nextBlock = basicBlocksByStartAddr[continuationTarget];
+                if (coverage.basicBlockJump.TryGetValue(startAddr, out HashSet<int>? jumpTargets))
+                    foreach (int target in jumpTargets)
+                        basicBlocksByStartAddr[startAddr].jumpTargetBlocks.Add(basicBlocksByStartAddr[target]);
             }
-            this.basicBlocks = basicBlocksByStartInstruction.Values.ToList();
         }
 
         public IEnumerable<Instruction> GetScriptInstructions()
         {
-            foreach (BasicBlock basicBlock in basicBlocks)
-                foreach (Instruction instruction in basicBlock.instructions)
+            foreach ((_, List<Instruction> basicBlock) in sortedListInstructions)
+                foreach (Instruction instruction in basicBlock)
                     yield return instruction;
         }
     }
