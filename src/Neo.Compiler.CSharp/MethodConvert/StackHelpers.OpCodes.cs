@@ -541,5 +541,16 @@ partial class MethodConvert
     {
         return AddInstruction(OpCode.ASSERTMSG);
     }
+
+    private Instruction JumpIfNot(JumpTarget target)
+    {
+        return Jump(OpCode.JMPIFNOT, target);
+    }
+
+    private Instruction Jump(JumpTarget target)
+    {
+        return Jump(OpCode.JMP, target);
+    }
+
     #endregion
 }
