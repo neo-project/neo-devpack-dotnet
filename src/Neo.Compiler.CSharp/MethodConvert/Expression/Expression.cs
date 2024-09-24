@@ -9,18 +9,16 @@
 // modifications are permitted.
 
 extern alias scfx;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.SmartContract.Native;
-using Neo.VM;
-using System.Numerics;
 using Neo.Cryptography.ECC;
 using Neo.IO;
+using Neo.SmartContract.Native;
+using Neo.VM;
+using Neo.VM.Types;
 using Neo.Wallets;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp;
-using Neo.VM.Types;
+using System.Numerics;
 
 namespace Neo.Compiler;
 
