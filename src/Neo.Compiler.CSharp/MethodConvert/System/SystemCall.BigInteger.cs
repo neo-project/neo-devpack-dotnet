@@ -177,11 +177,10 @@ internal partial class MethodConvert
 
                 Optional<object?> constant = model.GetConstantValue(arg.Expression);
 
-                if (constant.HasValue && constant.Value is string strValue)
+                if (constant.HasValue && constant.Value is string strValue && BigInteger.TryParse(strValue, out var bi))
                 {
                     // Insert a sequence point for debugging purposes
                     using var sequence = methodConvert.InsertSequencePoint(arg.Expression);
-                    var bi = BigInteger.Parse(strValue);
                     methodConvert.Push(bi);
                     return;
                 }
@@ -455,11 +454,11 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
         methodConvert.Jump(OpCode.JMPEQ, endMethod); // 0  // return 0 when input is 0
         methodConvert.AddInstruction(OpCode.PUSH0);// 5 0
-        //input = 5 > 0; result = 0; 
-        //do
-        //  result += 1
-        //while (input >> result) > 0
-        //result -= 1
+                                                   //input = 5 > 0; result = 0; 
+                                                   //do
+                                                   //  result += 1
+                                                   //while (input >> result) > 0
+                                                   //result -= 1
         JumpTarget loopStart = new();
         loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP); // 5 0
         methodConvert.AddInstruction(OpCode.INC);// 5 1
@@ -513,10 +512,10 @@ internal partial class MethodConvert
         methodConvert.Push(2);
         methodConvert.AddInstruction(OpCode.PICK);// r, l, l, r
         methodConvert.AddInstruction(OpCode.DIV);  // r, l, l/r
-        // For types that is restricted by range, there should be l/r <= MaxValue
-        // However it's only possible to get l/r == MaxValue + 1 when l/r > MaxValue
-        // and it's impossible to get l/r < MinValue
-        // Therefore we ignore this case; l/r <= MaxValue is not checked
+                                                   // For types that is restricted by range, there should be l/r <= MaxValue
+                                                   // However it's only possible to get l/r == MaxValue + 1 when l/r > MaxValue
+                                                   // and it's impossible to get l/r < MinValue
+                                                   // Therefore we ignore this case; l/r <= MaxValue is not checked
 
         // Calculate remainder
         methodConvert.AddInstruction(OpCode.REVERSE3);  // l/r, l, r
@@ -609,7 +608,7 @@ internal partial class MethodConvert
         // Initialize count to 0
         methodConvert.Push(0); // value count
         methodConvert.Swap(); // count value
-        // Loop to count the number of 1 bit
+                              // Loop to count the number of 1 bit
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
         loopStart.Instruction = methodConvert.Dup(); // count value value
