@@ -11,7 +11,6 @@
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
@@ -25,7 +24,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler

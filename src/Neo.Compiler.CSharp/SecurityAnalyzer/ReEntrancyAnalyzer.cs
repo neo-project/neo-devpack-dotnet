@@ -118,11 +118,10 @@ namespace Neo.Compiler.SecurityAnalyzer
             foreach (BasicBlock block in basicBlocks.Where(b => writeStorageInstructions[b].Count > 0))
             {
                 HashSet<BasicBlock> visited = new();
-                Queue<BasicBlock> q = new([block]);
-                BasicBlock current = block;
+                Queue<BasicBlock> q = new(reverseRef[block]);
                 while (q.Count > 0)
                 {
-                    current = q.Dequeue();
+                    BasicBlock current = q.Dequeue();
                     visited.Add(current);
                     if (callOtherContractInstructions[current].Count > 0)
                         vulnerabilityPairs[current].Add(block);
