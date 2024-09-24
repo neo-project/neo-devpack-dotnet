@@ -10,6 +10,13 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_BigInteger : DebugAndTestBase<Contract_BigInteger>
     {
         [TestMethod]
+        public void Test_ParseConstant()
+        {
+            Assert.AreEqual(BigInteger.Parse("100000000000000000000000000"), Contract.ParseConstant());
+            AssertGasConsumed(984150);
+        }
+
+        [TestMethod]
         public void Test_Pow()
         {
             Assert.AreEqual(8, Contract.TestPow(2, 3));

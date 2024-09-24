@@ -204,6 +204,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return x.Equals(y);
         }
 
+        public static BigInteger ParseConstant()
+        {
+            return BigInteger.Parse("100000000000000000000000000");
+        }
+
         public static BigInteger TestModPow()
         {
             BigInteger number = 10;
