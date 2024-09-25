@@ -46,11 +46,8 @@ public class DebugAndTestBase<T> : TestBase<T>
     {
         var basicBlocks = new ContractInBasicBlocks(nef, manifest, debugInfo);
 
-        // TODO: support CALLA and do not return
-
-        List<VM.Instruction> instructions = basicBlocks.GetScriptInstructions().ToList();
-        (_, _, Dictionary<VM.Instruction, HashSet<VM.Instruction>> jumpTargets) =
-            Neo.Optimizer.JumpTarget.FindAllJumpAndTrySourceToTargets(instructions);
+        List<VM.Instruction> instructions = basicBlocks.coverage.addressAndInstructions.Select(kv => kv.i).ToList();
+        Dictionary<VM.Instruction, HashSet<VM.Instruction>> jumpTargets = basicBlocks.coverage.jumpTargetToSources;
 
         Dictionary<VM.Instruction, VM.Instruction> nextAddrTable = new();
         VM.Instruction? prev = null;
