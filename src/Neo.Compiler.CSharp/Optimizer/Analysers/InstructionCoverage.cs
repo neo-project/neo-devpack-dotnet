@@ -231,12 +231,12 @@ namespace Neo.Optimizer
                     // when previous codes did not throw
                     if (value != BranchType.OK)  // the codes in finally or the codes after ENDFINALLY will THROW or ABORT
                         return coveredMap[entranceAddr] = value;
+                    stack.Pop();  // end current finally
                     // No THROW or ABORT in try, catch or finally
                     // visit codes after ENDFINALLY
                     if (continueAfterFinally)
                     {
                         int endPointer = finallyAddr;
-                        stack.Pop();  // end current finally
                         return coveredMap[entranceAddr] = CoverInstruction(endPointer, stack, jumpFromBasicBlockEntranceAddr: entranceAddr);
                     }
                     // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
@@ -333,6 +333,7 @@ namespace Neo.Optimizer
                         int endPointer = finallyAddr;
                         if (stackType != TryStackType.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
+                        stack.Pop();  // pop the ending FINALLY
                         if (continueAfterFinally)
                             return coveredMap[entranceAddr] = CoverInstruction(endPointer, stack, jumpFromBasicBlockEntranceAddr: entranceAddr);
                         // For this basic block in finally, the branch type is OK
