@@ -24,26 +24,14 @@ public class DebugAndTestBase<T> : TestBase<T>
 
     public static void TestSingleContractBasicBlockStartEnd(CompilationContext result)
     {
-        try
-        {
-            try
-            {
-                TestSingleContractBasicBlockStartEnd(result.CreateExecutable(), result.CreateManifest(), result.CreateDebugInformation());
-            }
-            catch
-            {
-                Console.WriteLine($"Omited: {result.ContractName}");
-            }
-        }
-        catch
-        {
-            Console.WriteLine($"Error compiling: {result.ContractName}");
-            return;
-        }
+        TestSingleContractBasicBlockStartEnd(result.CreateExecutable(), result.CreateManifest(), result.CreateDebugInformation());
     }
 
-    public static void TestSingleContractBasicBlockStartEnd(NefFile nef, ContractManifest manifest, JToken debugInfo)
+    public static void TestSingleContractBasicBlockStartEnd(NefFile nef, ContractManifest manifest, JObject? debugInfo)
     {
+        // Make sure the contract is optimized with RemoveUncoveredInstructions
+        // Basic block analysis does not consider jump targets that are not covered
+        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
         var basicBlocks = new ContractInBasicBlocks(nef, manifest, debugInfo);
 
         List<VM.Instruction> instructions = basicBlocks.coverage.addressAndInstructions.Select(kv => kv.i).ToList();
