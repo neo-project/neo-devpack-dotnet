@@ -68,6 +68,8 @@ internal partial class MethodConvert
         AddInstruction(value ? OpCode.PUSHT : OpCode.PUSHF);
     }
 
+    private Instruction Ret() => AddInstruction(OpCode.RET);
+
     private Instruction Push(BigInteger number)
     {
         if (number >= -1 && number <= 16) return AddInstruction(number == -1 ? OpCode.PUSHM1 : OpCode.PUSH0 + (byte)(int)number);

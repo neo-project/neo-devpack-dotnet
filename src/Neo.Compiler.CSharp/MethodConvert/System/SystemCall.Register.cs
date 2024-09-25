@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 
@@ -35,6 +36,8 @@ internal partial class MethodConvert
 
         // BitOperations handlers
         RegisterBitOperationsHandlers();
+
+        RegisterEnumHandlers();
     }
 
     private static void RegisterBigIntegerHandlers()
@@ -618,7 +621,6 @@ internal partial class MethodConvert
         RegisterHandler((char c) => char.IsLetterOrDigit(c), HandleCharIsLetterOrDigit);
         RegisterHandler((char x, char min, char max) => char.IsBetween(x, min, max), HandleCharIsBetween);
 
-        // Add missing char methods
         RegisterHandler((char c) => char.ToLowerInvariant(c), HandleCharToLowerInvariant);
         RegisterHandler((char c) => char.ToUpperInvariant(c), HandleCharToUpperInvariant);
         RegisterHandler((char c) => char.IsAscii(c), HandleCharIsAscii);
@@ -747,4 +749,25 @@ internal partial class MethodConvert
         RegisterHandler((ulong value, int offset) => BitOperations.RotateRight(value, offset), HandleULongRotateRight);
     }
 
+    private static void RegisterEnumHandlers()
+    {
+        RegisterHandler((Type enumType, string value) => Enum.Parse(enumType, value), HandleEnumParse);
+        RegisterHandler((Type enumType, string value, bool ignoreCase) => Enum.Parse(enumType, value, ignoreCase), HandleEnumParseIgnoreCase);
+        RegisterHandler((Type enumType, string value, object result) => Enum.TryParse(enumType, value, out result), HandleEnumTryParse);
+        RegisterHandler((Type enumType, string value, bool ignoreCase, object result) => Enum.TryParse(enumType, value, ignoreCase, out result), HandleEnumTryParseIgnoreCase);
+        RegisterHandler((Type enumType) => Enum.GetNames(enumType), HandleEnumGetNames);
+        RegisterHandler((Type enumType) => Enum.GetValues(enumType), HandleEnumGetValues);
+        RegisterHandler((Type enumType, object value) => Enum.IsDefined(enumType, value), HandleEnumIsDefined);
+        RegisterHandler((Type enumType, string name) => Enum.IsDefined(enumType, name), HandleEnumIsDefinedByName);
+        RegisterHandler((Enum value) => Enum.GetName(value.GetType(), value), HandleEnumGetName, "System.Enum.GetName<>()");
+        RegisterHandler((Type enumType, object value) => Enum.GetName(enumType, value), HandleEnumGetNameWithType, "System.Enum.GetName()");
+
+        // these two methods will not be supported, since we cannot apply format logic.
+        // RegisterHandler((Enum value) => Enum.Format(value.GetType(), value, "G"), HandleEnumFormat);
+        // RegisterHandler((Type enumType, object value, string format) => Enum.Format(enumType, value, format), HandleEnumFormatWithType);
+
+        // these two methods will not be supported, since we don't have `Type` class support in neo csharp.
+        // RegisterHandler((Enum value) => Enum.GetUnderlyingType(value.GetType()), HandleEnumGetUnderlyingType);
+        // RegisterHandler((Type enumType) => Enum.GetUnderlyingType(enumType), HandleEnumGetUnderlyingTypeWithType);
+    }
 }
