@@ -30,6 +30,7 @@ namespace Neo.Optimizer
         public List<Instruction> instructions { get; set; }  // instructions in this basic block
         public BasicBlock? nextBlock = null;  // the following basic block (with subseqent address)
         public HashSet<BasicBlock> jumpTargetBlocks = new();  // jump target of the last instruction of this basic block
+        public BranchType branchType = BranchType.UNCOVERED;
 
         public BasicBlock(int startAddr, List<Instruction> instructions)
         {
@@ -87,6 +88,7 @@ namespace Neo.Optimizer
             foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
             {
                 BasicBlock thisBlock = new(startAddr, block);
+                thisBlock.branchType = coverage.coveredMap[startAddr];
                 sortedBasicBlocks.Add(thisBlock);
                 basicBlocksByStartInstruction.Add(block.First(), thisBlock);
                 basicBlocksByStartAddr.Add(startAddr, thisBlock);
