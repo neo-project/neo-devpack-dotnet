@@ -90,7 +90,11 @@ namespace Neo.Optimizer
             foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
             {
                 BasicBlock thisBlock = new(startAddr, block);
-                thisBlock.branchType = coverage.coveredMap[startAddr];
+                int firstNotNopAddr = startAddr;
+                foreach (Instruction i in block)
+                    if (i.OpCode == OpCode.NOP)
+                        firstNotNopAddr += i.Size;
+                thisBlock.branchType = coverage.coveredMap[firstNotNopAddr];
                 sortedBasicBlocks.Add(thisBlock);
                 basicBlocksByStartInstruction.Add(block.First(), thisBlock);
                 basicBlocksByStartAddr.Add(startAddr, thisBlock);
