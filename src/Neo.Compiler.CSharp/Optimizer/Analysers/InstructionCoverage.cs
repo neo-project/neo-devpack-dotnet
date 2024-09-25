@@ -198,14 +198,14 @@ namespace Neo.Optimizer
             int entranceAddr = addr;
 
             // Skip all OpCode.NOP at the beginning of a basic block
-            Instruction entranceInstruction = script.GetInstruction(addr);
+            int firstNotNopAddr = addr;
+            Instruction entranceInstruction = script.GetInstruction(firstNotNopAddr);
             while (entranceInstruction.OpCode == OpCode.NOP)
             {
-                addr += entranceInstruction.Size;
+                firstNotNopAddr += entranceInstruction.Size;
                 entranceInstruction = script.GetInstruction(addr);
             }
 
-            int firstNotNopAddr = addr;
             if (stack == null)
             {
                 stack = new();
@@ -244,7 +244,7 @@ namespace Neo.Optimizer
                     return BranchType.THROW;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                 }
                 Instruction instruction = script.GetInstruction(addr);
-                if (jumpTargetToSources.ContainsKey(instruction) && addr != firstNotNopAddr)
+                if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
                     return coveredMap[firstNotNopAddr] = CoverInstruction(addr, stack, continueFromBasicBlockEntranceAddr: addr);
                 if (instruction.OpCode != OpCode.NOP)
