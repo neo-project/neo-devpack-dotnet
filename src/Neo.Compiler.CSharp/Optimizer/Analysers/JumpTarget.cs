@@ -133,7 +133,7 @@ namespace Neo.Optimizer
                         targetToSources.Add(t1, sources1);
                     }
                     sources1.Add(i);
-                    if (!targetToSources.TryGetValue(t1, out HashSet<Instruction>? sources2))
+                    if (!targetToSources.TryGetValue(t2, out HashSet<Instruction>? sources2))
                     {
                         sources2 = new();
                         targetToSources.Add(t2, sources2);

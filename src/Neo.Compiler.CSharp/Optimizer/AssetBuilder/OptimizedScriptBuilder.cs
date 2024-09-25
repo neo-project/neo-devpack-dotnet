@@ -87,8 +87,8 @@ namespace Neo.Optimizer
         /// <param name="trySourceToTargets"></param>
         public static void RetargetJump(Instruction oldTarget, Instruction newTarget,
             Dictionary<Instruction, Instruction> jumpSourceToTargets,
-            Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources,
-            Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets)
+            Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+            Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources)
         {
             if (jumpTargetToSources.Remove(oldTarget, out HashSet<Instruction>? sources))
             {

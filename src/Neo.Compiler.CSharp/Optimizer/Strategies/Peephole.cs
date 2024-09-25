@@ -75,7 +75,7 @@ namespace Neo.Optimizer
 
                             // If the old DUP is target of jump, re-target to the next instruction
                             OptimizedScriptBuilder.RetargetJump(currentDup, nextInstruction,
-                                jumpSourceToTargets, jumpTargetToSources, trySourceToTargets);
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
                             continue;
                         }
                     }

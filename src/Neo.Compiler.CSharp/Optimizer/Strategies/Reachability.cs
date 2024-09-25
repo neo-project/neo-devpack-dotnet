@@ -43,6 +43,24 @@ namespace Neo.Optimizer
                     currentAddress += i.Size;
                 }
             }
+            // retarget all NOP targets
+            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+            {
+                if (i.OpCode == OpCode.NOP && oldContractCoverage.jumpTargetToSources.ContainsKey(i))
+                {
+                    int currentA = a + i.Size;
+                    Instruction currentI = oldAddressToInstruction[currentA];
+                    while (coveredMap[currentA] == BranchType.UNCOVERED && currentI.OpCode == OpCode.NOP)
+                    {
+                        currentA += currentI.Size;
+                        currentI = oldAddressToInstruction[currentA];
+                    }
+                    OptimizedScriptBuilder.RetargetJump(i, currentI,
+                        oldContractCoverage.jumpInstructionSourceToTargets,
+                        oldContractCoverage.tryInstructionSourceToTargets,
+                        oldContractCoverage.jumpTargetToSources);
+                }
+            }
 
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
@@ -95,7 +113,7 @@ namespace Neo.Optimizer
                         jumpTargetToSources[nextInstruction].Remove(i);
                         if (jumpTargetToSources[nextInstruction].Count == 0)
                             jumpTargetToSources.Remove(nextInstruction);
-                        OptimizedScriptBuilder.RetargetJump(i, nextInstruction, jumpSourceToTargets, jumpTargetToSources, trySourceToTargets);
+                        OptimizedScriptBuilder.RetargetJump(i, nextInstruction, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
                         continue;  // do not add this JMP into simplified instructions
                     }
                 }
@@ -151,7 +169,7 @@ namespace Neo.Optimizer
                         Instruction newRet = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
                         // above is a workaround of new Instruction(OpCode.RET)
                         OptimizedScriptBuilder.RetargetJump(i, newRet,
-                            jumpSourceToTargets, jumpTargetToSources, trySourceToTargets);
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
                         simplifiedInstructionsToAddress.Add(newRet, currentAddress);
                         currentAddress += newRet.Size;
                         continue;
