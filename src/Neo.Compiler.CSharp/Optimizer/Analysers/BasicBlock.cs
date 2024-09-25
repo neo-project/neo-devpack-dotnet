@@ -28,8 +28,10 @@ namespace Neo.Optimizer
     {
         public readonly int startAddr;
         public List<Instruction> instructions { get; set; }  // instructions in this basic block
+        public BasicBlock? prevBlock = null;  // the previous basic block (with subseqent address)
         public BasicBlock? nextBlock = null;  // the following basic block (with subseqent address)
         public HashSet<BasicBlock> jumpTargetBlocks = new();  // jump target of the last instruction of this basic block
+        public HashSet<BasicBlock> jumpSourceBlocks = new();
         public BranchType branchType = BranchType.UNCOVERED;
 
         public BasicBlock(int startAddr, List<Instruction> instructions)
@@ -97,15 +99,24 @@ namespace Neo.Optimizer
             foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
             {
                 if (coverage.basicBlockContinuation.TryGetValue(startAddr, out int continuationTarget))
+                {
                     basicBlocksByStartAddr[startAddr].nextBlock = basicBlocksByStartAddr[continuationTarget];
+                    basicBlocksByStartAddr[continuationTarget].prevBlock = basicBlocksByStartAddr[startAddr];
+                }
                 if (coverage.basicBlockJump.TryGetValue(startAddr, out HashSet<int>? jumpTargets))
                     foreach (int target in jumpTargets)
+                    {
                         basicBlocksByStartAddr[startAddr].jumpTargetBlocks.Add(basicBlocksByStartAddr[target]);
+                        basicBlocksByStartAddr[target].jumpSourceBlocks.Add(basicBlocksByStartAddr[startAddr]);
+                    }
             }
         }
 
         public IEnumerable<Instruction> GetScriptInstructions()
         {
+            // WARNING: OpCode.NOP at the start of a basic block may not be included
+            // and the jumping operands may be wrong
+            // Refer to InstructionCoverage coverage for jump targets
             foreach ((_, List<Instruction> basicBlock) in sortedListInstructions)
                 foreach (Instruction instruction in basicBlock)
                     yield return instruction;
