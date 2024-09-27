@@ -3,7 +3,6 @@ using Neo.SmartContract.Testing;
 using Neo.VM.Types;
 using System.Numerics;
 using System.Text;
-using Neo.Extensions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {

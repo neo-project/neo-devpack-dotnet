@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Testing
             if (Engine.EnableCoverageCapture)
             {
                 PreInstruction = instruction;
-                PreExecuteInstructionFeeConsumed = FeeConsumed;
+                PreExecuteInstructionFeeConsumed = GasConsumed;
                 InstructionContext = CurrentContext;
                 InstructionPointer = InstructionContext?.InstructionPointer;
             }
@@ -204,7 +204,7 @@ namespace Neo.SmartContract.Testing
                 // We need the contract state without pay gas, but the entry script does never exists
 
                 var state = ReferenceEquals(EntryContext, InstructionContext) ? null :
-                    NativeContract.ContractManagement.GetContract(SnapshotCache, contractHash);
+                    NativeContract.ContractManagement.GetContract(Snapshot, contractHash);
 
                 coveredContract = new(Engine.MethodDetection, contractHash, state);
                 Engine.Coverage[contractHash] = coveredContract;
@@ -212,7 +212,7 @@ namespace Neo.SmartContract.Testing
 
             if (InstructionPointer is null) return;
 
-            coveredContract.Hit(InstructionPointer.Value, instruction, FeeConsumed - PreExecuteInstructionFeeConsumed, BranchPath);
+            coveredContract.Hit(InstructionPointer.Value, instruction, GasConsumed - PreExecuteInstructionFeeConsumed, BranchPath);
 
             BranchPath = null;
             PreInstruction = null;
@@ -240,7 +240,7 @@ namespace Neo.SmartContract.Testing
                     // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
-                    AddFee(descriptor.FixedPrice * ExecFeeFactor);
+                    AddGas(descriptor.FixedPrice * ExecFeeFactor);
 
                     if (method.StartsWith('_')) throw new ArgumentException($"Invalid Method Name: {method}");
                     if ((callFlags & ~CallFlags.All) != 0)
@@ -273,7 +273,7 @@ namespace Neo.SmartContract.Testing
                         // We need to switch the Engine's snapshot in case
                         // that a mock want to query the storage, it's not committed
 
-                        Engine.Storage = new EngineStorage(backup.Store, SnapshotCache);
+                        Engine.Storage = new EngineStorage(backup.Store, Snapshot);
 
                         // Invoke snapshot
 

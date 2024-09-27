@@ -75,6 +75,6 @@ public class DebugAndTestBase<T> : TestBase<T>
     protected void AssertGasConsumed(long gasConsumed)
     {
         if (TestGasConsume)
-            Assert.AreEqual(gasConsumed, Engine.FeeConsumed.Value);
+            Assert.AreEqual(gasConsumed, Engine.GasConsumed.Value);
     }
 }

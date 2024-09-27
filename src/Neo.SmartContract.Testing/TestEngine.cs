@@ -183,10 +183,10 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Fee Consumed (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public FeeWatcher FeeConsumed { get; }
+        public FeeWatcher GasConsumed { get; }
 
         /// <summary>
-        /// Reset FeeConsumed on each Execution
+        /// Reset GasConsumed on each Execution
         /// </summary>
         public bool ResetFeeConsumed { get; set; } = true;
 
@@ -297,7 +297,7 @@ namespace Neo.SmartContract.Testing
                     PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
                 }
             }
-            FeeConsumed = new FeeWatcher(this);
+            GasConsumed = new FeeWatcher(this);
         }
 
         #region Invoke events
@@ -610,7 +610,7 @@ namespace Neo.SmartContract.Testing
 
             // Execute in neo VM
 
-            var snapshot = Storage.Snapshot.CloneCache();
+            var snapshot = Storage.Snapshot.CreateSnapshot();
 
             // Create persisting block, required for GasRewards
 
@@ -630,13 +630,13 @@ namespace Neo.SmartContract.Testing
             ApplicationEngine.Notify += ApplicationEngineNotify;
 
             // Execute
-            if (ResetFeeConsumed) FeeConsumed.Reset();
+            if (ResetFeeConsumed) GasConsumed.Reset();
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
 
             // Increment fee
 
-            foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
+            foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.GasConsumed;
 
             // Detach to static event
 

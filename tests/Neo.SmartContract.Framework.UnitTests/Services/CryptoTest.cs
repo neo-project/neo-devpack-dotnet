@@ -5,7 +5,6 @@ using Neo.SmartContract.Testing;
 using Neo.Wallets;
 using System.Security.Cryptography;
 using System.Text;
-using Neo.Extensions;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {

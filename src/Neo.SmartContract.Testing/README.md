@@ -83,8 +83,8 @@ The publicly exposed read-only properties are as follows:
 And for read and write, we have:
 
 - **Fee**: Sets the fee execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
-- **FeeConsumed**: Get or set the consumed execution fee.
-- **EnableCoverageCapture**: Enables or disables the coverage capture. 
+- **GasConsumed**: Get or set the consumed execution fee.
+- **EnableCoverageCapture**: Enables or disables the coverage capture.
 - **Trigger**: The trigger of the execution.
 - **StringInterpreter**: Define the interpreter used when a ByteString or Buffer is converted to `string` type.
 - **CallFlags**: Define the `CallFlags` for the mocked function, `All` by default.
@@ -257,7 +257,7 @@ using (ScriptBuilder script = new())
 
 ### Fee watcher
 
-It is possible to check the fee being used between multiple calls using the `FeeWatcher` class. To do this you can call the `CreateFeeWatcher` method of `TestEngine` or directly use the `FeeConsumed` property.
+It is possible to check the fee being used between multiple calls using the `FeeWatcher` class. To do this you can call the `CreateFeeWatcher` method of `TestEngine` or directly use the `GasConsumed` property.
 
 
 #### Example of use
@@ -407,7 +407,7 @@ Assert.AreEqual(3, methodCovered?.TotalInstructions);
 Assert.AreEqual(3, methodCovered?.CoveredInstructions);
 ```
 
-Additionally, it's important to highlight that both method and contract coverages have a `Dump` method, through which one can obtain a text or HTML representation of the coverage. 
+Additionally, it's important to highlight that both method and contract coverages have a `Dump` method, through which one can obtain a text or HTML representation of the coverage.
 You might be interested in adding a unit test that checks the coverage at the end of execution, you can do it as shown below:
 
 ```csharp
@@ -491,4 +491,4 @@ public class CoverageContractTests
 The currently known limitations are:
 
 - Receive events during the deploy, because the object is returned after performing the deploy, it is not possible to intercept notifications for the deploy unless the contract is previously created with `FromHash` knowing the hash of the contract to be created.
-- It is possible that if the contract is updated, the coverage calculation may be incorrect. The update method of a contract can be tested, but if the same script and abi as the original are not used, it can result in a coverage calculation error. 
+- It is possible that if the contract is updated, the coverage calculation may be incorrect. The update method of a contract can be tested, but if the same script and abi as the original are not used, it can result in a coverage calculation error.
