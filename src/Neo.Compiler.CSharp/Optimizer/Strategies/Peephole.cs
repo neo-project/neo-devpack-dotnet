@@ -52,7 +52,7 @@ namespace Neo.Optimizer
                 oldContractCoverage.jumpTargetToSources);
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
-            foreach (List<Instruction> basicBlock in contractInBasicBlocks.sortedBasicBlocks.Select(i => i.block))
+            foreach (List<Instruction> basicBlock in contractInBasicBlocks.sortedListInstructions.Select(i => i.block))
             {
                 for (int index = 0; index < basicBlock.Count; index++)
                 {
@@ -75,7 +75,7 @@ namespace Neo.Optimizer
 
                             // If the old DUP is target of jump, re-target to the next instruction
                             OptimizedScriptBuilder.RetargetJump(currentDup, nextInstruction,
-                                jumpSourceToTargets, jumpTargetToSources, trySourceToTargets);
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
                             continue;
                         }
                     }

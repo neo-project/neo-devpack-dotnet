@@ -68,7 +68,19 @@ namespace Neo.Optimizer
         Script script;
         // Starting from the address, whether the call will surely throw or surely abort, or may be OK
         public Dictionary<int, BranchType> coveredMap { get; protected set; }
+
+        // key: starting address of basic block
+        // value: addr -> instruction of all instructions in this basic block
         public Dictionary<int, Dictionary<int, Instruction>> basicBlocksInDict { get; protected set; }
+
+        // key: starting address of basic block
+        // value: starting address of the next basic block,
+        //   which is reached by increased instruction pointer in normal execution
+        public Dictionary<int, int> basicBlockContinuation { get; protected set; } = new();
+
+        // key: starting address of basic block
+        // value: starting address of basic blocks that is jumped to, from this basic block
+        public Dictionary<int, HashSet<int>> basicBlockJump { get; protected set; } = new();
         public List<(int a, Instruction i)> addressAndInstructions { get; init; }
         public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
         public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
@@ -101,7 +113,7 @@ namespace Neo.Optimizer
 
         public static Stack<TryStack> CopyStack(Stack<TryStack> stack) => new(stack.Reverse());
 
-        public BranchType HandleThrow(int entranceAddr, int addr, Stack<TryStack> stack)
+        public BranchType HandleThrow(int entranceAddr, int throwFromAddr, Stack<TryStack> stack)
         {
             stack = CopyStack(stack);
             TryStackType stackType;
@@ -114,21 +126,17 @@ namespace Neo.Optimizer
                 // try with catch: cancel throw and execute catch
                 if (catchAddr != -1)
                 {
-                    addr = catchAddr;
+                    int addr = catchAddr;
                     stack.Push(new TryStack(-1, finallyAddr, TryStackType.CATCH, true));
-                    coveredMap[entranceAddr] = CoverInstruction(addr, stack: stack);
-                    return coveredMap[entranceAddr];
+                    return CoverInstruction(addr, stack: stack, jumpFromBasicBlockEntranceAddr: entranceAddr);
                 }
                 // try without catch: execute finally but do not visit codes after finally
                 else if (finallyAddr != -1)
                 {
                     stack.Push(new(-1, -1, TryStackType.FINALLY, false));
-                    if (CoverInstruction(finallyAddr, stack) == BranchType.ABORT)
-                    {
-                        coveredMap[entranceAddr] = BranchType.ABORT;
+                    if (CoverInstruction(finallyAddr, stack, jumpFromBasicBlockEntranceAddr: entranceAddr) == BranchType.ABORT)
+                        // ABORT in finally
                         return BranchType.ABORT;
-                    }
-                    coveredMap[entranceAddr] = BranchType.THROW;
                     return BranchType.THROW;
                 }
                 throw new BadScriptException("Try without catch or finally");
@@ -141,18 +149,15 @@ namespace Neo.Optimizer
                 if (finallyAddr != -1)
                 {
                     stack.Push(new(-1, -1, TryStackType.FINALLY, false));
-                    if (CoverInstruction(finallyAddr, stack) == BranchType.ABORT)
-                    {
-                        coveredMap[entranceAddr] = BranchType.ABORT;
+                    if (CoverInstruction(finallyAddr, stack, jumpFromBasicBlockEntranceAddr: entranceAddr) == BranchType.ABORT)
+                        // ABORT in finally
                         return BranchType.ABORT;
-                    }
                 }
             }
-            coveredMap[entranceAddr] = BranchType.THROW;
             return BranchType.THROW;
         }
 
-        public BranchType HandleAbort(int entranceAddr, int addr, Stack<TryStack> stack)
+        public BranchType HandleAbort(int entranceAddr, int abortFromAddr, Stack<TryStack> stack)
         {
             // See if we are in a try or catch. There may still be runtime exceptions
             (int catchAddr, int finallyAddr, TryStackType stackType, _) = stack.Peek();
@@ -160,28 +165,47 @@ namespace Neo.Optimizer
                 stackType == TryStackType.CATCH && finallyAddr != -1)
             {
                 // Visit catchAddr because there may still be exceptions at runtime
-                if (HandleThrow(entranceAddr, addr, stack) == BranchType.OK)
-                {
-                    coveredMap[entranceAddr] = BranchType.OK;
-                    return BranchType.OK;
-                }
+                if (HandleThrow(entranceAddr, abortFromAddr, stack) == BranchType.OK)
+                    return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
             }
-            coveredMap[entranceAddr] = BranchType.ABORT;
-            return coveredMap[entranceAddr];
+            return BranchType.ABORT;
         }
 
         /// <summary>
         /// Cover a basic block, and recursively cover all branches
         /// </summary>
-        /// <param name="addr"></param>
+        /// <param name="addr">Starting address of script. Should start at a basic block</param>
         /// <param name="script"></param>
         /// <param name="coveredMap"></param>
         /// <returns>Whether it is possible to return without exception</returns>
         /// <exception cref="BadScriptException"></exception>
         /// <exception cref="NotImplementedException"></exception>
-        public BranchType CoverInstruction(int addr, Stack<TryStack>? stack = null)
+        public BranchType CoverInstruction(int addr, Stack<TryStack>? stack = null,
+            int? continueFromBasicBlockEntranceAddr = null, int? jumpFromBasicBlockEntranceAddr = null)
         {
+            if (continueFromBasicBlockEntranceAddr != null)
+                basicBlockContinuation[(int)continueFromBasicBlockEntranceAddr] = addr;
+            if (jumpFromBasicBlockEntranceAddr != null)
+            {
+                HashSet<int>? jumpTargets;
+                if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out jumpTargets))
+                {
+                    jumpTargets = new();
+                    basicBlockJump[(int)jumpFromBasicBlockEntranceAddr] = jumpTargets;
+                }
+                jumpTargets.Add(addr);
+            }
             int entranceAddr = addr;
+
+            // Skip all OpCode.NOP at the beginning of a basic block
+            int firstNotNopAddr = addr;
+            Instruction entranceInstruction = script.GetInstruction(firstNotNopAddr);
+            while (entranceInstruction.OpCode == OpCode.NOP)
+            {
+                firstNotNopAddr += entranceInstruction.Size;
+                entranceInstruction = script.GetInstruction(addr);
+            }
+
             if (stack == null)
             {
                 stack = new();
@@ -203,26 +227,26 @@ namespace Neo.Optimizer
                 {
                     if (stackType != TryStackType.FINALLY)
                         // We have visited the code. Skip it.
-                        return value;
+                        return coveredMap[firstNotNopAddr] = value;
                     // if we are in finally, we may visit the codes after ENDFINALLY
                     // when previous codes did not throw
-                    if (value != BranchType.OK)
-                        return value;
+                    if (value != BranchType.OK)  // the codes in finally or the codes after ENDFINALLY will THROW or ABORT
+                        return coveredMap[firstNotNopAddr] = value;
+                    stack.Pop();  // end current finally
                     // No THROW or ABORT in try, catch or finally
                     // visit codes after ENDFINALLY
                     if (continueAfterFinally)
                     {
                         int endPointer = finallyAddr;
-                        stack.Pop();  // end current finally
-                        return CoverInstruction(endPointer, stack);
+                        return coveredMap[firstNotNopAddr] = CoverInstruction(endPointer, stack, jumpFromBasicBlockEntranceAddr: firstNotNopAddr);
                     }
                     // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
-                    return BranchType.THROW;
+                    return BranchType.THROW;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                 }
                 Instruction instruction = script.GetInstruction(addr);
                 if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
-                    return CoverInstruction(addr, stack);
+                    return coveredMap[firstNotNopAddr] = CoverInstruction(addr, stack, continueFromBasicBlockEntranceAddr: addr);
                 if (instruction.OpCode != OpCode.NOP)
                 {
                     coveredMap[addr] = BranchType.OK;
@@ -236,9 +260,9 @@ namespace Neo.Optimizer
                     instructions.Add(addr, instruction);
                 }
 
-                // TODO: ABORTMSG may THROW instead of ABORT. Just throw new NotImplementedException for ABORTMSG?
+                // ABORT may also THROW in execution; this has been handled in HandleAbort
                 if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
-                    return HandleAbort(entranceAddr, addr, stack);
+                    return coveredMap[firstNotNopAddr] = HandleAbort(firstNotNopAddr, addr, stack);
                 if (callWithJump.Contains(instruction.OpCode))
                 {
                     BranchType returnedType;
@@ -247,7 +271,7 @@ namespace Neo.Optimizer
                         returnedType = BranchType.ABORT;
                         foreach (int callaTarget in pushaTargets.Keys)
                         {
-                            BranchType singleCallaResult = CoverInstruction(callaTarget, stack);
+                            BranchType singleCallaResult = CoverInstruction(callaTarget, stack, jumpFromBasicBlockEntranceAddr: firstNotNopAddr);
                             if (singleCallaResult < returnedType)
                                 returnedType = singleCallaResult;
                             // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
@@ -256,14 +280,14 @@ namespace Neo.Optimizer
                     else
                     {
                         int callTarget = ComputeJumpTarget(addr, instruction);
-                        returnedType = CoverInstruction(callTarget, stack);
+                        returnedType = CoverInstruction(callTarget, stack, jumpFromBasicBlockEntranceAddr: firstNotNopAddr);
                     }
                     if (returnedType == BranchType.OK)
-                        return CoverInstruction(addr + instruction.Size, stack);
+                        return coveredMap[firstNotNopAddr] = CoverInstruction(addr + instruction.Size, stack, continueFromBasicBlockEntranceAddr: firstNotNopAddr);
                     if (returnedType == BranchType.ABORT)
-                        return HandleAbort(entranceAddr, addr, stack);
+                        return coveredMap[firstNotNopAddr] = HandleAbort(firstNotNopAddr, addr, stack);
                     if (returnedType == BranchType.THROW)
-                        return HandleThrow(entranceAddr, addr, stack);
+                        return coveredMap[firstNotNopAddr] = HandleThrow(firstNotNopAddr, addr, stack);
                 }
                 if (instruction.OpCode == OpCode.RET)
                 {
@@ -271,9 +295,8 @@ namespace Neo.Optimizer
                     // Do not judge with current stack.Peek(),
                     // because the try can hide deep in the stack.
                     // Just throw!
-                    HandleThrow(entranceAddr, addr, stack);
-                    coveredMap[entranceAddr] = BranchType.OK;
-                    return coveredMap[entranceAddr];
+                    HandleThrow(firstNotNopAddr, addr, stack);
+                    return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
                 }
                 if (tryThrowFinally.Contains(instruction.OpCode))
                 {
@@ -281,10 +304,10 @@ namespace Neo.Optimizer
                     {
                         (int catchTarget, int finallyTarget) = ComputeTryTarget(addr, instruction);
                         stack.Push(new(catchTarget, finallyTarget, TryStackType.TRY, true));
-                        return CoverInstruction(addr + instruction.Size, stack);
+                        return coveredMap[firstNotNopAddr] = CoverInstruction(addr + instruction.Size, stack, continueFromBasicBlockEntranceAddr: firstNotNopAddr);
                     }
                     if (instruction.OpCode == OpCode.THROW)
-                        return HandleThrow(entranceAddr, addr, stack);
+                        return coveredMap[firstNotNopAddr] = HandleThrow(firstNotNopAddr, addr, stack);
                     if (instruction.OpCode == OpCode.ENDTRY || instruction.OpCode == OpCode.ENDTRY_L)
                     {
                         if (stackType != TryStackType.TRY && stackType != TryStackType.CATCH)
@@ -293,7 +316,7 @@ namespace Neo.Optimizer
                         // Terminate the try/catch context, but
                         // visit catchAddr for current try, or finallyAddr for current catch
                         // because there may still be exceptions at runtime
-                        HandleThrow(entranceAddr, addr, stack);
+                        HandleThrow(firstNotNopAddr, addr, stack);
 
                         stack.Pop();  // pop the ending TRY or CATCH
                         int endPointer = ComputeJumpTarget(addr, instruction);
@@ -304,45 +327,40 @@ namespace Neo.Optimizer
                         }
                         else
                             addr = endPointer;
-                        coveredMap[entranceAddr] = CoverInstruction(addr, stack);
-                        return coveredMap[entranceAddr];
+                        return coveredMap[firstNotNopAddr] = CoverInstruction(addr, stack, jumpFromBasicBlockEntranceAddr: firstNotNopAddr);
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {
                         int endPointer = finallyAddr;
                         if (stackType != TryStackType.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
+                        stack.Pop();  // pop the ending FINALLY
                         if (continueAfterFinally)
-                        {
-                            coveredMap[entranceAddr] = CoverInstruction(endPointer, stack);
-                            return coveredMap[entranceAddr];
-                        }
+                            return coveredMap[firstNotNopAddr] = CoverInstruction(endPointer, stack, jumpFromBasicBlockEntranceAddr: firstNotNopAddr);
                         // For this basic block in finally, the branch type is OK
                         // The throw is caused by previous codes
-                        coveredMap[entranceAddr] = BranchType.OK;
-                        return BranchType.OK;
+                        return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
                     }
                 }
                 if (unconditionalJump.Contains(instruction.OpCode))
                     //addr = ComputeJumpTarget(addr, instruction);
                     //continue;
                     // For the analysis of basic blocks, we launch a new recursion
-                    return CoverInstruction(ComputeJumpTarget(addr, instruction), stack);
+                    return coveredMap[firstNotNopAddr] = CoverInstruction(ComputeJumpTarget(addr, instruction), stack, jumpFromBasicBlockEntranceAddr: firstNotNopAddr);
                 if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                 {
-                    BranchType noJump = CoverInstruction(addr + instruction.Size, stack);
-                    BranchType jump = CoverInstruction(ComputeJumpTarget(addr, instruction), stack);
+                    BranchType noJump = CoverInstruction(addr + instruction.Size, stack, continueFromBasicBlockEntranceAddr: firstNotNopAddr);
+                    BranchType jump = CoverInstruction(ComputeJumpTarget(addr, instruction), stack, jumpFromBasicBlockEntranceAddr: firstNotNopAddr);
                     if (noJump == BranchType.OK || jump == BranchType.OK)
                     {
                         // See if we are in a try. There may still be runtime exceptions
-                        HandleThrow(entranceAddr, addr, stack);
-                        coveredMap[entranceAddr] = BranchType.OK;
-                        return coveredMap[entranceAddr];
+                        HandleThrow(firstNotNopAddr, addr, stack);
+                        return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
                     }
                     if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
-                        return HandleAbort(entranceAddr, addr, stack);
+                        return coveredMap[firstNotNopAddr] = HandleAbort(firstNotNopAddr, addr, stack);
                     if (noJump == BranchType.THROW || jump == BranchType.THROW)  // THROW, ABORT => THROW
-                        return HandleThrow(entranceAddr, addr, stack);
+                        return coveredMap[firstNotNopAddr] = HandleThrow(firstNotNopAddr, addr, stack);
                     throw new Exception($"Unknown {nameof(BranchType)} {noJump} {jump}");
                 }
 
