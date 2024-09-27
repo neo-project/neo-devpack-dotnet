@@ -30,6 +30,18 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
 
         [NoReentrant]
+        public void reentrantB()
+        {
+            // do nothing
+        }
+
+        [NoReentrant]
+        public void reentrantA()
+        {
+            reentrantB();
+        }
+
+        [NoReentrant]
         public void reentrantTest(int value)
         {
             if (value == 0) return;
