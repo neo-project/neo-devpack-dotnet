@@ -24,33 +24,18 @@ public class DebugAndTestBase<T> : TestBase<T>
 
     public static void TestSingleContractBasicBlockStartEnd(CompilationContext result)
     {
-        try
-        {
-            try
-            {
-                TestSingleContractBasicBlockStartEnd(result.CreateExecutable(), result.CreateManifest(), result.CreateDebugInformation());
-            }
-            catch
-            {
-                Console.WriteLine($"Omited: {result.ContractName}");
-            }
-        }
-        catch
-        {
-            Console.WriteLine($"Error compiling: {result.ContractName}");
-            return;
-        }
+        TestSingleContractBasicBlockStartEnd(result.CreateExecutable(), result.CreateManifest(), result.CreateDebugInformation());
     }
 
-    public static void TestSingleContractBasicBlockStartEnd(NefFile nef, ContractManifest manifest, JToken debugInfo)
+    public static void TestSingleContractBasicBlockStartEnd(NefFile nef, ContractManifest manifest, JObject? debugInfo)
     {
+        // Make sure the contract is optimized with RemoveUncoveredInstructions
+        // Basic block analysis does not consider jump targets that are not covered
+        (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
         var basicBlocks = new ContractInBasicBlocks(nef, manifest, debugInfo);
 
-        // TODO: support CALLA and do not return
-
-        List<VM.Instruction> instructions = basicBlocks.GetScriptInstructions().ToList();
-        (_, _, Dictionary<VM.Instruction, HashSet<VM.Instruction>> jumpTargets) =
-            Neo.Optimizer.JumpTarget.FindAllJumpAndTrySourceToTargets(instructions);
+        List<VM.Instruction> instructions = basicBlocks.coverage.addressAndInstructions.Select(kv => kv.i).ToList();
+        Dictionary<VM.Instruction, HashSet<VM.Instruction>> jumpTargets = basicBlocks.coverage.jumpTargetToSources;
 
         Dictionary<VM.Instruction, VM.Instruction> nextAddrTable = new();
         VM.Instruction? prev = null;
@@ -61,7 +46,7 @@ public class DebugAndTestBase<T> : TestBase<T>
             prev = i;
         }
 
-        foreach (BasicBlock basicBlock in basicBlocks.basicBlocks)
+        foreach (BasicBlock basicBlock in basicBlocks.sortedBasicBlocks)
         {
             // Basic block ends with allowed OpCodes only, or the next instruction is a jump target
             Assert.IsTrue(OpCodeTypes.allowedBasicBlockEnds.Contains(basicBlock.instructions.Last().OpCode) || jumpTargets.ContainsKey(nextAddrTable[basicBlock.instructions.Last()]));
@@ -79,7 +64,7 @@ public class DebugAndTestBase<T> : TestBase<T>
 
         // Each instruction is included in only 1 basic block
         HashSet<VM.Instruction> includedInstructions = new();
-        foreach (BasicBlock basicBlock in basicBlocks.basicBlocks)
+        foreach (BasicBlock basicBlock in basicBlocks.sortedBasicBlocks)
             foreach (VM.Instruction instruction in basicBlock.instructions)
             {
                 Assert.IsFalse(includedInstructions.Contains(instruction));
