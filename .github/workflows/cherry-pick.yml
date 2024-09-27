@@ -1,0 +1,44 @@
+name: Auto PR to Release Branch
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  TARGET_BRANCH: v3.7.5
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Create new branch
+        run: |
+          git checkout -b auto-pr-to-${{ env.TARGET_BRANCH }}-${{ github.sha }}
+          git push -u origin auto-pr-to-${{ env.TARGET_BRANCH }}-${{ github.sha }}
+
+      - name: Cherry-pick changes
+        run: |
+          git cherry-pick origin/master...${{ github.sha }}
+
+      - name: Push changes
+        run: git push origin auto-pr-to-${{ env.TARGET_BRANCH }}-${{ github.sha }}
+
+      - name: Create Pull Request
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "auto-pr-to-${{ env.TARGET_BRANCH }}-${{ github.sha }}"
+          destination_branch: "${{ env.TARGET_BRANCH }}"
+          pr_title: "Auto PR: Sync changes from master to ${{ env.TARGET_BRANCH }}"
+          pr_body: "This is an automated PR to sync changes from master to ${{ env.TARGET_BRANCH }}. Please review the changes carefully before merging."
+          github_token: ${{ secrets.GITHUB_TOKEN }}
