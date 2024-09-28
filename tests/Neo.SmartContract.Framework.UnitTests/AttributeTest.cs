@@ -44,7 +44,6 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestReentrant2()
         {
             // should be ok
-
             Contract.ReentrantB();
             AssertGasConsumed(7023850);
 
