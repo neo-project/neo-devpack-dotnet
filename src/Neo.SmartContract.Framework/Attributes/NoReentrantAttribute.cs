@@ -29,8 +29,8 @@ namespace Neo.SmartContract.Framework.Attributes
         /// <param name="key">Storage key</param>
         public NoReentrantAttribute(byte prefix = 0xFF, string key = "noReentrant")
         {
-            _context = new(Storage.CurrentContext, prefix);
             _key = key;
+            _context = new(Storage.CurrentContext, prefix);
         }
 
         public override void Enter()

@@ -30,8 +30,8 @@ namespace Neo.SmartContract.Framework.Attributes
         /// <param name="key">Storage key (the method name as default)</param>
         public NoReentrantMethodAttribute(byte prefix = 0xFF, [CallerMemberName] string key = "noReentrant")
         {
-            _context = new(Storage.CurrentContext, prefix);
             _key = key;
+            _context = new(Storage.CurrentContext, prefix);
         }
 
         public override void Enter()
