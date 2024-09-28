@@ -48,7 +48,6 @@ namespace Neo.SmartContract.Framework.UnitTests
             AssertGasConsumed(7023850);
 
             // Reentrant test
-
             var ex = Assert.ThrowsException<TestException>(Contract.ReentrantA);
             AssertGasConsumed(8193010);
             Assert.IsTrue(ex.Message.Contains("Already entered"));
