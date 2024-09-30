@@ -1,4 +1,3 @@
-
 using System;
 using Neo.SmartContract.Framework;
 
