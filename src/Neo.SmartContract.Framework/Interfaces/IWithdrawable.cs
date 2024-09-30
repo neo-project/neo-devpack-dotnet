@@ -19,7 +19,8 @@ namespace Neo.SmartContract.Framework.Interfaces;
 public interface IWithdrawable
 {
     /// <summary>
-    /// The verification method. This must be called when withdrawing tokens from the contract.
+    /// The verification method. This is an alias of INEP30.Verify.
+    /// This must be called when withdrawing tokens from the contract.
     /// If the contract address is included in the transaction signature, this method verifies the signature.
     /// Example:
     /// <code>
@@ -28,7 +29,7 @@ public interface IWithdrawable
     /// <code>
     /// {
     ///   "name": "verify",
-    ///   "safe": false,
+    ///   "safe": true,
     ///   "parameters": [],
     ///   "returntype": "bool"
     /// }

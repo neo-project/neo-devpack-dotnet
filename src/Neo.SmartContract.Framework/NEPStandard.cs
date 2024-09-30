@@ -23,19 +23,34 @@ namespace Neo.SmartContract.Framework
         // This is an extension standard of NEP-11.
         // Defined at https://github.com/neo-project/proposals/pull/169/files#diff-2b5f7c12a23f7dbe4cb46bbf4be6936882f8e0f0b3a4db9d8c58eb294b02e6ed
         Nep26,
-        // This is the nick name of NEP-25.
+        // This is the nickname of NEP-25.
         Nep11Payable,
         // Smart contract transfer callback for fungible tokens.
         // This is an extension standard of NEP-17.
         // Defined at https://github.com/neo-project/proposals/pull/169/files#diff-70768f307c9aa84f8c94e790495a76d47fffeca2331444592ebba6f13b1e6460
         Nep27,
-        // This is the nick name of NEP-26.
+        // This is the nickname of NEP-26.
         Nep17Payable,
         // This NEP defines a global standard to get royalty payment information for Non-Fungible Tokens (NFTs)
         // in order to enable support for royalty payments across all NFT marketplaces in the NEO Smart Economy.
         // This NEP requires NEP-11.
         // Defined at https://github.com/neo-project/proposals/blob/master/nep-24.mediawiki
-        Nep24
+        Nep24,
+        // NEP-29: Contract deployment/update callback function
+        // This standard defines a callback function that contracts can implement
+        // to execute code right after initial deployment or update.
+        // Defined at https://github.com/neo-project/proposals/blob/master/nep-29.mediawiki
+        Nep29,
+        // NEP-30: Contract witness verification callback
+        // This standard defines a method that contracts can implement to allow their addresses
+        // to be used as transaction signers and pass witness checks in other code.
+        // It enables contracts to act as transaction senders, covering fees from their GAS balance,
+        // and to be verified in contexts like NEP-17 transfers.
+        // The 'verify' method is automatically called during transaction verification with the Verification trigger.
+        // Defined at https://github.com/neo-project/proposals/blob/master/nep-30.mediawiki
+        Nep30,
+        // This is the nickname of NEP-30.
+        Withdrawable
     }
 
     public static class NepStandardExtensions
@@ -49,6 +64,8 @@ namespace Neo.SmartContract.Framework
                 NepStandard.Nep24 => "NEP-24",
                 NepStandard.Nep11Payable or NepStandard.Nep26 => "NEP-26",
                 NepStandard.Nep17Payable or NepStandard.Nep27 => "NEP-27",
+                NepStandard.Nep29 => "NEP-29",
+                NepStandard.Nep30 or NepStandard.Withdrawable => "NEP-30",
                 _ => standard.ToString()
             };
         }
