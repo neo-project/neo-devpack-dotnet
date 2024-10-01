@@ -133,7 +133,7 @@ namespace Neo.Compiler
 
             System.Collections.Generic.List<CompilationException> errors = [];
             if (!onNEP11PaymentValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete NEP standard {NepStandard.Nep11Payable.ToStandard()} implementation: onNEP11Payment"));
+                $"Incomplete NEP standard {NepStandard.Nep26.ToStandard()} implementation: onNEP11Payment"));
             return errors;
         }
 
@@ -149,7 +149,7 @@ namespace Neo.Compiler
 
             System.Collections.Generic.List<CompilationException> errors = [];
             if (!onNEP17PaymentValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete NEP standard {NepStandard.Nep17Payable.ToStandard()} implementation: onNEP17Payment"));
+                $"Incomplete NEP standard {NepStandard.Nep27.ToStandard()} implementation: onNEP17Payment"));
             return errors;
         }
 
@@ -165,19 +165,16 @@ namespace Neo.Compiler
             if (manifest.SupportedStandards.Contains(NepStandard.Nep24.ToStandard()))
                 errors = errors.Concat(manifest.CheckNep24Compliant());
 
-            if (manifest.SupportedStandards.Contains(NepStandard.Nep11Payable.ToStandard()))
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep26.ToStandard()))
                 errors = errors.Concat(manifest.CheckNep11PayableCompliant());
 
-            if (manifest.SupportedStandards.Contains(NepStandard.Nep17Payable.ToStandard()))
+            if (manifest.SupportedStandards.Contains(NepStandard.Nep27.ToStandard()))
                 errors = errors.Concat(manifest.CheckNep17PayableCompliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep29.ToStandard()))
                 errors = errors.Concat(manifest.CheckNep29Compliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep30.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep30Compliant());
-
-            if (manifest.SupportedStandards.Contains(NepStandard.Withdrawable.ToStandard()))
                 errors = errors.Concat(manifest.CheckNep30Compliant());
 
             foreach (CompilationException ex in errors)

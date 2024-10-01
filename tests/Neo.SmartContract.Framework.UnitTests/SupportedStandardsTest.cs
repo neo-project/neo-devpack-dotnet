@@ -11,9 +11,9 @@ namespace Neo.SmartContract.Framework.UnitTests
             // Ensure also Contract_ExtraAttribute
             TestCleanup.TestInitialize(typeof(Contract_SupportedStandards));
             TestCleanup.TestInitialize(typeof(Contract_SupportedStandard11Enum));
-            TestCleanup.TestInitialize(typeof(Contract_SupportedStandard11Payable));
+            TestCleanup.TestInitialize(typeof(Contract_SupportedStandard26));
             TestCleanup.TestInitialize(typeof(Contract_SupportedStandard17Enum));
-            TestCleanup.TestInitialize(typeof(Contract_SupportedStandard17Payable));
+            TestCleanup.TestInitialize(typeof(Contract_SupportedStandard27));
         }
 
         [TestMethod]
@@ -37,13 +37,13 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestStandardNEP11PayableAttribute()
         {
-            CollectionAssert.AreEqual(Contract_SupportedStandard11Payable.Manifest.SupportedStandards, new string[] { "NEP-26" });
+            CollectionAssert.AreEqual(Contract_SupportedStandard26.Manifest.SupportedStandards, new string[] { "NEP-26" });
         }
 
         [TestMethod]
         public void TestStandardNEP17PayableAttribute()
         {
-            CollectionAssert.AreEqual(Contract_SupportedStandard17Payable.Manifest.SupportedStandards, new string[] { "NEP-27" });
+            CollectionAssert.AreEqual(Contract_SupportedStandard27.Manifest.SupportedStandards, new string[] { "NEP-27" });
         }
     }
 }
