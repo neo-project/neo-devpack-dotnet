@@ -35,6 +35,13 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
+    // 0000 : INITSLOT
+    // 0003 : LDARG3
+    // 0004 : LDARG2
+    // 0005 : LDARG1
+    // 0006 : LDARG0
+    // 0007 : SYSCALL
+    // 000C : RET
 
     /// <summary>
     /// Unsafe method
@@ -215,12 +222,35 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
+    // 0000 : INITSLOT
+    // 0003 : PUSHNULL
+    // 0004 : LDARG1
+    // 0005 : LDARG0
+    // 0006 : CONVERT
+    // 0008 : CALLT
+    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? address, BigInteger? version);
+    // 0000 : INITSLOT
+    // 0003 : PUSH1
+    // 0004 : NEWBUFFER
+    // 0005 : DUP
+    // 0006 : PUSH0
+    // 0007 : LDARG1
+    // 0008 : SETITEM
+    // 0009 : STLOC0
+    // 000A : LDLOC0
+    // 000B : LDARG0
+    // 000C : CAT
+    // 000D : STLOC0
+    // 000E : LDLOC0
+    // 000F : CONVERT
+    // 0011 : CALLT
+    // 0014 : RET
 
     #endregion
 

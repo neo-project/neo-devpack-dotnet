@@ -26,6 +26,26 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// </summary>
     [DisplayName("testAssignment")]
     public abstract byte[]? TestAssignment();
+    // 0000 : INITSLOT
+    // 0003 : PUSHDATA1
+    // 0008 : CONVERT
+    // 000A : STLOC0
+    // 000B : PUSH1
+    // 000C : DUP
+    // 000D : LDLOC0
+    // 000E : PUSH0
+    // 000F : ROT
+    // 0010 : SETITEM
+    // 0011 : DROP
+    // 0012 : PUSH4
+    // 0013 : DUP
+    // 0014 : LDLOC0
+    // 0015 : PUSH2
+    // 0016 : ROT
+    // 0017 : SETITEM
+    // 0018 : DROP
+    // 0019 : LDLOC0
+    // 001A : RET
 
     /// <summary>
     /// Unsafe method

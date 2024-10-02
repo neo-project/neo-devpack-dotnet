@@ -35,6 +35,8 @@ public abstract class Contract_StaticByteArray(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     [DisplayName("testStaticByteArray")]
     public abstract byte[]? TestStaticByteArray();
+    // 0000 : LDSFLD0
+    // 0001 : RET
 
     #endregion
 

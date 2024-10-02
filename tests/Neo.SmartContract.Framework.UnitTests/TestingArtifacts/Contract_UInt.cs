@@ -26,30 +26,64 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     [DisplayName("isValidAndNotZeroUInt160")]
     public abstract bool? IsValidAndNotZeroUInt160(UInt160? value);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALL
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("isValidAndNotZeroUInt256")]
     public abstract bool? IsValidAndNotZeroUInt256(UInt256? value);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALL
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("isZeroUInt160")]
     public abstract bool? IsZeroUInt160(UInt160? value);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : PUSH0
+    // 0005 : NUMEQUAL
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("isZeroUInt256")]
     public abstract bool? IsZeroUInt256(UInt256? value);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : PUSH0
+    // 0005 : NUMEQUAL
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? value);
+    // 0000 : INITSLOT
+    // 0003 : PUSH1
+    // 0004 : NEWBUFFER
+    // 0005 : DUP
+    // 0006 : PUSH0
+    // 0007 : LDARG1
+    // 0008 : SETITEM
+    // 0009 : STLOC0
+    // 000A : LDLOC0
+    // 000B : LDARG0
+    // 000C : CAT
+    // 000D : STLOC0
+    // 000E : LDLOC0
+    // 000F : CONVERT
+    // 0011 : CALLT
+    // 0014 : RET
 
     #endregion
 

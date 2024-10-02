@@ -26,36 +26,60 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     [DisplayName("callFuncPointer")]
     public abstract BigInteger? CallFuncPointer();
+    // 0000 : INITSLOT
+    // 0003 : PUSHA
+    // 0008 : STLOC0
+    // 0009 : LDLOC0
+    // 000A : CALLA
+    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("callFuncPointerWithArg")]
     public abstract BigInteger? CallFuncPointerWithArg();
+    // 0000 : INITSLOT
+    // 0003 : PUSHA
+    // 0008 : STLOC0
+    // 0009 : PUSHDATA1
+    // 000E : CONVERT
+    // 0010 : LDLOC0
+    // 0011 : CALLA
+    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("createFuncPointer")]
     public abstract object? CreateFuncPointer();
+    // 0000 : PUSHA
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("createFuncPointerWithArg")]
     public abstract object? CreateFuncPointerWithArg();
+    // 0000 : PUSHA
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("myMethod")]
     public abstract BigInteger? MyMethod();
+    // 0000 : PUSHINT8
+    // 0002 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("myMethodWithArg")]
     public abstract BigInteger? MyMethodWithArg(byte[]? num);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CONVERT
+    // 0006 : RET
 
     #endregion
 

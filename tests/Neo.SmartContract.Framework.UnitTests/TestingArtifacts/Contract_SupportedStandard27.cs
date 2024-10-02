@@ -26,6 +26,8 @@ public abstract class Contract_SupportedStandard27(Neo.SmartContract.Testing.Sma
     /// </summary>
     [DisplayName("onNEP17Payment")]
     public abstract void OnNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
+    // 0000 : INITSLOT
+    // 0003 : RET
 
     #endregion
 

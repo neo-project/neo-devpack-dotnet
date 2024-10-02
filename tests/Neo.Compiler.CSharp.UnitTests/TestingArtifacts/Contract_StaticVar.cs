@@ -62,6 +62,10 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();
+    // 0000 : CALL
+    // 0002 : CALL
+    // 0004 : LDSFLD1
+    // 0005 : RET
 
     #endregion
 

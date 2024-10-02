@@ -26,6 +26,11 @@ public abstract class Contract_Extensions(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     [DisplayName("testSum")]
     public abstract BigInteger? TestSum(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CALL
+    // 0007 : RET
 
     #endregion
 

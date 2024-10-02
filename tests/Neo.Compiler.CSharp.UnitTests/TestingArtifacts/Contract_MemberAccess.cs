@@ -26,6 +26,29 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     [DisplayName("testMain")]
     public abstract void TestMain();
+    // 0000 : INITSLOT
+    // 0003 : PUSHNULL
+    // 0004 : PUSH0
+    // 0005 : PUSH2
+    // 0006 : PACK
+    // 0007 : DUP
+    // 0008 : CALL
+    // 000A : STLOC0
+    // 000B : LDLOC0
+    // 000C : PUSH0
+    // 000D : PICKITEM
+    // 000E : CALLT
+    // 0011 : SYSCALL
+    // 0016 : PUSHDATA1
+    // 001B : SYSCALL
+    // 0020 : LDLOC0
+    // 0021 : PUSH1
+    // 0022 : PICKITEM
+    // 0023 : SYSCALL
+    // 0028 : LDLOC0
+    // 0029 : CALL
+    // 002B : SYSCALL
+    // 0030 : RET
 
     #endregion
 

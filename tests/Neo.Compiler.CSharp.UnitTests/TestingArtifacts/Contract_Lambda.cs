@@ -26,96 +26,323 @@ public abstract class Contract_Lambda(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     [DisplayName("anyGreatThan")]
     public abstract bool? AnyGreatThan(IList<object>? array, BigInteger? target);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : STSFLD
+    // 0006 : PUSHA
+    // 000B : LDARG0
+    // 000C : CALL
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("anyGreatThanZero")]
     public abstract bool? AnyGreatThanZero(IList<object>? array);
+    // 0000 : INITSLOT
+    // 0003 : PUSHA
+    // 0008 : LDARG0
+    // 0009 : CALL
+    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("changeName")]
     public abstract string? ChangeName(string? name);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : STSFLD6
+    // 0005 : PUSHA
+    // 000A : STLOC0
+    // 000B : LDSFLD6
+    // 000C : PUSHDATA1
+    // 0012 : CAT
+    // 0013 : CONVERT
+    // 0015 : STSFLD6
+    // 0016 : LDLOC0
+    // 0017 : CALLA
+    // 0018 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("changeName2")]
     public abstract string? ChangeName2(string? name);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : STSFLD
+    // 0006 : PUSHA
+    // 000B : STLOC0
+    // 000C : PUSHA
+    // 0011 : STLOC1
+    // 0012 : LDLOC0
+    // 0013 : CALLA
+    // 0014 : DROP
+    // 0015 : LDLOC1
+    // 0016 : CALLA
+    // 0017 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkPositiveOdd")]
     public abstract bool? CheckPositiveOdd(BigInteger? i);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDSFLD2
+    // 0005 : CALLA
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkZero")]
     public abstract bool? CheckZero(BigInteger? i);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDSFLD0
+    // 0005 : CALLA
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkZero2")]
     public abstract bool? CheckZero2(BigInteger? num);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDSFLD0
+    // 0005 : CALL
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("checkZero3")]
     public abstract bool? CheckZero3(BigInteger? num);
+    // 0000 : INITSLOT
+    // 0003 : PUSH0
+    // 0004 : STLOC0
+    // 0005 : LDARG0
+    // 0006 : LDLOC0
+    // 0007 : STSFLD1
+    // 0008 : PUSHA
+    // 000D : CALL
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("fibo")]
     public abstract BigInteger? Fibo(BigInteger? c);
+    // 0000 : INITSLOT
+    // 0003 : PUSHNULL
+    // 0004 : STLOC0
+    // 0005 : LDLOC0
+    // 0006 : STSFLD5
+    // 0007 : PUSHA
+    // 000C : STSFLD5
+    // 000D : LDARG0
+    // 000E : LDSFLD5
+    // 000F : CALLA
+    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("forEachVar")]
     public abstract IList<object>? ForEachVar(IList<object>? array);
+    // 0000 : INITSLOT
+    // 0003 : NEWARRAY0
+    // 0004 : STLOC0
+    // 0005 : LDARG0
+    // 0006 : DUP
+    // 0007 : STLOC1
+    // 0008 : SIZE
+    // 0009 : STLOC2
+    // 000A : PUSH0
+    // 000B : STLOC3
+    // 000C : JMP
+    // 000E : LDLOC1
+    // 000F : LDLOC3
+    // 0010 : PICKITEM
+    // 0011 : STLOC4
+    // 0012 : LDLOC0
+    // 0013 : LDLOC4
+    // 0014 : STSFLD
+    // 0016 : PUSHA
+    // 001B : APPEND
+    // 001C : LDLOC3
+    // 001D : INC
+    // 001E : STLOC3
+    // 001F : LDLOC3
+    // 0020 : LDLOC2
+    // 0021 : JMPLT
+    // 0023 : NEWARRAY0
+    // 0024 : STLOC1
+    // 0025 : LDLOC0
+    // 0026 : DUP
+    // 0027 : STLOC2
+    // 0028 : SIZE
+    // 0029 : STLOC3
+    // 002A : PUSH0
+    // 002B : STLOC4
+    // 002C : JMP
+    // 002E : LDLOC2
+    // 002F : LDLOC4
+    // 0030 : PICKITEM
+    // 0031 : STLOC5
+    // 0032 : LDLOC1
+    // 0033 : LDLOC5
+    // 0034 : CALLA
+    // 0035 : APPEND
+    // 0036 : LDLOC4
+    // 0037 : INC
+    // 0038 : STLOC4
+    // 0039 : LDLOC4
+    // 003A : LDLOC3
+    // 003B : JMPLT
+    // 003D : LDLOC1
+    // 003E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("forVar")]
     public abstract IList<object>? ForVar(IList<object>? array);
+    // 0000 : INITSLOT
+    // 0003 : NEWARRAY0
+    // 0004 : STLOC0
+    // 0005 : PUSH0
+    // 0006 : STLOC1
+    // 0007 : JMP
+    // 0009 : LDARG0
+    // 000A : LDLOC1
+    // 000B : PICKITEM
+    // 000C : STLOC2
+    // 000D : LDLOC0
+    // 000E : LDLOC2
+    // 000F : STSFLD
+    // 0011 : PUSHA
+    // 0016 : APPEND
+    // 0017 : LDLOC1
+    // 0018 : DUP
+    // 0019 : INC
+    // 001A : DUP
+    // 001B : PUSHINT32
+    // 0020 : JMPGE
+    // 0022 : JMP
+    // 0024 : DUP
+    // 0025 : PUSHINT32
+    // 002A : JMPLE
+    // 002C : PUSHINT64
+    // 0035 : AND
+    // 0036 : DUP
+    // 0037 : PUSHINT32
+    // 003C : JMPLE
+    // 003E : PUSHINT64
+    // 0047 : SUB
+    // 0048 : STLOC1
+    // 0049 : DROP
+    // 004A : LDLOC1
+    // 004B : LDARG0
+    // 004C : SIZE
+    // 004D : LT
+    // 004E : JMPIF
+    // 0050 : NEWARRAY0
+    // 0051 : STLOC1
+    // 0052 : LDLOC0
+    // 0053 : DUP
+    // 0054 : STLOC2
+    // 0055 : SIZE
+    // 0056 : STLOC3
+    // 0057 : PUSH0
+    // 0058 : STLOC4
+    // 0059 : JMP
+    // 005B : LDLOC2
+    // 005C : LDLOC4
+    // 005D : PICKITEM
+    // 005E : STLOC5
+    // 005F : LDLOC1
+    // 0060 : LDLOC5
+    // 0061 : CALLA
+    // 0062 : APPEND
+    // 0063 : LDLOC4
+    // 0064 : INC
+    // 0065 : STLOC4
+    // 0066 : LDLOC4
+    // 0067 : LDLOC3
+    // 0068 : JMPLT
+    // 006A : LDLOC1
+    // 006B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("invokeSum")]
     public abstract BigInteger? InvokeSum(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : LDSFLD3
+    // 0006 : CALLA
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("invokeSum2")]
     public abstract BigInteger? InvokeSum2(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : PUSH1
+    // 0004 : STLOC0
+    // 0005 : LDARG1
+    // 0006 : LDARG0
+    // 0007 : LDLOC0
+    // 0008 : STSFLD4
+    // 0009 : PUSHA
+    // 000E : CALL
+    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLambdaDefault")]
     public abstract BigInteger? TestLambdaDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : PUSHA
+    // 0008 : STLOC0
+    // 0009 : PUSH1
+    // 000A : LDARG0
+    // 000B : LDLOC0
+    // 000C : CALLA
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLambdaNotDefault")]
     public abstract BigInteger? TestLambdaNotDefault(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : PUSHA
+    // 0008 : STLOC0
+    // 0009 : LDARG1
+    // 000A : LDARG0
+    // 000B : LDLOC0
+    // 000C : CALLA
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("whereGreaterThanZero")]
     public abstract IList<object>? WhereGreaterThanZero(IList<object>? array);
+    // 0000 : INITSLOT
+    // 0003 : PUSHA
+    // 0008 : LDARG0
+    // 0009 : CALL
+    // 000B : RET
 
     #endregion
 

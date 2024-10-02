@@ -26,54 +26,114 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     [DisplayName("getBlockByHash")]
     public abstract object? GetBlockByHash(UInt256? hash, string? whatReturn);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : STLOC0
+    // 0008 : LDARG1
+    // 0009 : LDLOC0
+    // 000A : CALL
+    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getBlockByIndex")]
     public abstract object? GetBlockByIndex(BigInteger? index, string? whatReturn);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : STLOC0
+    // 0008 : LDARG1
+    // 0009 : LDLOC0
+    // 000A : CALL_L
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getContract")]
     public abstract object? GetContract(UInt160? hash, string? whatReturn);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : STLOC0
+    // 0008 : LDARG1
+    // 0009 : LDLOC0
+    // 000A : CALL
+    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getHeight")]
     public abstract BigInteger? GetHeight();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTransactionHeight")]
     public abstract BigInteger? GetTransactionHeight(UInt256? hash);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxByBlockHash")]
     public abstract object? GetTxByBlockHash(UInt256? blockHash, BigInteger? txIndex, string? whatReturn);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CALLT
+    // 0008 : STLOC0
+    // 0009 : LDARG2
+    // 000A : LDLOC0
+    // 000B : CALL_L
+    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxByBlockIndex")]
     public abstract object? GetTxByBlockIndex(BigInteger? blockIndex, BigInteger? txIndex, string? whatReturn);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CALLT
+    // 0008 : STLOC0
+    // 0009 : LDARG2
+    // 000A : LDLOC0
+    // 000B : CALL_L
+    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxByHash")]
     public abstract object? GetTxByHash(UInt256? hash, string? whatReturn);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : STLOC0
+    // 0008 : LDARG1
+    // 0009 : LDLOC0
+    // 000A : CALL
+    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getTxVMState")]
     public abstract BigInteger? GetTxVMState(UInt256? hash);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     #endregion
 

@@ -38,6 +38,8 @@ public abstract class Contract_InvokeCsNef(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();
+    // 0000 : PUSHINT8
+    // 0002 : RET
 
     #endregion
 

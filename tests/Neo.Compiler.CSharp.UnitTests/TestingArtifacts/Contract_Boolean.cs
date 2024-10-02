@@ -26,6 +26,8 @@ public abstract class Contract_Boolean(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     [DisplayName("testBooleanOr")]
     public abstract bool? TestBooleanOr();
+    // 0000 : PUSHT
+    // 0001 : RET
 
     #endregion
 

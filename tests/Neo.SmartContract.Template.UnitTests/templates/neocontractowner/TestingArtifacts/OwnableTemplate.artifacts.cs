@@ -42,18 +42,41 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     [DisplayName("destroy")]
     public abstract void Destroy();
+    // 0000 : CALL_L
+    // 0005 : NOT
+    // 0006 : JMPIFNOT
+    // 0008 : PUSHDATA1
+    // 001B : THROW
+    // 001C : CALLT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("myMethod")]
     public abstract string? MyMethod();
+    // 0000 : PUSHDATA1
+    // 0007 : SYSCALL
+    // 000C : SYSCALL
+    // 0011 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("update")]
     public abstract void Update(byte[]? nefFile, string? manifest, object? data = null);
+    // 0000 : INITSLOT
+    // 0003 : CALL_L
+    // 0008 : PUSHF
+    // 0009 : EQUAL
+    // 000A : JMPIFNOT
+    // 000C : PUSHDATA1
+    // 001F : THROW
+    // 0020 : LDARG2
+    // 0021 : LDARG1
+    // 0022 : LDARG0
+    // 0023 : CALLT
+    // 0026 : RET
 
     #endregion
 

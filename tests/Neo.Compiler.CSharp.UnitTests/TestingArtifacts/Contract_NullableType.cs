@@ -26,456 +26,1589 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     [DisplayName("testBigIntegerAdd")]
     public abstract BigInteger? TestBigIntegerAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : RET
+    // 001E : PUSH0
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerAddNonNullable")]
     public abstract BigInteger? TestBigIntegerAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerCompare")]
     public abstract bool? TestBigIntegerCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerCompareNonNullable")]
     public abstract bool? TestBigIntegerCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerDefault")]
     public abstract BigInteger? TestBigIntegerDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBigIntegerDefaultNonNullable")]
     public abstract BigInteger? TestBigIntegerDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBoolAnd")]
     public abstract bool? TestBoolAnd(bool? a, bool? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : JMPIF
+    // 001A : PUSHF
+    // 001B : RET
+    // 001C : LDARG1
+    // 001D : DUP
+    // 001E : ISNULL
+    // 001F : JMPIFNOT
+    // 0021 : THROW
+    // 0022 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBoolAndNonNullable")]
     public abstract bool? TestBoolAndNonNullable(bool? a, bool? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : JMPIF
+    // 0006 : PUSHF
+    // 0007 : RET
+    // 0008 : LDARG1
+    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBoolDefault")]
     public abstract bool? TestBoolDefault(bool? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSHF
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBoolDefaultNonNullable")]
     public abstract bool? TestBoolDefaultNonNullable(bool? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBoolOr")]
     public abstract bool? TestBoolOr(bool? a, bool? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : JMPIFNOT
+    // 001A : PUSHT
+    // 001B : RET
+    // 001C : LDARG1
+    // 001D : DUP
+    // 001E : ISNULL
+    // 001F : JMPIFNOT
+    // 0021 : THROW
+    // 0022 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testBoolOrNonNullable")]
     public abstract bool? TestBoolOrNonNullable(bool? a, bool? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : JMPIFNOT
+    // 0006 : PUSHT
+    // 0007 : RET
+    // 0008 : LDARG1
+    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteAdd")]
     public abstract BigInteger? TestByteAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSHINT32
+    // 0023 : JMPGE
+    // 0025 : JMP
+    // 0027 : DUP
+    // 0028 : PUSHINT32
+    // 002D : JMPLE
+    // 002F : PUSHINT64
+    // 0038 : AND
+    // 0039 : DUP
+    // 003A : PUSHINT32
+    // 003F : JMPLE
+    // 0041 : PUSHINT64
+    // 004A : SUB
+    // 004B : DUP
+    // 004C : PUSH0
+    // 004D : JMPGE
+    // 004F : JMP
+    // 0051 : DUP
+    // 0052 : PUSHINT16
+    // 0055 : JMPLE
+    // 0057 : PUSHINT16
+    // 005A : AND
+    // 005B : RET
+    // 005C : PUSH0
+    // 005D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteAddNonNullable")]
     public abstract BigInteger? TestByteAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSHINT32
+    // 000C : JMPGE
+    // 000E : JMP
+    // 0010 : DUP
+    // 0011 : PUSHINT32
+    // 0016 : JMPLE
+    // 0018 : PUSHINT64
+    // 0021 : AND
+    // 0022 : DUP
+    // 0023 : PUSHINT32
+    // 0028 : JMPLE
+    // 002A : PUSHINT64
+    // 0033 : SUB
+    // 0034 : DUP
+    // 0035 : PUSH0
+    // 0036 : JMPGE
+    // 0038 : JMP
+    // 003A : DUP
+    // 003B : PUSHINT16
+    // 003E : JMPLE
+    // 0040 : PUSHINT16
+    // 0043 : AND
+    // 0044 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArrayLength")]
     public abstract BigInteger? TestByteArrayLength(IList<object>? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIF
+    // 0008 : SIZE
+    // 0009 : DUP
+    // 000A : ISNULL
+    // 000B : JMPIFNOT
+    // 000D : DROP
+    // 000E : PUSH0
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArrayLengthNonNullable")]
     public abstract BigInteger? TestByteArrayLengthNonNullable(byte[]? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : SIZE
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteCompare")]
     public abstract bool? TestByteCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteCompareNonNullable")]
     public abstract bool? TestByteCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteDefault")]
     public abstract BigInteger? TestByteDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteDefaultNonNullable")]
     public abstract BigInteger? TestByteDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntAdd")]
     public abstract BigInteger? TestIntAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSHINT32
+    // 0023 : JMPGE
+    // 0025 : JMP
+    // 0027 : DUP
+    // 0028 : PUSHINT32
+    // 002D : JMPLE
+    // 002F : PUSHINT64
+    // 0038 : AND
+    // 0039 : DUP
+    // 003A : PUSHINT32
+    // 003F : JMPLE
+    // 0041 : PUSHINT64
+    // 004A : SUB
+    // 004B : RET
+    // 004C : PUSH0
+    // 004D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntAddNonNullable")]
     public abstract BigInteger? TestIntAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSHINT32
+    // 000C : JMPGE
+    // 000E : JMP
+    // 0010 : DUP
+    // 0011 : PUSHINT32
+    // 0016 : JMPLE
+    // 0018 : PUSHINT64
+    // 0021 : AND
+    // 0022 : DUP
+    // 0023 : PUSHINT32
+    // 0028 : JMPLE
+    // 002A : PUSHINT64
+    // 0033 : SUB
+    // 0034 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntCompare")]
     public abstract bool? TestIntCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntCompareNonNullable")]
     public abstract bool? TestIntCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntDefault")]
     public abstract BigInteger? TestIntDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIntDefaultNonNullable")]
     public abstract BigInteger? TestIntDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLongAdd")]
     public abstract BigInteger? TestLongAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSHINT64
+    // 0027 : JMPGE
+    // 0029 : JMP
+    // 002B : DUP
+    // 002C : PUSHINT64
+    // 0035 : JMPLE
+    // 0037 : PUSHINT128
+    // 0048 : AND
+    // 0049 : DUP
+    // 004A : PUSHINT64
+    // 0053 : JMPLE
+    // 0055 : PUSHINT128
+    // 0066 : SUB
+    // 0067 : RET
+    // 0068 : PUSH0
+    // 0069 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLongAddNonNullable")]
     public abstract BigInteger? TestLongAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSHINT64
+    // 0010 : JMPGE
+    // 0012 : JMP
+    // 0014 : DUP
+    // 0015 : PUSHINT64
+    // 001E : JMPLE
+    // 0020 : PUSHINT128
+    // 0031 : AND
+    // 0032 : DUP
+    // 0033 : PUSHINT64
+    // 003C : JMPLE
+    // 003E : PUSHINT128
+    // 004F : SUB
+    // 0050 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLongCompare")]
     public abstract bool? TestLongCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLongCompareNonNullable")]
     public abstract bool? TestLongCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLongDefault")]
     public abstract BigInteger? TestLongDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLongDefaultNonNullable")]
     public abstract BigInteger? TestLongDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSByteAdd")]
     public abstract BigInteger? TestSByteAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSHINT32
+    // 0023 : JMPGE
+    // 0025 : JMP
+    // 0027 : DUP
+    // 0028 : PUSHINT32
+    // 002D : JMPLE
+    // 002F : PUSHINT64
+    // 0038 : AND
+    // 0039 : DUP
+    // 003A : PUSHINT32
+    // 003F : JMPLE
+    // 0041 : PUSHINT64
+    // 004A : SUB
+    // 004B : DUP
+    // 004C : PUSHINT8
+    // 004E : JMPGE
+    // 0050 : JMP
+    // 0052 : DUP
+    // 0053 : PUSHINT8
+    // 0055 : JMPLE
+    // 0057 : PUSHINT16
+    // 005A : AND
+    // 005B : DUP
+    // 005C : PUSHINT8
+    // 005E : JMPLE
+    // 0060 : PUSHINT16
+    // 0063 : SUB
+    // 0064 : RET
+    // 0065 : PUSH0
+    // 0066 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSByteAddNonNullable")]
     public abstract BigInteger? TestSByteAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSHINT32
+    // 000C : JMPGE
+    // 000E : JMP
+    // 0010 : DUP
+    // 0011 : PUSHINT32
+    // 0016 : JMPLE
+    // 0018 : PUSHINT64
+    // 0021 : AND
+    // 0022 : DUP
+    // 0023 : PUSHINT32
+    // 0028 : JMPLE
+    // 002A : PUSHINT64
+    // 0033 : SUB
+    // 0034 : DUP
+    // 0035 : PUSHINT8
+    // 0037 : JMPGE
+    // 0039 : JMP
+    // 003B : DUP
+    // 003C : PUSHINT8
+    // 003E : JMPLE
+    // 0040 : PUSHINT16
+    // 0043 : AND
+    // 0044 : DUP
+    // 0045 : PUSHINT8
+    // 0047 : JMPLE
+    // 0049 : PUSHINT16
+    // 004C : SUB
+    // 004D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSByteCompare")]
     public abstract bool? TestSByteCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSByteCompareNonNullable")]
     public abstract bool? TestSByteCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSByteDefault")]
     public abstract BigInteger? TestSByteDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testSByteDefaultNonNullable")]
     public abstract BigInteger? TestSByteDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShortAdd")]
     public abstract BigInteger? TestShortAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSHINT32
+    // 0023 : JMPGE
+    // 0025 : JMP
+    // 0027 : DUP
+    // 0028 : PUSHINT32
+    // 002D : JMPLE
+    // 002F : PUSHINT64
+    // 0038 : AND
+    // 0039 : DUP
+    // 003A : PUSHINT32
+    // 003F : JMPLE
+    // 0041 : PUSHINT64
+    // 004A : SUB
+    // 004B : DUP
+    // 004C : PUSHINT16
+    // 004F : JMPGE
+    // 0051 : JMP
+    // 0053 : DUP
+    // 0054 : PUSHINT16
+    // 0057 : JMPLE
+    // 0059 : PUSHINT32
+    // 005E : AND
+    // 005F : DUP
+    // 0060 : PUSHINT16
+    // 0063 : JMPLE
+    // 0065 : PUSHINT32
+    // 006A : SUB
+    // 006B : RET
+    // 006C : PUSH0
+    // 006D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShortAddNonNullable")]
     public abstract BigInteger? TestShortAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSHINT32
+    // 000C : JMPGE
+    // 000E : JMP
+    // 0010 : DUP
+    // 0011 : PUSHINT32
+    // 0016 : JMPLE
+    // 0018 : PUSHINT64
+    // 0021 : AND
+    // 0022 : DUP
+    // 0023 : PUSHINT32
+    // 0028 : JMPLE
+    // 002A : PUSHINT64
+    // 0033 : SUB
+    // 0034 : DUP
+    // 0035 : PUSHINT16
+    // 0038 : JMPGE
+    // 003A : JMP
+    // 003C : DUP
+    // 003D : PUSHINT16
+    // 0040 : JMPLE
+    // 0042 : PUSHINT32
+    // 0047 : AND
+    // 0048 : DUP
+    // 0049 : PUSHINT16
+    // 004C : JMPLE
+    // 004E : PUSHINT32
+    // 0053 : SUB
+    // 0054 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShortCompare")]
     public abstract bool? TestShortCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShortCompareNonNullable")]
     public abstract bool? TestShortCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShortDefault")]
     public abstract BigInteger? TestShortDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testShortDefaultNonNullable")]
     public abstract BigInteger? TestShortDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringConcat")]
     public abstract string? TestStringConcat(string? a, string? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSHDATA1
+    // 000B : LDARG1
+    // 000C : DUP
+    // 000D : ISNULL
+    // 000E : JMPIFNOT
+    // 0010 : DROP
+    // 0011 : PUSHDATA1
+    // 0013 : CAT
+    // 0014 : CONVERT
+    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringConcatNonNullable")]
     public abstract string? TestStringConcatNonNullable(string? a, string? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : CAT
+    // 0006 : CONVERT
+    // 0008 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringDefault")]
     public abstract string? TestStringDefault(string? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSHDATA1
+    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringDefaultNonNullable")]
     public abstract string? TestStringDefaultNonNullable(string? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringLength")]
     public abstract BigInteger? TestStringLength(string? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIF
+    // 0008 : SIZE
+    // 0009 : DUP
+    // 000A : ISNULL
+    // 000B : JMPIFNOT
+    // 000D : DROP
+    // 000E : PUSH0
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringLengthNonNullable")]
     public abstract BigInteger? TestStringLengthNonNullable(string? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : SIZE
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt160ArrayLength")]
     public abstract BigInteger? TestUInt160ArrayLength(IList<object>? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIF
+    // 0008 : SIZE
+    // 0009 : DUP
+    // 000A : ISNULL
+    // 000B : JMPIFNOT
+    // 000D : DROP
+    // 000E : PUSH0
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt160ArrayLengthNonNullable")]
     public abstract BigInteger? TestUInt160ArrayLengthNonNullable(IList<object>? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : SIZE
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt160Default")]
     public abstract UInt160? TestUInt160Default(UInt160? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSHDATA1
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt160DefaultNonNullable")]
     public abstract UInt160? TestUInt160DefaultNonNullable(UInt160? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt256ArrayLength")]
     public abstract BigInteger? TestUInt256ArrayLength(IList<object>? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIF
+    // 0008 : SIZE
+    // 0009 : DUP
+    // 000A : ISNULL
+    // 000B : JMPIFNOT
+    // 000D : DROP
+    // 000E : PUSH0
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt256ArrayLengthNonNullable")]
     public abstract BigInteger? TestUInt256ArrayLengthNonNullable(IList<object>? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : SIZE
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt256Default")]
     public abstract UInt256? TestUInt256Default(UInt256? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSHDATA1
+    // 002B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUInt256DefaultNonNullable")]
     public abstract UInt256? TestUInt256DefaultNonNullable(UInt256? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUIntAdd")]
     public abstract BigInteger? TestUIntAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSH0
+    // 001F : JMPGE
+    // 0021 : JMP
+    // 0023 : DUP
+    // 0024 : PUSHINT64
+    // 002D : JMPLE
+    // 002F : PUSHINT64
+    // 0038 : AND
+    // 0039 : RET
+    // 003A : PUSH0
+    // 003B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUIntAddNonNullable")]
     public abstract BigInteger? TestUIntAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSH0
+    // 0008 : JMPGE
+    // 000A : JMP
+    // 000C : DUP
+    // 000D : PUSHINT64
+    // 0016 : JMPLE
+    // 0018 : PUSHINT64
+    // 0021 : AND
+    // 0022 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUIntCompare")]
     public abstract bool? TestUIntCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUIntCompareNonNullable")]
     public abstract bool? TestUIntCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUIntDefault")]
     public abstract BigInteger? TestUIntDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUIntDefaultNonNullable")]
     public abstract BigInteger? TestUIntDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testULongAdd")]
     public abstract BigInteger? TestULongAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSH0
+    // 001F : JMPGE
+    // 0021 : JMP
+    // 0023 : DUP
+    // 0024 : PUSHINT128
+    // 0035 : JMPLE
+    // 0037 : PUSHINT128
+    // 0048 : AND
+    // 0049 : RET
+    // 004A : PUSH0
+    // 004B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testULongAddNonNullable")]
     public abstract BigInteger? TestULongAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSH0
+    // 0008 : JMPGE
+    // 000A : JMP
+    // 000C : DUP
+    // 000D : PUSHINT128
+    // 001E : JMPLE
+    // 0020 : PUSHINT128
+    // 0031 : AND
+    // 0032 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testULongCompare")]
     public abstract bool? TestULongCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testULongCompareNonNullable")]
     public abstract bool? TestULongCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testULongDefault")]
     public abstract BigInteger? TestULongDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testULongDefaultNonNullable")]
     public abstract BigInteger? TestULongDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUShortAdd")]
     public abstract BigInteger? TestUShortAdd(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIFNOT
+    // 0010 : LDARG0
+    // 0011 : DUP
+    // 0012 : ISNULL
+    // 0013 : JMPIFNOT
+    // 0015 : THROW
+    // 0016 : LDARG1
+    // 0017 : DUP
+    // 0018 : ISNULL
+    // 0019 : JMPIFNOT
+    // 001B : THROW
+    // 001C : ADD
+    // 001D : DUP
+    // 001E : PUSHINT32
+    // 0023 : JMPGE
+    // 0025 : JMP
+    // 0027 : DUP
+    // 0028 : PUSHINT32
+    // 002D : JMPLE
+    // 002F : PUSHINT64
+    // 0038 : AND
+    // 0039 : DUP
+    // 003A : PUSHINT32
+    // 003F : JMPLE
+    // 0041 : PUSHINT64
+    // 004A : SUB
+    // 004B : DUP
+    // 004C : PUSH0
+    // 004D : JMPGE
+    // 004F : JMP
+    // 0051 : DUP
+    // 0052 : PUSHINT32
+    // 0057 : JMPLE
+    // 0059 : PUSHINT32
+    // 005E : AND
+    // 005F : RET
+    // 0060 : PUSH0
+    // 0061 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUShortAddNonNullable")]
     public abstract BigInteger? TestUShortAddNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : ADD
+    // 0006 : DUP
+    // 0007 : PUSHINT32
+    // 000C : JMPGE
+    // 000E : JMP
+    // 0010 : DUP
+    // 0011 : PUSHINT32
+    // 0016 : JMPLE
+    // 0018 : PUSHINT64
+    // 0021 : AND
+    // 0022 : DUP
+    // 0023 : PUSHINT32
+    // 0028 : JMPLE
+    // 002A : PUSHINT64
+    // 0033 : SUB
+    // 0034 : DUP
+    // 0035 : PUSH0
+    // 0036 : JMPGE
+    // 0038 : JMP
+    // 003A : DUP
+    // 003B : PUSHINT32
+    // 0040 : JMPLE
+    // 0042 : PUSHINT32
+    // 0047 : AND
+    // 0048 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUShortCompare")]
     public abstract bool? TestUShortCompare(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : ISNULL
+    // 0005 : NOT
+    // 0006 : JMPIF
+    // 0008 : PUSHF
+    // 0009 : JMP
+    // 000B : LDARG1
+    // 000C : ISNULL
+    // 000D : NOT
+    // 000E : JMPIF
+    // 0010 : PUSHF
+    // 0011 : RET
+    // 0012 : LDARG0
+    // 0013 : DUP
+    // 0014 : ISNULL
+    // 0015 : JMPIFNOT
+    // 0017 : THROW
+    // 0018 : LDARG1
+    // 0019 : DUP
+    // 001A : ISNULL
+    // 001B : JMPIFNOT
+    // 001D : THROW
+    // 001E : GT
+    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUShortCompareNonNullable")]
     public abstract bool? TestUShortCompareNonNullable(BigInteger? a, BigInteger? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : GT
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUShortDefault")]
     public abstract BigInteger? TestUShortDefault(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : DUP
+    // 0005 : ISNULL
+    // 0006 : JMPIFNOT
+    // 0008 : DROP
+    // 0009 : PUSH0
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUShortDefaultNonNullable")]
     public abstract BigInteger? TestUShortDefaultNonNullable(BigInteger? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : RET
 
     #endregion
 

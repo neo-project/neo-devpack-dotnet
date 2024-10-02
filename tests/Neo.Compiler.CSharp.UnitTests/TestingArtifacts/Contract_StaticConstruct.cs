@@ -26,6 +26,8 @@ public abstract class Contract_StaticConstruct(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     [DisplayName("testStatic")]
     public abstract BigInteger? TestStatic();
+    // 0000 : LDSFLD0
+    // 0001 : RET
 
     #endregion
 

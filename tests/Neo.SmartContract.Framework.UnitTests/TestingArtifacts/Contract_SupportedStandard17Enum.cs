@@ -52,6 +52,54 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// </summary>
     [DisplayName("balanceOf")]
     public abstract BigInteger? BalanceOf(UInt160? owner);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : STLOC0
+    // 0005 : LDLOC0
+    // 0006 : PUSHNULL
+    // 0007 : EQUAL
+    // 0008 : JMPIFNOT
+    // 000A : PUSHT
+    // 000B : JMP
+    // 000D : LDARG0
+    // 000E : DUP
+    // 000F : ISTYPE
+    // 0011 : SWAP
+    // 0012 : SIZE
+    // 0013 : PUSHINT8
+    // 0015 : NUMEQUAL
+    // 0016 : BOOLAND
+    // 0017 : NOT
+    // 0018 : JMPIFNOT
+    // 001A : PUSHDATA1
+    // 003C : THROW
+    // 003D : SYSCALL
+    // 0042 : PUSH1
+    // 0043 : PUSH1
+    // 0044 : NEWBUFFER
+    // 0045 : TUCK
+    // 0046 : PUSH0
+    // 0047 : ROT
+    // 0048 : SETITEM
+    // 0049 : SWAP
+    // 004A : PUSH2
+    // 004B : PACK
+    // 004C : STLOC0
+    // 004D : LDARG0
+    // 004E : LDLOC0
+    // 004F : UNPACK
+    // 0050 : DROP
+    // 0051 : REVERSE3
+    // 0052 : CAT
+    // 0053 : SWAP
+    // 0054 : SYSCALL
+    // 0059 : DUP
+    // 005A : ISNULL
+    // 005B : JMPIFNOT
+    // 005D : DROP
+    // 005E : PUSH0
+    // 005F : CONVERT
+    // 0061 : RET
 
     #endregion
 
@@ -62,12 +110,90 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// </summary>
     [DisplayName("onNEP17Payment")]
     public abstract void OnNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
+    // 0000 : INITSLOT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("transfer")]
     public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : STLOC0
+    // 0005 : LDLOC0
+    // 0006 : PUSHNULL
+    // 0007 : EQUAL
+    // 0008 : JMPIFNOT
+    // 000A : PUSHT
+    // 000B : JMP
+    // 000D : LDARG0
+    // 000E : DUP
+    // 000F : ISTYPE
+    // 0011 : SWAP
+    // 0012 : SIZE
+    // 0013 : PUSHINT8
+    // 0015 : NUMEQUAL
+    // 0016 : BOOLAND
+    // 0017 : NOT
+    // 0018 : JMPIFNOT
+    // 001A : PUSHDATA1
+    // 003B : THROW
+    // 003C : LDARG1
+    // 003D : STLOC0
+    // 003E : LDLOC0
+    // 003F : PUSHNULL
+    // 0040 : EQUAL
+    // 0041 : JMPIFNOT
+    // 0043 : PUSHT
+    // 0044 : JMP
+    // 0046 : LDARG1
+    // 0047 : DUP
+    // 0048 : ISTYPE
+    // 004A : SWAP
+    // 004B : SIZE
+    // 004C : PUSHINT8
+    // 004E : NUMEQUAL
+    // 004F : BOOLAND
+    // 0050 : NOT
+    // 0051 : JMPIFNOT
+    // 0053 : PUSHDATA1
+    // 0072 : THROW
+    // 0073 : LDARG2
+    // 0074 : PUSH0
+    // 0075 : LT
+    // 0076 : JMPIFNOT
+    // 0078 : PUSHDATA1
+    // 009F : THROW
+    // 00A0 : LDARG0
+    // 00A1 : SYSCALL
+    // 00A6 : NOT
+    // 00A7 : JMPIFNOT
+    // 00A9 : PUSHF
+    // 00AA : RET
+    // 00AB : LDARG2
+    // 00AC : PUSH0
+    // 00AD : NOTEQUAL
+    // 00AE : JMPIFNOT
+    // 00B0 : LDARG2
+    // 00B1 : NEGATE
+    // 00B2 : LDARG0
+    // 00B3 : CALL_L
+    // 00B8 : NOT
+    // 00B9 : JMPIFNOT
+    // 00BB : PUSHF
+    // 00BC : RET
+    // 00BD : LDARG2
+    // 00BE : LDARG1
+    // 00BF : CALL_L
+    // 00C4 : DROP
+    // 00C5 : LDARG3
+    // 00C6 : LDARG2
+    // 00C7 : LDARG1
+    // 00C8 : LDARG0
+    // 00C9 : CALL
+    // 00CB : PUSHT
+    // 00CC : RET
 
     #endregion
 

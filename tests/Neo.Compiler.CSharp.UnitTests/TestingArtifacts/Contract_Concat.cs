@@ -26,24 +26,66 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     [DisplayName("testStringAdd1")]
     public abstract string? TestStringAdd1(string? a);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : PUSHDATA1
+    // 000B : CAT
+    // 000C : CONVERT
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd2")]
     public abstract string? TestStringAdd2(string? a, string? b);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : CAT
+    // 0006 : CONVERT
+    // 0008 : PUSHDATA1
+    // 000F : CAT
+    // 0010 : CONVERT
+    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd3")]
     public abstract string? TestStringAdd3(string? a, string? b, string? c);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : CAT
+    // 0006 : CONVERT
+    // 0008 : LDARG2
+    // 0009 : CAT
+    // 000A : CONVERT
+    // 000C : PUSHDATA1
+    // 0013 : CAT
+    // 0014 : CONVERT
+    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAdd4")]
     public abstract string? TestStringAdd4(string? a, string? b, string? c, string? d);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : CAT
+    // 0006 : CONVERT
+    // 0008 : LDARG2
+    // 0009 : CAT
+    // 000A : CONVERT
+    // 000C : LDARG3
+    // 000D : CAT
+    // 000E : CONVERT
+    // 0010 : PUSHDATA1
+    // 0017 : CAT
+    // 0018 : CONVERT
+    // 001A : RET
 
     #endregion
 

@@ -26,6 +26,14 @@ public abstract class Contract2(Neo.SmartContract.Testing.SmartContractInitializ
     /// </summary>
     [DisplayName("unitTest_002")]
     public abstract BigInteger? UnitTest_002(object? arg1, object? arg2 = null);
+    // 0000 : INITSLOT
+    // 0003 : PUSHDATA1
+    // 0009 : CONVERT
+    // 000B : STLOC0
+    // 000C : LDLOC0
+    // 000D : PUSH2
+    // 000E : PICKITEM
+    // 000F : RET
 
     #endregion
 

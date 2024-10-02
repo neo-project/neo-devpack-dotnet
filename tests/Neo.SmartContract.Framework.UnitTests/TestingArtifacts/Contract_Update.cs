@@ -26,6 +26,8 @@ public abstract class Contract_Update(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     [DisplayName("imUpdated")]
     public abstract string? ImUpdated();
+    // 0000 : PUSHDATA1
+    // 0005 : RET
 
     #endregion
 

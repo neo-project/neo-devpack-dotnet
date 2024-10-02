@@ -26,12 +26,16 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// </summary>
     [DisplayName("directGet")]
     public abstract UInt160? DirectGet();
+    // 0000 : SYSCALL
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("staticInit")]
     public abstract UInt160? StaticInit();
+    // 0000 : CALL
+    // 0002 : RET
 
     #endregion
 

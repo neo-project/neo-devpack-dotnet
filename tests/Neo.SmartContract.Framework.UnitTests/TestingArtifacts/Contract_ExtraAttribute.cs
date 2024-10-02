@@ -26,6 +26,9 @@ public abstract class Contract_ExtraAttribute(Neo.SmartContract.Testing.SmartCon
     /// </summary>
     [DisplayName("main2")]
     public abstract object? Main2(string? method, IList<object>? args);
+    // 0000 : INITSLOT
+    // 0003 : PUSHT
+    // 0004 : RET
 
     #endregion
 

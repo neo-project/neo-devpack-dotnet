@@ -26,36 +26,69 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     [DisplayName("testConditionalLogicalAnd")]
     public abstract bool? TestConditionalLogicalAnd(bool? x, bool? y);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : JMPIF
+    // 0006 : PUSHF
+    // 0007 : RET
+    // 0008 : LDARG1
+    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testConditionalLogicalOr")]
     public abstract bool? TestConditionalLogicalOr(bool? x, bool? y);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : JMPIFNOT
+    // 0006 : PUSHT
+    // 0007 : RET
+    // 0008 : LDARG1
+    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalAnd")]
     public abstract BigInteger? TestLogicalAnd(BigInteger? x, BigInteger? y);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : AND
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalExclusiveOr")]
     public abstract bool? TestLogicalExclusiveOr(bool? x, bool? y);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : XOR
+    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalNegation")]
     public abstract bool? TestLogicalNegation(bool? x);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : NOT
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLogicalOr")]
     public abstract BigInteger? TestLogicalOr(BigInteger? x, BigInteger? y);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : OR
+    // 0006 : RET
 
     #endregion
 

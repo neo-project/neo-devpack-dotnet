@@ -26,36 +26,50 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     [DisplayName("attribute")]
     public abstract BigInteger? Attribute();
+    // 0000 : LDSFLD0
+    // 0001 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("convertFromChar")]
     public abstract BigInteger? ConvertFromChar();
+    // 0000 : PUSHINT8
+    // 0002 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("minusOne")]
     public abstract BigInteger? MinusOne();
+    // 0000 : PUSHM1
+    // 0001 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("one")]
     public abstract BigInteger? One();
+    // 0000 : PUSH1
+    // 0001 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("parse")]
     public abstract BigInteger? Parse(string? value);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("zero")]
     public abstract BigInteger? Zero();
+    // 0000 : PUSH0
+    // 0001 : RET
 
     #endregion
 

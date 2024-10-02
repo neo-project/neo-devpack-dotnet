@@ -5,12 +5,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Neo.Json;
 using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Testing.Extensions
 {
     public static class ArtifactExtensions
     {
+        private static JToken _debugInfo = null;
+        private static NefFile _nefFile = null;
         static readonly string[] _protectedWords = new string[]
         {
             "abstract", "as", "base", "bool", "break", "byte",
@@ -36,10 +39,11 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="nef">Nef file</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, JToken debugInfo = null)
         {
             name ??= manifest.Name;
-
+            _debugInfo = debugInfo;
+            _nefFile = nef;
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
@@ -371,9 +375,17 @@ namespace Neo.SmartContract.Testing.Extensions
                 }
             }
 
-
             sourceCode.WriteLine(");");
 
+            if (_debugInfo != null)
+            {
+                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(_nefFile, _debugInfo, method.Name);
+
+                foreach (var instruction in instructions)
+                {
+                    sourceCode.WriteLine($"    // {instruction.address:X4} : {instruction.instruction.OpCode.ToString()}");
+                }
+            }
             return builder.ToString();
         }
 

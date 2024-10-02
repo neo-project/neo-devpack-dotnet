@@ -26,6 +26,16 @@ public abstract class Contract_IOracle(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     [DisplayName("onOracleResponse")]
     public abstract void OnOracleResponse(string? url, object? userData, BigInteger? code, string? result);
+    // 0000 : INITSLOT
+    // 0003 : SYSCALL
+    // 0008 : PUSHDATA1
+    // 001E : NOTEQUAL
+    // 001F : JMPIFNOT
+    // 0021 : PUSHDATA1
+    // 0030 : THROW
+    // 0031 : PUSHDATA1
+    // 003F : SYSCALL
+    // 0044 : RET
 
     #endregion
 

@@ -26,24 +26,44 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
+    // 0000 : INITSLOT
+    // 0003 : LDARG3
+    // 0004 : LDARG2
+    // 0005 : LDARG1
+    // 0006 : LDARG0
+    // 0007 : SYSCALL
+    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
+    // 0000 : INITSLOT
+    // 0003 : PUSHNULL
+    // 0004 : LDARG1
+    // 0005 : LDARG0
+    // 0006 : CONVERT
+    // 0008 : CALLT
+    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("createStandardAccount")]
     public abstract UInt160? CreateStandardAccount(ECPoint? pubKey);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : SYSCALL
+    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();
+    // 0000 : SYSCALL
+    // 0005 : RET
 
     #endregion
 

@@ -26,12 +26,42 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     [DisplayName("testStringAdd")]
     public abstract BigInteger? TestStringAdd(string? s1, string? s2);
+    // 0000 : INITSLOT
+    // 0003 : PUSH3
+    // 0004 : STLOC0
+    // 0005 : LDARG0
+    // 0006 : LDARG1
+    // 0007 : CAT
+    // 0008 : CONVERT
+    // 000A : STLOC1
+    // 000B : LDLOC1
+    // 000C : PUSHDATA1
+    // 0013 : EQUAL
+    // 0014 : JMPIFNOT
+    // 0016 : PUSH4
+    // 0017 : STLOC0
+    // 0018 : JMP
+    // 001A : LDLOC1
+    // 001B : PUSHDATA1
+    // 0022 : EQUAL
+    // 0023 : JMPIFNOT
+    // 0025 : PUSH5
+    // 0026 : STLOC0
+    // 0027 : LDLOC0
+    // 0028 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStringAddInt")]
     public abstract string? TestStringAddInt(string? s, BigInteger? i);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : CALLT
+    // 0008 : CAT
+    // 0009 : CONVERT
+    // 000B : RET
 
     #endregion
 

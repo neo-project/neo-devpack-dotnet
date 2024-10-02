@@ -26,42 +26,171 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     [DisplayName("testBool")]
     public abstract string? TestBool(bool? key);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 000F : DUP
+    // 0010 : LDARG0
+    // 0011 : LDLOC0
+    // 0012 : REVERSE3
+    // 0013 : SETITEM
+    // 0014 : DROP
+    // 0015 : LDLOC0
+    // 0016 : CALLT
+    // 0019 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArray")]
     public abstract object? TestByteArray(byte[]? key);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 0012 : DUP
+    // 0013 : LDARG0
+    // 0014 : CONVERT
+    // 0016 : LDLOC0
+    // 0017 : REVERSE3
+    // 0018 : SETITEM
+    // 0019 : DROP
+    // 001A : LDLOC0
+    // 001B : CALLT
+    // 001E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testByteArray2")]
     public abstract string? TestByteArray2();
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 0009 : CONVERT
+    // 000B : CONVERT
+    // 000D : STLOC1
+    // 000E : PUSHDATA1
+    // 0010 : CALLT
+    // 0013 : DUP
+    // 0014 : LDLOC1
+    // 0015 : LDLOC0
+    // 0016 : REVERSE3
+    // 0017 : SETITEM
+    // 0018 : DROP
+    // 0019 : LDLOC0
+    // 001A : CALLT
+    // 001D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testClear")]
     public abstract object? TestClear(byte[]? key);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 0012 : DUP
+    // 0013 : LDARG0
+    // 0014 : CONVERT
+    // 0016 : LDLOC0
+    // 0017 : REVERSE3
+    // 0018 : SETITEM
+    // 0019 : DROP
+    // 001A : LDLOC0
+    // 001B : CLEARITEMS
+    // 001C : LDLOC0
+    // 001D : CALLT
+    // 0020 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testCount")]
     public abstract BigInteger? TestCount(BigInteger? count);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSH0
+    // 0006 : STLOC1
+    // 0007 : JMP
+    // 0009 : LDLOC1
+    // 000A : DUP
+    // 000B : LDLOC1
+    // 000C : LDLOC0
+    // 000D : REVERSE3
+    // 000E : SETITEM
+    // 000F : DROP
+    // 0010 : LDLOC1
+    // 0011 : DUP
+    // 0012 : INC
+    // 0013 : DUP
+    // 0014 : PUSHINT32
+    // 0019 : JMPGE
+    // 001B : JMP
+    // 001D : DUP
+    // 001E : PUSHINT32
+    // 0023 : JMPLE
+    // 0025 : PUSHINT64
+    // 002E : AND
+    // 002F : DUP
+    // 0030 : PUSHINT32
+    // 0035 : JMPLE
+    // 0037 : PUSHINT64
+    // 0040 : SUB
+    // 0041 : STLOC1
+    // 0042 : DROP
+    // 0043 : LDLOC1
+    // 0044 : LDARG0
+    // 0045 : LT
+    // 0046 : JMPIF
+    // 0048 : LDLOC0
+    // 0049 : SIZE
+    // 004A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testDeserialize")]
     public abstract object? TestDeserialize(string? key);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 0016 : DUP
+    // 0017 : LDARG0
+    // 0018 : LDLOC0
+    // 0019 : REVERSE3
+    // 001A : SETITEM
+    // 001B : DROP
+    // 001C : LDLOC0
+    // 001D : CALLT
+    // 0020 : STLOC1
+    // 0021 : LDLOC1
+    // 0022 : CALLT
+    // 0025 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testInt")]
     public abstract string? TestInt(BigInteger? key);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 000D : DUP
+    // 000E : LDARG0
+    // 000F : LDLOC0
+    // 0010 : REVERSE3
+    // 0011 : SETITEM
+    // 0012 : DROP
+    // 0013 : LDLOC0
+    // 0014 : CALLT
+    // 0017 : RET
 
     /// <summary>
     /// Unsafe method
@@ -74,18 +203,57 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     [DisplayName("testUnicode")]
     public abstract string? TestUnicode(string? key);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 0019 : DUP
+    // 001A : LDARG0
+    // 001B : LDLOC0
+    // 001C : REVERSE3
+    // 001D : SETITEM
+    // 001E : DROP
+    // 001F : LDLOC0
+    // 0020 : CALLT
+    // 0023 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUnicodeKeyValue")]
     public abstract string? TestUnicodeKeyValue(string? key, string? value);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : LDARG1
+    // 0006 : DUP
+    // 0007 : LDARG0
+    // 0008 : LDLOC0
+    // 0009 : REVERSE3
+    // 000A : SETITEM
+    // 000B : DROP
+    // 000C : LDLOC0
+    // 000D : CALLT
+    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUnicodeValue")]
     public abstract string? TestUnicodeValue(string? value);
+    // 0000 : INITSLOT
+    // 0003 : NEWMAP
+    // 0004 : STLOC0
+    // 0005 : LDARG0
+    // 0006 : DUP
+    // 0007 : PUSHDATA1
+    // 000B : LDLOC0
+    // 000C : REVERSE3
+    // 000D : SETITEM
+    // 000E : DROP
+    // 000F : LDLOC0
+    // 0010 : CALLT
+    // 0013 : RET
 
     #endregion
 

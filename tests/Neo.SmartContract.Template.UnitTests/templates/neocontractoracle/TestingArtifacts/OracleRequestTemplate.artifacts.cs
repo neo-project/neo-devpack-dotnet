@@ -35,6 +35,16 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     [DisplayName("doRequest")]
     public abstract void DoRequest();
+    // 0000 : INITSLOT
+    // 0003 : PUSHDATA1
+    // 003A : STLOC0
+    // 003B : PUSHINT32
+    // 0040 : PUSHNULL
+    // 0041 : PUSHDATA1
+    // 0053 : PUSHDATA1
+    // 006A : LDLOC0
+    // 006B : CALLT
+    // 006E : RET
 
     /// <summary>
     /// Unsafe method

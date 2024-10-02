@@ -26,36 +26,108 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     [DisplayName("testAbort")]
     public abstract BigInteger? TestAbort();
+    // 0000 : INITSLOT
+    // 0003 : PUSH0
+    // 0004 : STLOC0
+    // 0005 : ABORT
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInCatch")]
     public abstract BigInteger? TestAbortInCatch(bool? abortMsg);
+    // 0000 : INITSLOT
+    // 0003 : PUSH0
+    // 0004 : STLOC0
+    // 0005 : TRY
+    // 0008 : PUSH1
+    // 0009 : STLOC0
+    // 000A : PUSHDATA1
+    // 0015 : THROW
+    // 0016 : STLOC1
+    // 0017 : LDARG1
+    // 0018 : JMPIFNOT
+    // 001A : LDARG0
+    // 001B : CALL_L
+    // 0020 : LDARG0
+    // 0021 : CALL_L
+    // 0026 : PUSH2
+    // 0027 : STLOC0
+    // 0028 : ENDFINALLY
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInFinally")]
     public abstract BigInteger? TestAbortInFinally(bool? abortMsg);
+    // 0000 : INITSLOT
+    // 0003 : PUSH0
+    // 0004 : STLOC0
+    // 0005 : TRY
+    // 0008 : PUSH1
+    // 0009 : STLOC0
+    // 000A : ENDTRY
+    // 000C : STLOC1
+    // 000D : PUSH2
+    // 000E : STLOC0
+    // 000F : ENDTRY
+    // 0011 : LDARG1
+    // 0012 : JMPIFNOT
+    // 0014 : LDARG0
+    // 0015 : CALL_L
+    // 001A : LDARG0
+    // 001B : CALL_L
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInFunction")]
     public abstract BigInteger? TestAbortInFunction(bool? abortMsg);
+    // 0000 : INITSLOT
+    // 0003 : PUSH0
+    // 0004 : STLOC0
+    // 0005 : LDARG1
+    // 0006 : JMPIFNOT
+    // 0008 : LDARG0
+    // 0009 : CALL
+    // 000B : LDARG0
+    // 000C : CALL
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortInTry")]
     public abstract BigInteger? TestAbortInTry(bool? abortMsg);
+    // 0000 : INITSLOT
+    // 0003 : PUSH0
+    // 0004 : STLOC0
+    // 0005 : TRY
+    // 0008 : LDARG1
+    // 0009 : JMPIFNOT
+    // 000B : LDARG0
+    // 000C : CALL
+    // 000E : LDARG0
+    // 000F : CALL
+    // 0011 : STLOC1
+    // 0012 : PUSH1
+    // 0013 : STLOC0
+    // 0014 : ENDTRY
+    // 0016 : PUSH2
+    // 0017 : STLOC0
+    // 0018 : ENDFINALLY
+    // 0019 : LDLOC0
+    // 001A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testAbortMsg")]
     public abstract BigInteger? TestAbortMsg();
+    // 0000 : INITSLOT
+    // 0003 : PUSH0
+    // 0004 : STLOC0
+    // 0005 : PUSHDATA1
+    // 0010 : ABORTMSG
 
     #endregion
 

@@ -25,56 +25,94 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     public abstract BigInteger? GAS_Decimals();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract BigInteger? NEO_BalanceOf(UInt160? account);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract BigInteger? NEO_Decimals();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract object? NEO_GetAccountState(UInt160? account);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract IList<object>? NEO_GetCandidates();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract BigInteger? NEO_GetGasPerBlock();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract bool? NEO_RegisterCandidate(ECPoint? pubkey);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract bool? NEO_Transfer(UInt160? from, UInt160? to, BigInteger? amount);
+    // 0000 : INITSLOT
+    // 0003 : PUSHNULL
+    // 0004 : LDARG2
+    // 0005 : LDARG1
+    // 0006 : LDARG0
+    // 0007 : CALLT
+    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract BigInteger? NEO_UnclaimedGas(UInt160? account, BigInteger? end);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CALLT
+    // 0008 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract BigInteger? Policy_GetFeePerByte();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract bool? Policy_IsBlocked(UInt160? account);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     #endregion
 

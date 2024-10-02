@@ -26,36 +26,127 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// </summary>
     [DisplayName("get")]
     public abstract BigInteger? Get(string? msg);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDSFLD0
+    // 0005 : UNPACK
+    // 0006 : DROP
+    // 0007 : REVERSE3
+    // 0008 : CAT
+    // 0009 : SWAP
+    // 000A : SYSCALL
+    // 000F : DUP
+    // 0010 : ISNULL
+    // 0011 : JMPIFNOT
+    // 0013 : DROP
+    // 0014 : PUSH0
+    // 0015 : CONVERT
+    // 0017 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("get2")]
     public abstract BigInteger? Get2(string? msg);
+    // 0000 : INITSLOT
+    // 0003 : PUSHDATA1
+    // 0009 : SYSCALL
+    // 000E : PUSH2
+    // 000F : PACK
+    // 0010 : STLOC0
+    // 0011 : LDARG0
+    // 0012 : LDLOC0
+    // 0013 : UNPACK
+    // 0014 : DROP
+    // 0015 : REVERSE3
+    // 0016 : CAT
+    // 0017 : SWAP
+    // 0018 : SYSCALL
+    // 001D : DUP
+    // 001E : ISNULL
+    // 001F : JMPIFNOT
+    // 0021 : DROP
+    // 0022 : PUSH0
+    // 0023 : CONVERT
+    // 0025 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("getReadonly")]
     public abstract BigInteger? GetReadonly(string? msg);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDSFLD1
+    // 0005 : UNPACK
+    // 0006 : DROP
+    // 0007 : REVERSE3
+    // 0008 : CAT
+    // 0009 : SWAP
+    // 000A : SYSCALL
+    // 000F : DUP
+    // 0010 : ISNULL
+    // 0011 : JMPIFNOT
+    // 0013 : DROP
+    // 0014 : PUSH0
+    // 0015 : CONVERT
+    // 0017 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("put")]
     public abstract void Put(string? message);
+    // 0000 : INITSLOT
+    // 0003 : PUSH1
+    // 0004 : LDARG0
+    // 0005 : LDSFLD0
+    // 0006 : UNPACK
+    // 0007 : DROP
+    // 0008 : REVERSE3
+    // 0009 : CAT
+    // 000A : SWAP
+    // 000B : SYSCALL
+    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("put2")]
     public abstract void Put2(string? message);
+    // 0000 : INITSLOT
+    // 0003 : PUSHDATA1
+    // 0009 : SYSCALL
+    // 000E : PUSH2
+    // 000F : PACK
+    // 0010 : STLOC0
+    // 0011 : PUSH3
+    // 0012 : LDARG0
+    // 0013 : LDLOC0
+    // 0014 : UNPACK
+    // 0015 : DROP
+    // 0016 : REVERSE3
+    // 0017 : CAT
+    // 0018 : SWAP
+    // 0019 : SYSCALL
+    // 001E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("putReadonly")]
     public abstract void PutReadonly(string? message);
+    // 0000 : INITSLOT
+    // 0003 : PUSH2
+    // 0004 : LDARG0
+    // 0005 : LDSFLD1
+    // 0006 : UNPACK
+    // 0007 : DROP
+    // 0008 : REVERSE3
+    // 0009 : CAT
+    // 000A : SWAP
+    // 000B : SYSCALL
+    // 0010 : RET
 
     /// <summary>
     /// Unsafe method

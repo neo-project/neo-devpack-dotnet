@@ -26,30 +26,43 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     [DisplayName("callingScriptHash")]
     public abstract byte[]? CallingScriptHash();
+    // 0000 : SYSCALL
+    // 0005 : CONVERT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("entryScriptHash")]
     public abstract byte[]? EntryScriptHash();
+    // 0000 : SYSCALL
+    // 0005 : CONVERT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("executingScriptHash")]
     public abstract byte[]? ExecutingScriptHash();
+    // 0000 : SYSCALL
+    // 0005 : CONVERT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("scriptContainer")]
     public abstract object? ScriptContainer();
+    // 0000 : SYSCALL
+    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("transaction")]
     public abstract object? Transaction();
+    // 0000 : SYSCALL
+    // 0005 : RET
 
     #endregion
 

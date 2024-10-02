@@ -26,76 +26,160 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     [DisplayName("bls12381Add")]
     public abstract object? Bls12381Add(object? x, object? y = null);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CALLT
+    // 0008 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Deserialize")]
     public abstract object? Bls12381Deserialize(byte[]? data);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Equal")]
     public abstract object? Bls12381Equal(object? x, object? y = null);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CALLT
+    // 0008 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Mul")]
     public abstract object? Bls12381Mul(object? x, byte[]? mul, bool? neg);
+    // 0000 : INITSLOT
+    // 0003 : LDARG2
+    // 0004 : LDARG1
+    // 0005 : LDARG0
+    // 0006 : CALLT
+    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Pairing")]
     public abstract object? Bls12381Pairing(object? g1, object? g2 = null);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CALLT
+    // 0008 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("bls12381Serialize")]
     public abstract byte[]? Bls12381Serialize(object? data = null);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CALLT
+    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("murmur32")]
     public abstract byte[]? Murmur32(byte[]? value, BigInteger? seed);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : CONVERT
+    // 0007 : CALLT
+    // 000A : CONVERT
+    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract byte[]? RIPEMD160(byte[]? value);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CONVERT
+    // 0006 : CALLT
+    // 0009 : CONVERT
+    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256k1VerifyKeccakSignatureWithMessage")]
     public abstract bool? Secp256k1VerifyKeccakSignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    // 0000 : INITSLOT
+    // 0003 : PUSHINT8
+    // 0005 : LDARG2
+    // 0006 : CONVERT
+    // 0008 : LDARG1
+    // 0009 : LDARG0
+    // 000A : CONVERT
+    // 000C : CALLT
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256k1VerifySignatureWithMessage")]
     public abstract bool? Secp256k1VerifySignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    // 0000 : INITSLOT
+    // 0003 : PUSHINT8
+    // 0005 : LDARG2
+    // 0006 : CONVERT
+    // 0008 : LDARG1
+    // 0009 : LDARG0
+    // 000A : CONVERT
+    // 000C : CALLT
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256r1VerifyKeccakSignatureWithMessage")]
     public abstract bool? Secp256r1VerifyKeccakSignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    // 0000 : INITSLOT
+    // 0003 : PUSHINT8
+    // 0005 : LDARG2
+    // 0006 : CONVERT
+    // 0008 : LDARG1
+    // 0009 : LDARG0
+    // 000A : CONVERT
+    // 000C : CALLT
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("secp256r1VerifySignatureWithMessage")]
     public abstract bool? Secp256r1VerifySignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
+    // 0000 : INITSLOT
+    // 0003 : PUSHINT8
+    // 0005 : LDARG2
+    // 0006 : CONVERT
+    // 0008 : LDARG1
+    // 0009 : LDARG0
+    // 000A : CONVERT
+    // 000C : CALLT
+    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     public abstract byte[]? SHA256(byte[]? value);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : CONVERT
+    // 0006 : CALLT
+    // 0009 : CONVERT
+    // 000B : RET
 
     #endregion
 

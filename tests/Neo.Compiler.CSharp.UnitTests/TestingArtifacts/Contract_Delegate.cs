@@ -32,6 +32,21 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     [DisplayName("testDelegate")]
     public abstract void TestDelegate();
+    // 0000 : INITSLOT
+    // 0003 : PUSHA
+    // 0008 : STLOC0
+    // 0009 : PUSH6
+    // 000A : PUSH5
+    // 000B : LDLOC0
+    // 000C : CALLA
+    // 000D : STLOC1
+    // 000E : PUSHDATA1
+    // 0015 : LDLOC1
+    // 0016 : CALLT
+    // 0019 : CAT
+    // 001A : CONVERT
+    // 001C : SYSCALL
+    // 0021 : RET
 
     #endregion
 

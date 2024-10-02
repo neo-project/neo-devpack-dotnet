@@ -26,48 +26,76 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     [DisplayName("testAlphabetOnly")]
     public abstract bool? TestAlphabetOnly();
+    // 0000 : PUSHDATA1
+    // 0036 : CALL
+    // 0038 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testContains")]
     public abstract bool? TestContains();
+    // 0000 : PUSHDATA1
+    // 0004 : PUSHDATA1
+    // 0011 : CALL
+    // 0013 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testEndWith")]
     public abstract bool? TestEndWith();
+    // 0000 : PUSHDATA1
+    // 0007 : PUSHDATA1
+    // 0014 : CALL
+    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIndexOf")]
     public abstract BigInteger? TestIndexOf();
+    // 0000 : PUSHDATA1
+    // 0003 : PUSHDATA1
+    // 0010 : CALL
+    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testLowerAlphabetOnly")]
     public abstract bool? TestLowerAlphabetOnly();
+    // 0000 : PUSHDATA1
+    // 001C : CALL
+    // 001E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testNumberOnly")]
     public abstract bool? TestNumberOnly();
+    // 0000 : PUSHDATA1
+    // 000C : CALL
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testStartWith")]
     public abstract bool? TestStartWith();
+    // 0000 : PUSHDATA1
+    // 0007 : PUSHDATA1
+    // 0014 : CALL
+    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testUpperAlphabetOnly")]
     public abstract bool? TestUpperAlphabetOnly();
+    // 0000 : PUSHDATA1
+    // 001C : CALL
+    // 001E : RET
 
     #endregion
 

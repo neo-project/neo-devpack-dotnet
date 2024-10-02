@@ -38,96 +38,288 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     [DisplayName("clampByte")]
     public abstract BigInteger? ClampByte(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampInt")]
     public abstract BigInteger? ClampInt(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampLong")]
     public abstract BigInteger? ClampLong(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampSByte")]
     public abstract BigInteger? ClampSByte(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampShort")]
     public abstract BigInteger? ClampShort(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampUInt")]
     public abstract BigInteger? ClampUInt(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampULong")]
     public abstract BigInteger? ClampULong(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("clampUShort")]
     public abstract BigInteger? ClampUShort(BigInteger? value, BigInteger? min, BigInteger? max);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : LDARG1
+    // 0005 : LDARG2
+    // 0006 : OVER
+    // 0007 : OVER
+    // 0008 : JMPLE
+    // 000A : THROW
+    // 000B : REVERSE3
+    // 000C : MAX
+    // 000D : MIN
+    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemByte")]
     public abstract IList<object>? DivRemByte(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemInt")]
     public abstract IList<object>? DivRemInt(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemLong")]
     public abstract IList<object>? DivRemLong(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemSbyte")]
     public abstract IList<object>? DivRemSbyte(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemShort")]
     public abstract IList<object>? DivRemShort(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemUint")]
     public abstract IList<object>? DivRemUint(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemUlong")]
     public abstract IList<object>? DivRemUlong(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("divRemUshort")]
     public abstract IList<object>? DivRemUshort(BigInteger? left, BigInteger? right);
+    // 0000 : INITSLOT
+    // 0003 : LDARG1
+    // 0004 : LDARG0
+    // 0005 : DUP
+    // 0006 : PUSH2
+    // 0007 : PICK
+    // 0008 : DIV
+    // 0009 : REVERSE3
+    // 000A : MOD
+    // 000B : PUSH2
+    // 000C : PACK
+    // 000D : RET
 
     /// <summary>
     /// Unsafe method

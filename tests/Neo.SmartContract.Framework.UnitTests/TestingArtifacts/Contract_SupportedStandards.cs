@@ -26,6 +26,8 @@ public abstract class Contract_SupportedStandards(Neo.SmartContract.Testing.Smar
     /// </summary>
     [DisplayName("testStandard")]
     public abstract bool? TestStandard();
+    // 0000 : PUSHT
+    // 0001 : RET
 
     #endregion
 

@@ -35,12 +35,26 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     [DisplayName("testElse")]
     public abstract BigInteger? TestElse();
+    // 0000 : PUSHDATA1
+    // 0013 : PUSH1
+    // 0014 : PACK
+    // 0015 : PUSHDATA1
+    // 001C : SYSCALL
+    // 0021 : PUSH1
+    // 0022 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("testIf")]
     public abstract BigInteger? TestIf();
+    // 0000 : INITSLOT
+    // 0003 : PUSH2
+    // 0004 : STLOC0
+    // 0005 : PUSH1
+    // 0006 : STLOC0
+    // 0007 : LDLOC0
+    // 0008 : RET
 
     #endregion
 

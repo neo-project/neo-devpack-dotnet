@@ -26,6 +26,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     [DisplayName("gASSymbol")]
     public abstract string? GASSymbol();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
@@ -38,36 +40,48 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     [DisplayName("ledgerCurrentHash")]
     public abstract UInt256? LedgerCurrentHash();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("ledgerCurrentIndex")]
     public abstract BigInteger? LedgerCurrentIndex();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("ledgerHash")]
     public abstract UInt160? LedgerHash();
+    // 0000 : PUSHDATA1
+    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("nEOHash")]
     public abstract UInt160? NEOHash();
+    // 0000 : PUSHDATA1
+    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("nEOSymbol")]
     public abstract string? NEOSymbol();
+    // 0000 : CALLT
+    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
     [DisplayName("oracleMinimumResponseFee")]
     public abstract BigInteger? OracleMinimumResponseFee();
+    // 0000 : PUSHINT32
+    // 0005 : RET
 
     #endregion
 

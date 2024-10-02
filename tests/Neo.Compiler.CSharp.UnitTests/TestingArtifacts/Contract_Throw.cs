@@ -26,6 +26,20 @@ public abstract class Contract_Throw(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     [DisplayName("testMain")]
     public abstract void TestMain(IList<object>? args);
+    // 0000 : INITSLOT
+    // 0003 : LDARG0
+    // 0004 : SIZE
+    // 0005 : PUSH1
+    // 0006 : GE
+    // 0007 : JMPIFNOT
+    // 0009 : LDARG0
+    // 000A : PUSH0
+    // 000B : PICKITEM
+    // 000C : JMP
+    // 000E : PUSHDATA1
+    // 0034 : THROW
+    // 0035 : STLOC0
+    // 0036 : RET
 
     #endregion
 
