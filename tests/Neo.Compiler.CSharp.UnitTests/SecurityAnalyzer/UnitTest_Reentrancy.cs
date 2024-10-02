@@ -14,7 +14,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         {
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest);
-            Assert.AreEqual(v.vulnerabilityPairs.Count, 2);
+            Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
             foreach (BasicBlock b in v.vulnerabilityPairs.Keys)
                 // basic blocks calling contract
                 Assert.IsTrue(b.startAddr < NefFile.Size * 0.66);
