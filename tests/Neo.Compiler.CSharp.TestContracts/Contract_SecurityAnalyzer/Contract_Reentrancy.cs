@@ -1,7 +1,7 @@
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
-using System;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
@@ -44,6 +44,11 @@ namespace Neo.Compiler.CSharp.TestContracts
                 Contract.Call(GAS.Hash, "transfer", CallFlags.All, [UInt160.Zero, UInt160.Zero, 0, null]);
             else
                 Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+        }
+        [NoReentrant]
+        public static void NoReentrancyByAttribute()
+        {
+            HasReentrancyFromSingleBasicBlock();
         }
     }
 }

@@ -2,9 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Optimizer;
 using Neo.SmartContract.Testing;
-using System.Linq;
 
-namespace Neo.Compiler.CSharp.UnitTests.Optimizer
+namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
     [TestClass]
     public class ReentrancyTests : DebugAndTestBase<Contract_Reentrancy>
