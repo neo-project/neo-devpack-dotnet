@@ -21,7 +21,6 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
         return new Person()
         {
             Name = "NEO3",
-            Age = 10
         };
     }
 
@@ -44,7 +43,7 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
     public class Person
     {
         public string Name { get; set; }
-        public int Age { get; set; }
+        public int Age { get;}
 
         public Person(string name, int age)
         {
