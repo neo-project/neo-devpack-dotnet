@@ -18,10 +18,20 @@ namespace Neo.Compiler.CSharp.TestContracts
                 Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
             }
         }
+        public static void HasReentrancyFromCall()
+        {
+            Contract.Call(GAS.Hash, "transfer", CallFlags.All, [UInt160.Zero, UInt160.Zero, 0, null]);
+            NoReentrancy();
+        }
         public static void NoReentrancy()
         {
             Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
             Contract.Call(NEO.Hash, "transfer", CallFlags.All, [UInt160.Zero, UInt160.Zero, 0, null]);
+        }
+        public static void NoReentrancyFromCall()
+        {
+            Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+            NoReentrancy();
         }
     }
 }
