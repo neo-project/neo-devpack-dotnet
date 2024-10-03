@@ -318,8 +318,16 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
         methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
         methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'\t');
+        methodConvert.Push((ushort)'\r' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN); // check if '\t' <= c <= '\r'
+        methodConvert.AddInstruction(OpCode.SWAP);
+
         methodConvert.Push((ushort)' '); // Push space character
         methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is a space
+        methodConvert.AddInstruction(OpCode.BOOLOR); // check if '\t' <= c <= '\r' or ' ' == c
         methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
 
         methodConvert.AddInstruction(OpCode.INC); // Increment the index
@@ -344,8 +352,16 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
         methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
         methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'\t');
+        methodConvert.Push((ushort)'\r' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN); // check if '\t' <= c <= '\r'
+        methodConvert.AddInstruction(OpCode.SWAP);
+
         methodConvert.Push((ushort)' '); // Push space character
         methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is a space
+        methodConvert.AddInstruction(OpCode.BOOLOR); // check if '\t' <= c <= '\r' or ' ' == c
         methodConvert.Jump(OpCode.JMPIFNOT, loopEnd2); // If not, exit the loop
 
         methodConvert.AddInstruction(OpCode.DEC); // Decrement the index
