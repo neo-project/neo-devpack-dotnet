@@ -122,5 +122,31 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("SByte: -42, Byte: 42, UShort: 1000, UInt: 1000000, ULong: 1000000000000, BigInteger: 1000000000000000000000, Char: A, String: Hello, ECPoint: NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq, ByteString: System.Byte[], Bool: True", Contract.TestInterpolatedStringHandler());
             Assert.AreEqual(11313480, Engine.FeeConsumed.Value);
         }
+
+        [TestMethod]
+        public void Test_TestTrim()
+        {
+            Assert.AreEqual("Hello, World!", Contract.TestTrim("  Hello, World!  "));
+            AssertGasConsumed(1357650);
+
+            Assert.AreEqual("No Trim", Contract.TestTrim("No Trim"));
+            AssertGasConsumed(1357650);
+
+            Assert.AreEqual("", Contract.TestTrim("   "));
+            AssertGasConsumed(1357650);
+
+            Assert.AreEqual(null, Contract.TestTrim(null));
+            AssertGasConsumed(1047300);
+
+            // Test various whitespace characters
+            Assert.AreEqual("Trim Test", Contract.TestTrim("\t\n\r Trim Test \t\n\r"));
+            AssertGasConsumed(1357650);
+
+            Assert.AreEqual("Multiple Spaces", Contract.TestTrim("   Multiple Spaces   "));
+            AssertGasConsumed(1357650);
+
+            Assert.AreEqual("Mix of Whitespace", Contract.TestTrim(" \t \n \r Mix of Whitespace \r \n \t "));
+            AssertGasConsumed(1357650);
+        }
     }
 }
