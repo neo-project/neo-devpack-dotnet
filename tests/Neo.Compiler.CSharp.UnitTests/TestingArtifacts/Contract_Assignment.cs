@@ -24,64 +24,68 @@ public abstract class Contract_Assignment(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0200
+    /// 0003 : OpCode.PUSH1
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSH1
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.ASSERT
+    /// 0009 : OpCode.PUSH2
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.STLOC1
+    /// 000C : OpCode.STLOC0
+    /// 000D : OpCode.LDLOC0
+    /// 000E : OpCode.PUSH2
+    /// 000F : OpCode.EQUAL
+    /// 0010 : OpCode.ASSERT
+    /// 0011 : OpCode.LDLOC1
+    /// 0012 : OpCode.PUSH2
+    /// 0013 : OpCode.EQUAL
+    /// 0014 : OpCode.ASSERT
+    /// 0015 : OpCode.RET
+    /// </remarks>
     [DisplayName("testAssignment")]
     public abstract void TestAssignment();
-    // 0000 : INITSLOT
-    // 0003 : PUSH1
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSH1
-    // 0007 : EQUAL
-    // 0008 : ASSERT
-    // 0009 : PUSH2
-    // 000A : DUP
-    // 000B : STLOC1
-    // 000C : STLOC0
-    // 000D : LDLOC0
-    // 000E : PUSH2
-    // 000F : EQUAL
-    // 0010 : ASSERT
-    // 0011 : LDLOC1
-    // 0012 : PUSH2
-    // 0013 : EQUAL
-    // 0014 : ASSERT
-    // 0015 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.ISNULL
+    /// 0007 : OpCode.JMPIF 05
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.JMP 05
+    /// 000C : OpCode.PUSH1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.STLOC0
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.LDLOC0
+    /// 0011 : OpCode.PUSH1
+    /// 0012 : OpCode.EQUAL
+    /// 0013 : OpCode.ASSERT
+    /// 0014 : OpCode.LDLOC0
+    /// 0015 : OpCode.ISNULL
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.LDLOC0
+    /// 0019 : OpCode.JMP 05
+    /// 001B : OpCode.PUSH2
+    /// 001C : OpCode.DUP
+    /// 001D : OpCode.STLOC0
+    /// 001E : OpCode.DROP
+    /// 001F : OpCode.LDLOC0
+    /// 0020 : OpCode.PUSH1
+    /// 0021 : OpCode.EQUAL
+    /// 0022 : OpCode.ASSERT
+    /// 0023 : OpCode.RET
+    /// </remarks>
     [DisplayName("testCoalesceAssignment")]
     public abstract void TestCoalesceAssignment();
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : ISNULL
-    // 0007 : JMPIF
-    // 0009 : LDLOC0
-    // 000A : JMP
-    // 000C : PUSH1
-    // 000D : DUP
-    // 000E : STLOC0
-    // 000F : DROP
-    // 0010 : LDLOC0
-    // 0011 : PUSH1
-    // 0012 : EQUAL
-    // 0013 : ASSERT
-    // 0014 : LDLOC0
-    // 0015 : ISNULL
-    // 0016 : JMPIF
-    // 0018 : LDLOC0
-    // 0019 : JMP
-    // 001B : PUSH2
-    // 001C : DUP
-    // 001D : STLOC0
-    // 001E : DROP
-    // 001F : LDLOC0
-    // 0020 : PUSH1
-    // 0021 : EQUAL
-    // 0022 : ASSERT
-    // 0023 : RET
 
     #endregion
 

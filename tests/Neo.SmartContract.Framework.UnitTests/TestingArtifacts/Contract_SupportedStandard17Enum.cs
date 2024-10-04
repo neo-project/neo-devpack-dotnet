@@ -50,56 +50,58 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.JMPIFNOT 05
+    /// 000A : OpCode.PUSHT
+    /// 000B : OpCode.JMP 0D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.ISTYPE 28
+    /// 0011 : OpCode.SWAP
+    /// 0012 : OpCode.SIZE
+    /// 0013 : OpCode.PUSHINT8 14
+    /// 0015 : OpCode.NUMEQUAL
+    /// 0016 : OpCode.BOOLAND
+    /// 0017 : OpCode.NOT
+    /// 0018 : OpCode.JMPIFNOT 25
+    /// 001A : OpCode.PUSHDATA1 54686520617267756D656E7420226F776E65722220697320696E76616C69642E
+    /// 003C : OpCode.THROW
+    /// 003D : OpCode.SYSCALL 9BF667CE
+    /// 0042 : OpCode.PUSH1
+    /// 0043 : OpCode.PUSH1
+    /// 0044 : OpCode.NEWBUFFER
+    /// 0045 : OpCode.TUCK
+    /// 0046 : OpCode.PUSH0
+    /// 0047 : OpCode.ROT
+    /// 0048 : OpCode.SETITEM
+    /// 0049 : OpCode.SWAP
+    /// 004A : OpCode.PUSH2
+    /// 004B : OpCode.PACK
+    /// 004C : OpCode.STLOC0
+    /// 004D : OpCode.LDARG0
+    /// 004E : OpCode.LDLOC0
+    /// 004F : OpCode.UNPACK
+    /// 0050 : OpCode.DROP
+    /// 0051 : OpCode.REVERSE3
+    /// 0052 : OpCode.CAT
+    /// 0053 : OpCode.SWAP
+    /// 0054 : OpCode.SYSCALL 925DE831
+    /// 0059 : OpCode.DUP
+    /// 005A : OpCode.ISNULL
+    /// 005B : OpCode.JMPIFNOT 04
+    /// 005D : OpCode.DROP
+    /// 005E : OpCode.PUSH0
+    /// 005F : OpCode.CONVERT 21
+    /// 0061 : OpCode.RET
+    /// </remarks>
     [DisplayName("balanceOf")]
     public abstract BigInteger? BalanceOf(UInt160? owner);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : JMPIFNOT
-    // 000A : PUSHT
-    // 000B : JMP
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : ISTYPE
-    // 0011 : SWAP
-    // 0012 : SIZE
-    // 0013 : PUSHINT8
-    // 0015 : NUMEQUAL
-    // 0016 : BOOLAND
-    // 0017 : NOT
-    // 0018 : JMPIFNOT
-    // 001A : PUSHDATA1
-    // 003C : THROW
-    // 003D : SYSCALL
-    // 0042 : PUSH1
-    // 0043 : PUSH1
-    // 0044 : NEWBUFFER
-    // 0045 : TUCK
-    // 0046 : PUSH0
-    // 0047 : ROT
-    // 0048 : SETITEM
-    // 0049 : SWAP
-    // 004A : PUSH2
-    // 004B : PACK
-    // 004C : STLOC0
-    // 004D : LDARG0
-    // 004E : LDLOC0
-    // 004F : UNPACK
-    // 0050 : DROP
-    // 0051 : REVERSE3
-    // 0052 : CAT
-    // 0053 : SWAP
-    // 0054 : SYSCALL
-    // 0059 : DUP
-    // 005A : ISNULL
-    // 005B : JMPIFNOT
-    // 005D : DROP
-    // 005E : PUSH0
-    // 005F : CONVERT
-    // 0061 : RET
 
     #endregion
 
@@ -108,92 +110,96 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0004
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("onNEP17Payment")]
     public abstract void OnNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
-    // 0000 : INITSLOT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0104
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.JMPIFNOT 05
+    /// 000A : OpCode.PUSHT
+    /// 000B : OpCode.JMP 0D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.ISTYPE 28
+    /// 0011 : OpCode.SWAP
+    /// 0012 : OpCode.SIZE
+    /// 0013 : OpCode.PUSHINT8 14
+    /// 0015 : OpCode.NUMEQUAL
+    /// 0016 : OpCode.BOOLAND
+    /// 0017 : OpCode.NOT
+    /// 0018 : OpCode.JMPIFNOT 24
+    /// 001A : OpCode.PUSHDATA1 54686520617267756D656E74202266726F6D2220697320696E76616C69642E
+    /// 003B : OpCode.THROW
+    /// 003C : OpCode.LDARG1
+    /// 003D : OpCode.STLOC0
+    /// 003E : OpCode.LDLOC0
+    /// 003F : OpCode.PUSHNULL
+    /// 0040 : OpCode.EQUAL
+    /// 0041 : OpCode.JMPIFNOT 05
+    /// 0043 : OpCode.PUSHT
+    /// 0044 : OpCode.JMP 0D
+    /// 0046 : OpCode.LDARG1
+    /// 0047 : OpCode.DUP
+    /// 0048 : OpCode.ISTYPE 28
+    /// 004A : OpCode.SWAP
+    /// 004B : OpCode.SIZE
+    /// 004C : OpCode.PUSHINT8 14
+    /// 004E : OpCode.NUMEQUAL
+    /// 004F : OpCode.BOOLAND
+    /// 0050 : OpCode.NOT
+    /// 0051 : OpCode.JMPIFNOT 22
+    /// 0053 : OpCode.PUSHDATA1 54686520617267756D656E742022746F2220697320696E76616C69642E
+    /// 0072 : OpCode.THROW
+    /// 0073 : OpCode.LDARG2
+    /// 0074 : OpCode.PUSH0
+    /// 0075 : OpCode.LT
+    /// 0076 : OpCode.JMPIFNOT 2A
+    /// 0078 : OpCode.PUSHDATA1 54686520616D6F756E74206D757374206265206120706F736974697665206E756D6265722E
+    /// 009F : OpCode.THROW
+    /// 00A0 : OpCode.LDARG0
+    /// 00A1 : OpCode.SYSCALL F827EC8C
+    /// 00A6 : OpCode.NOT
+    /// 00A7 : OpCode.JMPIFNOT 04
+    /// 00A9 : OpCode.PUSHF
+    /// 00AA : OpCode.RET
+    /// 00AB : OpCode.LDARG2
+    /// 00AC : OpCode.PUSH0
+    /// 00AD : OpCode.NOTEQUAL
+    /// 00AE : OpCode.JMPIFNOT 17
+    /// 00B0 : OpCode.LDARG2
+    /// 00B1 : OpCode.NEGATE
+    /// 00B2 : OpCode.LDARG0
+    /// 00B3 : OpCode.CALL_L F8FEFFFF
+    /// 00B8 : OpCode.NOT
+    /// 00B9 : OpCode.JMPIFNOT 04
+    /// 00BB : OpCode.PUSHF
+    /// 00BC : OpCode.RET
+    /// 00BD : OpCode.LDARG2
+    /// 00BE : OpCode.LDARG1
+    /// 00BF : OpCode.CALL_L ECFEFFFF
+    /// 00C4 : OpCode.DROP
+    /// 00C5 : OpCode.LDARG3
+    /// 00C6 : OpCode.LDARG2
+    /// 00C7 : OpCode.LDARG1
+    /// 00C8 : OpCode.LDARG0
+    /// 00C9 : OpCode.CALL 04
+    /// 00CB : OpCode.PUSHT
+    /// 00CC : OpCode.RET
+    /// </remarks>
     [DisplayName("transfer")]
     public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : JMPIFNOT
-    // 000A : PUSHT
-    // 000B : JMP
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : ISTYPE
-    // 0011 : SWAP
-    // 0012 : SIZE
-    // 0013 : PUSHINT8
-    // 0015 : NUMEQUAL
-    // 0016 : BOOLAND
-    // 0017 : NOT
-    // 0018 : JMPIFNOT
-    // 001A : PUSHDATA1
-    // 003B : THROW
-    // 003C : LDARG1
-    // 003D : STLOC0
-    // 003E : LDLOC0
-    // 003F : PUSHNULL
-    // 0040 : EQUAL
-    // 0041 : JMPIFNOT
-    // 0043 : PUSHT
-    // 0044 : JMP
-    // 0046 : LDARG1
-    // 0047 : DUP
-    // 0048 : ISTYPE
-    // 004A : SWAP
-    // 004B : SIZE
-    // 004C : PUSHINT8
-    // 004E : NUMEQUAL
-    // 004F : BOOLAND
-    // 0050 : NOT
-    // 0051 : JMPIFNOT
-    // 0053 : PUSHDATA1
-    // 0072 : THROW
-    // 0073 : LDARG2
-    // 0074 : PUSH0
-    // 0075 : LT
-    // 0076 : JMPIFNOT
-    // 0078 : PUSHDATA1
-    // 009F : THROW
-    // 00A0 : LDARG0
-    // 00A1 : SYSCALL
-    // 00A6 : NOT
-    // 00A7 : JMPIFNOT
-    // 00A9 : PUSHF
-    // 00AA : RET
-    // 00AB : LDARG2
-    // 00AC : PUSH0
-    // 00AD : NOTEQUAL
-    // 00AE : JMPIFNOT
-    // 00B0 : LDARG2
-    // 00B1 : NEGATE
-    // 00B2 : LDARG0
-    // 00B3 : CALL_L
-    // 00B8 : NOT
-    // 00B9 : JMPIFNOT
-    // 00BB : PUSHF
-    // 00BC : RET
-    // 00BD : LDARG2
-    // 00BE : LDARG1
-    // 00BF : CALL_L
-    // 00C4 : DROP
-    // 00C5 : LDARG3
-    // 00C6 : LDARG2
-    // 00C7 : LDARG1
-    // 00C8 : LDARG0
-    // 00C9 : CALL
-    // 00CB : PUSHT
-    // 00CC : RET
 
     #endregion
 

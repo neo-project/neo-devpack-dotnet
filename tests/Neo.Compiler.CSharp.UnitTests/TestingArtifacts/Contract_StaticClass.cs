@@ -24,11 +24,13 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDSFLD0
+    /// 0004 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStaticClass")]
     public abstract BigInteger? TestStaticClass();
-    // 0000 : INITSLOT
-    // 0003 : LDSFLD0
-    // 0004 : RET
 
     #endregion
 

@@ -24,81 +24,89 @@ public abstract class Contract_CheckedUnchecked(Neo.SmartContract.Testing.SmartC
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.ADD
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.PUSHINT32 00000080
+    /// 000C : OpCode.JMPGE 03
+    /// 000E : OpCode.THROW
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0015 : OpCode.JMPLE 03
+    /// 0017 : OpCode.THROW
+    /// 0018 : OpCode.RET
+    /// </remarks>
     [DisplayName("addChecked")]
     public abstract BigInteger? AddChecked(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : ADD
-    // 0006 : DUP
-    // 0007 : PUSHINT32
-    // 000C : JMPGE
-    // 000E : THROW
-    // 000F : DUP
-    // 0010 : PUSHINT32
-    // 0015 : JMPLE
-    // 0017 : THROW
-    // 0018 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.ADD
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.PUSHINT32 00000080
+    /// 000C : OpCode.JMPGE 04
+    /// 000E : OpCode.JMP 0A
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0016 : OpCode.JMPLE 1E
+    /// 0018 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0021 : OpCode.AND
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0028 : OpCode.JMPLE 0C
+    /// 002A : OpCode.PUSHINT64 0000000001000000
+    /// 0033 : OpCode.SUB
+    /// 0034 : OpCode.RET
+    /// </remarks>
     [DisplayName("addUnchecked")]
     public abstract BigInteger? AddUnchecked(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : ADD
-    // 0006 : DUP
-    // 0007 : PUSHINT32
-    // 000C : JMPGE
-    // 000E : JMP
-    // 0010 : DUP
-    // 0011 : PUSHINT32
-    // 0016 : JMPLE
-    // 0018 : PUSHINT64
-    // 0021 : AND
-    // 0022 : DUP
-    // 0023 : PUSHINT32
-    // 0028 : JMPLE
-    // 002A : PUSHINT64
-    // 0033 : SUB
-    // 0034 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.JMPGE 03
+    /// 0008 : OpCode.THROW
+    /// 0009 : OpCode.DUP
+    /// 000A : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0013 : OpCode.JMPLE 03
+    /// 0015 : OpCode.THROW
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("castChecked")]
     public abstract BigInteger? CastChecked(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : PUSH0
-    // 0006 : JMPGE
-    // 0008 : THROW
-    // 0009 : DUP
-    // 000A : PUSHINT64
-    // 0013 : JMPLE
-    // 0015 : THROW
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.JMPGE 04
+    /// 0008 : OpCode.JMP 0E
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0014 : OpCode.JMPLE 0C
+    /// 0016 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 001F : OpCode.AND
+    /// 0020 : OpCode.RET
+    /// </remarks>
     [DisplayName("castUnchecked")]
     public abstract BigInteger? CastUnchecked(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : PUSH0
-    // 0006 : JMPGE
-    // 0008 : JMP
-    // 000A : DUP
-    // 000B : PUSHINT64
-    // 0014 : JMPLE
-    // 0016 : PUSHINT64
-    // 001F : AND
-    // 0020 : RET
 
     #endregion
 

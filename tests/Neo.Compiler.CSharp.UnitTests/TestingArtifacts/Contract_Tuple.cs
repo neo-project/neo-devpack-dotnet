@@ -24,91 +24,95 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.NEWSTRUCT0
+    /// 0001 : OpCode.DUP
+    /// 0002 : OpCode.PUSH1
+    /// 0003 : OpCode.APPEND
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSH2
+    /// 0006 : OpCode.APPEND
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH3
+    /// 0009 : OpCode.APPEND
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.PUSH4
+    /// 000C : OpCode.APPEND
+    /// 000D : OpCode.RET
+    /// </remarks>
     [DisplayName("getResult")]
     public abstract IList<object>? GetResult();
-    // 0000 : NEWSTRUCT0
-    // 0001 : DUP
-    // 0002 : PUSH1
-    // 0003 : APPEND
-    // 0004 : DUP
-    // 0005 : PUSH2
-    // 0006 : APPEND
-    // 0007 : DUP
-    // 0008 : PUSH3
-    // 0009 : APPEND
-    // 000A : DUP
-    // 000B : PUSH4
-    // 000C : APPEND
-    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0200
+    /// 0003 : OpCode.NEWSTRUCT0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.APPEND
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSHNULL
+    /// 0009 : OpCode.APPEND
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.PUSH0
+    /// 000C : OpCode.APPEND
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.PUSH0
+    /// 000F : OpCode.APPEND
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.PUSHNULL
+    /// 0012 : OpCode.APPEND
+    /// 0013 : OpCode.DUP
+    /// 0014 : OpCode.CALL 30
+    /// 0016 : OpCode.STLOC0
+    /// 0017 : OpCode.NEWSTRUCT0
+    /// 0018 : OpCode.DUP
+    /// 0019 : OpCode.PUSHNULL
+    /// 001A : OpCode.APPEND
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.PUSH0
+    /// 001D : OpCode.APPEND
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.CALL 29
+    /// 0021 : OpCode.DUP
+    /// 0022 : OpCode.LDLOC0
+    /// 0023 : OpCode.PUSH4
+    /// 0024 : OpCode.ROT
+    /// 0025 : OpCode.SETITEM
+    /// 0026 : OpCode.DROP
+    /// 0027 : OpCode.PUSH0
+    /// 0028 : OpCode.STLOC1
+    /// 0029 : OpCode.CALL C9
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.UNPACK
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.LDLOC0
+    /// 002F : OpCode.PUSH2
+    /// 0030 : OpCode.ROT
+    /// 0031 : OpCode.SETITEM
+    /// 0032 : OpCode.LDLOC0
+    /// 0033 : OpCode.PUSH4
+    /// 0034 : OpCode.PICKITEM
+    /// 0035 : OpCode.PUSH1
+    /// 0036 : OpCode.ROT
+    /// 0037 : OpCode.SETITEM
+    /// 0038 : OpCode.DROP
+    /// 0039 : OpCode.STLOC1
+    /// 003A : OpCode.DROP
+    /// 003B : OpCode.LDLOC1
+    /// 003C : OpCode.DUP
+    /// 003D : OpCode.LDLOC0
+    /// 003E : OpCode.PUSH3
+    /// 003F : OpCode.ROT
+    /// 0040 : OpCode.SETITEM
+    /// 0041 : OpCode.DROP
+    /// 0042 : OpCode.LDLOC0
+    /// 0043 : OpCode.RET
+    /// </remarks>
     [DisplayName("t1")]
     public abstract object? T1();
-    // 0000 : INITSLOT
-    // 0003 : NEWSTRUCT0
-    // 0004 : DUP
-    // 0005 : PUSHNULL
-    // 0006 : APPEND
-    // 0007 : DUP
-    // 0008 : PUSHNULL
-    // 0009 : APPEND
-    // 000A : DUP
-    // 000B : PUSH0
-    // 000C : APPEND
-    // 000D : DUP
-    // 000E : PUSH0
-    // 000F : APPEND
-    // 0010 : DUP
-    // 0011 : PUSHNULL
-    // 0012 : APPEND
-    // 0013 : DUP
-    // 0014 : CALL
-    // 0016 : STLOC0
-    // 0017 : NEWSTRUCT0
-    // 0018 : DUP
-    // 0019 : PUSHNULL
-    // 001A : APPEND
-    // 001B : DUP
-    // 001C : PUSH0
-    // 001D : APPEND
-    // 001E : DUP
-    // 001F : CALL
-    // 0021 : DUP
-    // 0022 : LDLOC0
-    // 0023 : PUSH4
-    // 0024 : ROT
-    // 0025 : SETITEM
-    // 0026 : DROP
-    // 0027 : PUSH0
-    // 0028 : STLOC1
-    // 0029 : CALL
-    // 002B : DUP
-    // 002C : UNPACK
-    // 002D : DROP
-    // 002E : LDLOC0
-    // 002F : PUSH2
-    // 0030 : ROT
-    // 0031 : SETITEM
-    // 0032 : LDLOC0
-    // 0033 : PUSH4
-    // 0034 : PICKITEM
-    // 0035 : PUSH1
-    // 0036 : ROT
-    // 0037 : SETITEM
-    // 0038 : DROP
-    // 0039 : STLOC1
-    // 003A : DROP
-    // 003B : LDLOC1
-    // 003C : DUP
-    // 003D : LDLOC0
-    // 003E : PUSH3
-    // 003F : ROT
-    // 0040 : SETITEM
-    // 0041 : DROP
-    // 0042 : LDLOC0
-    // 0043 : RET
 
     #endregion
 

@@ -24,95 +24,117 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0800
+    /// 0003 : OpCode.RET
+    /// </remarks>
     public abstract BigInteger? GAS_Decimals();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0200
+    /// 0007 : OpCode.RET
+    /// </remarks>
     public abstract BigInteger? NEO_BalanceOf(UInt160? account);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0000
+    /// 0003 : OpCode.RET
+    /// </remarks>
     public abstract BigInteger? NEO_Decimals();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0300
+    /// 0007 : OpCode.RET
+    /// </remarks>
     public abstract object? NEO_GetAccountState(UInt160? account);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0700
+    /// 0003 : OpCode.RET
+    /// </remarks>
     public abstract IList<object>? NEO_GetCandidates();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0400
+    /// 0003 : OpCode.RET
+    /// </remarks>
     public abstract BigInteger? NEO_GetGasPerBlock();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0600
+    /// 0007 : OpCode.RET
+    /// </remarks>
     public abstract bool? NEO_RegisterCandidate(ECPoint? pubkey);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0003
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.LDARG2
+    /// 0005 : OpCode.LDARG1
+    /// 0006 : OpCode.LDARG0
+    /// 0007 : OpCode.CALLT 0100
+    /// 000A : OpCode.RET
+    /// </remarks>
     public abstract bool? NEO_Transfer(UInt160? from, UInt160? to, BigInteger? amount);
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : LDARG2
-    // 0005 : LDARG1
-    // 0006 : LDARG0
-    // 0007 : CALLT
-    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.CALLT 0500
+    /// 0008 : OpCode.RET
+    /// </remarks>
     public abstract BigInteger? NEO_UnclaimedGas(UInt160? account, BigInteger? end);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : LDARG0
-    // 0005 : CALLT
-    // 0008 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0900
+    /// 0003 : OpCode.RET
+    /// </remarks>
     public abstract BigInteger? Policy_GetFeePerByte();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0A00
+    /// 0007 : OpCode.RET
+    /// </remarks>
     public abstract bool? Policy_IsBlocked(UInt160? account);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     #endregion
 

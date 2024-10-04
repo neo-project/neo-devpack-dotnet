@@ -36,10 +36,12 @@ public abstract class Contract_InvokeCsNef(Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT8 16
+    /// 0002 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();
-    // 0000 : PUSHINT8
-    // 0002 : RET
 
     #endregion
 

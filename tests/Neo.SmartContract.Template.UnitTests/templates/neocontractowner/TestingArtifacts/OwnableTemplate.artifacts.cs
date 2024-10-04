@@ -40,43 +40,49 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALL_L CEFEFFFF
+    /// 0005 : OpCode.NOT
+    /// 0006 : OpCode.JMPIFNOT 16
+    /// 0008 : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
+    /// 001B : OpCode.THROW
+    /// 001C : OpCode.CALLT 0100
+    /// 001F : OpCode.RET
+    /// </remarks>
     [DisplayName("destroy")]
     public abstract void Destroy();
-    // 0000 : CALL_L
-    // 0005 : NOT
-    // 0006 : JMPIFNOT
-    // 0008 : PUSHDATA1
-    // 001B : THROW
-    // 001C : CALLT
-    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 48656C6C6F
+    /// 0007 : OpCode.SYSCALL 9BF667CE
+    /// 000C : OpCode.SYSCALL 925DE831
+    /// 0011 : OpCode.RET
+    /// </remarks>
     [DisplayName("myMethod")]
     public abstract string? MyMethod();
-    // 0000 : PUSHDATA1
-    // 0007 : SYSCALL
-    // 000C : SYSCALL
-    // 0011 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0003
+    /// 0003 : OpCode.CALL_L F2FEFFFF
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.EQUAL
+    /// 000A : OpCode.JMPIFNOT 16
+    /// 000C : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
+    /// 001F : OpCode.THROW
+    /// 0020 : OpCode.LDARG2
+    /// 0021 : OpCode.LDARG1
+    /// 0022 : OpCode.LDARG0
+    /// 0023 : OpCode.CALLT 0000
+    /// 0026 : OpCode.RET
+    /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nefFile, string? manifest, object? data = null);
-    // 0000 : INITSLOT
-    // 0003 : CALL_L
-    // 0008 : PUSHF
-    // 0009 : EQUAL
-    // 000A : JMPIFNOT
-    // 000C : PUSHDATA1
-    // 001F : THROW
-    // 0020 : LDARG2
-    // 0021 : LDARG1
-    // 0022 : LDARG0
-    // 0023 : CALLT
-    // 0026 : RET
 
     #endregion
 

@@ -57,187 +57,195 @@ public abstract class Contract_SupportedStandard11Enum(Neo.SmartContract.Testing
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.JMPIFNOT 05
+    /// 000A : OpCode.PUSHT
+    /// 000B : OpCode.JMP 0D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.ISTYPE 28
+    /// 0011 : OpCode.SWAP
+    /// 0012 : OpCode.SIZE
+    /// 0013 : OpCode.PUSHINT8 14
+    /// 0015 : OpCode.NUMEQUAL
+    /// 0016 : OpCode.BOOLAND
+    /// 0017 : OpCode.NOT
+    /// 0018 : OpCode.JMPIFNOT 25
+    /// 001A : OpCode.PUSHDATA1 54686520617267756D656E7420226F776E65722220697320696E76616C69642E
+    /// 003C : OpCode.THROW
+    /// 003D : OpCode.SYSCALL 9BF667CE
+    /// 0042 : OpCode.PUSH1
+    /// 0043 : OpCode.PUSH1
+    /// 0044 : OpCode.NEWBUFFER
+    /// 0045 : OpCode.TUCK
+    /// 0046 : OpCode.PUSH0
+    /// 0047 : OpCode.ROT
+    /// 0048 : OpCode.SETITEM
+    /// 0049 : OpCode.SWAP
+    /// 004A : OpCode.PUSH2
+    /// 004B : OpCode.PACK
+    /// 004C : OpCode.STLOC0
+    /// 004D : OpCode.LDARG0
+    /// 004E : OpCode.LDLOC0
+    /// 004F : OpCode.UNPACK
+    /// 0050 : OpCode.DROP
+    /// 0051 : OpCode.REVERSE3
+    /// 0052 : OpCode.CAT
+    /// 0053 : OpCode.SWAP
+    /// 0054 : OpCode.SYSCALL 925DE831
+    /// 0059 : OpCode.DUP
+    /// 005A : OpCode.ISNULL
+    /// 005B : OpCode.JMPIFNOT 04
+    /// 005D : OpCode.DROP
+    /// 005E : OpCode.PUSH0
+    /// 005F : OpCode.CONVERT 21
+    /// 0061 : OpCode.RET
+    /// </remarks>
     [DisplayName("balanceOf")]
     public abstract BigInteger? BalanceOf(UInt160? owner);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : JMPIFNOT
-    // 000A : PUSHT
-    // 000B : JMP
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : ISTYPE
-    // 0011 : SWAP
-    // 0012 : SIZE
-    // 0013 : PUSHINT8
-    // 0015 : NUMEQUAL
-    // 0016 : BOOLAND
-    // 0017 : NOT
-    // 0018 : JMPIFNOT
-    // 001A : PUSHDATA1
-    // 003C : THROW
-    // 003D : SYSCALL
-    // 0042 : PUSH1
-    // 0043 : PUSH1
-    // 0044 : NEWBUFFER
-    // 0045 : TUCK
-    // 0046 : PUSH0
-    // 0047 : ROT
-    // 0048 : SETITEM
-    // 0049 : SWAP
-    // 004A : PUSH2
-    // 004B : PACK
-    // 004C : STLOC0
-    // 004D : LDARG0
-    // 004E : LDLOC0
-    // 004F : UNPACK
-    // 0050 : DROP
-    // 0051 : REVERSE3
-    // 0052 : CAT
-    // 0053 : SWAP
-    // 0054 : SYSCALL
-    // 0059 : DUP
-    // 005A : ISNULL
-    // 005B : JMPIFNOT
-    // 005D : DROP
-    // 005E : PUSH0
-    // 005F : CONVERT
-    // 0061 : RET
 
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0301
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SIZE
+    /// 0005 : OpCode.PUSHINT8 40
+    /// 0007 : OpCode.GT
+    /// 0008 : OpCode.JMPIFNOT 3C
+    /// 000A : OpCode.PUSHDATA1 54686520617267756D656E742022746F6B656E4964222073686F756C64206265203634206F72206C657373206279746573206C6F6E672E
+    /// 0043 : OpCode.THROW
+    /// 0044 : OpCode.PUSH3
+    /// 0045 : OpCode.PUSH1
+    /// 0046 : OpCode.NEWBUFFER
+    /// 0047 : OpCode.TUCK
+    /// 0048 : OpCode.PUSH0
+    /// 0049 : OpCode.ROT
+    /// 004A : OpCode.SETITEM
+    /// 004B : OpCode.SYSCALL 9BF667CE
+    /// 0050 : OpCode.PUSH2
+    /// 0051 : OpCode.PACK
+    /// 0052 : OpCode.STLOC0
+    /// 0053 : OpCode.LDARG0
+    /// 0054 : OpCode.LDLOC0
+    /// 0055 : OpCode.UNPACK
+    /// 0056 : OpCode.DROP
+    /// 0057 : OpCode.REVERSE3
+    /// 0058 : OpCode.CAT
+    /// 0059 : OpCode.SWAP
+    /// 005A : OpCode.SYSCALL 925DE831
+    /// 005F : OpCode.DUP
+    /// 0060 : OpCode.ISNULL
+    /// 0061 : OpCode.JMPIFNOT 34
+    /// 0063 : OpCode.DROP
+    /// 0064 : OpCode.PUSHDATA1 54686520746F6B656E207769746820676976656E2022746F6B656E49642220646F6573206E6F742065786973742E
+    /// 0094 : OpCode.THROW
+    /// 0095 : OpCode.STLOC1
+    /// 0096 : OpCode.LDLOC1
+    /// 0097 : OpCode.CALLT 0000
+    /// 009A : OpCode.STLOC2
+    /// 009B : OpCode.LDLOC2
+    /// 009C : OpCode.PUSH0
+    /// 009D : OpCode.PICKITEM
+    /// 009E : OpCode.RET
+    /// </remarks>
     [DisplayName("ownerOf")]
     public abstract UInt160? OwnerOf(byte[]? tokenId);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : SIZE
-    // 0005 : PUSHINT8
-    // 0007 : GT
-    // 0008 : JMPIFNOT
-    // 000A : PUSHDATA1
-    // 0043 : THROW
-    // 0044 : PUSH3
-    // 0045 : PUSH1
-    // 0046 : NEWBUFFER
-    // 0047 : TUCK
-    // 0048 : PUSH0
-    // 0049 : ROT
-    // 004A : SETITEM
-    // 004B : SYSCALL
-    // 0050 : PUSH2
-    // 0051 : PACK
-    // 0052 : STLOC0
-    // 0053 : LDARG0
-    // 0054 : LDLOC0
-    // 0055 : UNPACK
-    // 0056 : DROP
-    // 0057 : REVERSE3
-    // 0058 : CAT
-    // 0059 : SWAP
-    // 005A : SYSCALL
-    // 005F : DUP
-    // 0060 : ISNULL
-    // 0061 : JMPIFNOT
-    // 0063 : DROP
-    // 0064 : PUSHDATA1
-    // 0094 : THROW
-    // 0095 : STLOC1
-    // 0096 : LDLOC1
-    // 0097 : CALLT
-    // 009A : STLOC2
-    // 009B : LDLOC2
-    // 009C : PUSH0
-    // 009D : PICKITEM
-    // 009E : RET
 
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0202
+    /// 0003 : OpCode.PUSH3
+    /// 0004 : OpCode.PUSH1
+    /// 0005 : OpCode.NEWBUFFER
+    /// 0006 : OpCode.TUCK
+    /// 0007 : OpCode.PUSH0
+    /// 0008 : OpCode.ROT
+    /// 0009 : OpCode.SETITEM
+    /// 000A : OpCode.SYSCALL 9BF667CE
+    /// 000F : OpCode.PUSH2
+    /// 0010 : OpCode.PACK
+    /// 0011 : OpCode.STLOC0
+    /// 0012 : OpCode.LDARG1
+    /// 0013 : OpCode.LDLOC0
+    /// 0014 : OpCode.UNPACK
+    /// 0015 : OpCode.DROP
+    /// 0016 : OpCode.REVERSE3
+    /// 0017 : OpCode.CAT
+    /// 0018 : OpCode.SWAP
+    /// 0019 : OpCode.SYSCALL 925DE831
+    /// 001E : OpCode.CALLT 0000
+    /// 0021 : OpCode.STLOC1
+    /// 0022 : OpCode.NEWMAP
+    /// 0023 : OpCode.LDLOC1
+    /// 0024 : OpCode.PUSH1
+    /// 0025 : OpCode.PICKITEM
+    /// 0026 : OpCode.OVER
+    /// 0027 : OpCode.REVERSE3
+    /// 0028 : OpCode.SETITEM
+    /// 0029 : OpCode.RET
+    /// </remarks>
     [DisplayName("properties")]
     public abstract IDictionary<object, object>? Properties(byte[]? tokenId);
-    // 0000 : INITSLOT
-    // 0003 : PUSH3
-    // 0004 : PUSH1
-    // 0005 : NEWBUFFER
-    // 0006 : TUCK
-    // 0007 : PUSH0
-    // 0008 : ROT
-    // 0009 : SETITEM
-    // 000A : SYSCALL
-    // 000F : PUSH2
-    // 0010 : PACK
-    // 0011 : STLOC0
-    // 0012 : LDARG1
-    // 0013 : LDLOC0
-    // 0014 : UNPACK
-    // 0015 : DROP
-    // 0016 : REVERSE3
-    // 0017 : CAT
-    // 0018 : SWAP
-    // 0019 : SYSCALL
-    // 001E : CALLT
-    // 0021 : STLOC1
-    // 0022 : NEWMAP
-    // 0023 : LDLOC1
-    // 0024 : PUSH1
-    // 0025 : PICKITEM
-    // 0026 : OVER
-    // 0027 : REVERSE3
-    // 0028 : SETITEM
-    // 0029 : RET
 
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.JMPIFNOT 05
+    /// 000A : OpCode.PUSHT
+    /// 000B : OpCode.JMP 0D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.ISTYPE 28
+    /// 0011 : OpCode.SWAP
+    /// 0012 : OpCode.SIZE
+    /// 0013 : OpCode.PUSHINT8 14
+    /// 0015 : OpCode.NUMEQUAL
+    /// 0016 : OpCode.BOOLAND
+    /// 0017 : OpCode.NOT
+    /// 0018 : OpCode.JMPIFNOT 24
+    /// 001A : OpCode.PUSHDATA1 54686520617267756D656E7420226F776E65722220697320696E76616C6964
+    /// 003B : OpCode.THROW
+    /// 003C : OpCode.PUSH4
+    /// 003D : OpCode.PUSH1
+    /// 003E : OpCode.NEWBUFFER
+    /// 003F : OpCode.TUCK
+    /// 0040 : OpCode.PUSH0
+    /// 0041 : OpCode.ROT
+    /// 0042 : OpCode.SETITEM
+    /// 0043 : OpCode.SYSCALL 9BF667CE
+    /// 0048 : OpCode.PUSH2
+    /// 0049 : OpCode.PACK
+    /// 004A : OpCode.STLOC0
+    /// 004B : OpCode.PUSH3
+    /// 004C : OpCode.LDARG0
+    /// 004D : OpCode.LDLOC0
+    /// 004E : OpCode.UNPACK
+    /// 004F : OpCode.DROP
+    /// 0050 : OpCode.REVERSE3
+    /// 0051 : OpCode.CAT
+    /// 0052 : OpCode.SWAP
+    /// 0053 : OpCode.SYSCALL DF30B89A
+    /// 0058 : OpCode.RET
+    /// </remarks>
     [DisplayName("tokensOf")]
     public abstract object? TokensOf(UInt160? owner);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : JMPIFNOT
-    // 000A : PUSHT
-    // 000B : JMP
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : ISTYPE
-    // 0011 : SWAP
-    // 0012 : SIZE
-    // 0013 : PUSHINT8
-    // 0015 : NUMEQUAL
-    // 0016 : BOOLAND
-    // 0017 : NOT
-    // 0018 : JMPIFNOT
-    // 001A : PUSHDATA1
-    // 003B : THROW
-    // 003C : PUSH4
-    // 003D : PUSH1
-    // 003E : NEWBUFFER
-    // 003F : TUCK
-    // 0040 : PUSH0
-    // 0041 : ROT
-    // 0042 : SETITEM
-    // 0043 : SYSCALL
-    // 0048 : PUSH2
-    // 0049 : PACK
-    // 004A : STLOC0
-    // 004B : PUSH3
-    // 004C : LDARG0
-    // 004D : LDLOC0
-    // 004E : UNPACK
-    // 004F : DROP
-    // 0050 : REVERSE3
-    // 0051 : CAT
-    // 0052 : SWAP
-    // 0053 : SYSCALL
-    // 0058 : RET
 
     #endregion
 
@@ -246,114 +254,120 @@ public abstract class Contract_SupportedStandard11Enum(Neo.SmartContract.Testing
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0005
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("onNEP11Payment")]
     public abstract void OnNEP11Payment(UInt160? from, BigInteger? amount, string? tokenId, object? data = null);
-    // 0000 : INITSLOT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHT
+    /// 0001 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStandard")]
     public abstract bool? TestStandard();
-    // 0000 : PUSHT
-    // 0001 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0303
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.JMPIFNOT 05
+    /// 000A : OpCode.PUSHT
+    /// 000B : OpCode.JMP 0D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.ISTYPE 28
+    /// 0011 : OpCode.SWAP
+    /// 0012 : OpCode.SIZE
+    /// 0013 : OpCode.PUSHINT8 14
+    /// 0015 : OpCode.NUMEQUAL
+    /// 0016 : OpCode.BOOLAND
+    /// 0017 : OpCode.NOT
+    /// 0018 : OpCode.JMPIFNOT 22
+    /// 001A : OpCode.PUSHDATA1 54686520617267756D656E742022746F2220697320696E76616C69642E
+    /// 0039 : OpCode.THROW
+    /// 003A : OpCode.PUSH3
+    /// 003B : OpCode.PUSH1
+    /// 003C : OpCode.NEWBUFFER
+    /// 003D : OpCode.TUCK
+    /// 003E : OpCode.PUSH0
+    /// 003F : OpCode.ROT
+    /// 0040 : OpCode.SETITEM
+    /// 0041 : OpCode.SYSCALL 9BF667CE
+    /// 0046 : OpCode.PUSH2
+    /// 0047 : OpCode.PACK
+    /// 0048 : OpCode.STLOC0
+    /// 0049 : OpCode.LDARG1
+    /// 004A : OpCode.LDLOC0
+    /// 004B : OpCode.UNPACK
+    /// 004C : OpCode.DROP
+    /// 004D : OpCode.REVERSE3
+    /// 004E : OpCode.CAT
+    /// 004F : OpCode.SWAP
+    /// 0050 : OpCode.SYSCALL 925DE831
+    /// 0055 : OpCode.CALLT 0000
+    /// 0058 : OpCode.STLOC1
+    /// 0059 : OpCode.LDLOC1
+    /// 005A : OpCode.PUSH0
+    /// 005B : OpCode.PICKITEM
+    /// 005C : OpCode.STLOC2
+    /// 005D : OpCode.LDLOC2
+    /// 005E : OpCode.SYSCALL F827EC8C
+    /// 0063 : OpCode.NOT
+    /// 0064 : OpCode.JMPIFNOT 04
+    /// 0066 : OpCode.PUSHF
+    /// 0067 : OpCode.RET
+    /// 0068 : OpCode.LDLOC2
+    /// 0069 : OpCode.LDARG0
+    /// 006A : OpCode.NOTEQUAL
+    /// 006B : OpCode.JMPIFNOT 25
+    /// 006D : OpCode.LDARG0
+    /// 006E : OpCode.DUP
+    /// 006F : OpCode.LDLOC1
+    /// 0070 : OpCode.PUSH0
+    /// 0071 : OpCode.ROT
+    /// 0072 : OpCode.SETITEM
+    /// 0073 : OpCode.DROP
+    /// 0074 : OpCode.LDLOC1
+    /// 0075 : OpCode.CALLT 0100
+    /// 0078 : OpCode.DUP
+    /// 0079 : OpCode.LDARG1
+    /// 007A : OpCode.LDLOC0
+    /// 007B : OpCode.UNPACK
+    /// 007C : OpCode.DROP
+    /// 007D : OpCode.REVERSE3
+    /// 007E : OpCode.CAT
+    /// 007F : OpCode.SWAP
+    /// 0080 : OpCode.SYSCALL E63F1884
+    /// 0085 : OpCode.DROP
+    /// 0086 : OpCode.PUSHM1
+    /// 0087 : OpCode.LDARG1
+    /// 0088 : OpCode.LDLOC2
+    /// 0089 : OpCode.CALL 0F
+    /// 008B : OpCode.PUSH1
+    /// 008C : OpCode.LDARG1
+    /// 008D : OpCode.LDARG0
+    /// 008E : OpCode.CALL 0A
+    /// 0090 : OpCode.LDARG2
+    /// 0091 : OpCode.LDARG1
+    /// 0092 : OpCode.LDARG0
+    /// 0093 : OpCode.LDLOC2
+    /// 0094 : OpCode.CALL 45
+    /// 0096 : OpCode.PUSHT
+    /// 0097 : OpCode.RET
+    /// </remarks>
     [DisplayName("transfer")]
     public abstract bool? Transfer(UInt160? to, byte[]? tokenId, object? data = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : JMPIFNOT
-    // 000A : PUSHT
-    // 000B : JMP
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : ISTYPE
-    // 0011 : SWAP
-    // 0012 : SIZE
-    // 0013 : PUSHINT8
-    // 0015 : NUMEQUAL
-    // 0016 : BOOLAND
-    // 0017 : NOT
-    // 0018 : JMPIFNOT
-    // 001A : PUSHDATA1
-    // 0039 : THROW
-    // 003A : PUSH3
-    // 003B : PUSH1
-    // 003C : NEWBUFFER
-    // 003D : TUCK
-    // 003E : PUSH0
-    // 003F : ROT
-    // 0040 : SETITEM
-    // 0041 : SYSCALL
-    // 0046 : PUSH2
-    // 0047 : PACK
-    // 0048 : STLOC0
-    // 0049 : LDARG1
-    // 004A : LDLOC0
-    // 004B : UNPACK
-    // 004C : DROP
-    // 004D : REVERSE3
-    // 004E : CAT
-    // 004F : SWAP
-    // 0050 : SYSCALL
-    // 0055 : CALLT
-    // 0058 : STLOC1
-    // 0059 : LDLOC1
-    // 005A : PUSH0
-    // 005B : PICKITEM
-    // 005C : STLOC2
-    // 005D : LDLOC2
-    // 005E : SYSCALL
-    // 0063 : NOT
-    // 0064 : JMPIFNOT
-    // 0066 : PUSHF
-    // 0067 : RET
-    // 0068 : LDLOC2
-    // 0069 : LDARG0
-    // 006A : NOTEQUAL
-    // 006B : JMPIFNOT
-    // 006D : LDARG0
-    // 006E : DUP
-    // 006F : LDLOC1
-    // 0070 : PUSH0
-    // 0071 : ROT
-    // 0072 : SETITEM
-    // 0073 : DROP
-    // 0074 : LDLOC1
-    // 0075 : CALLT
-    // 0078 : DUP
-    // 0079 : LDARG1
-    // 007A : LDLOC0
-    // 007B : UNPACK
-    // 007C : DROP
-    // 007D : REVERSE3
-    // 007E : CAT
-    // 007F : SWAP
-    // 0080 : SYSCALL
-    // 0085 : DROP
-    // 0086 : PUSHM1
-    // 0087 : LDARG1
-    // 0088 : LDLOC2
-    // 0089 : CALL
-    // 008B : PUSH1
-    // 008C : LDARG1
-    // 008D : LDARG0
-    // 008E : CALL
-    // 0090 : LDARG2
-    // 0091 : LDARG1
-    // 0092 : LDARG0
-    // 0093 : LDLOC2
-    // 0094 : CALL
-    // 0096 : PUSHT
-    // 0097 : RET
 
     #endregion
 

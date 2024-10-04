@@ -24,365 +24,411 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SYSCALL F827EC8C
+    /// 0009 : OpCode.RET
+    /// </remarks>
     [DisplayName("checkWitness")]
     public abstract bool? CheckWitness(UInt160? hash);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : SYSCALL
-    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.PUSHDATA1 9E
+    /// 0006 : OpCode.CONVERT 30
+    /// 0008 : OpCode.CONVERT 28
+    /// 000A : OpCode.STLOC0
+    /// 000B : OpCode.LDARG1
+    /// 000C : OpCode.LDARG0
+    /// 000D : OpCode.PUSH2
+    /// 000E : OpCode.PACK
+    /// 000F : OpCode.PUSH15
+    /// 0010 : OpCode.LDLOC0
+    /// 0011 : OpCode.SYSCALL B30C808F
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("dynamicSum")]
     public abstract BigInteger? DynamicSum(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 0006 : CONVERT
-    // 0008 : CONVERT
-    // 000A : STLOC0
-    // 000B : LDARG1
-    // 000C : LDARG0
-    // 000D : PUSH2
-    // 000E : PACK
-    // 000F : PUSH15
-    // 0010 : LDLOC0
-    // 0011 : SYSCALL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 4C4992DC
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getAddressVersion")]
     public abstract BigInteger? GetAddressVersion();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0400
+    /// 0003 : OpCode.PUSH0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.SYSCALL 274335F1
+    /// 000B : OpCode.STLOC1
+    /// 000C : OpCode.PUSH0
+    /// 000D : OpCode.STLOC2
+    /// 000E : OpCode.JMP 6F
+    /// 0010 : OpCode.LDLOC1
+    /// 0011 : OpCode.LDLOC2
+    /// 0012 : OpCode.PICKITEM
+    /// 0013 : OpCode.STLOC3
+    /// 0014 : OpCode.LDLOC0
+    /// 0015 : OpCode.LDLOC3
+    /// 0016 : OpCode.PUSH2
+    /// 0017 : OpCode.PICKITEM
+    /// 0018 : OpCode.PUSH2
+    /// 0019 : OpCode.PICKITEM
+    /// 001A : OpCode.ADD
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.PUSHINT32 00000080
+    /// 0021 : OpCode.JMPGE 04
+    /// 0023 : OpCode.JMP 0A
+    /// 0025 : OpCode.DUP
+    /// 0026 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002B : OpCode.JMPLE 1E
+    /// 002D : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0036 : OpCode.AND
+    /// 0037 : OpCode.DUP
+    /// 0038 : OpCode.PUSHINT32 FFFFFF7F
+    /// 003D : OpCode.JMPLE 0C
+    /// 003F : OpCode.PUSHINT64 0000000001000000
+    /// 0048 : OpCode.SUB
+    /// 0049 : OpCode.STLOC0
+    /// 004A : OpCode.LDLOC2
+    /// 004B : OpCode.DUP
+    /// 004C : OpCode.INC
+    /// 004D : OpCode.DUP
+    /// 004E : OpCode.PUSHINT32 00000080
+    /// 0053 : OpCode.JMPGE 04
+    /// 0055 : OpCode.JMP 0A
+    /// 0057 : OpCode.DUP
+    /// 0058 : OpCode.PUSHINT32 FFFFFF7F
+    /// 005D : OpCode.JMPLE 1E
+    /// 005F : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0068 : OpCode.AND
+    /// 0069 : OpCode.DUP
+    /// 006A : OpCode.PUSHINT32 FFFFFF7F
+    /// 006F : OpCode.JMPLE 0C
+    /// 0071 : OpCode.PUSHINT64 0000000001000000
+    /// 007A : OpCode.SUB
+    /// 007B : OpCode.STLOC2
+    /// 007C : OpCode.DROP
+    /// 007D : OpCode.LDLOC2
+    /// 007E : OpCode.LDLOC1
+    /// 007F : OpCode.SIZE
+    /// 0080 : OpCode.LT
+    /// 0081 : OpCode.JMPIF 8F
+    /// 0083 : OpCode.LDLOC0
+    /// 0084 : OpCode.RET
+    /// </remarks>
     [DisplayName("getAllNotifications")]
     public abstract BigInteger? GetAllNotifications();
-    // 0000 : INITSLOT
-    // 0003 : PUSH0
-    // 0004 : STLOC0
-    // 0005 : PUSHNULL
-    // 0006 : SYSCALL
-    // 000B : STLOC1
-    // 000C : PUSH0
-    // 000D : STLOC2
-    // 000E : JMP
-    // 0010 : LDLOC1
-    // 0011 : LDLOC2
-    // 0012 : PICKITEM
-    // 0013 : STLOC3
-    // 0014 : LDLOC0
-    // 0015 : LDLOC3
-    // 0016 : PUSH2
-    // 0017 : PICKITEM
-    // 0018 : PUSH2
-    // 0019 : PICKITEM
-    // 001A : ADD
-    // 001B : DUP
-    // 001C : PUSHINT32
-    // 0021 : JMPGE
-    // 0023 : JMP
-    // 0025 : DUP
-    // 0026 : PUSHINT32
-    // 002B : JMPLE
-    // 002D : PUSHINT64
-    // 0036 : AND
-    // 0037 : DUP
-    // 0038 : PUSHINT32
-    // 003D : JMPLE
-    // 003F : PUSHINT64
-    // 0048 : SUB
-    // 0049 : STLOC0
-    // 004A : LDLOC2
-    // 004B : DUP
-    // 004C : INC
-    // 004D : DUP
-    // 004E : PUSHINT32
-    // 0053 : JMPGE
-    // 0055 : JMP
-    // 0057 : DUP
-    // 0058 : PUSHINT32
-    // 005D : JMPLE
-    // 005F : PUSHINT64
-    // 0068 : AND
-    // 0069 : DUP
-    // 006A : PUSHINT32
-    // 006F : JMPLE
-    // 0071 : PUSHINT64
-    // 007A : SUB
-    // 007B : STLOC2
-    // 007C : DROP
-    // 007D : LDLOC2
-    // 007E : LDLOC1
-    // 007F : SIZE
-    // 0080 : LT
-    // 0081 : JMPIF
-    // 0083 : LDLOC0
-    // 0084 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 1488D8CE
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getGasLeft")]
     public abstract BigInteger? GetGasLeft();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 84271143
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getInvocationCounter")]
     public abstract BigInteger? GetInvocationCounter();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL C5FBA0E0
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getNetwork")]
     public abstract BigInteger? GetNetwork();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0301
+    /// 0003 : OpCode.PUSH0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.SYSCALL 274335F1
+    /// 000B : OpCode.STLOC1
+    /// 000C : OpCode.PUSH0
+    /// 000D : OpCode.STLOC2
+    /// 000E : OpCode.JMP 6D
+    /// 0010 : OpCode.LDLOC0
+    /// 0011 : OpCode.LDLOC1
+    /// 0012 : OpCode.LDLOC2
+    /// 0013 : OpCode.PICKITEM
+    /// 0014 : OpCode.PUSH2
+    /// 0015 : OpCode.PICKITEM
+    /// 0016 : OpCode.PUSH2
+    /// 0017 : OpCode.PICKITEM
+    /// 0018 : OpCode.ADD
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.PUSHINT32 00000080
+    /// 001F : OpCode.JMPGE 04
+    /// 0021 : OpCode.JMP 0A
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0029 : OpCode.JMPLE 1E
+    /// 002B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0034 : OpCode.AND
+    /// 0035 : OpCode.DUP
+    /// 0036 : OpCode.PUSHINT32 FFFFFF7F
+    /// 003B : OpCode.JMPLE 0C
+    /// 003D : OpCode.PUSHINT64 0000000001000000
+    /// 0046 : OpCode.SUB
+    /// 0047 : OpCode.STLOC0
+    /// 0048 : OpCode.LDLOC2
+    /// 0049 : OpCode.DUP
+    /// 004A : OpCode.INC
+    /// 004B : OpCode.DUP
+    /// 004C : OpCode.PUSHINT32 00000080
+    /// 0051 : OpCode.JMPGE 04
+    /// 0053 : OpCode.JMP 0A
+    /// 0055 : OpCode.DUP
+    /// 0056 : OpCode.PUSHINT32 FFFFFF7F
+    /// 005B : OpCode.JMPLE 1E
+    /// 005D : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0066 : OpCode.AND
+    /// 0067 : OpCode.DUP
+    /// 0068 : OpCode.PUSHINT32 FFFFFF7F
+    /// 006D : OpCode.JMPLE 0C
+    /// 006F : OpCode.PUSHINT64 0000000001000000
+    /// 0078 : OpCode.SUB
+    /// 0079 : OpCode.STLOC2
+    /// 007A : OpCode.DROP
+    /// 007B : OpCode.LDLOC2
+    /// 007C : OpCode.LDLOC1
+    /// 007D : OpCode.SIZE
+    /// 007E : OpCode.LT
+    /// 007F : OpCode.JMPIF 91
+    /// 0081 : OpCode.LDLOC0
+    /// 0082 : OpCode.RET
+    /// </remarks>
     [DisplayName("getNotifications")]
     public abstract BigInteger? GetNotifications(UInt160? hash);
-    // 0000 : INITSLOT
-    // 0003 : PUSH0
-    // 0004 : STLOC0
-    // 0005 : LDARG0
-    // 0006 : SYSCALL
-    // 000B : STLOC1
-    // 000C : PUSH0
-    // 000D : STLOC2
-    // 000E : JMP
-    // 0010 : LDLOC0
-    // 0011 : LDLOC1
-    // 0012 : LDLOC2
-    // 0013 : PICKITEM
-    // 0014 : PUSH2
-    // 0015 : PICKITEM
-    // 0016 : PUSH2
-    // 0017 : PICKITEM
-    // 0018 : ADD
-    // 0019 : DUP
-    // 001A : PUSHINT32
-    // 001F : JMPGE
-    // 0021 : JMP
-    // 0023 : DUP
-    // 0024 : PUSHINT32
-    // 0029 : JMPLE
-    // 002B : PUSHINT64
-    // 0034 : AND
-    // 0035 : DUP
-    // 0036 : PUSHINT32
-    // 003B : JMPLE
-    // 003D : PUSHINT64
-    // 0046 : SUB
-    // 0047 : STLOC0
-    // 0048 : LDLOC2
-    // 0049 : DUP
-    // 004A : INC
-    // 004B : DUP
-    // 004C : PUSHINT32
-    // 0051 : JMPGE
-    // 0053 : JMP
-    // 0055 : DUP
-    // 0056 : PUSHINT32
-    // 005B : JMPLE
-    // 005D : PUSHINT64
-    // 0066 : AND
-    // 0067 : DUP
-    // 0068 : PUSHINT32
-    // 006D : JMPLE
-    // 006F : PUSHINT64
-    // 0078 : SUB
-    // 0079 : STLOC2
-    // 007A : DROP
-    // 007B : LDLOC2
-    // 007C : LDLOC1
-    // 007D : SIZE
-    // 007E : LT
-    // 007F : JMPIF
-    // 0081 : LDLOC0
-    // 0082 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SYSCALL 274335F1
+    /// 0009 : OpCode.STLOC0
+    /// 000A : OpCode.LDLOC0
+    /// 000B : OpCode.SIZE
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getNotificationsCount")]
     public abstract BigInteger? GetNotificationsCount(UInt160? hash);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : SYSCALL
-    // 0009 : STLOC0
-    // 000A : LDLOC0
-    // 000B : SIZE
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL B279FCF6
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getPlatform")]
     public abstract string? GetPlatform();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 6BDEA928
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getRandom")]
     public abstract BigInteger? GetRandom();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL B7C38803
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTime")]
     public abstract BigInteger? GetTime();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransaction")]
     public abstract object? GetTransaction();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionHash")]
     public abstract UInt256? GetTransactionHash();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH0
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH5
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionNetworkFee")]
     public abstract BigInteger? GetTransactionNetworkFee();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH5
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH2
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionNonce")]
     public abstract BigInteger? GetTransactionNonce();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH2
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH7
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionScript")]
     public abstract byte[]? GetTransactionScript();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH7
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH3
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionSender")]
     public abstract UInt160? GetTransactionSender();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH3
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH4
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionSystemFee")]
     public abstract BigInteger? GetTransactionSystemFee();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH4
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH6
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionValidUntilBlock")]
     public abstract BigInteger? GetTransactionValidUntilBlock();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH6
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.SYSCALL 2D510830
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH1
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionVersion")]
     public abstract BigInteger? GetTransactionVersion();
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : PUSH1
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL E97D38A0
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTrigger")]
     public abstract BigInteger? GetTrigger();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SYSCALL CFE74796
+    /// 0009 : OpCode.RET
+    /// </remarks>
     [DisplayName("log")]
     public abstract void Log(string? message);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : SYSCALL
-    // 0009 : RET
 
     #endregion
 

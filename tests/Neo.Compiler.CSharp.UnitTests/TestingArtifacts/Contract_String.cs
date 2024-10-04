@@ -24,247 +24,265 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1 776F726C64
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.CALLT 0300
+    /// 000E : OpCode.PUSH0
+    /// 000F : OpCode.GE
+    /// 0010 : OpCode.RET
+    /// </remarks>
     [DisplayName("testContains")]
     public abstract bool? TestContains(string? str);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000A : LDARG0
-    // 000B : CALLT
-    // 000E : PUSH0
-    // 000F : GE
-    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1
+    /// 0002 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEmpty")]
     public abstract string? TestEmpty();
-    // 0000 : PUSHDATA1
-    // 0002 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1 776F726C64
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.SIZE
+    /// 000D : OpCode.ROT
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.SIZE
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.PUSH3
+    /// 0012 : OpCode.ROLL
+    /// 0013 : OpCode.SWAP
+    /// 0014 : OpCode.SUB
+    /// 0015 : OpCode.DUP
+    /// 0016 : OpCode.PUSH0
+    /// 0017 : OpCode.JMPGT 08
+    /// 0019 : OpCode.DROP
+    /// 001A : OpCode.DROP
+    /// 001B : OpCode.DROP
+    /// 001C : OpCode.DROP
+    /// 001D : OpCode.PUSHF
+    /// 001E : OpCode.RET
+    /// 001F : OpCode.PUSH3
+    /// 0020 : OpCode.ROLL
+    /// 0021 : OpCode.REVERSE3
+    /// 0022 : OpCode.SUBSTR
+    /// 0023 : OpCode.CONVERT 28
+    /// 0025 : OpCode.EQUAL
+    /// 0026 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEndWith")]
     public abstract bool? TestEndWith(string? str);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000A : LDARG0
-    // 000B : DUP
-    // 000C : SIZE
-    // 000D : ROT
-    // 000E : DUP
-    // 000F : SIZE
-    // 0010 : DUP
-    // 0011 : PUSH3
-    // 0012 : ROLL
-    // 0013 : SWAP
-    // 0014 : SUB
-    // 0015 : DUP
-    // 0016 : PUSH0
-    // 0017 : JMPGT
-    // 0019 : DROP
-    // 001A : DROP
-    // 001B : DROP
-    // 001C : DROP
-    // 001D : PUSHF
-    // 001E : RET
-    // 001F : PUSH3
-    // 0020 : ROLL
-    // 0021 : REVERSE3
-    // 0022 : SUBSTR
-    // 0023 : CONVERT
-    // 0025 : EQUAL
-    // 0026 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0200
+    /// 0003 : OpCode.PUSHDATA1 68656C6C6F
+    /// 000A : OpCode.STLOC0
+    /// 000B : OpCode.PUSHDATA1 68656C6C6F
+    /// 0012 : OpCode.STLOC1
+    /// 0013 : OpCode.LDLOC0
+    /// 0014 : OpCode.LDLOC1
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.JMPIF 0B
+    /// 0018 : OpCode.PUSHDATA1 46616C7365
+    /// 001F : OpCode.JMP 08
+    /// 0021 : OpCode.PUSHDATA1 54727565
+    /// 0027 : OpCode.SYSCALL CFE74796
+    /// 002C : OpCode.RET
+    /// </remarks>
     [DisplayName("testEqual")]
     public abstract void TestEqual();
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000A : STLOC0
-    // 000B : PUSHDATA1
-    // 0012 : STLOC1
-    // 0013 : LDLOC0
-    // 0014 : LDLOC1
-    // 0015 : EQUAL
-    // 0016 : JMPIF
-    // 0018 : PUSHDATA1
-    // 001F : JMP
-    // 0021 : PUSHDATA1
-    // 0027 : SYSCALL
-    // 002C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1 776F726C64
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.CALLT 0300
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("testIndexOf")]
     public abstract BigInteger? TestIndexOf(string? str);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000A : LDARG0
-    // 000B : CALLT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0400
+    /// 0003 : OpCode.PUSHINT128 0000A0DEC5ADC9353600000000000000
+    /// 0014 : OpCode.STLOC0
+    /// 0015 : OpCode.PUSHDATA1 4E5856375A684869794D3161485877705673525A433642774E4650326A6768584171
+    /// 0039 : OpCode.STLOC1
+    /// 003A : OpCode.PUSHDATA1 010203
+    /// 003F : OpCode.CONVERT 30
+    /// 0041 : OpCode.STLOC2
+    /// 0042 : OpCode.PUSHDATA1 53427974653A20
+    /// 004B : OpCode.PUSHINT8 D6
+    /// 004D : OpCode.CALLT 0200
+    /// 0050 : OpCode.CAT
+    /// 0051 : OpCode.PUSHDATA1 2C20427974653A20
+    /// 005B : OpCode.CAT
+    /// 005C : OpCode.PUSHINT8 2A
+    /// 005E : OpCode.CALLT 0200
+    /// 0061 : OpCode.CAT
+    /// 0062 : OpCode.PUSHDATA1 2C205553686F72743A20
+    /// 006E : OpCode.CAT
+    /// 006F : OpCode.PUSHINT16 E803
+    /// 0072 : OpCode.CALLT 0200
+    /// 0075 : OpCode.CAT
+    /// 0076 : OpCode.PUSHDATA1 2C20
+    /// 007A : OpCode.CAT
+    /// 007B : OpCode.CONVERT 28
+    /// 007D : OpCode.PUSHDATA1 55496E743A20
+    /// 0085 : OpCode.PUSHINT32 40420F00
+    /// 008A : OpCode.CALLT 0200
+    /// 008D : OpCode.CAT
+    /// 008E : OpCode.PUSHDATA1 2C20554C6F6E673A20
+    /// 0099 : OpCode.CAT
+    /// 009A : OpCode.PUSHINT64 0010A5D4E8000000
+    /// 00A3 : OpCode.CALLT 0200
+    /// 00A6 : OpCode.CAT
+    /// 00A7 : OpCode.PUSHDATA1 2C20
+    /// 00AB : OpCode.CAT
+    /// 00AC : OpCode.CONVERT 28
+    /// 00AE : OpCode.CAT
+    /// 00AF : OpCode.CONVERT 28
+    /// 00B1 : OpCode.PUSHDATA1 426967496E74656765723A20
+    /// 00BF : OpCode.LDLOC0
+    /// 00C0 : OpCode.CALLT 0200
+    /// 00C3 : OpCode.CAT
+    /// 00C4 : OpCode.PUSHDATA1 2C20436861723A20
+    /// 00CE : OpCode.CAT
+    /// 00CF : OpCode.PUSHINT8 41
+    /// 00D1 : OpCode.CONVERT 28
+    /// 00D3 : OpCode.CAT
+    /// 00D4 : OpCode.PUSHDATA1 2C20537472696E673A20
+    /// 00E0 : OpCode.CAT
+    /// 00E1 : OpCode.PUSHDATA1 48656C6C6F
+    /// 00E8 : OpCode.CAT
+    /// 00E9 : OpCode.PUSHDATA1 2C20
+    /// 00ED : OpCode.CAT
+    /// 00EE : OpCode.CONVERT 28
+    /// 00F0 : OpCode.CAT
+    /// 00F1 : OpCode.CONVERT 28
+    /// 00F3 : OpCode.PUSHDATA1 4543506F696E743A20
+    /// 00FE : OpCode.LDLOC1
+    /// 00FF : OpCode.CAT
+    /// 0100 : OpCode.PUSHDATA1 2C2042797465537472696E673A20
+    /// 0110 : OpCode.CAT
+    /// 0111 : OpCode.PUSHDATA1 53797374656D2E427974655B5D
+    /// 0120 : OpCode.CAT
+    /// 0121 : OpCode.PUSHDATA1 2C20426F6F6C3A20
+    /// 012B : OpCode.CAT
+    /// 012C : OpCode.PUSHT
+    /// 012D : OpCode.JMPIFNOT 0A
+    /// 012F : OpCode.PUSHDATA1 54727565
+    /// 0135 : OpCode.JMP 09
+    /// 0137 : OpCode.PUSHDATA1 46616C7365
+    /// 013E : OpCode.CAT
+    /// 013F : OpCode.CONVERT 28
+    /// 0141 : OpCode.CAT
+    /// 0142 : OpCode.CONVERT 28
+    /// 0144 : OpCode.STLOC3
+    /// 0145 : OpCode.LDLOC3
+    /// 0146 : OpCode.RET
+    /// </remarks>
     [DisplayName("testInterpolatedStringHandler")]
     public abstract string? TestInterpolatedStringHandler();
-    // 0000 : INITSLOT
-    // 0003 : PUSHINT128
-    // 0014 : STLOC0
-    // 0015 : PUSHDATA1
-    // 0039 : STLOC1
-    // 003A : PUSHDATA1
-    // 003F : CONVERT
-    // 0041 : STLOC2
-    // 0042 : PUSHDATA1
-    // 004B : PUSHINT8
-    // 004D : CALLT
-    // 0050 : CAT
-    // 0051 : PUSHDATA1
-    // 005B : CAT
-    // 005C : PUSHINT8
-    // 005E : CALLT
-    // 0061 : CAT
-    // 0062 : PUSHDATA1
-    // 006E : CAT
-    // 006F : PUSHINT16
-    // 0072 : CALLT
-    // 0075 : CAT
-    // 0076 : PUSHDATA1
-    // 007A : CAT
-    // 007B : CONVERT
-    // 007D : PUSHDATA1
-    // 0085 : PUSHINT32
-    // 008A : CALLT
-    // 008D : CAT
-    // 008E : PUSHDATA1
-    // 0099 : CAT
-    // 009A : PUSHINT64
-    // 00A3 : CALLT
-    // 00A6 : CAT
-    // 00A7 : PUSHDATA1
-    // 00AB : CAT
-    // 00AC : CONVERT
-    // 00AE : CAT
-    // 00AF : CONVERT
-    // 00B1 : PUSHDATA1
-    // 00BF : LDLOC0
-    // 00C0 : CALLT
-    // 00C3 : CAT
-    // 00C4 : PUSHDATA1
-    // 00CE : CAT
-    // 00CF : PUSHINT8
-    // 00D1 : CONVERT
-    // 00D3 : CAT
-    // 00D4 : PUSHDATA1
-    // 00E0 : CAT
-    // 00E1 : PUSHDATA1
-    // 00E8 : CAT
-    // 00E9 : PUSHDATA1
-    // 00ED : CAT
-    // 00EE : CONVERT
-    // 00F0 : CAT
-    // 00F1 : CONVERT
-    // 00F3 : PUSHDATA1
-    // 00FE : LDLOC1
-    // 00FF : CAT
-    // 0100 : PUSHDATA1
-    // 0110 : CAT
-    // 0111 : PUSHDATA1
-    // 0120 : CAT
-    // 0121 : PUSHDATA1
-    // 012B : CAT
-    // 012C : PUSHT
-    // 012D : JMPIFNOT
-    // 012F : PUSHDATA1
-    // 0135 : JMP
-    // 0137 : PUSHDATA1
-    // 013E : CAT
-    // 013F : CONVERT
-    // 0141 : CAT
-    // 0142 : CONVERT
-    // 0144 : STLOC3
-    // 0145 : LDLOC3
-    // 0146 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 06
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.PUSH0
+    /// 000A : OpCode.NUMEQUAL
+    /// 000B : OpCode.RET
+    /// 000C : OpCode.DROP
+    /// 000D : OpCode.PUSHT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("testIsNullOrEmpty")]
     public abstract bool? TestIsNullOrEmpty(string? str);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : SIZE
-    // 0009 : PUSH0
-    // 000A : NUMEQUAL
-    // 000B : RET
-    // 000C : DROP
-    // 000D : PUSHT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0300
+    /// 0003 : OpCode.PUSHDATA1 4D61726B
+    /// 0009 : OpCode.STLOC0
+    /// 000A : OpCode.PUSHDATA1
+    /// 000C : OpCode.STLOC1
+    /// 000D : OpCode.CALLT 0100
+    /// 0010 : OpCode.CALLT 0000
+    /// 0013 : OpCode.PUSH4
+    /// 0014 : OpCode.PICKITEM
+    /// 0015 : OpCode.STLOC2
+    /// 0016 : OpCode.PUSHDATA1 48656C6C6F2C20
+    /// 001F : OpCode.LDLOC0
+    /// 0020 : OpCode.CAT
+    /// 0021 : OpCode.PUSHDATA1 20
+    /// 0024 : OpCode.CAT
+    /// 0025 : OpCode.LDLOC1
+    /// 0026 : OpCode.CAT
+    /// 0027 : OpCode.PUSHDATA1 212043757272656E742074696D657374616D7020697320
+    /// 0040 : OpCode.CAT
+    /// 0041 : OpCode.LDLOC2
+    /// 0042 : OpCode.CALLT 0200
+    /// 0045 : OpCode.CAT
+    /// 0046 : OpCode.PUSHDATA1 2E
+    /// 0049 : OpCode.CAT
+    /// 004A : OpCode.CONVERT 28
+    /// 004C : OpCode.SYSCALL CFE74796
+    /// 0051 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMain")]
     public abstract void TestMain();
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 0009 : STLOC0
-    // 000A : PUSHDATA1
-    // 000C : STLOC1
-    // 000D : CALLT
-    // 0010 : CALLT
-    // 0013 : PUSH4
-    // 0014 : PICKITEM
-    // 0015 : STLOC2
-    // 0016 : PUSHDATA1
-    // 001F : LDLOC0
-    // 0020 : CAT
-    // 0021 : PUSHDATA1
-    // 0024 : CAT
-    // 0025 : LDLOC1
-    // 0026 : CAT
-    // 0027 : PUSHDATA1
-    // 0040 : CAT
-    // 0041 : LDLOC2
-    // 0042 : CALLT
-    // 0045 : CAT
-    // 0046 : PUSHDATA1
-    // 0049 : CAT
-    // 004A : CONVERT
-    // 004C : SYSCALL
-    // 0051 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHDATA1 3031323334353637
+    /// 000D : OpCode.STLOC0
+    /// 000E : OpCode.LDLOC0
+    /// 000F : OpCode.PUSH1
+    /// 0010 : OpCode.OVER
+    /// 0011 : OpCode.SIZE
+    /// 0012 : OpCode.OVER
+    /// 0013 : OpCode.SUB
+    /// 0014 : OpCode.SUBSTR
+    /// 0015 : OpCode.SYSCALL CFE74796
+    /// 001A : OpCode.LDLOC0
+    /// 001B : OpCode.PUSH1
+    /// 001C : OpCode.PUSH4
+    /// 001D : OpCode.SUBSTR
+    /// 001E : OpCode.SYSCALL CFE74796
+    /// 0023 : OpCode.RET
+    /// </remarks>
     [DisplayName("testSubstring")]
     public abstract void TestSubstring();
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000D : STLOC0
-    // 000E : LDLOC0
-    // 000F : PUSH1
-    // 0010 : OVER
-    // 0011 : SIZE
-    // 0012 : OVER
-    // 0013 : SUB
-    // 0014 : SUBSTR
-    // 0015 : SYSCALL
-    // 001A : LDLOC0
-    // 001B : PUSH1
-    // 001C : PUSH4
-    // 001D : SUBSTR
-    // 001E : SYSCALL
-    // 0023 : RET
 
     #endregion
 

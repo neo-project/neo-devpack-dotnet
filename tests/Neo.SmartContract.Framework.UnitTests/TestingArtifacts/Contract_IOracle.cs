@@ -24,18 +24,20 @@ public abstract class Contract_IOracle(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0005
+    /// 0003 : OpCode.SYSCALL 39536E3C
+    /// 0008 : OpCode.PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE
+    /// 001E : OpCode.NOTEQUAL
+    /// 001F : OpCode.JMPIFNOT 12
+    /// 0021 : OpCode.PUSHDATA1 556E617574686F72697A656421
+    /// 0030 : OpCode.THROW
+    /// 0031 : OpCode.PUSHDATA1 4F7261636C652063616C6C21
+    /// 003F : OpCode.SYSCALL CFE74796
+    /// 0044 : OpCode.RET
+    /// </remarks>
     [DisplayName("onOracleResponse")]
     public abstract void OnOracleResponse(string? url, object? userData, BigInteger? code, string? result);
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : PUSHDATA1
-    // 001E : NOTEQUAL
-    // 001F : JMPIFNOT
-    // 0021 : PUSHDATA1
-    // 0030 : THROW
-    // 0031 : PUSHDATA1
-    // 003F : SYSCALL
-    // 0044 : RET
 
     #endregion
 

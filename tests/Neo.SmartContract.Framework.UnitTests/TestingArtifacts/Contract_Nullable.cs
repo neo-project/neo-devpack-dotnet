@@ -24,1483 +24,1571 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("bigIntegerNullableEqual")]
     public abstract bool? BigIntegerNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("bigIntegerNullableEqualNull")]
     public abstract bool? BigIntegerNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("bigIntegerNullableNotEqual")]
     public abstract bool? BigIntegerNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("bigIntegerNullableToString")]
     public abstract bool? BigIntegerNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.EQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 15
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 09
+    /// 0021 : OpCode.DUP
+    /// 0022 : OpCode.ISNULL
+    /// 0023 : OpCode.JMPIF 09
+    /// 0025 : OpCode.EQUAL
+    /// 0026 : OpCode.JMP 08
+    /// 0028 : OpCode.DROP
+    /// 0029 : OpCode.ISNULL
+    /// 002A : OpCode.JMP 04
+    /// 002C : OpCode.DROP
+    /// 002D : OpCode.PUSHF
+    /// 002E : OpCode.JMPIF 04
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.RET
+    /// 0032 : OpCode.LDARG1
+    /// 0033 : OpCode.LDARG0
+    /// 0034 : OpCode.EQUAL
+    /// 0035 : OpCode.RET
+    /// </remarks>
     [DisplayName("boolNullableEqual")]
     public abstract bool? BoolNullableEqual(bool? a, bool? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : EQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : DUP
-    // 0022 : ISNULL
-    // 0023 : JMPIF
-    // 0025 : EQUAL
-    // 0026 : JMP
-    // 0028 : DROP
-    // 0029 : ISNULL
-    // 002A : JMP
-    // 002C : DROP
-    // 002D : PUSHF
-    // 002E : JMPIF
-    // 0030 : PUSHF
-    // 0031 : RET
-    // 0032 : LDARG1
-    // 0033 : LDARG0
-    // 0034 : EQUAL
-    // 0035 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("boolNullableEqualNull")]
     public abstract bool? BoolNullableEqualNull(bool? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.EQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 16
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 09
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.EQUAL
+    /// 0027 : OpCode.JMP 08
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 04
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.PUSHF
+    /// 002F : OpCode.NOT
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.NOTEQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("boolNullableNotEqual")]
     public abstract bool? BoolNullableNotEqual(bool? a, bool? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : EQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : EQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : PUSHF
-    // 002F : NOT
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : NOTEQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 13
+    /// 0008 : OpCode.JMPIF 0B
+    /// 000A : OpCode.PUSHDATA1 46616C7365
+    /// 0011 : OpCode.JMP 08
+    /// 0013 : OpCode.PUSHDATA1 54727565
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.ISNULL
+    /// 001B : OpCode.JMPIFNOT 05
+    /// 001D : OpCode.DROP
+    /// 001E : OpCode.PUSHDATA1
+    /// 0020 : OpCode.PUSHDATA1 54727565
+    /// 0026 : OpCode.EQUAL
+    /// 0027 : OpCode.RET
+    /// </remarks>
     [DisplayName("boolNullableToString")]
     public abstract bool? BoolNullableToString(bool? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : JMPIF
-    // 000A : PUSHDATA1
-    // 0011 : JMP
-    // 0013 : PUSHDATA1
-    // 0019 : DUP
-    // 001A : ISNULL
-    // 001B : JMPIFNOT
-    // 001D : DROP
-    // 001E : PUSHDATA1
-    // 0020 : PUSHDATA1
-    // 0026 : EQUAL
-    // 0027 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("byteNullableEqual")]
     public abstract bool? ByteNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("byteNullableEqualNull")]
     public abstract bool? ByteNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("byteNullableNotEqual")]
     public abstract bool? ByteNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("byteNullableToString")]
     public abstract bool? ByteNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("h160NullableEqualNull")]
     public abstract bool? H160NullableEqualNull(UInt160? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 06
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.EQUAL
+    /// 000E : OpCode.NOT
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.PUSHF
+    /// 0012 : OpCode.JMP 06
+    /// 0014 : OpCode.LDARG1
+    /// 0015 : OpCode.LDARG0
+    /// 0016 : OpCode.EQUAL
+    /// 0017 : OpCode.NOT
+    /// 0018 : OpCode.JMPIF 04
+    /// 001A : OpCode.PUSHF
+    /// 001B : OpCode.RET
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.NOTEQUAL
+    /// 001F : OpCode.RET
+    /// </remarks>
     [DisplayName("h160NullableNotEqual")]
     public abstract bool? H160NullableNotEqual(UInt160? a, UInt160? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : EQUAL
-    // 000E : NOT
-    // 000F : JMPIF
-    // 0011 : PUSHF
-    // 0012 : JMP
-    // 0014 : LDARG1
-    // 0015 : LDARG0
-    // 0016 : EQUAL
-    // 0017 : NOT
-    // 0018 : JMPIF
-    // 001A : PUSHF
-    // 001B : RET
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : NOTEQUAL
-    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 05
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.EQUAL
+    /// 000E : OpCode.JMPIF 05
+    /// 0010 : OpCode.PUSHF
+    /// 0011 : OpCode.JMP 05
+    /// 0013 : OpCode.LDARG1
+    /// 0014 : OpCode.LDARG0
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.JMPIF 04
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.RET
+    /// 001A : OpCode.LDARG1
+    /// 001B : OpCode.LDARG0
+    /// 001C : OpCode.EQUAL
+    /// 001D : OpCode.RET
+    /// </remarks>
     [DisplayName("h256NullableEqual")]
     public abstract bool? H256NullableEqual(UInt256? a, UInt256? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : EQUAL
-    // 000E : JMPIF
-    // 0010 : PUSHF
-    // 0011 : JMP
-    // 0013 : LDARG1
-    // 0014 : LDARG0
-    // 0015 : EQUAL
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : RET
-    // 001A : LDARG1
-    // 001B : LDARG0
-    // 001C : EQUAL
-    // 001D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 06
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.EQUAL
+    /// 000E : OpCode.NOT
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.PUSHF
+    /// 0012 : OpCode.JMP 06
+    /// 0014 : OpCode.LDARG1
+    /// 0015 : OpCode.LDARG0
+    /// 0016 : OpCode.EQUAL
+    /// 0017 : OpCode.NOT
+    /// 0018 : OpCode.JMPIF 04
+    /// 001A : OpCode.PUSHF
+    /// 001B : OpCode.RET
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.NOTEQUAL
+    /// 001F : OpCode.RET
+    /// </remarks>
     [DisplayName("h256NullableNotEqual")]
     public abstract bool? H256NullableNotEqual(UInt256? a, UInt256? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : EQUAL
-    // 000E : NOT
-    // 000F : JMPIF
-    // 0011 : PUSHF
-    // 0012 : JMP
-    // 0014 : LDARG1
-    // 0015 : LDARG0
-    // 0016 : EQUAL
-    // 0017 : NOT
-    // 0018 : JMPIF
-    // 001A : PUSHF
-    // 001B : RET
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : NOTEQUAL
-    // 001F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("intNullableEqual")]
     public abstract bool? IntNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("intNullableEqualNull")]
     public abstract bool? IntNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("intNullableNotEqual")]
     public abstract bool? IntNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("intNullableToString")]
     public abstract bool? IntNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("longNullableEqual")]
     public abstract bool? LongNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("longNullableEqualNull")]
     public abstract bool? LongNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("longNullableNotEqual")]
     public abstract bool? LongNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("longNullableToString")]
     public abstract bool? LongNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("sByteNullableEqual")]
     public abstract bool? SByteNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("sByteNullableEqualNull")]
     public abstract bool? SByteNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("sByteNullableNotEqual")]
     public abstract bool? SByteNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("sByteNullableToString")]
     public abstract bool? SByteNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("shortNullableEqual")]
     public abstract bool? ShortNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("shortNullableEqualNull")]
     public abstract bool? ShortNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("shortNullableNotEqual")]
     public abstract bool? ShortNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("shortNullableToString")]
     public abstract bool? ShortNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("uIntNullableEqual")]
     public abstract bool? UIntNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("uIntNullableEqualNull")]
     public abstract bool? UIntNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("uIntNullableNotEqual")]
     public abstract bool? UIntNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("uIntNullableToString")]
     public abstract bool? UIntNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("uLongNullableEqual")]
     public abstract bool? ULongNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("uLongNullableEqualNull")]
     public abstract bool? ULongNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("uLongNullableNotEqual")]
     public abstract bool? ULongNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("uLongNullableToString")]
     public abstract bool? ULongNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0D
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.JMPIF 05
+    /// 0018 : OpCode.PUSHF
+    /// 0019 : OpCode.JMP 17
+    /// 001B : OpCode.LDARG1
+    /// 001C : OpCode.LDARG0
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.ISNULL
+    /// 001F : OpCode.JMPIF 0A
+    /// 0021 : OpCode.SWAP
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.ISNULL
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.NUMEQUAL
+    /// 0027 : OpCode.JMP 09
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.ISNULL
+    /// 002B : OpCode.JMP 05
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.PUSHF
+    /// 0030 : OpCode.JMPIF 04
+    /// 0032 : OpCode.PUSHF
+    /// 0033 : OpCode.RET
+    /// 0034 : OpCode.LDARG1
+    /// 0035 : OpCode.LDARG0
+    /// 0036 : OpCode.EQUAL
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("uShortNullableEqual")]
     public abstract bool? UShortNullableEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : JMPIF
-    // 0018 : PUSHF
-    // 0019 : JMP
-    // 001B : LDARG1
-    // 001C : LDARG0
-    // 001D : DUP
-    // 001E : ISNULL
-    // 001F : JMPIF
-    // 0021 : SWAP
-    // 0022 : DUP
-    // 0023 : ISNULL
-    // 0024 : JMPIF
-    // 0026 : NUMEQUAL
-    // 0027 : JMP
-    // 0029 : DROP
-    // 002A : ISNULL
-    // 002B : JMP
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : PUSHF
-    // 0030 : JMPIF
-    // 0032 : PUSHF
-    // 0033 : RET
-    // 0034 : LDARG1
-    // 0035 : LDARG0
-    // 0036 : EQUAL
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.JMPIF 04
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.ISNULL
+    /// 000C : OpCode.NOT
+    /// 000D : OpCode.NOT
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("uShortNullableEqualNull")]
     public abstract bool? UShortNullableEqualNull(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : RET
-    // 000A : LDARG0
-    // 000B : ISNULL
-    // 000C : NOT
-    // 000D : NOT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.LDARG1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIF 05
+    /// 0011 : OpCode.NUMEQUAL
+    /// 0012 : OpCode.JMP 04
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHF
+    /// 0016 : OpCode.NOT
+    /// 0017 : OpCode.JMPIF 05
+    /// 0019 : OpCode.PUSHF
+    /// 001A : OpCode.JMP 18
+    /// 001C : OpCode.LDARG1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.ISNULL
+    /// 0020 : OpCode.JMPIF 0A
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.ISNULL
+    /// 0025 : OpCode.JMPIF 09
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMP 09
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.ISNULL
+    /// 002C : OpCode.JMP 05
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.DROP
+    /// 0030 : OpCode.PUSHF
+    /// 0031 : OpCode.NOT
+    /// 0032 : OpCode.JMPIF 04
+    /// 0034 : OpCode.PUSHF
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.LDARG0
+    /// 0038 : OpCode.NOTEQUAL
+    /// 0039 : OpCode.RET
+    /// </remarks>
     [DisplayName("uShortNullableNotEqual")]
     public abstract bool? UShortNullableNotEqual(BigInteger? a, BigInteger? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NOTEQUAL
-    // 0006 : JMPIF
-    // 0008 : PUSHF
-    // 0009 : JMP
-    // 000B : LDARG0
-    // 000C : LDARG1
-    // 000D : DUP
-    // 000E : ISNULL
-    // 000F : JMPIF
-    // 0011 : NUMEQUAL
-    // 0012 : JMP
-    // 0014 : DROP
-    // 0015 : PUSHF
-    // 0016 : NOT
-    // 0017 : JMPIF
-    // 0019 : PUSHF
-    // 001A : JMP
-    // 001C : LDARG1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : ISNULL
-    // 0020 : JMPIF
-    // 0022 : SWAP
-    // 0023 : DUP
-    // 0024 : ISNULL
-    // 0025 : JMPIF
-    // 0027 : NUMEQUAL
-    // 0028 : JMP
-    // 002A : DROP
-    // 002B : ISNULL
-    // 002C : JMP
-    // 002E : DROP
-    // 002F : DROP
-    // 0030 : PUSHF
-    // 0031 : NOT
-    // 0032 : JMPIF
-    // 0034 : PUSHF
-    // 0035 : RET
-    // 0036 : LDARG1
-    // 0037 : LDARG0
-    // 0038 : NOTEQUAL
-    // 0039 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.ISNULL
+    /// 000D : OpCode.JMPIFNOT 05
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.PUSHDATA1
+    /// 0012 : OpCode.PUSHDATA1 31
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("uShortNullableToString")]
     public abstract bool? UShortNullableToString(BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : CALLT
-    // 000B : DUP
-    // 000C : ISNULL
-    // 000D : JMPIFNOT
-    // 000F : DROP
-    // 0010 : PUSHDATA1
-    // 0012 : PUSHDATA1
-    // 0015 : EQUAL
-    // 0016 : RET
 
     #endregion
 

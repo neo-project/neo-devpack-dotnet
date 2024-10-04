@@ -24,21 +24,25 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT128 000000E4D20CC8DCD2B7520000000000
+    /// 0011 : OpCode.RET
+    /// </remarks>
     [DisplayName("parseConstant")]
     public abstract BigInteger? ParseConstant();
-    // 0000 : PUSHINT128
-    // 0011 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.ADD
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testAdd")]
     public abstract BigInteger? TestAdd(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : ADD
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
@@ -61,56 +65,64 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.SUB
+    /// 0006 : OpCode.SIGN
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("testCompare")]
     public abstract BigInteger? TestCompare(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : SUB
-    // 0006 : SIGN
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.DIV
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testDivide")]
     public abstract BigInteger? TestDivide(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : DIV
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.NUMEQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEquals")]
     public abstract bool? TestEquals(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : NUMEQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.REVERSE3
+    /// 0007 : OpCode.SWAP
+    /// 0008 : OpCode.MOD
+    /// 0009 : OpCode.DUP
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.NUMEQUAL
+    /// 000C : OpCode.JMPIFNOT F9
+    /// 000E : OpCode.DROP
+    /// 000F : OpCode.ABS
+    /// 0010 : OpCode.RET
+    /// </remarks>
     [DisplayName("testGreatestCommonDivisor")]
     public abstract BigInteger? TestGreatestCommonDivisor(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : DUP
-    // 0006 : REVERSE3
-    // 0007 : SWAP
-    // 0008 : MOD
-    // 0009 : DUP
-    // 000A : PUSH0
-    // 000B : NUMEQUAL
-    // 000C : JMPIFNOT
-    // 000E : DROP
-    // 000F : ABS
-    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
@@ -145,63 +157,73 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0300
+    /// 0003 : OpCode.PUSH10
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSH3
+    /// 0006 : OpCode.STLOC1
+    /// 0007 : OpCode.PUSHINT8 1E
+    /// 0009 : OpCode.STLOC2
+    /// 000A : OpCode.LDLOC0
+    /// 000B : OpCode.LDLOC1
+    /// 000C : OpCode.LDLOC2
+    /// 000D : OpCode.MODPOW
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("testModPow")]
     public abstract BigInteger? TestModPow();
-    // 0000 : INITSLOT
-    // 0003 : PUSH10
-    // 0004 : STLOC0
-    // 0005 : PUSH3
-    // 0006 : STLOC1
-    // 0007 : PUSHINT8
-    // 0009 : STLOC2
-    // 000A : LDLOC0
-    // 000B : LDLOC1
-    // 000C : LDLOC2
-    // 000D : MODPOW
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.MUL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMultiply")]
     public abstract BigInteger? TestMultiply(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : MUL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.NEGATE
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("testNegate")]
     public abstract BigInteger? TestNegate(BigInteger? x);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : NEGATE
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.POW
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testPow")]
     public abstract BigInteger? TestPow(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : POW
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.MOD
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testRemainder")]
     public abstract BigInteger? TestRemainder(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : MOD
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
@@ -224,23 +246,27 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SQRT
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("testSqrt")]
     public abstract BigInteger? TestSqrt(BigInteger? x);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : SQRT
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.SUB
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testSubtract")]
     public abstract BigInteger? TestSubtract(BigInteger? x, BigInteger? y);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : SUB
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method

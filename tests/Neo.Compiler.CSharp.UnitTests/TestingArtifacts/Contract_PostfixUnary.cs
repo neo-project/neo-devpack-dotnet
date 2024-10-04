@@ -24,103 +24,107 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.NOT
+    /// 0009 : OpCode.JMPIF 04
+    /// 000B : OpCode.PUSHF
+    /// 000C : OpCode.RET
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.PUSH0
+    /// 000F : OpCode.PICKITEM
+    /// 0010 : OpCode.STLOC0
+    /// 0011 : OpCode.LDLOC0
+    /// 0012 : OpCode.PUSHNULL
+    /// 0013 : OpCode.EQUAL
+    /// 0014 : OpCode.NOT
+    /// 0015 : OpCode.RET
+    /// </remarks>
     [DisplayName("isValid")]
     public abstract bool? IsValid(object? person = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : NOT
-    // 0009 : JMPIF
-    // 000B : PUSHF
-    // 000C : RET
-    // 000D : LDARG0
-    // 000E : PUSH0
-    // 000F : PICKITEM
-    // 0010 : STLOC0
-    // 0011 : LDLOC0
-    // 0012 : PUSHNULL
-    // 0013 : EQUAL
-    // 0014 : NOT
-    // 0015 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.PUSH0
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.PUSH3
+    /// 0007 : OpCode.PACK
+    /// 0008 : OpCode.PUSHDATA1 4A6F686E
+    /// 000E : OpCode.OVER
+    /// 000F : OpCode.CALL_L 87000000
+    /// 0014 : OpCode.STLOC0
+    /// 0015 : OpCode.LDLOC0
+    /// 0016 : OpCode.CALL_L 96000000
+    /// 001B : OpCode.JMPIFNOT 79
+    /// 001D : OpCode.LDLOC0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.PUSH1
+    /// 0020 : OpCode.PICKITEM
+    /// 0021 : OpCode.TUCK
+    /// 0022 : OpCode.INC
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.PUSHINT32 00000080
+    /// 0029 : OpCode.JMPGE 04
+    /// 002B : OpCode.JMP 0A
+    /// 002D : OpCode.DUP
+    /// 002E : OpCode.PUSHINT32 FFFFFF7F
+    /// 0033 : OpCode.JMPLE 1E
+    /// 0035 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 003E : OpCode.AND
+    /// 003F : OpCode.DUP
+    /// 0040 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0045 : OpCode.JMPLE 0C
+    /// 0047 : OpCode.PUSHINT64 0000000001000000
+    /// 0050 : OpCode.SUB
+    /// 0051 : OpCode.PUSH1
+    /// 0052 : OpCode.SWAP
+    /// 0053 : OpCode.SETITEM
+    /// 0054 : OpCode.DROP
+    /// 0055 : OpCode.LDLOC0
+    /// 0056 : OpCode.PUSH2
+    /// 0057 : OpCode.PICKITEM
+    /// 0058 : OpCode.PUSH1
+    /// 0059 : OpCode.OVER
+    /// 005A : OpCode.OVER
+    /// 005B : OpCode.PICKITEM
+    /// 005C : OpCode.DUP
+    /// 005D : OpCode.REVERSE4
+    /// 005E : OpCode.REVERSE3
+    /// 005F : OpCode.INC
+    /// 0060 : OpCode.DUP
+    /// 0061 : OpCode.PUSHINT32 00000080
+    /// 0066 : OpCode.JMPGE 04
+    /// 0068 : OpCode.JMP 0A
+    /// 006A : OpCode.DUP
+    /// 006B : OpCode.PUSHINT32 FFFFFF7F
+    /// 0070 : OpCode.JMPLE 1E
+    /// 0072 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 007B : OpCode.AND
+    /// 007C : OpCode.DUP
+    /// 007D : OpCode.PUSHINT32 FFFFFF7F
+    /// 0082 : OpCode.JMPLE 0C
+    /// 0084 : OpCode.PUSHINT64 0000000001000000
+    /// 008D : OpCode.SUB
+    /// 008E : OpCode.SETITEM
+    /// 008F : OpCode.DROP
+    /// 0090 : OpCode.LDLOC0
+    /// 0091 : OpCode.PUSH0
+    /// 0092 : OpCode.PICKITEM
+    /// 0093 : OpCode.RET
+    /// 0094 : OpCode.PUSHNULL
+    /// 0095 : OpCode.RET
+    /// </remarks>
     [DisplayName("test")]
     public abstract string? Test();
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : PUSH0
-    // 0005 : PUSHNULL
-    // 0006 : PUSH3
-    // 0007 : PACK
-    // 0008 : PUSHDATA1
-    // 000E : OVER
-    // 000F : CALL_L
-    // 0014 : STLOC0
-    // 0015 : LDLOC0
-    // 0016 : CALL_L
-    // 001B : JMPIFNOT
-    // 001D : LDLOC0
-    // 001E : DUP
-    // 001F : PUSH1
-    // 0020 : PICKITEM
-    // 0021 : TUCK
-    // 0022 : INC
-    // 0023 : DUP
-    // 0024 : PUSHINT32
-    // 0029 : JMPGE
-    // 002B : JMP
-    // 002D : DUP
-    // 002E : PUSHINT32
-    // 0033 : JMPLE
-    // 0035 : PUSHINT64
-    // 003E : AND
-    // 003F : DUP
-    // 0040 : PUSHINT32
-    // 0045 : JMPLE
-    // 0047 : PUSHINT64
-    // 0050 : SUB
-    // 0051 : PUSH1
-    // 0052 : SWAP
-    // 0053 : SETITEM
-    // 0054 : DROP
-    // 0055 : LDLOC0
-    // 0056 : PUSH2
-    // 0057 : PICKITEM
-    // 0058 : PUSH1
-    // 0059 : OVER
-    // 005A : OVER
-    // 005B : PICKITEM
-    // 005C : DUP
-    // 005D : REVERSE4
-    // 005E : REVERSE3
-    // 005F : INC
-    // 0060 : DUP
-    // 0061 : PUSHINT32
-    // 0066 : JMPGE
-    // 0068 : JMP
-    // 006A : DUP
-    // 006B : PUSHINT32
-    // 0070 : JMPLE
-    // 0072 : PUSHINT64
-    // 007B : AND
-    // 007C : DUP
-    // 007D : PUSHINT32
-    // 0082 : JMPLE
-    // 0084 : PUSHINT64
-    // 008D : SUB
-    // 008E : SETITEM
-    // 008F : DROP
-    // 0090 : LDLOC0
-    // 0091 : PUSH0
-    // 0092 : PICKITEM
-    // 0093 : RET
-    // 0094 : PUSHNULL
-    // 0095 : RET
 
     #endregion
 

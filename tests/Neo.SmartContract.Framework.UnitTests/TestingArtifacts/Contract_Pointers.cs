@@ -24,62 +24,74 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHA FAFFFFFF
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.CALLA
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("callFuncPointer")]
     public abstract BigInteger? CallFuncPointer();
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : CALLA
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHA F6FFFFFF
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.PUSHDATA1 0B1621
+    /// 000E : OpCode.CONVERT 30
+    /// 0010 : OpCode.LDLOC0
+    /// 0011 : OpCode.CALLA
+    /// 0012 : OpCode.RET
+    /// </remarks>
     [DisplayName("callFuncPointerWithArg")]
     public abstract BigInteger? CallFuncPointerWithArg();
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : STLOC0
-    // 0009 : PUSHDATA1
-    // 000E : CONVERT
-    // 0010 : LDLOC0
-    // 0011 : CALLA
-    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHA 06000000
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("createFuncPointer")]
     public abstract object? CreateFuncPointer();
-    // 0000 : PUSHA
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHA 06000000
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("createFuncPointerWithArg")]
     public abstract object? CreateFuncPointerWithArg();
-    // 0000 : PUSHA
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT8 7B
+    /// 0002 : OpCode.RET
+    /// </remarks>
     [DisplayName("myMethod")]
     public abstract BigInteger? MyMethod();
-    // 0000 : PUSHINT8
-    // 0002 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CONVERT 21
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("myMethodWithArg")]
     public abstract BigInteger? MyMethodWithArg(byte[]? num);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CONVERT
-    // 0006 : RET
 
     #endregion
 

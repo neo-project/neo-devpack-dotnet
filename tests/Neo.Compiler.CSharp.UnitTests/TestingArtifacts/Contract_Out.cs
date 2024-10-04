@@ -24,221 +24,237 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.LDLOC0
+    /// 0004 : OpCode.STSFLD0
+    /// 0005 : OpCode.LDSFLD0
+    /// 0006 : OpCode.CALL DC
+    /// 0008 : OpCode.LDSFLD0
+    /// 0009 : OpCode.RET
+    /// </remarks>
     [DisplayName("testExistingVar")]
     public abstract BigInteger? TestExistingVar();
-    // 0000 : INITSLOT
-    // 0003 : LDLOC0
-    // 0004 : STSFLD0
-    // 0005 : LDSFLD0
-    // 0006 : CALL
-    // 0008 : LDSFLD0
-    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSH0
+    /// 0001 : OpCode.STSFLD3
+    /// 0002 : OpCode.PUSHNULL
+    /// 0003 : OpCode.STSFLD2
+    /// 0004 : OpCode.PUSH0
+    /// 0005 : OpCode.STSFLD1
+    /// 0006 : OpCode.LDSFLD3
+    /// 0007 : OpCode.LDSFLD2
+    /// 0008 : OpCode.LDSFLD1
+    /// 0009 : OpCode.CALL D6
+    /// 000B : OpCode.LDSFLD1
+    /// 000C : OpCode.CALLT 0000
+    /// 000F : OpCode.PUSHDATA1 2C20
+    /// 0013 : OpCode.CAT
+    /// 0014 : OpCode.LDSFLD2
+    /// 0015 : OpCode.CAT
+    /// 0016 : OpCode.PUSHDATA1 2C20
+    /// 001A : OpCode.CAT
+    /// 001B : OpCode.LDSFLD3
+    /// 001C : OpCode.JMPIFNOT 0A
+    /// 001E : OpCode.PUSHDATA1 54727565
+    /// 0024 : OpCode.JMP 09
+    /// 0026 : OpCode.PUSHDATA1 46616C7365
+    /// 002D : OpCode.CAT
+    /// 002E : OpCode.CONVERT 28
+    /// 0030 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMultipleOut")]
     public abstract string? TestMultipleOut();
-    // 0000 : PUSH0
-    // 0001 : STSFLD3
-    // 0002 : PUSHNULL
-    // 0003 : STSFLD2
-    // 0004 : PUSH0
-    // 0005 : STSFLD1
-    // 0006 : LDSFLD3
-    // 0007 : LDSFLD2
-    // 0008 : LDSFLD1
-    // 0009 : CALL
-    // 000B : LDSFLD1
-    // 000C : CALLT
-    // 000F : PUSHDATA1
-    // 0013 : CAT
-    // 0014 : LDSFLD2
-    // 0015 : CAT
-    // 0016 : PUSHDATA1
-    // 001A : CAT
-    // 001B : LDSFLD3
-    // 001C : JMPIFNOT
-    // 001E : PUSHDATA1
-    // 0024 : JMP
-    // 0026 : PUSHDATA1
-    // 002D : CAT
-    // 002E : CONVERT
-    // 0030 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSH0
+    /// 0004 : OpCode.STSFLD4
+    /// 0005 : OpCode.LDSFLD4
+    /// 0006 : OpCode.CALL 0B
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.NEWSTRUCT0
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.LDLOC0
+    /// 000C : OpCode.APPEND
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.LDSFLD4
+    /// 000F : OpCode.APPEND
+    /// 0010 : OpCode.RET
+    /// </remarks>
     [DisplayName("testNestedOut")]
     public abstract IList<object>? TestNestedOut();
-    // 0000 : INITSLOT
-    // 0003 : PUSH0
-    // 0004 : STSFLD4
-    // 0005 : LDSFLD4
-    // 0006 : CALL
-    // 0008 : STLOC0
-    // 0009 : NEWSTRUCT0
-    // 000A : DUP
-    // 000B : LDLOC0
-    // 000C : APPEND
-    // 000D : DUP
-    // 000E : LDSFLD4
-    // 000F : APPEND
-    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.JMPIFNOT 0F
+    /// 0006 : OpCode.PUSH0
+    /// 0007 : OpCode.STSFLD0
+    /// 0008 : OpCode.LDSFLD0
+    /// 0009 : OpCode.CALL_L 18FFFFFF
+    /// 000E : OpCode.LDSFLD0
+    /// 000F : OpCode.CALLT 0000
+    /// 0012 : OpCode.RET
+    /// 0013 : OpCode.PUSH0
+    /// 0014 : OpCode.STSFLD3
+    /// 0015 : OpCode.PUSHNULL
+    /// 0016 : OpCode.STSFLD2
+    /// 0017 : OpCode.PUSH0
+    /// 0018 : OpCode.STSFLD1
+    /// 0019 : OpCode.LDSFLD3
+    /// 001A : OpCode.LDSFLD2
+    /// 001B : OpCode.LDSFLD1
+    /// 001C : OpCode.CALL_L 0CFFFFFF
+    /// 0021 : OpCode.LDSFLD2
+    /// 0022 : OpCode.RET
+    /// </remarks>
     [DisplayName("testOutConditional")]
     public abstract string? TestOutConditional(bool? flag);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : JMPIFNOT
-    // 0006 : PUSH0
-    // 0007 : STSFLD0
-    // 0008 : LDSFLD0
-    // 0009 : CALL_L
-    // 000E : LDSFLD0
-    // 000F : CALLT
-    // 0012 : RET
-    // 0013 : PUSH0
-    // 0014 : STSFLD3
-    // 0015 : PUSHNULL
-    // 0016 : STSFLD2
-    // 0017 : PUSH0
-    // 0018 : STSFLD1
-    // 0019 : LDSFLD3
-    // 001A : LDSFLD2
-    // 001B : LDSFLD1
-    // 001C : CALL_L
-    // 0021 : LDSFLD2
-    // 0022 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSH0
+    /// 0001 : OpCode.STSFLD3
+    /// 0002 : OpCode.PUSHNULL
+    /// 0003 : OpCode.STSFLD2
+    /// 0004 : OpCode.PUSH0
+    /// 0005 : OpCode.STSFLD1
+    /// 0006 : OpCode.LDSFLD3
+    /// 0007 : OpCode.LDSFLD2
+    /// 0008 : OpCode.LDSFLD1
+    /// 0009 : OpCode.CALL A5
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("testOutDiscard")]
     public abstract void TestOutDiscard();
-    // 0000 : PUSH0
-    // 0001 : STSFLD3
-    // 0002 : PUSHNULL
-    // 0003 : STSFLD2
-    // 0004 : PUSH0
-    // 0005 : STSFLD1
-    // 0006 : LDSFLD3
-    // 0007 : LDSFLD2
-    // 0008 : LDSFLD1
-    // 0009 : CALL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0200
+    /// 0003 : OpCode.PUSH0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.STLOC1
+    /// 0007 : OpCode.JMP 6C
+    /// 0009 : OpCode.PUSH0
+    /// 000A : OpCode.STSFLD0
+    /// 000B : OpCode.LDSFLD0
+    /// 000C : OpCode.CALL 8F
+    /// 000E : OpCode.LDLOC0
+    /// 000F : OpCode.LDSFLD0
+    /// 0010 : OpCode.ADD
+    /// 0011 : OpCode.DUP
+    /// 0012 : OpCode.PUSHINT32 00000080
+    /// 0017 : OpCode.JMPGE 04
+    /// 0019 : OpCode.JMP 0A
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.PUSHINT32 FFFFFF7F
+    /// 0021 : OpCode.JMPLE 1E
+    /// 0023 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002C : OpCode.AND
+    /// 002D : OpCode.DUP
+    /// 002E : OpCode.PUSHINT32 FFFFFF7F
+    /// 0033 : OpCode.JMPLE 0C
+    /// 0035 : OpCode.PUSHINT64 0000000001000000
+    /// 003E : OpCode.SUB
+    /// 003F : OpCode.STLOC0
+    /// 0040 : OpCode.LDLOC1
+    /// 0041 : OpCode.DUP
+    /// 0042 : OpCode.INC
+    /// 0043 : OpCode.DUP
+    /// 0044 : OpCode.PUSHINT32 00000080
+    /// 0049 : OpCode.JMPGE 04
+    /// 004B : OpCode.JMP 0A
+    /// 004D : OpCode.DUP
+    /// 004E : OpCode.PUSHINT32 FFFFFF7F
+    /// 0053 : OpCode.JMPLE 1E
+    /// 0055 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 005E : OpCode.AND
+    /// 005F : OpCode.DUP
+    /// 0060 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0065 : OpCode.JMPLE 0C
+    /// 0067 : OpCode.PUSHINT64 0000000001000000
+    /// 0070 : OpCode.SUB
+    /// 0071 : OpCode.STLOC1
+    /// 0072 : OpCode.DROP
+    /// 0073 : OpCode.LDLOC1
+    /// 0074 : OpCode.PUSH5
+    /// 0075 : OpCode.LT
+    /// 0076 : OpCode.JMPIF 93
+    /// 0078 : OpCode.LDLOC0
+    /// 0079 : OpCode.RET
+    /// </remarks>
     [DisplayName("testOutInLoop")]
     public abstract BigInteger? TestOutInLoop();
-    // 0000 : INITSLOT
-    // 0003 : PUSH0
-    // 0004 : STLOC0
-    // 0005 : PUSH0
-    // 0006 : STLOC1
-    // 0007 : JMP
-    // 0009 : PUSH0
-    // 000A : STSFLD0
-    // 000B : LDSFLD0
-    // 000C : CALL
-    // 000E : LDLOC0
-    // 000F : LDSFLD0
-    // 0010 : ADD
-    // 0011 : DUP
-    // 0012 : PUSHINT32
-    // 0017 : JMPGE
-    // 0019 : JMP
-    // 001B : DUP
-    // 001C : PUSHINT32
-    // 0021 : JMPLE
-    // 0023 : PUSHINT64
-    // 002C : AND
-    // 002D : DUP
-    // 002E : PUSHINT32
-    // 0033 : JMPLE
-    // 0035 : PUSHINT64
-    // 003E : SUB
-    // 003F : STLOC0
-    // 0040 : LDLOC1
-    // 0041 : DUP
-    // 0042 : INC
-    // 0043 : DUP
-    // 0044 : PUSHINT32
-    // 0049 : JMPGE
-    // 004B : JMP
-    // 004D : DUP
-    // 004E : PUSHINT32
-    // 0053 : JMPLE
-    // 0055 : PUSHINT64
-    // 005E : AND
-    // 005F : DUP
-    // 0060 : PUSHINT32
-    // 0065 : JMPLE
-    // 0067 : PUSHINT64
-    // 0070 : SUB
-    // 0071 : STLOC1
-    // 0072 : DROP
-    // 0073 : LDLOC1
-    // 0074 : PUSH5
-    // 0075 : LT
-    // 0076 : JMPIF
-    // 0078 : LDLOC0
-    // 0079 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSH1
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.JMPIF 09
+    /// 000A : OpCode.LDLOC0
+    /// 000B : OpCode.PUSH2
+    /// 000C : OpCode.EQUAL
+    /// 000D : OpCode.JMPIF 0E
+    /// 000F : OpCode.JMP 1C
+    /// 0011 : OpCode.PUSH0
+    /// 0012 : OpCode.STSFLD0
+    /// 0013 : OpCode.LDSFLD0
+    /// 0014 : OpCode.CALL_L EAFEFFFF
+    /// 0019 : OpCode.LDSFLD0
+    /// 001A : OpCode.RET
+    /// 001B : OpCode.PUSH0
+    /// 001C : OpCode.STSFLD3
+    /// 001D : OpCode.PUSHNULL
+    /// 001E : OpCode.STSFLD2
+    /// 001F : OpCode.PUSH0
+    /// 0020 : OpCode.STSFLD1
+    /// 0021 : OpCode.LDSFLD3
+    /// 0022 : OpCode.LDSFLD2
+    /// 0023 : OpCode.LDSFLD1
+    /// 0024 : OpCode.CALL_L E1FEFFFF
+    /// 0029 : OpCode.LDSFLD1
+    /// 002A : OpCode.RET
+    /// 002B : OpCode.PUSHM1
+    /// 002C : OpCode.RET
+    /// </remarks>
     [DisplayName("testOutSwitch")]
     public abstract BigInteger? TestOutSwitch(BigInteger? option);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSH1
-    // 0007 : EQUAL
-    // 0008 : JMPIF
-    // 000A : LDLOC0
-    // 000B : PUSH2
-    // 000C : EQUAL
-    // 000D : JMPIF
-    // 000F : JMP
-    // 0011 : PUSH0
-    // 0012 : STSFLD0
-    // 0013 : LDSFLD0
-    // 0014 : CALL_L
-    // 0019 : LDSFLD0
-    // 001A : RET
-    // 001B : PUSH0
-    // 001C : STSFLD3
-    // 001D : PUSHNULL
-    // 001E : STSFLD2
-    // 001F : PUSH0
-    // 0020 : STSFLD1
-    // 0021 : LDSFLD3
-    // 0022 : LDSFLD2
-    // 0023 : LDSFLD1
-    // 0024 : CALL_L
-    // 0029 : LDSFLD1
-    // 002A : RET
-    // 002B : PUSHM1
-    // 002C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSH0
+    /// 0001 : OpCode.STSFLD0
+    /// 0002 : OpCode.LDSFLD0
+    /// 0003 : OpCode.CALL E6
+    /// 0005 : OpCode.LDSFLD0
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testOutVar")]
     public abstract BigInteger? TestOutVar();
-    // 0000 : PUSH0
-    // 0001 : STSFLD0
-    // 0002 : LDSFLD0
-    // 0003 : CALL
-    // 0005 : LDSFLD0
-    // 0006 : RET
 
     #endregion
 

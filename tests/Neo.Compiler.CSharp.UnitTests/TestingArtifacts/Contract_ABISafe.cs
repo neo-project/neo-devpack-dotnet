@@ -33,18 +33,22 @@ public abstract class Contract_ABISafe(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSH1
+    /// 0001 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_001")]
     public abstract BigInteger? UnitTest_001();
-    // 0000 : PUSH1
-    // 0001 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSH3
+    /// 0001 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_003")]
     public abstract BigInteger? UnitTest_003();
-    // 0000 : PUSH3
-    // 0001 : RET
 
     #endregion
 

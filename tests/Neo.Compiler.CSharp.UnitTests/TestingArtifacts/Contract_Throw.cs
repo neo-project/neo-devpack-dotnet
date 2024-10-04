@@ -24,22 +24,24 @@ public abstract class Contract_Throw(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SIZE
+    /// 0005 : OpCode.PUSH1
+    /// 0006 : OpCode.GE
+    /// 0007 : OpCode.JMPIFNOT 07
+    /// 0009 : OpCode.LDARG0
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.JMP 29
+    /// 000E : OpCode.PUSHDATA1 506C6561736520737570706C79206174206C65617374206F6E6520617267756D656E742E
+    /// 0034 : OpCode.THROW
+    /// 0035 : OpCode.STLOC0
+    /// 0036 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMain")]
     public abstract void TestMain(IList<object>? args);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : SIZE
-    // 0005 : PUSH1
-    // 0006 : GE
-    // 0007 : JMPIFNOT
-    // 0009 : LDARG0
-    // 000A : PUSH0
-    // 000B : PICKITEM
-    // 000C : JMP
-    // 000E : PUSHDATA1
-    // 0034 : THROW
-    // 0035 : STLOC0
-    // 0036 : RET
 
     #endregion
 

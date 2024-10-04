@@ -24,931 +24,981 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSH0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.DEC
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.JMPGE 03
+    /// 000B : OpCode.THROW
+    /// 000C : OpCode.DUP
+    /// 000D : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0016 : OpCode.JMPLE 03
+    /// 0018 : OpCode.THROW
+    /// 0019 : OpCode.STLOC0
+    /// 001A : OpCode.LDLOC0
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.DEC
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.PUSH0
+    /// 001F : OpCode.JMPGE 03
+    /// 0021 : OpCode.THROW
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002C : OpCode.JMPLE 03
+    /// 002E : OpCode.THROW
+    /// 002F : OpCode.STLOC0
+    /// 0030 : OpCode.DROP
+    /// 0031 : OpCode.LDLOC0
+    /// 0032 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Dec_Checked")]
     public abstract BigInteger? UnitTest_Local_Dec_Checked();
-    // 0000 : INITSLOT
-    // 0003 : PUSH0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : DEC
-    // 0007 : DUP
-    // 0008 : PUSH0
-    // 0009 : JMPGE
-    // 000B : THROW
-    // 000C : DUP
-    // 000D : PUSHINT64
-    // 0016 : JMPLE
-    // 0018 : THROW
-    // 0019 : STLOC0
-    // 001A : LDLOC0
-    // 001B : DUP
-    // 001C : DEC
-    // 001D : DUP
-    // 001E : PUSH0
-    // 001F : JMPGE
-    // 0021 : THROW
-    // 0022 : DUP
-    // 0023 : PUSHINT64
-    // 002C : JMPLE
-    // 002E : THROW
-    // 002F : STLOC0
-    // 0030 : DROP
-    // 0031 : LDLOC0
-    // 0032 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHINT32 00000080
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.DEC
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.PUSHINT32 00000080
+    /// 0011 : OpCode.JMPGE 03
+    /// 0013 : OpCode.THROW
+    /// 0014 : OpCode.DUP
+    /// 0015 : OpCode.PUSHINT32 FFFFFF7F
+    /// 001A : OpCode.JMPLE 03
+    /// 001C : OpCode.THROW
+    /// 001D : OpCode.STLOC0
+    /// 001E : OpCode.LDLOC0
+    /// 001F : OpCode.DUP
+    /// 0020 : OpCode.DEC
+    /// 0021 : OpCode.DUP
+    /// 0022 : OpCode.PUSHINT32 00000080
+    /// 0027 : OpCode.JMPGE 03
+    /// 0029 : OpCode.THROW
+    /// 002A : OpCode.DUP
+    /// 002B : OpCode.PUSHINT32 FFFFFF7F
+    /// 0030 : OpCode.JMPLE 03
+    /// 0032 : OpCode.THROW
+    /// 0033 : OpCode.STLOC0
+    /// 0034 : OpCode.DROP
+    /// 0035 : OpCode.LDLOC0
+    /// 0036 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Dec_Checked_Int")]
     public abstract BigInteger? UnitTest_Local_Dec_Checked_Int();
-    // 0000 : INITSLOT
-    // 0003 : PUSHINT32
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : DEC
-    // 000B : DUP
-    // 000C : PUSHINT32
-    // 0011 : JMPGE
-    // 0013 : THROW
-    // 0014 : DUP
-    // 0015 : PUSHINT32
-    // 001A : JMPLE
-    // 001C : THROW
-    // 001D : STLOC0
-    // 001E : LDLOC0
-    // 001F : DUP
-    // 0020 : DEC
-    // 0021 : DUP
-    // 0022 : PUSHINT32
-    // 0027 : JMPGE
-    // 0029 : THROW
-    // 002A : DUP
-    // 002B : PUSHINT32
-    // 0030 : JMPLE
-    // 0032 : THROW
-    // 0033 : STLOC0
-    // 0034 : DROP
-    // 0035 : LDLOC0
-    // 0036 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSH0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.DEC
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.JMPGE 04
+    /// 000B : OpCode.JMP 0E
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0017 : OpCode.JMPLE 0C
+    /// 0019 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0022 : OpCode.AND
+    /// 0023 : OpCode.STLOC0
+    /// 0024 : OpCode.LDLOC0
+    /// 0025 : OpCode.DUP
+    /// 0026 : OpCode.DEC
+    /// 0027 : OpCode.DUP
+    /// 0028 : OpCode.PUSH0
+    /// 0029 : OpCode.JMPGE 04
+    /// 002B : OpCode.JMP 0E
+    /// 002D : OpCode.DUP
+    /// 002E : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0037 : OpCode.JMPLE 0C
+    /// 0039 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0042 : OpCode.AND
+    /// 0043 : OpCode.STLOC0
+    /// 0044 : OpCode.DROP
+    /// 0045 : OpCode.LDLOC0
+    /// 0046 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Dec_UnChecked")]
     public abstract BigInteger? UnitTest_Local_Dec_UnChecked();
-    // 0000 : INITSLOT
-    // 0003 : PUSH0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : DEC
-    // 0007 : DUP
-    // 0008 : PUSH0
-    // 0009 : JMPGE
-    // 000B : JMP
-    // 000D : DUP
-    // 000E : PUSHINT64
-    // 0017 : JMPLE
-    // 0019 : PUSHINT64
-    // 0022 : AND
-    // 0023 : STLOC0
-    // 0024 : LDLOC0
-    // 0025 : DUP
-    // 0026 : DEC
-    // 0027 : DUP
-    // 0028 : PUSH0
-    // 0029 : JMPGE
-    // 002B : JMP
-    // 002D : DUP
-    // 002E : PUSHINT64
-    // 0037 : JMPLE
-    // 0039 : PUSHINT64
-    // 0042 : AND
-    // 0043 : STLOC0
-    // 0044 : DROP
-    // 0045 : LDLOC0
-    // 0046 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHINT32 00000080
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.DEC
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.PUSHINT32 00000080
+    /// 0011 : OpCode.JMPGE 04
+    /// 0013 : OpCode.JMP 0A
+    /// 0015 : OpCode.DUP
+    /// 0016 : OpCode.PUSHINT32 FFFFFF7F
+    /// 001B : OpCode.JMPLE 1E
+    /// 001D : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0026 : OpCode.AND
+    /// 0027 : OpCode.DUP
+    /// 0028 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002D : OpCode.JMPLE 0C
+    /// 002F : OpCode.PUSHINT64 0000000001000000
+    /// 0038 : OpCode.SUB
+    /// 0039 : OpCode.STLOC0
+    /// 003A : OpCode.LDLOC0
+    /// 003B : OpCode.DUP
+    /// 003C : OpCode.DEC
+    /// 003D : OpCode.DUP
+    /// 003E : OpCode.PUSHINT32 00000080
+    /// 0043 : OpCode.JMPGE 04
+    /// 0045 : OpCode.JMP 0A
+    /// 0047 : OpCode.DUP
+    /// 0048 : OpCode.PUSHINT32 FFFFFF7F
+    /// 004D : OpCode.JMPLE 1E
+    /// 004F : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0058 : OpCode.AND
+    /// 0059 : OpCode.DUP
+    /// 005A : OpCode.PUSHINT32 FFFFFF7F
+    /// 005F : OpCode.JMPLE 0C
+    /// 0061 : OpCode.PUSHINT64 0000000001000000
+    /// 006A : OpCode.SUB
+    /// 006B : OpCode.STLOC0
+    /// 006C : OpCode.DROP
+    /// 006D : OpCode.LDLOC0
+    /// 006E : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Dec_UnChecked_Int")]
     public abstract BigInteger? UnitTest_Local_Dec_UnChecked_Int();
-    // 0000 : INITSLOT
-    // 0003 : PUSHINT32
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : DEC
-    // 000B : DUP
-    // 000C : PUSHINT32
-    // 0011 : JMPGE
-    // 0013 : JMP
-    // 0015 : DUP
-    // 0016 : PUSHINT32
-    // 001B : JMPLE
-    // 001D : PUSHINT64
-    // 0026 : AND
-    // 0027 : DUP
-    // 0028 : PUSHINT32
-    // 002D : JMPLE
-    // 002F : PUSHINT64
-    // 0038 : SUB
-    // 0039 : STLOC0
-    // 003A : LDLOC0
-    // 003B : DUP
-    // 003C : DEC
-    // 003D : DUP
-    // 003E : PUSHINT32
-    // 0043 : JMPGE
-    // 0045 : JMP
-    // 0047 : DUP
-    // 0048 : PUSHINT32
-    // 004D : JMPLE
-    // 004F : PUSHINT64
-    // 0058 : AND
-    // 0059 : DUP
-    // 005A : PUSHINT32
-    // 005F : JMPLE
-    // 0061 : PUSHINT64
-    // 006A : SUB
-    // 006B : STLOC0
-    // 006C : DROP
-    // 006D : LDLOC0
-    // 006E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 000C : OpCode.STLOC0
+    /// 000D : OpCode.LDLOC0
+    /// 000E : OpCode.INC
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSH0
+    /// 0011 : OpCode.JMPGE 03
+    /// 0013 : OpCode.THROW
+    /// 0014 : OpCode.DUP
+    /// 0015 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 001E : OpCode.JMPLE 03
+    /// 0020 : OpCode.THROW
+    /// 0021 : OpCode.STLOC0
+    /// 0022 : OpCode.LDLOC0
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.INC
+    /// 0025 : OpCode.DUP
+    /// 0026 : OpCode.PUSH0
+    /// 0027 : OpCode.JMPGE 03
+    /// 0029 : OpCode.THROW
+    /// 002A : OpCode.DUP
+    /// 002B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0034 : OpCode.JMPLE 03
+    /// 0036 : OpCode.THROW
+    /// 0037 : OpCode.STLOC0
+    /// 0038 : OpCode.DROP
+    /// 0039 : OpCode.LDLOC0
+    /// 003A : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Inc_Checked")]
     public abstract BigInteger? UnitTest_Local_Inc_Checked();
-    // 0000 : INITSLOT
-    // 0003 : PUSHINT64
-    // 000C : STLOC0
-    // 000D : LDLOC0
-    // 000E : INC
-    // 000F : DUP
-    // 0010 : PUSH0
-    // 0011 : JMPGE
-    // 0013 : THROW
-    // 0014 : DUP
-    // 0015 : PUSHINT64
-    // 001E : JMPLE
-    // 0020 : THROW
-    // 0021 : STLOC0
-    // 0022 : LDLOC0
-    // 0023 : DUP
-    // 0024 : INC
-    // 0025 : DUP
-    // 0026 : PUSH0
-    // 0027 : JMPGE
-    // 0029 : THROW
-    // 002A : DUP
-    // 002B : PUSHINT64
-    // 0034 : JMPLE
-    // 0036 : THROW
-    // 0037 : STLOC0
-    // 0038 : DROP
-    // 0039 : LDLOC0
-    // 003A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.INC
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.PUSHINT32 00000080
+    /// 0011 : OpCode.JMPGE 03
+    /// 0013 : OpCode.THROW
+    /// 0014 : OpCode.DUP
+    /// 0015 : OpCode.PUSHINT32 FFFFFF7F
+    /// 001A : OpCode.JMPLE 03
+    /// 001C : OpCode.THROW
+    /// 001D : OpCode.STLOC0
+    /// 001E : OpCode.LDLOC0
+    /// 001F : OpCode.DUP
+    /// 0020 : OpCode.INC
+    /// 0021 : OpCode.DUP
+    /// 0022 : OpCode.PUSHINT32 00000080
+    /// 0027 : OpCode.JMPGE 03
+    /// 0029 : OpCode.THROW
+    /// 002A : OpCode.DUP
+    /// 002B : OpCode.PUSHINT32 FFFFFF7F
+    /// 0030 : OpCode.JMPLE 03
+    /// 0032 : OpCode.THROW
+    /// 0033 : OpCode.STLOC0
+    /// 0034 : OpCode.DROP
+    /// 0035 : OpCode.LDLOC0
+    /// 0036 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Inc_Checked_Int")]
     public abstract BigInteger? UnitTest_Local_Inc_Checked_Int();
-    // 0000 : INITSLOT
-    // 0003 : PUSHINT32
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : INC
-    // 000B : DUP
-    // 000C : PUSHINT32
-    // 0011 : JMPGE
-    // 0013 : THROW
-    // 0014 : DUP
-    // 0015 : PUSHINT32
-    // 001A : JMPLE
-    // 001C : THROW
-    // 001D : STLOC0
-    // 001E : LDLOC0
-    // 001F : DUP
-    // 0020 : INC
-    // 0021 : DUP
-    // 0022 : PUSHINT32
-    // 0027 : JMPGE
-    // 0029 : THROW
-    // 002A : DUP
-    // 002B : PUSHINT32
-    // 0030 : JMPLE
-    // 0032 : THROW
-    // 0033 : STLOC0
-    // 0034 : DROP
-    // 0035 : LDLOC0
-    // 0036 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 000C : OpCode.STLOC0
+    /// 000D : OpCode.LDLOC0
+    /// 000E : OpCode.INC
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSH0
+    /// 0011 : OpCode.JMPGE 04
+    /// 0013 : OpCode.JMP 0E
+    /// 0015 : OpCode.DUP
+    /// 0016 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 001F : OpCode.JMPLE 0C
+    /// 0021 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002A : OpCode.AND
+    /// 002B : OpCode.STLOC0
+    /// 002C : OpCode.LDLOC0
+    /// 002D : OpCode.DUP
+    /// 002E : OpCode.INC
+    /// 002F : OpCode.DUP
+    /// 0030 : OpCode.PUSH0
+    /// 0031 : OpCode.JMPGE 04
+    /// 0033 : OpCode.JMP 0E
+    /// 0035 : OpCode.DUP
+    /// 0036 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 003F : OpCode.JMPLE 0C
+    /// 0041 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 004A : OpCode.AND
+    /// 004B : OpCode.STLOC0
+    /// 004C : OpCode.DROP
+    /// 004D : OpCode.LDLOC0
+    /// 004E : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Inc_UnChecked")]
     public abstract BigInteger? UnitTest_Local_Inc_UnChecked();
-    // 0000 : INITSLOT
-    // 0003 : PUSHINT64
-    // 000C : STLOC0
-    // 000D : LDLOC0
-    // 000E : INC
-    // 000F : DUP
-    // 0010 : PUSH0
-    // 0011 : JMPGE
-    // 0013 : JMP
-    // 0015 : DUP
-    // 0016 : PUSHINT64
-    // 001F : JMPLE
-    // 0021 : PUSHINT64
-    // 002A : AND
-    // 002B : STLOC0
-    // 002C : LDLOC0
-    // 002D : DUP
-    // 002E : INC
-    // 002F : DUP
-    // 0030 : PUSH0
-    // 0031 : JMPGE
-    // 0033 : JMP
-    // 0035 : DUP
-    // 0036 : PUSHINT64
-    // 003F : JMPLE
-    // 0041 : PUSHINT64
-    // 004A : AND
-    // 004B : STLOC0
-    // 004C : DROP
-    // 004D : LDLOC0
-    // 004E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.INC
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.PUSHINT32 00000080
+    /// 0011 : OpCode.JMPGE 04
+    /// 0013 : OpCode.JMP 0A
+    /// 0015 : OpCode.DUP
+    /// 0016 : OpCode.PUSHINT32 FFFFFF7F
+    /// 001B : OpCode.JMPLE 1E
+    /// 001D : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0026 : OpCode.AND
+    /// 0027 : OpCode.DUP
+    /// 0028 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002D : OpCode.JMPLE 0C
+    /// 002F : OpCode.PUSHINT64 0000000001000000
+    /// 0038 : OpCode.SUB
+    /// 0039 : OpCode.STLOC0
+    /// 003A : OpCode.LDLOC0
+    /// 003B : OpCode.DUP
+    /// 003C : OpCode.INC
+    /// 003D : OpCode.DUP
+    /// 003E : OpCode.PUSHINT32 00000080
+    /// 0043 : OpCode.JMPGE 04
+    /// 0045 : OpCode.JMP 0A
+    /// 0047 : OpCode.DUP
+    /// 0048 : OpCode.PUSHINT32 FFFFFF7F
+    /// 004D : OpCode.JMPLE 1E
+    /// 004F : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0058 : OpCode.AND
+    /// 0059 : OpCode.DUP
+    /// 005A : OpCode.PUSHINT32 FFFFFF7F
+    /// 005F : OpCode.JMPLE 0C
+    /// 0061 : OpCode.PUSHINT64 0000000001000000
+    /// 006A : OpCode.SUB
+    /// 006B : OpCode.STLOC0
+    /// 006C : OpCode.DROP
+    /// 006D : OpCode.LDLOC0
+    /// 006E : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Local_Inc_UnChecked_Int")]
     public abstract BigInteger? UnitTest_Local_Inc_UnChecked_Int();
-    // 0000 : INITSLOT
-    // 0003 : PUSHINT32
-    // 0008 : STLOC0
-    // 0009 : LDLOC0
-    // 000A : INC
-    // 000B : DUP
-    // 000C : PUSHINT32
-    // 0011 : JMPGE
-    // 0013 : JMP
-    // 0015 : DUP
-    // 0016 : PUSHINT32
-    // 001B : JMPLE
-    // 001D : PUSHINT64
-    // 0026 : AND
-    // 0027 : DUP
-    // 0028 : PUSHINT32
-    // 002D : JMPLE
-    // 002F : PUSHINT64
-    // 0038 : SUB
-    // 0039 : STLOC0
-    // 003A : LDLOC0
-    // 003B : DUP
-    // 003C : INC
-    // 003D : DUP
-    // 003E : PUSHINT32
-    // 0043 : JMPGE
-    // 0045 : JMP
-    // 0047 : DUP
-    // 0048 : PUSHINT32
-    // 004D : JMPLE
-    // 004F : PUSHINT64
-    // 0058 : AND
-    // 0059 : DUP
-    // 005A : PUSHINT32
-    // 005F : JMPLE
-    // 0061 : PUSHINT64
-    // 006A : SUB
-    // 006B : STLOC0
-    // 006C : DROP
-    // 006D : LDLOC0
-    // 006E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSH5
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.JMP 23
+    /// 0007 : OpCode.LDLOC0
+    /// 0008 : OpCode.DUP
+    /// 0009 : OpCode.DEC
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.PUSH0
+    /// 000C : OpCode.JMPGE 04
+    /// 000E : OpCode.JMP 0E
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 001A : OpCode.JMPLE 0C
+    /// 001C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0025 : OpCode.AND
+    /// 0026 : OpCode.STLOC0
+    /// 0027 : OpCode.DROP
+    /// 0028 : OpCode.LDLOC0
+    /// 0029 : OpCode.PUSH7
+    /// 002A : OpCode.LT
+    /// 002B : OpCode.JMPIF DC
+    /// 002D : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Not_DeadLoop")]
     public abstract void UnitTest_Not_DeadLoop();
-    // 0000 : INITSLOT
-    // 0003 : PUSH5
-    // 0004 : STLOC0
-    // 0005 : JMP
-    // 0007 : LDLOC0
-    // 0008 : DUP
-    // 0009 : DEC
-    // 000A : DUP
-    // 000B : PUSH0
-    // 000C : JMPGE
-    // 000E : JMP
-    // 0010 : DUP
-    // 0011 : PUSHINT64
-    // 001A : JMPLE
-    // 001C : PUSHINT64
-    // 0025 : AND
-    // 0026 : STLOC0
-    // 0027 : DROP
-    // 0028 : LDLOC0
-    // 0029 : PUSH7
-    // 002A : LT
-    // 002B : JMPIF
-    // 002D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DEC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSH0
+    /// 0007 : OpCode.JMPGE 03
+    /// 0009 : OpCode.THROW
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0014 : OpCode.JMPLE 03
+    /// 0016 : OpCode.THROW
+    /// 0017 : OpCode.STARG0
+    /// 0018 : OpCode.LDARG0
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.DEC
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.PUSH0
+    /// 001D : OpCode.JMPGE 03
+    /// 001F : OpCode.THROW
+    /// 0020 : OpCode.DUP
+    /// 0021 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002A : OpCode.JMPLE 03
+    /// 002C : OpCode.THROW
+    /// 002D : OpCode.STARG0
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.LDARG0
+    /// 0030 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Dec_Checked")]
     public abstract BigInteger? UnitTest_Param_Dec_Checked(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DEC
-    // 0005 : DUP
-    // 0006 : PUSH0
-    // 0007 : JMPGE
-    // 0009 : THROW
-    // 000A : DUP
-    // 000B : PUSHINT64
-    // 0014 : JMPLE
-    // 0016 : THROW
-    // 0017 : STARG0
-    // 0018 : LDARG0
-    // 0019 : DUP
-    // 001A : DEC
-    // 001B : DUP
-    // 001C : PUSH0
-    // 001D : JMPGE
-    // 001F : THROW
-    // 0020 : DUP
-    // 0021 : PUSHINT64
-    // 002A : JMPLE
-    // 002C : THROW
-    // 002D : STARG0
-    // 002E : DROP
-    // 002F : LDARG0
-    // 0030 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DEC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSHINT32 00000080
+    /// 000B : OpCode.JMPGE 03
+    /// 000D : OpCode.THROW
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.PUSHINT32 FFFFFF7F
+    /// 0014 : OpCode.JMPLE 03
+    /// 0016 : OpCode.THROW
+    /// 0017 : OpCode.STARG0
+    /// 0018 : OpCode.LDARG0
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.DEC
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.PUSHINT32 00000080
+    /// 0021 : OpCode.JMPGE 03
+    /// 0023 : OpCode.THROW
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002A : OpCode.JMPLE 03
+    /// 002C : OpCode.THROW
+    /// 002D : OpCode.STARG0
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.LDARG0
+    /// 0030 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Dec_Checked_Int")]
     public abstract BigInteger? UnitTest_Param_Dec_Checked_Int(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DEC
-    // 0005 : DUP
-    // 0006 : PUSHINT32
-    // 000B : JMPGE
-    // 000D : THROW
-    // 000E : DUP
-    // 000F : PUSHINT32
-    // 0014 : JMPLE
-    // 0016 : THROW
-    // 0017 : STARG0
-    // 0018 : LDARG0
-    // 0019 : DUP
-    // 001A : DEC
-    // 001B : DUP
-    // 001C : PUSHINT32
-    // 0021 : JMPGE
-    // 0023 : THROW
-    // 0024 : DUP
-    // 0025 : PUSHINT32
-    // 002A : JMPLE
-    // 002C : THROW
-    // 002D : STARG0
-    // 002E : DROP
-    // 002F : LDARG0
-    // 0030 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DEC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSH0
+    /// 0007 : OpCode.JMPGE 04
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0015 : OpCode.JMPLE 0C
+    /// 0017 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0020 : OpCode.AND
+    /// 0021 : OpCode.STARG0
+    /// 0022 : OpCode.LDARG0
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.DEC
+    /// 0025 : OpCode.DUP
+    /// 0026 : OpCode.PUSH0
+    /// 0027 : OpCode.JMPGE 04
+    /// 0029 : OpCode.JMP 0E
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0035 : OpCode.JMPLE 0C
+    /// 0037 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0040 : OpCode.AND
+    /// 0041 : OpCode.STARG0
+    /// 0042 : OpCode.DROP
+    /// 0043 : OpCode.LDARG0
+    /// 0044 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Dec_UnChecked")]
     public abstract BigInteger? UnitTest_Param_Dec_UnChecked(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DEC
-    // 0005 : DUP
-    // 0006 : PUSH0
-    // 0007 : JMPGE
-    // 0009 : JMP
-    // 000B : DUP
-    // 000C : PUSHINT64
-    // 0015 : JMPLE
-    // 0017 : PUSHINT64
-    // 0020 : AND
-    // 0021 : STARG0
-    // 0022 : LDARG0
-    // 0023 : DUP
-    // 0024 : DEC
-    // 0025 : DUP
-    // 0026 : PUSH0
-    // 0027 : JMPGE
-    // 0029 : JMP
-    // 002B : DUP
-    // 002C : PUSHINT64
-    // 0035 : JMPLE
-    // 0037 : PUSHINT64
-    // 0040 : AND
-    // 0041 : STARG0
-    // 0042 : DROP
-    // 0043 : LDARG0
-    // 0044 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DEC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSHINT32 00000080
+    /// 000B : OpCode.JMPGE 04
+    /// 000D : OpCode.JMP 0A
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0015 : OpCode.JMPLE 1E
+    /// 0017 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0020 : OpCode.AND
+    /// 0021 : OpCode.DUP
+    /// 0022 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0027 : OpCode.JMPLE 0C
+    /// 0029 : OpCode.PUSHINT64 0000000001000000
+    /// 0032 : OpCode.SUB
+    /// 0033 : OpCode.STARG0
+    /// 0034 : OpCode.LDARG0
+    /// 0035 : OpCode.DUP
+    /// 0036 : OpCode.DEC
+    /// 0037 : OpCode.DUP
+    /// 0038 : OpCode.PUSHINT32 00000080
+    /// 003D : OpCode.JMPGE 04
+    /// 003F : OpCode.JMP 0A
+    /// 0041 : OpCode.DUP
+    /// 0042 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0047 : OpCode.JMPLE 1E
+    /// 0049 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0052 : OpCode.AND
+    /// 0053 : OpCode.DUP
+    /// 0054 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0059 : OpCode.JMPLE 0C
+    /// 005B : OpCode.PUSHINT64 0000000001000000
+    /// 0064 : OpCode.SUB
+    /// 0065 : OpCode.STARG0
+    /// 0066 : OpCode.DROP
+    /// 0067 : OpCode.LDARG0
+    /// 0068 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Dec_UnChecked_Int")]
     public abstract BigInteger? UnitTest_Param_Dec_UnChecked_Int(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DEC
-    // 0005 : DUP
-    // 0006 : PUSHINT32
-    // 000B : JMPGE
-    // 000D : JMP
-    // 000F : DUP
-    // 0010 : PUSHINT32
-    // 0015 : JMPLE
-    // 0017 : PUSHINT64
-    // 0020 : AND
-    // 0021 : DUP
-    // 0022 : PUSHINT32
-    // 0027 : JMPLE
-    // 0029 : PUSHINT64
-    // 0032 : SUB
-    // 0033 : STARG0
-    // 0034 : LDARG0
-    // 0035 : DUP
-    // 0036 : DEC
-    // 0037 : DUP
-    // 0038 : PUSHINT32
-    // 003D : JMPGE
-    // 003F : JMP
-    // 0041 : DUP
-    // 0042 : PUSHINT32
-    // 0047 : JMPLE
-    // 0049 : PUSHINT64
-    // 0052 : AND
-    // 0053 : DUP
-    // 0054 : PUSHINT32
-    // 0059 : JMPLE
-    // 005B : PUSHINT64
-    // 0064 : SUB
-    // 0065 : STARG0
-    // 0066 : DROP
-    // 0067 : LDARG0
-    // 0068 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.INC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSH0
+    /// 0007 : OpCode.JMPGE 03
+    /// 0009 : OpCode.THROW
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0014 : OpCode.JMPLE 03
+    /// 0016 : OpCode.THROW
+    /// 0017 : OpCode.STARG0
+    /// 0018 : OpCode.LDARG0
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.INC
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.PUSH0
+    /// 001D : OpCode.JMPGE 03
+    /// 001F : OpCode.THROW
+    /// 0020 : OpCode.DUP
+    /// 0021 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002A : OpCode.JMPLE 03
+    /// 002C : OpCode.THROW
+    /// 002D : OpCode.STARG0
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.LDARG0
+    /// 0030 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Inc_Checked")]
     public abstract BigInteger? UnitTest_Param_Inc_Checked(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : INC
-    // 0005 : DUP
-    // 0006 : PUSH0
-    // 0007 : JMPGE
-    // 0009 : THROW
-    // 000A : DUP
-    // 000B : PUSHINT64
-    // 0014 : JMPLE
-    // 0016 : THROW
-    // 0017 : STARG0
-    // 0018 : LDARG0
-    // 0019 : DUP
-    // 001A : INC
-    // 001B : DUP
-    // 001C : PUSH0
-    // 001D : JMPGE
-    // 001F : THROW
-    // 0020 : DUP
-    // 0021 : PUSHINT64
-    // 002A : JMPLE
-    // 002C : THROW
-    // 002D : STARG0
-    // 002E : DROP
-    // 002F : LDARG0
-    // 0030 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.INC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSHINT32 00000080
+    /// 000B : OpCode.JMPGE 03
+    /// 000D : OpCode.THROW
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.PUSHINT32 FFFFFF7F
+    /// 0014 : OpCode.JMPLE 03
+    /// 0016 : OpCode.THROW
+    /// 0017 : OpCode.STARG0
+    /// 0018 : OpCode.LDARG0
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.INC
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.PUSHINT32 00000080
+    /// 0021 : OpCode.JMPGE 03
+    /// 0023 : OpCode.THROW
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002A : OpCode.JMPLE 03
+    /// 002C : OpCode.THROW
+    /// 002D : OpCode.STARG0
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.LDARG0
+    /// 0030 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Inc_Checked_Int")]
     public abstract BigInteger? UnitTest_Param_Inc_Checked_Int(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : INC
-    // 0005 : DUP
-    // 0006 : PUSHINT32
-    // 000B : JMPGE
-    // 000D : THROW
-    // 000E : DUP
-    // 000F : PUSHINT32
-    // 0014 : JMPLE
-    // 0016 : THROW
-    // 0017 : STARG0
-    // 0018 : LDARG0
-    // 0019 : DUP
-    // 001A : INC
-    // 001B : DUP
-    // 001C : PUSHINT32
-    // 0021 : JMPGE
-    // 0023 : THROW
-    // 0024 : DUP
-    // 0025 : PUSHINT32
-    // 002A : JMPLE
-    // 002C : THROW
-    // 002D : STARG0
-    // 002E : DROP
-    // 002F : LDARG0
-    // 0030 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.INC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSH0
+    /// 0007 : OpCode.JMPGE 04
+    /// 0009 : OpCode.JMP 0E
+    /// 000B : OpCode.DUP
+    /// 000C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0015 : OpCode.JMPLE 0C
+    /// 0017 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0020 : OpCode.AND
+    /// 0021 : OpCode.STARG0
+    /// 0022 : OpCode.LDARG0
+    /// 0023 : OpCode.DUP
+    /// 0024 : OpCode.INC
+    /// 0025 : OpCode.DUP
+    /// 0026 : OpCode.PUSH0
+    /// 0027 : OpCode.JMPGE 04
+    /// 0029 : OpCode.JMP 0E
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0035 : OpCode.JMPLE 0C
+    /// 0037 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0040 : OpCode.AND
+    /// 0041 : OpCode.STARG0
+    /// 0042 : OpCode.DROP
+    /// 0043 : OpCode.LDARG0
+    /// 0044 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Inc_UnChecked")]
     public abstract BigInteger? UnitTest_Param_Inc_UnChecked(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : INC
-    // 0005 : DUP
-    // 0006 : PUSH0
-    // 0007 : JMPGE
-    // 0009 : JMP
-    // 000B : DUP
-    // 000C : PUSHINT64
-    // 0015 : JMPLE
-    // 0017 : PUSHINT64
-    // 0020 : AND
-    // 0021 : STARG0
-    // 0022 : LDARG0
-    // 0023 : DUP
-    // 0024 : INC
-    // 0025 : DUP
-    // 0026 : PUSH0
-    // 0027 : JMPGE
-    // 0029 : JMP
-    // 002B : DUP
-    // 002C : PUSHINT64
-    // 0035 : JMPLE
-    // 0037 : PUSHINT64
-    // 0040 : AND
-    // 0041 : STARG0
-    // 0042 : DROP
-    // 0043 : LDARG0
-    // 0044 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.INC
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSHINT32 00000080
+    /// 000B : OpCode.JMPGE 04
+    /// 000D : OpCode.JMP 0A
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0015 : OpCode.JMPLE 1E
+    /// 0017 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0020 : OpCode.AND
+    /// 0021 : OpCode.DUP
+    /// 0022 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0027 : OpCode.JMPLE 0C
+    /// 0029 : OpCode.PUSHINT64 0000000001000000
+    /// 0032 : OpCode.SUB
+    /// 0033 : OpCode.STARG0
+    /// 0034 : OpCode.LDARG0
+    /// 0035 : OpCode.DUP
+    /// 0036 : OpCode.INC
+    /// 0037 : OpCode.DUP
+    /// 0038 : OpCode.PUSHINT32 00000080
+    /// 003D : OpCode.JMPGE 04
+    /// 003F : OpCode.JMP 0A
+    /// 0041 : OpCode.DUP
+    /// 0042 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0047 : OpCode.JMPLE 1E
+    /// 0049 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0052 : OpCode.AND
+    /// 0053 : OpCode.DUP
+    /// 0054 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0059 : OpCode.JMPLE 0C
+    /// 005B : OpCode.PUSHINT64 0000000001000000
+    /// 0064 : OpCode.SUB
+    /// 0065 : OpCode.STARG0
+    /// 0066 : OpCode.DROP
+    /// 0067 : OpCode.LDARG0
+    /// 0068 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Param_Inc_UnChecked_Int")]
     public abstract BigInteger? UnitTest_Param_Inc_UnChecked_Int(BigInteger? param);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : INC
-    // 0005 : DUP
-    // 0006 : PUSHINT32
-    // 000B : JMPGE
-    // 000D : JMP
-    // 000F : DUP
-    // 0010 : PUSHINT32
-    // 0015 : JMPLE
-    // 0017 : PUSHINT64
-    // 0020 : AND
-    // 0021 : DUP
-    // 0022 : PUSHINT32
-    // 0027 : JMPLE
-    // 0029 : PUSHINT64
-    // 0032 : SUB
-    // 0033 : STARG0
-    // 0034 : LDARG0
-    // 0035 : DUP
-    // 0036 : INC
-    // 0037 : DUP
-    // 0038 : PUSHINT32
-    // 003D : JMPGE
-    // 003F : JMP
-    // 0041 : DUP
-    // 0042 : PUSHINT32
-    // 0047 : JMPLE
-    // 0049 : PUSHINT64
-    // 0052 : AND
-    // 0053 : DUP
-    // 0054 : PUSHINT32
-    // 0059 : JMPLE
-    // 005B : PUSHINT64
-    // 0064 : SUB
-    // 0065 : STARG0
-    // 0066 : DROP
-    // 0067 : LDARG0
-    // 0068 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSH0
+    /// 0001 : OpCode.STSFLD0
+    /// 0002 : OpCode.LDSFLD0
+    /// 0003 : OpCode.DEC
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.JMPGE 03
+    /// 0008 : OpCode.THROW
+    /// 0009 : OpCode.DUP
+    /// 000A : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0013 : OpCode.JMPLE 03
+    /// 0015 : OpCode.THROW
+    /// 0016 : OpCode.STSFLD0
+    /// 0017 : OpCode.LDSFLD0
+    /// 0018 : OpCode.DUP
+    /// 0019 : OpCode.DEC
+    /// 001A : OpCode.DUP
+    /// 001B : OpCode.PUSH0
+    /// 001C : OpCode.JMPGE 03
+    /// 001E : OpCode.THROW
+    /// 001F : OpCode.DUP
+    /// 0020 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0029 : OpCode.JMPLE 03
+    /// 002B : OpCode.THROW
+    /// 002C : OpCode.STSFLD0
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.LDSFLD0
+    /// 002F : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Dec_Checked")]
     public abstract BigInteger? UnitTest_Property_Dec_Checked();
-    // 0000 : PUSH0
-    // 0001 : STSFLD0
-    // 0002 : LDSFLD0
-    // 0003 : DEC
-    // 0004 : DUP
-    // 0005 : PUSH0
-    // 0006 : JMPGE
-    // 0008 : THROW
-    // 0009 : DUP
-    // 000A : PUSHINT64
-    // 0013 : JMPLE
-    // 0015 : THROW
-    // 0016 : STSFLD0
-    // 0017 : LDSFLD0
-    // 0018 : DUP
-    // 0019 : DEC
-    // 001A : DUP
-    // 001B : PUSH0
-    // 001C : JMPGE
-    // 001E : THROW
-    // 001F : DUP
-    // 0020 : PUSHINT64
-    // 0029 : JMPLE
-    // 002B : THROW
-    // 002C : STSFLD0
-    // 002D : DROP
-    // 002E : LDSFLD0
-    // 002F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT32 00000080
+    /// 0005 : OpCode.STSFLD1
+    /// 0006 : OpCode.LDSFLD1
+    /// 0007 : OpCode.DEC
+    /// 0008 : OpCode.DUP
+    /// 0009 : OpCode.PUSHINT32 00000080
+    /// 000E : OpCode.JMPGE 03
+    /// 0010 : OpCode.THROW
+    /// 0011 : OpCode.DUP
+    /// 0012 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0017 : OpCode.JMPLE 03
+    /// 0019 : OpCode.THROW
+    /// 001A : OpCode.STSFLD1
+    /// 001B : OpCode.LDSFLD1
+    /// 001C : OpCode.DUP
+    /// 001D : OpCode.DEC
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.PUSHINT32 00000080
+    /// 0024 : OpCode.JMPGE 03
+    /// 0026 : OpCode.THROW
+    /// 0027 : OpCode.DUP
+    /// 0028 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002D : OpCode.JMPLE 03
+    /// 002F : OpCode.THROW
+    /// 0030 : OpCode.STSFLD1
+    /// 0031 : OpCode.DROP
+    /// 0032 : OpCode.LDSFLD1
+    /// 0033 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Dec_Checked_Int")]
     public abstract BigInteger? UnitTest_Property_Dec_Checked_Int();
-    // 0000 : PUSHINT32
-    // 0005 : STSFLD1
-    // 0006 : LDSFLD1
-    // 0007 : DEC
-    // 0008 : DUP
-    // 0009 : PUSHINT32
-    // 000E : JMPGE
-    // 0010 : THROW
-    // 0011 : DUP
-    // 0012 : PUSHINT32
-    // 0017 : JMPLE
-    // 0019 : THROW
-    // 001A : STSFLD1
-    // 001B : LDSFLD1
-    // 001C : DUP
-    // 001D : DEC
-    // 001E : DUP
-    // 001F : PUSHINT32
-    // 0024 : JMPGE
-    // 0026 : THROW
-    // 0027 : DUP
-    // 0028 : PUSHINT32
-    // 002D : JMPLE
-    // 002F : THROW
-    // 0030 : STSFLD1
-    // 0031 : DROP
-    // 0032 : LDSFLD1
-    // 0033 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSH0
+    /// 0001 : OpCode.STSFLD0
+    /// 0002 : OpCode.LDSFLD0
+    /// 0003 : OpCode.DEC
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.JMPGE 04
+    /// 0008 : OpCode.JMP 0E
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0014 : OpCode.JMPLE 0C
+    /// 0016 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 001F : OpCode.AND
+    /// 0020 : OpCode.STSFLD0
+    /// 0021 : OpCode.LDSFLD0
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.DEC
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSH0
+    /// 0026 : OpCode.JMPGE 04
+    /// 0028 : OpCode.JMP 0E
+    /// 002A : OpCode.DUP
+    /// 002B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0034 : OpCode.JMPLE 0C
+    /// 0036 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 003F : OpCode.AND
+    /// 0040 : OpCode.STSFLD0
+    /// 0041 : OpCode.DROP
+    /// 0042 : OpCode.LDSFLD0
+    /// 0043 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Dec_UnChecked")]
     public abstract BigInteger? UnitTest_Property_Dec_UnChecked();
-    // 0000 : PUSH0
-    // 0001 : STSFLD0
-    // 0002 : LDSFLD0
-    // 0003 : DEC
-    // 0004 : DUP
-    // 0005 : PUSH0
-    // 0006 : JMPGE
-    // 0008 : JMP
-    // 000A : DUP
-    // 000B : PUSHINT64
-    // 0014 : JMPLE
-    // 0016 : PUSHINT64
-    // 001F : AND
-    // 0020 : STSFLD0
-    // 0021 : LDSFLD0
-    // 0022 : DUP
-    // 0023 : DEC
-    // 0024 : DUP
-    // 0025 : PUSH0
-    // 0026 : JMPGE
-    // 0028 : JMP
-    // 002A : DUP
-    // 002B : PUSHINT64
-    // 0034 : JMPLE
-    // 0036 : PUSHINT64
-    // 003F : AND
-    // 0040 : STSFLD0
-    // 0041 : DROP
-    // 0042 : LDSFLD0
-    // 0043 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT32 00000080
+    /// 0005 : OpCode.STSFLD1
+    /// 0006 : OpCode.LDSFLD1
+    /// 0007 : OpCode.DEC
+    /// 0008 : OpCode.DUP
+    /// 0009 : OpCode.PUSHINT32 00000080
+    /// 000E : OpCode.JMPGE 04
+    /// 0010 : OpCode.JMP 0A
+    /// 0012 : OpCode.DUP
+    /// 0013 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0018 : OpCode.JMPLE 1E
+    /// 001A : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0023 : OpCode.AND
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002A : OpCode.JMPLE 0C
+    /// 002C : OpCode.PUSHINT64 0000000001000000
+    /// 0035 : OpCode.SUB
+    /// 0036 : OpCode.STSFLD1
+    /// 0037 : OpCode.LDSFLD1
+    /// 0038 : OpCode.DUP
+    /// 0039 : OpCode.DEC
+    /// 003A : OpCode.DUP
+    /// 003B : OpCode.PUSHINT32 00000080
+    /// 0040 : OpCode.JMPGE 04
+    /// 0042 : OpCode.JMP 0A
+    /// 0044 : OpCode.DUP
+    /// 0045 : OpCode.PUSHINT32 FFFFFF7F
+    /// 004A : OpCode.JMPLE 1E
+    /// 004C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0055 : OpCode.AND
+    /// 0056 : OpCode.DUP
+    /// 0057 : OpCode.PUSHINT32 FFFFFF7F
+    /// 005C : OpCode.JMPLE 0C
+    /// 005E : OpCode.PUSHINT64 0000000001000000
+    /// 0067 : OpCode.SUB
+    /// 0068 : OpCode.STSFLD1
+    /// 0069 : OpCode.DROP
+    /// 006A : OpCode.LDSFLD1
+    /// 006B : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Dec_UnChecked_Int")]
     public abstract BigInteger? UnitTest_Property_Dec_UnChecked_Int();
-    // 0000 : PUSHINT32
-    // 0005 : STSFLD1
-    // 0006 : LDSFLD1
-    // 0007 : DEC
-    // 0008 : DUP
-    // 0009 : PUSHINT32
-    // 000E : JMPGE
-    // 0010 : JMP
-    // 0012 : DUP
-    // 0013 : PUSHINT32
-    // 0018 : JMPLE
-    // 001A : PUSHINT64
-    // 0023 : AND
-    // 0024 : DUP
-    // 0025 : PUSHINT32
-    // 002A : JMPLE
-    // 002C : PUSHINT64
-    // 0035 : SUB
-    // 0036 : STSFLD1
-    // 0037 : LDSFLD1
-    // 0038 : DUP
-    // 0039 : DEC
-    // 003A : DUP
-    // 003B : PUSHINT32
-    // 0040 : JMPGE
-    // 0042 : JMP
-    // 0044 : DUP
-    // 0045 : PUSHINT32
-    // 004A : JMPLE
-    // 004C : PUSHINT64
-    // 0055 : AND
-    // 0056 : DUP
-    // 0057 : PUSHINT32
-    // 005C : JMPLE
-    // 005E : PUSHINT64
-    // 0067 : SUB
-    // 0068 : STSFLD1
-    // 0069 : DROP
-    // 006A : LDSFLD1
-    // 006B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0009 : OpCode.STSFLD0
+    /// 000A : OpCode.LDSFLD0
+    /// 000B : OpCode.INC
+    /// 000C : OpCode.DUP
+    /// 000D : OpCode.PUSH0
+    /// 000E : OpCode.JMPGE 03
+    /// 0010 : OpCode.THROW
+    /// 0011 : OpCode.DUP
+    /// 0012 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 001B : OpCode.JMPLE 03
+    /// 001D : OpCode.THROW
+    /// 001E : OpCode.STSFLD0
+    /// 001F : OpCode.LDSFLD0
+    /// 0020 : OpCode.DUP
+    /// 0021 : OpCode.INC
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.PUSH0
+    /// 0024 : OpCode.JMPGE 03
+    /// 0026 : OpCode.THROW
+    /// 0027 : OpCode.DUP
+    /// 0028 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0031 : OpCode.JMPLE 03
+    /// 0033 : OpCode.THROW
+    /// 0034 : OpCode.STSFLD0
+    /// 0035 : OpCode.DROP
+    /// 0036 : OpCode.LDSFLD0
+    /// 0037 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Inc_Checked")]
     public abstract BigInteger? UnitTest_Property_Inc_Checked();
-    // 0000 : PUSHINT64
-    // 0009 : STSFLD0
-    // 000A : LDSFLD0
-    // 000B : INC
-    // 000C : DUP
-    // 000D : PUSH0
-    // 000E : JMPGE
-    // 0010 : THROW
-    // 0011 : DUP
-    // 0012 : PUSHINT64
-    // 001B : JMPLE
-    // 001D : THROW
-    // 001E : STSFLD0
-    // 001F : LDSFLD0
-    // 0020 : DUP
-    // 0021 : INC
-    // 0022 : DUP
-    // 0023 : PUSH0
-    // 0024 : JMPGE
-    // 0026 : THROW
-    // 0027 : DUP
-    // 0028 : PUSHINT64
-    // 0031 : JMPLE
-    // 0033 : THROW
-    // 0034 : STSFLD0
-    // 0035 : DROP
-    // 0036 : LDSFLD0
-    // 0037 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0005 : OpCode.STSFLD1
+    /// 0006 : OpCode.LDSFLD1
+    /// 0007 : OpCode.INC
+    /// 0008 : OpCode.DUP
+    /// 0009 : OpCode.PUSHINT32 00000080
+    /// 000E : OpCode.JMPGE 03
+    /// 0010 : OpCode.THROW
+    /// 0011 : OpCode.DUP
+    /// 0012 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0017 : OpCode.JMPLE 03
+    /// 0019 : OpCode.THROW
+    /// 001A : OpCode.STSFLD1
+    /// 001B : OpCode.LDSFLD1
+    /// 001C : OpCode.DUP
+    /// 001D : OpCode.INC
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.PUSHINT32 00000080
+    /// 0024 : OpCode.JMPGE 03
+    /// 0026 : OpCode.THROW
+    /// 0027 : OpCode.DUP
+    /// 0028 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002D : OpCode.JMPLE 03
+    /// 002F : OpCode.THROW
+    /// 0030 : OpCode.STSFLD1
+    /// 0031 : OpCode.DROP
+    /// 0032 : OpCode.LDSFLD1
+    /// 0033 : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Inc_Checked_Int")]
     public abstract BigInteger? UnitTest_Property_Inc_Checked_Int();
-    // 0000 : PUSHINT32
-    // 0005 : STSFLD1
-    // 0006 : LDSFLD1
-    // 0007 : INC
-    // 0008 : DUP
-    // 0009 : PUSHINT32
-    // 000E : JMPGE
-    // 0010 : THROW
-    // 0011 : DUP
-    // 0012 : PUSHINT32
-    // 0017 : JMPLE
-    // 0019 : THROW
-    // 001A : STSFLD1
-    // 001B : LDSFLD1
-    // 001C : DUP
-    // 001D : INC
-    // 001E : DUP
-    // 001F : PUSHINT32
-    // 0024 : JMPGE
-    // 0026 : THROW
-    // 0027 : DUP
-    // 0028 : PUSHINT32
-    // 002D : JMPLE
-    // 002F : THROW
-    // 0030 : STSFLD1
-    // 0031 : DROP
-    // 0032 : LDSFLD1
-    // 0033 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0009 : OpCode.STSFLD0
+    /// 000A : OpCode.LDSFLD0
+    /// 000B : OpCode.INC
+    /// 000C : OpCode.DUP
+    /// 000D : OpCode.PUSH0
+    /// 000E : OpCode.JMPGE 04
+    /// 0010 : OpCode.JMP 0E
+    /// 0012 : OpCode.DUP
+    /// 0013 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 001C : OpCode.JMPLE 0C
+    /// 001E : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0027 : OpCode.AND
+    /// 0028 : OpCode.STSFLD0
+    /// 0029 : OpCode.LDSFLD0
+    /// 002A : OpCode.DUP
+    /// 002B : OpCode.INC
+    /// 002C : OpCode.DUP
+    /// 002D : OpCode.PUSH0
+    /// 002E : OpCode.JMPGE 04
+    /// 0030 : OpCode.JMP 0E
+    /// 0032 : OpCode.DUP
+    /// 0033 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 003C : OpCode.JMPLE 0C
+    /// 003E : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0047 : OpCode.AND
+    /// 0048 : OpCode.STSFLD0
+    /// 0049 : OpCode.DROP
+    /// 004A : OpCode.LDSFLD0
+    /// 004B : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Inc_UnChecked")]
     public abstract BigInteger? UnitTest_Property_Inc_UnChecked();
-    // 0000 : PUSHINT64
-    // 0009 : STSFLD0
-    // 000A : LDSFLD0
-    // 000B : INC
-    // 000C : DUP
-    // 000D : PUSH0
-    // 000E : JMPGE
-    // 0010 : JMP
-    // 0012 : DUP
-    // 0013 : PUSHINT64
-    // 001C : JMPLE
-    // 001E : PUSHINT64
-    // 0027 : AND
-    // 0028 : STSFLD0
-    // 0029 : LDSFLD0
-    // 002A : DUP
-    // 002B : INC
-    // 002C : DUP
-    // 002D : PUSH0
-    // 002E : JMPGE
-    // 0030 : JMP
-    // 0032 : DUP
-    // 0033 : PUSHINT64
-    // 003C : JMPLE
-    // 003E : PUSHINT64
-    // 0047 : AND
-    // 0048 : STSFLD0
-    // 0049 : DROP
-    // 004A : LDSFLD0
-    // 004B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0005 : OpCode.STSFLD1
+    /// 0006 : OpCode.LDSFLD1
+    /// 0007 : OpCode.INC
+    /// 0008 : OpCode.DUP
+    /// 0009 : OpCode.PUSHINT32 00000080
+    /// 000E : OpCode.JMPGE 04
+    /// 0010 : OpCode.JMP 0A
+    /// 0012 : OpCode.DUP
+    /// 0013 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0018 : OpCode.JMPLE 1E
+    /// 001A : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0023 : OpCode.AND
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002A : OpCode.JMPLE 0C
+    /// 002C : OpCode.PUSHINT64 0000000001000000
+    /// 0035 : OpCode.SUB
+    /// 0036 : OpCode.STSFLD1
+    /// 0037 : OpCode.LDSFLD1
+    /// 0038 : OpCode.DUP
+    /// 0039 : OpCode.INC
+    /// 003A : OpCode.DUP
+    /// 003B : OpCode.PUSHINT32 00000080
+    /// 0040 : OpCode.JMPGE 04
+    /// 0042 : OpCode.JMP 0A
+    /// 0044 : OpCode.DUP
+    /// 0045 : OpCode.PUSHINT32 FFFFFF7F
+    /// 004A : OpCode.JMPLE 1E
+    /// 004C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0055 : OpCode.AND
+    /// 0056 : OpCode.DUP
+    /// 0057 : OpCode.PUSHINT32 FFFFFF7F
+    /// 005C : OpCode.JMPLE 0C
+    /// 005E : OpCode.PUSHINT64 0000000001000000
+    /// 0067 : OpCode.SUB
+    /// 0068 : OpCode.STSFLD1
+    /// 0069 : OpCode.DROP
+    /// 006A : OpCode.LDSFLD1
+    /// 006B : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_Property_Inc_UnChecked_Int")]
     public abstract BigInteger? UnitTest_Property_Inc_UnChecked_Int();
-    // 0000 : PUSHINT32
-    // 0005 : STSFLD1
-    // 0006 : LDSFLD1
-    // 0007 : INC
-    // 0008 : DUP
-    // 0009 : PUSHINT32
-    // 000E : JMPGE
-    // 0010 : JMP
-    // 0012 : DUP
-    // 0013 : PUSHINT32
-    // 0018 : JMPLE
-    // 001A : PUSHINT64
-    // 0023 : AND
-    // 0024 : DUP
-    // 0025 : PUSHINT32
-    // 002A : JMPLE
-    // 002C : PUSHINT64
-    // 0035 : SUB
-    // 0036 : STSFLD1
-    // 0037 : LDSFLD1
-    // 0038 : DUP
-    // 0039 : INC
-    // 003A : DUP
-    // 003B : PUSHINT32
-    // 0040 : JMPGE
-    // 0042 : JMP
-    // 0044 : DUP
-    // 0045 : PUSHINT32
-    // 004A : JMPLE
-    // 004C : PUSHINT64
-    // 0055 : AND
-    // 0056 : DUP
-    // 0057 : PUSHINT32
-    // 005C : JMPLE
-    // 005E : PUSHINT64
-    // 0067 : SUB
-    // 0068 : STSFLD1
-    // 0069 : DROP
-    // 006A : LDSFLD1
-    // 006B : RET
 
     #endregion
 

@@ -24,174 +24,184 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.NEWSTRUCT0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.APPEND
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.APPEND
+    /// 000A : OpCode.LDARG1
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.PUSH2
+    /// 000D : OpCode.PICK
+    /// 000E : OpCode.CALL 05
+    /// 0010 : OpCode.STLOC0
+    /// 0011 : OpCode.LDLOC0
+    /// 0012 : OpCode.RET
+    /// </remarks>
     [DisplayName("test_CreateRecord")]
     public abstract object? Test_CreateRecord(string? n, BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : NEWSTRUCT0
-    // 0004 : DUP
-    // 0005 : PUSHNULL
-    // 0006 : APPEND
-    // 0007 : DUP
-    // 0008 : PUSH0
-    // 0009 : APPEND
-    // 000A : LDARG1
-    // 000B : LDARG0
-    // 000C : PUSH2
-    // 000D : PICK
-    // 000E : CALL
-    // 0010 : STLOC0
-    // 0011 : LDLOC0
-    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.NEWSTRUCT0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.APPEND
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.APPEND
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.OVER
+    /// 000C : OpCode.CALL 0A
+    /// 000E : OpCode.LDARG1
+    /// 000F : OpCode.OVER
+    /// 0010 : OpCode.PUSH1
+    /// 0011 : OpCode.ROT
+    /// 0012 : OpCode.SETITEM
+    /// 0013 : OpCode.STLOC0
+    /// 0014 : OpCode.LDLOC0
+    /// 0015 : OpCode.RET
+    /// </remarks>
     [DisplayName("test_CreateRecord2")]
     public abstract object? Test_CreateRecord2(string? n, BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : NEWSTRUCT0
-    // 0004 : DUP
-    // 0005 : PUSHNULL
-    // 0006 : APPEND
-    // 0007 : DUP
-    // 0008 : PUSH0
-    // 0009 : APPEND
-    // 000A : LDARG0
-    // 000B : OVER
-    // 000C : CALL
-    // 000E : LDARG1
-    // 000F : OVER
-    // 0010 : PUSH1
-    // 0011 : ROT
-    // 0012 : SETITEM
-    // 0013 : STLOC0
-    // 0014 : LDLOC0
-    // 0015 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0302
+    /// 0003 : OpCode.NEWSTRUCT0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.APPEND
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.APPEND
+    /// 000A : OpCode.LDARG1
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.PUSH2
+    /// 000D : OpCode.PICK
+    /// 000E : OpCode.CALL_L 12FFFFFF
+    /// 0013 : OpCode.STLOC0
+    /// 0014 : OpCode.LDLOC0
+    /// 0015 : OpCode.DUP
+    /// 0016 : OpCode.UNPACK
+    /// 0017 : OpCode.DROP
+    /// 0018 : OpCode.STLOC1
+    /// 0019 : OpCode.STLOC2
+    /// 001A : OpCode.DROP
+    /// 001B : OpCode.LDLOC1
+    /// 001C : OpCode.RET
+    /// </remarks>
     [DisplayName("test_DeconstructRecord")]
     public abstract string? Test_DeconstructRecord(string? n, BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : NEWSTRUCT0
-    // 0004 : DUP
-    // 0005 : PUSHNULL
-    // 0006 : APPEND
-    // 0007 : DUP
-    // 0008 : PUSH0
-    // 0009 : APPEND
-    // 000A : LDARG1
-    // 000B : LDARG0
-    // 000C : PUSH2
-    // 000D : PICK
-    // 000E : CALL_L
-    // 0013 : STLOC0
-    // 0014 : LDLOC0
-    // 0015 : DUP
-    // 0016 : UNPACK
-    // 0017 : DROP
-    // 0018 : STLOC1
-    // 0019 : STLOC2
-    // 001A : DROP
-    // 001B : LDLOC1
-    // 001C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0202
+    /// 0003 : OpCode.NEWSTRUCT0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.APPEND
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.APPEND
+    /// 000A : OpCode.LDARG1
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.PUSH2
+    /// 000D : OpCode.PICK
+    /// 000E : OpCode.CALL C5
+    /// 0010 : OpCode.STLOC0
+    /// 0011 : OpCode.LDLOC0
+    /// 0012 : OpCode.UNPACK
+    /// 0013 : OpCode.PACKSTRUCT
+    /// 0014 : OpCode.LDARG1
+    /// 0015 : OpCode.PUSH1
+    /// 0016 : OpCode.ADD
+    /// 0017 : OpCode.DUP
+    /// 0018 : OpCode.PUSHINT32 00000080
+    /// 001D : OpCode.JMPGE 04
+    /// 001F : OpCode.JMP 0A
+    /// 0021 : OpCode.DUP
+    /// 0022 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0027 : OpCode.JMPLE 1E
+    /// 0029 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0032 : OpCode.AND
+    /// 0033 : OpCode.DUP
+    /// 0034 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0039 : OpCode.JMPLE 0C
+    /// 003B : OpCode.PUSHINT64 0000000001000000
+    /// 0044 : OpCode.SUB
+    /// 0045 : OpCode.OVER
+    /// 0046 : OpCode.CALL 05
+    /// 0048 : OpCode.STLOC1
+    /// 0049 : OpCode.LDLOC0
+    /// 004A : OpCode.RET
+    /// </remarks>
     [DisplayName("test_UpdateRecord")]
     public abstract object? Test_UpdateRecord(string? n, BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : NEWSTRUCT0
-    // 0004 : DUP
-    // 0005 : PUSHNULL
-    // 0006 : APPEND
-    // 0007 : DUP
-    // 0008 : PUSH0
-    // 0009 : APPEND
-    // 000A : LDARG1
-    // 000B : LDARG0
-    // 000C : PUSH2
-    // 000D : PICK
-    // 000E : CALL
-    // 0010 : STLOC0
-    // 0011 : LDLOC0
-    // 0012 : UNPACK
-    // 0013 : PACKSTRUCT
-    // 0014 : LDARG1
-    // 0015 : PUSH1
-    // 0016 : ADD
-    // 0017 : DUP
-    // 0018 : PUSHINT32
-    // 001D : JMPGE
-    // 001F : JMP
-    // 0021 : DUP
-    // 0022 : PUSHINT32
-    // 0027 : JMPLE
-    // 0029 : PUSHINT64
-    // 0032 : AND
-    // 0033 : DUP
-    // 0034 : PUSHINT32
-    // 0039 : JMPLE
-    // 003B : PUSHINT64
-    // 0044 : SUB
-    // 0045 : OVER
-    // 0046 : CALL
-    // 0048 : STLOC1
-    // 0049 : LDLOC0
-    // 004A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0202
+    /// 0003 : OpCode.NEWSTRUCT0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSHNULL
+    /// 0006 : OpCode.APPEND
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.APPEND
+    /// 000A : OpCode.LDARG1
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.PUSH2
+    /// 000D : OpCode.PICK
+    /// 000E : OpCode.CALL_L 72FFFFFF
+    /// 0013 : OpCode.STLOC0
+    /// 0014 : OpCode.LDLOC0
+    /// 0015 : OpCode.UNPACK
+    /// 0016 : OpCode.PACKSTRUCT
+    /// 0017 : OpCode.LDARG1
+    /// 0018 : OpCode.PUSH1
+    /// 0019 : OpCode.ADD
+    /// 001A : OpCode.DUP
+    /// 001B : OpCode.PUSHINT32 00000080
+    /// 0020 : OpCode.JMPGE 04
+    /// 0022 : OpCode.JMP 0A
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002A : OpCode.JMPLE 1E
+    /// 002C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0035 : OpCode.AND
+    /// 0036 : OpCode.DUP
+    /// 0037 : OpCode.PUSHINT32 FFFFFF7F
+    /// 003C : OpCode.JMPLE 0C
+    /// 003E : OpCode.PUSHINT64 0000000001000000
+    /// 0047 : OpCode.SUB
+    /// 0048 : OpCode.OVER
+    /// 0049 : OpCode.CALL AF
+    /// 004B : OpCode.PUSHDATA1 30
+    /// 004E : OpCode.LDARG0
+    /// 004F : OpCode.CAT
+    /// 0050 : OpCode.CONVERT 28
+    /// 0052 : OpCode.OVER
+    /// 0053 : OpCode.CALL 05
+    /// 0055 : OpCode.STLOC1
+    /// 0056 : OpCode.LDLOC1
+    /// 0057 : OpCode.RET
+    /// </remarks>
     [DisplayName("test_UpdateRecord2")]
     public abstract object? Test_UpdateRecord2(string? n, BigInteger? a);
-    // 0000 : INITSLOT
-    // 0003 : NEWSTRUCT0
-    // 0004 : DUP
-    // 0005 : PUSHNULL
-    // 0006 : APPEND
-    // 0007 : DUP
-    // 0008 : PUSH0
-    // 0009 : APPEND
-    // 000A : LDARG1
-    // 000B : LDARG0
-    // 000C : PUSH2
-    // 000D : PICK
-    // 000E : CALL_L
-    // 0013 : STLOC0
-    // 0014 : LDLOC0
-    // 0015 : UNPACK
-    // 0016 : PACKSTRUCT
-    // 0017 : LDARG1
-    // 0018 : PUSH1
-    // 0019 : ADD
-    // 001A : DUP
-    // 001B : PUSHINT32
-    // 0020 : JMPGE
-    // 0022 : JMP
-    // 0024 : DUP
-    // 0025 : PUSHINT32
-    // 002A : JMPLE
-    // 002C : PUSHINT64
-    // 0035 : AND
-    // 0036 : DUP
-    // 0037 : PUSHINT32
-    // 003C : JMPLE
-    // 003E : PUSHINT64
-    // 0047 : SUB
-    // 0048 : OVER
-    // 0049 : CALL
-    // 004B : PUSHDATA1
-    // 004E : LDARG0
-    // 004F : CAT
-    // 0050 : CONVERT
-    // 0052 : OVER
-    // 0053 : CALL
-    // 0055 : STLOC1
-    // 0056 : LDLOC1
-    // 0057 : RET
 
     #endregion
 

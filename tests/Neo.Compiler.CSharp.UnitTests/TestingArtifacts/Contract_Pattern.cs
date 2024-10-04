@@ -48,196 +48,204 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHINT8 D8
+    /// 0008 : OpCode.LT
+    /// 0009 : OpCode.JMPIFNOT 0C
+    /// 000B : OpCode.PUSHDATA1 546F6F206C6F77
+    /// 0014 : OpCode.RET
+    /// 0015 : OpCode.LDLOC0
+    /// 0016 : OpCode.PUSHINT8 D8
+    /// 0018 : OpCode.GE
+    /// 0019 : OpCode.JMPIF 05
+    /// 001B : OpCode.PUSHF
+    /// 001C : OpCode.JMP 05
+    /// 001E : OpCode.LDLOC0
+    /// 001F : OpCode.PUSH0
+    /// 0020 : OpCode.LT
+    /// 0021 : OpCode.JMPIFNOT 08
+    /// 0023 : OpCode.PUSHDATA1 4C6F77
+    /// 0028 : OpCode.RET
+    /// 0029 : OpCode.LDLOC0
+    /// 002A : OpCode.PUSH0
+    /// 002B : OpCode.GE
+    /// 002C : OpCode.JMPIF 05
+    /// 002E : OpCode.PUSHF
+    /// 002F : OpCode.JMP 05
+    /// 0031 : OpCode.LDLOC0
+    /// 0032 : OpCode.PUSH10
+    /// 0033 : OpCode.LT
+    /// 0034 : OpCode.JMPIFNOT 0F
+    /// 0036 : OpCode.PUSHDATA1 41636365707461626C65
+    /// 0042 : OpCode.RET
+    /// 0043 : OpCode.LDLOC0
+    /// 0044 : OpCode.PUSH10
+    /// 0045 : OpCode.GE
+    /// 0046 : OpCode.JMPIF 05
+    /// 0048 : OpCode.PUSHF
+    /// 0049 : OpCode.JMP 06
+    /// 004B : OpCode.LDLOC0
+    /// 004C : OpCode.PUSHINT8 14
+    /// 004E : OpCode.LT
+    /// 004F : OpCode.JMPIFNOT 09
+    /// 0051 : OpCode.PUSHDATA1 48696768
+    /// 0057 : OpCode.RET
+    /// 0058 : OpCode.LDLOC0
+    /// 0059 : OpCode.PUSHINT8 14
+    /// 005B : OpCode.GE
+    /// 005C : OpCode.JMPIFNOT 0D
+    /// 005E : OpCode.PUSHDATA1 546F6F2068696768
+    /// 0068 : OpCode.RET
+    /// 0069 : OpCode.LDLOC0
+    /// 006A : OpCode.THROW
+    /// </remarks>
     [DisplayName("classify")]
     public abstract string? Classify(BigInteger? measurement);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHINT8
-    // 0008 : LT
-    // 0009 : JMPIFNOT
-    // 000B : PUSHDATA1
-    // 0014 : RET
-    // 0015 : LDLOC0
-    // 0016 : PUSHINT8
-    // 0018 : GE
-    // 0019 : JMPIF
-    // 001B : PUSHF
-    // 001C : JMP
-    // 001E : LDLOC0
-    // 001F : PUSH0
-    // 0020 : LT
-    // 0021 : JMPIFNOT
-    // 0023 : PUSHDATA1
-    // 0028 : RET
-    // 0029 : LDLOC0
-    // 002A : PUSH0
-    // 002B : GE
-    // 002C : JMPIF
-    // 002E : PUSHF
-    // 002F : JMP
-    // 0031 : LDLOC0
-    // 0032 : PUSH10
-    // 0033 : LT
-    // 0034 : JMPIFNOT
-    // 0036 : PUSHDATA1
-    // 0042 : RET
-    // 0043 : LDLOC0
-    // 0044 : PUSH10
-    // 0045 : GE
-    // 0046 : JMPIF
-    // 0048 : PUSHF
-    // 0049 : JMP
-    // 004B : LDLOC0
-    // 004C : PUSHINT8
-    // 004E : LT
-    // 004F : JMPIFNOT
-    // 0051 : PUSHDATA1
-    // 0057 : RET
-    // 0058 : LDLOC0
-    // 0059 : PUSHINT8
-    // 005B : GE
-    // 005C : JMPIFNOT
-    // 005E : PUSHDATA1
-    // 0068 : RET
-    // 0069 : LDLOC0
-    // 006A : THROW
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSH3
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.JMPIFNOT 05
+    /// 000A : OpCode.PUSHT
+    /// 000B : OpCode.JMP 05
+    /// 000D : OpCode.LDLOC0
+    /// 000E : OpCode.PUSH4
+    /// 000F : OpCode.EQUAL
+    /// 0010 : OpCode.JMPIFNOT 05
+    /// 0012 : OpCode.PUSHT
+    /// 0013 : OpCode.JMP 05
+    /// 0015 : OpCode.LDLOC0
+    /// 0016 : OpCode.PUSH5
+    /// 0017 : OpCode.EQUAL
+    /// 0018 : OpCode.JMPIFNOT 0B
+    /// 001A : OpCode.PUSHDATA1 737072696E67
+    /// 0022 : OpCode.RET
+    /// 0023 : OpCode.LDLOC0
+    /// 0024 : OpCode.PUSH6
+    /// 0025 : OpCode.EQUAL
+    /// 0026 : OpCode.JMPIFNOT 05
+    /// 0028 : OpCode.PUSHT
+    /// 0029 : OpCode.JMP 05
+    /// 002B : OpCode.LDLOC0
+    /// 002C : OpCode.PUSH7
+    /// 002D : OpCode.EQUAL
+    /// 002E : OpCode.JMPIFNOT 05
+    /// 0030 : OpCode.PUSHT
+    /// 0031 : OpCode.JMP 05
+    /// 0033 : OpCode.LDLOC0
+    /// 0034 : OpCode.PUSH8
+    /// 0035 : OpCode.EQUAL
+    /// 0036 : OpCode.JMPIFNOT 0B
+    /// 0038 : OpCode.PUSHDATA1 73756D6D6572
+    /// 0040 : OpCode.RET
+    /// 0041 : OpCode.LDLOC0
+    /// 0042 : OpCode.PUSH9
+    /// 0043 : OpCode.EQUAL
+    /// 0044 : OpCode.JMPIFNOT 05
+    /// 0046 : OpCode.PUSHT
+    /// 0047 : OpCode.JMP 05
+    /// 0049 : OpCode.LDLOC0
+    /// 004A : OpCode.PUSH10
+    /// 004B : OpCode.EQUAL
+    /// 004C : OpCode.JMPIFNOT 05
+    /// 004E : OpCode.PUSHT
+    /// 004F : OpCode.JMP 05
+    /// 0051 : OpCode.LDLOC0
+    /// 0052 : OpCode.PUSH11
+    /// 0053 : OpCode.EQUAL
+    /// 0054 : OpCode.JMPIFNOT 0B
+    /// 0056 : OpCode.PUSHDATA1 617574756D6E
+    /// 005E : OpCode.RET
+    /// 005F : OpCode.LDLOC0
+    /// 0060 : OpCode.PUSH12
+    /// 0061 : OpCode.EQUAL
+    /// 0062 : OpCode.JMPIFNOT 05
+    /// 0064 : OpCode.PUSHT
+    /// 0065 : OpCode.JMP 05
+    /// 0067 : OpCode.LDLOC0
+    /// 0068 : OpCode.PUSH1
+    /// 0069 : OpCode.EQUAL
+    /// 006A : OpCode.JMPIFNOT 05
+    /// 006C : OpCode.PUSHT
+    /// 006D : OpCode.JMP 05
+    /// 006F : OpCode.LDLOC0
+    /// 0070 : OpCode.PUSH2
+    /// 0071 : OpCode.EQUAL
+    /// 0072 : OpCode.JMPIFNOT 0B
+    /// 0074 : OpCode.PUSHDATA1 77696E746572
+    /// 007C : OpCode.RET
+    /// 007D : OpCode.PUSHT
+    /// 007E : OpCode.JMPIFNOT 22
+    /// 0080 : OpCode.PUSHDATA1 556E6578706563746564206D6F6E74683A20
+    /// 0094 : OpCode.LDARG0
+    /// 0095 : OpCode.CALLT 0000
+    /// 0098 : OpCode.CAT
+    /// 0099 : OpCode.PUSHDATA1 2E
+    /// 009C : OpCode.CAT
+    /// 009D : OpCode.CONVERT 28
+    /// 009F : OpCode.THROW
+    /// 00A0 : OpCode.LDLOC0
+    /// 00A1 : OpCode.THROW
+    /// </remarks>
     [DisplayName("getCalendarSeason")]
     public abstract string? GetCalendarSeason(BigInteger? month);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSH3
-    // 0007 : EQUAL
-    // 0008 : JMPIFNOT
-    // 000A : PUSHT
-    // 000B : JMP
-    // 000D : LDLOC0
-    // 000E : PUSH4
-    // 000F : EQUAL
-    // 0010 : JMPIFNOT
-    // 0012 : PUSHT
-    // 0013 : JMP
-    // 0015 : LDLOC0
-    // 0016 : PUSH5
-    // 0017 : EQUAL
-    // 0018 : JMPIFNOT
-    // 001A : PUSHDATA1
-    // 0022 : RET
-    // 0023 : LDLOC0
-    // 0024 : PUSH6
-    // 0025 : EQUAL
-    // 0026 : JMPIFNOT
-    // 0028 : PUSHT
-    // 0029 : JMP
-    // 002B : LDLOC0
-    // 002C : PUSH7
-    // 002D : EQUAL
-    // 002E : JMPIFNOT
-    // 0030 : PUSHT
-    // 0031 : JMP
-    // 0033 : LDLOC0
-    // 0034 : PUSH8
-    // 0035 : EQUAL
-    // 0036 : JMPIFNOT
-    // 0038 : PUSHDATA1
-    // 0040 : RET
-    // 0041 : LDLOC0
-    // 0042 : PUSH9
-    // 0043 : EQUAL
-    // 0044 : JMPIFNOT
-    // 0046 : PUSHT
-    // 0047 : JMP
-    // 0049 : LDLOC0
-    // 004A : PUSH10
-    // 004B : EQUAL
-    // 004C : JMPIFNOT
-    // 004E : PUSHT
-    // 004F : JMP
-    // 0051 : LDLOC0
-    // 0052 : PUSH11
-    // 0053 : EQUAL
-    // 0054 : JMPIFNOT
-    // 0056 : PUSHDATA1
-    // 005E : RET
-    // 005F : LDLOC0
-    // 0060 : PUSH12
-    // 0061 : EQUAL
-    // 0062 : JMPIFNOT
-    // 0064 : PUSHT
-    // 0065 : JMP
-    // 0067 : LDLOC0
-    // 0068 : PUSH1
-    // 0069 : EQUAL
-    // 006A : JMPIFNOT
-    // 006C : PUSHT
-    // 006D : JMP
-    // 006F : LDLOC0
-    // 0070 : PUSH2
-    // 0071 : EQUAL
-    // 0072 : JMPIFNOT
-    // 0074 : PUSHDATA1
-    // 007C : RET
-    // 007D : PUSHT
-    // 007E : JMPIFNOT
-    // 0080 : PUSHDATA1
-    // 0094 : LDARG0
-    // 0095 : CALLT
-    // 0098 : CAT
-    // 0099 : PUSHDATA1
-    // 009C : CAT
-    // 009D : CONVERT
-    // 009F : THROW
-    // 00A0 : LDLOC0
-    // 00A1 : THROW
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0400
+    /// 0003 : OpCode.PUSHDATA1 48656C6C6F2C20576F726C6421
+    /// 0012 : OpCode.STLOC0
+    /// 0013 : OpCode.LDLOC0
+    /// 0014 : OpCode.STLOC1
+    /// 0015 : OpCode.LDLOC1
+    /// 0016 : OpCode.ISTYPE 28
+    /// 0018 : OpCode.LDLOC1
+    /// 0019 : OpCode.STLOC2
+    /// 001A : OpCode.JMPIFNOT 08
+    /// 001C : OpCode.LDLOC2
+    /// 001D : OpCode.SYSCALL CFE74796
+    /// 0022 : OpCode.PUSHDATA1 48656C6C6F2C20576F726C6421
+    /// 0031 : OpCode.STLOC2
+    /// 0032 : OpCode.LDLOC2
+    /// 0033 : OpCode.STLOC3
+    /// 0034 : OpCode.LDLOC3
+    /// 0035 : OpCode.ISTYPE 28
+    /// 0037 : OpCode.JMPIFNOT 1C
+    /// 0039 : OpCode.PUSHDATA1 6772656574696E673220697320737472696E67
+    /// 004E : OpCode.SYSCALL CFE74796
+    /// 0053 : OpCode.RET
+    /// </remarks>
     [DisplayName("testDeclarationPattern")]
     public abstract void TestDeclarationPattern();
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 0012 : STLOC0
-    // 0013 : LDLOC0
-    // 0014 : STLOC1
-    // 0015 : LDLOC1
-    // 0016 : ISTYPE
-    // 0018 : LDLOC1
-    // 0019 : STLOC2
-    // 001A : JMPIFNOT
-    // 001C : LDLOC2
-    // 001D : SYSCALL
-    // 0022 : PUSHDATA1
-    // 0031 : STLOC2
-    // 0032 : LDLOC2
-    // 0033 : STLOC3
-    // 0034 : LDLOC3
-    // 0035 : ISTYPE
-    // 0037 : JMPIFNOT
-    // 0039 : PUSHDATA1
-    // 004E : SYSCALL
-    // 0053 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.NOT
+    /// 0009 : OpCode.RET
+    /// </remarks>
     [DisplayName("testNotPattern")]
     public abstract bool? TestNotPattern(bool? x);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : NOT
-    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
@@ -248,70 +256,74 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.ISTYPE 30
+    /// 0008 : OpCode.JMPIFNOT 03
+    /// 000A : OpCode.RET
+    /// 000B : OpCode.LDLOC0
+    /// 000C : OpCode.ISTYPE 28
+    /// 000E : OpCode.JMPIFNOT 03
+    /// 0010 : OpCode.RET
+    /// 0011 : OpCode.LDLOC0
+    /// 0012 : OpCode.ISTYPE 20
+    /// 0014 : OpCode.JMPIFNOT 03
+    /// 0016 : OpCode.RET
+    /// 0017 : OpCode.RET
+    /// 0018 : OpCode.RET
+    /// 0019 : OpCode.RET
+    /// </remarks>
     [DisplayName("testTypePattern")]
     public abstract void TestTypePattern(object? o1 = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : ISTYPE
-    // 0008 : JMPIFNOT
-    // 000A : RET
-    // 000B : LDLOC0
-    // 000C : ISTYPE
-    // 000E : JMPIFNOT
-    // 0010 : RET
-    // 0011 : LDLOC0
-    // 0012 : ISTYPE
-    // 0014 : JMPIFNOT
-    // 0016 : RET
-    // 0017 : RET
-    // 0018 : RET
-    // 0019 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.ISTYPE 30
+    /// 0008 : OpCode.JMPIFNOT 05
+    /// 000A : OpCode.PUSHT
+    /// 000B : OpCode.JMP 05
+    /// 000D : OpCode.LDLOC0
+    /// 000E : OpCode.ISTYPE 28
+    /// 0010 : OpCode.JMPIFNOT 05
+    /// 0012 : OpCode.PUSHT
+    /// 0013 : OpCode.JMP 07
+    /// 0015 : OpCode.LDLOC0
+    /// 0016 : OpCode.ISTYPE 28
+    /// 0018 : OpCode.PUSHT
+    /// 0019 : OpCode.EQUAL
+    /// 001A : OpCode.JMPIFNOT 04
+    /// 001C : OpCode.PUSH0
+    /// 001D : OpCode.RET
+    /// 001E : OpCode.LDLOC0
+    /// 001F : OpCode.ISTYPE 20
+    /// 0021 : OpCode.JMPIFNOT 04
+    /// 0023 : OpCode.PUSH1
+    /// 0024 : OpCode.RET
+    /// 0025 : OpCode.LDLOC0
+    /// 0026 : OpCode.ISTYPE 21
+    /// 0028 : OpCode.PUSHT
+    /// 0029 : OpCode.EQUAL
+    /// 002A : OpCode.JMPIFNOT 04
+    /// 002C : OpCode.PUSH2
+    /// 002D : OpCode.RET
+    /// 002E : OpCode.PUSHT
+    /// 002F : OpCode.JMPIFNOT 04
+    /// 0031 : OpCode.PUSH5
+    /// 0032 : OpCode.RET
+    /// 0033 : OpCode.LDLOC0
+    /// 0034 : OpCode.THROW
+    /// </remarks>
     [DisplayName("testTypePattern2")]
     public abstract BigInteger? TestTypePattern2(object? t = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : ISTYPE
-    // 0008 : JMPIFNOT
-    // 000A : PUSHT
-    // 000B : JMP
-    // 000D : LDLOC0
-    // 000E : ISTYPE
-    // 0010 : JMPIFNOT
-    // 0012 : PUSHT
-    // 0013 : JMP
-    // 0015 : LDLOC0
-    // 0016 : ISTYPE
-    // 0018 : PUSHT
-    // 0019 : EQUAL
-    // 001A : JMPIFNOT
-    // 001C : PUSH0
-    // 001D : RET
-    // 001E : LDLOC0
-    // 001F : ISTYPE
-    // 0021 : JMPIFNOT
-    // 0023 : PUSH1
-    // 0024 : RET
-    // 0025 : LDLOC0
-    // 0026 : ISTYPE
-    // 0028 : PUSHT
-    // 0029 : EQUAL
-    // 002A : JMPIFNOT
-    // 002C : PUSH2
-    // 002D : RET
-    // 002E : PUSHT
-    // 002F : JMPIFNOT
-    // 0031 : PUSH5
-    // 0032 : RET
-    // 0033 : LDLOC0
-    // 0034 : THROW
 
     #endregion
 

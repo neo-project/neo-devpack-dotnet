@@ -24,173 +24,187 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHDATA1 74657374626F6F6C
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.LDARG0
+    /// 0011 : OpCode.LDLOC0
+    /// 0012 : OpCode.REVERSE3
+    /// 0013 : OpCode.SETITEM
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.LDLOC0
+    /// 0016 : OpCode.CALLT 0000
+    /// 0019 : OpCode.RET
+    /// </remarks>
     [DisplayName("testBool")]
     public abstract string? TestBool(bool? key);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSHDATA1
-    // 000F : DUP
-    // 0010 : LDARG0
-    // 0011 : LDLOC0
-    // 0012 : REVERSE3
-    // 0013 : SETITEM
-    // 0014 : DROP
-    // 0015 : LDLOC0
-    // 0016 : CALLT
-    // 0019 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHDATA1 74657374737472696E6732
+    /// 0012 : OpCode.DUP
+    /// 0013 : OpCode.LDARG0
+    /// 0014 : OpCode.CONVERT 28
+    /// 0016 : OpCode.LDLOC0
+    /// 0017 : OpCode.REVERSE3
+    /// 0018 : OpCode.SETITEM
+    /// 0019 : OpCode.DROP
+    /// 001A : OpCode.LDLOC0
+    /// 001B : OpCode.CALLT 0000
+    /// 001E : OpCode.RET
+    /// </remarks>
     [DisplayName("testByteArray")]
     public abstract object? TestByteArray(byte[]? key);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSHDATA1
-    // 0012 : DUP
-    // 0013 : LDARG0
-    // 0014 : CONVERT
-    // 0016 : LDLOC0
-    // 0017 : REVERSE3
-    // 0018 : SETITEM
-    // 0019 : DROP
-    // 001A : LDLOC0
-    // 001B : CALLT
-    // 001E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0200
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHDATA1 0101
+    /// 0009 : OpCode.CONVERT 30
+    /// 000B : OpCode.CONVERT 28
+    /// 000D : OpCode.STLOC1
+    /// 000E : OpCode.PUSHDATA1
+    /// 0010 : OpCode.CALLT 0000
+    /// 0013 : OpCode.DUP
+    /// 0014 : OpCode.LDLOC1
+    /// 0015 : OpCode.LDLOC0
+    /// 0016 : OpCode.REVERSE3
+    /// 0017 : OpCode.SETITEM
+    /// 0018 : OpCode.DROP
+    /// 0019 : OpCode.LDLOC0
+    /// 001A : OpCode.CALLT 0000
+    /// 001D : OpCode.RET
+    /// </remarks>
     [DisplayName("testByteArray2")]
     public abstract string? TestByteArray2();
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSHDATA1
-    // 0009 : CONVERT
-    // 000B : CONVERT
-    // 000D : STLOC1
-    // 000E : PUSHDATA1
-    // 0010 : CALLT
-    // 0013 : DUP
-    // 0014 : LDLOC1
-    // 0015 : LDLOC0
-    // 0016 : REVERSE3
-    // 0017 : SETITEM
-    // 0018 : DROP
-    // 0019 : LDLOC0
-    // 001A : CALLT
-    // 001D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHDATA1 74657374737472696E6732
+    /// 0012 : OpCode.DUP
+    /// 0013 : OpCode.LDARG0
+    /// 0014 : OpCode.CONVERT 28
+    /// 0016 : OpCode.LDLOC0
+    /// 0017 : OpCode.REVERSE3
+    /// 0018 : OpCode.SETITEM
+    /// 0019 : OpCode.DROP
+    /// 001A : OpCode.LDLOC0
+    /// 001B : OpCode.CLEARITEMS
+    /// 001C : OpCode.LDLOC0
+    /// 001D : OpCode.CALLT 0000
+    /// 0020 : OpCode.RET
+    /// </remarks>
     [DisplayName("testClear")]
     public abstract object? TestClear(byte[]? key);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSHDATA1
-    // 0012 : DUP
-    // 0013 : LDARG0
-    // 0014 : CONVERT
-    // 0016 : LDLOC0
-    // 0017 : REVERSE3
-    // 0018 : SETITEM
-    // 0019 : DROP
-    // 001A : LDLOC0
-    // 001B : CLEARITEMS
-    // 001C : LDLOC0
-    // 001D : CALLT
-    // 0020 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0201
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.STLOC1
+    /// 0007 : OpCode.JMP 3C
+    /// 0009 : OpCode.LDLOC1
+    /// 000A : OpCode.DUP
+    /// 000B : OpCode.LDLOC1
+    /// 000C : OpCode.LDLOC0
+    /// 000D : OpCode.REVERSE3
+    /// 000E : OpCode.SETITEM
+    /// 000F : OpCode.DROP
+    /// 0010 : OpCode.LDLOC1
+    /// 0011 : OpCode.DUP
+    /// 0012 : OpCode.INC
+    /// 0013 : OpCode.DUP
+    /// 0014 : OpCode.PUSHINT32 00000080
+    /// 0019 : OpCode.JMPGE 04
+    /// 001B : OpCode.JMP 0A
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.PUSHINT32 FFFFFF7F
+    /// 0023 : OpCode.JMPLE 1E
+    /// 0025 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002E : OpCode.AND
+    /// 002F : OpCode.DUP
+    /// 0030 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0035 : OpCode.JMPLE 0C
+    /// 0037 : OpCode.PUSHINT64 0000000001000000
+    /// 0040 : OpCode.SUB
+    /// 0041 : OpCode.STLOC1
+    /// 0042 : OpCode.DROP
+    /// 0043 : OpCode.LDLOC1
+    /// 0044 : OpCode.LDARG0
+    /// 0045 : OpCode.LT
+    /// 0046 : OpCode.JMPIF C3
+    /// 0048 : OpCode.LDLOC0
+    /// 0049 : OpCode.SIZE
+    /// 004A : OpCode.RET
+    /// </remarks>
     [DisplayName("testCount")]
     public abstract BigInteger? TestCount(BigInteger? count);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSH0
-    // 0006 : STLOC1
-    // 0007 : JMP
-    // 0009 : LDLOC1
-    // 000A : DUP
-    // 000B : LDLOC1
-    // 000C : LDLOC0
-    // 000D : REVERSE3
-    // 000E : SETITEM
-    // 000F : DROP
-    // 0010 : LDLOC1
-    // 0011 : DUP
-    // 0012 : INC
-    // 0013 : DUP
-    // 0014 : PUSHINT32
-    // 0019 : JMPGE
-    // 001B : JMP
-    // 001D : DUP
-    // 001E : PUSHINT32
-    // 0023 : JMPLE
-    // 0025 : PUSHINT64
-    // 002E : AND
-    // 002F : DUP
-    // 0030 : PUSHINT32
-    // 0035 : JMPLE
-    // 0037 : PUSHINT64
-    // 0040 : SUB
-    // 0041 : STLOC1
-    // 0042 : DROP
-    // 0043 : LDLOC1
-    // 0044 : LDARG0
-    // 0045 : LT
-    // 0046 : JMPIF
-    // 0048 : LDLOC0
-    // 0049 : SIZE
-    // 004A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0201
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHDATA1 74657374646573657269616C697A65
+    /// 0016 : OpCode.DUP
+    /// 0017 : OpCode.LDARG0
+    /// 0018 : OpCode.LDLOC0
+    /// 0019 : OpCode.REVERSE3
+    /// 001A : OpCode.SETITEM
+    /// 001B : OpCode.DROP
+    /// 001C : OpCode.LDLOC0
+    /// 001D : OpCode.CALLT 0000
+    /// 0020 : OpCode.STLOC1
+    /// 0021 : OpCode.LDLOC1
+    /// 0022 : OpCode.CALLT 0100
+    /// 0025 : OpCode.RET
+    /// </remarks>
     [DisplayName("testDeserialize")]
     public abstract object? TestDeserialize(string? key);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSHDATA1
-    // 0016 : DUP
-    // 0017 : LDARG0
-    // 0018 : LDLOC0
-    // 0019 : REVERSE3
-    // 001A : SETITEM
-    // 001B : DROP
-    // 001C : LDLOC0
-    // 001D : CALLT
-    // 0020 : STLOC1
-    // 0021 : LDLOC1
-    // 0022 : CALLT
-    // 0025 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHDATA1 737472696E67
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.LDARG0
+    /// 000F : OpCode.LDLOC0
+    /// 0010 : OpCode.REVERSE3
+    /// 0011 : OpCode.SETITEM
+    /// 0012 : OpCode.DROP
+    /// 0013 : OpCode.LDLOC0
+    /// 0014 : OpCode.CALLT 0000
+    /// 0017 : OpCode.RET
+    /// </remarks>
     [DisplayName("testInt")]
     public abstract string? TestInt(BigInteger? key);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSHDATA1
-    // 000D : DUP
-    // 000E : LDARG0
-    // 000F : LDLOC0
-    // 0010 : REVERSE3
-    // 0011 : SETITEM
-    // 0012 : DROP
-    // 0013 : LDLOC0
-    // 0014 : CALLT
-    // 0017 : RET
 
     /// <summary>
     /// Unsafe method
@@ -201,59 +215,65 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSHDATA1 313239383430746573743130303232393339
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.LDARG0
+    /// 001B : OpCode.LDLOC0
+    /// 001C : OpCode.REVERSE3
+    /// 001D : OpCode.SETITEM
+    /// 001E : OpCode.DROP
+    /// 001F : OpCode.LDLOC0
+    /// 0020 : OpCode.CALLT 0000
+    /// 0023 : OpCode.RET
+    /// </remarks>
     [DisplayName("testUnicode")]
     public abstract string? TestUnicode(string? key);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : PUSHDATA1
-    // 0019 : DUP
-    // 001A : LDARG0
-    // 001B : LDLOC0
-    // 001C : REVERSE3
-    // 001D : SETITEM
-    // 001E : DROP
-    // 001F : LDLOC0
-    // 0020 : CALLT
-    // 0023 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG1
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.LDARG0
+    /// 0008 : OpCode.LDLOC0
+    /// 0009 : OpCode.REVERSE3
+    /// 000A : OpCode.SETITEM
+    /// 000B : OpCode.DROP
+    /// 000C : OpCode.LDLOC0
+    /// 000D : OpCode.CALLT 0000
+    /// 0010 : OpCode.RET
+    /// </remarks>
     [DisplayName("testUnicodeKeyValue")]
     public abstract string? TestUnicodeKeyValue(string? key, string? value);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : LDARG1
-    // 0006 : DUP
-    // 0007 : LDARG0
-    // 0008 : LDLOC0
-    // 0009 : REVERSE3
-    // 000A : SETITEM
-    // 000B : DROP
-    // 000C : LDLOC0
-    // 000D : CALLT
-    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.NEWMAP
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.PUSHDATA1 6162
+    /// 000B : OpCode.LDLOC0
+    /// 000C : OpCode.REVERSE3
+    /// 000D : OpCode.SETITEM
+    /// 000E : OpCode.DROP
+    /// 000F : OpCode.LDLOC0
+    /// 0010 : OpCode.CALLT 0000
+    /// 0013 : OpCode.RET
+    /// </remarks>
     [DisplayName("testUnicodeValue")]
     public abstract string? TestUnicodeValue(string? value);
-    // 0000 : INITSLOT
-    // 0003 : NEWMAP
-    // 0004 : STLOC0
-    // 0005 : LDARG0
-    // 0006 : DUP
-    // 0007 : PUSHDATA1
-    // 000B : LDLOC0
-    // 000C : REVERSE3
-    // 000D : SETITEM
-    // 000E : DROP
-    // 000F : LDLOC0
-    // 0010 : CALLT
-    // 0013 : RET
 
     #endregion
 

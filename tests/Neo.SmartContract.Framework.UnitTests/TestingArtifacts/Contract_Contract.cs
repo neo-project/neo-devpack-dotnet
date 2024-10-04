@@ -24,46 +24,54 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0004
+    /// 0003 : OpCode.LDARG3
+    /// 0004 : OpCode.LDARG2
+    /// 0005 : OpCode.LDARG1
+    /// 0006 : OpCode.LDARG0
+    /// 0007 : OpCode.SYSCALL 627D5B52
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
-    // 0000 : INITSLOT
-    // 0003 : LDARG3
-    // 0004 : LDARG2
-    // 0005 : LDARG1
-    // 0006 : LDARG0
-    // 0007 : SYSCALL
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.CONVERT 28
+    /// 0008 : OpCode.CALLT 0000
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : LDARG1
-    // 0005 : LDARG0
-    // 0006 : CONVERT
-    // 0008 : CALLT
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SYSCALL CF998702
+    /// 0009 : OpCode.RET
+    /// </remarks>
     [DisplayName("createStandardAccount")]
     public abstract UInt160? CreateStandardAccount(ECPoint? pubKey);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : SYSCALL
-    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 95DA3A81
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     #endregion
 

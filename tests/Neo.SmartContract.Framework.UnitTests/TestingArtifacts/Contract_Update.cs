@@ -24,10 +24,12 @@ public abstract class Contract_Update(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 594553
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("imUpdated")]
     public abstract string? ImUpdated();
-    // 0000 : PUSHDATA1
-    // 0005 : RET
 
     #endregion
 

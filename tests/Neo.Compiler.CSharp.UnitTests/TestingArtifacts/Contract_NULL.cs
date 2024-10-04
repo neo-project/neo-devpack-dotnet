@@ -24,241 +24,273 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("equalNotNullA")]
     public abstract bool? EqualNotNullA(object? value = null);
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : LDARG0
-    // 0005 : NOTEQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.NOTEQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("equalNotNullB")]
     public abstract bool? EqualNotNullB(object? value = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : NOTEQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("equalNullA")]
     public abstract bool? EqualNullA(object? value = null);
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : LDARG0
-    // 0005 : EQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHNULL
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("equalNullB")]
     public abstract bool? EqualNullB(object? value = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHNULL
-    // 0005 : EQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.JMPIFNOT 04
+    /// 0006 : OpCode.PUSHT
+    /// 0007 : OpCode.RET
+    /// 0008 : OpCode.PUSHF
+    /// 0009 : OpCode.RET
+    /// </remarks>
     [DisplayName("ifNull")]
     public abstract bool? IfNull(object? obj = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : JMPIFNOT
-    // 0006 : PUSHT
-    // 0007 : RET
-    // 0008 : PUSHF
-    // 0009 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSHNULL
+    /// 0007 : OpCode.EQUAL
+    /// 0008 : OpCode.RET
+    /// </remarks>
     [DisplayName("isNull")]
     public abstract bool? IsNull(object? value = null);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSHNULL
-    // 0007 : EQUAL
-    // 0008 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 05
+    /// 0008 : OpCode.PUSH1
+    /// 0009 : OpCode.PUSH2
+    /// 000A : OpCode.SUBSTR
+    /// 000B : OpCode.STLOC0
+    /// 000C : OpCode.LDLOC0
+    /// 000D : OpCode.RET
+    /// </remarks>
     [DisplayName("nullCoalescing")]
     public abstract string? NullCoalescing(string? code);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : PUSH1
-    // 0009 : PUSH2
-    // 000A : SUBSTR
-    // 000B : STLOC0
-    // 000C : LDLOC0
-    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIFNOT 0A
+    /// 0008 : OpCode.DROP
+    /// 0009 : OpCode.PUSHDATA1 6C696E7578
+    /// 0010 : OpCode.STLOC0
+    /// 0011 : OpCode.LDLOC0
+    /// 0012 : OpCode.RET
+    /// </remarks>
     [DisplayName("nullCollation")]
     public abstract string? NullCollation(string? code);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIFNOT
-    // 0008 : DROP
-    // 0009 : PUSHDATA1
-    // 0010 : STLOC0
-    // 0011 : LDLOC0
-    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.SYSCALL 9BF667CE
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDARG0
+    /// 000A : OpCode.LDLOC0
+    /// 000B : OpCode.SYSCALL 925DE831
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.ISNULL
+    /// 0012 : OpCode.JMPIFNOT 0A
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHDATA1 7B
+    /// 0018 : OpCode.CONVERT 30
+    /// 001A : OpCode.CONVERT 28
+    /// 001C : OpCode.RET
+    /// </remarks>
     [DisplayName("nullCollationAndCollation")]
     public abstract object? NullCollationAndCollation(string? code);
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : LDARG0
-    // 000A : LDLOC0
-    // 000B : SYSCALL
-    // 0010 : DUP
-    // 0011 : ISNULL
-    // 0012 : JMPIFNOT
-    // 0014 : DROP
-    // 0015 : PUSHDATA1
-    // 0018 : CONVERT
-    // 001A : CONVERT
-    // 001C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.SYSCALL 9BF667CE
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.PUSHDATA1 313131
+    /// 000E : OpCode.LDARG0
+    /// 000F : OpCode.LDLOC0
+    /// 0010 : OpCode.SYSCALL E63F1884
+    /// 0015 : OpCode.LDARG0
+    /// 0016 : OpCode.LDLOC0
+    /// 0017 : OpCode.SYSCALL 925DE831
+    /// 001C : OpCode.DUP
+    /// 001D : OpCode.ISNULL
+    /// 001E : OpCode.JMPIFNOT 0A
+    /// 0020 : OpCode.DROP
+    /// 0021 : OpCode.PUSHDATA1 7B
+    /// 0024 : OpCode.CONVERT 30
+    /// 0026 : OpCode.CONVERT 28
+    /// 0028 : OpCode.RET
+    /// </remarks>
     [DisplayName("nullCollationAndCollation2")]
     public abstract object? NullCollationAndCollation2(string? code);
-    // 0000 : INITSLOT
-    // 0003 : SYSCALL
-    // 0008 : STLOC0
-    // 0009 : PUSHDATA1
-    // 000E : LDARG0
-    // 000F : LDLOC0
-    // 0010 : SYSCALL
-    // 0015 : LDARG0
-    // 0016 : LDLOC0
-    // 0017 : SYSCALL
-    // 001C : DUP
-    // 001D : ISNULL
-    // 001E : JMPIFNOT
-    // 0020 : DROP
-    // 0021 : PUSHDATA1
-    // 0024 : CONVERT
-    // 0026 : CONVERT
-    // 0028 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 03
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.PUSH0
+    /// 000A : OpCode.NOTEQUAL
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("nullProperty")]
     public abstract bool? NullProperty(string? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : SIZE
-    // 0009 : PUSH0
-    // 000A : NOTEQUAL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 03
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.PUSH0
+    /// 000A : OpCode.GE
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("nullPropertyGE")]
     public abstract bool? NullPropertyGE(string? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : SIZE
-    // 0009 : PUSH0
-    // 000A : GE
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 03
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.PUSH0
+    /// 000A : OpCode.GT
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("nullPropertyGT")]
     public abstract bool? NullPropertyGT(string? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : SIZE
-    // 0009 : PUSH0
-    // 000A : GT
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 03
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.PUSH0
+    /// 000A : OpCode.LE
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("nullPropertyLE")]
     public abstract bool? NullPropertyLE(string? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : SIZE
-    // 0009 : PUSH0
-    // 000A : LE
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.ISNULL
+    /// 0006 : OpCode.JMPIF 03
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.PUSH0
+    /// 000A : OpCode.LT
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("nullPropertyLT")]
     public abstract bool? NullPropertyLT(string? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : ISNULL
-    // 0006 : JMPIF
-    // 0008 : SIZE
-    // 0009 : PUSH0
-    // 000A : LT
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.ISNULL
+    /// 0008 : OpCode.JMPIF 05
+    /// 000A : OpCode.CALL 05
+    /// 000C : OpCode.RET
+    /// 000D : OpCode.DROP
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("nullType")]
     public abstract void NullType();
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : DUP
-    // 0007 : ISNULL
-    // 0008 : JMPIF
-    // 000A : CALL
-    // 000C : RET
-    // 000D : DROP
-    // 000E : RET
 
     #endregion
 

@@ -24,755 +24,801 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA 66000000
+    /// 0008 : OpCode.PUSH0
+    /// 0009 : OpCode.LDARG0
+    /// 000A : OpCode.CALL 03
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("aggregateSum")]
     public abstract BigInteger? AggregateSum(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : PUSH0
-    // 0009 : LDARG0
-    // 000A : CALL
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA 55000000
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.CALL 03
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("allGreaterThanZero")]
     public abstract bool? AllGreaterThanZero(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : LDARG0
-    // 0009 : CALL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.STSFLD0
+    /// 0005 : OpCode.PUSHA 09000000
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.CALL A0
+    /// 000D : OpCode.RET
+    /// </remarks>
     [DisplayName("anyGreaterThan")]
     public abstract bool? AnyGreaterThan(IList<object>? array, BigInteger? target);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : STSFLD0
-    // 0005 : PUSHA
-    // 000A : LDARG0
-    // 000B : CALL
-    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA 57000000
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.CALL 03
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("anyGreaterThanZero")]
     public abstract bool? AnyGreaterThanZero(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : LDARG0
-    // 0009 : CALL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0602
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL_L AF000000
+    /// 0009 : OpCode.PUSHDATA1 73656C6563746F72
+    /// 0013 : OpCode.LDARG1
+    /// 0014 : OpCode.CALL_L BFFDFFFF
+    /// 0019 : OpCode.PUSH0
+    /// 001A : OpCode.STLOC0
+    /// 001B : OpCode.PUSH0
+    /// 001C : OpCode.STLOC1
+    /// 001D : OpCode.LDARG0
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.STLOC2
+    /// 0020 : OpCode.SIZE
+    /// 0021 : OpCode.STLOC3
+    /// 0022 : OpCode.PUSH0
+    /// 0023 : OpCode.STLOC4
+    /// 0024 : OpCode.JMP 70
+    /// 0026 : OpCode.LDLOC2
+    /// 0027 : OpCode.LDLOC4
+    /// 0028 : OpCode.PICKITEM
+    /// 0029 : OpCode.STLOC5
+    /// 002A : OpCode.LDLOC0
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.INC
+    /// 002D : OpCode.DUP
+    /// 002E : OpCode.PUSHINT32 00000080
+    /// 0033 : OpCode.JMPGE 04
+    /// 0035 : OpCode.JMP 0A
+    /// 0037 : OpCode.DUP
+    /// 0038 : OpCode.PUSHINT32 FFFFFF7F
+    /// 003D : OpCode.JMPLE 1E
+    /// 003F : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0048 : OpCode.AND
+    /// 0049 : OpCode.DUP
+    /// 004A : OpCode.PUSHINT32 FFFFFF7F
+    /// 004F : OpCode.JMPLE 0C
+    /// 0051 : OpCode.PUSHINT64 0000000001000000
+    /// 005A : OpCode.SUB
+    /// 005B : OpCode.STLOC0
+    /// 005C : OpCode.DROP
+    /// 005D : OpCode.LDLOC1
+    /// 005E : OpCode.LDLOC5
+    /// 005F : OpCode.LDARG1
+    /// 0060 : OpCode.CALLA
+    /// 0061 : OpCode.ADD
+    /// 0062 : OpCode.DUP
+    /// 0063 : OpCode.PUSHINT32 00000080
+    /// 0068 : OpCode.JMPGE 04
+    /// 006A : OpCode.JMP 0A
+    /// 006C : OpCode.DUP
+    /// 006D : OpCode.PUSHINT32 FFFFFF7F
+    /// 0072 : OpCode.JMPLE 1E
+    /// 0074 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 007D : OpCode.AND
+    /// 007E : OpCode.DUP
+    /// 007F : OpCode.PUSHINT32 FFFFFF7F
+    /// 0084 : OpCode.JMPLE 0C
+    /// 0086 : OpCode.PUSHINT64 0000000001000000
+    /// 008F : OpCode.SUB
+    /// 0090 : OpCode.STLOC1
+    /// 0091 : OpCode.LDLOC4
+    /// 0092 : OpCode.INC
+    /// 0093 : OpCode.STLOC4
+    /// 0094 : OpCode.LDLOC4
+    /// 0095 : OpCode.LDLOC3
+    /// 0096 : OpCode.JMPLT 90
+    /// 0098 : OpCode.LDLOC0
+    /// 0099 : OpCode.PUSH0
+    /// 009A : OpCode.EQUAL
+    /// 009B : OpCode.JMPIFNOT 14
+    /// 009D : OpCode.PUSHDATA1 736F7572636520697320656D707479
+    /// 00AE : OpCode.THROW
+    /// 00AF : OpCode.LDLOC1
+    /// 00B0 : OpCode.LDLOC0
+    /// 00B1 : OpCode.DIV
+    /// 00B2 : OpCode.RET
+    /// </remarks>
     [DisplayName("average")]
     public abstract BigInteger? Average(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL_L
-    // 0009 : PUSHDATA1
-    // 0013 : LDARG1
-    // 0014 : CALL_L
-    // 0019 : PUSH0
-    // 001A : STLOC0
-    // 001B : PUSH0
-    // 001C : STLOC1
-    // 001D : LDARG0
-    // 001E : DUP
-    // 001F : STLOC2
-    // 0020 : SIZE
-    // 0021 : STLOC3
-    // 0022 : PUSH0
-    // 0023 : STLOC4
-    // 0024 : JMP
-    // 0026 : LDLOC2
-    // 0027 : LDLOC4
-    // 0028 : PICKITEM
-    // 0029 : STLOC5
-    // 002A : LDLOC0
-    // 002B : DUP
-    // 002C : INC
-    // 002D : DUP
-    // 002E : PUSHINT32
-    // 0033 : JMPGE
-    // 0035 : JMP
-    // 0037 : DUP
-    // 0038 : PUSHINT32
-    // 003D : JMPLE
-    // 003F : PUSHINT64
-    // 0048 : AND
-    // 0049 : DUP
-    // 004A : PUSHINT32
-    // 004F : JMPLE
-    // 0051 : PUSHINT64
-    // 005A : SUB
-    // 005B : STLOC0
-    // 005C : DROP
-    // 005D : LDLOC1
-    // 005E : LDLOC5
-    // 005F : LDARG1
-    // 0060 : CALLA
-    // 0061 : ADD
-    // 0062 : DUP
-    // 0063 : PUSHINT32
-    // 0068 : JMPGE
-    // 006A : JMP
-    // 006C : DUP
-    // 006D : PUSHINT32
-    // 0072 : JMPLE
-    // 0074 : PUSHINT64
-    // 007D : AND
-    // 007E : DUP
-    // 007F : PUSHINT32
-    // 0084 : JMPLE
-    // 0086 : PUSHINT64
-    // 008F : SUB
-    // 0090 : STLOC1
-    // 0091 : LDLOC4
-    // 0092 : INC
-    // 0093 : STLOC4
-    // 0094 : LDLOC4
-    // 0095 : LDLOC3
-    // 0096 : JMPLT
-    // 0098 : LDLOC0
-    // 0099 : PUSH0
-    // 009A : EQUAL
-    // 009B : JMPIFNOT
-    // 009D : PUSHDATA1
-    // 00AE : THROW
-    // 00AF : LDLOC1
-    // 00B0 : LDLOC0
-    // 00B1 : DIV
-    // 00B2 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA D6000000
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.CALL 03
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("averageTwice")]
     public abstract BigInteger? AverageTwice(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : LDARG0
-    // 0009 : CALL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.STSFLD1
+    /// 0005 : OpCode.PUSHA 40000000
+    /// 000A : OpCode.LDARG0
+    /// 000B : OpCode.CALL 03
+    /// 000D : OpCode.RET
+    /// </remarks>
     [DisplayName("contains")]
     public abstract bool? Contains(IList<object>? array, BigInteger? target);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : STSFLD1
-    // 0005 : PUSHA
-    // 000A : LDARG0
-    // 000B : CALL
-    // 000D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0502
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.STLOC1
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.STLOC2
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.STLOC3
+    /// 000C : OpCode.JMP 1F
+    /// 000E : OpCode.LDLOC1
+    /// 000F : OpCode.LDLOC3
+    /// 0010 : OpCode.PICKITEM
+    /// 0011 : OpCode.STLOC4
+    /// 0012 : OpCode.LDLOC0
+    /// 0013 : OpCode.PUSH0
+    /// 0014 : OpCode.PUSHNULL
+    /// 0015 : OpCode.PUSH2
+    /// 0016 : OpCode.PACK
+    /// 0017 : OpCode.DUP
+    /// 0018 : OpCode.CALL 34
+    /// 001A : OpCode.LDLOC4
+    /// 001B : OpCode.CALLT 0000
+    /// 001E : OpCode.OVER
+    /// 001F : OpCode.PUSH0
+    /// 0020 : OpCode.ROT
+    /// 0021 : OpCode.SETITEM
+    /// 0022 : OpCode.LDLOC4
+    /// 0023 : OpCode.OVER
+    /// 0024 : OpCode.PUSH1
+    /// 0025 : OpCode.ROT
+    /// 0026 : OpCode.SETITEM
+    /// 0027 : OpCode.APPEND
+    /// 0028 : OpCode.LDLOC3
+    /// 0029 : OpCode.INC
+    /// 002A : OpCode.STLOC3
+    /// 002B : OpCode.LDLOC3
+    /// 002C : OpCode.LDLOC2
+    /// 002D : OpCode.JMPLT E1
+    /// 002F : OpCode.PUSH0
+    /// 0030 : OpCode.PUSHNULL
+    /// 0031 : OpCode.PUSH2
+    /// 0032 : OpCode.PACK
+    /// 0033 : OpCode.DUP
+    /// 0034 : OpCode.CALL 18
+    /// 0036 : OpCode.LDARG1
+    /// 0037 : OpCode.CALLT 0000
+    /// 003A : OpCode.OVER
+    /// 003B : OpCode.PUSH0
+    /// 003C : OpCode.ROT
+    /// 003D : OpCode.SETITEM
+    /// 003E : OpCode.LDARG1
+    /// 003F : OpCode.OVER
+    /// 0040 : OpCode.PUSH1
+    /// 0041 : OpCode.ROT
+    /// 0042 : OpCode.SETITEM
+    /// 0043 : OpCode.STLOC1
+    /// 0044 : OpCode.LDLOC1
+    /// 0045 : OpCode.LDLOC0
+    /// 0046 : OpCode.CALL_L 66FFFFFF
+    /// 004B : OpCode.RET
+    /// </remarks>
     [DisplayName("containsPerson")]
     public abstract bool? ContainsPerson(IList<object>? array, BigInteger? target);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : LDARG0
-    // 0006 : DUP
-    // 0007 : STLOC1
-    // 0008 : SIZE
-    // 0009 : STLOC2
-    // 000A : PUSH0
-    // 000B : STLOC3
-    // 000C : JMP
-    // 000E : LDLOC1
-    // 000F : LDLOC3
-    // 0010 : PICKITEM
-    // 0011 : STLOC4
-    // 0012 : LDLOC0
-    // 0013 : PUSH0
-    // 0014 : PUSHNULL
-    // 0015 : PUSH2
-    // 0016 : PACK
-    // 0017 : DUP
-    // 0018 : CALL
-    // 001A : LDLOC4
-    // 001B : CALLT
-    // 001E : OVER
-    // 001F : PUSH0
-    // 0020 : ROT
-    // 0021 : SETITEM
-    // 0022 : LDLOC4
-    // 0023 : OVER
-    // 0024 : PUSH1
-    // 0025 : ROT
-    // 0026 : SETITEM
-    // 0027 : APPEND
-    // 0028 : LDLOC3
-    // 0029 : INC
-    // 002A : STLOC3
-    // 002B : LDLOC3
-    // 002C : LDLOC2
-    // 002D : JMPLT
-    // 002F : PUSH0
-    // 0030 : PUSHNULL
-    // 0031 : PUSH2
-    // 0032 : PACK
-    // 0033 : DUP
-    // 0034 : CALL
-    // 0036 : LDARG1
-    // 0037 : CALLT
-    // 003A : OVER
-    // 003B : PUSH0
-    // 003C : ROT
-    // 003D : SETITEM
-    // 003E : LDARG1
-    // 003F : OVER
-    // 0040 : PUSH1
-    // 0041 : ROT
-    // 0042 : SETITEM
-    // 0043 : STLOC1
-    // 0044 : LDLOC1
-    // 0045 : LDLOC0
-    // 0046 : CALL_L
-    // 004B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0502
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.STLOC1
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.STLOC2
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.STLOC3
+    /// 000C : OpCode.JMP 1F
+    /// 000E : OpCode.LDLOC1
+    /// 000F : OpCode.LDLOC3
+    /// 0010 : OpCode.PICKITEM
+    /// 0011 : OpCode.STLOC4
+    /// 0012 : OpCode.LDLOC0
+    /// 0013 : OpCode.PUSH0
+    /// 0014 : OpCode.PUSHNULL
+    /// 0015 : OpCode.PUSH2
+    /// 0016 : OpCode.PACK
+    /// 0017 : OpCode.DUP
+    /// 0018 : OpCode.CALL E0
+    /// 001A : OpCode.LDLOC4
+    /// 001B : OpCode.CALLT 0000
+    /// 001E : OpCode.OVER
+    /// 001F : OpCode.PUSH0
+    /// 0020 : OpCode.ROT
+    /// 0021 : OpCode.SETITEM
+    /// 0022 : OpCode.LDLOC4
+    /// 0023 : OpCode.OVER
+    /// 0024 : OpCode.PUSH1
+    /// 0025 : OpCode.ROT
+    /// 0026 : OpCode.SETITEM
+    /// 0027 : OpCode.APPEND
+    /// 0028 : OpCode.LDLOC3
+    /// 0029 : OpCode.INC
+    /// 002A : OpCode.STLOC3
+    /// 002B : OpCode.LDLOC3
+    /// 002C : OpCode.LDLOC2
+    /// 002D : OpCode.JMPLT E1
+    /// 002F : OpCode.LDLOC0
+    /// 0030 : OpCode.LDARG1
+    /// 0031 : OpCode.PICKITEM
+    /// 0032 : OpCode.STLOC1
+    /// 0033 : OpCode.LDLOC1
+    /// 0034 : OpCode.LDLOC0
+    /// 0035 : OpCode.CALL_L 23FFFFFF
+    /// 003A : OpCode.RET
+    /// </remarks>
     [DisplayName("containsPersonIndex")]
     public abstract bool? ContainsPersonIndex(IList<object>? array, BigInteger? targetIndex);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : LDARG0
-    // 0006 : DUP
-    // 0007 : STLOC1
-    // 0008 : SIZE
-    // 0009 : STLOC2
-    // 000A : PUSH0
-    // 000B : STLOC3
-    // 000C : JMP
-    // 000E : LDLOC1
-    // 000F : LDLOC3
-    // 0010 : PICKITEM
-    // 0011 : STLOC4
-    // 0012 : LDLOC0
-    // 0013 : PUSH0
-    // 0014 : PUSHNULL
-    // 0015 : PUSH2
-    // 0016 : PACK
-    // 0017 : DUP
-    // 0018 : CALL
-    // 001A : LDLOC4
-    // 001B : CALLT
-    // 001E : OVER
-    // 001F : PUSH0
-    // 0020 : ROT
-    // 0021 : SETITEM
-    // 0022 : LDLOC4
-    // 0023 : OVER
-    // 0024 : PUSH1
-    // 0025 : ROT
-    // 0026 : SETITEM
-    // 0027 : APPEND
-    // 0028 : LDLOC3
-    // 0029 : INC
-    // 002A : STLOC3
-    // 002B : LDLOC3
-    // 002C : LDLOC2
-    // 002D : JMPLT
-    // 002F : LDLOC0
-    // 0030 : LDARG1
-    // 0031 : PICKITEM
-    // 0032 : STLOC1
-    // 0033 : LDLOC1
-    // 0034 : LDLOC0
-    // 0035 : CALL_L
-    // 003A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0502
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.STLOC1
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.STLOC2
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.STLOC3
+    /// 000C : OpCode.JMP 22
+    /// 000E : OpCode.LDLOC1
+    /// 000F : OpCode.LDLOC3
+    /// 0010 : OpCode.PICKITEM
+    /// 0011 : OpCode.STLOC4
+    /// 0012 : OpCode.LDLOC0
+    /// 0013 : OpCode.NEWSTRUCT0
+    /// 0014 : OpCode.DUP
+    /// 0015 : OpCode.PUSHNULL
+    /// 0016 : OpCode.APPEND
+    /// 0017 : OpCode.DUP
+    /// 0018 : OpCode.PUSH0
+    /// 0019 : OpCode.APPEND
+    /// 001A : OpCode.DUP
+    /// 001B : OpCode.CALL 37
+    /// 001D : OpCode.LDLOC4
+    /// 001E : OpCode.CALLT 0000
+    /// 0021 : OpCode.OVER
+    /// 0022 : OpCode.PUSH0
+    /// 0023 : OpCode.ROT
+    /// 0024 : OpCode.SETITEM
+    /// 0025 : OpCode.LDLOC4
+    /// 0026 : OpCode.OVER
+    /// 0027 : OpCode.PUSH1
+    /// 0028 : OpCode.ROT
+    /// 0029 : OpCode.SETITEM
+    /// 002A : OpCode.APPEND
+    /// 002B : OpCode.LDLOC3
+    /// 002C : OpCode.INC
+    /// 002D : OpCode.STLOC3
+    /// 002E : OpCode.LDLOC3
+    /// 002F : OpCode.LDLOC2
+    /// 0030 : OpCode.JMPLT DE
+    /// 0032 : OpCode.NEWSTRUCT0
+    /// 0033 : OpCode.DUP
+    /// 0034 : OpCode.PUSHNULL
+    /// 0035 : OpCode.APPEND
+    /// 0036 : OpCode.DUP
+    /// 0037 : OpCode.PUSH0
+    /// 0038 : OpCode.APPEND
+    /// 0039 : OpCode.DUP
+    /// 003A : OpCode.CALL 18
+    /// 003C : OpCode.LDARG1
+    /// 003D : OpCode.CALLT 0000
+    /// 0040 : OpCode.OVER
+    /// 0041 : OpCode.PUSH0
+    /// 0042 : OpCode.ROT
+    /// 0043 : OpCode.SETITEM
+    /// 0044 : OpCode.LDARG1
+    /// 0045 : OpCode.OVER
+    /// 0046 : OpCode.PUSH1
+    /// 0047 : OpCode.ROT
+    /// 0048 : OpCode.SETITEM
+    /// 0049 : OpCode.STLOC1
+    /// 004A : OpCode.LDLOC1
+    /// 004B : OpCode.LDLOC0
+    /// 004C : OpCode.CALL_L D1FEFFFF
+    /// 0051 : OpCode.RET
+    /// </remarks>
     [DisplayName("containsPersonS")]
     public abstract bool? ContainsPersonS(IList<object>? array, BigInteger? target);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : LDARG0
-    // 0006 : DUP
-    // 0007 : STLOC1
-    // 0008 : SIZE
-    // 0009 : STLOC2
-    // 000A : PUSH0
-    // 000B : STLOC3
-    // 000C : JMP
-    // 000E : LDLOC1
-    // 000F : LDLOC3
-    // 0010 : PICKITEM
-    // 0011 : STLOC4
-    // 0012 : LDLOC0
-    // 0013 : NEWSTRUCT0
-    // 0014 : DUP
-    // 0015 : PUSHNULL
-    // 0016 : APPEND
-    // 0017 : DUP
-    // 0018 : PUSH0
-    // 0019 : APPEND
-    // 001A : DUP
-    // 001B : CALL
-    // 001D : LDLOC4
-    // 001E : CALLT
-    // 0021 : OVER
-    // 0022 : PUSH0
-    // 0023 : ROT
-    // 0024 : SETITEM
-    // 0025 : LDLOC4
-    // 0026 : OVER
-    // 0027 : PUSH1
-    // 0028 : ROT
-    // 0029 : SETITEM
-    // 002A : APPEND
-    // 002B : LDLOC3
-    // 002C : INC
-    // 002D : STLOC3
-    // 002E : LDLOC3
-    // 002F : LDLOC2
-    // 0030 : JMPLT
-    // 0032 : NEWSTRUCT0
-    // 0033 : DUP
-    // 0034 : PUSHNULL
-    // 0035 : APPEND
-    // 0036 : DUP
-    // 0037 : PUSH0
-    // 0038 : APPEND
-    // 0039 : DUP
-    // 003A : CALL
-    // 003C : LDARG1
-    // 003D : CALLT
-    // 0040 : OVER
-    // 0041 : PUSH0
-    // 0042 : ROT
-    // 0043 : SETITEM
-    // 0044 : LDARG1
-    // 0045 : OVER
-    // 0046 : PUSH1
-    // 0047 : ROT
-    // 0048 : SETITEM
-    // 0049 : STLOC1
-    // 004A : LDLOC1
-    // 004B : LDLOC0
-    // 004C : CALL_L
-    // 0051 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.CALL AF
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("containsText")]
     public abstract bool? ContainsText(IList<object>? array, string? target);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : LDARG0
-    // 0005 : CALL
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0502
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 63
+    /// 0006 : OpCode.PUSHDATA1 707265646963617465
+    /// 0011 : OpCode.LDARG1
+    /// 0012 : OpCode.CALL_L 41FCFFFF
+    /// 0017 : OpCode.PUSH0
+    /// 0018 : OpCode.STLOC0
+    /// 0019 : OpCode.LDARG0
+    /// 001A : OpCode.DUP
+    /// 001B : OpCode.STLOC1
+    /// 001C : OpCode.SIZE
+    /// 001D : OpCode.STLOC2
+    /// 001E : OpCode.PUSH0
+    /// 001F : OpCode.STLOC3
+    /// 0020 : OpCode.JMP 41
+    /// 0022 : OpCode.LDLOC1
+    /// 0023 : OpCode.LDLOC3
+    /// 0024 : OpCode.PICKITEM
+    /// 0025 : OpCode.STLOC4
+    /// 0026 : OpCode.LDLOC4
+    /// 0027 : OpCode.LDARG1
+    /// 0028 : OpCode.CALLA
+    /// 0029 : OpCode.JMPIFNOT 35
+    /// 002B : OpCode.LDLOC0
+    /// 002C : OpCode.DUP
+    /// 002D : OpCode.INC
+    /// 002E : OpCode.DUP
+    /// 002F : OpCode.PUSHINT32 00000080
+    /// 0034 : OpCode.JMPGE 04
+    /// 0036 : OpCode.JMP 0A
+    /// 0038 : OpCode.DUP
+    /// 0039 : OpCode.PUSHINT32 FFFFFF7F
+    /// 003E : OpCode.JMPLE 1E
+    /// 0040 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0049 : OpCode.AND
+    /// 004A : OpCode.DUP
+    /// 004B : OpCode.PUSHINT32 FFFFFF7F
+    /// 0050 : OpCode.JMPLE 0C
+    /// 0052 : OpCode.PUSHINT64 0000000001000000
+    /// 005B : OpCode.SUB
+    /// 005C : OpCode.STLOC0
+    /// 005D : OpCode.DROP
+    /// 005E : OpCode.LDLOC3
+    /// 005F : OpCode.INC
+    /// 0060 : OpCode.STLOC3
+    /// 0061 : OpCode.LDLOC3
+    /// 0062 : OpCode.LDLOC2
+    /// 0063 : OpCode.JMPLT BF
+    /// 0065 : OpCode.LDLOC0
+    /// 0066 : OpCode.RET
+    /// </remarks>
     [DisplayName("count")]
     public abstract BigInteger? Count(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : PUSHDATA1
-    // 0011 : LDARG1
-    // 0012 : CALL_L
-    // 0017 : PUSH0
-    // 0018 : STLOC0
-    // 0019 : LDARG0
-    // 001A : DUP
-    // 001B : STLOC1
-    // 001C : SIZE
-    // 001D : STLOC2
-    // 001E : PUSH0
-    // 001F : STLOC3
-    // 0020 : JMP
-    // 0022 : LDLOC1
-    // 0023 : LDLOC3
-    // 0024 : PICKITEM
-    // 0025 : STLOC4
-    // 0026 : LDLOC4
-    // 0027 : LDARG1
-    // 0028 : CALLA
-    // 0029 : JMPIFNOT
-    // 002B : LDLOC0
-    // 002C : DUP
-    // 002D : INC
-    // 002E : DUP
-    // 002F : PUSHINT32
-    // 0034 : JMPGE
-    // 0036 : JMP
-    // 0038 : DUP
-    // 0039 : PUSHINT32
-    // 003E : JMPLE
-    // 0040 : PUSHINT64
-    // 0049 : AND
-    // 004A : DUP
-    // 004B : PUSHINT32
-    // 0050 : JMPLE
-    // 0052 : PUSHINT64
-    // 005B : SUB
-    // 005C : STLOC0
-    // 005D : DROP
-    // 005E : LDLOC3
-    // 005F : INC
-    // 0060 : STLOC3
-    // 0061 : LDLOC3
-    // 0062 : LDLOC2
-    // 0063 : JMPLT
-    // 0065 : LDLOC0
-    // 0066 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA 8A000000
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.CALL 03
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("countGreaterThanZero")]
     public abstract BigInteger? CountGreaterThanZero(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : LDARG0
-    // 0009 : CALL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHM1
+    /// 0004 : OpCode.PUSHA 57000000
+    /// 0009 : OpCode.LDARG0
+    /// 000A : OpCode.CALL 03
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("firstGreaterThanZero")]
     public abstract BigInteger? FirstGreaterThanZero(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHM1
-    // 0004 : PUSHA
-    // 0009 : LDARG0
-    // 000A : CALL
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 04
+    /// 0006 : OpCode.NOT
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("isEmpty")]
     public abstract bool? IsEmpty(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : NOT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0501
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.STLOC1
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.STLOC2
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.STLOC3
+    /// 000C : OpCode.JMP 22
+    /// 000E : OpCode.LDLOC1
+    /// 000F : OpCode.LDLOC3
+    /// 0010 : OpCode.PICKITEM
+    /// 0011 : OpCode.STLOC4
+    /// 0012 : OpCode.LDLOC0
+    /// 0013 : OpCode.PUSH0
+    /// 0014 : OpCode.PUSHNULL
+    /// 0015 : OpCode.PUSH2
+    /// 0016 : OpCode.PACK
+    /// 0017 : OpCode.DUP
+    /// 0018 : OpCode.CALL_L 5FFEFFFF
+    /// 001D : OpCode.LDLOC4
+    /// 001E : OpCode.CALLT 0000
+    /// 0021 : OpCode.OVER
+    /// 0022 : OpCode.PUSH0
+    /// 0023 : OpCode.ROT
+    /// 0024 : OpCode.SETITEM
+    /// 0025 : OpCode.LDLOC4
+    /// 0026 : OpCode.OVER
+    /// 0027 : OpCode.PUSH1
+    /// 0028 : OpCode.ROT
+    /// 0029 : OpCode.SETITEM
+    /// 002A : OpCode.APPEND
+    /// 002B : OpCode.LDLOC3
+    /// 002C : OpCode.INC
+    /// 002D : OpCode.STLOC3
+    /// 002E : OpCode.LDLOC3
+    /// 002F : OpCode.LDLOC2
+    /// 0030 : OpCode.JMPLT DE
+    /// 0032 : OpCode.PUSHA 0C000000
+    /// 0037 : OpCode.LDLOC0
+    /// 0038 : OpCode.CALL_L 46FFFFFF
+    /// 003D : OpCode.RET
+    /// </remarks>
     [DisplayName("selectPersonS")]
     public abstract object? SelectPersonS(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : LDARG0
-    // 0006 : DUP
-    // 0007 : STLOC1
-    // 0008 : SIZE
-    // 0009 : STLOC2
-    // 000A : PUSH0
-    // 000B : STLOC3
-    // 000C : JMP
-    // 000E : LDLOC1
-    // 000F : LDLOC3
-    // 0010 : PICKITEM
-    // 0011 : STLOC4
-    // 0012 : LDLOC0
-    // 0013 : PUSH0
-    // 0014 : PUSHNULL
-    // 0015 : PUSH2
-    // 0016 : PACK
-    // 0017 : DUP
-    // 0018 : CALL_L
-    // 001D : LDLOC4
-    // 001E : CALLT
-    // 0021 : OVER
-    // 0022 : PUSH0
-    // 0023 : ROT
-    // 0024 : SETITEM
-    // 0025 : LDLOC4
-    // 0026 : OVER
-    // 0027 : PUSH1
-    // 0028 : ROT
-    // 0029 : SETITEM
-    // 002A : APPEND
-    // 002B : LDLOC3
-    // 002C : INC
-    // 002D : STLOC3
-    // 002E : LDLOC3
-    // 002F : LDLOC2
-    // 0030 : JMPLT
-    // 0032 : PUSHA
-    // 0037 : LDLOC0
-    // 0038 : CALL_L
-    // 003D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA 56000000
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.CALL 03
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("selectTwice")]
     public abstract object? SelectTwice(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : LDARG0
-    // 0009 : CALL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0502
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 57
+    /// 0006 : OpCode.NEWARRAY0
+    /// 0007 : OpCode.STLOC0
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.DUP
+    /// 000A : OpCode.STLOC1
+    /// 000B : OpCode.SIZE
+    /// 000C : OpCode.STLOC2
+    /// 000D : OpCode.PUSH0
+    /// 000E : OpCode.STLOC3
+    /// 000F : OpCode.JMP 46
+    /// 0011 : OpCode.LDLOC1
+    /// 0012 : OpCode.LDLOC3
+    /// 0013 : OpCode.PICKITEM
+    /// 0014 : OpCode.STLOC4
+    /// 0015 : OpCode.LDARG1
+    /// 0016 : OpCode.PUSH0
+    /// 0017 : OpCode.GT
+    /// 0018 : OpCode.JMPIFNOT 37
+    /// 001A : OpCode.LDARG1
+    /// 001B : OpCode.DUP
+    /// 001C : OpCode.DEC
+    /// 001D : OpCode.DUP
+    /// 001E : OpCode.PUSHINT32 00000080
+    /// 0023 : OpCode.JMPGE 04
+    /// 0025 : OpCode.JMP 0A
+    /// 0027 : OpCode.DUP
+    /// 0028 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002D : OpCode.JMPLE 1E
+    /// 002F : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0038 : OpCode.AND
+    /// 0039 : OpCode.DUP
+    /// 003A : OpCode.PUSHINT32 FFFFFF7F
+    /// 003F : OpCode.JMPLE 0C
+    /// 0041 : OpCode.PUSHINT64 0000000001000000
+    /// 004A : OpCode.SUB
+    /// 004B : OpCode.STARG1
+    /// 004C : OpCode.DROP
+    /// 004D : OpCode.JMP 05
+    /// 004F : OpCode.LDLOC0
+    /// 0050 : OpCode.LDLOC4
+    /// 0051 : OpCode.APPEND
+    /// 0052 : OpCode.LDLOC3
+    /// 0053 : OpCode.INC
+    /// 0054 : OpCode.STLOC3
+    /// 0055 : OpCode.LDLOC3
+    /// 0056 : OpCode.LDLOC2
+    /// 0057 : OpCode.JMPLT BA
+    /// 0059 : OpCode.LDLOC0
+    /// 005A : OpCode.RET
+    /// </remarks>
     [DisplayName("skip")]
     public abstract object? Skip(IList<object>? array, BigInteger? count);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : NEWARRAY0
-    // 0007 : STLOC0
-    // 0008 : LDARG0
-    // 0009 : DUP
-    // 000A : STLOC1
-    // 000B : SIZE
-    // 000C : STLOC2
-    // 000D : PUSH0
-    // 000E : STLOC3
-    // 000F : JMP
-    // 0011 : LDLOC1
-    // 0012 : LDLOC3
-    // 0013 : PICKITEM
-    // 0014 : STLOC4
-    // 0015 : LDARG1
-    // 0016 : PUSH0
-    // 0017 : GT
-    // 0018 : JMPIFNOT
-    // 001A : LDARG1
-    // 001B : DUP
-    // 001C : DEC
-    // 001D : DUP
-    // 001E : PUSHINT32
-    // 0023 : JMPGE
-    // 0025 : JMP
-    // 0027 : DUP
-    // 0028 : PUSHINT32
-    // 002D : JMPLE
-    // 002F : PUSHINT64
-    // 0038 : AND
-    // 0039 : DUP
-    // 003A : PUSHINT32
-    // 003F : JMPLE
-    // 0041 : PUSHINT64
-    // 004A : SUB
-    // 004B : STARG1
-    // 004C : DROP
-    // 004D : JMP
-    // 004F : LDLOC0
-    // 0050 : LDLOC4
-    // 0051 : APPEND
-    // 0052 : LDLOC3
-    // 0053 : INC
-    // 0054 : STLOC3
-    // 0055 : LDLOC3
-    // 0056 : LDLOC2
-    // 0057 : JMPLT
-    // 0059 : LDLOC0
-    // 005A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0502
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 5E
+    /// 0006 : OpCode.PUSHDATA1 73656C6563746F72
+    /// 0010 : OpCode.LDARG1
+    /// 0011 : OpCode.CALL_L 49F8FFFF
+    /// 0016 : OpCode.PUSH0
+    /// 0017 : OpCode.STLOC0
+    /// 0018 : OpCode.LDARG0
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.STLOC1
+    /// 001B : OpCode.SIZE
+    /// 001C : OpCode.STLOC2
+    /// 001D : OpCode.PUSH0
+    /// 001E : OpCode.STLOC3
+    /// 001F : OpCode.JMP 3D
+    /// 0021 : OpCode.LDLOC1
+    /// 0022 : OpCode.LDLOC3
+    /// 0023 : OpCode.PICKITEM
+    /// 0024 : OpCode.STLOC4
+    /// 0025 : OpCode.LDLOC0
+    /// 0026 : OpCode.LDLOC4
+    /// 0027 : OpCode.LDARG1
+    /// 0028 : OpCode.CALLA
+    /// 0029 : OpCode.ADD
+    /// 002A : OpCode.DUP
+    /// 002B : OpCode.PUSHINT32 00000080
+    /// 0030 : OpCode.JMPGE 04
+    /// 0032 : OpCode.JMP 0A
+    /// 0034 : OpCode.DUP
+    /// 0035 : OpCode.PUSHINT32 FFFFFF7F
+    /// 003A : OpCode.JMPLE 1E
+    /// 003C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0045 : OpCode.AND
+    /// 0046 : OpCode.DUP
+    /// 0047 : OpCode.PUSHINT32 FFFFFF7F
+    /// 004C : OpCode.JMPLE 0C
+    /// 004E : OpCode.PUSHINT64 0000000001000000
+    /// 0057 : OpCode.SUB
+    /// 0058 : OpCode.STLOC0
+    /// 0059 : OpCode.LDLOC3
+    /// 005A : OpCode.INC
+    /// 005B : OpCode.STLOC3
+    /// 005C : OpCode.LDLOC3
+    /// 005D : OpCode.LDLOC2
+    /// 005E : OpCode.JMPLT C3
+    /// 0060 : OpCode.LDLOC0
+    /// 0061 : OpCode.RET
+    /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : PUSHDATA1
-    // 0010 : LDARG1
-    // 0011 : CALL_L
-    // 0016 : PUSH0
-    // 0017 : STLOC0
-    // 0018 : LDARG0
-    // 0019 : DUP
-    // 001A : STLOC1
-    // 001B : SIZE
-    // 001C : STLOC2
-    // 001D : PUSH0
-    // 001E : STLOC3
-    // 001F : JMP
-    // 0021 : LDLOC1
-    // 0022 : LDLOC3
-    // 0023 : PICKITEM
-    // 0024 : STLOC4
-    // 0025 : LDLOC0
-    // 0026 : LDLOC4
-    // 0027 : LDARG1
-    // 0028 : CALLA
-    // 0029 : ADD
-    // 002A : DUP
-    // 002B : PUSHINT32
-    // 0030 : JMPGE
-    // 0032 : JMP
-    // 0034 : DUP
-    // 0035 : PUSHINT32
-    // 003A : JMPLE
-    // 003C : PUSHINT64
-    // 0045 : AND
-    // 0046 : DUP
-    // 0047 : PUSHINT32
-    // 004C : JMPLE
-    // 004E : PUSHINT64
-    // 0057 : SUB
-    // 0058 : STLOC0
-    // 0059 : LDLOC3
-    // 005A : INC
-    // 005B : STLOC3
-    // 005C : LDLOC3
-    // 005D : LDLOC2
-    // 005E : JMPLT
-    // 0060 : LDLOC0
-    // 0061 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA 85000000
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.CALL 03
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("sumTwice")]
     public abstract BigInteger? SumTwice(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : LDARG0
-    // 0009 : CALL
-    // 000B : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0502
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 57
+    /// 0006 : OpCode.NEWARRAY0
+    /// 0007 : OpCode.STLOC0
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.DUP
+    /// 000A : OpCode.STLOC1
+    /// 000B : OpCode.SIZE
+    /// 000C : OpCode.STLOC2
+    /// 000D : OpCode.PUSH0
+    /// 000E : OpCode.STLOC3
+    /// 000F : OpCode.JMP 46
+    /// 0011 : OpCode.LDLOC1
+    /// 0012 : OpCode.LDLOC3
+    /// 0013 : OpCode.PICKITEM
+    /// 0014 : OpCode.STLOC4
+    /// 0015 : OpCode.LDARG1
+    /// 0016 : OpCode.PUSH0
+    /// 0017 : OpCode.LE
+    /// 0018 : OpCode.JMPIFNOT 04
+    /// 001A : OpCode.JMP 3F
+    /// 001C : OpCode.LDLOC0
+    /// 001D : OpCode.LDLOC4
+    /// 001E : OpCode.APPEND
+    /// 001F : OpCode.LDARG1
+    /// 0020 : OpCode.DUP
+    /// 0021 : OpCode.DEC
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.PUSHINT32 00000080
+    /// 0028 : OpCode.JMPGE 04
+    /// 002A : OpCode.JMP 0A
+    /// 002C : OpCode.DUP
+    /// 002D : OpCode.PUSHINT32 FFFFFF7F
+    /// 0032 : OpCode.JMPLE 1E
+    /// 0034 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 003D : OpCode.AND
+    /// 003E : OpCode.DUP
+    /// 003F : OpCode.PUSHINT32 FFFFFF7F
+    /// 0044 : OpCode.JMPLE 0C
+    /// 0046 : OpCode.PUSHINT64 0000000001000000
+    /// 004F : OpCode.SUB
+    /// 0050 : OpCode.STARG1
+    /// 0051 : OpCode.DROP
+    /// 0052 : OpCode.LDLOC3
+    /// 0053 : OpCode.INC
+    /// 0054 : OpCode.STLOC3
+    /// 0055 : OpCode.LDLOC3
+    /// 0056 : OpCode.LDLOC2
+    /// 0057 : OpCode.JMPLT BA
+    /// 0059 : OpCode.LDLOC0
+    /// 005A : OpCode.RET
+    /// </remarks>
     [DisplayName("take")]
     public abstract object? Take(IList<object>? array, BigInteger? count);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : NEWARRAY0
-    // 0007 : STLOC0
-    // 0008 : LDARG0
-    // 0009 : DUP
-    // 000A : STLOC1
-    // 000B : SIZE
-    // 000C : STLOC2
-    // 000D : PUSH0
-    // 000E : STLOC3
-    // 000F : JMP
-    // 0011 : LDLOC1
-    // 0012 : LDLOC3
-    // 0013 : PICKITEM
-    // 0014 : STLOC4
-    // 0015 : LDARG1
-    // 0016 : PUSH0
-    // 0017 : LE
-    // 0018 : JMPIFNOT
-    // 001A : JMP
-    // 001C : LDLOC0
-    // 001D : LDLOC4
-    // 001E : APPEND
-    // 001F : LDARG1
-    // 0020 : DUP
-    // 0021 : DEC
-    // 0022 : DUP
-    // 0023 : PUSHINT32
-    // 0028 : JMPGE
-    // 002A : JMP
-    // 002C : DUP
-    // 002D : PUSHINT32
-    // 0032 : JMPLE
-    // 0034 : PUSHINT64
-    // 003D : AND
-    // 003E : DUP
-    // 003F : PUSHINT32
-    // 0044 : JMPLE
-    // 0046 : PUSHINT64
-    // 004F : SUB
-    // 0050 : STARG1
-    // 0051 : DROP
-    // 0052 : LDLOC3
-    // 0053 : INC
-    // 0054 : STLOC3
-    // 0055 : LDLOC3
-    // 0056 : LDLOC2
-    // 0057 : JMPLT
-    // 0059 : LDLOC0
-    // 005A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0503
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 4F
+    /// 0006 : OpCode.PUSHDATA1 6B657953656C6563746F72
+    /// 0013 : OpCode.LDARG1
+    /// 0014 : OpCode.CALL_L DDF6FFFF
+    /// 0019 : OpCode.PUSHDATA1 656C656D656E7453656C6563746F72
+    /// 002A : OpCode.LDARG2
+    /// 002B : OpCode.CALL_L C6F6FFFF
+    /// 0030 : OpCode.NEWMAP
+    /// 0031 : OpCode.STLOC0
+    /// 0032 : OpCode.LDARG0
+    /// 0033 : OpCode.DUP
+    /// 0034 : OpCode.STLOC1
+    /// 0035 : OpCode.SIZE
+    /// 0036 : OpCode.STLOC2
+    /// 0037 : OpCode.PUSH0
+    /// 0038 : OpCode.STLOC3
+    /// 0039 : OpCode.JMP 14
+    /// 003B : OpCode.LDLOC1
+    /// 003C : OpCode.LDLOC3
+    /// 003D : OpCode.PICKITEM
+    /// 003E : OpCode.STLOC4
+    /// 003F : OpCode.LDLOC4
+    /// 0040 : OpCode.LDARG2
+    /// 0041 : OpCode.CALLA
+    /// 0042 : OpCode.DUP
+    /// 0043 : OpCode.LDLOC4
+    /// 0044 : OpCode.LDARG1
+    /// 0045 : OpCode.CALLA
+    /// 0046 : OpCode.LDLOC0
+    /// 0047 : OpCode.REVERSE3
+    /// 0048 : OpCode.SETITEM
+    /// 0049 : OpCode.DROP
+    /// 004A : OpCode.LDLOC3
+    /// 004B : OpCode.INC
+    /// 004C : OpCode.STLOC3
+    /// 004D : OpCode.LDLOC3
+    /// 004E : OpCode.LDLOC2
+    /// 004F : OpCode.JMPLT EC
+    /// 0051 : OpCode.LDLOC0
+    /// 0052 : OpCode.RET
+    /// </remarks>
     [DisplayName("toMap")]
     public abstract object? ToMap(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : PUSHDATA1
-    // 0013 : LDARG1
-    // 0014 : CALL_L
-    // 0019 : PUSHDATA1
-    // 002A : LDARG2
-    // 002B : CALL_L
-    // 0030 : NEWMAP
-    // 0031 : STLOC0
-    // 0032 : LDARG0
-    // 0033 : DUP
-    // 0034 : STLOC1
-    // 0035 : SIZE
-    // 0036 : STLOC2
-    // 0037 : PUSH0
-    // 0038 : STLOC3
-    // 0039 : JMP
-    // 003B : LDLOC1
-    // 003C : LDLOC3
-    // 003D : PICKITEM
-    // 003E : STLOC4
-    // 003F : LDLOC4
-    // 0040 : LDARG2
-    // 0041 : CALLA
-    // 0042 : DUP
-    // 0043 : LDLOC4
-    // 0044 : LDARG1
-    // 0045 : CALLA
-    // 0046 : LDLOC0
-    // 0047 : REVERSE3
-    // 0048 : SETITEM
-    // 0049 : DROP
-    // 004A : LDLOC3
-    // 004B : INC
-    // 004C : STLOC3
-    // 004D : LDLOC3
-    // 004E : LDLOC2
-    // 004F : JMPLT
-    // 0051 : LDLOC0
-    // 0052 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHA 5A000000
+    /// 0008 : OpCode.LDARG0
+    /// 0009 : OpCode.CALL 03
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("whereGreaterThanZero")]
     public abstract object? WhereGreaterThanZero(IList<object>? array);
-    // 0000 : INITSLOT
-    // 0003 : PUSHA
-    // 0008 : LDARG0
-    // 0009 : CALL
-    // 000B : RET
 
     #endregion
 

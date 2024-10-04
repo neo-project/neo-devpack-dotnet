@@ -24,10 +24,12 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0100
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("gASSymbol")]
     public abstract string? GASSymbol();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
@@ -38,50 +40,62 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0300
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("ledgerCurrentHash")]
     public abstract UInt256? LedgerCurrentHash();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0400
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("ledgerCurrentIndex")]
     public abstract BigInteger? LedgerCurrentIndex();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 BEF2043140362A77C15099C7E64C12F700B665DA
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("ledgerHash")]
     public abstract UInt160? LedgerHash();
-    // 0000 : PUSHDATA1
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 F563EA40BC283D4D0E05C48EA305B3F2A07340EF
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("nEOHash")]
     public abstract UInt160? NEOHash();
-    // 0000 : PUSHDATA1
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0000
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("nEOSymbol")]
     public abstract string? NEOSymbol();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHINT32 80969800
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("oracleMinimumResponseFee")]
     public abstract BigInteger? OracleMinimumResponseFee();
-    // 0000 : PUSHINT32
-    // 0005 : RET
 
     #endregion
 

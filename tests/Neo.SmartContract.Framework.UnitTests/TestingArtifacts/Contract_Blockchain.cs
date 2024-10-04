@@ -24,116 +24,134 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0200
+    /// 0007 : OpCode.STLOC0
+    /// 0008 : OpCode.LDARG1
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.CALL 03
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getBlockByHash")]
     public abstract object? GetBlockByHash(UInt256? hash, string? whatReturn);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : STLOC0
-    // 0008 : LDARG1
-    // 0009 : LDLOC0
-    // 000A : CALL
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0200
+    /// 0007 : OpCode.STLOC0
+    /// 0008 : OpCode.LDARG1
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.CALL_L 30FFFFFF
+    /// 000F : OpCode.RET
+    /// </remarks>
     [DisplayName("getBlockByIndex")]
     public abstract object? GetBlockByIndex(BigInteger? index, string? whatReturn);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : STLOC0
-    // 0008 : LDARG1
-    // 0009 : LDLOC0
-    // 000A : CALL_L
-    // 000F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0600
+    /// 0007 : OpCode.STLOC0
+    /// 0008 : OpCode.LDARG1
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.CALL 03
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getContract")]
     public abstract object? GetContract(UInt160? hash, string? whatReturn);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : STLOC0
-    // 0008 : LDARG1
-    // 0009 : LDLOC0
-    // 000A : CALL
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0000
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("getHeight")]
     public abstract BigInteger? GetHeight();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0100
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionHeight")]
     public abstract BigInteger? GetTransactionHeight(UInt256? hash);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0103
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.CALLT 0500
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDARG2
+    /// 000A : OpCode.LDLOC0
+    /// 000B : OpCode.CALL_L 0EFFFFFF
+    /// 0010 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxByBlockHash")]
     public abstract object? GetTxByBlockHash(UInt256? blockHash, BigInteger? txIndex, string? whatReturn);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : LDARG0
-    // 0005 : CALLT
-    // 0008 : STLOC0
-    // 0009 : LDARG2
-    // 000A : LDLOC0
-    // 000B : CALL_L
-    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0103
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.CALLT 0500
+    /// 0008 : OpCode.STLOC0
+    /// 0009 : OpCode.LDARG2
+    /// 000A : OpCode.LDLOC0
+    /// 000B : OpCode.CALL_L FDFEFFFF
+    /// 0010 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxByBlockIndex")]
     public abstract object? GetTxByBlockIndex(BigInteger? blockIndex, BigInteger? txIndex, string? whatReturn);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : LDARG0
-    // 0005 : CALLT
-    // 0008 : STLOC0
-    // 0009 : LDARG2
-    // 000A : LDLOC0
-    // 000B : CALL_L
-    // 0010 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0300
+    /// 0007 : OpCode.STLOC0
+    /// 0008 : OpCode.LDARG1
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.CALL 03
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxByHash")]
     public abstract object? GetTxByHash(UInt256? hash, string? whatReturn);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : STLOC0
-    // 0008 : LDARG1
-    // 0009 : LDLOC0
-    // 000A : CALL
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0700
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxVMState")]
     public abstract BigInteger? GetTxVMState(UInt256? hash);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     #endregion
 

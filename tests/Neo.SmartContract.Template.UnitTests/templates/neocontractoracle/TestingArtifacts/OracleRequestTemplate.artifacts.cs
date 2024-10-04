@@ -33,18 +33,20 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHDATA1 68747470733A2F2F6170692E6A736F6E62696E2E696F2F76332F71732F363532306164336331326135643337363539383835343261
+    /// 003A : OpCode.STLOC0
+    /// 003B : OpCode.PUSHINT32 80969800
+    /// 0040 : OpCode.PUSHNULL
+    /// 0041 : OpCode.PUSHDATA1 6F6E4F7261636C65526573706F6E7365
+    /// 0053 : OpCode.PUSHDATA1 242E7265636F72642E70726F70657274794E616D65
+    /// 006A : OpCode.LDLOC0
+    /// 006B : OpCode.CALLT 0000
+    /// 006E : OpCode.RET
+    /// </remarks>
     [DisplayName("doRequest")]
     public abstract void DoRequest();
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 003A : STLOC0
-    // 003B : PUSHINT32
-    // 0040 : PUSHNULL
-    // 0041 : PUSHDATA1
-    // 0053 : PUSHDATA1
-    // 006A : LDLOC0
-    // 006B : CALLT
-    // 006E : RET
 
     /// <summary>
     /// Unsafe method

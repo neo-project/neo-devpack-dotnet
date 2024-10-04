@@ -24,71 +24,83 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.CALLT 0400
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("destroy")]
     public abstract void Destroy();
-    // 0000 : CALLT
-    // 0003 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 95DA3A81
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0100
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("getContractById")]
     public abstract object? GetContractById(BigInteger? id);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.CALLT 0200
+    /// 0006 : OpCode.STLOC0
+    /// 0007 : OpCode.LDLOC0
+    /// 0008 : OpCode.SYSCALL 9C08ED9C
+    /// 000D : OpCode.DROP
+    /// 000E : OpCode.LDLOC0
+    /// 000F : OpCode.SYSCALL F354BF1D
+    /// 0014 : OpCode.PUSH1
+    /// 0015 : OpCode.PICKITEM
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("getContractHashes")]
     public abstract object? GetContractHashes();
-    // 0000 : INITSLOT
-    // 0003 : CALLT
-    // 0006 : STLOC0
-    // 0007 : LDLOC0
-    // 0008 : SYSCALL
-    // 000D : DROP
-    // 000E : LDLOC0
-    // 000F : SYSCALL
-    // 0014 : PUSH1
-    // 0015 : PICKITEM
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 39536E3C
+    /// 0005 : OpCode.CALLT 0000
+    /// 0008 : OpCode.PUSH4
+    /// 0009 : OpCode.PICKITEM
+    /// 000A : OpCode.PUSH0
+    /// 000B : OpCode.PICKITEM
+    /// 000C : OpCode.RET
+    /// </remarks>
     [DisplayName("oldContract")]
     public abstract string? OldContract();
-    // 0000 : SYSCALL
-    // 0005 : CALLT
-    // 0008 : PUSH4
-    // 0009 : PICKITEM
-    // 000A : PUSH0
-    // 000B : PICKITEM
-    // 000C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.CONVERT 28
+    /// 0008 : OpCode.CALLT 0300
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nef, string? manifest);
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : LDARG1
-    // 0005 : LDARG0
-    // 0006 : CONVERT
-    // 0008 : CALLT
-    // 000B : RET
 
     #endregion
 

@@ -24,456 +24,476 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.DUP
+    /// 0005 : OpCode.PUSH1
+    /// 0006 : OpCode.EQUAL
+    /// 0007 : OpCode.JMPIFNOT 0C
+    /// 0009 : OpCode.DROP
+    /// 000A : OpCode.PUSHDATA1 56616C756531
+    /// 0012 : OpCode.RET
+    /// 0013 : OpCode.DUP
+    /// 0014 : OpCode.PUSH2
+    /// 0015 : OpCode.EQUAL
+    /// 0016 : OpCode.JMPIFNOT 0C
+    /// 0018 : OpCode.DROP
+    /// 0019 : OpCode.PUSHDATA1 56616C756532
+    /// 0021 : OpCode.RET
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.PUSH3
+    /// 0024 : OpCode.EQUAL
+    /// 0025 : OpCode.JMPIFNOT 0C
+    /// 0027 : OpCode.DROP
+    /// 0028 : OpCode.PUSHDATA1 56616C756533
+    /// 0030 : OpCode.RET
+    /// 0031 : OpCode.DROP
+    /// 0032 : OpCode.PUSHNULL
+    /// 0033 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumGetName")]
     public abstract string? TestEnumGetName(BigInteger? value);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : DUP
-    // 0005 : PUSH1
-    // 0006 : EQUAL
-    // 0007 : JMPIFNOT
-    // 0009 : DROP
-    // 000A : PUSHDATA1
-    // 0012 : RET
-    // 0013 : DUP
-    // 0014 : PUSH2
-    // 0015 : EQUAL
-    // 0016 : JMPIFNOT
-    // 0018 : DROP
-    // 0019 : PUSHDATA1
-    // 0021 : RET
-    // 0022 : DUP
-    // 0023 : PUSH3
-    // 0024 : EQUAL
-    // 0025 : JMPIFNOT
-    // 0027 : DROP
-    // 0028 : PUSHDATA1
-    // 0030 : RET
-    // 0031 : DROP
-    // 0032 : PUSHNULL
-    // 0033 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000A : OpCode.PUSH3
+    /// 000B : OpCode.NEWARRAY
+    /// 000C : OpCode.DUP
+    /// 000D : OpCode.PUSH0
+    /// 000E : OpCode.PUSHDATA1 56616C756531
+    /// 0016 : OpCode.SETITEM
+    /// 0017 : OpCode.DUP
+    /// 0018 : OpCode.PUSH1
+    /// 0019 : OpCode.PUSHDATA1 56616C756532
+    /// 0021 : OpCode.SETITEM
+    /// 0022 : OpCode.DUP
+    /// 0023 : OpCode.PUSH2
+    /// 0024 : OpCode.PUSHDATA1 56616C756533
+    /// 002C : OpCode.SETITEM
+    /// 002D : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumGetNames")]
     public abstract IList<object>? TestEnumGetNames();
-    // 0000 : PUSHDATA1
-    // 000A : PUSH3
-    // 000B : NEWARRAY
-    // 000C : DUP
-    // 000D : PUSH0
-    // 000E : PUSHDATA1
-    // 0016 : SETITEM
-    // 0017 : DUP
-    // 0018 : PUSH1
-    // 0019 : PUSHDATA1
-    // 0021 : SETITEM
-    // 0022 : DUP
-    // 0023 : PUSH2
-    // 0024 : PUSHDATA1
-    // 002C : SETITEM
-    // 002D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.PUSH1
+    /// 0010 : OpCode.EQUAL
+    /// 0011 : OpCode.JMPIFNOT 0D
+    /// 0013 : OpCode.DROP
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHDATA1 56616C756531
+    /// 001D : OpCode.RET
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.PUSH2
+    /// 0020 : OpCode.EQUAL
+    /// 0021 : OpCode.JMPIFNOT 0D
+    /// 0023 : OpCode.DROP
+    /// 0024 : OpCode.DROP
+    /// 0025 : OpCode.PUSHDATA1 56616C756532
+    /// 002D : OpCode.RET
+    /// 002E : OpCode.DUP
+    /// 002F : OpCode.PUSH3
+    /// 0030 : OpCode.EQUAL
+    /// 0031 : OpCode.JMPIFNOT 0D
+    /// 0033 : OpCode.DROP
+    /// 0034 : OpCode.DROP
+    /// 0035 : OpCode.PUSHDATA1 56616C756533
+    /// 003D : OpCode.RET
+    /// 003E : OpCode.DROP
+    /// 003F : OpCode.DROP
+    /// 0040 : OpCode.PUSHNULL
+    /// 0041 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumGetNameWithType")]
     public abstract string? TestEnumGetNameWithType(object? value = null);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : PUSH1
-    // 0010 : EQUAL
-    // 0011 : JMPIFNOT
-    // 0013 : DROP
-    // 0014 : DROP
-    // 0015 : PUSHDATA1
-    // 001D : RET
-    // 001E : DUP
-    // 001F : PUSH2
-    // 0020 : EQUAL
-    // 0021 : JMPIFNOT
-    // 0023 : DROP
-    // 0024 : DROP
-    // 0025 : PUSHDATA1
-    // 002D : RET
-    // 002E : DUP
-    // 002F : PUSH3
-    // 0030 : EQUAL
-    // 0031 : JMPIFNOT
-    // 0033 : DROP
-    // 0034 : DROP
-    // 0035 : PUSHDATA1
-    // 003D : RET
-    // 003E : DROP
-    // 003F : DROP
-    // 0040 : PUSHNULL
-    // 0041 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000A : OpCode.PUSH3
+    /// 000B : OpCode.NEWARRAY
+    /// 000C : OpCode.DUP
+    /// 000D : OpCode.PUSH0
+    /// 000E : OpCode.PUSH1
+    /// 000F : OpCode.SETITEM
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.PUSH1
+    /// 0012 : OpCode.PUSH2
+    /// 0013 : OpCode.SETITEM
+    /// 0014 : OpCode.DUP
+    /// 0015 : OpCode.PUSH2
+    /// 0016 : OpCode.PUSH3
+    /// 0017 : OpCode.SETITEM
+    /// 0018 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumGetValues")]
     public abstract IList<object>? TestEnumGetValues();
-    // 0000 : PUSHDATA1
-    // 000A : PUSH3
-    // 000B : NEWARRAY
-    // 000C : DUP
-    // 000D : PUSH0
-    // 000E : PUSH1
-    // 000F : SETITEM
-    // 0010 : DUP
-    // 0011 : PUSH1
-    // 0012 : PUSH2
-    // 0013 : SETITEM
-    // 0014 : DUP
-    // 0015 : PUSH2
-    // 0016 : PUSH3
-    // 0017 : SETITEM
-    // 0018 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.PUSH1
+    /// 0010 : OpCode.EQUAL
+    /// 0011 : OpCode.JMPIFNOT 06
+    /// 0013 : OpCode.DROP
+    /// 0014 : OpCode.DROP
+    /// 0015 : OpCode.PUSHT
+    /// 0016 : OpCode.RET
+    /// 0017 : OpCode.DUP
+    /// 0018 : OpCode.PUSH2
+    /// 0019 : OpCode.EQUAL
+    /// 001A : OpCode.JMPIFNOT 06
+    /// 001C : OpCode.DROP
+    /// 001D : OpCode.DROP
+    /// 001E : OpCode.PUSHT
+    /// 001F : OpCode.RET
+    /// 0020 : OpCode.DUP
+    /// 0021 : OpCode.PUSH3
+    /// 0022 : OpCode.EQUAL
+    /// 0023 : OpCode.JMPIFNOT 06
+    /// 0025 : OpCode.DROP
+    /// 0026 : OpCode.DROP
+    /// 0027 : OpCode.PUSHT
+    /// 0028 : OpCode.RET
+    /// 0029 : OpCode.DROP
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.PUSHF
+    /// 002C : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumIsDefined")]
     public abstract bool? TestEnumIsDefined(object? value = null);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : PUSH1
-    // 0010 : EQUAL
-    // 0011 : JMPIFNOT
-    // 0013 : DROP
-    // 0014 : DROP
-    // 0015 : PUSHT
-    // 0016 : RET
-    // 0017 : DUP
-    // 0018 : PUSH2
-    // 0019 : EQUAL
-    // 001A : JMPIFNOT
-    // 001C : DROP
-    // 001D : DROP
-    // 001E : PUSHT
-    // 001F : RET
-    // 0020 : DUP
-    // 0021 : PUSH3
-    // 0022 : EQUAL
-    // 0023 : JMPIFNOT
-    // 0025 : DROP
-    // 0026 : DROP
-    // 0027 : PUSHT
-    // 0028 : RET
-    // 0029 : DROP
-    // 002A : DROP
-    // 002B : PUSHF
-    // 002C : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.PUSHDATA1 56616C756531
+    /// 0017 : OpCode.EQUAL
+    /// 0018 : OpCode.JMPIFNOT 06
+    /// 001A : OpCode.DROP
+    /// 001B : OpCode.DROP
+    /// 001C : OpCode.PUSHT
+    /// 001D : OpCode.RET
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.PUSHDATA1 56616C756532
+    /// 0027 : OpCode.EQUAL
+    /// 0028 : OpCode.JMPIFNOT 06
+    /// 002A : OpCode.DROP
+    /// 002B : OpCode.DROP
+    /// 002C : OpCode.PUSHT
+    /// 002D : OpCode.RET
+    /// 002E : OpCode.DUP
+    /// 002F : OpCode.PUSHDATA1 56616C756533
+    /// 0037 : OpCode.EQUAL
+    /// 0038 : OpCode.JMPIFNOT 06
+    /// 003A : OpCode.DROP
+    /// 003B : OpCode.DROP
+    /// 003C : OpCode.PUSHT
+    /// 003D : OpCode.RET
+    /// 003E : OpCode.DROP
+    /// 003F : OpCode.DROP
+    /// 0040 : OpCode.PUSHF
+    /// 0041 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumIsDefinedByName")]
     public abstract bool? TestEnumIsDefinedByName(string? name);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : PUSHDATA1
-    // 0017 : EQUAL
-    // 0018 : JMPIFNOT
-    // 001A : DROP
-    // 001B : DROP
-    // 001C : PUSHT
-    // 001D : RET
-    // 001E : DUP
-    // 001F : PUSHDATA1
-    // 0027 : EQUAL
-    // 0028 : JMPIFNOT
-    // 002A : DROP
-    // 002B : DROP
-    // 002C : PUSHT
-    // 002D : RET
-    // 002E : DUP
-    // 002F : PUSHDATA1
-    // 0037 : EQUAL
-    // 0038 : JMPIFNOT
-    // 003A : DROP
-    // 003B : DROP
-    // 003C : PUSHT
-    // 003D : RET
-    // 003E : DROP
-    // 003F : DROP
-    // 0040 : PUSHF
-    // 0041 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.DUP
+    /// 000F : OpCode.PUSHDATA1 56616C756531
+    /// 0017 : OpCode.EQUAL
+    /// 0018 : OpCode.JMPIFNOT 07
+    /// 001A : OpCode.PUSH1
+    /// 001B : OpCode.REVERSE3
+    /// 001C : OpCode.DROP
+    /// 001D : OpCode.DROP
+    /// 001E : OpCode.RET
+    /// 001F : OpCode.DUP
+    /// 0020 : OpCode.PUSHDATA1 56616C756532
+    /// 0028 : OpCode.EQUAL
+    /// 0029 : OpCode.JMPIFNOT 07
+    /// 002B : OpCode.PUSH2
+    /// 002C : OpCode.REVERSE3
+    /// 002D : OpCode.DROP
+    /// 002E : OpCode.DROP
+    /// 002F : OpCode.RET
+    /// 0030 : OpCode.DUP
+    /// 0031 : OpCode.PUSHDATA1 56616C756533
+    /// 0039 : OpCode.EQUAL
+    /// 003A : OpCode.JMPIFNOT 07
+    /// 003C : OpCode.PUSH3
+    /// 003D : OpCode.REVERSE3
+    /// 003E : OpCode.DROP
+    /// 003F : OpCode.DROP
+    /// 0040 : OpCode.RET
+    /// 0041 : OpCode.DROP
+    /// 0042 : OpCode.PUSHDATA1 4E6F207375636820656E756D2076616C7565
+    /// 0056 : OpCode.THROW
+    /// </remarks>
     [DisplayName("testEnumParse")]
     public abstract object? TestEnumParse(string? value);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000D : LDARG0
-    // 000E : DUP
-    // 000F : PUSHDATA1
-    // 0017 : EQUAL
-    // 0018 : JMPIFNOT
-    // 001A : PUSH1
-    // 001B : REVERSE3
-    // 001C : DROP
-    // 001D : DROP
-    // 001E : RET
-    // 001F : DUP
-    // 0020 : PUSHDATA1
-    // 0028 : EQUAL
-    // 0029 : JMPIFNOT
-    // 002B : PUSH2
-    // 002C : REVERSE3
-    // 002D : DROP
-    // 002E : DROP
-    // 002F : RET
-    // 0030 : DUP
-    // 0031 : PUSHDATA1
-    // 0039 : EQUAL
-    // 003A : JMPIFNOT
-    // 003C : PUSH3
-    // 003D : REVERSE3
-    // 003E : DROP
-    // 003F : DROP
-    // 0040 : RET
-    // 0041 : DROP
-    // 0042 : PUSHDATA1
-    // 0056 : THROW
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.LDARG1
+    /// 000F : OpCode.JMPIFNOT 2E
+    /// 0011 : OpCode.PUSHDATA1
+    /// 0013 : OpCode.PUSH0
+    /// 0014 : OpCode.DUP
+    /// 0015 : OpCode.LDARG0
+    /// 0016 : OpCode.SIZE
+    /// 0017 : OpCode.LT
+    /// 0018 : OpCode.JMPIFNOT 22
+    /// 001A : OpCode.DUP
+    /// 001B : OpCode.LDARG0
+    /// 001C : OpCode.SWAP
+    /// 001D : OpCode.PICKITEM
+    /// 001E : OpCode.DUP
+    /// 001F : OpCode.PUSHINT8 61
+    /// 0021 : OpCode.PUSHINT8 7B
+    /// 0023 : OpCode.WITHIN
+    /// 0024 : OpCode.JMPIF 09
+    /// 0026 : OpCode.ROT
+    /// 0027 : OpCode.SWAP
+    /// 0028 : OpCode.CAT
+    /// 0029 : OpCode.SWAP
+    /// 002A : OpCode.INC
+    /// 002B : OpCode.JMP E9
+    /// 002D : OpCode.PUSHINT8 61
+    /// 002F : OpCode.SUB
+    /// 0030 : OpCode.PUSHINT8 41
+    /// 0032 : OpCode.ADD
+    /// 0033 : OpCode.ROT
+    /// 0034 : OpCode.SWAP
+    /// 0035 : OpCode.CAT
+    /// 0036 : OpCode.SWAP
+    /// 0037 : OpCode.INC
+    /// 0038 : OpCode.JMP DC
+    /// 003A : OpCode.DROP
+    /// 003B : OpCode.CONVERT 28
+    /// 003D : OpCode.DUP
+    /// 003E : OpCode.LDARG1
+    /// 003F : OpCode.JMPIFNOT 34
+    /// 0041 : OpCode.PUSHDATA1 56414C554531
+    /// 0049 : OpCode.EQUAL
+    /// 004A : OpCode.JMPIFNOT 07
+    /// 004C : OpCode.DROP
+    /// 004D : OpCode.DROP
+    /// 004E : OpCode.DROP
+    /// 004F : OpCode.PUSH1
+    /// 0050 : OpCode.RET
+    /// 0051 : OpCode.DUP
+    /// 0052 : OpCode.LDARG1
+    /// 0053 : OpCode.JMPIFNOT 20
+    /// 0055 : OpCode.PUSHDATA1 56414C554532
+    /// 005D : OpCode.EQUAL
+    /// 005E : OpCode.JMPIFNOT 07
+    /// 0060 : OpCode.DROP
+    /// 0061 : OpCode.DROP
+    /// 0062 : OpCode.DROP
+    /// 0063 : OpCode.PUSH2
+    /// 0064 : OpCode.RET
+    /// 0065 : OpCode.DUP
+    /// 0066 : OpCode.LDARG1
+    /// 0067 : OpCode.JMPIFNOT 0C
+    /// 0069 : OpCode.PUSHDATA1 56414C554533
+    /// 0071 : OpCode.JMP 0A
+    /// 0073 : OpCode.PUSHDATA1 56616C756533
+    /// 007B : OpCode.EQUAL
+    /// 007C : OpCode.JMPIFNOT 07
+    /// 007E : OpCode.DROP
+    /// 007F : OpCode.DROP
+    /// 0080 : OpCode.DROP
+    /// 0081 : OpCode.PUSH3
+    /// 0082 : OpCode.RET
+    /// 0083 : OpCode.DROP
+    /// 0084 : OpCode.DROP
+    /// 0085 : OpCode.PUSHDATA1 4E6F207375636820656E756D2076616C7565
+    /// 0099 : OpCode.THROW
+    /// </remarks>
     [DisplayName("testEnumParseIgnoreCase")]
     public abstract object? TestEnumParseIgnoreCase(string? value, bool? ignoreCase);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 000D : LDARG0
-    // 000E : LDARG1
-    // 000F : JMPIFNOT
-    // 0011 : PUSHDATA1
-    // 0013 : PUSH0
-    // 0014 : DUP
-    // 0015 : LDARG0
-    // 0016 : SIZE
-    // 0017 : LT
-    // 0018 : JMPIFNOT
-    // 001A : DUP
-    // 001B : LDARG0
-    // 001C : SWAP
-    // 001D : PICKITEM
-    // 001E : DUP
-    // 001F : PUSHINT8
-    // 0021 : PUSHINT8
-    // 0023 : WITHIN
-    // 0024 : JMPIF
-    // 0026 : ROT
-    // 0027 : SWAP
-    // 0028 : CAT
-    // 0029 : SWAP
-    // 002A : INC
-    // 002B : JMP
-    // 002D : PUSHINT8
-    // 002F : SUB
-    // 0030 : PUSHINT8
-    // 0032 : ADD
-    // 0033 : ROT
-    // 0034 : SWAP
-    // 0035 : CAT
-    // 0036 : SWAP
-    // 0037 : INC
-    // 0038 : JMP
-    // 003A : DROP
-    // 003B : CONVERT
-    // 003D : DUP
-    // 003E : LDARG1
-    // 003F : JMPIFNOT
-    // 0041 : PUSHDATA1
-    // 0049 : EQUAL
-    // 004A : JMPIFNOT
-    // 004C : DROP
-    // 004D : DROP
-    // 004E : DROP
-    // 004F : PUSH1
-    // 0050 : RET
-    // 0051 : DUP
-    // 0052 : LDARG1
-    // 0053 : JMPIFNOT
-    // 0055 : PUSHDATA1
-    // 005D : EQUAL
-    // 005E : JMPIFNOT
-    // 0060 : DROP
-    // 0061 : DROP
-    // 0062 : DROP
-    // 0063 : PUSH2
-    // 0064 : RET
-    // 0065 : DUP
-    // 0066 : LDARG1
-    // 0067 : JMPIFNOT
-    // 0069 : PUSHDATA1
-    // 0071 : JMP
-    // 0073 : PUSHDATA1
-    // 007B : EQUAL
-    // 007C : JMPIFNOT
-    // 007E : DROP
-    // 007F : DROP
-    // 0080 : DROP
-    // 0081 : PUSH3
-    // 0082 : RET
-    // 0083 : DROP
-    // 0084 : DROP
-    // 0085 : PUSHDATA1
-    // 0099 : THROW
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.STSFLD0
+    /// 0005 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000F : OpCode.LDARG0
+    /// 0010 : OpCode.LDSFLD0
+    /// 0011 : OpCode.DROP
+    /// 0012 : OpCode.DUP
+    /// 0013 : OpCode.PUSHDATA1 56616C756531
+    /// 001B : OpCode.EQUAL
+    /// 001C : OpCode.JMPIFNOT 08
+    /// 001E : OpCode.DROP
+    /// 001F : OpCode.DROP
+    /// 0020 : OpCode.PUSH1
+    /// 0021 : OpCode.STSFLD0
+    /// 0022 : OpCode.PUSHT
+    /// 0023 : OpCode.RET
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHDATA1 56616C756532
+    /// 002D : OpCode.EQUAL
+    /// 002E : OpCode.JMPIFNOT 08
+    /// 0030 : OpCode.DROP
+    /// 0031 : OpCode.DROP
+    /// 0032 : OpCode.PUSH2
+    /// 0033 : OpCode.STSFLD0
+    /// 0034 : OpCode.PUSHT
+    /// 0035 : OpCode.RET
+    /// 0036 : OpCode.DUP
+    /// 0037 : OpCode.PUSHDATA1 56616C756533
+    /// 003F : OpCode.EQUAL
+    /// 0040 : OpCode.JMPIFNOT 08
+    /// 0042 : OpCode.DROP
+    /// 0043 : OpCode.DROP
+    /// 0044 : OpCode.PUSH3
+    /// 0045 : OpCode.STSFLD0
+    /// 0046 : OpCode.PUSHT
+    /// 0047 : OpCode.RET
+    /// 0048 : OpCode.DROP
+    /// 0049 : OpCode.DROP
+    /// 004A : OpCode.PUSH0
+    /// 004B : OpCode.STSFLD0
+    /// 004C : OpCode.PUSHF
+    /// 004D : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumTryParse")]
     public abstract bool? TestEnumTryParse(string? value);
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : STSFLD0
-    // 0005 : PUSHDATA1
-    // 000F : LDARG0
-    // 0010 : LDSFLD0
-    // 0011 : DROP
-    // 0012 : DUP
-    // 0013 : PUSHDATA1
-    // 001B : EQUAL
-    // 001C : JMPIFNOT
-    // 001E : DROP
-    // 001F : DROP
-    // 0020 : PUSH1
-    // 0021 : STSFLD0
-    // 0022 : PUSHT
-    // 0023 : RET
-    // 0024 : DUP
-    // 0025 : PUSHDATA1
-    // 002D : EQUAL
-    // 002E : JMPIFNOT
-    // 0030 : DROP
-    // 0031 : DROP
-    // 0032 : PUSH2
-    // 0033 : STSFLD0
-    // 0034 : PUSHT
-    // 0035 : RET
-    // 0036 : DUP
-    // 0037 : PUSHDATA1
-    // 003F : EQUAL
-    // 0040 : JMPIFNOT
-    // 0042 : DROP
-    // 0043 : DROP
-    // 0044 : PUSH3
-    // 0045 : STSFLD0
-    // 0046 : PUSHT
-    // 0047 : RET
-    // 0048 : DROP
-    // 0049 : DROP
-    // 004A : PUSH0
-    // 004B : STSFLD0
-    // 004C : PUSHF
-    // 004D : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.STSFLD1
+    /// 0005 : OpCode.PUSHDATA1 54657374456E756D
+    /// 000F : OpCode.LDARG0
+    /// 0010 : OpCode.LDARG1
+    /// 0011 : OpCode.LDSFLD1
+    /// 0012 : OpCode.DROP
+    /// 0013 : OpCode.JMPIFNOT 30
+    /// 0015 : OpCode.SWAP
+    /// 0016 : OpCode.DROP
+    /// 0017 : OpCode.PUSHDATA1
+    /// 0019 : OpCode.PUSH0
+    /// 001A : OpCode.DUP
+    /// 001B : OpCode.LDARG0
+    /// 001C : OpCode.SIZE
+    /// 001D : OpCode.LT
+    /// 001E : OpCode.JMPIFNOT 22
+    /// 0020 : OpCode.DUP
+    /// 0021 : OpCode.LDARG0
+    /// 0022 : OpCode.SWAP
+    /// 0023 : OpCode.PICKITEM
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHINT8 61
+    /// 0027 : OpCode.PUSHINT8 7B
+    /// 0029 : OpCode.WITHIN
+    /// 002A : OpCode.JMPIF 09
+    /// 002C : OpCode.ROT
+    /// 002D : OpCode.SWAP
+    /// 002E : OpCode.CAT
+    /// 002F : OpCode.SWAP
+    /// 0030 : OpCode.INC
+    /// 0031 : OpCode.JMP E9
+    /// 0033 : OpCode.PUSHINT8 61
+    /// 0035 : OpCode.SUB
+    /// 0036 : OpCode.PUSHINT8 41
+    /// 0038 : OpCode.ADD
+    /// 0039 : OpCode.ROT
+    /// 003A : OpCode.SWAP
+    /// 003B : OpCode.CAT
+    /// 003C : OpCode.SWAP
+    /// 003D : OpCode.INC
+    /// 003E : OpCode.JMP DC
+    /// 0040 : OpCode.DROP
+    /// 0041 : OpCode.CONVERT 28
+    /// 0043 : OpCode.DUP
+    /// 0044 : OpCode.LDARG1
+    /// 0045 : OpCode.JMPIFNOT 36
+    /// 0047 : OpCode.PUSHDATA1 56414C554531
+    /// 004F : OpCode.EQUAL
+    /// 0050 : OpCode.JMPIFNOT 08
+    /// 0052 : OpCode.DROP
+    /// 0053 : OpCode.DROP
+    /// 0054 : OpCode.PUSH1
+    /// 0055 : OpCode.STSFLD1
+    /// 0056 : OpCode.PUSHT
+    /// 0057 : OpCode.RET
+    /// 0058 : OpCode.DUP
+    /// 0059 : OpCode.LDARG1
+    /// 005A : OpCode.JMPIFNOT 21
+    /// 005C : OpCode.PUSHDATA1 56414C554532
+    /// 0064 : OpCode.EQUAL
+    /// 0065 : OpCode.JMPIFNOT 08
+    /// 0067 : OpCode.DROP
+    /// 0068 : OpCode.DROP
+    /// 0069 : OpCode.PUSH2
+    /// 006A : OpCode.STSFLD1
+    /// 006B : OpCode.PUSHT
+    /// 006C : OpCode.RET
+    /// 006D : OpCode.DUP
+    /// 006E : OpCode.LDARG1
+    /// 006F : OpCode.JMPIFNOT 0C
+    /// 0071 : OpCode.PUSHDATA1 56414C554533
+    /// 0079 : OpCode.JMP 0A
+    /// 007B : OpCode.PUSHDATA1 56616C756533
+    /// 0083 : OpCode.EQUAL
+    /// 0084 : OpCode.JMPIFNOT 08
+    /// 0086 : OpCode.DROP
+    /// 0087 : OpCode.DROP
+    /// 0088 : OpCode.PUSH3
+    /// 0089 : OpCode.STSFLD1
+    /// 008A : OpCode.PUSHT
+    /// 008B : OpCode.RET
+    /// 008C : OpCode.DROP
+    /// 008D : OpCode.DROP
+    /// 008E : OpCode.PUSH0
+    /// 008F : OpCode.STSFLD1
+    /// 0090 : OpCode.PUSHF
+    /// 0091 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEnumTryParseIgnoreCase")]
     public abstract bool? TestEnumTryParseIgnoreCase(string? value, bool? ignoreCase);
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : STSFLD1
-    // 0005 : PUSHDATA1
-    // 000F : LDARG0
-    // 0010 : LDARG1
-    // 0011 : LDSFLD1
-    // 0012 : DROP
-    // 0013 : JMPIFNOT
-    // 0015 : SWAP
-    // 0016 : DROP
-    // 0017 : PUSHDATA1
-    // 0019 : PUSH0
-    // 001A : DUP
-    // 001B : LDARG0
-    // 001C : SIZE
-    // 001D : LT
-    // 001E : JMPIFNOT
-    // 0020 : DUP
-    // 0021 : LDARG0
-    // 0022 : SWAP
-    // 0023 : PICKITEM
-    // 0024 : DUP
-    // 0025 : PUSHINT8
-    // 0027 : PUSHINT8
-    // 0029 : WITHIN
-    // 002A : JMPIF
-    // 002C : ROT
-    // 002D : SWAP
-    // 002E : CAT
-    // 002F : SWAP
-    // 0030 : INC
-    // 0031 : JMP
-    // 0033 : PUSHINT8
-    // 0035 : SUB
-    // 0036 : PUSHINT8
-    // 0038 : ADD
-    // 0039 : ROT
-    // 003A : SWAP
-    // 003B : CAT
-    // 003C : SWAP
-    // 003D : INC
-    // 003E : JMP
-    // 0040 : DROP
-    // 0041 : CONVERT
-    // 0043 : DUP
-    // 0044 : LDARG1
-    // 0045 : JMPIFNOT
-    // 0047 : PUSHDATA1
-    // 004F : EQUAL
-    // 0050 : JMPIFNOT
-    // 0052 : DROP
-    // 0053 : DROP
-    // 0054 : PUSH1
-    // 0055 : STSFLD1
-    // 0056 : PUSHT
-    // 0057 : RET
-    // 0058 : DUP
-    // 0059 : LDARG1
-    // 005A : JMPIFNOT
-    // 005C : PUSHDATA1
-    // 0064 : EQUAL
-    // 0065 : JMPIFNOT
-    // 0067 : DROP
-    // 0068 : DROP
-    // 0069 : PUSH2
-    // 006A : STSFLD1
-    // 006B : PUSHT
-    // 006C : RET
-    // 006D : DUP
-    // 006E : LDARG1
-    // 006F : JMPIFNOT
-    // 0071 : PUSHDATA1
-    // 0079 : JMP
-    // 007B : PUSHDATA1
-    // 0083 : EQUAL
-    // 0084 : JMPIFNOT
-    // 0086 : DROP
-    // 0087 : DROP
-    // 0088 : PUSH3
-    // 0089 : STSFLD1
-    // 008A : PUSHT
-    // 008B : RET
-    // 008C : DROP
-    // 008D : DROP
-    // 008E : PUSH0
-    // 008F : STSFLD1
-    // 0090 : PUSHF
-    // 0091 : RET
 
     #endregion
 

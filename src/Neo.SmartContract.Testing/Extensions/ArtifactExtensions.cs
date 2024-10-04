@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Neo.Disassembler.CSharp;
 using Neo.Json;
 using Neo.SmartContract.Testing.TestingStandards;
 
@@ -348,6 +349,22 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine($"    /// <summary>");
             sourceCode.WriteLine($"    /// {(method.Safe ? "Safe method" : "Unsafe method")}");
             sourceCode.WriteLine($"    /// </summary>");
+
+            // Add the opcodes
+            if (_debugInfo != null)
+            {
+                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(_nefFile, _debugInfo, method.Name);
+                if (instructions is not null && instructions.Count > 0)
+                {
+                    sourceCode.WriteLine("    /// <remarks>");
+                    foreach (var instruction in instructions)
+                    {
+                        sourceCode.WriteLine($"    /// {instruction.address:X4} : {instruction.instruction.InstructionToString()}");
+                    }
+                    sourceCode.WriteLine("    /// </remarks>");
+                }
+            }
+
             if (method.Name != methodName)
             {
                 sourceCode.WriteLine($"    [DisplayName(\"{method.Name}\")]");
@@ -377,15 +394,6 @@ namespace Neo.SmartContract.Testing.Extensions
 
             sourceCode.WriteLine(");");
 
-            if (_debugInfo != null)
-            {
-                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(_nefFile, _debugInfo, method.Name);
-
-                foreach (var instruction in instructions)
-                {
-                    sourceCode.WriteLine($"    // {instruction.address:X4} : {instruction.instruction.OpCode.ToString()}");
-                }
-            }
             return builder.ToString();
         }
 

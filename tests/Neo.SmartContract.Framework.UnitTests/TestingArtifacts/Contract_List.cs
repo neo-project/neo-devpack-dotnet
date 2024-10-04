@@ -24,217 +24,227 @@ public abstract class Contract_List(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0201
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.STLOC1
+    /// 0007 : OpCode.JMP 38
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.LDLOC1
+    /// 000B : OpCode.APPEND
+    /// 000C : OpCode.LDLOC1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.INC
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSHINT32 00000080
+    /// 0015 : OpCode.JMPGE 04
+    /// 0017 : OpCode.JMP 0A
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.PUSHINT32 FFFFFF7F
+    /// 001F : OpCode.JMPLE 1E
+    /// 0021 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002A : OpCode.AND
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.PUSHINT32 FFFFFF7F
+    /// 0031 : OpCode.JMPLE 0C
+    /// 0033 : OpCode.PUSHINT64 0000000001000000
+    /// 003C : OpCode.SUB
+    /// 003D : OpCode.STLOC1
+    /// 003E : OpCode.DROP
+    /// 003F : OpCode.LDLOC1
+    /// 0040 : OpCode.LDARG0
+    /// 0041 : OpCode.LT
+    /// 0042 : OpCode.JMPIF C7
+    /// 0044 : OpCode.LDLOC0
+    /// 0045 : OpCode.CALLT 0000
+    /// 0048 : OpCode.RET
+    /// </remarks>
     [DisplayName("testAdd")]
     public abstract string? TestAdd(BigInteger? count);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : PUSH0
-    // 0006 : STLOC1
-    // 0007 : JMP
-    // 0009 : LDLOC0
-    // 000A : LDLOC1
-    // 000B : APPEND
-    // 000C : LDLOC1
-    // 000D : DUP
-    // 000E : INC
-    // 000F : DUP
-    // 0010 : PUSHINT32
-    // 0015 : JMPGE
-    // 0017 : JMP
-    // 0019 : DUP
-    // 001A : PUSHINT32
-    // 001F : JMPLE
-    // 0021 : PUSHINT64
-    // 002A : AND
-    // 002B : DUP
-    // 002C : PUSHINT32
-    // 0031 : JMPLE
-    // 0033 : PUSHINT64
-    // 003C : SUB
-    // 003D : STLOC1
-    // 003E : DROP
-    // 003F : LDLOC1
-    // 0040 : LDARG0
-    // 0041 : LT
-    // 0042 : JMPIF
-    // 0044 : LDLOC0
-    // 0045 : CALLT
-    // 0048 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0201
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.STLOC1
+    /// 0007 : OpCode.JMP 38
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.LDLOC1
+    /// 000B : OpCode.APPEND
+    /// 000C : OpCode.LDLOC1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.INC
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSHINT32 00000080
+    /// 0015 : OpCode.JMPGE 04
+    /// 0017 : OpCode.JMP 0A
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.PUSHINT32 FFFFFF7F
+    /// 001F : OpCode.JMPLE 1E
+    /// 0021 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002A : OpCode.AND
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.PUSHINT32 FFFFFF7F
+    /// 0031 : OpCode.JMPLE 0C
+    /// 0033 : OpCode.PUSHINT64 0000000001000000
+    /// 003C : OpCode.SUB
+    /// 003D : OpCode.STLOC1
+    /// 003E : OpCode.DROP
+    /// 003F : OpCode.LDLOC1
+    /// 0040 : OpCode.LDARG0
+    /// 0041 : OpCode.LT
+    /// 0042 : OpCode.JMPIF C7
+    /// 0044 : OpCode.LDLOC0
+    /// 0045 : OpCode.RET
+    /// </remarks>
     [DisplayName("testArrayConvert")]
     public abstract IList<object>? TestArrayConvert(BigInteger? count);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : PUSH0
-    // 0006 : STLOC1
-    // 0007 : JMP
-    // 0009 : LDLOC0
-    // 000A : LDLOC1
-    // 000B : APPEND
-    // 000C : LDLOC1
-    // 000D : DUP
-    // 000E : INC
-    // 000F : DUP
-    // 0010 : PUSHINT32
-    // 0015 : JMPGE
-    // 0017 : JMP
-    // 0019 : DUP
-    // 001A : PUSHINT32
-    // 001F : JMPLE
-    // 0021 : PUSHINT64
-    // 002A : AND
-    // 002B : DUP
-    // 002C : PUSHINT32
-    // 0031 : JMPLE
-    // 0033 : PUSHINT64
-    // 003C : SUB
-    // 003D : STLOC1
-    // 003E : DROP
-    // 003F : LDLOC1
-    // 0040 : LDARG0
-    // 0041 : LT
-    // 0042 : JMPIF
-    // 0044 : LDLOC0
-    // 0045 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0201
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.STLOC1
+    /// 0007 : OpCode.JMP 38
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.LDLOC1
+    /// 000B : OpCode.APPEND
+    /// 000C : OpCode.LDLOC1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.INC
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSHINT32 00000080
+    /// 0015 : OpCode.JMPGE 04
+    /// 0017 : OpCode.JMP 0A
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.PUSHINT32 FFFFFF7F
+    /// 001F : OpCode.JMPLE 1E
+    /// 0021 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002A : OpCode.AND
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.PUSHINT32 FFFFFF7F
+    /// 0031 : OpCode.JMPLE 0C
+    /// 0033 : OpCode.PUSHINT64 0000000001000000
+    /// 003C : OpCode.SUB
+    /// 003D : OpCode.STLOC1
+    /// 003E : OpCode.DROP
+    /// 003F : OpCode.LDLOC1
+    /// 0040 : OpCode.LDARG0
+    /// 0041 : OpCode.LT
+    /// 0042 : OpCode.JMPIF C7
+    /// 0044 : OpCode.LDLOC0
+    /// 0045 : OpCode.CLEARITEMS
+    /// 0046 : OpCode.LDLOC0
+    /// 0047 : OpCode.CALLT 0000
+    /// 004A : OpCode.RET
+    /// </remarks>
     [DisplayName("testClear")]
     public abstract string? TestClear(BigInteger? count);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : PUSH0
-    // 0006 : STLOC1
-    // 0007 : JMP
-    // 0009 : LDLOC0
-    // 000A : LDLOC1
-    // 000B : APPEND
-    // 000C : LDLOC1
-    // 000D : DUP
-    // 000E : INC
-    // 000F : DUP
-    // 0010 : PUSHINT32
-    // 0015 : JMPGE
-    // 0017 : JMP
-    // 0019 : DUP
-    // 001A : PUSHINT32
-    // 001F : JMPLE
-    // 0021 : PUSHINT64
-    // 002A : AND
-    // 002B : DUP
-    // 002C : PUSHINT32
-    // 0031 : JMPLE
-    // 0033 : PUSHINT64
-    // 003C : SUB
-    // 003D : STLOC1
-    // 003E : DROP
-    // 003F : LDLOC1
-    // 0040 : LDARG0
-    // 0041 : LT
-    // 0042 : JMPIF
-    // 0044 : LDLOC0
-    // 0045 : CLEARITEMS
-    // 0046 : LDLOC0
-    // 0047 : CALLT
-    // 004A : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0201
+    /// 0003 : OpCode.NEWARRAY0
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.STLOC1
+    /// 0007 : OpCode.JMP 38
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.LDLOC1
+    /// 000B : OpCode.APPEND
+    /// 000C : OpCode.LDLOC1
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.INC
+    /// 000F : OpCode.DUP
+    /// 0010 : OpCode.PUSHINT32 00000080
+    /// 0015 : OpCode.JMPGE 04
+    /// 0017 : OpCode.JMP 0A
+    /// 0019 : OpCode.DUP
+    /// 001A : OpCode.PUSHINT32 FFFFFF7F
+    /// 001F : OpCode.JMPLE 1E
+    /// 0021 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 002A : OpCode.AND
+    /// 002B : OpCode.DUP
+    /// 002C : OpCode.PUSHINT32 FFFFFF7F
+    /// 0031 : OpCode.JMPLE 0C
+    /// 0033 : OpCode.PUSHINT64 0000000001000000
+    /// 003C : OpCode.SUB
+    /// 003D : OpCode.STLOC1
+    /// 003E : OpCode.DROP
+    /// 003F : OpCode.LDLOC1
+    /// 0040 : OpCode.LDARG0
+    /// 0041 : OpCode.LT
+    /// 0042 : OpCode.JMPIF C7
+    /// 0044 : OpCode.LDLOC0
+    /// 0045 : OpCode.SIZE
+    /// 0046 : OpCode.RET
+    /// </remarks>
     [DisplayName("testCount")]
     public abstract BigInteger? TestCount(BigInteger? count);
-    // 0000 : INITSLOT
-    // 0003 : NEWARRAY0
-    // 0004 : STLOC0
-    // 0005 : PUSH0
-    // 0006 : STLOC1
-    // 0007 : JMP
-    // 0009 : LDLOC0
-    // 000A : LDLOC1
-    // 000B : APPEND
-    // 000C : LDLOC1
-    // 000D : DUP
-    // 000E : INC
-    // 000F : DUP
-    // 0010 : PUSHINT32
-    // 0015 : JMPGE
-    // 0017 : JMP
-    // 0019 : DUP
-    // 001A : PUSHINT32
-    // 001F : JMPLE
-    // 0021 : PUSHINT64
-    // 002A : AND
-    // 002B : DUP
-    // 002C : PUSHINT32
-    // 0031 : JMPLE
-    // 0033 : PUSHINT64
-    // 003C : SUB
-    // 003D : STLOC1
-    // 003E : DROP
-    // 003F : LDLOC1
-    // 0040 : LDARG0
-    // 0041 : LT
-    // 0042 : JMPIF
-    // 0044 : LDLOC0
-    // 0045 : SIZE
-    // 0046 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0202
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.GE
+    /// 0006 : OpCode.JMPIFNOT 1C
+    /// 0008 : OpCode.PUSHDATA1 496E76616C6964207465737420706172616D6574657273
+    /// 0021 : OpCode.THROW
+    /// 0022 : OpCode.NEWARRAY0
+    /// 0023 : OpCode.STLOC0
+    /// 0024 : OpCode.PUSH0
+    /// 0025 : OpCode.STLOC1
+    /// 0026 : OpCode.JMP 38
+    /// 0028 : OpCode.LDLOC0
+    /// 0029 : OpCode.LDLOC1
+    /// 002A : OpCode.APPEND
+    /// 002B : OpCode.LDLOC1
+    /// 002C : OpCode.DUP
+    /// 002D : OpCode.INC
+    /// 002E : OpCode.DUP
+    /// 002F : OpCode.PUSHINT32 00000080
+    /// 0034 : OpCode.JMPGE 04
+    /// 0036 : OpCode.JMP 0A
+    /// 0038 : OpCode.DUP
+    /// 0039 : OpCode.PUSHINT32 FFFFFF7F
+    /// 003E : OpCode.JMPLE 1E
+    /// 0040 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0049 : OpCode.AND
+    /// 004A : OpCode.DUP
+    /// 004B : OpCode.PUSHINT32 FFFFFF7F
+    /// 0050 : OpCode.JMPLE 0C
+    /// 0052 : OpCode.PUSHINT64 0000000001000000
+    /// 005B : OpCode.SUB
+    /// 005C : OpCode.STLOC1
+    /// 005D : OpCode.DROP
+    /// 005E : OpCode.LDLOC1
+    /// 005F : OpCode.LDARG0
+    /// 0060 : OpCode.LT
+    /// 0061 : OpCode.JMPIF C7
+    /// 0063 : OpCode.LDLOC0
+    /// 0064 : OpCode.LDARG1
+    /// 0065 : OpCode.REMOVE
+    /// 0066 : OpCode.LDLOC0
+    /// 0067 : OpCode.CALLT 0000
+    /// 006A : OpCode.RET
+    /// </remarks>
     [DisplayName("testRemoveAt")]
     public abstract string? TestRemoveAt(BigInteger? count, BigInteger? removeAt);
-    // 0000 : INITSLOT
-    // 0003 : LDARG1
-    // 0004 : LDARG0
-    // 0005 : GE
-    // 0006 : JMPIFNOT
-    // 0008 : PUSHDATA1
-    // 0021 : THROW
-    // 0022 : NEWARRAY0
-    // 0023 : STLOC0
-    // 0024 : PUSH0
-    // 0025 : STLOC1
-    // 0026 : JMP
-    // 0028 : LDLOC0
-    // 0029 : LDLOC1
-    // 002A : APPEND
-    // 002B : LDLOC1
-    // 002C : DUP
-    // 002D : INC
-    // 002E : DUP
-    // 002F : PUSHINT32
-    // 0034 : JMPGE
-    // 0036 : JMP
-    // 0038 : DUP
-    // 0039 : PUSHINT32
-    // 003E : JMPLE
-    // 0040 : PUSHINT64
-    // 0049 : AND
-    // 004A : DUP
-    // 004B : PUSHINT32
-    // 0050 : JMPLE
-    // 0052 : PUSHINT64
-    // 005B : SUB
-    // 005C : STLOC1
-    // 005D : DROP
-    // 005E : LDLOC1
-    // 005F : LDARG0
-    // 0060 : LT
-    // 0061 : JMPIF
-    // 0063 : LDLOC0
-    // 0064 : LDARG1
-    // 0065 : REMOVE
-    // 0066 : LDLOC0
-    // 0067 : CALLT
-    // 006A : RET
 
     #endregion
 

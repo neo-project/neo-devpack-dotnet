@@ -24,28 +24,30 @@ public abstract class Contract_ConcatByteStringAddAssign(Neo.SmartContract.Testi
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0103
+    /// 0003 : OpCode.PUSHDATA1
+    /// 0005 : OpCode.STLOC0
+    /// 0006 : OpCode.LDLOC0
+    /// 0007 : OpCode.LDARG0
+    /// 0008 : OpCode.CAT
+    /// 0009 : OpCode.CONVERT 28
+    /// 000B : OpCode.STLOC0
+    /// 000C : OpCode.LDLOC0
+    /// 000D : OpCode.LDARG1
+    /// 000E : OpCode.CAT
+    /// 000F : OpCode.CONVERT 28
+    /// 0011 : OpCode.STLOC0
+    /// 0012 : OpCode.LDLOC0
+    /// 0013 : OpCode.LDARG2
+    /// 0014 : OpCode.CAT
+    /// 0015 : OpCode.CONVERT 28
+    /// 0017 : OpCode.STLOC0
+    /// 0018 : OpCode.LDLOC0
+    /// 0019 : OpCode.RET
+    /// </remarks>
     [DisplayName("byteStringAddAssign")]
     public abstract byte[]? ByteStringAddAssign(byte[]? a, byte[]? b, string? c);
-    // 0000 : INITSLOT
-    // 0003 : PUSHDATA1
-    // 0005 : STLOC0
-    // 0006 : LDLOC0
-    // 0007 : LDARG0
-    // 0008 : CAT
-    // 0009 : CONVERT
-    // 000B : STLOC0
-    // 000C : LDLOC0
-    // 000D : LDARG1
-    // 000E : CAT
-    // 000F : CONVERT
-    // 0011 : STLOC0
-    // 0012 : LDLOC0
-    // 0013 : LDARG2
-    // 0014 : CAT
-    // 0015 : CONVERT
-    // 0017 : STLOC0
-    // 0018 : LDLOC0
-    // 0019 : RET
 
     #endregion
 

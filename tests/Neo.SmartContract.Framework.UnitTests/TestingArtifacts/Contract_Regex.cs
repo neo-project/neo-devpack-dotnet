@@ -24,78 +24,94 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A6162636465666768696A6B6C6D6E6F707172737475767778797A
+    /// 0036 : OpCode.CALL 03
+    /// 0038 : OpCode.RET
+    /// </remarks>
     [DisplayName("testAlphabetOnly")]
     public abstract bool? TestAlphabetOnly();
-    // 0000 : PUSHDATA1
-    // 0036 : CALL
-    // 0038 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 6C6C
+    /// 0004 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
+    /// 0011 : OpCode.CALL 03
+    /// 0013 : OpCode.RET
+    /// </remarks>
     [DisplayName("testContains")]
     public abstract bool? TestContains();
-    // 0000 : PUSHDATA1
-    // 0004 : PUSHDATA1
-    // 0011 : CALL
-    // 0013 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 576F726C64
+    /// 0007 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
+    /// 0014 : OpCode.CALL 03
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("testEndWith")]
     public abstract bool? TestEndWith();
-    // 0000 : PUSHDATA1
-    // 0007 : PUSHDATA1
-    // 0014 : CALL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 6F
+    /// 0003 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
+    /// 0010 : OpCode.CALL 03
+    /// 0012 : OpCode.RET
+    /// </remarks>
     [DisplayName("testIndexOf")]
     public abstract BigInteger? TestIndexOf();
-    // 0000 : PUSHDATA1
-    // 0003 : PUSHDATA1
-    // 0010 : CALL
-    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 6162636465666768696A6B6C6D6E6F707172737475767778797A
+    /// 001C : OpCode.CALL A7
+    /// 001E : OpCode.RET
+    /// </remarks>
     [DisplayName("testLowerAlphabetOnly")]
     public abstract bool? TestLowerAlphabetOnly();
-    // 0000 : PUSHDATA1
-    // 001C : CALL
-    // 001E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 30313233343536373839
+    /// 000C : OpCode.CALL 03
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("testNumberOnly")]
     public abstract bool? TestNumberOnly();
-    // 0000 : PUSHDATA1
-    // 000C : CALL
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 48656C6C6F
+    /// 0007 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
+    /// 0014 : OpCode.CALL 03
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStartWith")]
     public abstract bool? TestStartWith();
-    // 0000 : PUSHDATA1
-    // 0007 : PUSHDATA1
-    // 0014 : CALL
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A
+    /// 001C : OpCode.CALL 88
+    /// 001E : OpCode.RET
+    /// </remarks>
     [DisplayName("testUpperAlphabetOnly")]
     public abstract bool? TestUpperAlphabetOnly();
-    // 0000 : PUSHDATA1
-    // 001C : CALL
-    // 001E : RET
 
     #endregion
 

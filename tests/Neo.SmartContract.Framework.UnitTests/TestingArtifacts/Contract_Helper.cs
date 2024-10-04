@@ -24,93 +24,107 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHT
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.PUSHDATA1 55542D4552524F522D313233
+    /// 0014 : OpCode.ASSERTMSG
+    /// 0015 : OpCode.PUSH5
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("assertCall")]
     public abstract BigInteger? AssertCall(bool? value);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHT
-    // 0005 : EQUAL
-    // 0006 : PUSHDATA1
-    // 0014 : ASSERTMSG
-    // 0015 : PUSH5
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHM1
+    /// 0005 : OpCode.LDARG1
+    /// 0006 : OpCode.MODPOW
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("modInverse")]
     public abstract BigInteger? ModInverse(BigInteger? value, BigInteger? modulus);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHM1
-    // 0005 : LDARG1
-    // 0006 : MODPOW
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0003
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.LDARG2
+    /// 0006 : OpCode.MODMUL
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("modMultiply")]
     public abstract BigInteger? ModMultiply(BigInteger? value, BigInteger? y, BigInteger? modulus);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : LDARG2
-    // 0006 : MODMUL
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0003
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.LDARG2
+    /// 0006 : OpCode.MODPOW
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("modPow")]
     public abstract BigInteger? ModPow(BigInteger? value, BigInteger? exponent, BigInteger? modulus);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : LDARG2
-    // 0006 : MODPOW
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CONVERT 28
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.ISNULL
+    /// 0008 : OpCode.JMPIFNOT 04
+    /// 000A : OpCode.DROP
+    /// 000B : OpCode.PUSH0
+    /// 000C : OpCode.CONVERT 21
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("testBigIntegerCast")]
     public abstract BigInteger? TestBigIntegerCast(byte[]? data);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CONVERT
-    // 0006 : DUP
-    // 0007 : ISNULL
-    // 0008 : JMPIFNOT
-    // 000A : DROP
-    // 000B : PUSH0
-    // 000C : CONVERT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALLT 0000
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("testBigIntegerParseHexString")]
     public abstract BigInteger? TestBigIntegerParseHexString(string? data);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALLT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0200
+    /// 0003 : OpCode.PUSH1
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSH1
+    /// 0007 : OpCode.LEFT
+    /// 0008 : OpCode.STLOC1
+    /// 0009 : OpCode.LDLOC1
+    /// 000A : OpCode.RET
+    /// </remarks>
     [DisplayName("testByteToByteArray")]
     public abstract byte[]? TestByteToByteArray();
-    // 0000 : INITSLOT
-    // 0003 : PUSH1
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSH1
-    // 0007 : LEFT
-    // 0008 : STLOC1
-    // 0009 : LDLOC1
-    // 000A : RET
 
     /// <summary>
     /// Unsafe method
@@ -121,10 +135,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.LDSFLD0
+    /// 0001 : OpCode.RET
+    /// </remarks>
     [DisplayName("testHexToBytes")]
     public abstract byte[]? TestHexToBytes();
-    // 0000 : LDSFLD0
-    // 0001 : RET
 
     /// <summary>
     /// Unsafe method
@@ -165,12 +181,14 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CONVERT 21
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("testToBigInteger")]
     public abstract BigInteger? TestToBigInteger(byte[]? data);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CONVERT
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
@@ -181,14 +199,16 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHT
+    /// 0005 : OpCode.EQUAL
+    /// 0006 : OpCode.ASSERT
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("voidAssertCall")]
     public abstract void VoidAssertCall(bool? value);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHT
-    // 0005 : EQUAL
-    // 0006 : ASSERT
-    // 0007 : RET
 
     #endregion
 

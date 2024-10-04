@@ -24,31 +24,33 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0100
+    /// 0003 : OpCode.PUSHNULL
+    /// 0004 : OpCode.PUSH0
+    /// 0005 : OpCode.PUSH2
+    /// 0006 : OpCode.PACK
+    /// 0007 : OpCode.DUP
+    /// 0008 : OpCode.CALL 29
+    /// 000A : OpCode.STLOC0
+    /// 000B : OpCode.LDLOC0
+    /// 000C : OpCode.PUSH0
+    /// 000D : OpCode.PICKITEM
+    /// 000E : OpCode.CALLT 0000
+    /// 0011 : OpCode.SYSCALL CFE74796
+    /// 0016 : OpCode.PUSHDATA1 6D7367
+    /// 001B : OpCode.SYSCALL CFE74796
+    /// 0020 : OpCode.LDLOC0
+    /// 0021 : OpCode.PUSH1
+    /// 0022 : OpCode.PICKITEM
+    /// 0023 : OpCode.SYSCALL CFE74796
+    /// 0028 : OpCode.LDLOC0
+    /// 0029 : OpCode.CALL 16
+    /// 002B : OpCode.SYSCALL CFE74796
+    /// 0030 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMain")]
     public abstract void TestMain();
-    // 0000 : INITSLOT
-    // 0003 : PUSHNULL
-    // 0004 : PUSH0
-    // 0005 : PUSH2
-    // 0006 : PACK
-    // 0007 : DUP
-    // 0008 : CALL
-    // 000A : STLOC0
-    // 000B : LDLOC0
-    // 000C : PUSH0
-    // 000D : PICKITEM
-    // 000E : CALLT
-    // 0011 : SYSCALL
-    // 0016 : PUSHDATA1
-    // 001B : SYSCALL
-    // 0020 : LDLOC0
-    // 0021 : PUSH1
-    // 0022 : PICKITEM
-    // 0023 : SYSCALL
-    // 0028 : LDLOC0
-    // 0029 : CALL
-    // 002B : SYSCALL
-    // 0030 : RET
 
     #endregion
 

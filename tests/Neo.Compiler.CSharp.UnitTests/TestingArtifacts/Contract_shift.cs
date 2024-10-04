@@ -24,70 +24,74 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0300
+    /// 0003 : OpCode.PUSH8
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSH1
+    /// 0007 : OpCode.SHL
+    /// 0008 : OpCode.DUP
+    /// 0009 : OpCode.PUSHINT32 00000080
+    /// 000E : OpCode.JMPGE 04
+    /// 0010 : OpCode.JMP 0A
+    /// 0012 : OpCode.DUP
+    /// 0013 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0018 : OpCode.JMPLE 1E
+    /// 001A : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0023 : OpCode.AND
+    /// 0024 : OpCode.DUP
+    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002A : OpCode.JMPLE 0C
+    /// 002C : OpCode.PUSHINT64 0000000001000000
+    /// 0035 : OpCode.SUB
+    /// 0036 : OpCode.STLOC1
+    /// 0037 : OpCode.LDLOC0
+    /// 0038 : OpCode.PUSH1
+    /// 0039 : OpCode.SHR
+    /// 003A : OpCode.STLOC2
+    /// 003B : OpCode.LDLOC2
+    /// 003C : OpCode.LDLOC1
+    /// 003D : OpCode.PUSH2
+    /// 003E : OpCode.PACK
+    /// 003F : OpCode.RET
+    /// </remarks>
     [DisplayName("testShift")]
     public abstract IList<object>? TestShift();
-    // 0000 : INITSLOT
-    // 0003 : PUSH8
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSH1
-    // 0007 : SHL
-    // 0008 : DUP
-    // 0009 : PUSHINT32
-    // 000E : JMPGE
-    // 0010 : JMP
-    // 0012 : DUP
-    // 0013 : PUSHINT32
-    // 0018 : JMPLE
-    // 001A : PUSHINT64
-    // 0023 : AND
-    // 0024 : DUP
-    // 0025 : PUSHINT32
-    // 002A : JMPLE
-    // 002C : PUSHINT64
-    // 0035 : SUB
-    // 0036 : STLOC1
-    // 0037 : LDLOC0
-    // 0038 : PUSH1
-    // 0039 : SHR
-    // 003A : STLOC2
-    // 003B : LDLOC2
-    // 003C : LDLOC1
-    // 003D : PUSH2
-    // 003E : PACK
-    // 003F : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0500
+    /// 0003 : OpCode.PUSH8
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDLOC0
+    /// 0006 : OpCode.PUSH0
+    /// 0007 : OpCode.SHL
+    /// 0008 : OpCode.STLOC1
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.PUSH1
+    /// 000B : OpCode.SHL
+    /// 000C : OpCode.STLOC2
+    /// 000D : OpCode.LDLOC0
+    /// 000E : OpCode.PUSH1
+    /// 000F : OpCode.SHR
+    /// 0010 : OpCode.STLOC3
+    /// 0011 : OpCode.LDLOC0
+    /// 0012 : OpCode.PUSH2
+    /// 0013 : OpCode.SHR
+    /// 0014 : OpCode.STLOC4
+    /// 0015 : OpCode.LDLOC4
+    /// 0016 : OpCode.LDLOC3
+    /// 0017 : OpCode.LDLOC2
+    /// 0018 : OpCode.LDLOC1
+    /// 0019 : OpCode.PUSH4
+    /// 001A : OpCode.PACK
+    /// 001B : OpCode.RET
+    /// </remarks>
     [DisplayName("testShiftBigInt")]
     public abstract IList<object>? TestShiftBigInt();
-    // 0000 : INITSLOT
-    // 0003 : PUSH8
-    // 0004 : STLOC0
-    // 0005 : LDLOC0
-    // 0006 : PUSH0
-    // 0007 : SHL
-    // 0008 : STLOC1
-    // 0009 : LDLOC0
-    // 000A : PUSH1
-    // 000B : SHL
-    // 000C : STLOC2
-    // 000D : LDLOC0
-    // 000E : PUSH1
-    // 000F : SHR
-    // 0010 : STLOC3
-    // 0011 : LDLOC0
-    // 0012 : PUSH2
-    // 0013 : SHR
-    // 0014 : STLOC4
-    // 0015 : LDLOC4
-    // 0016 : LDLOC3
-    // 0017 : LDLOC2
-    // 0018 : LDLOC1
-    // 0019 : PUSH4
-    // 001A : PACK
-    // 001B : RET
 
     #endregion
 

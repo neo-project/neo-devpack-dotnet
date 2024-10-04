@@ -24,44 +24,48 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0202
+    /// 0003 : OpCode.PUSH3
+    /// 0004 : OpCode.STLOC0
+    /// 0005 : OpCode.LDARG0
+    /// 0006 : OpCode.LDARG1
+    /// 0007 : OpCode.CAT
+    /// 0008 : OpCode.CONVERT 28
+    /// 000A : OpCode.STLOC1
+    /// 000B : OpCode.LDLOC1
+    /// 000C : OpCode.PUSHDATA1 68656C6C6F
+    /// 0013 : OpCode.EQUAL
+    /// 0014 : OpCode.JMPIFNOT 06
+    /// 0016 : OpCode.PUSH4
+    /// 0017 : OpCode.STLOC0
+    /// 0018 : OpCode.JMP 0F
+    /// 001A : OpCode.LDLOC1
+    /// 001B : OpCode.PUSHDATA1 776F726C64
+    /// 0022 : OpCode.EQUAL
+    /// 0023 : OpCode.JMPIFNOT 04
+    /// 0025 : OpCode.PUSH5
+    /// 0026 : OpCode.STLOC0
+    /// 0027 : OpCode.LDLOC0
+    /// 0028 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAdd")]
     public abstract BigInteger? TestStringAdd(string? s1, string? s2);
-    // 0000 : INITSLOT
-    // 0003 : PUSH3
-    // 0004 : STLOC0
-    // 0005 : LDARG0
-    // 0006 : LDARG1
-    // 0007 : CAT
-    // 0008 : CONVERT
-    // 000A : STLOC1
-    // 000B : LDLOC1
-    // 000C : PUSHDATA1
-    // 0013 : EQUAL
-    // 0014 : JMPIFNOT
-    // 0016 : PUSH4
-    // 0017 : STLOC0
-    // 0018 : JMP
-    // 001A : LDLOC1
-    // 001B : PUSHDATA1
-    // 0022 : EQUAL
-    // 0023 : JMPIFNOT
-    // 0025 : PUSH5
-    // 0026 : STLOC0
-    // 0027 : LDLOC0
-    // 0028 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.CALLT 0000
+    /// 0008 : OpCode.CAT
+    /// 0009 : OpCode.CONVERT 28
+    /// 000B : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAddInt")]
     public abstract string? TestStringAddInt(string? s, BigInteger? i);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : CALLT
-    // 0008 : CAT
-    // 0009 : CONVERT
-    // 000B : RET
 
     #endregion
 

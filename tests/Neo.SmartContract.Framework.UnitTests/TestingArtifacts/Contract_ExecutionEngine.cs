@@ -24,45 +24,55 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 39536E3C
+    /// 0005 : OpCode.CONVERT 30
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("callingScriptHash")]
     public abstract byte[]? CallingScriptHash();
-    // 0000 : SYSCALL
-    // 0005 : CONVERT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL F9B4E238
+    /// 0005 : OpCode.CONVERT 30
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("entryScriptHash")]
     public abstract byte[]? EntryScriptHash();
-    // 0000 : SYSCALL
-    // 0005 : CONVERT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL DBFEA874
+    /// 0005 : OpCode.CONVERT 30
+    /// 0007 : OpCode.RET
+    /// </remarks>
     [DisplayName("executingScriptHash")]
     public abstract byte[]? ExecutingScriptHash();
-    // 0000 : SYSCALL
-    // 0005 : CONVERT
-    // 0007 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 2D510830
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("scriptContainer")]
     public abstract object? ScriptContainer();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.SYSCALL 2D510830
+    /// 0005 : OpCode.RET
+    /// </remarks>
     [DisplayName("transaction")]
     public abstract object? Transaction();
-    // 0000 : SYSCALL
-    // 0005 : RET
 
     #endregion
 

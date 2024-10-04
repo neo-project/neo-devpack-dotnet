@@ -24,70 +24,72 @@ public abstract class Contract_Params(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.NEWARRAY0
+    /// 0001 : OpCode.CALL B2
+    /// 0003 : OpCode.PUSH1
+    /// 0004 : OpCode.PUSH1
+    /// 0005 : OpCode.PACK
+    /// 0006 : OpCode.CALL AD
+    /// 0008 : OpCode.ADD
+    /// 0009 : OpCode.DUP
+    /// 000A : OpCode.PUSHINT32 00000080
+    /// 000F : OpCode.JMPGE 04
+    /// 0011 : OpCode.JMP 0A
+    /// 0013 : OpCode.DUP
+    /// 0014 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0019 : OpCode.JMPLE 1E
+    /// 001B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0024 : OpCode.AND
+    /// 0025 : OpCode.DUP
+    /// 0026 : OpCode.PUSHINT32 FFFFFF7F
+    /// 002B : OpCode.JMPLE 0C
+    /// 002D : OpCode.PUSHINT64 0000000001000000
+    /// 0036 : OpCode.SUB
+    /// 0037 : OpCode.PUSH3
+    /// 0038 : OpCode.PUSH2
+    /// 0039 : OpCode.PUSH2
+    /// 003A : OpCode.PACK
+    /// 003B : OpCode.CALL_L 78FFFFFF
+    /// 0040 : OpCode.ADD
+    /// 0041 : OpCode.DUP
+    /// 0042 : OpCode.PUSHINT32 00000080
+    /// 0047 : OpCode.JMPGE 04
+    /// 0049 : OpCode.JMP 0A
+    /// 004B : OpCode.DUP
+    /// 004C : OpCode.PUSHINT32 FFFFFF7F
+    /// 0051 : OpCode.JMPLE 1E
+    /// 0053 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 005C : OpCode.AND
+    /// 005D : OpCode.DUP
+    /// 005E : OpCode.PUSHINT32 FFFFFF7F
+    /// 0063 : OpCode.JMPLE 0C
+    /// 0065 : OpCode.PUSHINT64 0000000001000000
+    /// 006E : OpCode.SUB
+    /// 006F : OpCode.PUSH5
+    /// 0070 : OpCode.PUSH4
+    /// 0071 : OpCode.PUSH2
+    /// 0072 : OpCode.PACK
+    /// 0073 : OpCode.CALL_L 40FFFFFF
+    /// 0078 : OpCode.ADD
+    /// 0079 : OpCode.DUP
+    /// 007A : OpCode.PUSHINT32 00000080
+    /// 007F : OpCode.JMPGE 04
+    /// 0081 : OpCode.JMP 0A
+    /// 0083 : OpCode.DUP
+    /// 0084 : OpCode.PUSHINT32 FFFFFF7F
+    /// 0089 : OpCode.JMPLE 1E
+    /// 008B : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 0094 : OpCode.AND
+    /// 0095 : OpCode.DUP
+    /// 0096 : OpCode.PUSHINT32 FFFFFF7F
+    /// 009B : OpCode.JMPLE 0C
+    /// 009D : OpCode.PUSHINT64 0000000001000000
+    /// 00A6 : OpCode.SUB
+    /// 00A7 : OpCode.RET
+    /// </remarks>
     [DisplayName("test")]
     public abstract BigInteger? Test();
-    // 0000 : NEWARRAY0
-    // 0001 : CALL
-    // 0003 : PUSH1
-    // 0004 : PUSH1
-    // 0005 : PACK
-    // 0006 : CALL
-    // 0008 : ADD
-    // 0009 : DUP
-    // 000A : PUSHINT32
-    // 000F : JMPGE
-    // 0011 : JMP
-    // 0013 : DUP
-    // 0014 : PUSHINT32
-    // 0019 : JMPLE
-    // 001B : PUSHINT64
-    // 0024 : AND
-    // 0025 : DUP
-    // 0026 : PUSHINT32
-    // 002B : JMPLE
-    // 002D : PUSHINT64
-    // 0036 : SUB
-    // 0037 : PUSH3
-    // 0038 : PUSH2
-    // 0039 : PUSH2
-    // 003A : PACK
-    // 003B : CALL_L
-    // 0040 : ADD
-    // 0041 : DUP
-    // 0042 : PUSHINT32
-    // 0047 : JMPGE
-    // 0049 : JMP
-    // 004B : DUP
-    // 004C : PUSHINT32
-    // 0051 : JMPLE
-    // 0053 : PUSHINT64
-    // 005C : AND
-    // 005D : DUP
-    // 005E : PUSHINT32
-    // 0063 : JMPLE
-    // 0065 : PUSHINT64
-    // 006E : SUB
-    // 006F : PUSH5
-    // 0070 : PUSH4
-    // 0071 : PUSH2
-    // 0072 : PACK
-    // 0073 : CALL_L
-    // 0078 : ADD
-    // 0079 : DUP
-    // 007A : PUSHINT32
-    // 007F : JMPGE
-    // 0081 : JMP
-    // 0083 : DUP
-    // 0084 : PUSHINT32
-    // 0089 : JMPLE
-    // 008B : PUSHINT64
-    // 0094 : AND
-    // 0095 : DUP
-    // 0096 : PUSHINT32
-    // 009B : JMPLE
-    // 009D : PUSHINT64
-    // 00A6 : SUB
-    // 00A7 : RET
 
     #endregion
 

@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.VM;
+using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Disassembler.CSharp;
 
@@ -56,5 +58,18 @@ public static class Disassembler
         }
         if (opcode != OpCode.RET)
             yield return (address, Instruction.RET);
+    }
+
+    public static string InstructionToString(this Instruction instruction)
+    {
+        var opcode = instruction.OpCode.ToString();
+        var operand = instruction.Operand;
+
+        if (operand.IsEmpty || operand.Length == 0)
+        {
+            return $"OpCode.{opcode}";
+        }
+        var operandString = BitConverter.ToString(operand.ToArray()).Replace("-", "");
+        return $"OpCode.{opcode} {operandString}";
     }
 }

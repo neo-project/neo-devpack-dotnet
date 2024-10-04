@@ -24,68 +24,76 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSHDATA1 68656C6C6F
+    /// 000B : OpCode.CAT
+    /// 000C : OpCode.CONVERT 28
+    /// 000E : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAdd1")]
     public abstract string? TestStringAdd1(string? a);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSHDATA1
-    // 000B : CAT
-    // 000C : CONVERT
-    // 000E : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.CAT
+    /// 0006 : OpCode.CONVERT 28
+    /// 0008 : OpCode.PUSHDATA1 68656C6C6F
+    /// 000F : OpCode.CAT
+    /// 0010 : OpCode.CONVERT 28
+    /// 0012 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAdd2")]
     public abstract string? TestStringAdd2(string? a, string? b);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : CAT
-    // 0006 : CONVERT
-    // 0008 : PUSHDATA1
-    // 000F : CAT
-    // 0010 : CONVERT
-    // 0012 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0003
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.CAT
+    /// 0006 : OpCode.CONVERT 28
+    /// 0008 : OpCode.LDARG2
+    /// 0009 : OpCode.CAT
+    /// 000A : OpCode.CONVERT 28
+    /// 000C : OpCode.PUSHDATA1 68656C6C6F
+    /// 0013 : OpCode.CAT
+    /// 0014 : OpCode.CONVERT 28
+    /// 0016 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAdd3")]
     public abstract string? TestStringAdd3(string? a, string? b, string? c);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : CAT
-    // 0006 : CONVERT
-    // 0008 : LDARG2
-    // 0009 : CAT
-    // 000A : CONVERT
-    // 000C : PUSHDATA1
-    // 0013 : CAT
-    // 0014 : CONVERT
-    // 0016 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0004
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.CAT
+    /// 0006 : OpCode.CONVERT 28
+    /// 0008 : OpCode.LDARG2
+    /// 0009 : OpCode.CAT
+    /// 000A : OpCode.CONVERT 28
+    /// 000C : OpCode.LDARG3
+    /// 000D : OpCode.CAT
+    /// 000E : OpCode.CONVERT 28
+    /// 0010 : OpCode.PUSHDATA1 68656C6C6F
+    /// 0017 : OpCode.CAT
+    /// 0018 : OpCode.CONVERT 28
+    /// 001A : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAdd4")]
     public abstract string? TestStringAdd4(string? a, string? b, string? c, string? d);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : LDARG1
-    // 0005 : CAT
-    // 0006 : CONVERT
-    // 0008 : LDARG2
-    // 0009 : CAT
-    // 000A : CONVERT
-    // 000C : LDARG3
-    // 000D : CAT
-    // 000E : CONVERT
-    // 0010 : PUSHDATA1
-    // 0017 : CAT
-    // 0018 : CONVERT
-    // 001A : RET
 
     #endregion
 

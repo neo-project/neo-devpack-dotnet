@@ -24,10 +24,12 @@ public abstract class Contract_TryCatch(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.PUSHDATA1 657863657074696F6E
+    /// 000B : OpCode.THROW
+    /// </remarks>
     [DisplayName("throwCall")]
     public abstract object? ThrowCall();
-    // 0000 : PUSHDATA1
-    // 000B : THROW
 
     /// <summary>
     /// Unsafe method

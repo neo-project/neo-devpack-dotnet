@@ -24,66 +24,76 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 03
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("isValidAndNotZeroUInt160")]
     public abstract bool? IsValidAndNotZeroUInt160(UInt160? value);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.CALL 03
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("isValidAndNotZeroUInt256")]
     public abstract bool? IsValidAndNotZeroUInt256(UInt256? value);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : CALL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSH0
+    /// 0005 : OpCode.NUMEQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("isZeroUInt160")]
     public abstract bool? IsZeroUInt160(UInt160? value);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSH0
-    // 0005 : NUMEQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.PUSH0
+    /// 0005 : OpCode.NUMEQUAL
+    /// 0006 : OpCode.RET
+    /// </remarks>
     [DisplayName("isZeroUInt256")]
     public abstract bool? IsZeroUInt256(UInt256? value);
-    // 0000 : INITSLOT
-    // 0003 : LDARG0
-    // 0004 : PUSH0
-    // 0005 : NUMEQUAL
-    // 0006 : RET
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0102
+    /// 0003 : OpCode.PUSH1
+    /// 0004 : OpCode.NEWBUFFER
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.PUSH0
+    /// 0007 : OpCode.LDARG1
+    /// 0008 : OpCode.SETITEM
+    /// 0009 : OpCode.STLOC0
+    /// 000A : OpCode.LDLOC0
+    /// 000B : OpCode.LDARG0
+    /// 000C : OpCode.CAT
+    /// 000D : OpCode.STLOC0
+    /// 000E : OpCode.LDLOC0
+    /// 000F : OpCode.CONVERT 28
+    /// 0011 : OpCode.CALLT 0000
+    /// 0014 : OpCode.RET
+    /// </remarks>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? value);
-    // 0000 : INITSLOT
-    // 0003 : PUSH1
-    // 0004 : NEWBUFFER
-    // 0005 : DUP
-    // 0006 : PUSH0
-    // 0007 : LDARG1
-    // 0008 : SETITEM
-    // 0009 : STLOC0
-    // 000A : LDLOC0
-    // 000B : LDARG0
-    // 000C : CAT
-    // 000D : STLOC0
-    // 000E : LDLOC0
-    // 000F : CONVERT
-    // 0011 : CALLT
-    // 0014 : RET
 
     #endregion
 

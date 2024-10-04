@@ -24,10 +24,12 @@ public abstract class Contract_SupportedStandard27(Neo.SmartContract.Testing.Sma
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// 0000 : OpCode.INITSLOT 0004
+    /// 0003 : OpCode.RET
+    /// </remarks>
     [DisplayName("onNEP17Payment")]
     public abstract void OnNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);
-    // 0000 : INITSLOT
-    // 0003 : RET
 
     #endregion
 
