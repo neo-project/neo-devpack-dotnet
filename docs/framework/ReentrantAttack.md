@@ -72,7 +72,7 @@ Both attributes allow for customization:
 ## Considerations
 
 - Ensure that `Exit()` is always called, even in error scenarios, to prevent the contract from becoming permanently locked.
-- Be mindful of gas costs, as each storage operation consumes gas.
+- Be mindful of gas costs, as each storage operation consumes GAS.
 - Consider the trade-offs between using global (`NoReentrantAttribute`) and method-specific (`NoReentrantMethodAttribute`) protection based on your contract's needs.
 
 By using these attributes, Neo C# smart contract developers can easily add reentrancy protection to their contracts, significantly reducing the risk of reentrancy attacks and improving overall contract security.
