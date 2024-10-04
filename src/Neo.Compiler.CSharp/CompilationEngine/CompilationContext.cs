@@ -485,7 +485,7 @@ namespace Neo.Compiler
             }
 
             MethodConvert convert = ConvertMethod(model, symbol);
-            if (export && !symbol.IsStatic)
+            if (export && MethodConvert.NeedInstanceConstructor(symbol))
             {
                 MethodConvert forward = new(this, symbol);
                 forward.ConvertForward(model, convert);

@@ -74,5 +74,9 @@ namespace Neo.Compiler.CSharp.TestContracts
                       $"ECPoint: {ecPointValue}, ByteString: {byteStringValue}, Bool: {boolValue}";
             return str;
         }
+        public static string TestTrim(string str)
+        {
+            return str.Trim();
+        }
     }
 }

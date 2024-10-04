@@ -12,6 +12,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -24,7 +25,7 @@ internal partial class MethodConvert
         {
             IParameterSymbol parameter = Symbol.Parameters[i].OriginalDefinition;
             byte index = i;
-            if (IsInstanceMethod(Symbol)) index++;
+            if (NeedInstanceConstructor(Symbol)) index++;
             _parameters.Add(parameter, index);
 
             if (parameter.RefKind == RefKind.Out)
@@ -139,6 +140,39 @@ internal partial class MethodConvert
         return false;
     }
 
-    private bool IsInstanceMethod(IMethodSymbol symbol) => !symbol.IsStatic && symbol.MethodKind != MethodKind.AnonymousFunction;
-
+    /// <summary>
+    /// non-static methods needs constructors to be executed
+    /// But non-static method in smart contract classes without explicit constructor
+    /// does not constructors
+    /// Cases we need instance constructors:
+    /// 1. non-static smart contract with explicit instance constructor in itself
+    /// 2. non-static ordinary method, with explicit instance constructor in itself or its base classes
+    /// </summary>
+    /// <param name="symbol">A method in class</param>
+    /// <returns></returns>
+    internal static bool NeedInstanceConstructor(IMethodSymbol symbol)
+    {
+        if (symbol.IsStatic || symbol.MethodKind == MethodKind.AnonymousFunction)
+            return false;
+        INamedTypeSymbol? containingClass = symbol.ContainingType;
+        if (containingClass == null) return false;
+        // non-static methods in class
+        if ((symbol.MethodKind == MethodKind.Constructor || symbol.MethodKind == MethodKind.SharedConstructor)
+            && !CompilationEngine.IsDerivedFromSmartContract(containingClass, CompilationEngine.s_pattern))
+            // is constructor, and is not smart contract
+            // typically seen in framework methods
+            return true;
+        // is smart contract, or is normal non-static method (whether contract or not)
+        if (containingClass?.Constructors
+            .FirstOrDefault(p => p.Parameters.Length == 0 && !p.IsStatic)?
+            .DeclaringSyntaxReferences.Length == 0)
+        // No explicit non-static constructor in class
+        {
+            if (CompilationEngine.s_pattern.IsMatch(containingClass.BaseType?.ToString() ?? string.Empty))
+                // class itself is directly inheriting smart contract; cannot have more base classes
+                return false;
+        }
+        // has explicit constructor
+        return true;
+    }
 }
