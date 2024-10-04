@@ -300,61 +300,135 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
+        var strLen = methodConvert.AddAnonymousVariable();
+        var startIndex = methodConvert.AddAnonymousVariable();
+        var endIndex = methodConvert.AddAnonymousVariable();
 
-        // Trim leading whitespace
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the string
-        methodConvert.AddInstruction(OpCode.PUSH0); // Push the initial index (0)
+        InitStrLen();       // strLen = string.Length
+        InitStartIndex(); // startIndex = 0
+        InitEndIndex(); // endIndex = string.Length - 1
+
+        // loop to trim leading whitespace
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
-        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        methodConvert.Push((ushort)' '); // Push space character
-        methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is a space
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.INC); // Increment the index
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
+        CheckStartIndex(loopEnd);
+        PickCharStart(); // pick a char to check
+        CheckWithin(loopEnd);
+        MoveStartIndexAndLoop(loopStart);
         loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.SUBSTR); // Get the substring from the first non-space character
 
-        // Trim trailing whitespace
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the string
-        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
-        methodConvert.AddInstruction(OpCode.DEC); // Decrement the length to get the last index
+        // done processing leading whitespace, start processing trailing whitespace
         var loopStart2 = new JumpTarget();
         var loopEnd2 = new JumpTarget();
         loopStart2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.PUSH0); // Push 0
-        methodConvert.AddInstruction(OpCode.GT); // Check if index > 0
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd2); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        methodConvert.Push((ushort)' '); // Push space character
-        methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is a space
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd2); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DEC); // Decrement the index
-        methodConvert.Jump(OpCode.JMP, loopStart2); // Jump to the start of the loop
-
+        CheckEndIndex(loopEnd2);
+        PickCharEnd(); // pick a char to check
+        CheckWithin(loopEnd2);
+        MoveEndIndexAndLoop(loopStart2);
         loopEnd2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        GetString();
+        GetStartIndex();
+        GetEndIndex();
+        GetStartIndex();
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.INC);
         methodConvert.AddInstruction(OpCode.SUBSTR); // Get the substring up to the last non-space character
+        return;
 
-        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert the array to a byte string
+        void InitStrLen()
+        {
+            GetString();
+            methodConvert.AddInstruction(OpCode.SIZE);
+            methodConvert.AccessSlot(OpCode.STLOC, strLen);
+        }
+
+        // Local function to get strLen
+        void GetStrLen() => methodConvert.AccessSlot(OpCode.LDLOC, strLen);
+
+        void InitStartIndex()
+        {
+            methodConvert.Push(0);
+            methodConvert.AccessSlot(OpCode.STLOC, startIndex);
+        }
+
+        void InitEndIndex()
+        {
+            GetStrLen();
+            methodConvert.AddInstruction(OpCode.DEC); // len-1
+            methodConvert.AccessSlot(OpCode.STLOC, endIndex);
+        }
+
+        // Local function to get endIndex
+        void GetEndIndex() => methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
+
+        void GetString() => methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
+
+        // Local function to get startIndex
+        void GetStartIndex() => methodConvert.AccessSlot(OpCode.LDLOC, startIndex);
+
+        void CheckStartIndex(JumpTarget loopEnd)
+        {
+            GetStartIndex();
+            GetStrLen();
+            methodConvert.AddInstruction(OpCode.LT); // Check if index < length
+            methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+        }
+
+        // Local function to set startIndex
+        void MoveStartIndexAndLoop(JumpTarget loopStart)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, startIndex);
+            methodConvert.AddInstruction(OpCode.INC);
+            methodConvert.AccessSlot(OpCode.STLOC, startIndex);
+            methodConvert.Jump(OpCode.JMP, loopStart);
+        }
+
+        void PickCharStart()
+        {
+            GetString();
+            GetStartIndex();
+            methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+        }
+
+        // Local function to set endIndex
+        void MoveEndIndexAndLoop(JumpTarget loopStart)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
+            methodConvert.AddInstruction(OpCode.DEC);
+            methodConvert.AccessSlot(OpCode.STLOC, endIndex);
+            methodConvert.Jump(OpCode.JMP, loopStart);
+        }
+
+        void CheckWithin(JumpTarget loopEnd)
+        {
+            methodConvert.AddInstruction(OpCode.DUP);
+            methodConvert.Push((ushort)'\t');
+            methodConvert.Push((ushort)'\r' + 1);
+            methodConvert.AddInstruction(OpCode.WITHIN); // check if '\t' <= c <= '\r'
+            methodConvert.AddInstruction(OpCode.SWAP);
+
+            methodConvert.Push((ushort)' '); // Push space character
+            methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is a space
+            methodConvert.AddInstruction(OpCode.BOOLOR); // check if '\t' <= c <= '\r' or ' ' == c
+
+            methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+        }
+
+        void CheckEndIndex(JumpTarget loopEnd)
+        {
+            GetEndIndex();
+            GetStartIndex();
+            methodConvert.AddInstruction(OpCode.GT); // Check if index > start
+            methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+        }
+
+        void PickCharEnd()
+        {
+            GetString();
+            GetEndIndex();
+            methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+        }
     }
 
     private static void HandleStringTrimChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
