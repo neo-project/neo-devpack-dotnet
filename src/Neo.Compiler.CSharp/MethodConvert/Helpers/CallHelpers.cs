@@ -120,7 +120,7 @@ internal partial class MethodConvert
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
 
-        int pc = symbol.Parameters.Length + (symbol.IsStatic ? 0 : 1);
+        int pc = symbol.Parameters.Length + (!NeedInstanceConstructor(symbol) ? 0 : 1);
         if (pc > 1 && methodCallingConvention != callingConvention)
             ReverseStackItems(pc);
 
@@ -255,7 +255,7 @@ internal partial class MethodConvert
     private void HandleInstanceExpression(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
                                         CallingConvention methodCallingConvention, bool beforeArguments)
     {
-        if (symbol.IsStatic) return;
+        if (!NeedInstanceConstructor(symbol)) return;
 
         bool shouldConvert = beforeArguments ? (methodCallingConvention != CallingConvention.Cdecl)
                                              : (methodCallingConvention == CallingConvention.Cdecl);

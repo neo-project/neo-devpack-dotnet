@@ -81,7 +81,7 @@ internal partial class MethodConvert
                 if (!_internalInline) LdArgSlot(parameter);
                 break;
             case IPropertySymbol property:
-                if (!property.IsStatic)
+                if (NeedInstanceConstructor(property.GetMethod!))
                     AddInstruction(OpCode.LDARG0);
                 CallMethodWithConvention(model, property.GetMethod!);
                 break;

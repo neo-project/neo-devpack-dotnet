@@ -34,7 +34,6 @@ namespace Neo.Compiler
         internal CompilationOptions Options { get; private set; } = options;
         private static readonly MetadataReference[] CommonReferences;
         private static readonly Dictionary<string, MetadataReference> MetaReferences = [];
-        private static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$");
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
 
         static CompilationEngine()
@@ -177,7 +176,7 @@ namespace Neo.Compiler
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
                     allClassSymbols.Add(classSymbol);
-                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, s_pattern))
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = [];
@@ -241,7 +240,7 @@ namespace Neo.Compiler
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
                     allClassSymbols.Add(classSymbol);
-                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol, s_pattern))
+                    if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = [];
@@ -319,12 +318,12 @@ namespace Neo.Compiler
             return sorted;
         }
 
-        static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol, Regex pattern)
+        internal static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol)
         {
             var baseType = classSymbol.BaseType;
             while (baseType != null)
             {
-                if (pattern.IsMatch(baseType.ToString() ?? string.Empty))
+                if (baseType.ToString() == "Neo.SmartContract.Framework.SmartContract")
                 {
                     return true;
                 }

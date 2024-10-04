@@ -61,6 +61,8 @@ internal partial class MethodConvert
         }
         else
         {
+            if (!NeedInstanceConstructor(Symbol))
+                return;
             fields = fields.Where(p => !p.IsStatic).ToArray();
             int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
             switch (Symbol.MethodKind)
@@ -130,7 +132,7 @@ internal partial class MethodConvert
                 // Ensure that no object was sent
                 Jump(OpCode.JMPIFNOT_L, endTarget);
             }
-            else
+            else if (NeedInstanceConstructor(Symbol))
             {
                 // Check class
                 Jump(OpCode.JMPIF_L, endTarget);
@@ -181,15 +183,16 @@ internal partial class MethodConvert
                     CallContractMethod(NativeContract.StdLib.Hash, "deserialize", 1, true);
                     break;
             }
-            AddInstruction(OpCode.DUP);
             if (Symbol.IsStatic)
             {
+                AddInstruction(OpCode.DUP);
                 IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
                 byte backingFieldIndex = _context.AddStaticField(backingField);
                 AccessSlot(OpCode.STSFLD, backingFieldIndex);
             }
-            else
+            else if (NeedInstanceConstructor(Symbol))
             {
+                AddInstruction(OpCode.DUP);
                 fields = fields.Where(p => !p.IsStatic).ToArray();
                 int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
                 AccessSlot(OpCode.LDARG, 0);
@@ -201,7 +204,7 @@ internal partial class MethodConvert
         }
         else
         {
-            if (Symbol.IsStatic)
+            if (Symbol.IsStatic || !NeedInstanceConstructor(Symbol))
                 AccessSlot(OpCode.LDARG, 0);
             else
                 AccessSlot(OpCode.LDARG, 1);
