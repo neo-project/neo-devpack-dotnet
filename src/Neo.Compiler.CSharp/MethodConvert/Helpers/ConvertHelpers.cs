@@ -91,7 +91,7 @@ internal partial class MethodConvert
         if (!_initSlot) return;
         byte pc = (byte)_parameters.Count;
         byte lc = (byte)_localsCount;
-        if (IsInstanceMethod(Symbol)) pc++;
+        if (NeedInstanceConstructor(Symbol)) pc++;
         // Only add INITSLOT if we have local variables or parameters
         if (pc > 0 || lc > 0)
         {

@@ -34,7 +34,7 @@ namespace Neo.Compiler
         internal CompilationOptions Options { get; private set; } = options;
         private static readonly MetadataReference[] CommonReferences;
         private static readonly Dictionary<string, MetadataReference> MetaReferences = [];
-        private static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract)$");
+        internal static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract|Neo\.SmartContract\.Framework\.Nep17Token|Neo\.SmartContract\.Framework\.TokenContract|Neo.SmartContract.Framework.Nep11Token<.*>)$");
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
 
         static CompilationEngine()
@@ -319,7 +319,7 @@ namespace Neo.Compiler
             return sorted;
         }
 
-        static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol, Regex pattern)
+        internal static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol, Regex pattern)
         {
             var baseType = classSymbol.BaseType;
             while (baseType != null)
