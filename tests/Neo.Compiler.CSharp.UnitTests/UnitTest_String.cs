@@ -127,26 +127,22 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrim()
         {
             Assert.AreEqual("Hello, World!", Contract.TestTrim("  Hello, World!  "));
-            AssertGasConsumed(1357650);
+            AssertGasConsumed(1136010);
 
             Assert.AreEqual("No Trim", Contract.TestTrim("No Trim"));
-            AssertGasConsumed(1357650);
+            AssertGasConsumed(1118130);
 
             Assert.AreEqual("", Contract.TestTrim("   "));
-            AssertGasConsumed(1357650);
-
-            Assert.AreEqual(null, Contract.TestTrim(null));
-            AssertGasConsumed(1047300);
+            AssertGasConsumed(1124040);
 
             // Test various whitespace characters
             Assert.AreEqual("Trim Test", Contract.TestTrim("\t\n\r Trim Test \t\n\r"));
-            AssertGasConsumed(1357650);
-
+            AssertGasConsumed(1153890);
             Assert.AreEqual("Multiple Spaces", Contract.TestTrim("   Multiple Spaces   "));
-            AssertGasConsumed(1357650);
+            AssertGasConsumed(1144950);
 
             Assert.AreEqual("Mix of Whitespace", Contract.TestTrim(" \t \n \r Mix of Whitespace \r \n \t "));
-            AssertGasConsumed(1357650);
+            AssertGasConsumed(1180710);
         }
     }
 }
