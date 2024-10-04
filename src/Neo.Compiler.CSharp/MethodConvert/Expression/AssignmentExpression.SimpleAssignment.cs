@@ -161,7 +161,7 @@ internal partial class MethodConvert
                 }
                 else if (property.SetMethod != null)
                 {
-                    if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
+                    if (NeedInstanceConstructor(property.SetMethod)) AddInstruction(OpCode.LDARG0);
                     CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
                 }
                 else
