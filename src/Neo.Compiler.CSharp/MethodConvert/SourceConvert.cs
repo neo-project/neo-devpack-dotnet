@@ -13,11 +13,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    internal static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract|Neo\.SmartContract\.Framework\.Nep17Token|Neo\.SmartContract\.Framework\.TokenContract|Neo.SmartContract.Framework.Nep11Token<.*>)$");
+
     private void ConvertSource(SemanticModel model)
     {
         if (SyntaxNode is null) return;
@@ -158,7 +161,7 @@ internal partial class MethodConvert
         if (containingClass == null) return false;
         // non-static methods in class
         if ((symbol.MethodKind == MethodKind.Constructor || symbol.MethodKind == MethodKind.SharedConstructor)
-            && !CompilationEngine.IsDerivedFromSmartContract(containingClass, CompilationEngine.s_pattern))
+            && !CompilationEngine.IsDerivedFromSmartContract(containingClass))
             // is constructor, and is not smart contract
             // typically seen in framework methods
             return true;
@@ -168,7 +171,7 @@ internal partial class MethodConvert
             .DeclaringSyntaxReferences.Length == 0)
         // No explicit non-static constructor in class
         {
-            if (CompilationEngine.s_pattern.IsMatch(containingClass.BaseType?.ToString() ?? string.Empty))
+            if (s_pattern.IsMatch(containingClass.BaseType?.ToString() ?? string.Empty))
                 // class itself is directly inheriting smart contract; cannot have more base classes
                 return false;
         }
