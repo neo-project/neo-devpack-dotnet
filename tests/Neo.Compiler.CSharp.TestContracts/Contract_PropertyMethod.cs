@@ -1,3 +1,5 @@
+using Neo.SmartContract.Framework;
+
 namespace Neo.Compiler.CSharp.TestContracts;
 
 public class Contract_PropertyMethod : SmartContract.Framework.SmartContract

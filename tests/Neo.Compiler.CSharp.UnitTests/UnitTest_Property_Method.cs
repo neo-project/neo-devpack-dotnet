@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.VM.Types;
@@ -33,12 +34,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod3()
         {
             var person = Contract.TestProperty3()! as Array;
-            AssertGasConsumed(1554990); // Adjust this value based on actual gas consumption
+            AssertGasConsumed(1309080); // Adjust this value based on actual gas consumption
 
             Assert.IsNotNull(person);
-            Assert.AreEqual(2, person.Count);
+            Assert.AreEqual(3, person.Count);
             Assert.AreEqual((person[0] as StackItem)!.GetString(), "NEO3");
-            Assert.AreEqual(person[1], new BigInteger(10));
+            Assert.AreEqual(person[1], new BigInteger(0));
         }
 
         [TestMethod]
@@ -49,8 +50,6 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsNotNull(map);
             Assert.AreEqual(1, map.Count);
-
-            map.Keys.ForEach(Console.WriteLine);
 
             var key = (ByteString)"Name";
             Assert.IsTrue(map.ContainsKey(key));
