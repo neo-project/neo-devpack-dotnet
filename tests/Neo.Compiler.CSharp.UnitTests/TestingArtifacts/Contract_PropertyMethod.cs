@@ -51,6 +51,12 @@ public abstract class Contract_PropertyMethod(Neo.SmartContract.Testing.SmartCon
     [DisplayName("testProperty5")]
     public abstract IList<object>? TestProperty5();
 
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("testPropertyInit")]
+    public abstract IList<object>? TestPropertyInit();
+
     #endregion
 
 }
