@@ -18,6 +18,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 new object[] { '\t', false, false, true, false, false },
                 new object[] { '$', false, false, false, false, false },
                 new object[] { '\n', false, false, true, false, false },
+                new object[] { '\x1f', false, false, false, false, false },
             };
 
         [TestMethod]
