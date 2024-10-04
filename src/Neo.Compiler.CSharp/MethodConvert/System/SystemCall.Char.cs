@@ -86,9 +86,8 @@ internal partial class MethodConvert
         methodConvert.Push((ushort)'\r' + 1);
         methodConvert.AddInstruction(OpCode.WITHIN);
         methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.Push((ushort)'\n');
-        methodConvert.Push((ushort)' ' + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Push((ushort)' ');
+        methodConvert.AddInstruction(OpCode.NUMEQUAL);
         methodConvert.AddInstruction(OpCode.BOOLOR);
     }
 
