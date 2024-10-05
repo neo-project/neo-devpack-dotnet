@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.VM.Types;
 using System.Numerics;
-using Akka.Util.Internal;
 using Array = Neo.VM.Types.Array;
 
 namespace Neo.Compiler.CSharp.UnitTests
