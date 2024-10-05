@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Analyzer
             "Normalize", "PadLeft", "PadRight", "Remove",
             "Replace", "Split",
             "ToCharArray", "ToLower", "ToLowerInvariant",
-            "ToUpper", "ToUpperInvariant", "Trim", "TrimEnd",
+            "ToUpper", "ToUpperInvariant", "TrimEnd",
             "TrimStart"
         };
 
