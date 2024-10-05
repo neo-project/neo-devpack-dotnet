@@ -257,56 +257,6 @@ internal partial class MethodConvert
         methodConvert.AddInstruction(OpCode.RET);
     }
 
-    private static void ConvertToUpper(MethodConvert methodConvert)
-    {
-        var loopStart = new JumpTarget();
-        var loopEnd = new JumpTarget();
-        var charIsLower = new JumpTarget();
-        methodConvert.Push(""); // Create an empty ByteString
-
-        // methodConvert.AddInstruction(OpCode.LDARG0); // Load the string | arr str
-        methodConvert.AddInstruction(OpCode.PUSH0); // Push the initial index (0)  arr str 0
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
-        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index | arr str 0 0
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.Swap();
-        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the character
-        methodConvert.Push((ushort)'a'); // Push 'a'
-        methodConvert.Push((ushort)'z' + 1); // Push 'z' + 1
-        methodConvert.AddInstruction(OpCode.WITHIN); // Check if character is within 'a' to 'z'
-        methodConvert.Jump(OpCode.JMPIF, charIsLower); // If true, jump to charIsLower
-        methodConvert.Rot();
-        methodConvert.Swap();
-        methodConvert.AddInstruction(OpCode.CAT); // Append the original character to the array
-        methodConvert.Swap();
-        methodConvert.Inc();
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
-        charIsLower.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Push((ushort)'a'); // Push 'a'
-        methodConvert.AddInstruction(OpCode.SUB); // Subtract 'a' from the character
-        methodConvert.Push((ushort)'A'); // Push 'A'
-        methodConvert.AddInstruction(OpCode.ADD); // Add 'A' to the result
-        methodConvert.Rot();
-        methodConvert.Swap();
-        methodConvert.AddInstruction(OpCode.CAT); // Append the upper case character to the array
-        methodConvert.Swap();
-        methodConvert.Inc();
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
-        loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Drop();
-        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert the array to a byte string
-    }
-
     private static void HandleEnumIsDefinedByName(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
