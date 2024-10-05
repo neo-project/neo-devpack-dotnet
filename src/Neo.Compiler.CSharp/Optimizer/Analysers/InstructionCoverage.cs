@@ -223,6 +223,10 @@ namespace Neo.Optimizer
                 // Here we have the exception not catched
                 if (!coveredMap.TryGetValue(addr, out BranchType value))
                     throw new BadScriptException($"wrong address {addr}");
+                Instruction instruction = script.GetInstruction(addr);
+                if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
+                    // on target of jump, start a new recursion to split basic blocks
+                    return coveredMap[firstNotNopAddr] = CoverInstruction(addr, stack, continueFromBasicBlockEntranceAddr: firstNotNopAddr);
                 if (value != BranchType.UNCOVERED)
                 {
                     if (stackType != TryStackType.FINALLY)
@@ -243,10 +247,6 @@ namespace Neo.Optimizer
                     // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
                     return BranchType.THROW;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                 }
-                Instruction instruction = script.GetInstruction(addr);
-                if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
-                    // on target of jump, start a new recursion to split basic blocks
-                    return coveredMap[firstNotNopAddr] = CoverInstruction(addr, stack, continueFromBasicBlockEntranceAddr: addr);
                 if (instruction.OpCode != OpCode.NOP)
                 {
                     coveredMap[addr] = BranchType.OK;
