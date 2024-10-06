@@ -49,6 +49,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBeHBoANi1JgwMVG9vIGxvd0BoANi4JAUJIgVoELUmCAxMb3dAaBC4JAUJIgVoGrUmDwxBY2NlcHRhYmxlQGgauCQFCSIGaAAUtSYJDEhpZ2hAaAAUuCYNDFRvbyBoaWdoQGg6
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
@@ -110,6 +111,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBeHBoE5cmBQgiBWgUlyYFCCIFaBWXJgsMc3ByaW5nQGgWlyYFCCIFaBeXJgUIIgVoGJcmCwxzdW1tZXJAaBmXJgUIIgVoGpcmBQgiBWgblyYLDGF1dHVtbkBoHJcmBQgiBWgRlyYFCCIFaBKXJgsMd2ludGVyQAgmIgxVbmV4cGVjdGVkIG1vbnRoOiB4NwAAiwwui9soOmg6
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
@@ -205,6 +207,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwQADEhlbGxvLCBXb3JsZCFwaHFp2ShpciYIakHP50eWDEhlbGxvLCBXb3JsZCFyanNr2SgmHAxncmVldGluZzIgaXMgc3RyaW5nQc/nR5ZA
     /// 0000 : OpCode.INITSLOT 0400
     /// 0003 : OpCode.PUSHDATA1 48656C6C6F2C20576F726C6421
     /// 0012 : OpCode.STLOC0
@@ -235,6 +238,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBeHBoC5eqQA==
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
@@ -257,8 +261,9 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// 0000 : OpCode.INITSLOT 0102
-    /// 0003 : OpCode.LDARG1
+    /// Script: VwEBeHBo2TAmA0Bo2SgmA0Bo2SAmA0BAQEA=
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
     /// 0005 : OpCode.LDLOC0
     /// 0006 : OpCode.ISTYPE 30
@@ -283,8 +288,9 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// 0000 : OpCode.INITSLOT 0102
-    /// 0003 : OpCode.LDARG1
+    /// Script: VwEBeHBo2TAmBQgiBWjZKCYFCCIHaNkoCJcmBBBAaNkgJgQRQGjZIQiXJgQSQAgmBBVAaDo=
+    /// 0000 : OpCode.INITSLOT 0101
+    /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
     /// 0005 : OpCode.LDLOC0
     /// 0006 : OpCode.ISTYPE 30

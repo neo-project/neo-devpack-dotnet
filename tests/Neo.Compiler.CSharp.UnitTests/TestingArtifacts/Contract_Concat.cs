@@ -25,6 +25,7 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeAxoZWxsb4vbKEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.PUSHDATA1 68656C6C6F
@@ -39,6 +40,7 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmL2ygMaGVsbG+L2yhA
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -56,6 +58,7 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADeHmL2yh6i9soDGhlbGxvi9soQA==
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -76,6 +79,7 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwAEeHmL2yh6i9soe4vbKAxoZWxsb4vbKEA=
     /// 0000 : OpCode.INITSLOT 0004
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1

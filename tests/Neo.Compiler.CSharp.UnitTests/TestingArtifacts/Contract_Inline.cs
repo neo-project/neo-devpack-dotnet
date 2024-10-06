@@ -25,6 +25,7 @@ public abstract class Contract_Inline(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBeHBoDGlubGluZZcmBBFAaAxpbmxpbmVfd2l0aF9vbmVfcGFyYW1ldGVyc5cmBBNAaAxpbmxpbmVfd2l0aF9tdWx0aV9wYXJhbWV0ZXJzlyY0ExKeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BoDG5vdF9pbmxpbmWXJgg1dwAAAEBoDG5vdF9pbmxpbmVfd2l0aF9vbmVfcGFyYW1ldGVyc5cmBhM0TkBoDG5vdF9pbmxpbmVfd2l0aF9tdWx0aV9wYXJhbWV0ZXJzlyYHExI0KEBoDGlubGluZV9uZXN0ZWSXJgU0R0AIJgUAY0BoOg==
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0

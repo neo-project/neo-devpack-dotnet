@@ -51,6 +51,7 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// Safe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBeHBoC5cmBQgiDXhK2ShQygAUs6uqJiUMVGhlIGFyZ3VtZW50ICJvd25lciIgaXMgaW52YWxpZC46QZv2Z84REYhOEFHQUBLAcHhowUVTi1BBkl3oMUrYJgRFENshQA==
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
@@ -111,7 +112,8 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// 0000 : OpCode.INITSLOT 0004
+    /// Script: VwADQA==
+    /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.RET
     /// </remarks>
     [DisplayName("onNEP17Payment")]
@@ -121,6 +123,7 @@ public abstract class Contract_SupportedStandard17Enum(Neo.SmartContract.Testing
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEEeHBoC5cmBQgiDXhK2ShQygAUs6uqJiQMVGhlIGFyZ3VtZW50ICJmcm9tIiBpcyBpbnZhbGlkLjp5cGgLlyYFCCINeUrZKFDKABSzq6omIgxUaGUgYXJndW1lbnQgInRvIiBpcyBpbnZhbGlkLjp6ELUmKgxUaGUgYW1vdW50IG11c3QgYmUgYSBwb3NpdGl2ZSBudW1iZXIuOnhB+CfsjKomBAlAehCYJhd6m3g1+P7//6omBAlAenk17P7//0V7enl4NAQIQA==
     /// 0000 : OpCode.INITSLOT 0104
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0

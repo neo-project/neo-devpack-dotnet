@@ -25,6 +25,7 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: WEA=
     /// 0000 : OpCode.LDSFLD0
     /// 0001 : OpCode.RET
     /// </remarks>
@@ -35,6 +36,7 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: AEFA
     /// 0000 : OpCode.PUSHINT8 41
     /// 0002 : OpCode.RET
     /// </remarks>
@@ -45,6 +47,7 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: D0A=
     /// 0000 : OpCode.PUSHM1
     /// 0001 : OpCode.RET
     /// </remarks>
@@ -55,6 +58,7 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EUA=
     /// 0000 : OpCode.PUSH1
     /// 0001 : OpCode.RET
     /// </remarks>
@@ -65,6 +69,7 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeDcAAEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0000
@@ -77,6 +82,7 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EEA=
     /// 0000 : OpCode.PUSH0
     /// 0001 : OpCode.RET
     /// </remarks>

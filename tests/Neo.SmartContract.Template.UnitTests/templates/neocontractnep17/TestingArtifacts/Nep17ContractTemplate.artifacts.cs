@@ -64,6 +64,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Safe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBeHBoC5cmBQgiDXhK2ShQygAUs6uqJiUMVGhlIGFyZ3VtZW50ICJvd25lciIgaXMgaW52YWxpZC46QZv2Z84REYhOEFHQUBLAcHhowUVTi1BBkl3oMUrYJgRFENshQA==
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
@@ -124,6 +125,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACNX3///8JlyYWDE5vIEF1dGhvcml6YXRpb24hOnl4NfX+//9A
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.CALL_L 7DFFFFFF
     /// 0008 : OpCode.PUSHF
@@ -143,6 +145,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACNVX///8JlyYWDE5vIEF1dGhvcml6YXRpb24hOnl4NZX+//9A
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.CALL_L 55FFFFFF
     /// 0008 : OpCode.PUSHF
@@ -162,6 +165,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
     /// 0000 : OpCode.PUSHDATA1 48656C6C6F
     /// 0007 : OpCode.SYSCALL 9BF667CE
     /// 000C : OpCode.SYSCALL 925DE831
@@ -174,6 +178,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEEeHBoC5cmBQgiDXhK2ShQygAUs6uqJiQMVGhlIGFyZ3VtZW50ICJmcm9tIiBpcyBpbnZhbGlkLjp5cGgLlyYFCCINeUrZKFDKABSzq6omIgxUaGUgYXJndW1lbnQgInRvIiBpcyBpbnZhbGlkLjp6ELUmKgxUaGUgYW1vdW50IG11c3QgYmUgYSBwb3NpdGl2ZSBudW1iZXIuOnhB+CfsjKomBAlAehCYJhd6m3g1+P7//6omBAlAenk17P7//0V7enl4NAQIQA==
     /// 0000 : OpCode.INITSLOT 0104
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
@@ -258,6 +263,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADNZz+//8JlyYWDE5vIGF1dGhvcml6YXRpb24uOnp5eDcBAEA=
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.CALL_L 9CFEFFFF
     /// 0008 : OpCode.PUSHF

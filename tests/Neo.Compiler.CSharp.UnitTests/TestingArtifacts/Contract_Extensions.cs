@@ -25,6 +25,7 @@ public abstract class Contract_Extensions(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeXg0A0A=
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0

@@ -6,8 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Neo.Disassembler.CSharp;
+using Neo.Extensions;
 using Neo.Json;
 using Neo.SmartContract.Testing.TestingStandards;
+using Neo.VM;
 
 namespace Neo.SmartContract.Testing.Extensions
 {
@@ -356,7 +358,14 @@ namespace Neo.SmartContract.Testing.Extensions
                 var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(_nefFile, _debugInfo, method.Name);
                 if (instructions is not null && instructions.Count > 0)
                 {
+                    var scripts = instructions.Select(i =>
+                    {
+                        var instruction = i.Item2;
+                        var opCode = new[] { (byte)instruction.OpCode };
+                        return instruction.Operand.Length == 0 ? opCode : opCode.Concat(instruction.Operand.ToArray());
+                    }).SelectMany(p => p).ToArray();
                     sourceCode.WriteLine("    /// <remarks>");
+                    sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
                     foreach (var instruction in instructions)
                     {
                         sourceCode.WriteLine($"    /// {instruction.address:X4} : {instruction.instruction.InstructionToString()}");

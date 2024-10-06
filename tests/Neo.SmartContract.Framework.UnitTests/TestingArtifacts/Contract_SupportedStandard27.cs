@@ -25,7 +25,8 @@ public abstract class Contract_SupportedStandard27(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// 0000 : OpCode.INITSLOT 0004
+    /// Script: VwADQA==
+    /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.RET
     /// </remarks>
     [DisplayName("onNEP17Payment")]

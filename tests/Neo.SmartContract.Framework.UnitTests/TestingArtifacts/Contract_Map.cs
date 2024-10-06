@@ -25,6 +25,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEByHAMdGVzdGJvb2xKeGhT0EVoNwAAQA==
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -46,6 +47,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEByHAMdGVzdHN0cmluZzJKeNsoaFPQRWg3AABA
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -68,6 +70,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAyHAMAQHbMNsocQw3AABKaWhT0EVoNwAAQA==
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -94,6 +97,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEByHAMdGVzdHN0cmluZzJKeNsoaFPQRWjTaDcAAEA=
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -118,6 +122,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIByHAQcSI8aUppaFPQRWlKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWl4tSTDaMpA
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -165,6 +170,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIByHAMdGVzdGRlc2VyaWFsaXplSnhoU9BFaDcAAHFpNwEAQA==
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -189,6 +195,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEByHAMc3RyaW5nSnhoU9BFaDcAAEA=
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -216,6 +223,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEByHAMMTI5ODQwdGVzdDEwMDIyOTM5SnhoU9BFaDcAAEA=
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -237,6 +245,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECyHB5SnhoU9BFaDcAAEA=
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0
@@ -258,6 +267,7 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEByHB4SgxhYmhT0EVoNwAAQA==
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.NEWMAP
     /// 0004 : OpCode.STLOC0

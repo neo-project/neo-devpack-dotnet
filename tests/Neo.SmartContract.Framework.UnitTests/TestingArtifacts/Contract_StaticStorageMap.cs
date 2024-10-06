@@ -25,6 +25,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeFjBRVOLUEGSXegxStgmBEUQ2yFA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDSFLD0
@@ -49,6 +50,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBDGRhdGFBm/ZnzhLAcHhowUVTi1BBkl3oMUrYJgRFENshQA==
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.PUSHDATA1 64617461
     /// 0009 : OpCode.SYSCALL 9BF667CE
@@ -78,6 +80,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeFnBRVOLUEGSXegxStgmBEUQ2yFA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDSFLD1
@@ -102,6 +105,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABEXhYwUVTi1BB5j8YhEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.PUSH1
     /// 0004 : OpCode.LDARG0
@@ -121,6 +125,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBDGRhdGFBm/ZnzhLAcBN4aMFFU4tQQeY/GIRA
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.PUSHDATA1 64617461
     /// 0009 : OpCode.SYSCALL 9BF667CE
@@ -145,6 +150,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABEnhZwUVTi1BB5j8YhEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.PUSH2
     /// 0004 : OpCode.LDARG0

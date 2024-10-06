@@ -25,6 +25,7 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEADAACA9swcBFKaBBR0EUUSmgSUdBFaEA=
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHDATA1 000203
     /// 0008 : OpCode.CONVERT 30

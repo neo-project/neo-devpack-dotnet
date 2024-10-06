@@ -25,6 +25,7 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: Qdv+qHRA
     /// 0000 : OpCode.SYSCALL DBFEA874
     /// 0005 : OpCode.RET
     /// </remarks>
@@ -35,6 +36,7 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: NANA
     /// 0000 : OpCode.CALL 03
     /// 0002 : OpCode.RET
     /// </remarks>

@@ -25,6 +25,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAEHBonUoQLgM6SgP/////AAAAADIDOnBoSp1KEC4DOkoD/////wAAAAAyAzpwRWhA
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STLOC0
@@ -62,6 +63,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAAgAAAIBwaJ1KAgAAAIAuAzpKAv///38yAzpwaEqdSgIAAACALgM6SgL///9/MgM6cEVoQA==
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHINT32 00000080
     /// 0008 : OpCode.STLOC0
@@ -99,6 +101,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAEHBonUoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFwaEqdShAuBCIOSgP/////AAAAADIMA/////8AAAAAkXBFaEA=
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STLOC0
@@ -138,6 +141,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAAgAAAIBwaJ1KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGhKnUoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRWhA
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHINT32 00000080
     /// 0008 : OpCode.STLOC0
@@ -187,6 +191,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAA/////8AAAAAcGicShAuAzpKA/////8AAAAAMgM6cGhKnEoQLgM6SgP/////AAAAADIDOnBFaEA=
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -224,6 +229,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAAv///39waJxKAgAAAIAuAzpKAv///38yAzpwaEqcSgIAAACALgM6SgL///9/MgM6cEVoQA==
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHINT32 FFFFFF7F
     /// 0008 : OpCode.STLOC0
@@ -261,6 +267,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAA/////8AAAAAcGicShAuBCIOSgP/////AAAAADIMA/////8AAAAAkXBoSpxKEC4EIg5KA/////8AAAAAMgwD/////wAAAACRcEVoQA==
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -300,6 +307,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAAv///39waJxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGhKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRWhA
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHINT32 FFFFFF7F
     /// 0008 : OpCode.STLOC0
@@ -349,6 +357,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAFXAiI2hKnUoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFwRWgXtSTcQA==
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSH5
     /// 0004 : OpCode.STLOC0
@@ -380,6 +389,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJ1KEC4DOkoD/////wAAAAAyAzqAeEqdShAuAzpKA/////8AAAAAMgM6gEV4QA==
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.DEC
@@ -415,6 +425,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJ1KAgAAAIAuAzpKAv///38yAzqAeEqdSgIAAACALgM6SgL///9/MgM6gEV4QA==
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.DEC
@@ -450,6 +461,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJ1KEC4EIg5KA/////8AAAAAMgwD/////wAAAACRgHhKnUoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJGARXhA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.DEC
@@ -487,6 +499,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJ1KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfgHhKnUoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ+ARXhA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.DEC
@@ -534,6 +547,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJxKEC4DOkoD/////wAAAAAyAzqAeEqcShAuAzpKA/////8AAAAAMgM6gEV4QA==
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.INC
@@ -569,6 +583,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJxKAgAAAIAuAzpKAv///38yAzqAeEqcSgIAAACALgM6SgL///9/MgM6gEV4QA==
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.INC
@@ -604,6 +619,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJxKEC4EIg5KA/////8AAAAAMgwD/////wAAAACRgHhKnEoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJGARXhA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.INC
@@ -641,6 +657,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfgHhKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ+ARXhA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.INC
@@ -688,6 +705,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EGBYnUoQLgM6SgP/////AAAAADIDOmBYSp1KEC4DOkoD/////wAAAAAyAzpgRVhA
     /// 0000 : OpCode.PUSH0
     /// 0001 : OpCode.STSFLD0
     /// 0002 : OpCode.LDSFLD0
@@ -724,6 +742,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: AgAAAIBhWZ1KAgAAAIAuAzpKAv///38yAzphWUqdSgIAAACALgM6SgL///9/MgM6YUVZQA==
     /// 0000 : OpCode.PUSHINT32 00000080
     /// 0005 : OpCode.STSFLD1
     /// 0006 : OpCode.LDSFLD1
@@ -760,6 +779,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EGBYnUoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFgWEqdShAuBCIOSgP/////AAAAADIMA/////8AAAAAkWBFWEA=
     /// 0000 : OpCode.PUSH0
     /// 0001 : OpCode.STSFLD0
     /// 0002 : OpCode.LDSFLD0
@@ -798,6 +818,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: AgAAAIBhWZ1KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfYVlKnUoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9hRVlA
     /// 0000 : OpCode.PUSHINT32 00000080
     /// 0005 : OpCode.STSFLD1
     /// 0006 : OpCode.LDSFLD1
@@ -846,6 +867,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: A/////8AAAAAYFicShAuAzpKA/////8AAAAAMgM6YFhKnEoQLgM6SgP/////AAAAADIDOmBFWEA=
     /// 0000 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 0009 : OpCode.STSFLD0
     /// 000A : OpCode.LDSFLD0
@@ -882,6 +904,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: Av///39hWZxKAgAAAIAuAzpKAv///38yAzphWUqcSgIAAACALgM6SgL///9/MgM6YUVZQA==
     /// 0000 : OpCode.PUSHINT32 FFFFFF7F
     /// 0005 : OpCode.STSFLD1
     /// 0006 : OpCode.LDSFLD1
@@ -918,6 +941,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: A/////8AAAAAYFicShAuBCIOSgP/////AAAAADIMA/////8AAAAAkWBYSpxKEC4EIg5KA/////8AAAAAMgwD/////wAAAACRYEVYQA==
     /// 0000 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 0009 : OpCode.STSFLD0
     /// 000A : OpCode.LDSFLD0
@@ -956,6 +980,7 @@ public abstract class Contract_Inc_Dec(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: Av///39hWZxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfYVlKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9hRVlA
     /// 0000 : OpCode.PUSHINT32 FFFFFF7F
     /// 0005 : OpCode.STSFLD1
     /// 0006 : OpCode.LDSFLD1

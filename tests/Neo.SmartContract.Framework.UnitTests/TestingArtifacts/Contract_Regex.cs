@@ -25,6 +25,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo0A0A=
     /// 0000 : OpCode.PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A6162636465666768696A6B6C6D6E6F707172737475767778797A
     /// 0036 : OpCode.CALL 03
     /// 0038 : OpCode.RET
@@ -36,6 +37,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DGxsDEhlbGxvIFdvcmxkNANA
     /// 0000 : OpCode.PUSHDATA1 6C6C
     /// 0004 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
     /// 0011 : OpCode.CALL 03
@@ -48,6 +50,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DFdvcmxkDEhlbGxvIFdvcmxkNANA
     /// 0000 : OpCode.PUSHDATA1 576F726C64
     /// 0007 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
     /// 0014 : OpCode.CALL 03
@@ -60,6 +63,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DG8MSGVsbG8gV29ybGQ0A0A=
     /// 0000 : OpCode.PUSHDATA1 6F
     /// 0003 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
     /// 0010 : OpCode.CALL 03
@@ -72,6 +76,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6NKdA
     /// 0000 : OpCode.PUSHDATA1 6162636465666768696A6B6C6D6E6F707172737475767778797A
     /// 001C : OpCode.CALL A7
     /// 001E : OpCode.RET
@@ -83,6 +88,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DDAxMjM0NTY3ODk0A0A=
     /// 0000 : OpCode.PUSHDATA1 30313233343536373839
     /// 000C : OpCode.CALL 03
     /// 000E : OpCode.RET
@@ -94,6 +100,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DEhlbGxvDEhlbGxvIFdvcmxkNANA
     /// 0000 : OpCode.PUSHDATA1 48656C6C6F
     /// 0007 : OpCode.PUSHDATA1 48656C6C6F20576F726C64
     /// 0014 : OpCode.CALL 03
@@ -106,6 +113,7 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaNIhA
     /// 0000 : OpCode.PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A
     /// 001C : OpCode.CALL 88
     /// 001E : OpCode.RET

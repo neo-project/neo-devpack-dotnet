@@ -25,6 +25,7 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABWEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDSFLD0
     /// 0004 : OpCode.RET

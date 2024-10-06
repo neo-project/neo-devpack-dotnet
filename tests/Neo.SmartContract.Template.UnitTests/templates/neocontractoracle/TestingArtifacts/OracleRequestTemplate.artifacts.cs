@@ -34,6 +34,7 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEADGh0dHBzOi8vYXBpLmpzb25iaW4uaW8vdjMvcXMvNjUyMGFkM2MxMmE1ZDM3NjU5ODg1NDJhcAKAlpgACwxvbk9yYWNsZVJlc3BvbnNlDCQucmVjb3JkLnByb3BlcnR5TmFtZWg3AABA
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHDATA1 68747470733A2F2F6170692E6A736F6E62696E2E696F2F76332F71732F363532306164336331326135643337363539383835343261
     /// 003A : OpCode.STLOC0

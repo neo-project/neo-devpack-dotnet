@@ -25,6 +25,7 @@ public abstract class Contract_ConcatByteStringAddAssign(Neo.SmartContract.Testi
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEDDHBoeIvbKHBoeYvbKHBoeovbKHBoQA==
     /// 0000 : OpCode.INITSLOT 0103
     /// 0003 : OpCode.PUSHDATA1
     /// 0005 : OpCode.STLOC0

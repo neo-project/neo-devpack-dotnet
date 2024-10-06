@@ -34,6 +34,7 @@ public abstract class Contract_ABISafe(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EUA=
     /// 0000 : OpCode.PUSH1
     /// 0001 : OpCode.RET
     /// </remarks>
@@ -44,6 +45,7 @@ public abstract class Contract_ABISafe(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: E0A=
     /// 0000 : OpCode.PUSH3
     /// 0001 : OpCode.RET
     /// </remarks>

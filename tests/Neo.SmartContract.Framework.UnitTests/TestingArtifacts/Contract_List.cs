@@ -25,6 +25,7 @@ public abstract class Contract_List(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIBwnAQcSI4aGnPaUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JMdoNwAAQA==
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.NEWARRAY0
     /// 0004 : OpCode.STLOC0
@@ -68,6 +69,7 @@ public abstract class Contract_List(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIBwnAQcSI4aGnPaUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JMdoQA==
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.NEWARRAY0
     /// 0004 : OpCode.STLOC0
@@ -110,6 +112,7 @@ public abstract class Contract_List(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIBwnAQcSI4aGnPaUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JMdo02g3AABA
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.NEWARRAY0
     /// 0004 : OpCode.STLOC0
@@ -155,6 +158,7 @@ public abstract class Contract_List(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIBwnAQcSI4aGnPaUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JMdoykA=
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.NEWARRAY0
     /// 0004 : OpCode.STLOC0
@@ -198,6 +202,7 @@ public abstract class Contract_List(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwICeXi4JhwMSW52YWxpZCB0ZXN0IHBhcmFtZXRlcnM6wnAQcSI4aGnPaUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JMdoedJoNwAAQA==
     /// 0000 : OpCode.INITSLOT 0202
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0

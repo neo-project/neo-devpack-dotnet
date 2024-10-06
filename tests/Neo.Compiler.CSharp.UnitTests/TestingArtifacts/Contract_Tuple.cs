@@ -25,6 +25,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: xUoRz0oSz0oTz0oUz0A=
     /// 0000 : OpCode.NEWSTRUCT0
     /// 0001 : OpCode.DUP
     /// 0002 : OpCode.PUSH1
@@ -47,6 +48,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAxUoLz0oLz0oQz0oQz0oLz0o0MHDFSgvPShDPSjQpSmgUUdBFEHE0yUrBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.NEWSTRUCT0
     /// 0004 : OpCode.DUP

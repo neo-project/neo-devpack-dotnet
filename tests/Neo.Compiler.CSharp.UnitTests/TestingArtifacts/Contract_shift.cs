@@ -25,6 +25,7 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwMAGHBoEahKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcWgRqXJqaRLAQA==
     /// 0000 : OpCode.INITSLOT 0300
     /// 0003 : OpCode.PUSH8
     /// 0004 : OpCode.STLOC0
@@ -63,6 +64,7 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwUAGHBoEKhxaBGocmgRqXNoEql0bGtqaRTAQA==
     /// 0000 : OpCode.INITSLOT 0500
     /// 0003 : OpCode.PUSH8
     /// 0004 : OpCode.STLOC0

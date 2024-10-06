@@ -25,6 +25,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VxQADAECAwQFBgcICQrbMHBoSspQEFFLn4xxaBNQEFFLn4xyaErKUBJRS5+Mc2gVUBNRS5+MdGhKylBKyhKfUUufjHVoSsoTn1AQUUufjHZoSsoUn1ATUUufjHcHaErKEp9QSsoUn1FLn4x3CGgQzncJaco3AABBz+dHlmrKNwAAQc/nR5ZryjcAAEHP50eWbMo3AABBz+dHlm3KNwAAQc/nR5ZuyjcAAEHP50eWbwfKNwAAQc/nR5ZvCMo3AABBz+dHlm8JNwAAQc/nR5YMMTIzNDU2Nzg5dwpvCkrKUBBRS5+M2yh3C28KE1AQUUufjNsodwxvCkrKUBJRS5+M2yh3DW8KFVATUUufjNsodw5vCkrKUErKEp9RS5+M2yh3D28KSsoTn1AQUUufjNsodxBvCkrKFJ9QE1FLn4zbKHcRbwpKyhKfUErKFJ9RS5+M2yh3Em8KEM53E28L2yhBz+dHlm8M2yhBz+dHlm8N2yhBz+dHlm8O2yhBz+dHlm8P2yhBz+dHlm8Q2yhBz+dHlm8R2yhBz+dHlm8S2yhBz+dHlm8T2yhBz+dHlkA=
     /// 0000 : OpCode.INITSLOT 1400
     /// 0003 : OpCode.PUSHDATA1 0102030405060708090A
     /// 000F : OpCode.CONVERT 30

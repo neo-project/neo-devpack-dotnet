@@ -25,6 +25,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: QTlTbjzbMEA=
     /// 0000 : OpCode.SYSCALL 39536E3C
     /// 0005 : OpCode.CONVERT 30
     /// 0007 : OpCode.RET
@@ -36,6 +37,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: Qfm04jjbMEA=
     /// 0000 : OpCode.SYSCALL F9B4E238
     /// 0005 : OpCode.CONVERT 30
     /// 0007 : OpCode.RET
@@ -47,6 +49,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: Qdv+qHTbMEA=
     /// 0000 : OpCode.SYSCALL DBFEA874
     /// 0005 : OpCode.CONVERT 30
     /// 0007 : OpCode.RET
@@ -58,6 +61,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: QS1RCDBA
     /// 0000 : OpCode.SYSCALL 2D510830
     /// 0005 : OpCode.RET
     /// </remarks>
@@ -68,6 +72,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: QS1RCDBA
     /// 0000 : OpCode.SYSCALL 2D510830
     /// 0005 : OpCode.RET
     /// </remarks>

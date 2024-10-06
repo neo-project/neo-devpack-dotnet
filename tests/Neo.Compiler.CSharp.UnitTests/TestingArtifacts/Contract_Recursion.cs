@@ -25,6 +25,7 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeBCXJgQIQHgQtSYHeBGeIgV4EZ80A0A=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.PUSH0
@@ -53,6 +54,7 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeBC4DE1pbnVzIG51bWJlciBub3Qgc3VwcG9ydGVk4XgSuCYKeHgRnzTUoEARQA==
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.PUSH0
@@ -80,6 +82,7 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwUEeBC3DENvdW50IG9mIGRpc2tzIDw9IDDheBGXJiHCcGjFShDPShDPShDPSjRVShAR0EoRedBKEnvQz2hAent5eBGfNLpwaMVKEM9KEM9KEM9KNC9KEHjQShF50EoSe9DPe3l6eBGfNJZKccpyEHMiDGlrznRobM9rnHNrajD0aEA=
     /// 0000 : OpCode.INITSLOT 0504
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.PUSH0
@@ -191,6 +194,7 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeBCXJgQJQHgQtSYHeBGeIgV4EZ80z0A=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.PUSH0

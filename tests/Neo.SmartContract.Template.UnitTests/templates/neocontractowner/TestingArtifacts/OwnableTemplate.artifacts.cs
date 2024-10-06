@@ -41,6 +41,7 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: Nc7+//+qJhYMTm8gYXV0aG9yaXphdGlvbi46NwEAQA==
     /// 0000 : OpCode.CALL_L CEFEFFFF
     /// 0005 : OpCode.NOT
     /// 0006 : OpCode.JMPIFNOT 16
@@ -56,6 +57,7 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
     /// 0000 : OpCode.PUSHDATA1 48656C6C6F
     /// 0007 : OpCode.SYSCALL 9BF667CE
     /// 000C : OpCode.SYSCALL 925DE831
@@ -68,6 +70,7 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADNfL+//8JlyYWDE5vIGF1dGhvcml6YXRpb24uOnp5eDcAAEA=
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.CALL_L F2FEFFFF
     /// 0008 : OpCode.PUSHF

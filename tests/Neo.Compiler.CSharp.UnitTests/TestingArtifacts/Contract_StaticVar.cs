@@ -61,6 +61,7 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: NAY0N1lA
     /// 0000 : OpCode.CALL 06
     /// 0002 : OpCode.CALL 37
     /// 0004 : OpCode.LDSFLD1

@@ -25,6 +25,7 @@ public abstract class Contract_ExtraAttribute(Neo.SmartContract.Testing.SmartCon
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACCEA=
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.PUSHT
     /// 0004 : OpCode.RET

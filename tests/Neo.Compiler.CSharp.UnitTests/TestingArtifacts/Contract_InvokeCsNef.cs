@@ -37,6 +37,7 @@ public abstract class Contract_InvokeCsNef(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: ABZA
     /// 0000 : OpCode.PUSHINT8 16
     /// 0002 : OpCode.RET
     /// </remarks>

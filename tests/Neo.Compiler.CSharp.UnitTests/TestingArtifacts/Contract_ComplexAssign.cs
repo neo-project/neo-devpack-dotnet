@@ -25,6 +25,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAA/////8AAAAAcAL///9/cWgRnkoQLgM6SgP/////AAAAADIDOnBpEZ5KAgAAAIAuAzpKAv///38yAzpxxUpoz0ppz0A=
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -70,6 +71,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAA/////8AAAAAcAL///9/cWgRnkoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFwaRGeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3HFSmjPSmnPQA==
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -122,6 +124,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAA/////8AAAAAcAL///9/cWgRqEoQLgM6SgP/////AAAAADIDOnBpEahKAgAAAIAuAzpKAv///38yAzpxxUpoz0ppz0A=
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -167,6 +170,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAA/////8AAAAAcAL///9/cWgRqEoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFwaRGoSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3HFSmjPSmnPQA==
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -219,6 +223,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAA/////8AAAAAcAL///9/cWgSoEoQLgM6SgP/////AAAAADIDOnBpEqBKAgAAAIAuAzpKAv///38yAzpxxUpoz0ppz0A=
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -264,6 +269,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAA/////8AAAAAcAL///9/cWgSoEoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFwaRKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3HFSmjPSmnPQA==
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSHINT64 FFFFFFFF00000000
     /// 000C : OpCode.STLOC0
@@ -316,6 +322,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAEHACAAAAgHFoEalKEC4DOkoD/////wAAAAAyAzpwaRGpSgIAAACALgM6SgL///9/MgM6ccVKaM9Kac9A
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STLOC0
@@ -361,6 +368,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAEHACAAAAgHFoEalKEC4EIg5KA/////8AAAAAMgwD/////wAAAACRcGkRqUoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xxUpoz0ppz0A=
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STLOC0
@@ -413,6 +421,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAEHACAAAAgHFoEZ9KEC4DOkoD/////wAAAAAyAzpwaRGfSgIAAACALgM6SgL///9/MgM6ccVKaM9Kac9A
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STLOC0
@@ -458,6 +467,7 @@ public abstract class Contract_ComplexAssign(Neo.SmartContract.Testing.SmartCont
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAEHACAAAAgHFoEZ9KEC4EIg5KA/////8AAAAAMgwD/////wAAAACRcGkRn0oCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xxUpoz0ppz0A=
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STLOC0

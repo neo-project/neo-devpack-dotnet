@@ -25,6 +25,7 @@ public abstract class Contract2(Neo.SmartContract.Testing.SmartContractInitializ
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECDAECAwTbMHBoEs5A
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.PUSHDATA1 01020304
     /// 0009 : OpCode.CONVERT 30

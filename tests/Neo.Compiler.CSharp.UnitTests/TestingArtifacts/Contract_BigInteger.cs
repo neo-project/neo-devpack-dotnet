@@ -25,6 +25,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: BAAAAOTSDMjc0rdSAAAAAABA
     /// 0000 : OpCode.PUSHINT128 000000E4D20CC8DCD2B7520000000000
     /// 0011 : OpCode.RET
     /// </remarks>
@@ -35,6 +36,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmeQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -66,6 +68,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmfmUA=
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -80,6 +83,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmhQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -93,6 +97,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmzQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -106,6 +111,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHlKU1CiShCzJvlFmkA=
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -158,6 +164,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwMAGnATcQAecmhpaqZA
     /// 0000 : OpCode.INITSLOT 0300
     /// 0003 : OpCode.PUSH10
     /// 0004 : OpCode.STLOC0
@@ -178,6 +185,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmgQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -191,6 +199,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeJtA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.NEGATE
@@ -203,6 +212,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmjQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -216,6 +226,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmiQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -247,6 +258,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeKRA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.SQRT
@@ -259,6 +271,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmfQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1

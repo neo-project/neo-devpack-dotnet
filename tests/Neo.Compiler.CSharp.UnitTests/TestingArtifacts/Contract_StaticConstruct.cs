@@ -25,6 +25,7 @@ public abstract class Contract_StaticConstruct(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: WEA=
     /// 0000 : OpCode.LDSFLD0
     /// 0001 : OpCode.RET
     /// </remarks>

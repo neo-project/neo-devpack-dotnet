@@ -34,6 +34,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwAEe3p5eEFifVtSQA==
     /// 0000 : OpCode.INITSLOT 0004
     /// 0003 : OpCode.LDARG3
     /// 0004 : OpCode.LDARG2
@@ -223,6 +224,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACC3l42yg3AQBA
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.PUSHNULL
     /// 0004 : OpCode.LDARG1
@@ -238,6 +240,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECEYhKEHnQcGh4i3Bo2yg3AABA
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.PUSH1
     /// 0004 : OpCode.NEWBUFFER

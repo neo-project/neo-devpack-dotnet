@@ -25,6 +25,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEACvr///9waDZA
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHA FAFFFFFF
     /// 0008 : OpCode.STLOC0
@@ -39,6 +40,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEACvb///9wDAsWIdswaDZA
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSHA F6FFFFFF
     /// 0008 : OpCode.STLOC0
@@ -55,6 +57,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: CgYAAABA
     /// 0000 : OpCode.PUSHA 06000000
     /// 0005 : OpCode.RET
     /// </remarks>
@@ -65,6 +68,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: CgYAAABA
     /// 0000 : OpCode.PUSHA 06000000
     /// 0005 : OpCode.RET
     /// </remarks>
@@ -75,6 +79,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: AHtA
     /// 0000 : OpCode.PUSHINT8 7B
     /// 0002 : OpCode.RET
     /// </remarks>
@@ -85,6 +90,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeNshQA==
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CONVERT 21

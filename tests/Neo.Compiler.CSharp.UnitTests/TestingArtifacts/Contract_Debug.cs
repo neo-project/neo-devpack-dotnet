@@ -34,6 +34,7 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DERlYnVnIGNvbXBpbGF0aW9uEcAMRGVidWdBlQFvYRFA
     /// 0000 : OpCode.PUSHDATA1 446562756720636F6D70696C6174696F6E
     /// 0013 : OpCode.PUSH1
     /// 0014 : OpCode.PACK
@@ -49,6 +50,7 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAEnARcGhA
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSH2
     /// 0004 : OpCode.STLOC0

@@ -25,6 +25,7 @@ public abstract class Contract_CheckedUnchecked(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmeSgIAAACALgM6SgL///9/MgM6QA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -46,6 +47,7 @@ public abstract class Contract_CheckedUnchecked(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1
@@ -73,6 +75,7 @@ public abstract class Contract_CheckedUnchecked(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeEoQLgM6SgP/////AAAAADIDOkA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.DUP
@@ -92,6 +95,7 @@ public abstract class Contract_CheckedUnchecked(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeEoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.DUP

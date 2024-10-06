@@ -25,6 +25,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAaGBYNNxYQA==
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.LDLOC0
     /// 0004 : OpCode.STSFLD0
@@ -40,6 +41,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EGMLYhBhW1pZNNZZNwAADCwgi1qLDCwgi1smCgxUcnVlIgkMRmFsc2WL2yhA
     /// 0000 : OpCode.PUSH0
     /// 0001 : OpCode.STSFLD3
     /// 0002 : OpCode.PUSHNULL
@@ -74,6 +76,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEAEGRcNAtwxUpoz0pcz0A=
     /// 0000 : OpCode.INITSLOT 0100
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STSFLD4
@@ -96,6 +99,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeCYPEGBYNRj///9YNwAAQBBjC2IQYVtaWTUM////WkA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.JMPIFNOT 0F
@@ -126,6 +130,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EGMLYhBhW1pZNKVA
     /// 0000 : OpCode.PUSH0
     /// 0001 : OpCode.STSFLD3
     /// 0002 : OpCode.PUSHNULL
@@ -145,6 +150,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAEHAQcSJsEGBYNI9oWJ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGlKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWkVtSSTaEA=
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSH0
     /// 0004 : OpCode.STLOC0
@@ -206,6 +212,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBeHBoEZckCWgSlyQOIhwQYFg16v7//1hAEGMLYhBhW1pZNeH+//9ZQA9A
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.STLOC0
@@ -246,6 +253,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: EGBYNOZYQA==
     /// 0000 : OpCode.PUSH0
     /// 0001 : OpCode.STSFLD0
     /// 0002 : OpCode.LDSFLD0

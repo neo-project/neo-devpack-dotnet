@@ -25,6 +25,7 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: xUoPz0oCwL3w/89KAwDwWisX////z0A=
     /// 0000 : OpCode.NEWSTRUCT0
     /// 0001 : OpCode.DUP
     /// 0002 : OpCode.PUSHM1
@@ -44,6 +45,7 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.RET
@@ -55,6 +57,7 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: xUoQz0oB/wDPSgCAz0oAf89KAQCAz0oB/3/PSgL//wAAz0oD/////wAAAADPSgIAAACAz0oC////f89KBP//////////AAAAAAAAAADPSgMAAAAAAAAAgM9KA/////////9/z0A=
     /// 0000 : OpCode.NEWSTRUCT0
     /// 0001 : OpCode.DUP
     /// 0002 : OpCode.PUSH0

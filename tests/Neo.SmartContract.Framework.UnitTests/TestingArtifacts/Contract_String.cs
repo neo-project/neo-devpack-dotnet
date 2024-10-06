@@ -25,6 +25,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwICE3B4eYvbKHFpDGhlbGxvlyYGFHAiD2kMd29ybGSXJgQVcGhA
     /// 0000 : OpCode.INITSLOT 0202
     /// 0003 : OpCode.PUSH3
     /// 0004 : OpCode.STLOC0
@@ -56,6 +57,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeHk3AACL2yhA
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.LDARG1

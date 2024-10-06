@@ -25,6 +25,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwQCDAGq2zBwQZv2Z85xaGkSwHIQEcBKNBVKEHnQc2t4ajQPeGo0H3NrEM5A
     /// 0000 : OpCode.INITSLOT 0402
     /// 0003 : OpCode.PUSHDATA1 01AA
     /// 0007 : OpCode.CONVERT 30
@@ -66,6 +67,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEBQZv2Z84AERGIThBR0FASwHB42yhowUVTi1BBL1jF7UA=
     /// 0000 : OpCode.INITSLOT 0101
     /// 0003 : OpCode.SYSCALL 9BF667CE
     /// 0008 : OpCode.PUSHINT8 11
@@ -97,6 +99,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIBDAD/2zBwaEGb9mfOEsBxeNsoacFFU4tQQS9Yxe1A
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.PUSHDATA1 00FF
     /// 0007 : OpCode.CONVERT 30
@@ -124,6 +127,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIBDGFhcGhBm/ZnzhLAcXjbKGnBRVOLUEEvWMXtQA==
     /// 0000 : OpCode.INITSLOT 0201
     /// 0003 : OpCode.PUSHDATA1 6161
     /// 0007 : OpCode.STLOC0
@@ -150,6 +154,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIAQZv2Z85wDAHbMNsoDGtleTFoQeY/GIQMAtsw2ygMa2V5MmhB5j8YhBQMa2V5aEHfMLiacWlBnAjtnEVpQfNUvx1A
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.SYSCALL 9BF667CE
     /// 0008 : OpCode.STLOC0
@@ -184,6 +189,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwMBQfa0a+JwaAAREYhOEFHQUBLAcXjbKGnBRVOLUEGSXegxcmrbMEA=
     /// 0000 : OpCode.INITSLOT 0301
     /// 0003 : OpCode.SYSCALL F6B46BE2
     /// 0008 : OpCode.STLOC0
@@ -220,6 +226,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwQBDAD/2zBwQZv2Z85Bdky/6XFoaRLAcnjbKGrBRVOLUEGSXegxc2vbMEA=
     /// 0000 : OpCode.INITSLOT 0401
     /// 0003 : OpCode.PUSHDATA1 00FF
     /// 0007 : OpCode.CONVERT 30
@@ -253,6 +260,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwQBDGFhcEH2tGvicWhpEsByeNsoasFFU4tQQZJd6DFza9swQA==
     /// 0000 : OpCode.INITSLOT 0401
     /// 0003 : OpCode.PUSHDATA1 6161
     /// 0007 : OpCode.STLOC0
@@ -284,6 +292,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwQBDGlpcEH2tGvicWhpEsByeNsoasFFU4tQQZJd6DFza9swQA==
     /// 0000 : OpCode.INITSLOT 0401
     /// 0003 : OpCode.PUSHDATA1 6969
     /// 0007 : OpCode.STLOC0
@@ -315,6 +324,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwICDGlpcGhBm/ZnzhLAcXnbKEp42yhpwUVTi1BB5j8YhEUIQA==
     /// 0000 : OpCode.INITSLOT 0202
     /// 0003 : OpCode.PUSHDATA1 6969
     /// 0007 : OpCode.STLOC0
@@ -346,6 +356,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwUADAD/2zBwQZv2Z85xaGkSwHIMAAHbMHNrDGJ5dGVBcnJheWrBRVOLUEHmPxiEDGJ5dGVBcnJheWrBRVOLUEGSXegx2zB0bEA=
     /// 0000 : OpCode.INITSLOT 0500
     /// 0003 : OpCode.PUSHDATA1 00FF
     /// 0007 : OpCode.CONVERT 30
@@ -389,6 +400,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: Vw8ADAD/2zBwQZv2Z85xaGkSwHIIcwB7dAxoZWxsbyB3b3JsZHUMAAECAwQFBgcICQABAgMEBQYHCAnbMNsoStgkCUrKABQoAzp2DAABAgMEBQYHCAkAAQIDBAUGBwgJAAECAwQFBgcICQAB2zDbKErYJAlKygAgKAM6dwcMAAECAwQFBgcICQABAgMEBQYHCAkAAQIDBAUGBwgJAAEC2zDbKErYJAlKygAhKAM6dwhrDGJvb2xqwUVTi1BB5j8YhGwMaW50asFFU4tQQeY/GIRtDHN0cmluZ2rBRVOLUEHmPxiEbgx1aW50MTYwasFFU4tQQeY/GIRvBwx1aW50MjU2asFFU4tQQeY/GIRvCAxlY3BvaW50asFFU4tQQeY/GIQMYm9vbGrBRVOLUEGSXegxqqp3CQxpbnRqwUVTi1BBkl3oMdshdwoMc3RyaW5nasFFU4tQQZJd6DF3Cwx1aW50MTYwasFFU4tQQZJd6DF3DAx1aW50MjU2asFFU4tQQZJd6DF3DQxlY3BvaW50asFFU4tQQZJd6DF3DmtvCZckBQkiBmxvCpckBQkiBm1vC5ckBQkiBm5vDJckBQkiB28Hbw2XJAQJQG8Ibw6XQA==
     /// 0000 : OpCode.INITSLOT 0F00
     /// 0003 : OpCode.PUSHDATA1 00FF
     /// 0007 : OpCode.CONVERT 30
@@ -595,6 +607,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwIADDsAMgMjIyMjAiMjAiMjAiMjAiMjAiMjAtswcAx0ZXN0X21hcEGb9mfOEsBxaNsoDAHbMNsoacFFU4tQQeY/GIQMAdsw2yhpwUVTi1BBkl3oMdswQA==
     /// 0000 : OpCode.INITSLOT 0200
     /// 0003 : OpCode.PUSHDATA1 3B0032032323232302232302232302232302232302232302
     /// 001D : OpCode.CONVERT 30
@@ -636,6 +649,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECQZv2Z84AERGIThBR0FASwHB52yh42yhowUVTi1BB5j8YhAhA
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.SYSCALL 9BF667CE
     /// 0008 : OpCode.PUSHINT8 11
@@ -670,6 +684,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwICDAD/2zBwaEGb9mfOEsBxedsoeNsoacFFU4tQQeY/GIQIQA==
     /// 0000 : OpCode.INITSLOT 0202
     /// 0003 : OpCode.PUSHDATA1 00FF
     /// 0007 : OpCode.CONVERT 30
@@ -700,6 +715,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwMCDAD/2zBwQZv2Z85Bdky/6XFoaRLAcnnbKHjbKGrBRVOLUEHmPxiECEA=
     /// 0000 : OpCode.INITSLOT 0302
     /// 0003 : OpCode.PUSHDATA1 00FF
     /// 0007 : OpCode.CONVERT 30
@@ -733,6 +749,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwICDGFhcGhBm/ZnzhLAcXnbKHjbKGnBRVOLUEHmPxiECEA=
     /// 0000 : OpCode.INITSLOT 0202
     /// 0003 : OpCode.PUSHDATA1 6161
     /// 0007 : OpCode.STLOC0

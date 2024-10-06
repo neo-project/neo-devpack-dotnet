@@ -25,6 +25,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECeDcCAHB5aDQDQA==
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0200
@@ -41,6 +42,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECeDcCAHB5aDUw////QA==
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0200
@@ -57,6 +59,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECeDcGAHB5aDQDQA==
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0600
@@ -73,6 +76,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: NwAAQA==
     /// 0000 : OpCode.CALLT 0000
     /// 0003 : OpCode.RET
     /// </remarks>
@@ -83,6 +87,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeDcBAEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0100
@@ -95,6 +100,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEDeXg3BQBwemg1Dv///0A=
     /// 0000 : OpCode.INITSLOT 0103
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0
@@ -112,6 +118,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwEDeXg3BQBwemg1/f7//0A=
     /// 0000 : OpCode.INITSLOT 0103
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0
@@ -129,6 +136,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwECeDcDAHB5aDQDQA==
     /// 0000 : OpCode.INITSLOT 0102
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0300
@@ -145,6 +153,7 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeDcHAEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0700

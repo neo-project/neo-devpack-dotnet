@@ -25,6 +25,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: NwEAQA==
     /// 0000 : OpCode.CALLT 0100
     /// 0003 : OpCode.RET
     /// </remarks>
@@ -41,6 +42,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: NwMAQA==
     /// 0000 : OpCode.CALLT 0300
     /// 0003 : OpCode.RET
     /// </remarks>
@@ -51,6 +53,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: NwQAQA==
     /// 0000 : OpCode.CALLT 0400
     /// 0003 : OpCode.RET
     /// </remarks>
@@ -61,6 +64,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DL7yBDFANip3wVCZx+ZMEvcAtmXaQA==
     /// 0000 : OpCode.PUSHDATA1 BEF2043140362A77C15099C7E64C12F700B665DA
     /// 0016 : OpCode.RET
     /// </remarks>
@@ -71,6 +75,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: DPVj6kC8KD1NDgXEjqMFs/Kgc0DvQA==
     /// 0000 : OpCode.PUSHDATA1 F563EA40BC283D4D0E05C48EA305B3F2A07340EF
     /// 0016 : OpCode.RET
     /// </remarks>
@@ -81,6 +86,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: NwAAQA==
     /// 0000 : OpCode.CALLT 0000
     /// 0003 : OpCode.RET
     /// </remarks>
@@ -91,6 +97,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: AoCWmABA
     /// 0000 : OpCode.PUSHINT32 80969800
     /// 0005 : OpCode.RET
     /// </remarks>

@@ -25,6 +25,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeXg3BwBA
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0
@@ -38,6 +39,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeDcFAEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0500
@@ -50,6 +52,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeXg3BgBA
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0
@@ -63,6 +66,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADenl4NwgAQA==
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.LDARG2
     /// 0004 : OpCode.LDARG1
@@ -77,6 +81,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeXg3CQBA
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0
@@ -90,6 +95,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeDcEAEA=
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CALLT 0400
@@ -102,6 +108,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeXjbKDcCANswQA==
     /// 0000 : OpCode.INITSLOT 0002
     /// 0003 : OpCode.LDARG1
     /// 0004 : OpCode.LDARG0
@@ -117,6 +124,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeNsoNwEA2zBA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CONVERT 28
@@ -130,6 +138,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADAHp62yh5eNsoNwMAQA==
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.PUSHINT8 7A
     /// 0005 : OpCode.LDARG2
@@ -147,6 +156,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADABZ62yh5eNsoNwMAQA==
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.PUSHINT8 16
     /// 0005 : OpCode.LDARG2
@@ -164,6 +174,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADAHt62yh5eNsoNwMAQA==
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.PUSHINT8 7B
     /// 0005 : OpCode.LDARG2
@@ -181,6 +192,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwADABd62yh5eNsoNwMAQA==
     /// 0000 : OpCode.INITSLOT 0003
     /// 0003 : OpCode.PUSHINT8 17
     /// 0005 : OpCode.LDARG2
@@ -198,6 +210,7 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwABeNsoNwAA2zBA
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.LDARG0
     /// 0004 : OpCode.CONVERT 28

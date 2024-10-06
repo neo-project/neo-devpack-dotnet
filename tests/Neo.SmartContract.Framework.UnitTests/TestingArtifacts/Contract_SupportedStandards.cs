@@ -25,6 +25,7 @@ public abstract class Contract_SupportedStandards(Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: CEA=
     /// 0000 : OpCode.PUSHT
     /// 0001 : OpCode.RET
     /// </remarks>
