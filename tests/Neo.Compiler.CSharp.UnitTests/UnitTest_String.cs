@@ -2,6 +2,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.Collections.Generic;
+using Neo.SmartContract.Testing.Exceptions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -143,6 +144,122 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual("Mix of Whitespace", Contract.TestTrim(" \t \n \r Mix of Whitespace \r \n \t "));
             AssertGasConsumed(1180710);
+        }
+
+        [TestMethod]
+        public void Test_TestPickItem()
+        {
+            Assert.AreEqual('e', Contract.TestPickItem("Hello", 1));
+            AssertGasConsumed(1049250);
+
+            Assert.AreEqual('d', Contract.TestPickItem("World", 4));
+            AssertGasConsumed(1049250);
+
+            // Test invalid index
+            Assert.ThrowsException<TestException>(() => Contract.TestPickItem("Test", 5));
+        }
+
+        [TestMethod]
+        public void Test_TestSubstringToEnd()
+        {
+            Assert.AreEqual("World", Contract.TestSubstringToEnd("Hello World", 6));
+            AssertGasConsumed(1109250);
+
+            Assert.AreEqual("", Contract.TestSubstringToEnd("Test", 4));
+            AssertGasConsumed(1109250);
+
+            // Test invalid start index
+            Assert.ThrowsException<TestException>(() => Contract.TestSubstringToEnd("Test", 5));
+        }
+
+        [TestMethod]
+        public void Test_TestConcat()
+        {
+            Assert.AreEqual("HelloWorld", Contract.TestConcat("Hello", "World"));
+            AssertGasConsumed(1109400);
+
+            Assert.AreEqual("Test", Contract.TestConcat("Test", null));
+            AssertGasConsumed(1109490);
+
+            Assert.AreEqual("Test", Contract.TestConcat(null, "Test"));
+            AssertGasConsumed(1109490);
+
+            Assert.AreEqual("", Contract.TestConcat(null, null));
+            AssertGasConsumed(1109580);
+
+            // Test with empty strings
+            Assert.AreEqual("", Contract.TestConcat("", ""));
+            AssertGasConsumed(1109400);
+        }
+
+        [TestMethod]
+        public void Test_TestIndexOfChar()
+        {
+            Assert.AreEqual(1, Contract.TestIndexOfChar("Hello", 'e'));
+            AssertGasConsumed(2032320);
+
+            Assert.AreEqual(-1, Contract.TestIndexOfChar("World", 'x'));
+            AssertGasConsumed(2032320);
+
+            // Test with empty string
+            Assert.AreEqual(-1, Contract.TestIndexOfChar("", 'a'));
+            AssertGasConsumed(2032320);
+        }
+
+        [TestMethod]
+        public void Test_TestToLower()
+        {
+            Assert.AreEqual("hello world", Contract.TestToLower("Hello World"));
+            AssertGasConsumed(2008350);
+
+            Assert.AreEqual("123", Contract.TestToLower("123"));
+            AssertGasConsumed(1488390);
+
+            // Test with already lowercase string
+            Assert.AreEqual("lowercase", Contract.TestToLower("lowercase"));
+            AssertGasConsumed(1877550);
+        }
+
+        [TestMethod]
+        public void Test_TestToUpper()
+        {
+            Assert.AreEqual("HELLO WORLD", Contract.TestToUpper("Hello World"));
+            AssertGasConsumed(2011590);
+
+            Assert.AreEqual("123", Contract.TestToUpper("123"));
+            AssertGasConsumed(1488390);
+
+            // Test with already uppercase string
+            Assert.AreEqual("UPPERCASE", Contract.TestToUpper("UPPERCASE"));
+            AssertGasConsumed(1877550);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimChar()
+        {
+            Assert.AreEqual("Hello World", Contract.TestTrimChar("***Hello World***", '*'));
+            AssertGasConsumed(1134300);
+
+            Assert.AreEqual("Test", Contract.TestTrimChar("Test", '*'));
+            AssertGasConsumed(1115580);
+
+            // Test with string containing only trim characters
+            Assert.AreEqual("", Contract.TestTrimChar("****", '*'));
+            AssertGasConsumed(1123260);
+        }
+
+        [TestMethod]
+        public void Test_TestLength()
+        {
+            Assert.AreEqual(11, Contract.TestLength("Hello World"));
+            AssertGasConsumed(1047360);
+
+            Assert.AreEqual(0, Contract.TestLength(""));
+            AssertGasConsumed(1047360);
+
+            // Test with very long string
+            Assert.AreEqual(1000, Contract.TestLength(new string('a', 1000)));
+            AssertGasConsumed(1062480);
         }
     }
 }

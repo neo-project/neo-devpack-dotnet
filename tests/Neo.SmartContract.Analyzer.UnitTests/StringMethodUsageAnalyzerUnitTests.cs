@@ -24,27 +24,5 @@ namespace Neo.SmartContract.Analyzer.Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
-
-        [TestMethod]
-        public async Task UnsupportedStringMethod_ShouldReportDiagnostic()
-        {
-            var test = """
-
-                       class TestClass
-                       {
-                           public void TestMethod()
-                           {
-                               string x = "Hello";
-                               string y = x.ToUpper();
-                           }
-                       }
-                       """;
-
-            var expectedDiagnostic = VerifyCS.Diagnostic(StringMethodUsageAnalyzer.DiagnosticId)
-                .WithLocation(7, 20)
-                .WithArguments("ToUpper");
-
-            await VerifyCS.VerifyAnalyzerAsync(test, expectedDiagnostic);
-        }
     }
 }

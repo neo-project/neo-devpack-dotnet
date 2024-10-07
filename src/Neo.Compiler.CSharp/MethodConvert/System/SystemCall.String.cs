@@ -53,7 +53,7 @@ internal partial class MethodConvert
     private static void HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
@@ -200,6 +200,22 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        var firstNotNull = new JumpTarget();
+        var secondNotNull = new JumpTarget();
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Isnull();
+        methodConvert.JumpIfNot(firstNotNull);
+        methodConvert.Drop();
+        methodConvert.Push("");
+        firstNotNull.Instruction = methodConvert.Nop();
+        methodConvert.Swap();
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Isnull();
+        methodConvert.JumpIfNot(secondNotNull);
+        methodConvert.Drop();
+        methodConvert.Push("");
+        secondNotNull.Instruction = methodConvert.Nop();
         methodConvert.AddInstruction(OpCode.CAT);
     }
 
@@ -209,44 +225,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        methodConvert.AddInstruction(OpCode.NEWARRAY0); // Create an empty array
-        var loopStart = new JumpTarget();
-        var loopEnd = new JumpTarget();
-        var charIsUpper = new JumpTarget();
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the array reference
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PUSH0); // Push the initial index (0)
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
-        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the character
-        methodConvert.Push((ushort)'A'); // Push 'A'
-        methodConvert.Push((ushort)'Z' + 1); // Push 'Z' + 1
-        methodConvert.AddInstruction(OpCode.WITHIN); // Check if character is within 'A' to 'Z'
-        methodConvert.Jump(OpCode.JMPIF, charIsUpper); // If true, jump to charIsUpper
-
-        methodConvert.AddInstruction(OpCode.APPEND); // Append the original character to the array
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
-        charIsUpper.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Push((ushort)'A'); // Push 'A'
-        methodConvert.AddInstruction(OpCode.SUB); // Subtract 'A' from the character
-        methodConvert.Push((ushort)'a'); // Push 'a'
-        methodConvert.AddInstruction(OpCode.ADD); // Add 'a' to the result
-        methodConvert.AddInstruction(OpCode.APPEND); // Append the lower case character to the array
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
-        loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert the array to a byte string
+        ConvertToLower(methodConvert);
     }
 
     // Handler for string.ToUpper()
@@ -254,44 +233,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.NEWARRAY0); // Create an empty array
-        var loopStart = new JumpTarget();
-        var loopEnd = new JumpTarget();
-        var charIsLower = new JumpTarget();
 
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the array reference
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PUSH0); // Push the initial index (0)
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
-        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the character
-        methodConvert.Push((ushort)'a'); // Push 'a'
-        methodConvert.Push((ushort)'z' + 1); // Push 'z' + 1
-        methodConvert.AddInstruction(OpCode.WITHIN); // Check if character is within 'a' to 'z'
-        methodConvert.Jump(OpCode.JMPIF, charIsLower); // If true, jump to charIsLower
-
-        methodConvert.AddInstruction(OpCode.APPEND); // Append the original character to the array
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
-        charIsLower.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Push((ushort)'a'); // Push 'a'
-        methodConvert.AddInstruction(OpCode.SUB); // Subtract 'a' from the character
-        methodConvert.Push((ushort)'A'); // Push 'A'
-        methodConvert.AddInstruction(OpCode.ADD); // Add 'A' to the result
-        methodConvert.AddInstruction(OpCode.APPEND); // Append the upper case character to the array
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
-        loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert the array to a byte string
+        ConvertToUpper(methodConvert);
     }
 
     // implement HandleStringTrim
@@ -304,193 +247,81 @@ internal partial class MethodConvert
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
 
-        InitStrLen();       // strLen = string.Length
-        InitStartIndex(); // startIndex = 0
-        InitEndIndex(); // endIndex = string.Length - 1
+        InitStrLen(methodConvert, strLen);       // strLen = string.Length
+        InitStartIndex(methodConvert, startIndex);   // startIndex = 0
+        InitEndIndex(methodConvert, endIndex, strLen);     // endIndex = string.Length - 1
 
         // loop to trim leading whitespace
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        CheckStartIndex(loopEnd);
-        PickCharStart(); // pick a char to check
-        CheckWithin(loopEnd);
-        MoveStartIndexAndLoop(loopStart);
+        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
+        PickCharStart(methodConvert, startIndex); // pick a char to check
+        CheckWithinWhiteSpace(methodConvert, loopEnd);
+        MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
 
         // done processing leading whitespace, start processing trailing whitespace
         var loopStart2 = new JumpTarget();
         var loopEnd2 = new JumpTarget();
         loopStart2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        CheckEndIndex(loopEnd2);
-        PickCharEnd(); // pick a char to check
-        CheckWithin(loopEnd2);
-        MoveEndIndexAndLoop(loopStart2);
+        CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
+        PickCharEnd(methodConvert, endIndex); // pick a char to check
+        CheckWithinWhiteSpace(methodConvert, loopEnd2);
+        MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
         loopEnd2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        GetString();
-        GetStartIndex();
-        GetEndIndex();
-        GetStartIndex();
+
+        // get the substring
+        GetString(methodConvert);
+        GetStartIndex(methodConvert, startIndex);
+        GetEndIndex(methodConvert, endIndex);
+        GetStartIndex(methodConvert, startIndex);
         methodConvert.AddInstruction(OpCode.SUB);
         methodConvert.AddInstruction(OpCode.INC);
         methodConvert.AddInstruction(OpCode.SUBSTR); // Get the substring up to the last non-space character
-        return;
-
-        void InitStrLen()
-        {
-            GetString();
-            methodConvert.AddInstruction(OpCode.SIZE);
-            methodConvert.AccessSlot(OpCode.STLOC, strLen);
-        }
-
-        // Local function to get strLen
-        void GetStrLen() => methodConvert.AccessSlot(OpCode.LDLOC, strLen);
-
-        void InitStartIndex()
-        {
-            methodConvert.Push(0);
-            methodConvert.AccessSlot(OpCode.STLOC, startIndex);
-        }
-
-        void InitEndIndex()
-        {
-            GetStrLen();
-            methodConvert.AddInstruction(OpCode.DEC); // len-1
-            methodConvert.AccessSlot(OpCode.STLOC, endIndex);
-        }
-
-        // Local function to get endIndex
-        void GetEndIndex() => methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
-
-        void GetString() => methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-
-        // Local function to get startIndex
-        void GetStartIndex() => methodConvert.AccessSlot(OpCode.LDLOC, startIndex);
-
-        void CheckStartIndex(JumpTarget loopEnd)
-        {
-            GetStartIndex();
-            GetStrLen();
-            methodConvert.AddInstruction(OpCode.LT); // Check if index < length
-            methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-        }
-
-        // Local function to set startIndex
-        void MoveStartIndexAndLoop(JumpTarget loopStart)
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, startIndex);
-            methodConvert.AddInstruction(OpCode.INC);
-            methodConvert.AccessSlot(OpCode.STLOC, startIndex);
-            methodConvert.Jump(OpCode.JMP, loopStart);
-        }
-
-        void PickCharStart()
-        {
-            GetString();
-            GetStartIndex();
-            methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        }
-
-        // Local function to set endIndex
-        void MoveEndIndexAndLoop(JumpTarget loopStart)
-        {
-            methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
-            methodConvert.AddInstruction(OpCode.DEC);
-            methodConvert.AccessSlot(OpCode.STLOC, endIndex);
-            methodConvert.Jump(OpCode.JMP, loopStart);
-        }
-
-        void CheckWithin(JumpTarget loopEnd)
-        {
-            methodConvert.AddInstruction(OpCode.DUP);
-            methodConvert.Push((ushort)'\t');
-            methodConvert.Push((ushort)'\r' + 1);
-            methodConvert.AddInstruction(OpCode.WITHIN); // check if '\t' <= c <= '\r'
-            methodConvert.AddInstruction(OpCode.SWAP);
-
-            methodConvert.Push((ushort)' '); // Push space character
-            methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is a space
-            methodConvert.AddInstruction(OpCode.BOOLOR); // check if '\t' <= c <= '\r' or ' ' == c
-
-            methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-        }
-
-        void CheckEndIndex(JumpTarget loopEnd)
-        {
-            GetEndIndex();
-            GetStartIndex();
-            methodConvert.AddInstruction(OpCode.GT); // Check if index > start
-            methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-        }
-
-        void PickCharEnd()
-        {
-            GetString();
-            GetEndIndex();
-            methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        }
     }
 
     private static void HandleStringTrimChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        // Trim leading characters
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the string
-        methodConvert.Push(0); // Push 0 to start from the beginning
+        var strLen = methodConvert.AddAnonymousVariable();
+        var startIndex = methodConvert.AddAnonymousVariable();
+        var endIndex = methodConvert.AddAnonymousVariable();
+
+        InitStrLen(methodConvert, strLen);       // strLen = string.Length
+        InitStartIndex(methodConvert, startIndex);   // startIndex = 0
+        InitEndIndex(methodConvert, endIndex, strLen);     // endIndex = string.Length - 1
+        methodConvert.Drop();
+        // loop to trim leading whitespace
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
-        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        methodConvert.AddInstruction(OpCode.LDARG1); // Load the character to trim
-        methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is the trim character
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.INC); // Increment the index
-        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
-
+        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
+        PickCharStart(methodConvert, startIndex); // pick a char to check
+        CheckTrimChar(methodConvert, loopEnd);
+        MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.SUBSTR); // Get the substring from the first non-trim character
 
-        // Trim trailing characters
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the string
-        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
-        methodConvert.AddInstruction(OpCode.DEC); // Decrement the length to get the last index
+        // done processing leading whitespace, start processing trailing whitespace
         var loopStart2 = new JumpTarget();
         var loopEnd2 = new JumpTarget();
         loopStart2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.PUSH0); // Push 0
-        methodConvert.AddInstruction(OpCode.GT); // Check if index > 0
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd2); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
-        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
-        methodConvert.AddInstruction(OpCode.LDARG1); // Load the character to trim
-        methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is the trim character
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd2); // If not, exit the loop
-
-        methodConvert.AddInstruction(OpCode.DEC); // Decrement the index
-        methodConvert.Jump(OpCode.JMP, loopStart2); // Jump to the start of the loop
-
+        CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
+        PickCharEnd(methodConvert, endIndex); // pick a char to check
+        CheckTrimChar(methodConvert, loopEnd2);
+        MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
         loopEnd2.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.SUBSTR); // Get the substring up to the last non-trim character
 
-        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert the array to a byte string
+        // get the substring
+        GetString(methodConvert);
+        GetStartIndex(methodConvert, startIndex);
+        GetEndIndex(methodConvert, endIndex);
+        GetStartIndex(methodConvert, startIndex);
+        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.AddInstruction(OpCode.INC);
+        methodConvert.AddInstruction(OpCode.SUBSTR); // Get the substring up to the last non-space character
     }
 
     private static void HandleStringReplace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -548,13 +379,214 @@ internal partial class MethodConvert
 
     private static void HandleStringIndexOfChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
 
         // Call the StdLib memorySearch method to find the index of the character
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
     }
 
+    private static void ConvertToUpper(MethodConvert methodConvert)
+    {
+        var loopStart = new JumpTarget();
+        var loopEnd = new JumpTarget();
+        var charIsLower = new JumpTarget();
+        methodConvert.Push(""); // Create an empty ByteString
+
+        // methodConvert.AddInstruction(OpCode.LDARG0); // Load the string | arr str
+        methodConvert.AddInstruction(OpCode.PUSH0); // Push the initial index (0)  arr str 0
+        loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+
+        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
+        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
+        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
+        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+
+        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index | arr str 0 0
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
+        methodConvert.Swap();
+        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the character
+        methodConvert.Push((ushort)'a'); // Push 'a'
+        methodConvert.Push((ushort)'z' + 1); // Push 'z' + 1
+        methodConvert.AddInstruction(OpCode.WITHIN); // Check if character is within 'a' to 'z'
+        methodConvert.Jump(OpCode.JMPIF, charIsLower); // If true, jump to charIsLower
+        methodConvert.Rot();
+        methodConvert.Swap();
+        methodConvert.AddInstruction(OpCode.CAT); // Append the original character to the array
+        methodConvert.Swap();
+        methodConvert.Inc();
+        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
+
+        charIsLower.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push((ushort)'a'); // Push 'a'
+        methodConvert.AddInstruction(OpCode.SUB); // Subtract 'a' from the character
+        methodConvert.Push((ushort)'A'); // Push 'A'
+        methodConvert.AddInstruction(OpCode.ADD); // Add 'A' to the result
+        methodConvert.Rot();
+        methodConvert.Swap();
+        methodConvert.AddInstruction(OpCode.CAT); // Append the upper case character to the array
+        methodConvert.Swap();
+        methodConvert.Inc();
+        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
+
+        loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Drop();
+        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert the array to a byte string
+    }
+
+    private static void ConvertToLower(MethodConvert methodConvert)
+    {
+        var loopStart = new JumpTarget();
+        var loopEnd = new JumpTarget();
+        var charIsLower = new JumpTarget();
+        methodConvert.Push(""); // Create an empty ByteString
+
+        // methodConvert.AddInstruction(OpCode.LDARG0); // Load the string | arr str
+        methodConvert.AddInstruction(OpCode.PUSH0); // Push the initial index (0)  arr str 0
+        loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+
+        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
+        methodConvert.AddInstruction(OpCode.SIZE); // Get the length of the string
+        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
+        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+
+        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the index | arr str 0 0
+        methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
+        methodConvert.Swap();
+        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+        methodConvert.AddInstruction(OpCode.DUP); // Duplicate the character
+        methodConvert.Push((ushort)'A'); // Push 'a'
+        methodConvert.Push((ushort)'Z' + 1); // Push 'z' + 1
+        methodConvert.AddInstruction(OpCode.WITHIN); // Check if character is within 'a' to 'z'
+        methodConvert.Jump(OpCode.JMPIF, charIsLower); // If true, jump to charIsLower
+        methodConvert.Rot();
+        methodConvert.Swap();
+        methodConvert.AddInstruction(OpCode.CAT); // Append the original character to the array
+        methodConvert.Swap();
+        methodConvert.Inc();
+        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
+
+        charIsLower.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push((ushort)'A'); // Push 'a'
+        methodConvert.AddInstruction(OpCode.SUB); // Subtract 'a' from the character
+        methodConvert.Push((ushort)'a'); // Push 'A'
+        methodConvert.AddInstruction(OpCode.ADD); // Add 'A' to the result
+        methodConvert.Rot();
+        methodConvert.Swap();
+        methodConvert.AddInstruction(OpCode.CAT); // Append the upper case character to the array
+        methodConvert.Swap();
+        methodConvert.Inc();
+        methodConvert.Jump(OpCode.JMP, loopStart); // Jump to the start of the loop
+
+        loopEnd.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Drop();
+        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert the array to a byte string
+    }
+
+    private static void InitStrLen(MethodConvert methodConvert, byte strLen)
+    {
+        GetString(methodConvert);
+        methodConvert.AddInstruction(OpCode.SIZE);
+        methodConvert.AccessSlot(OpCode.STLOC, strLen);
+    }
+
+    // Local function to get strLen
+    private static void GetStrLen(MethodConvert methodConvert, byte strLen) => methodConvert.AccessSlot(OpCode.LDLOC, strLen);
+
+    private static void InitStartIndex(MethodConvert methodConvert, byte startIndex)
+    {
+        methodConvert.Push(0);
+        methodConvert.AccessSlot(OpCode.STLOC, startIndex);
+    }
+
+    private static void InitEndIndex(MethodConvert methodConvert, byte endIndex, byte strLen)
+    {
+        GetStrLen(methodConvert, strLen);
+        methodConvert.AddInstruction(OpCode.DEC); // len-1
+        methodConvert.AccessSlot(OpCode.STLOC, endIndex);
+    }
+
+    // Local function to get endIndex
+    private static void GetEndIndex(MethodConvert methodConvert, byte endIndex) => methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
+
+    private static void GetString(MethodConvert methodConvert) => methodConvert.AddInstruction(OpCode.LDARG0); // Load the string
+
+    // Local function to get startIndex
+    private static void GetStartIndex(MethodConvert methodConvert, byte startIndex) => methodConvert.AccessSlot(OpCode.LDLOC, startIndex);
+
+    private static void CheckStartIndex(MethodConvert methodConvert, JumpTarget loopEnd, byte startIndex, byte strLen)
+    {
+        GetStartIndex(methodConvert, startIndex);
+        GetStrLen(methodConvert, strLen);
+        methodConvert.AddInstruction(OpCode.LT); // Check if index < length
+        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+    }
+
+    // Local function to set startIndex
+    private static void MoveStartIndexAndLoop(MethodConvert methodConvert, JumpTarget loopStart, byte startIndex)
+    {
+        methodConvert.AccessSlot(OpCode.LDLOC, startIndex);
+        methodConvert.AddInstruction(OpCode.INC);
+        methodConvert.AccessSlot(OpCode.STLOC, startIndex);
+        methodConvert.Jump(OpCode.JMP, loopStart);
+    }
+
+    private static void PickCharStart(MethodConvert methodConvert, byte startIndex)
+    {
+        GetString(methodConvert);
+        GetStartIndex(methodConvert, startIndex);
+        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+    }
+
+    // Local function to set endIndex
+    private static void MoveEndIndexAndLoop(MethodConvert methodConvert, JumpTarget loopStart, byte endIndex)
+    {
+        methodConvert.AccessSlot(OpCode.LDLOC, endIndex);
+        methodConvert.AddInstruction(OpCode.DEC);
+        methodConvert.AccessSlot(OpCode.STLOC, endIndex);
+        methodConvert.Jump(OpCode.JMP, loopStart);
+    }
+
+    private static void CheckWithinWhiteSpace(MethodConvert methodConvert, JumpTarget loopEnd)
+    {
+        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Push((ushort)'\t');
+        methodConvert.Push((ushort)'\r' + 1);
+        methodConvert.AddInstruction(OpCode.WITHIN); // check if '\t' <= c <= '\r'
+        methodConvert.AddInstruction(OpCode.SWAP);
+
+        methodConvert.Push((ushort)' '); // Push space character
+        methodConvert.AddInstruction(OpCode.EQUAL); // Check if character is a space
+        methodConvert.AddInstruction(OpCode.BOOLOR); // check if '\t' <= c <= '\r' or ' ' == c
+
+        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+    }
+
+    private static void CheckTrimChar(MethodConvert methodConvert, JumpTarget loopEnd)
+    {
+        methodConvert.AddInstruction(OpCode.LDARG1);
+        methodConvert.NumEqual();
+        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+    }
+
+    private static void CheckEndIndex(MethodConvert methodConvert, JumpTarget loopEnd, byte endIndex, byte startIndex)
+    {
+        GetEndIndex(methodConvert, endIndex);
+        GetStartIndex(methodConvert, startIndex);
+        methodConvert.AddInstruction(OpCode.GT); // Check if index > start
+        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd); // If not, exit the loop
+    }
+
+    private static void PickCharEnd(MethodConvert methodConvert, byte endIndex)
+    {
+        GetString(methodConvert);
+        GetEndIndex(methodConvert, endIndex);
+        methodConvert.AddInstruction(OpCode.PICKITEM); // Get the character at the current index
+    }
 }
