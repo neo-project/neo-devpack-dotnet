@@ -217,7 +217,6 @@ internal partial class MethodConvert
         methodConvert.Push("");
         secondNotNull.Instruction = methodConvert.Nop();
         methodConvert.AddInstruction(OpCode.CAT);
-
     }
 
     private static void HandleStringToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -290,7 +289,6 @@ internal partial class MethodConvert
         var strLen = methodConvert.AddAnonymousVariable();
         var startIndex = methodConvert.AddAnonymousVariable();
         var endIndex = methodConvert.AddAnonymousVariable();
-
 
         InitStrLen(methodConvert, strLen);       // strLen = string.Length
         InitStartIndex(methodConvert, startIndex);   // startIndex = 0
