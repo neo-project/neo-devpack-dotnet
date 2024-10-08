@@ -1,3 +1,5 @@
+using Neo.SmartContract.Framework;
+
 namespace Neo.Compiler.CSharp.TestContracts;
 
 public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
@@ -11,6 +13,30 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
     public static void testProperty2()
     {
         var p = new Person("NEO3", 10);
+    }
+
+    public static Person testProperty3()
+    {
+        return new Person()
+        {
+            Name = "NEO3",
+        };
+    }
+
+    public static Map<string, string> testProperty4()
+    {
+        return new Map<string, string>()
+        {
+            ["Name"] = "NEO3",
+        };
+    }
+
+    public static List<int> testProperty5()
+    {
+        return new List<int>()
+        {
+            1, 2, 3, 4, 5
+        };
     }
 
     public static (string, int, string) testPropertyInit()
@@ -29,6 +55,10 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
         {
             Name = name;
             Age = age;
+        }
+
+        public Person()
+        {
         }
     }
 }

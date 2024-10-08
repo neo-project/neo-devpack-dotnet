@@ -16,6 +16,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
@@ -48,6 +50,76 @@ internal partial class MethodConvert
 
     private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)
     {
+        // Handle different types of initializer expressions:
+        //
+        // ObjectInitializerExpression:
+        // Example: new Person { Name = "John", Age = 30 }
+        // Used for initializing properties of an object.
+        //
+        // CollectionInitializerExpression:
+        // Example: new List<int> { 1, 2, 3 }
+        // Used for initializing collections like lists or sets.
+        //
+        // ArrayInitializerExpression:
+        // Example: new int[] { 1, 2, 3 }
+        // Used for initializing arrays.
+        //
+        // ComplexElementInitializerExpression:
+        // Example: new Dictionary<string, int> { { "one", 1 }, { "two", 2 } }
+        // Used for initializing complex elements like dictionary entries.
+        //
+        // NullLiteralExpression:
+        // Example: new Person { Name = null }
+        // Used when explicitly setting a property to null in an initializer.
+
+        if (initializer.IsKind(SyntaxKind.CollectionInitializerExpression))
+        {
+            ITypeSymbol type;
+            if (initializer.Expressions.Count > 0)
+            {
+                var firstExpression = initializer.Expressions[0];
+                var typeInfo = model.GetTypeInfo(firstExpression);
+                type = typeInfo.Type!;
+            }
+            else
+            {
+                // Handle empty collection case if necessary
+                throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, "Cannot determine item type from an empty collection initializer.");
+            }
+
+            AddInstruction(OpCode.DROP);
+            if (type.SpecialType == SpecialType.System_Byte)
+            {
+                var values = initializer.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
+                if (values.Any(p => !p.HasValue))
+                {
+                    Push(values.Length);
+                    AddInstruction(OpCode.NEWBUFFER);
+                    for (var i = 0; i < initializer.Expressions.Count; i++)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        Push(i);
+                        ConvertExpression(model, initializer.Expressions[i]);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                }
+                else
+                {
+                    var data = values.Select(p => (byte)System.Convert.ChangeType(p.Value, typeof(byte))!).ToArray();
+                    Push(data);
+                    ChangeType(VM.Types.StackItemType.Buffer);
+                }
+            }
+            else
+            {
+                for (var i = initializer.Expressions.Count - 1; i >= 0; i--)
+                    ConvertExpression(model, initializer.Expressions[i]);
+                Push(initializer.Expressions.Count);
+                AddInstruction(OpCode.PACK);
+            }
+            return;
+        }
+
         foreach (ExpressionSyntax e in initializer.Expressions)
         {
             if (e is not AssignmentExpressionSyntax ae)
@@ -63,9 +135,38 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.SETITEM);
                     break;
                 case IPropertySymbol property:
-                    ConvertExpression(model, ae.Right);
-                    AddInstruction(OpCode.OVER);
-                    CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+                    // Special handling for Map and List initialization is required due to their unique initialization syntax and behavior.
+                    // Map and List properties are not defined explicitly like regular types
+
+                    // Examples:
+                    // Map: new Map<string, int> { ["key"] = 42 };
+                    //      This is equivalent to: map["key"] = 42;
+                    // Regular: new MyClass { Property = value };
+                    //      This uses the standard property setter.
+                    if (property.ContainingType.Name is "Map")
+                    {
+                        // Duplicate the object reference for Map and List
+                        AddInstruction(OpCode.DUP);
+
+                        if (ae.Left is ImplicitElementAccessSyntax elementAccess)
+                        {
+                            ConvertExpression(model, elementAccess.ArgumentList.Arguments[0].Expression);
+                        }
+                        else
+                        {
+                            ConvertExpression(model, ae.Left);
+                        }
+                        // Convert the value to be assigned (for both Map and List)
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.SETITEM);
+                    }
+                    else
+                    {
+                        // For regular properties:
+                        ConvertExpression(model, ae.Right);
+                        AddInstruction(OpCode.OVER);
+                        CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+                    }
                     break;
                 default:
                     throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");

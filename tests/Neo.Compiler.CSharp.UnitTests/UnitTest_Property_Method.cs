@@ -1,7 +1,9 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.VM.Types;
 using System.Numerics;
+using Array = Neo.VM.Types.Array;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -25,6 +27,46 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.TestProperty2();
             AssertGasConsumed(1557390);
             // No errors
+        }
+
+        [TestMethod]
+        public void TestPropertyMethod3()
+        {
+            var person = Contract.TestProperty3()! as Array;
+            AssertGasConsumed(1309080); // Adjust this value based on actual gas consumption
+
+            Assert.IsNotNull(person);
+            Assert.AreEqual(3, person.Count);
+            Assert.AreEqual((person[0] as StackItem)!.GetString(), "NEO3");
+            Assert.AreEqual(person[1], new BigInteger(0));
+        }
+
+        [TestMethod]
+        public void TestPropertyMethod4()
+        {
+            var map = Contract.TestProperty4()!;
+            AssertGasConsumed(1230570); // Adjust this value based on actual gas consumption
+
+            Assert.IsNotNull(map);
+            Assert.AreEqual(1, map.Count);
+
+            var key = (ByteString)"Name";
+            Assert.IsTrue(map.ContainsKey(key));
+            Assert.AreEqual((map[key] as StackItem)!.GetString(), "NEO3");
+        }
+
+        [TestMethod]
+        public void TestPropertyMethod5()
+        {
+            var list = Contract.TestProperty5()!;
+            AssertGasConsumed(1046190); // Adjust this value based on actual gas consumption
+
+            Assert.IsNotNull(list);
+            Assert.AreEqual(5, list.Count);
+            for (var i = 0; i < 5; i++)
+            {
+                Assert.AreEqual(i + 1, (int)(BigInteger)list[i]);
+            }
         }
 
         [TestMethod]
