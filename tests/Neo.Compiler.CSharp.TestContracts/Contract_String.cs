@@ -78,5 +78,45 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return str.Trim();
         }
+
+        public static char TestPickItem(string s, int index)
+        {
+            return s[index];
+        }
+
+        public static string TestSubstringToEnd(string s, int startIndex)
+        {
+            return s.Substring(startIndex);
+        }
+
+        public static string TestConcat(string? s1, string? s2)
+        {
+            return string.Concat(s1, s2);
+        }
+
+        public static int TestIndexOfChar(string s, char c)
+        {
+            return s.IndexOf(c);
+        }
+
+        public static string TestToLower(string s)
+        {
+            return s.ToLower();
+        }
+
+        public static string TestToUpper(string s)
+        {
+            return s.ToUpper();
+        }
+
+        public static string TestTrimChar(string s, char trimChar)
+        {
+            return s.Trim(trimChar);
+        }
+
+        public static int TestLength(string s)
+        {
+            return s.Length;
+        }
     }
 }

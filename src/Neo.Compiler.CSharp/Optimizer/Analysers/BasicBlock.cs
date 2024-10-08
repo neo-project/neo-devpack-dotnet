@@ -14,6 +14,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Neo.Optimizer
@@ -24,6 +25,7 @@ namespace Neo.Optimizer
     /// The end of a basic block can be a jumping instruction, an ENDFINALLY, a RET, etc.
     /// Instructions in the same basic block can be replaced with more effcient ones.
     /// </summary>
+    [DebuggerDisplay("BasicBlock addr={startAddr}")]
     public class BasicBlock
     {
         public readonly int startAddr;
