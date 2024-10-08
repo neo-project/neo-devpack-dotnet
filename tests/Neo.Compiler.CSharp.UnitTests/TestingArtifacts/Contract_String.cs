@@ -25,6 +25,31 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeXhK2CYFRQxQStgmBUUMi0A=
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.DUP
+    /// 0006 : OpCode.ISNULL
+    /// 0007 : OpCode.JMPIFNOT 05
+    /// 0009 : OpCode.DROP
+    /// 000A : OpCode.PUSHDATA1
+    /// 000C : OpCode.SWAP
+    /// 000D : OpCode.DUP
+    /// 000E : OpCode.ISNULL
+    /// 000F : OpCode.JMPIFNOT 05
+    /// 0011 : OpCode.DROP
+    /// 0012 : OpCode.PUSHDATA1
+    /// 0014 : OpCode.CAT
+    /// 0015 : OpCode.RET
+    /// </remarks>
+    [DisplayName("testConcat")]
+    public abstract string? TestConcat(string? s1, string? s2);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
     /// Script: VwABDHdvcmxkeDcDABC4QA==
     /// 0000 : OpCode.INITSLOT 0001
     /// 0003 : OpCode.PUSHDATA1 776F726C64
@@ -34,12 +59,6 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 000F : OpCode.GE
     /// 0010 : OpCode.RET
     /// </remarks>
-    [DisplayName("testConcat")]
-    public abstract string? TestConcat(string? s1, string? s2);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
     [DisplayName("testContains")]
     public abstract bool? TestContains(string? str);
 
@@ -133,6 +152,20 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
+    /// Script: VwACeXg3AwBA
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.CALLT 0300
+    /// 0008 : OpCode.RET
+    /// </remarks>
+    [DisplayName("testIndexOfChar")]
+    public abstract BigInteger? TestIndexOfChar(string? s, BigInteger? c);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
     /// Script: VwQABAAAoN7Frck1NgAAAAAAAABwDE5YVjdaaEhpeU0xYUhYd3BWc1JaQzZCd05GUDJqZ2hYQXFxDAECA9swcgxTQnl0ZTogANY3AgCLDCwgQnl0ZTogiwAqNwIAiwwsIFVTaG9ydDogiwHoAzcCAIsMLCCL2ygMVUludDogAkBCDwA3AgCLDCwgVUxvbmc6IIsDABCl1OgAAAA3AgCLDCwgi9soi9soDEJpZ0ludGVnZXI6IGg3AgCLDCwgQ2hhcjogiwBB2yiLDCwgU3RyaW5nOiCLDEhlbGxviwwsIIvbKIvbKAxFQ1BvaW50OiBpiwwsIEJ5dGVTdHJpbmc6IIsMU3lzdGVtLkJ5dGVbXYsMLCBCb29sOiCLCCYKDFRydWUiCQxGYWxzZYvbKIvbKHNrQA==
     /// 0000 : OpCode.INITSLOT 0400
     /// 0003 : OpCode.PUSHINT128 0000A0DEC5ADC9353600000000000000
@@ -213,12 +246,6 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 0145 : OpCode.LDLOC3
     /// 0146 : OpCode.RET
     /// </remarks>
-    [DisplayName("testIndexOfChar")]
-    public abstract BigInteger? TestIndexOfChar(string? s, BigInteger? c);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
     [DisplayName("testInterpolatedStringHandler")]
     public abstract string? TestInterpolatedStringHandler();
 
@@ -242,6 +269,19 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// </remarks>
     [DisplayName("testIsNullOrEmpty")]
     public abstract bool? TestIsNullOrEmpty(string? str);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeMpA
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.SIZE
+    /// 0005 : OpCode.RET
+    /// </remarks>
+    [DisplayName("testLength")]
+    public abstract BigInteger? TestLength(string? s);
 
     /// <summary>
     /// Unsafe method
@@ -276,14 +316,22 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 004C : OpCode.SYSCALL CFE74796
     /// 0051 : OpCode.RET
     /// </remarks>
-    [DisplayName("testLength")]
-    public abstract BigInteger? TestLength(string? s);
+    [DisplayName("testMain")]
+    public abstract void TestMain();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    [DisplayName("testMain")]
-    public abstract void TestMain();
+    /// <remarks>
+    /// Script: VwACeHnOQA==
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.PICKITEM
+    /// 0006 : OpCode.RET
+    /// </remarks>
+    [DisplayName("testPickItem")]
+    public abstract BigInteger? TestPickItem(string? s, BigInteger? index);
 
     /// <summary>
     /// Unsafe method
@@ -308,14 +356,116 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 001E : OpCode.SYSCALL CFE74796
     /// 0023 : OpCode.RET
     /// </remarks>
-    [DisplayName("testPickItem")]
-    public abstract BigInteger? TestPickItem(string? s, BigInteger? index);
+    [DisplayName("testSubstring")]
+    public abstract void TestSubstring();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
-    [DisplayName("testSubstring")]
-    public abstract void TestSubstring();
+    /// <remarks>
+    /// Script: VwACeHlLykufjEA=
+    /// 0000 : OpCode.INITSLOT 0002
+    /// 0003 : OpCode.LDARG0
+    /// 0004 : OpCode.LDARG1
+    /// 0005 : OpCode.OVER
+    /// 0006 : OpCode.SIZE
+    /// 0007 : OpCode.OVER
+    /// 0008 : OpCode.SUB
+    /// 0009 : OpCode.SUBSTR
+    /// 000A : OpCode.RET
+    /// </remarks>
+    [DisplayName("testSubstringToEnd")]
+    public abstract string? TestSubstringToEnd(string? s, BigInteger? startIndex);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABDBBKeMq1JiJKeFDOSgBBAFu7JAlRUItQnCLpAEGfAGGeUVCLUJwi3EXbKEA=
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.LDARG0
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.LT
+    /// 000A : OpCode.JMPIFNOT 22
+    /// 000C : OpCode.DUP
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.SWAP
+    /// 000F : OpCode.PICKITEM
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.PUSHINT8 41
+    /// 0013 : OpCode.PUSHINT8 5B
+    /// 0015 : OpCode.WITHIN
+    /// 0016 : OpCode.JMPIF 09
+    /// 0018 : OpCode.ROT
+    /// 0019 : OpCode.SWAP
+    /// 001A : OpCode.CAT
+    /// 001B : OpCode.SWAP
+    /// 001C : OpCode.INC
+    /// 001D : OpCode.JMP E9
+    /// 001F : OpCode.PUSHINT8 41
+    /// 0021 : OpCode.SUB
+    /// 0022 : OpCode.PUSHINT8 61
+    /// 0024 : OpCode.ADD
+    /// 0025 : OpCode.ROT
+    /// 0026 : OpCode.SWAP
+    /// 0027 : OpCode.CAT
+    /// 0028 : OpCode.SWAP
+    /// 0029 : OpCode.INC
+    /// 002A : OpCode.JMP DC
+    /// 002C : OpCode.DROP
+    /// 002D : OpCode.CONVERT 28
+    /// 002F : OpCode.RET
+    /// </remarks>
+    [DisplayName("testToLower")]
+    public abstract string? TestToLower(string? s);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABDBBKeMq1JiJKeFDOSgBhAHu7JAlRUItQnCLpAGGfAEGeUVCLUJwi3EXbKEA=
+    /// 0000 : OpCode.INITSLOT 0001
+    /// 0003 : OpCode.PUSHDATA1
+    /// 0005 : OpCode.PUSH0
+    /// 0006 : OpCode.DUP
+    /// 0007 : OpCode.LDARG0
+    /// 0008 : OpCode.SIZE
+    /// 0009 : OpCode.LT
+    /// 000A : OpCode.JMPIFNOT 22
+    /// 000C : OpCode.DUP
+    /// 000D : OpCode.LDARG0
+    /// 000E : OpCode.SWAP
+    /// 000F : OpCode.PICKITEM
+    /// 0010 : OpCode.DUP
+    /// 0011 : OpCode.PUSHINT8 61
+    /// 0013 : OpCode.PUSHINT8 7B
+    /// 0015 : OpCode.WITHIN
+    /// 0016 : OpCode.JMPIF 09
+    /// 0018 : OpCode.ROT
+    /// 0019 : OpCode.SWAP
+    /// 001A : OpCode.CAT
+    /// 001B : OpCode.SWAP
+    /// 001C : OpCode.INC
+    /// 001D : OpCode.JMP E9
+    /// 001F : OpCode.PUSHINT8 61
+    /// 0021 : OpCode.SUB
+    /// 0022 : OpCode.PUSHINT8 41
+    /// 0024 : OpCode.ADD
+    /// 0025 : OpCode.ROT
+    /// 0026 : OpCode.SWAP
+    /// 0027 : OpCode.CAT
+    /// 0028 : OpCode.SWAP
+    /// 0029 : OpCode.INC
+    /// 002A : OpCode.JMP DC
+    /// 002C : OpCode.DROP
+    /// 002D : OpCode.CONVERT 28
+    /// 002F : OpCode.RET
+    /// </remarks>
+    [DisplayName("testToUpper")]
+    public abstract string? TestToUpper(string? s);
 
     /// <summary>
     /// Unsafe method
@@ -380,30 +530,62 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 0041 : OpCode.SUBSTR
     /// 0042 : OpCode.RET
     /// </remarks>
-    [DisplayName("testSubstringToEnd")]
-    public abstract string? TestSubstringToEnd(string? s, BigInteger? startIndex);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    [DisplayName("testToLower")]
-    public abstract string? TestToLower(string? s);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    [DisplayName("testToUpper")]
-    public abstract string? TestToUpper(string? s);
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
     [DisplayName("testTrim")]
     public abstract string? TestTrim(string? str);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwMCeXjKcBBxaJ1yRWlotSYOeGnOebMmB2mccSLxamm3Jg54as55syYHap1yIvF4aWppn5yMQA==
+    /// 0000 : OpCode.INITSLOT 0302
+    /// 0003 : OpCode.LDARG1
+    /// 0004 : OpCode.LDARG0
+    /// 0005 : OpCode.SIZE
+    /// 0006 : OpCode.STLOC0
+    /// 0007 : OpCode.PUSH0
+    /// 0008 : OpCode.STLOC1
+    /// 0009 : OpCode.LDLOC0
+    /// 000A : OpCode.DEC
+    /// 000B : OpCode.STLOC2
+    /// 000C : OpCode.DROP
+    /// 000D : OpCode.LDLOC1
+    /// 000E : OpCode.LDLOC0
+    /// 000F : OpCode.LT
+    /// 0010 : OpCode.JMPIFNOT 0E
+    /// 0012 : OpCode.LDARG0
+    /// 0013 : OpCode.LDLOC1
+    /// 0014 : OpCode.PICKITEM
+    /// 0015 : OpCode.LDARG1
+    /// 0016 : OpCode.NUMEQUAL
+    /// 0017 : OpCode.JMPIFNOT 07
+    /// 0019 : OpCode.LDLOC1
+    /// 001A : OpCode.INC
+    /// 001B : OpCode.STLOC1
+    /// 001C : OpCode.JMP F1
+    /// 001E : OpCode.LDLOC2
+    /// 001F : OpCode.LDLOC1
+    /// 0020 : OpCode.GT
+    /// 0021 : OpCode.JMPIFNOT 0E
+    /// 0023 : OpCode.LDARG0
+    /// 0024 : OpCode.LDLOC2
+    /// 0025 : OpCode.PICKITEM
+    /// 0026 : OpCode.LDARG1
+    /// 0027 : OpCode.NUMEQUAL
+    /// 0028 : OpCode.JMPIFNOT 07
+    /// 002A : OpCode.LDLOC2
+    /// 002B : OpCode.DEC
+    /// 002C : OpCode.STLOC2
+    /// 002D : OpCode.JMP F1
+    /// 002F : OpCode.LDARG0
+    /// 0030 : OpCode.LDLOC1
+    /// 0031 : OpCode.LDLOC2
+    /// 0032 : OpCode.LDLOC1
+    /// 0033 : OpCode.SUB
+    /// 0034 : OpCode.INC
+    /// 0035 : OpCode.SUBSTR
+    /// 0036 : OpCode.RET
+    /// </remarks>
     [DisplayName("testTrimChar")]
     public abstract string? TestTrimChar(string? s, BigInteger? trimChar);
 
