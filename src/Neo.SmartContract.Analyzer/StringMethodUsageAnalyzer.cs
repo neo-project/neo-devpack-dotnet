@@ -21,10 +21,8 @@ namespace Neo.SmartContract.Analyzer
             "IndexOfAny", "Insert", "Intern", "IsInterned",
             "IsNormalized", "Join", "LastIndexOf", "LastIndexOfAny",
             "Normalize", "PadLeft", "PadRight", "Remove",
-            "Replace", "Split",
-            "ToCharArray", "ToLower", "ToLowerInvariant",
-            "ToUpper", "ToUpperInvariant", "TrimEnd",
-            "TrimStart"
+            "Replace", "Split", "ToCharArray", "ToLowerInvariant",
+            "ToUpperInvariant", "TrimEnd", "TrimStart"
         };
 
         private static readonly DiagnosticDescriptor Rule = new(
