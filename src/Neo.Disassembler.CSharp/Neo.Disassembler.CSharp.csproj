@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Title>Neo.Disassembler.CSharp</Title>
+        <LangVersion>latest</LangVersion>
+        <AssemblyTitle>Neo.Disassembler.CSharp</AssemblyTitle>
+        <AssemblyName>Neo.Disassembler.CSharp</AssemblyName>
+        <RootNamespace>Neo.Disassembler.CSharp</RootNamespace>
+        <PackageId>Neo.Disassembler.CSharp</PackageId>
+        <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
+        <Description>Disassembler for NEO smart contract.</Description>
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <ContentTargetFolders>content</ContentTargetFolders>
+        <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
+      <ProjectReference Include="..\..\neo\src\Neo.IO\Neo.IO.csproj" />
+      <ProjectReference Include="..\..\neo\src\Neo.Json\Neo.Json.csproj" />
+      <ProjectReference Include="..\..\neo\src\Neo.VM\Neo.VM.csproj" />
+      <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+    </ItemGroup>
+
+</Project>

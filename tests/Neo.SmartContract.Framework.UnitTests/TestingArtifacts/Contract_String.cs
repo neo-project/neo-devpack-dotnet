@@ -24,15 +24,50 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwICE3B4eYvbKHFpDGhlbGxvlyYGFHAiD2kMd29ybGSXJgQVcGhA
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.PUSH3
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.LDARG1
+    /// 07 : OpCode.CAT
+    /// 08 : OpCode.CONVERT 28
+    /// 0A : OpCode.STLOC1
+    /// 0B : OpCode.LDLOC1
+    /// 0C : OpCode.PUSHDATA1 68656C6C6F
+    /// 13 : OpCode.EQUAL
+    /// 14 : OpCode.JMPIFNOT 06
+    /// 16 : OpCode.PUSH4
+    /// 17 : OpCode.STLOC0
+    /// 18 : OpCode.JMP 0F
+    /// 1A : OpCode.LDLOC1
+    /// 1B : OpCode.PUSHDATA1 776F726C64
+    /// 22 : OpCode.EQUAL
+    /// 23 : OpCode.JMPIFNOT 04
+    /// 25 : OpCode.PUSH5
+    /// 26 : OpCode.STLOC0
+    /// 27 : OpCode.LDLOC0
+    /// 28 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAdd")]
     public abstract BigInteger? TestStringAdd(string? s1, string? s2);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeHk3AACL2yhA
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.CALLT 0000
+    /// 08 : OpCode.CAT
+    /// 09 : OpCode.CONVERT 28
+    /// 0B : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringAddInt")]
     public abstract string? TestStringAddInt(string? s, BigInteger? i);
 
     #endregion
-
 }

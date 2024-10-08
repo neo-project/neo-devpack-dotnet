@@ -60,9 +60,15 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: NAY0N1lA
+    /// 00 : OpCode.CALL 06
+    /// 02 : OpCode.CALL 37
+    /// 04 : OpCode.LDSFLD1
+    /// 05 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();
 
     #endregion
-
 }

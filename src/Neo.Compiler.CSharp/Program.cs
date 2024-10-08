@@ -254,7 +254,7 @@ namespace Neo.Compiler
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
-                    var artifact = manifest.GetArtifactsSource(baseName, nef);
+                    var artifact = manifest.GetArtifactsSource(baseName, nef, debugInfo: debugInfo);
 
                     if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Source))
                     {

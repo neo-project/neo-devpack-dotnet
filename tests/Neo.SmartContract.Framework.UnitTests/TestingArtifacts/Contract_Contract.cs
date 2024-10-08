@@ -24,27 +24,58 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwAEe3p5eEFifVtSQA==
+    /// 00 : OpCode.INITSLOT 0004
+    /// 03 : OpCode.LDARG3
+    /// 04 : OpCode.LDARG2
+    /// 05 : OpCode.LDARG1
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SYSCALL 627D5B52
+    /// 0C : OpCode.RET
+    /// </remarks>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACC3l42yg3AABA
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.CONVERT 28
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.RET
+    /// </remarks>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeEHPmYcCQA==
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.SYSCALL CF998702
+    /// 09 : OpCode.RET
+    /// </remarks>
     [DisplayName("createStandardAccount")]
     public abstract UInt160? CreateStandardAccount(ECPoint? pubKey);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: QZXaOoFA
+    /// 00 : OpCode.SYSCALL 95DA3A81
+    /// 05 : OpCode.RET
+    /// </remarks>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();
 
     #endregion
-
 }

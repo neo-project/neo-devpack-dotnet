@@ -24,9 +24,13 @@ public abstract class Contract_Boolean(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CEA=
+    /// 00 : OpCode.PUSHT
+    /// 01 : OpCode.RET
+    /// </remarks>
     [DisplayName("testBooleanOr")]
     public abstract bool? TestBooleanOr();
 
     #endregion
-
 }

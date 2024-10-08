@@ -113,7 +113,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             var (nef, manifest, debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
-            var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true);
+            var artifact = manifest.GetArtifactsSource(typeName, nef, generateProperties: true, debugInfo);
 
             var writtenArtifact = File.Exists(artifactsPath)
                 ? await File.ReadAllTextAsync(artifactsPath)

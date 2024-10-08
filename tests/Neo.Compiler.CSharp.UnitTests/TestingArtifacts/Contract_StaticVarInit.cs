@@ -24,15 +24,24 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: Qdv+qHRA
+    /// 00 : OpCode.SYSCALL DBFEA874
+    /// 05 : OpCode.RET
+    /// </remarks>
     [DisplayName("directGet")]
     public abstract UInt160? DirectGet();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: NANA
+    /// 00 : OpCode.CALL 03
+    /// 02 : OpCode.RET
+    /// </remarks>
     [DisplayName("staticInit")]
     public abstract UInt160? StaticInit();
 
     #endregion
-
 }

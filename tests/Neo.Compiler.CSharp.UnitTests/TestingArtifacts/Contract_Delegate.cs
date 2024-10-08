@@ -30,9 +30,26 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIACsj///9wFhVoNnEMU3VtOiBpNwAAi9soQc/nR5ZA
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.PUSHA C8FFFFFF
+    /// 08 : OpCode.STLOC0
+    /// 09 : OpCode.PUSH6
+    /// 0A : OpCode.PUSH5
+    /// 0B : OpCode.LDLOC0
+    /// 0C : OpCode.CALLA
+    /// 0D : OpCode.STLOC1
+    /// 0E : OpCode.PUSHDATA1 53756D3A20
+    /// 15 : OpCode.LDLOC1
+    /// 16 : OpCode.CALLT 0000
+    /// 19 : OpCode.CAT
+    /// 1A : OpCode.CONVERT 28
+    /// 1C : OpCode.SYSCALL CFE74796
+    /// 21 : OpCode.RET
+    /// </remarks>
     [DisplayName("testDelegate")]
     public abstract void TestDelegate();
 
     #endregion
-
 }
