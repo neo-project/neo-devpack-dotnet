@@ -69,9 +69,6 @@ Both attributes allow for customization:
 4. If the key is present, an exception is thrown with the message "Already entered".
 5. After the method completes (or if an exception is thrown), the `Exit()` method is automatically called, which removes the key from storage.
 
-## Considerations
-
-- Ensure that `Exit()` is always called, even in error scenarios, to prevent the contract from becoming permanently locked.
 - Be mindful of gas costs, as each storage operation consumes GAS.
 - Consider the trade-offs between using global (`NoReentrantAttribute`) and method-specific (`NoReentrantMethodAttribute`) protection based on your contract's needs.
 
