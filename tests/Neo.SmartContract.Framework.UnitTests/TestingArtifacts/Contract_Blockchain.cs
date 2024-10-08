@@ -24,57 +24,143 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwECeDcCAHB5aDQDQA==
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0200
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDARG1
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.CALL 03
+    /// 0C : OpCode.RET
+    /// </remarks>
     [DisplayName("getBlockByHash")]
     public abstract object? GetBlockByHash(UInt256? hash, string? whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwECeDcCAHB5aDUw////QA==
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0200
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDARG1
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.CALL_L 30FFFFFF
+    /// 0F : OpCode.RET
+    /// </remarks>
     [DisplayName("getBlockByIndex")]
     public abstract object? GetBlockByIndex(BigInteger? index, string? whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwECeDcGAHB5aDQDQA==
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0600
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDARG1
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.CALL 03
+    /// 0C : OpCode.RET
+    /// </remarks>
     [DisplayName("getContract")]
     public abstract object? GetContract(UInt160? hash, string? whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: NwAAQA==
+    /// 00 : OpCode.CALLT 0000
+    /// 03 : OpCode.RET
+    /// </remarks>
     [DisplayName("getHeight")]
     public abstract BigInteger? GetHeight();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcBAEA=
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0100
+    /// 07 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTransactionHeight")]
     public abstract BigInteger? GetTransactionHeight(UInt256? hash);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEDeXg3BQBwemg1Dv///0A=
+    /// 00 : OpCode.INITSLOT 0103
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALLT 0500
+    /// 08 : OpCode.STLOC0
+    /// 09 : OpCode.LDARG2
+    /// 0A : OpCode.LDLOC0
+    /// 0B : OpCode.CALL_L 0EFFFFFF
+    /// 10 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxByBlockHash")]
     public abstract object? GetTxByBlockHash(UInt256? blockHash, BigInteger? txIndex, string? whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEDeXg3BQBwemg1/f7//0A=
+    /// 00 : OpCode.INITSLOT 0103
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALLT 0500
+    /// 08 : OpCode.STLOC0
+    /// 09 : OpCode.LDARG2
+    /// 0A : OpCode.LDLOC0
+    /// 0B : OpCode.CALL_L FDFEFFFF
+    /// 10 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxByBlockIndex")]
     public abstract object? GetTxByBlockIndex(BigInteger? blockIndex, BigInteger? txIndex, string? whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwECeDcDAHB5aDQDQA==
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0300
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDARG1
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.CALL 03
+    /// 0C : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxByHash")]
     public abstract object? GetTxByHash(UInt256? hash, string? whatReturn);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcHAEA=
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0700
+    /// 07 : OpCode.RET
+    /// </remarks>
     [DisplayName("getTxVMState")]
     public abstract BigInteger? GetTxVMState(UInt256? hash);
 
     #endregion
-
 }

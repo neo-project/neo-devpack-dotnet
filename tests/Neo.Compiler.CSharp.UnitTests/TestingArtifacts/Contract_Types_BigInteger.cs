@@ -24,39 +24,70 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: WEA=
+    /// 00 : OpCode.LDSFLD0
+    /// 01 : OpCode.RET
+    /// </remarks>
     [DisplayName("attribute")]
     public abstract BigInteger? Attribute();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: AEFA
+    /// 00 : OpCode.PUSHINT8 41
+    /// 02 : OpCode.RET
+    /// </remarks>
     [DisplayName("convertFromChar")]
     public abstract BigInteger? ConvertFromChar();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: D0A=
+    /// 00 : OpCode.PUSHM1
+    /// 01 : OpCode.RET
+    /// </remarks>
     [DisplayName("minusOne")]
     public abstract BigInteger? MinusOne();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EUA=
+    /// 00 : OpCode.PUSH1
+    /// 01 : OpCode.RET
+    /// </remarks>
     [DisplayName("one")]
     public abstract BigInteger? One();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEA=
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0000
+    /// 07 : OpCode.RET
+    /// </remarks>
     [DisplayName("parse")]
     public abstract BigInteger? Parse(string? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EEA=
+    /// 00 : OpCode.PUSH0
+    /// 01 : OpCode.RET
+    /// </remarks>
     [DisplayName("zero")]
     public abstract BigInteger? Zero();
 
     #endregion
-
 }

@@ -24,9 +24,14 @@ public abstract class Contract_ExtraAttribute(Neo.SmartContract.Testing.SmartCon
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACCEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.PUSHT
+    /// 04 : OpCode.RET
+    /// </remarks>
     [DisplayName("main2")]
     public abstract object? Main2(string? method, IList<object>? args);
 
     #endregion
-
 }

@@ -24,33 +24,81 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDQDQA==
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 03
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("isValidAndNotZeroUInt160")]
     public abstract bool? IsValidAndNotZeroUInt160(UInt160? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDQDQA==
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 03
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("isValidAndNotZeroUInt256")]
     public abstract bool? IsValidAndNotZeroUInt256(UInt256? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeBCzQA==
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSH0
+    /// 05 : OpCode.NUMEQUAL
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("isZeroUInt160")]
     public abstract bool? IsZeroUInt160(UInt160? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeBCzQA==
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSH0
+    /// 05 : OpCode.NUMEQUAL
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("isZeroUInt256")]
     public abstract bool? IsZeroUInt256(UInt256? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwECEYhKEHnQcGh4i3Bo2yg3AABA
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.PUSH1
+    /// 04 : OpCode.NEWBUFFER
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH0
+    /// 07 : OpCode.LDARG1
+    /// 08 : OpCode.SETITEM
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.LDLOC0
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.CAT
+    /// 0D : OpCode.STLOC0
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.CONVERT 28
+    /// 11 : OpCode.CALLT 0000
+    /// 14 : OpCode.RET
+    /// </remarks>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? value);
 
     #endregion
-
 }

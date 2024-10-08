@@ -24,33 +24,118 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmL2yhA
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.CAT
+    /// 06 : OpCode.CONVERT 28
+    /// 08 : OpCode.RET
+    /// </remarks>
     [DisplayName("byteStringAdd")]
     public abstract byte[]? ByteStringAdd(byte[]? a, byte[]? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACxUp4eaHPSnh5os9A
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.LDARG1
+    /// 07 : OpCode.DIV
+    /// 08 : OpCode.APPEND
+    /// 09 : OpCode.DUP
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.LDARG1
+    /// 0C : OpCode.MOD
+    /// 0D : OpCode.APPEND
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("div")]
     public abstract IList<object>? Div(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwICeXg07ErBRXBxRWloNK1A
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALL EC
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.UNPACK
+    /// 09 : OpCode.DROP
+    /// 0A : OpCode.STLOC0
+    /// 0B : OpCode.STLOC1
+    /// 0C : OpCode.DROP
+    /// 0D : OpCode.LDLOC1
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.CALL AD
+    /// 11 : OpCode.RET
+    /// </remarks>
     [DisplayName("mix")]
     public abstract BigInteger? Mix(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmfSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.SUB
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.PUSHINT32 00000080
+    /// 0C : OpCode.JMPGE 04
+    /// 0E : OpCode.JMP 0A
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F
+    /// 16 : OpCode.JMPLE 1E
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 21 : OpCode.AND
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F
+    /// 28 : OpCode.JMPLE 0C
+    /// 2A : OpCode.PUSHINT64 0000000001000000
+    /// 33 : OpCode.SUB
+    /// 34 : OpCode.RET
+    /// </remarks>
     [DisplayName("subtract")]
     public abstract BigInteger? Subtract(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.ADD
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.PUSHINT32 00000080
+    /// 0C : OpCode.JMPGE 04
+    /// 0E : OpCode.JMP 0A
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F
+    /// 16 : OpCode.JMPLE 1E
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 21 : OpCode.AND
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F
+    /// 28 : OpCode.JMPLE 0C
+    /// 2A : OpCode.PUSHINT64 0000000001000000
+    /// 33 : OpCode.SUB
+    /// 34 : OpCode.RET
+    /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);
 
     #endregion
-
 }
