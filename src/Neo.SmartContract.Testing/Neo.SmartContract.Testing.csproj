@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+      <ProjectReference Include="..\Neo.Disassembler.CSharp\Neo.Disassembler.CSharp.csproj" />
     </ItemGroup>
 
 </Project>
