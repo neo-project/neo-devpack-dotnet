@@ -24,33 +24,60 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: QTlTbjzbMEA=
+    /// 00 : OpCode.SYSCALL 39536E3C
+    /// 05 : OpCode.CONVERT 30
+    /// 07 : OpCode.RET
+    /// </remarks>
     [DisplayName("callingScriptHash")]
     public abstract byte[]? CallingScriptHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: Qfm04jjbMEA=
+    /// 00 : OpCode.SYSCALL F9B4E238
+    /// 05 : OpCode.CONVERT 30
+    /// 07 : OpCode.RET
+    /// </remarks>
     [DisplayName("entryScriptHash")]
     public abstract byte[]? EntryScriptHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: Qdv+qHTbMEA=
+    /// 00 : OpCode.SYSCALL DBFEA874
+    /// 05 : OpCode.CONVERT 30
+    /// 07 : OpCode.RET
+    /// </remarks>
     [DisplayName("executingScriptHash")]
     public abstract byte[]? ExecutingScriptHash();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: QS1RCDBA
+    /// 00 : OpCode.SYSCALL 2D510830
+    /// 05 : OpCode.RET
+    /// </remarks>
     [DisplayName("scriptContainer")]
     public abstract object? ScriptContainer();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: QS1RCDBA
+    /// 00 : OpCode.SYSCALL 2D510830
+    /// 05 : OpCode.RET
+    /// </remarks>
     [DisplayName("transaction")]
     public abstract object? Transaction();
 
     #endregion
-
 }

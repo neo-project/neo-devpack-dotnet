@@ -24,9 +24,34 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEACxASwEo0KXBoEM43AABBz+dHlgxtc2dBz+dHlmgRzkHP50eWaDQWQc/nR5ZA
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.PUSH0
+    /// 05 : OpCode.PUSH2
+    /// 06 : OpCode.PACK
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.CALL 29
+    /// 0A : OpCode.STLOC0
+    /// 0B : OpCode.LDLOC0
+    /// 0C : OpCode.PUSH0
+    /// 0D : OpCode.PICKITEM
+    /// 0E : OpCode.CALLT 0000
+    /// 11 : OpCode.SYSCALL CFE74796
+    /// 16 : OpCode.PUSHDATA1 6D7367
+    /// 1B : OpCode.SYSCALL CFE74796
+    /// 20 : OpCode.LDLOC0
+    /// 21 : OpCode.PUSH1
+    /// 22 : OpCode.PICKITEM
+    /// 23 : OpCode.SYSCALL CFE74796
+    /// 28 : OpCode.LDLOC0
+    /// 29 : OpCode.CALL 16
+    /// 2B : OpCode.SYSCALL CFE74796
+    /// 30 : OpCode.RET
+    /// </remarks>
     [DisplayName("testMain")]
     public abstract void TestMain();
 
     #endregion
-
 }

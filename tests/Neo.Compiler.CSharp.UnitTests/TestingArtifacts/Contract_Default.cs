@@ -24,93 +24,212 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testBigIntegerDefault")]
     public abstract BigInteger? TestBigIntegerDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEACXBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHF
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testBooleanDefault")]
     public abstract bool? TestBooleanDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testByteDefault")]
     public abstract BigInteger? TestByteDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testCharDefault")]
     public abstract BigInteger? TestCharDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAC3BoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testClassDefault")]
     public abstract object? TestClassDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testInt16Default")]
     public abstract BigInteger? TestInt16Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testInt32Default")]
     public abstract BigInteger? TestInt32Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testInt64Default")]
     public abstract BigInteger? TestInt64Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAC3BoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testObjectDefault")]
     public abstract object? TestObjectDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testSByteDefault")]
     public abstract BigInteger? TestSByteDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAC3BoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStringDefault")]
     public abstract string? TestStringDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAxXBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testStructDefault")]
     public abstract IList<object>? TestStructDefault();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testUInt16Default")]
     public abstract BigInteger? TestUInt16Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testUInt32Default")]
     public abstract BigInteger? TestUInt32Default();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHBoQA==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
+    /// </remarks>
     [DisplayName("testUInt64Default")]
     public abstract BigInteger? TestUInt64Default();
 
     #endregion
-
 }

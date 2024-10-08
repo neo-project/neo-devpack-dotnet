@@ -24,39 +24,120 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHA4
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.ABORT
+    /// </remarks>
     [DisplayName("testAbort")]
     public abstract BigInteger? TestAbort();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIBEHA7ERwRcAxleGNlcHRpb246cXgmBDSwNaj///8ScD8=
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.TRY 111C
+    /// 08 : OpCode.PUSH1
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.PUSHDATA1 657863657074696F6E
+    /// 15 : OpCode.THROW
+    /// 16 : OpCode.STLOC1
+    /// 17 : OpCode.LDARG0
+    /// 18 : OpCode.JMPIFNOT 04
+    /// 1A : OpCode.CALL B0
+    /// 1C : OpCode.CALL_L A8FFFFFF
+    /// 21 : OpCode.PUSH2
+    /// 22 : OpCode.STLOC0
+    /// 23 : OpCode.ENDFINALLY
+    /// </remarks>
     [DisplayName("testAbortInCatch")]
     public abstract BigInteger? TestAbortInCatch(bool? abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIBEHA7BwwRcD0AcRJwPQB4Jgc1kv///zWH////
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.TRY 070C
+    /// 08 : OpCode.PUSH1
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.ENDTRY 00
+    /// 0C : OpCode.STLOC1
+    /// 0D : OpCode.PUSH2
+    /// 0E : OpCode.STLOC0
+    /// 0F : OpCode.ENDTRY 00
+    /// 11 : OpCode.LDARG0
+    /// 12 : OpCode.JMPIFNOT 07
+    /// 14 : OpCode.CALL_L 92FFFFFF
+    /// 19 : OpCode.CALL_L 87FFFFFF
+    /// </remarks>
     [DisplayName("testAbortInFinally")]
     public abstract BigInteger? TestAbortInFinally(bool? abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBEHB4JgQ05zTf
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.JMPIFNOT 04
+    /// 08 : OpCode.CALL E7
+    /// 0A : OpCode.CALL DF
+    /// </remarks>
     [DisplayName("testAbortInFunction")]
     public abstract BigInteger? TestAbortInFunction(bool? abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIBEHA7Cg94JgQ02DTQcRFwPQUScD9oQA==
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.TRY 0A0F
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.JMPIFNOT 04
+    /// 0B : OpCode.CALL D8
+    /// 0D : OpCode.CALL D0
+    /// 0F : OpCode.STLOC1
+    /// 10 : OpCode.PUSH1
+    /// 11 : OpCode.STLOC0
+    /// 12 : OpCode.ENDTRY 05
+    /// 14 : OpCode.PUSH2
+    /// 15 : OpCode.STLOC0
+    /// 16 : OpCode.ENDFINALLY
+    /// 17 : OpCode.LDLOC0
+    /// 18 : OpCode.RET
+    /// </remarks>
     [DisplayName("testAbortInTry")]
     public abstract BigInteger? TestAbortInTry(bool? abortMsg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAEHAMQUJPUlQgTVNH4A==
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 41424F5254204D5347
+    /// 10 : OpCode.ABORTMSG
+    /// </remarks>
     [DisplayName("testAbortMsg")]
     public abstract BigInteger? TestAbortMsg();
 
     #endregion
-
 }
