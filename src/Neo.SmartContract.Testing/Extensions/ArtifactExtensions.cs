@@ -102,7 +102,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="nef">Nef file</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name, NefFile? nef = null, bool generateProperties = true, JToken? debugInfo = null)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, JToken? debugInfo = null)
         {
             name ??= manifest.Name;
             var builder = new StringBuilder();
