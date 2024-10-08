@@ -24,9 +24,19 @@ public abstract class Contract2(Neo.SmartContract.Testing.SmartContractInitializ
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwECDAECAwTbMHBoEs5A
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.PUSHDATA1 01020304
+    /// 09 : OpCode.CONVERT 30
+    /// 0B : OpCode.STLOC0
+    /// 0C : OpCode.LDLOC0
+    /// 0D : OpCode.PUSH2
+    /// 0E : OpCode.PICKITEM
+    /// 0F : OpCode.RET
+    /// </remarks>
     [DisplayName("unitTest_002")]
     public abstract BigInteger? UnitTest_002(object? arg1, object? arg2 = null);
 
     #endregion
-
 }

@@ -36,96 +36,336 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampByte")]
     public abstract BigInteger? ClampByte(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampInt")]
     public abstract BigInteger? ClampInt(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampLong")]
     public abstract BigInteger? ClampLong(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampSByte")]
     public abstract BigInteger? ClampSByte(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampShort")]
     public abstract BigInteger? ClampShort(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampUInt")]
     public abstract BigInteger? ClampUInt(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampULong")]
     public abstract BigInteger? ClampULong(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeHl6S0syAzpTurlA
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.OVER
+    /// 07 : OpCode.OVER
+    /// 08 : OpCode.JMPLE 03
+    /// 0A : OpCode.THROW
+    /// 0B : OpCode.REVERSE3
+    /// 0C : OpCode.MAX
+    /// 0D : OpCode.MIN
+    /// 0E : OpCode.RET
+    /// </remarks>
     [DisplayName("clampUShort")]
     public abstract BigInteger? ClampUShort(BigInteger? value, BigInteger? min, BigInteger? max);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemByte")]
     public abstract IList<object>? DivRemByte(BigInteger? left, BigInteger? right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemInt")]
     public abstract IList<object>? DivRemInt(BigInteger? left, BigInteger? right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemLong")]
     public abstract IList<object>? DivRemLong(BigInteger? left, BigInteger? right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemSbyte")]
     public abstract IList<object>? DivRemSbyte(BigInteger? left, BigInteger? right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemShort")]
     public abstract IList<object>? DivRemShort(BigInteger? left, BigInteger? right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemUint")]
     public abstract IList<object>? DivRemUint(BigInteger? left, BigInteger? right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemUlong")]
     public abstract IList<object>? DivRemUlong(BigInteger? left, BigInteger? right);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXhKEk2hU6ISwEA=
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH2
+    /// 07 : OpCode.PICK
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.MOD
+    /// 0B : OpCode.PUSH2
+    /// 0C : OpCode.PACK
+    /// 0D : OpCode.RET
+    /// </remarks>
     [DisplayName("divRemUshort")]
     public abstract IList<object>? DivRemUshort(BigInteger? left, BigInteger? right);
 
@@ -148,5 +388,4 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     public abstract BigInteger? Sign(BigInteger? a);
 
     #endregion
-
 }

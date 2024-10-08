@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
         {
             (var nef, var manifest, var debugInfo) = context.CreateResults(rootDebug);
             var debug = NeoDebugInfo.FromDebugInfoJson(debugInfo);
-            var artifact = manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true);
+            var artifact = manifest.GetArtifactsSource(typeof(T).Name, nef, generateProperties: true, debugInfo: debugInfo);
 
             string writtenArtifact = File.Exists(artifactsPath) ? File.ReadAllText(artifactsPath) : "";
             if (string.IsNullOrEmpty(writtenArtifact) || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))

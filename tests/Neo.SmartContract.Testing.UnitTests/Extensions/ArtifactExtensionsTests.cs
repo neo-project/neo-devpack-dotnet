@@ -131,7 +131,6 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
                                         public abstract bool? Withdraw(UInt160? token, UInt160? to, BigInteger? amount);
 
                                         #endregion
-
                                     }
 
                                     """.Replace("\r\n", "\n").TrimStart());

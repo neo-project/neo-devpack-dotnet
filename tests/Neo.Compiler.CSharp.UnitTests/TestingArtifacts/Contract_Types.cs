@@ -33,6 +33,16 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwAEe3p5eEFifVtSQA==
+    /// 00 : OpCode.INITSLOT 0004
+    /// 03 : OpCode.LDARG3
+    /// 04 : OpCode.LDARG2
+    /// 05 : OpCode.LDARG1
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SYSCALL 627D5B52
+    /// 0C : OpCode.RET
+    /// </remarks>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
 
@@ -213,15 +223,43 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACC3l42yg3AQBA
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.CONVERT 28
+    /// 08 : OpCode.CALLT 0100
+    /// 0B : OpCode.RET
+    /// </remarks>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwECEYhKEHnQcGh4i3Bo2yg3AABA
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.PUSH1
+    /// 04 : OpCode.NEWBUFFER
+    /// 05 : OpCode.DUP
+    /// 06 : OpCode.PUSH0
+    /// 07 : OpCode.LDARG1
+    /// 08 : OpCode.SETITEM
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.LDLOC0
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.CAT
+    /// 0D : OpCode.STLOC0
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.CONVERT 28
+    /// 11 : OpCode.CALLT 0000
+    /// 14 : OpCode.RET
+    /// </remarks>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? address, BigInteger? version);
 
     #endregion
-
 }
