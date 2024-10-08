@@ -26,19 +26,19 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEByHAMdGVzdGJvb2xKeGhT0EVoNwAAQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSHDATA1 74657374626F6F6C
-    /// 000F : OpCode.DUP
-    /// 0010 : OpCode.LDARG0
-    /// 0011 : OpCode.LDLOC0
-    /// 0012 : OpCode.REVERSE3
-    /// 0013 : OpCode.SETITEM
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.LDLOC0
-    /// 0016 : OpCode.CALLT 0000
-    /// 0019 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 74657374626F6F6C
+    /// 0F : OpCode.DUP
+    /// 10 : OpCode.LDARG0
+    /// 11 : OpCode.LDLOC0
+    /// 12 : OpCode.REVERSE3
+    /// 13 : OpCode.SETITEM
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.LDLOC0
+    /// 16 : OpCode.CALLT 0000
+    /// 19 : OpCode.RET
     /// </remarks>
     [DisplayName("testBool")]
     public abstract string? TestBool(bool? key);
@@ -48,20 +48,20 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEByHAMdGVzdHN0cmluZzJKeNsoaFPQRWg3AABA
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSHDATA1 74657374737472696E6732
-    /// 0012 : OpCode.DUP
-    /// 0013 : OpCode.LDARG0
-    /// 0014 : OpCode.CONVERT 28
-    /// 0016 : OpCode.LDLOC0
-    /// 0017 : OpCode.REVERSE3
-    /// 0018 : OpCode.SETITEM
-    /// 0019 : OpCode.DROP
-    /// 001A : OpCode.LDLOC0
-    /// 001B : OpCode.CALLT 0000
-    /// 001E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 74657374737472696E6732
+    /// 12 : OpCode.DUP
+    /// 13 : OpCode.LDARG0
+    /// 14 : OpCode.CONVERT 28
+    /// 16 : OpCode.LDLOC0
+    /// 17 : OpCode.REVERSE3
+    /// 18 : OpCode.SETITEM
+    /// 19 : OpCode.DROP
+    /// 1A : OpCode.LDLOC0
+    /// 1B : OpCode.CALLT 0000
+    /// 1E : OpCode.RET
     /// </remarks>
     [DisplayName("testByteArray")]
     public abstract object? TestByteArray(byte[]? key);
@@ -71,24 +71,24 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwIAyHAMAQHbMNsocQw3AABKaWhT0EVoNwAAQA==
-    /// 0000 : OpCode.INITSLOT 0200
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSHDATA1 0101
-    /// 0009 : OpCode.CONVERT 30
-    /// 000B : OpCode.CONVERT 28
-    /// 000D : OpCode.STLOC1
-    /// 000E : OpCode.PUSHDATA1
-    /// 0010 : OpCode.CALLT 0000
-    /// 0013 : OpCode.DUP
-    /// 0014 : OpCode.LDLOC1
-    /// 0015 : OpCode.LDLOC0
-    /// 0016 : OpCode.REVERSE3
-    /// 0017 : OpCode.SETITEM
-    /// 0018 : OpCode.DROP
-    /// 0019 : OpCode.LDLOC0
-    /// 001A : OpCode.CALLT 0000
-    /// 001D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 0101
+    /// 09 : OpCode.CONVERT 30
+    /// 0B : OpCode.CONVERT 28
+    /// 0D : OpCode.STLOC1
+    /// 0E : OpCode.PUSHDATA1
+    /// 10 : OpCode.CALLT 0000
+    /// 13 : OpCode.DUP
+    /// 14 : OpCode.LDLOC1
+    /// 15 : OpCode.LDLOC0
+    /// 16 : OpCode.REVERSE3
+    /// 17 : OpCode.SETITEM
+    /// 18 : OpCode.DROP
+    /// 19 : OpCode.LDLOC0
+    /// 1A : OpCode.CALLT 0000
+    /// 1D : OpCode.RET
     /// </remarks>
     [DisplayName("testByteArray2")]
     public abstract string? TestByteArray2();
@@ -98,22 +98,22 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEByHAMdGVzdHN0cmluZzJKeNsoaFPQRWjTaDcAAEA=
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSHDATA1 74657374737472696E6732
-    /// 0012 : OpCode.DUP
-    /// 0013 : OpCode.LDARG0
-    /// 0014 : OpCode.CONVERT 28
-    /// 0016 : OpCode.LDLOC0
-    /// 0017 : OpCode.REVERSE3
-    /// 0018 : OpCode.SETITEM
-    /// 0019 : OpCode.DROP
-    /// 001A : OpCode.LDLOC0
-    /// 001B : OpCode.CLEARITEMS
-    /// 001C : OpCode.LDLOC0
-    /// 001D : OpCode.CALLT 0000
-    /// 0020 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 74657374737472696E6732
+    /// 12 : OpCode.DUP
+    /// 13 : OpCode.LDARG0
+    /// 14 : OpCode.CONVERT 28
+    /// 16 : OpCode.LDLOC0
+    /// 17 : OpCode.REVERSE3
+    /// 18 : OpCode.SETITEM
+    /// 19 : OpCode.DROP
+    /// 1A : OpCode.LDLOC0
+    /// 1B : OpCode.CLEARITEMS
+    /// 1C : OpCode.LDLOC0
+    /// 1D : OpCode.CALLT 0000
+    /// 20 : OpCode.RET
     /// </remarks>
     [DisplayName("testClear")]
     public abstract object? TestClear(byte[]? key);
@@ -123,45 +123,45 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwIByHAQcSI8aUppaFPQRWlKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWl4tSTDaMpA
-    /// 0000 : OpCode.INITSLOT 0201
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSH0
-    /// 0006 : OpCode.STLOC1
-    /// 0007 : OpCode.JMP 3C
-    /// 0009 : OpCode.LDLOC1
-    /// 000A : OpCode.DUP
-    /// 000B : OpCode.LDLOC1
-    /// 000C : OpCode.LDLOC0
-    /// 000D : OpCode.REVERSE3
-    /// 000E : OpCode.SETITEM
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.LDLOC1
-    /// 0011 : OpCode.DUP
-    /// 0012 : OpCode.INC
-    /// 0013 : OpCode.DUP
-    /// 0014 : OpCode.PUSHINT32 00000080
-    /// 0019 : OpCode.JMPGE 04
-    /// 001B : OpCode.JMP 0A
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.PUSHINT32 FFFFFF7F
-    /// 0023 : OpCode.JMPLE 1E
-    /// 0025 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 002E : OpCode.AND
-    /// 002F : OpCode.DUP
-    /// 0030 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0035 : OpCode.JMPLE 0C
-    /// 0037 : OpCode.PUSHINT64 0000000001000000
-    /// 0040 : OpCode.SUB
-    /// 0041 : OpCode.STLOC1
-    /// 0042 : OpCode.DROP
-    /// 0043 : OpCode.LDLOC1
-    /// 0044 : OpCode.LDARG0
-    /// 0045 : OpCode.LT
-    /// 0046 : OpCode.JMPIF C3
-    /// 0048 : OpCode.LDLOC0
-    /// 0049 : OpCode.SIZE
-    /// 004A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSH0
+    /// 06 : OpCode.STLOC1
+    /// 07 : OpCode.JMP 3C
+    /// 09 : OpCode.LDLOC1
+    /// 0A : OpCode.DUP
+    /// 0B : OpCode.LDLOC1
+    /// 0C : OpCode.LDLOC0
+    /// 0D : OpCode.REVERSE3
+    /// 0E : OpCode.SETITEM
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.LDLOC1
+    /// 11 : OpCode.DUP
+    /// 12 : OpCode.INC
+    /// 13 : OpCode.DUP
+    /// 14 : OpCode.PUSHINT32 00000080
+    /// 19 : OpCode.JMPGE 04
+    /// 1B : OpCode.JMP 0A
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.PUSHINT32 FFFFFF7F
+    /// 23 : OpCode.JMPLE 1E
+    /// 25 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 2E : OpCode.AND
+    /// 2F : OpCode.DUP
+    /// 30 : OpCode.PUSHINT32 FFFFFF7F
+    /// 35 : OpCode.JMPLE 0C
+    /// 37 : OpCode.PUSHINT64 0000000001000000
+    /// 40 : OpCode.SUB
+    /// 41 : OpCode.STLOC1
+    /// 42 : OpCode.DROP
+    /// 43 : OpCode.LDLOC1
+    /// 44 : OpCode.LDARG0
+    /// 45 : OpCode.LT
+    /// 46 : OpCode.JMPIF C3
+    /// 48 : OpCode.LDLOC0
+    /// 49 : OpCode.SIZE
+    /// 4A : OpCode.RET
     /// </remarks>
     [DisplayName("testCount")]
     public abstract BigInteger? TestCount(BigInteger? count);
@@ -171,22 +171,22 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwIByHAMdGVzdGRlc2VyaWFsaXplSnhoU9BFaDcAAHFpNwEAQA==
-    /// 0000 : OpCode.INITSLOT 0201
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSHDATA1 74657374646573657269616C697A65
-    /// 0016 : OpCode.DUP
-    /// 0017 : OpCode.LDARG0
-    /// 0018 : OpCode.LDLOC0
-    /// 0019 : OpCode.REVERSE3
-    /// 001A : OpCode.SETITEM
-    /// 001B : OpCode.DROP
-    /// 001C : OpCode.LDLOC0
-    /// 001D : OpCode.CALLT 0000
-    /// 0020 : OpCode.STLOC1
-    /// 0021 : OpCode.LDLOC1
-    /// 0022 : OpCode.CALLT 0100
-    /// 0025 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 74657374646573657269616C697A65
+    /// 16 : OpCode.DUP
+    /// 17 : OpCode.LDARG0
+    /// 18 : OpCode.LDLOC0
+    /// 19 : OpCode.REVERSE3
+    /// 1A : OpCode.SETITEM
+    /// 1B : OpCode.DROP
+    /// 1C : OpCode.LDLOC0
+    /// 1D : OpCode.CALLT 0000
+    /// 20 : OpCode.STLOC1
+    /// 21 : OpCode.LDLOC1
+    /// 22 : OpCode.CALLT 0100
+    /// 25 : OpCode.RET
     /// </remarks>
     [DisplayName("testDeserialize")]
     public abstract object? TestDeserialize(string? key);
@@ -196,19 +196,19 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEByHAMc3RyaW5nSnhoU9BFaDcAAEA=
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSHDATA1 737472696E67
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.LDARG0
-    /// 000F : OpCode.LDLOC0
-    /// 0010 : OpCode.REVERSE3
-    /// 0011 : OpCode.SETITEM
-    /// 0012 : OpCode.DROP
-    /// 0013 : OpCode.LDLOC0
-    /// 0014 : OpCode.CALLT 0000
-    /// 0017 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 737472696E67
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.LDARG0
+    /// 0F : OpCode.LDLOC0
+    /// 10 : OpCode.REVERSE3
+    /// 11 : OpCode.SETITEM
+    /// 12 : OpCode.DROP
+    /// 13 : OpCode.LDLOC0
+    /// 14 : OpCode.CALLT 0000
+    /// 17 : OpCode.RET
     /// </remarks>
     [DisplayName("testInt")]
     public abstract string? TestInt(BigInteger? key);
@@ -224,19 +224,19 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEByHAMMTI5ODQwdGVzdDEwMDIyOTM5SnhoU9BFaDcAAEA=
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.PUSHDATA1 313239383430746573743130303232393339
-    /// 0019 : OpCode.DUP
-    /// 001A : OpCode.LDARG0
-    /// 001B : OpCode.LDLOC0
-    /// 001C : OpCode.REVERSE3
-    /// 001D : OpCode.SETITEM
-    /// 001E : OpCode.DROP
-    /// 001F : OpCode.LDLOC0
-    /// 0020 : OpCode.CALLT 0000
-    /// 0023 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.PUSHDATA1 313239383430746573743130303232393339
+    /// 19 : OpCode.DUP
+    /// 1A : OpCode.LDARG0
+    /// 1B : OpCode.LDLOC0
+    /// 1C : OpCode.REVERSE3
+    /// 1D : OpCode.SETITEM
+    /// 1E : OpCode.DROP
+    /// 1F : OpCode.LDLOC0
+    /// 20 : OpCode.CALLT 0000
+    /// 23 : OpCode.RET
     /// </remarks>
     [DisplayName("testUnicode")]
     public abstract string? TestUnicode(string? key);
@@ -246,19 +246,19 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwECyHB5SnhoU9BFaDcAAEA=
-    /// 0000 : OpCode.INITSLOT 0102
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG1
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.LDARG0
-    /// 0008 : OpCode.LDLOC0
-    /// 0009 : OpCode.REVERSE3
-    /// 000A : OpCode.SETITEM
-    /// 000B : OpCode.DROP
-    /// 000C : OpCode.LDLOC0
-    /// 000D : OpCode.CALLT 0000
-    /// 0010 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG1
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.LDARG0
+    /// 08 : OpCode.LDLOC0
+    /// 09 : OpCode.REVERSE3
+    /// 0A : OpCode.SETITEM
+    /// 0B : OpCode.DROP
+    /// 0C : OpCode.LDLOC0
+    /// 0D : OpCode.CALLT 0000
+    /// 10 : OpCode.RET
     /// </remarks>
     [DisplayName("testUnicodeKeyValue")]
     public abstract string? TestUnicodeKeyValue(string? key, string? value);
@@ -268,23 +268,22 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEByHB4SgxhYmhT0EVoNwAAQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.NEWMAP
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.PUSHDATA1 6162
-    /// 000B : OpCode.LDLOC0
-    /// 000C : OpCode.REVERSE3
-    /// 000D : OpCode.SETITEM
-    /// 000E : OpCode.DROP
-    /// 000F : OpCode.LDLOC0
-    /// 0010 : OpCode.CALLT 0000
-    /// 0013 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.NEWMAP
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.PUSHDATA1 6162
+    /// 0B : OpCode.LDLOC0
+    /// 0C : OpCode.REVERSE3
+    /// 0D : OpCode.SETITEM
+    /// 0E : OpCode.DROP
+    /// 0F : OpCode.LDLOC0
+    /// 10 : OpCode.CALLT 0000
+    /// 13 : OpCode.RET
     /// </remarks>
     [DisplayName("testUnicodeValue")]
     public abstract string? TestUnicodeValue(string? value);
 
     #endregion
-
 }

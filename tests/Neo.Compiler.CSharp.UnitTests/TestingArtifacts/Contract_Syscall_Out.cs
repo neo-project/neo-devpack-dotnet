@@ -26,116 +26,116 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGcIXwh4UEVKDHRydWWXJbgAAABKDFRSVUWXJasAAABKDFRydWWXJZ4AAABKDHSXJZQAAABKDFSXJYoAAABKDDGXJYAAAABKDHllc5ckdEoMWUVTlyRrSgx5lyRkSgxZlyRdSgxmYWxzZZckWUoMRkFMU0WXJE5KDEZhbHNllyRDSgxmlyQ8SgxGlyQ1SgwwlyQuSgxub5ckJkoMTk+XJB5KDG6XJBdKDE6XJBBFCWcICSIORQhnCAgiB0UJZwgIcMVKaM9KXwjPQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD 08
-    /// 0006 : OpCode.LDSFLD 08
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.SWAP
-    /// 000A : OpCode.DROP
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.PUSHDATA1 74727565
-    /// 0012 : OpCode.EQUAL
-    /// 0013 : OpCode.JMPIF_L B8000000
-    /// 0018 : OpCode.DUP
-    /// 0019 : OpCode.PUSHDATA1 54525545
-    /// 001F : OpCode.EQUAL
-    /// 0020 : OpCode.JMPIF_L AB000000
-    /// 0025 : OpCode.DUP
-    /// 0026 : OpCode.PUSHDATA1 54727565
-    /// 002C : OpCode.EQUAL
-    /// 002D : OpCode.JMPIF_L 9E000000
-    /// 0032 : OpCode.DUP
-    /// 0033 : OpCode.PUSHDATA1 74
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.JMPIF_L 94000000
-    /// 003C : OpCode.DUP
-    /// 003D : OpCode.PUSHDATA1 54
-    /// 0040 : OpCode.EQUAL
-    /// 0041 : OpCode.JMPIF_L 8A000000
-    /// 0046 : OpCode.DUP
-    /// 0047 : OpCode.PUSHDATA1 31
-    /// 004A : OpCode.EQUAL
-    /// 004B : OpCode.JMPIF_L 80000000
-    /// 0050 : OpCode.DUP
-    /// 0051 : OpCode.PUSHDATA1 796573
-    /// 0056 : OpCode.EQUAL
-    /// 0057 : OpCode.JMPIF 74
-    /// 0059 : OpCode.DUP
-    /// 005A : OpCode.PUSHDATA1 594553
-    /// 005F : OpCode.EQUAL
-    /// 0060 : OpCode.JMPIF 6B
-    /// 0062 : OpCode.DUP
-    /// 0063 : OpCode.PUSHDATA1 79
-    /// 0066 : OpCode.EQUAL
-    /// 0067 : OpCode.JMPIF 64
-    /// 0069 : OpCode.DUP
-    /// 006A : OpCode.PUSHDATA1 59
-    /// 006D : OpCode.EQUAL
-    /// 006E : OpCode.JMPIF 5D
-    /// 0070 : OpCode.DUP
-    /// 0071 : OpCode.PUSHDATA1 66616C7365
-    /// 0078 : OpCode.EQUAL
-    /// 0079 : OpCode.JMPIF 59
-    /// 007B : OpCode.DUP
-    /// 007C : OpCode.PUSHDATA1 46414C5345
-    /// 0083 : OpCode.EQUAL
-    /// 0084 : OpCode.JMPIF 4E
-    /// 0086 : OpCode.DUP
-    /// 0087 : OpCode.PUSHDATA1 46616C7365
-    /// 008E : OpCode.EQUAL
-    /// 008F : OpCode.JMPIF 43
-    /// 0091 : OpCode.DUP
-    /// 0092 : OpCode.PUSHDATA1 66
-    /// 0095 : OpCode.EQUAL
-    /// 0096 : OpCode.JMPIF 3C
-    /// 0098 : OpCode.DUP
-    /// 0099 : OpCode.PUSHDATA1 46
-    /// 009C : OpCode.EQUAL
-    /// 009D : OpCode.JMPIF 35
-    /// 009F : OpCode.DUP
-    /// 00A0 : OpCode.PUSHDATA1 30
-    /// 00A3 : OpCode.EQUAL
-    /// 00A4 : OpCode.JMPIF 2E
-    /// 00A6 : OpCode.DUP
-    /// 00A7 : OpCode.PUSHDATA1 6E6F
-    /// 00AB : OpCode.EQUAL
-    /// 00AC : OpCode.JMPIF 26
-    /// 00AE : OpCode.DUP
-    /// 00AF : OpCode.PUSHDATA1 4E4F
-    /// 00B3 : OpCode.EQUAL
-    /// 00B4 : OpCode.JMPIF 1E
-    /// 00B6 : OpCode.DUP
-    /// 00B7 : OpCode.PUSHDATA1 6E
-    /// 00BA : OpCode.EQUAL
-    /// 00BB : OpCode.JMPIF 17
-    /// 00BD : OpCode.DUP
-    /// 00BE : OpCode.PUSHDATA1 4E
-    /// 00C1 : OpCode.EQUAL
-    /// 00C2 : OpCode.JMPIF 10
-    /// 00C4 : OpCode.DROP
-    /// 00C5 : OpCode.PUSHF
-    /// 00C6 : OpCode.STSFLD 08
-    /// 00C8 : OpCode.PUSHF
-    /// 00C9 : OpCode.JMP 0E
-    /// 00CB : OpCode.DROP
-    /// 00CC : OpCode.PUSHT
-    /// 00CD : OpCode.STSFLD 08
-    /// 00CF : OpCode.PUSHT
-    /// 00D0 : OpCode.JMP 07
-    /// 00D2 : OpCode.DROP
-    /// 00D3 : OpCode.PUSHF
-    /// 00D4 : OpCode.STSFLD 08
-    /// 00D6 : OpCode.PUSHT
-    /// 00D7 : OpCode.STLOC0
-    /// 00D8 : OpCode.NEWSTRUCT0
-    /// 00D9 : OpCode.DUP
-    /// 00DA : OpCode.LDLOC0
-    /// 00DB : OpCode.APPEND
-    /// 00DC : OpCode.DUP
-    /// 00DD : OpCode.LDSFLD 08
-    /// 00DF : OpCode.APPEND
-    /// 00E0 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD 08
+    /// 06 : OpCode.LDSFLD 08
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.SWAP
+    /// 0A : OpCode.DROP
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.PUSHDATA1 74727565
+    /// 12 : OpCode.EQUAL
+    /// 13 : OpCode.JMPIF_L B8000000
+    /// 18 : OpCode.DUP
+    /// 19 : OpCode.PUSHDATA1 54525545
+    /// 1F : OpCode.EQUAL
+    /// 20 : OpCode.JMPIF_L AB000000
+    /// 25 : OpCode.DUP
+    /// 26 : OpCode.PUSHDATA1 54727565
+    /// 2C : OpCode.EQUAL
+    /// 2D : OpCode.JMPIF_L 9E000000
+    /// 32 : OpCode.DUP
+    /// 33 : OpCode.PUSHDATA1 74
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.JMPIF_L 94000000
+    /// 3C : OpCode.DUP
+    /// 3D : OpCode.PUSHDATA1 54
+    /// 40 : OpCode.EQUAL
+    /// 41 : OpCode.JMPIF_L 8A000000
+    /// 46 : OpCode.DUP
+    /// 47 : OpCode.PUSHDATA1 31
+    /// 4A : OpCode.EQUAL
+    /// 4B : OpCode.JMPIF_L 80000000
+    /// 50 : OpCode.DUP
+    /// 51 : OpCode.PUSHDATA1 796573
+    /// 56 : OpCode.EQUAL
+    /// 57 : OpCode.JMPIF 74
+    /// 59 : OpCode.DUP
+    /// 5A : OpCode.PUSHDATA1 594553
+    /// 5F : OpCode.EQUAL
+    /// 60 : OpCode.JMPIF 6B
+    /// 62 : OpCode.DUP
+    /// 63 : OpCode.PUSHDATA1 79
+    /// 66 : OpCode.EQUAL
+    /// 67 : OpCode.JMPIF 64
+    /// 69 : OpCode.DUP
+    /// 6A : OpCode.PUSHDATA1 59
+    /// 6D : OpCode.EQUAL
+    /// 6E : OpCode.JMPIF 5D
+    /// 70 : OpCode.DUP
+    /// 71 : OpCode.PUSHDATA1 66616C7365
+    /// 78 : OpCode.EQUAL
+    /// 79 : OpCode.JMPIF 59
+    /// 7B : OpCode.DUP
+    /// 7C : OpCode.PUSHDATA1 46414C5345
+    /// 83 : OpCode.EQUAL
+    /// 84 : OpCode.JMPIF 4E
+    /// 86 : OpCode.DUP
+    /// 87 : OpCode.PUSHDATA1 46616C7365
+    /// 8E : OpCode.EQUAL
+    /// 8F : OpCode.JMPIF 43
+    /// 91 : OpCode.DUP
+    /// 92 : OpCode.PUSHDATA1 66
+    /// 95 : OpCode.EQUAL
+    /// 96 : OpCode.JMPIF 3C
+    /// 98 : OpCode.DUP
+    /// 99 : OpCode.PUSHDATA1 46
+    /// 9C : OpCode.EQUAL
+    /// 9D : OpCode.JMPIF 35
+    /// 9F : OpCode.DUP
+    /// A0 : OpCode.PUSHDATA1 30
+    /// A3 : OpCode.EQUAL
+    /// A4 : OpCode.JMPIF 2E
+    /// A6 : OpCode.DUP
+    /// A7 : OpCode.PUSHDATA1 6E6F
+    /// AB : OpCode.EQUAL
+    /// AC : OpCode.JMPIF 26
+    /// AE : OpCode.DUP
+    /// AF : OpCode.PUSHDATA1 4E4F
+    /// B3 : OpCode.EQUAL
+    /// B4 : OpCode.JMPIF 1E
+    /// B6 : OpCode.DUP
+    /// B7 : OpCode.PUSHDATA1 6E
+    /// BA : OpCode.EQUAL
+    /// BB : OpCode.JMPIF 17
+    /// BD : OpCode.DUP
+    /// BE : OpCode.PUSHDATA1 4E
+    /// C1 : OpCode.EQUAL
+    /// C2 : OpCode.JMPIF 10
+    /// C4 : OpCode.DROP
+    /// C5 : OpCode.PUSHF
+    /// C6 : OpCode.STSFLD 08
+    /// C8 : OpCode.PUSHF
+    /// C9 : OpCode.JMP 0E
+    /// CB : OpCode.DROP
+    /// CC : OpCode.PUSHT
+    /// CD : OpCode.STSFLD 08
+    /// CF : OpCode.PUSHT
+    /// D0 : OpCode.JMP 07
+    /// D2 : OpCode.DROP
+    /// D3 : OpCode.PUSHF
+    /// D4 : OpCode.STSFLD 08
+    /// D6 : OpCode.PUSHT
+    /// D7 : OpCode.STLOC0
+    /// D8 : OpCode.NEWSTRUCT0
+    /// D9 : OpCode.DUP
+    /// DA : OpCode.LDLOC0
+    /// DB : OpCode.APPEND
+    /// DC : OpCode.DUP
+    /// DD : OpCode.LDSFLD 08
+    /// DF : OpCode.APPEND
+    /// E0 : OpCode.RET
     /// </remarks>
     [DisplayName("testBoolTryParse")]
     public abstract IList<object>? TestBoolTryParse(string? s);
@@ -145,36 +145,36 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGBYeFBFNwAAStgkDkoQAQABuyYGYAgiBEUJcMVKaM9KWM9A
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD0
-    /// 0005 : OpCode.LDSFLD0
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.SWAP
-    /// 0008 : OpCode.DROP
-    /// 0009 : OpCode.CALLT 0000
-    /// 000C : OpCode.DUP
-    /// 000D : OpCode.ISNULL
-    /// 000E : OpCode.JMPIF 0E
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSH0
-    /// 0012 : OpCode.PUSHINT16 0001
-    /// 0015 : OpCode.WITHIN
-    /// 0016 : OpCode.JMPIFNOT 06
-    /// 0018 : OpCode.STSFLD0
-    /// 0019 : OpCode.PUSHT
-    /// 001A : OpCode.JMP 04
-    /// 001C : OpCode.DROP
-    /// 001D : OpCode.PUSHF
-    /// 001E : OpCode.STLOC0
-    /// 001F : OpCode.NEWSTRUCT0
-    /// 0020 : OpCode.DUP
-    /// 0021 : OpCode.LDLOC0
-    /// 0022 : OpCode.APPEND
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.LDSFLD0
-    /// 0025 : OpCode.APPEND
-    /// 0026 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD0
+    /// 05 : OpCode.LDSFLD0
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SWAP
+    /// 08 : OpCode.DROP
+    /// 09 : OpCode.CALLT 0000
+    /// 0C : OpCode.DUP
+    /// 0D : OpCode.ISNULL
+    /// 0E : OpCode.JMPIF 0E
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSH0
+    /// 12 : OpCode.PUSHINT16 0001
+    /// 15 : OpCode.WITHIN
+    /// 16 : OpCode.JMPIFNOT 06
+    /// 18 : OpCode.STSFLD0
+    /// 19 : OpCode.PUSHT
+    /// 1A : OpCode.JMP 04
+    /// 1C : OpCode.DROP
+    /// 1D : OpCode.PUSHF
+    /// 1E : OpCode.STLOC0
+    /// 1F : OpCode.NEWSTRUCT0
+    /// 20 : OpCode.DUP
+    /// 21 : OpCode.LDLOC0
+    /// 22 : OpCode.APPEND
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.LDSFLD0
+    /// 25 : OpCode.APPEND
+    /// 26 : OpCode.RET
     /// </remarks>
     [DisplayName("testByteTryParse")]
     public abstract IList<object>? TestByteTryParse(string? s);
@@ -184,36 +184,36 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGRceFBFNwAAStgkGEoCAAAAgAMAAACAAAAAALsmBmQIIgRFCXDFSmjPSlzPQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD4
-    /// 0005 : OpCode.LDSFLD4
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.SWAP
-    /// 0008 : OpCode.DROP
-    /// 0009 : OpCode.CALLT 0000
-    /// 000C : OpCode.DUP
-    /// 000D : OpCode.ISNULL
-    /// 000E : OpCode.JMPIF 18
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSHINT32 00000080
-    /// 0016 : OpCode.PUSHINT64 0000008000000000
-    /// 001F : OpCode.WITHIN
-    /// 0020 : OpCode.JMPIFNOT 06
-    /// 0022 : OpCode.STSFLD4
-    /// 0023 : OpCode.PUSHT
-    /// 0024 : OpCode.JMP 04
-    /// 0026 : OpCode.DROP
-    /// 0027 : OpCode.PUSHF
-    /// 0028 : OpCode.STLOC0
-    /// 0029 : OpCode.NEWSTRUCT0
-    /// 002A : OpCode.DUP
-    /// 002B : OpCode.LDLOC0
-    /// 002C : OpCode.APPEND
-    /// 002D : OpCode.DUP
-    /// 002E : OpCode.LDSFLD4
-    /// 002F : OpCode.APPEND
-    /// 0030 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD4
+    /// 05 : OpCode.LDSFLD4
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SWAP
+    /// 08 : OpCode.DROP
+    /// 09 : OpCode.CALLT 0000
+    /// 0C : OpCode.DUP
+    /// 0D : OpCode.ISNULL
+    /// 0E : OpCode.JMPIF 18
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT32 00000080
+    /// 16 : OpCode.PUSHINT64 0000008000000000
+    /// 1F : OpCode.WITHIN
+    /// 20 : OpCode.JMPIFNOT 06
+    /// 22 : OpCode.STSFLD4
+    /// 23 : OpCode.PUSHT
+    /// 24 : OpCode.JMP 04
+    /// 26 : OpCode.DROP
+    /// 27 : OpCode.PUSHF
+    /// 28 : OpCode.STLOC0
+    /// 29 : OpCode.NEWSTRUCT0
+    /// 2A : OpCode.DUP
+    /// 2B : OpCode.LDLOC0
+    /// 2C : OpCode.APPEND
+    /// 2D : OpCode.DUP
+    /// 2E : OpCode.LDSFLD4
+    /// 2F : OpCode.APPEND
+    /// 30 : OpCode.RET
     /// </remarks>
     [DisplayName("testIntTryParse")]
     public abstract IList<object>? TestIntTryParse(string? s);
@@ -223,36 +223,36 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGZeeFBFNwAAStgkJEoDAAAAAAAAAIAEAAAAAAAAAIAAAAAAAAAAALsmBmYIIgRFCXDFSmjPSl7PQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD6
-    /// 0005 : OpCode.LDSFLD6
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.SWAP
-    /// 0008 : OpCode.DROP
-    /// 0009 : OpCode.CALLT 0000
-    /// 000C : OpCode.DUP
-    /// 000D : OpCode.ISNULL
-    /// 000E : OpCode.JMPIF 24
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSHINT64 0000000000000080
-    /// 001A : OpCode.PUSHINT128 00000000000000800000000000000000
-    /// 002B : OpCode.WITHIN
-    /// 002C : OpCode.JMPIFNOT 06
-    /// 002E : OpCode.STSFLD6
-    /// 002F : OpCode.PUSHT
-    /// 0030 : OpCode.JMP 04
-    /// 0032 : OpCode.DROP
-    /// 0033 : OpCode.PUSHF
-    /// 0034 : OpCode.STLOC0
-    /// 0035 : OpCode.NEWSTRUCT0
-    /// 0036 : OpCode.DUP
-    /// 0037 : OpCode.LDLOC0
-    /// 0038 : OpCode.APPEND
-    /// 0039 : OpCode.DUP
-    /// 003A : OpCode.LDSFLD6
-    /// 003B : OpCode.APPEND
-    /// 003C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD6
+    /// 05 : OpCode.LDSFLD6
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SWAP
+    /// 08 : OpCode.DROP
+    /// 09 : OpCode.CALLT 0000
+    /// 0C : OpCode.DUP
+    /// 0D : OpCode.ISNULL
+    /// 0E : OpCode.JMPIF 24
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT64 0000000000000080
+    /// 1A : OpCode.PUSHINT128 00000000000000800000000000000000
+    /// 2B : OpCode.WITHIN
+    /// 2C : OpCode.JMPIFNOT 06
+    /// 2E : OpCode.STSFLD6
+    /// 2F : OpCode.PUSHT
+    /// 30 : OpCode.JMP 04
+    /// 32 : OpCode.DROP
+    /// 33 : OpCode.PUSHF
+    /// 34 : OpCode.STLOC0
+    /// 35 : OpCode.NEWSTRUCT0
+    /// 36 : OpCode.DUP
+    /// 37 : OpCode.LDLOC0
+    /// 38 : OpCode.APPEND
+    /// 39 : OpCode.DUP
+    /// 3A : OpCode.LDSFLD6
+    /// 3B : OpCode.APPEND
+    /// 3C : OpCode.RET
     /// </remarks>
     [DisplayName("testLongTryParse")]
     public abstract IList<object>? TestLongTryParse(string? s);
@@ -262,36 +262,36 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGFZeFBFNwAAStgkD0oAgAGAALsmBmEIIgRFCXDFSmjPSlnPQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD1
-    /// 0005 : OpCode.LDSFLD1
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.SWAP
-    /// 0008 : OpCode.DROP
-    /// 0009 : OpCode.CALLT 0000
-    /// 000C : OpCode.DUP
-    /// 000D : OpCode.ISNULL
-    /// 000E : OpCode.JMPIF 0F
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSHINT8 80
-    /// 0013 : OpCode.PUSHINT16 8000
-    /// 0016 : OpCode.WITHIN
-    /// 0017 : OpCode.JMPIFNOT 06
-    /// 0019 : OpCode.STSFLD1
-    /// 001A : OpCode.PUSHT
-    /// 001B : OpCode.JMP 04
-    /// 001D : OpCode.DROP
-    /// 001E : OpCode.PUSHF
-    /// 001F : OpCode.STLOC0
-    /// 0020 : OpCode.NEWSTRUCT0
-    /// 0021 : OpCode.DUP
-    /// 0022 : OpCode.LDLOC0
-    /// 0023 : OpCode.APPEND
-    /// 0024 : OpCode.DUP
-    /// 0025 : OpCode.LDSFLD1
-    /// 0026 : OpCode.APPEND
-    /// 0027 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD1
+    /// 05 : OpCode.LDSFLD1
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SWAP
+    /// 08 : OpCode.DROP
+    /// 09 : OpCode.CALLT 0000
+    /// 0C : OpCode.DUP
+    /// 0D : OpCode.ISNULL
+    /// 0E : OpCode.JMPIF 0F
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT8 80
+    /// 13 : OpCode.PUSHINT16 8000
+    /// 16 : OpCode.WITHIN
+    /// 17 : OpCode.JMPIFNOT 06
+    /// 19 : OpCode.STSFLD1
+    /// 1A : OpCode.PUSHT
+    /// 1B : OpCode.JMP 04
+    /// 1D : OpCode.DROP
+    /// 1E : OpCode.PUSHF
+    /// 1F : OpCode.STLOC0
+    /// 20 : OpCode.NEWSTRUCT0
+    /// 21 : OpCode.DUP
+    /// 22 : OpCode.LDLOC0
+    /// 23 : OpCode.APPEND
+    /// 24 : OpCode.DUP
+    /// 25 : OpCode.LDSFLD1
+    /// 26 : OpCode.APPEND
+    /// 27 : OpCode.RET
     /// </remarks>
     [DisplayName("testSByteTryParse")]
     public abstract IList<object>? TestSByteTryParse(string? s);
@@ -301,36 +301,36 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGJaeFBFNwAAStgkEkoBAIACAIAAALsmBmIIIgRFCXDFSmjPSlrPQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD2
-    /// 0005 : OpCode.LDSFLD2
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.SWAP
-    /// 0008 : OpCode.DROP
-    /// 0009 : OpCode.CALLT 0000
-    /// 000C : OpCode.DUP
-    /// 000D : OpCode.ISNULL
-    /// 000E : OpCode.JMPIF 12
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSHINT16 0080
-    /// 0014 : OpCode.PUSHINT32 00800000
-    /// 0019 : OpCode.WITHIN
-    /// 001A : OpCode.JMPIFNOT 06
-    /// 001C : OpCode.STSFLD2
-    /// 001D : OpCode.PUSHT
-    /// 001E : OpCode.JMP 04
-    /// 0020 : OpCode.DROP
-    /// 0021 : OpCode.PUSHF
-    /// 0022 : OpCode.STLOC0
-    /// 0023 : OpCode.NEWSTRUCT0
-    /// 0024 : OpCode.DUP
-    /// 0025 : OpCode.LDLOC0
-    /// 0026 : OpCode.APPEND
-    /// 0027 : OpCode.DUP
-    /// 0028 : OpCode.LDSFLD2
-    /// 0029 : OpCode.APPEND
-    /// 002A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD2
+    /// 05 : OpCode.LDSFLD2
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SWAP
+    /// 08 : OpCode.DROP
+    /// 09 : OpCode.CALLT 0000
+    /// 0C : OpCode.DUP
+    /// 0D : OpCode.ISNULL
+    /// 0E : OpCode.JMPIF 12
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT16 0080
+    /// 14 : OpCode.PUSHINT32 00800000
+    /// 19 : OpCode.WITHIN
+    /// 1A : OpCode.JMPIFNOT 06
+    /// 1C : OpCode.STSFLD2
+    /// 1D : OpCode.PUSHT
+    /// 1E : OpCode.JMP 04
+    /// 20 : OpCode.DROP
+    /// 21 : OpCode.PUSHF
+    /// 22 : OpCode.STLOC0
+    /// 23 : OpCode.NEWSTRUCT0
+    /// 24 : OpCode.DUP
+    /// 25 : OpCode.LDLOC0
+    /// 26 : OpCode.APPEND
+    /// 27 : OpCode.DUP
+    /// 28 : OpCode.LDSFLD2
+    /// 29 : OpCode.APPEND
+    /// 2A : OpCode.RET
     /// </remarks>
     [DisplayName("testShortTryParse")]
     public abstract IList<object>? TestShortTryParse(string? s);
@@ -340,36 +340,36 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGVdeFBFNwAAStgkFEoQAwAAAAABAAAAuyYGZQgiBEUJcMVKaM9KXc9A
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD5
-    /// 0005 : OpCode.LDSFLD5
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.SWAP
-    /// 0008 : OpCode.DROP
-    /// 0009 : OpCode.CALLT 0000
-    /// 000C : OpCode.DUP
-    /// 000D : OpCode.ISNULL
-    /// 000E : OpCode.JMPIF 14
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSH0
-    /// 0012 : OpCode.PUSHINT64 0000000001000000
-    /// 001B : OpCode.WITHIN
-    /// 001C : OpCode.JMPIFNOT 06
-    /// 001E : OpCode.STSFLD5
-    /// 001F : OpCode.PUSHT
-    /// 0020 : OpCode.JMP 04
-    /// 0022 : OpCode.DROP
-    /// 0023 : OpCode.PUSHF
-    /// 0024 : OpCode.STLOC0
-    /// 0025 : OpCode.NEWSTRUCT0
-    /// 0026 : OpCode.DUP
-    /// 0027 : OpCode.LDLOC0
-    /// 0028 : OpCode.APPEND
-    /// 0029 : OpCode.DUP
-    /// 002A : OpCode.LDSFLD5
-    /// 002B : OpCode.APPEND
-    /// 002C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD5
+    /// 05 : OpCode.LDSFLD5
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SWAP
+    /// 08 : OpCode.DROP
+    /// 09 : OpCode.CALLT 0000
+    /// 0C : OpCode.DUP
+    /// 0D : OpCode.ISNULL
+    /// 0E : OpCode.JMPIF 14
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSH0
+    /// 12 : OpCode.PUSHINT64 0000000001000000
+    /// 1B : OpCode.WITHIN
+    /// 1C : OpCode.JMPIFNOT 06
+    /// 1E : OpCode.STSFLD5
+    /// 1F : OpCode.PUSHT
+    /// 20 : OpCode.JMP 04
+    /// 22 : OpCode.DROP
+    /// 23 : OpCode.PUSHF
+    /// 24 : OpCode.STLOC0
+    /// 25 : OpCode.NEWSTRUCT0
+    /// 26 : OpCode.DUP
+    /// 27 : OpCode.LDLOC0
+    /// 28 : OpCode.APPEND
+    /// 29 : OpCode.DUP
+    /// 2A : OpCode.LDSFLD5
+    /// 2B : OpCode.APPEND
+    /// 2C : OpCode.RET
     /// </remarks>
     [DisplayName("testUIntTryParse")]
     public abstract IList<object>? TestUIntTryParse(string? s);
@@ -379,36 +379,36 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGcHXwd4UEU3AABK2CQdShAEAAAAAAAAAAABAAAAAAAAALsmB2cHCCIERQlwxUpoz0pfB89A
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD 07
-    /// 0006 : OpCode.LDSFLD 07
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.SWAP
-    /// 000A : OpCode.DROP
-    /// 000B : OpCode.CALLT 0000
-    /// 000E : OpCode.DUP
-    /// 000F : OpCode.ISNULL
-    /// 0010 : OpCode.JMPIF 1D
-    /// 0012 : OpCode.DUP
-    /// 0013 : OpCode.PUSH0
-    /// 0014 : OpCode.PUSHINT128 00000000000000000100000000000000
-    /// 0025 : OpCode.WITHIN
-    /// 0026 : OpCode.JMPIFNOT 07
-    /// 0028 : OpCode.STSFLD 07
-    /// 002A : OpCode.PUSHT
-    /// 002B : OpCode.JMP 04
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.PUSHF
-    /// 002F : OpCode.STLOC0
-    /// 0030 : OpCode.NEWSTRUCT0
-    /// 0031 : OpCode.DUP
-    /// 0032 : OpCode.LDLOC0
-    /// 0033 : OpCode.APPEND
-    /// 0034 : OpCode.DUP
-    /// 0035 : OpCode.LDSFLD 07
-    /// 0037 : OpCode.APPEND
-    /// 0038 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD 07
+    /// 06 : OpCode.LDSFLD 07
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.SWAP
+    /// 0A : OpCode.DROP
+    /// 0B : OpCode.CALLT 0000
+    /// 0E : OpCode.DUP
+    /// 0F : OpCode.ISNULL
+    /// 10 : OpCode.JMPIF 1D
+    /// 12 : OpCode.DUP
+    /// 13 : OpCode.PUSH0
+    /// 14 : OpCode.PUSHINT128 00000000000000000100000000000000
+    /// 25 : OpCode.WITHIN
+    /// 26 : OpCode.JMPIFNOT 07
+    /// 28 : OpCode.STSFLD 07
+    /// 2A : OpCode.PUSHT
+    /// 2B : OpCode.JMP 04
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.PUSHF
+    /// 2F : OpCode.STLOC0
+    /// 30 : OpCode.NEWSTRUCT0
+    /// 31 : OpCode.DUP
+    /// 32 : OpCode.LDLOC0
+    /// 33 : OpCode.APPEND
+    /// 34 : OpCode.DUP
+    /// 35 : OpCode.LDSFLD 07
+    /// 37 : OpCode.APPEND
+    /// 38 : OpCode.RET
     /// </remarks>
     [DisplayName("testULongTryParse")]
     public abstract IList<object>? TestULongTryParse(string? s);
@@ -418,40 +418,39 @@ public abstract class Contract_Syscall_Out(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwEBEGNbeFBFNwAAStgkEEoQAgAAAQC7JgZjCCIERQlwxUpoz0pbz0A=
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STSFLD3
-    /// 0005 : OpCode.LDSFLD3
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.SWAP
-    /// 0008 : OpCode.DROP
-    /// 0009 : OpCode.CALLT 0000
-    /// 000C : OpCode.DUP
-    /// 000D : OpCode.ISNULL
-    /// 000E : OpCode.JMPIF 10
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSH0
-    /// 0012 : OpCode.PUSHINT32 00000100
-    /// 0017 : OpCode.WITHIN
-    /// 0018 : OpCode.JMPIFNOT 06
-    /// 001A : OpCode.STSFLD3
-    /// 001B : OpCode.PUSHT
-    /// 001C : OpCode.JMP 04
-    /// 001E : OpCode.DROP
-    /// 001F : OpCode.PUSHF
-    /// 0020 : OpCode.STLOC0
-    /// 0021 : OpCode.NEWSTRUCT0
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.LDLOC0
-    /// 0024 : OpCode.APPEND
-    /// 0025 : OpCode.DUP
-    /// 0026 : OpCode.LDSFLD3
-    /// 0027 : OpCode.APPEND
-    /// 0028 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STSFLD3
+    /// 05 : OpCode.LDSFLD3
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.SWAP
+    /// 08 : OpCode.DROP
+    /// 09 : OpCode.CALLT 0000
+    /// 0C : OpCode.DUP
+    /// 0D : OpCode.ISNULL
+    /// 0E : OpCode.JMPIF 10
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSH0
+    /// 12 : OpCode.PUSHINT32 00000100
+    /// 17 : OpCode.WITHIN
+    /// 18 : OpCode.JMPIFNOT 06
+    /// 1A : OpCode.STSFLD3
+    /// 1B : OpCode.PUSHT
+    /// 1C : OpCode.JMP 04
+    /// 1E : OpCode.DROP
+    /// 1F : OpCode.PUSHF
+    /// 20 : OpCode.STLOC0
+    /// 21 : OpCode.NEWSTRUCT0
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.LDLOC0
+    /// 24 : OpCode.APPEND
+    /// 25 : OpCode.DUP
+    /// 26 : OpCode.LDSFLD3
+    /// 27 : OpCode.APPEND
+    /// 28 : OpCode.RET
     /// </remarks>
     [DisplayName("testUShortTryParse")]
     public abstract IList<object>? TestUShortTryParse(string? s);
 
     #endregion
-
 }

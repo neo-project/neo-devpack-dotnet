@@ -26,12 +26,12 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABCmYAAAAQeDQDQA==
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA 66000000
-    /// 0008 : OpCode.PUSH0
-    /// 0009 : OpCode.LDARG0
-    /// 000A : OpCode.CALL 03
-    /// 000C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA 66000000
+    /// 08 : OpCode.PUSH0
+    /// 09 : OpCode.LDARG0
+    /// 0A : OpCode.CALL 03
+    /// 0C : OpCode.RET
     /// </remarks>
     [DisplayName("aggregateSum")]
     public abstract BigInteger? AggregateSum(IList<object>? array);
@@ -41,11 +41,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABClUAAAB4NANA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA 55000000
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.CALL 03
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA 55000000
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.CALL 03
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("allGreaterThanZero")]
     public abstract bool? AllGreaterThanZero(IList<object>? array);
@@ -55,13 +55,13 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeWAKCQAAAHg0oEA=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG1
-    /// 0004 : OpCode.STSFLD0
-    /// 0005 : OpCode.PUSHA 09000000
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.CALL A0
-    /// 000D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.STSFLD0
+    /// 05 : OpCode.PUSHA 09000000
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.CALL A0
+    /// 0D : OpCode.RET
     /// </remarks>
     [DisplayName("anyGreaterThan")]
     public abstract bool? AnyGreaterThan(IList<object>? array, BigInteger? target);
@@ -71,11 +71,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABClcAAAB4NANA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA 57000000
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.CALL 03
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA 57000000
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.CALL 03
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("anyGreaterThanZero")]
     public abstract bool? AnyGreaterThanZero(IList<object>? array);
@@ -85,83 +85,83 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwYCeDWvAAAADHNlbGVjdG9yeTW//f//EHAQcXhKcspzEHQicGpsznVoSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcEVpbXk2nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xbJx0bGswkGgQlyYUDHNvdXJjZSBpcyBlbXB0eTppaKFA
-    /// 0000 : OpCode.INITSLOT 0602
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALL_L AF000000
-    /// 0009 : OpCode.PUSHDATA1 73656C6563746F72
-    /// 0013 : OpCode.LDARG1
-    /// 0014 : OpCode.CALL_L BFFDFFFF
-    /// 0019 : OpCode.PUSH0
-    /// 001A : OpCode.STLOC0
-    /// 001B : OpCode.PUSH0
-    /// 001C : OpCode.STLOC1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.STLOC2
-    /// 0020 : OpCode.SIZE
-    /// 0021 : OpCode.STLOC3
-    /// 0022 : OpCode.PUSH0
-    /// 0023 : OpCode.STLOC4
-    /// 0024 : OpCode.JMP 70
-    /// 0026 : OpCode.LDLOC2
-    /// 0027 : OpCode.LDLOC4
-    /// 0028 : OpCode.PICKITEM
-    /// 0029 : OpCode.STLOC5
-    /// 002A : OpCode.LDLOC0
-    /// 002B : OpCode.DUP
-    /// 002C : OpCode.INC
-    /// 002D : OpCode.DUP
-    /// 002E : OpCode.PUSHINT32 00000080
-    /// 0033 : OpCode.JMPGE 04
-    /// 0035 : OpCode.JMP 0A
-    /// 0037 : OpCode.DUP
-    /// 0038 : OpCode.PUSHINT32 FFFFFF7F
-    /// 003D : OpCode.JMPLE 1E
-    /// 003F : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0048 : OpCode.AND
-    /// 0049 : OpCode.DUP
-    /// 004A : OpCode.PUSHINT32 FFFFFF7F
-    /// 004F : OpCode.JMPLE 0C
-    /// 0051 : OpCode.PUSHINT64 0000000001000000
-    /// 005A : OpCode.SUB
-    /// 005B : OpCode.STLOC0
-    /// 005C : OpCode.DROP
-    /// 005D : OpCode.LDLOC1
-    /// 005E : OpCode.LDLOC5
-    /// 005F : OpCode.LDARG1
-    /// 0060 : OpCode.CALLA
-    /// 0061 : OpCode.ADD
-    /// 0062 : OpCode.DUP
-    /// 0063 : OpCode.PUSHINT32 00000080
-    /// 0068 : OpCode.JMPGE 04
-    /// 006A : OpCode.JMP 0A
-    /// 006C : OpCode.DUP
-    /// 006D : OpCode.PUSHINT32 FFFFFF7F
-    /// 0072 : OpCode.JMPLE 1E
-    /// 0074 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 007D : OpCode.AND
-    /// 007E : OpCode.DUP
-    /// 007F : OpCode.PUSHINT32 FFFFFF7F
-    /// 0084 : OpCode.JMPLE 0C
-    /// 0086 : OpCode.PUSHINT64 0000000001000000
-    /// 008F : OpCode.SUB
-    /// 0090 : OpCode.STLOC1
-    /// 0091 : OpCode.LDLOC4
-    /// 0092 : OpCode.INC
-    /// 0093 : OpCode.STLOC4
-    /// 0094 : OpCode.LDLOC4
-    /// 0095 : OpCode.LDLOC3
-    /// 0096 : OpCode.JMPLT 90
-    /// 0098 : OpCode.LDLOC0
-    /// 0099 : OpCode.PUSH0
-    /// 009A : OpCode.EQUAL
-    /// 009B : OpCode.JMPIFNOT 14
-    /// 009D : OpCode.PUSHDATA1 736F7572636520697320656D707479
-    /// 00AE : OpCode.THROW
-    /// 00AF : OpCode.LDLOC1
-    /// 00B0 : OpCode.LDLOC0
-    /// 00B1 : OpCode.DIV
-    /// 00B2 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0602
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL_L AF000000
+    /// 09 : OpCode.PUSHDATA1 73656C6563746F72
+    /// 13 : OpCode.LDARG1
+    /// 14 : OpCode.CALL_L BFFDFFFF
+    /// 19 : OpCode.PUSH0
+    /// 1A : OpCode.STLOC0
+    /// 1B : OpCode.PUSH0
+    /// 1C : OpCode.STLOC1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.STLOC2
+    /// 20 : OpCode.SIZE
+    /// 21 : OpCode.STLOC3
+    /// 22 : OpCode.PUSH0
+    /// 23 : OpCode.STLOC4
+    /// 24 : OpCode.JMP 70
+    /// 26 : OpCode.LDLOC2
+    /// 27 : OpCode.LDLOC4
+    /// 28 : OpCode.PICKITEM
+    /// 29 : OpCode.STLOC5
+    /// 2A : OpCode.LDLOC0
+    /// 2B : OpCode.DUP
+    /// 2C : OpCode.INC
+    /// 2D : OpCode.DUP
+    /// 2E : OpCode.PUSHINT32 00000080
+    /// 33 : OpCode.JMPGE 04
+    /// 35 : OpCode.JMP 0A
+    /// 37 : OpCode.DUP
+    /// 38 : OpCode.PUSHINT32 FFFFFF7F
+    /// 3D : OpCode.JMPLE 1E
+    /// 3F : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 48 : OpCode.AND
+    /// 49 : OpCode.DUP
+    /// 4A : OpCode.PUSHINT32 FFFFFF7F
+    /// 4F : OpCode.JMPLE 0C
+    /// 51 : OpCode.PUSHINT64 0000000001000000
+    /// 5A : OpCode.SUB
+    /// 5B : OpCode.STLOC0
+    /// 5C : OpCode.DROP
+    /// 5D : OpCode.LDLOC1
+    /// 5E : OpCode.LDLOC5
+    /// 5F : OpCode.LDARG1
+    /// 60 : OpCode.CALLA
+    /// 61 : OpCode.ADD
+    /// 62 : OpCode.DUP
+    /// 63 : OpCode.PUSHINT32 00000080
+    /// 68 : OpCode.JMPGE 04
+    /// 6A : OpCode.JMP 0A
+    /// 6C : OpCode.DUP
+    /// 6D : OpCode.PUSHINT32 FFFFFF7F
+    /// 72 : OpCode.JMPLE 1E
+    /// 74 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 7D : OpCode.AND
+    /// 7E : OpCode.DUP
+    /// 7F : OpCode.PUSHINT32 FFFFFF7F
+    /// 84 : OpCode.JMPLE 0C
+    /// 86 : OpCode.PUSHINT64 0000000001000000
+    /// 8F : OpCode.SUB
+    /// 90 : OpCode.STLOC1
+    /// 91 : OpCode.LDLOC4
+    /// 92 : OpCode.INC
+    /// 93 : OpCode.STLOC4
+    /// 94 : OpCode.LDLOC4
+    /// 95 : OpCode.LDLOC3
+    /// 96 : OpCode.JMPLT 90
+    /// 98 : OpCode.LDLOC0
+    /// 99 : OpCode.PUSH0
+    /// 9A : OpCode.EQUAL
+    /// 9B : OpCode.JMPIFNOT 14
+    /// 9D : OpCode.PUSHDATA1 736F7572636520697320656D707479
+    /// AE : OpCode.THROW
+    /// AF : OpCode.LDLOC1
+    /// B0 : OpCode.LDLOC0
+    /// B1 : OpCode.DIV
+    /// B2 : OpCode.RET
     /// </remarks>
     [DisplayName("average")]
     public abstract BigInteger? Average(IList<object>? array);
@@ -171,11 +171,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABCtYAAAB4NANA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA D6000000
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.CALL 03
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA D6000000
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.CALL 03
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("averageTwice")]
     public abstract BigInteger? AverageTwice(IList<object>? array);
@@ -185,13 +185,13 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeWEKQAAAAHg0A0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG1
-    /// 0004 : OpCode.STSFLD1
-    /// 0005 : OpCode.PUSHA 40000000
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.CALL 03
-    /// 000D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.STSFLD1
+    /// 05 : OpCode.PUSHA 40000000
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.CALL 03
+    /// 0D : OpCode.RET
     /// </remarks>
     [DisplayName("contains")]
     public abstract bool? Contains(IList<object>? array, BigInteger? target);
@@ -201,68 +201,68 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUCwnB4SnHKchBzIh9pa850aBALEsBKNDRsNwAASxBR0GxLEVHQz2ucc2tqMOEQCxLASjQYeTcAAEsQUdB5SxFR0HFpaDVm////QA==
-    /// 0000 : OpCode.INITSLOT 0502
-    /// 0003 : OpCode.NEWARRAY0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.STLOC1
-    /// 0008 : OpCode.SIZE
-    /// 0009 : OpCode.STLOC2
-    /// 000A : OpCode.PUSH0
-    /// 000B : OpCode.STLOC3
-    /// 000C : OpCode.JMP 1F
-    /// 000E : OpCode.LDLOC1
-    /// 000F : OpCode.LDLOC3
-    /// 0010 : OpCode.PICKITEM
-    /// 0011 : OpCode.STLOC4
-    /// 0012 : OpCode.LDLOC0
-    /// 0013 : OpCode.PUSH0
-    /// 0014 : OpCode.PUSHNULL
-    /// 0015 : OpCode.PUSH2
-    /// 0016 : OpCode.PACK
-    /// 0017 : OpCode.DUP
-    /// 0018 : OpCode.CALL 34
-    /// 001A : OpCode.LDLOC4
-    /// 001B : OpCode.CALLT 0000
-    /// 001E : OpCode.OVER
-    /// 001F : OpCode.PUSH0
-    /// 0020 : OpCode.ROT
-    /// 0021 : OpCode.SETITEM
-    /// 0022 : OpCode.LDLOC4
-    /// 0023 : OpCode.OVER
-    /// 0024 : OpCode.PUSH1
-    /// 0025 : OpCode.ROT
-    /// 0026 : OpCode.SETITEM
-    /// 0027 : OpCode.APPEND
-    /// 0028 : OpCode.LDLOC3
-    /// 0029 : OpCode.INC
-    /// 002A : OpCode.STLOC3
-    /// 002B : OpCode.LDLOC3
-    /// 002C : OpCode.LDLOC2
-    /// 002D : OpCode.JMPLT E1
-    /// 002F : OpCode.PUSH0
-    /// 0030 : OpCode.PUSHNULL
-    /// 0031 : OpCode.PUSH2
-    /// 0032 : OpCode.PACK
-    /// 0033 : OpCode.DUP
-    /// 0034 : OpCode.CALL 18
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.CALLT 0000
-    /// 003A : OpCode.OVER
-    /// 003B : OpCode.PUSH0
-    /// 003C : OpCode.ROT
-    /// 003D : OpCode.SETITEM
-    /// 003E : OpCode.LDARG1
-    /// 003F : OpCode.OVER
-    /// 0040 : OpCode.PUSH1
-    /// 0041 : OpCode.ROT
-    /// 0042 : OpCode.SETITEM
-    /// 0043 : OpCode.STLOC1
-    /// 0044 : OpCode.LDLOC1
-    /// 0045 : OpCode.LDLOC0
-    /// 0046 : OpCode.CALL_L 66FFFFFF
-    /// 004B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0502
+    /// 03 : OpCode.NEWARRAY0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.STLOC1
+    /// 08 : OpCode.SIZE
+    /// 09 : OpCode.STLOC2
+    /// 0A : OpCode.PUSH0
+    /// 0B : OpCode.STLOC3
+    /// 0C : OpCode.JMP 1F
+    /// 0E : OpCode.LDLOC1
+    /// 0F : OpCode.LDLOC3
+    /// 10 : OpCode.PICKITEM
+    /// 11 : OpCode.STLOC4
+    /// 12 : OpCode.LDLOC0
+    /// 13 : OpCode.PUSH0
+    /// 14 : OpCode.PUSHNULL
+    /// 15 : OpCode.PUSH2
+    /// 16 : OpCode.PACK
+    /// 17 : OpCode.DUP
+    /// 18 : OpCode.CALL 34
+    /// 1A : OpCode.LDLOC4
+    /// 1B : OpCode.CALLT 0000
+    /// 1E : OpCode.OVER
+    /// 1F : OpCode.PUSH0
+    /// 20 : OpCode.ROT
+    /// 21 : OpCode.SETITEM
+    /// 22 : OpCode.LDLOC4
+    /// 23 : OpCode.OVER
+    /// 24 : OpCode.PUSH1
+    /// 25 : OpCode.ROT
+    /// 26 : OpCode.SETITEM
+    /// 27 : OpCode.APPEND
+    /// 28 : OpCode.LDLOC3
+    /// 29 : OpCode.INC
+    /// 2A : OpCode.STLOC3
+    /// 2B : OpCode.LDLOC3
+    /// 2C : OpCode.LDLOC2
+    /// 2D : OpCode.JMPLT E1
+    /// 2F : OpCode.PUSH0
+    /// 30 : OpCode.PUSHNULL
+    /// 31 : OpCode.PUSH2
+    /// 32 : OpCode.PACK
+    /// 33 : OpCode.DUP
+    /// 34 : OpCode.CALL 18
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.CALLT 0000
+    /// 3A : OpCode.OVER
+    /// 3B : OpCode.PUSH0
+    /// 3C : OpCode.ROT
+    /// 3D : OpCode.SETITEM
+    /// 3E : OpCode.LDARG1
+    /// 3F : OpCode.OVER
+    /// 40 : OpCode.PUSH1
+    /// 41 : OpCode.ROT
+    /// 42 : OpCode.SETITEM
+    /// 43 : OpCode.STLOC1
+    /// 44 : OpCode.LDLOC1
+    /// 45 : OpCode.LDLOC0
+    /// 46 : OpCode.CALL_L 66FFFFFF
+    /// 4B : OpCode.RET
     /// </remarks>
     [DisplayName("containsPerson")]
     public abstract bool? ContainsPerson(IList<object>? array, BigInteger? target);
@@ -272,54 +272,54 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUCwnB4SnHKchBzIh9pa850aBALEsBKNOBsNwAASxBR0GxLEVHQz2ucc2tqMOFoec5xaWg1I////0A=
-    /// 0000 : OpCode.INITSLOT 0502
-    /// 0003 : OpCode.NEWARRAY0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.STLOC1
-    /// 0008 : OpCode.SIZE
-    /// 0009 : OpCode.STLOC2
-    /// 000A : OpCode.PUSH0
-    /// 000B : OpCode.STLOC3
-    /// 000C : OpCode.JMP 1F
-    /// 000E : OpCode.LDLOC1
-    /// 000F : OpCode.LDLOC3
-    /// 0010 : OpCode.PICKITEM
-    /// 0011 : OpCode.STLOC4
-    /// 0012 : OpCode.LDLOC0
-    /// 0013 : OpCode.PUSH0
-    /// 0014 : OpCode.PUSHNULL
-    /// 0015 : OpCode.PUSH2
-    /// 0016 : OpCode.PACK
-    /// 0017 : OpCode.DUP
-    /// 0018 : OpCode.CALL E0
-    /// 001A : OpCode.LDLOC4
-    /// 001B : OpCode.CALLT 0000
-    /// 001E : OpCode.OVER
-    /// 001F : OpCode.PUSH0
-    /// 0020 : OpCode.ROT
-    /// 0021 : OpCode.SETITEM
-    /// 0022 : OpCode.LDLOC4
-    /// 0023 : OpCode.OVER
-    /// 0024 : OpCode.PUSH1
-    /// 0025 : OpCode.ROT
-    /// 0026 : OpCode.SETITEM
-    /// 0027 : OpCode.APPEND
-    /// 0028 : OpCode.LDLOC3
-    /// 0029 : OpCode.INC
-    /// 002A : OpCode.STLOC3
-    /// 002B : OpCode.LDLOC3
-    /// 002C : OpCode.LDLOC2
-    /// 002D : OpCode.JMPLT E1
-    /// 002F : OpCode.LDLOC0
-    /// 0030 : OpCode.LDARG1
-    /// 0031 : OpCode.PICKITEM
-    /// 0032 : OpCode.STLOC1
-    /// 0033 : OpCode.LDLOC1
-    /// 0034 : OpCode.LDLOC0
-    /// 0035 : OpCode.CALL_L 23FFFFFF
-    /// 003A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0502
+    /// 03 : OpCode.NEWARRAY0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.STLOC1
+    /// 08 : OpCode.SIZE
+    /// 09 : OpCode.STLOC2
+    /// 0A : OpCode.PUSH0
+    /// 0B : OpCode.STLOC3
+    /// 0C : OpCode.JMP 1F
+    /// 0E : OpCode.LDLOC1
+    /// 0F : OpCode.LDLOC3
+    /// 10 : OpCode.PICKITEM
+    /// 11 : OpCode.STLOC4
+    /// 12 : OpCode.LDLOC0
+    /// 13 : OpCode.PUSH0
+    /// 14 : OpCode.PUSHNULL
+    /// 15 : OpCode.PUSH2
+    /// 16 : OpCode.PACK
+    /// 17 : OpCode.DUP
+    /// 18 : OpCode.CALL E0
+    /// 1A : OpCode.LDLOC4
+    /// 1B : OpCode.CALLT 0000
+    /// 1E : OpCode.OVER
+    /// 1F : OpCode.PUSH0
+    /// 20 : OpCode.ROT
+    /// 21 : OpCode.SETITEM
+    /// 22 : OpCode.LDLOC4
+    /// 23 : OpCode.OVER
+    /// 24 : OpCode.PUSH1
+    /// 25 : OpCode.ROT
+    /// 26 : OpCode.SETITEM
+    /// 27 : OpCode.APPEND
+    /// 28 : OpCode.LDLOC3
+    /// 29 : OpCode.INC
+    /// 2A : OpCode.STLOC3
+    /// 2B : OpCode.LDLOC3
+    /// 2C : OpCode.LDLOC2
+    /// 2D : OpCode.JMPLT E1
+    /// 2F : OpCode.LDLOC0
+    /// 30 : OpCode.LDARG1
+    /// 31 : OpCode.PICKITEM
+    /// 32 : OpCode.STLOC1
+    /// 33 : OpCode.LDLOC1
+    /// 34 : OpCode.LDLOC0
+    /// 35 : OpCode.CALL_L 23FFFFFF
+    /// 3A : OpCode.RET
     /// </remarks>
     [DisplayName("containsPersonIndex")]
     public abstract bool? ContainsPersonIndex(IList<object>? array, BigInteger? targetIndex);
@@ -329,74 +329,74 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUCwnB4SnHKchBzIiJpa850aMVKC89KEM9KNDdsNwAASxBR0GxLEVHQz2ucc2tqMN7FSgvPShDPSjQYeTcAAEsQUdB5SxFR0HFpaDXR/v//QA==
-    /// 0000 : OpCode.INITSLOT 0502
-    /// 0003 : OpCode.NEWARRAY0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.STLOC1
-    /// 0008 : OpCode.SIZE
-    /// 0009 : OpCode.STLOC2
-    /// 000A : OpCode.PUSH0
-    /// 000B : OpCode.STLOC3
-    /// 000C : OpCode.JMP 22
-    /// 000E : OpCode.LDLOC1
-    /// 000F : OpCode.LDLOC3
-    /// 0010 : OpCode.PICKITEM
-    /// 0011 : OpCode.STLOC4
-    /// 0012 : OpCode.LDLOC0
-    /// 0013 : OpCode.NEWSTRUCT0
-    /// 0014 : OpCode.DUP
-    /// 0015 : OpCode.PUSHNULL
-    /// 0016 : OpCode.APPEND
-    /// 0017 : OpCode.DUP
-    /// 0018 : OpCode.PUSH0
-    /// 0019 : OpCode.APPEND
-    /// 001A : OpCode.DUP
-    /// 001B : OpCode.CALL 37
-    /// 001D : OpCode.LDLOC4
-    /// 001E : OpCode.CALLT 0000
-    /// 0021 : OpCode.OVER
-    /// 0022 : OpCode.PUSH0
-    /// 0023 : OpCode.ROT
-    /// 0024 : OpCode.SETITEM
-    /// 0025 : OpCode.LDLOC4
-    /// 0026 : OpCode.OVER
-    /// 0027 : OpCode.PUSH1
-    /// 0028 : OpCode.ROT
-    /// 0029 : OpCode.SETITEM
-    /// 002A : OpCode.APPEND
-    /// 002B : OpCode.LDLOC3
-    /// 002C : OpCode.INC
-    /// 002D : OpCode.STLOC3
-    /// 002E : OpCode.LDLOC3
-    /// 002F : OpCode.LDLOC2
-    /// 0030 : OpCode.JMPLT DE
-    /// 0032 : OpCode.NEWSTRUCT0
-    /// 0033 : OpCode.DUP
-    /// 0034 : OpCode.PUSHNULL
-    /// 0035 : OpCode.APPEND
-    /// 0036 : OpCode.DUP
-    /// 0037 : OpCode.PUSH0
-    /// 0038 : OpCode.APPEND
-    /// 0039 : OpCode.DUP
-    /// 003A : OpCode.CALL 18
-    /// 003C : OpCode.LDARG1
-    /// 003D : OpCode.CALLT 0000
-    /// 0040 : OpCode.OVER
-    /// 0041 : OpCode.PUSH0
-    /// 0042 : OpCode.ROT
-    /// 0043 : OpCode.SETITEM
-    /// 0044 : OpCode.LDARG1
-    /// 0045 : OpCode.OVER
-    /// 0046 : OpCode.PUSH1
-    /// 0047 : OpCode.ROT
-    /// 0048 : OpCode.SETITEM
-    /// 0049 : OpCode.STLOC1
-    /// 004A : OpCode.LDLOC1
-    /// 004B : OpCode.LDLOC0
-    /// 004C : OpCode.CALL_L D1FEFFFF
-    /// 0051 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0502
+    /// 03 : OpCode.NEWARRAY0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.STLOC1
+    /// 08 : OpCode.SIZE
+    /// 09 : OpCode.STLOC2
+    /// 0A : OpCode.PUSH0
+    /// 0B : OpCode.STLOC3
+    /// 0C : OpCode.JMP 22
+    /// 0E : OpCode.LDLOC1
+    /// 0F : OpCode.LDLOC3
+    /// 10 : OpCode.PICKITEM
+    /// 11 : OpCode.STLOC4
+    /// 12 : OpCode.LDLOC0
+    /// 13 : OpCode.NEWSTRUCT0
+    /// 14 : OpCode.DUP
+    /// 15 : OpCode.PUSHNULL
+    /// 16 : OpCode.APPEND
+    /// 17 : OpCode.DUP
+    /// 18 : OpCode.PUSH0
+    /// 19 : OpCode.APPEND
+    /// 1A : OpCode.DUP
+    /// 1B : OpCode.CALL 37
+    /// 1D : OpCode.LDLOC4
+    /// 1E : OpCode.CALLT 0000
+    /// 21 : OpCode.OVER
+    /// 22 : OpCode.PUSH0
+    /// 23 : OpCode.ROT
+    /// 24 : OpCode.SETITEM
+    /// 25 : OpCode.LDLOC4
+    /// 26 : OpCode.OVER
+    /// 27 : OpCode.PUSH1
+    /// 28 : OpCode.ROT
+    /// 29 : OpCode.SETITEM
+    /// 2A : OpCode.APPEND
+    /// 2B : OpCode.LDLOC3
+    /// 2C : OpCode.INC
+    /// 2D : OpCode.STLOC3
+    /// 2E : OpCode.LDLOC3
+    /// 2F : OpCode.LDLOC2
+    /// 30 : OpCode.JMPLT DE
+    /// 32 : OpCode.NEWSTRUCT0
+    /// 33 : OpCode.DUP
+    /// 34 : OpCode.PUSHNULL
+    /// 35 : OpCode.APPEND
+    /// 36 : OpCode.DUP
+    /// 37 : OpCode.PUSH0
+    /// 38 : OpCode.APPEND
+    /// 39 : OpCode.DUP
+    /// 3A : OpCode.CALL 18
+    /// 3C : OpCode.LDARG1
+    /// 3D : OpCode.CALLT 0000
+    /// 40 : OpCode.OVER
+    /// 41 : OpCode.PUSH0
+    /// 42 : OpCode.ROT
+    /// 43 : OpCode.SETITEM
+    /// 44 : OpCode.LDARG1
+    /// 45 : OpCode.OVER
+    /// 46 : OpCode.PUSH1
+    /// 47 : OpCode.ROT
+    /// 48 : OpCode.SETITEM
+    /// 49 : OpCode.STLOC1
+    /// 4A : OpCode.LDLOC1
+    /// 4B : OpCode.LDLOC0
+    /// 4C : OpCode.CALL_L D1FEFFFF
+    /// 51 : OpCode.RET
     /// </remarks>
     [DisplayName("containsPersonS")]
     public abstract bool? ContainsPersonS(IList<object>? array, BigInteger? target);
@@ -406,11 +406,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXg0r0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG1
-    /// 0004 : OpCode.LDARG0
-    /// 0005 : OpCode.CALL AF
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALL AF
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("containsText")]
     public abstract bool? ContainsText(IList<object>? array, string? target);
@@ -420,57 +420,57 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUCeDRjDHByZWRpY2F0ZXk1Qfz//xBweEpxynIQcyJBaWvOdGx5NiY1aEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFa5xza2owv2hA
-    /// 0000 : OpCode.INITSLOT 0502
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALL 63
-    /// 0006 : OpCode.PUSHDATA1 707265646963617465
-    /// 0011 : OpCode.LDARG1
-    /// 0012 : OpCode.CALL_L 41FCFFFF
-    /// 0017 : OpCode.PUSH0
-    /// 0018 : OpCode.STLOC0
-    /// 0019 : OpCode.LDARG0
-    /// 001A : OpCode.DUP
-    /// 001B : OpCode.STLOC1
-    /// 001C : OpCode.SIZE
-    /// 001D : OpCode.STLOC2
-    /// 001E : OpCode.PUSH0
-    /// 001F : OpCode.STLOC3
-    /// 0020 : OpCode.JMP 41
-    /// 0022 : OpCode.LDLOC1
-    /// 0023 : OpCode.LDLOC3
-    /// 0024 : OpCode.PICKITEM
-    /// 0025 : OpCode.STLOC4
-    /// 0026 : OpCode.LDLOC4
-    /// 0027 : OpCode.LDARG1
-    /// 0028 : OpCode.CALLA
-    /// 0029 : OpCode.JMPIFNOT 35
-    /// 002B : OpCode.LDLOC0
-    /// 002C : OpCode.DUP
-    /// 002D : OpCode.INC
-    /// 002E : OpCode.DUP
-    /// 002F : OpCode.PUSHINT32 00000080
-    /// 0034 : OpCode.JMPGE 04
-    /// 0036 : OpCode.JMP 0A
-    /// 0038 : OpCode.DUP
-    /// 0039 : OpCode.PUSHINT32 FFFFFF7F
-    /// 003E : OpCode.JMPLE 1E
-    /// 0040 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0049 : OpCode.AND
-    /// 004A : OpCode.DUP
-    /// 004B : OpCode.PUSHINT32 FFFFFF7F
-    /// 0050 : OpCode.JMPLE 0C
-    /// 0052 : OpCode.PUSHINT64 0000000001000000
-    /// 005B : OpCode.SUB
-    /// 005C : OpCode.STLOC0
-    /// 005D : OpCode.DROP
-    /// 005E : OpCode.LDLOC3
-    /// 005F : OpCode.INC
-    /// 0060 : OpCode.STLOC3
-    /// 0061 : OpCode.LDLOC3
-    /// 0062 : OpCode.LDLOC2
-    /// 0063 : OpCode.JMPLT BF
-    /// 0065 : OpCode.LDLOC0
-    /// 0066 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0502
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 63
+    /// 06 : OpCode.PUSHDATA1 707265646963617465
+    /// 11 : OpCode.LDARG1
+    /// 12 : OpCode.CALL_L 41FCFFFF
+    /// 17 : OpCode.PUSH0
+    /// 18 : OpCode.STLOC0
+    /// 19 : OpCode.LDARG0
+    /// 1A : OpCode.DUP
+    /// 1B : OpCode.STLOC1
+    /// 1C : OpCode.SIZE
+    /// 1D : OpCode.STLOC2
+    /// 1E : OpCode.PUSH0
+    /// 1F : OpCode.STLOC3
+    /// 20 : OpCode.JMP 41
+    /// 22 : OpCode.LDLOC1
+    /// 23 : OpCode.LDLOC3
+    /// 24 : OpCode.PICKITEM
+    /// 25 : OpCode.STLOC4
+    /// 26 : OpCode.LDLOC4
+    /// 27 : OpCode.LDARG1
+    /// 28 : OpCode.CALLA
+    /// 29 : OpCode.JMPIFNOT 35
+    /// 2B : OpCode.LDLOC0
+    /// 2C : OpCode.DUP
+    /// 2D : OpCode.INC
+    /// 2E : OpCode.DUP
+    /// 2F : OpCode.PUSHINT32 00000080
+    /// 34 : OpCode.JMPGE 04
+    /// 36 : OpCode.JMP 0A
+    /// 38 : OpCode.DUP
+    /// 39 : OpCode.PUSHINT32 FFFFFF7F
+    /// 3E : OpCode.JMPLE 1E
+    /// 40 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 49 : OpCode.AND
+    /// 4A : OpCode.DUP
+    /// 4B : OpCode.PUSHINT32 FFFFFF7F
+    /// 50 : OpCode.JMPLE 0C
+    /// 52 : OpCode.PUSHINT64 0000000001000000
+    /// 5B : OpCode.SUB
+    /// 5C : OpCode.STLOC0
+    /// 5D : OpCode.DROP
+    /// 5E : OpCode.LDLOC3
+    /// 5F : OpCode.INC
+    /// 60 : OpCode.STLOC3
+    /// 61 : OpCode.LDLOC3
+    /// 62 : OpCode.LDLOC2
+    /// 63 : OpCode.JMPLT BF
+    /// 65 : OpCode.LDLOC0
+    /// 66 : OpCode.RET
     /// </remarks>
     [DisplayName("count")]
     public abstract BigInteger? Count(IList<object>? array);
@@ -480,11 +480,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABCooAAAB4NANA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA 8A000000
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.CALL 03
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA 8A000000
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.CALL 03
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("countGreaterThanZero")]
     public abstract BigInteger? CountGreaterThanZero(IList<object>? array);
@@ -494,12 +494,12 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABDwpXAAAAeDQDQA==
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHM1
-    /// 0004 : OpCode.PUSHA 57000000
-    /// 0009 : OpCode.LDARG0
-    /// 000A : OpCode.CALL 03
-    /// 000C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHM1
+    /// 04 : OpCode.PUSHA 57000000
+    /// 09 : OpCode.LDARG0
+    /// 0A : OpCode.CALL 03
+    /// 0C : OpCode.RET
     /// </remarks>
     [DisplayName("firstGreaterThanZero")]
     public abstract BigInteger? FirstGreaterThanZero(IList<object>? array);
@@ -509,11 +509,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDQEqkA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALL 04
-    /// 0006 : OpCode.NOT
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 04
+    /// 06 : OpCode.NOT
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("isEmpty")]
     public abstract bool? IsEmpty(IList<object>? array);
@@ -523,50 +523,50 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUBwnB4SnHKchBzIiJpa850aBALEsBKNV/+//9sNwAASxBR0GxLEVHQz2ucc2tqMN4KDAAAAGg1Rv///0A=
-    /// 0000 : OpCode.INITSLOT 0501
-    /// 0003 : OpCode.NEWARRAY0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.STLOC1
-    /// 0008 : OpCode.SIZE
-    /// 0009 : OpCode.STLOC2
-    /// 000A : OpCode.PUSH0
-    /// 000B : OpCode.STLOC3
-    /// 000C : OpCode.JMP 22
-    /// 000E : OpCode.LDLOC1
-    /// 000F : OpCode.LDLOC3
-    /// 0010 : OpCode.PICKITEM
-    /// 0011 : OpCode.STLOC4
-    /// 0012 : OpCode.LDLOC0
-    /// 0013 : OpCode.PUSH0
-    /// 0014 : OpCode.PUSHNULL
-    /// 0015 : OpCode.PUSH2
-    /// 0016 : OpCode.PACK
-    /// 0017 : OpCode.DUP
-    /// 0018 : OpCode.CALL_L 5FFEFFFF
-    /// 001D : OpCode.LDLOC4
-    /// 001E : OpCode.CALLT 0000
-    /// 0021 : OpCode.OVER
-    /// 0022 : OpCode.PUSH0
-    /// 0023 : OpCode.ROT
-    /// 0024 : OpCode.SETITEM
-    /// 0025 : OpCode.LDLOC4
-    /// 0026 : OpCode.OVER
-    /// 0027 : OpCode.PUSH1
-    /// 0028 : OpCode.ROT
-    /// 0029 : OpCode.SETITEM
-    /// 002A : OpCode.APPEND
-    /// 002B : OpCode.LDLOC3
-    /// 002C : OpCode.INC
-    /// 002D : OpCode.STLOC3
-    /// 002E : OpCode.LDLOC3
-    /// 002F : OpCode.LDLOC2
-    /// 0030 : OpCode.JMPLT DE
-    /// 0032 : OpCode.PUSHA 0C000000
-    /// 0037 : OpCode.LDLOC0
-    /// 0038 : OpCode.CALL_L 46FFFFFF
-    /// 003D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0501
+    /// 03 : OpCode.NEWARRAY0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.STLOC1
+    /// 08 : OpCode.SIZE
+    /// 09 : OpCode.STLOC2
+    /// 0A : OpCode.PUSH0
+    /// 0B : OpCode.STLOC3
+    /// 0C : OpCode.JMP 22
+    /// 0E : OpCode.LDLOC1
+    /// 0F : OpCode.LDLOC3
+    /// 10 : OpCode.PICKITEM
+    /// 11 : OpCode.STLOC4
+    /// 12 : OpCode.LDLOC0
+    /// 13 : OpCode.PUSH0
+    /// 14 : OpCode.PUSHNULL
+    /// 15 : OpCode.PUSH2
+    /// 16 : OpCode.PACK
+    /// 17 : OpCode.DUP
+    /// 18 : OpCode.CALL_L 5FFEFFFF
+    /// 1D : OpCode.LDLOC4
+    /// 1E : OpCode.CALLT 0000
+    /// 21 : OpCode.OVER
+    /// 22 : OpCode.PUSH0
+    /// 23 : OpCode.ROT
+    /// 24 : OpCode.SETITEM
+    /// 25 : OpCode.LDLOC4
+    /// 26 : OpCode.OVER
+    /// 27 : OpCode.PUSH1
+    /// 28 : OpCode.ROT
+    /// 29 : OpCode.SETITEM
+    /// 2A : OpCode.APPEND
+    /// 2B : OpCode.LDLOC3
+    /// 2C : OpCode.INC
+    /// 2D : OpCode.STLOC3
+    /// 2E : OpCode.LDLOC3
+    /// 2F : OpCode.LDLOC2
+    /// 30 : OpCode.JMPLT DE
+    /// 32 : OpCode.PUSHA 0C000000
+    /// 37 : OpCode.LDLOC0
+    /// 38 : OpCode.CALL_L 46FFFFFF
+    /// 3D : OpCode.RET
     /// </remarks>
     [DisplayName("selectPersonS")]
     public abstract object? SelectPersonS(IList<object>? array);
@@ -576,11 +576,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABClYAAAB4NANA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA 56000000
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.CALL 03
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA 56000000
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.CALL 03
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("selectTwice")]
     public abstract object? SelectTwice(IList<object>? array);
@@ -590,58 +590,58 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUCeDRXwnB4SnHKchBzIkZpa850eRC3Jjd5Sp1KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfgUUiBWhsz2ucc2tqMLpoQA==
-    /// 0000 : OpCode.INITSLOT 0502
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALL 57
-    /// 0006 : OpCode.NEWARRAY0
-    /// 0007 : OpCode.STLOC0
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.DUP
-    /// 000A : OpCode.STLOC1
-    /// 000B : OpCode.SIZE
-    /// 000C : OpCode.STLOC2
-    /// 000D : OpCode.PUSH0
-    /// 000E : OpCode.STLOC3
-    /// 000F : OpCode.JMP 46
-    /// 0011 : OpCode.LDLOC1
-    /// 0012 : OpCode.LDLOC3
-    /// 0013 : OpCode.PICKITEM
-    /// 0014 : OpCode.STLOC4
-    /// 0015 : OpCode.LDARG1
-    /// 0016 : OpCode.PUSH0
-    /// 0017 : OpCode.GT
-    /// 0018 : OpCode.JMPIFNOT 37
-    /// 001A : OpCode.LDARG1
-    /// 001B : OpCode.DUP
-    /// 001C : OpCode.DEC
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.PUSHINT32 00000080
-    /// 0023 : OpCode.JMPGE 04
-    /// 0025 : OpCode.JMP 0A
-    /// 0027 : OpCode.DUP
-    /// 0028 : OpCode.PUSHINT32 FFFFFF7F
-    /// 002D : OpCode.JMPLE 1E
-    /// 002F : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0038 : OpCode.AND
-    /// 0039 : OpCode.DUP
-    /// 003A : OpCode.PUSHINT32 FFFFFF7F
-    /// 003F : OpCode.JMPLE 0C
-    /// 0041 : OpCode.PUSHINT64 0000000001000000
-    /// 004A : OpCode.SUB
-    /// 004B : OpCode.STARG1
-    /// 004C : OpCode.DROP
-    /// 004D : OpCode.JMP 05
-    /// 004F : OpCode.LDLOC0
-    /// 0050 : OpCode.LDLOC4
-    /// 0051 : OpCode.APPEND
-    /// 0052 : OpCode.LDLOC3
-    /// 0053 : OpCode.INC
-    /// 0054 : OpCode.STLOC3
-    /// 0055 : OpCode.LDLOC3
-    /// 0056 : OpCode.LDLOC2
-    /// 0057 : OpCode.JMPLT BA
-    /// 0059 : OpCode.LDLOC0
-    /// 005A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0502
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 57
+    /// 06 : OpCode.NEWARRAY0
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.DUP
+    /// 0A : OpCode.STLOC1
+    /// 0B : OpCode.SIZE
+    /// 0C : OpCode.STLOC2
+    /// 0D : OpCode.PUSH0
+    /// 0E : OpCode.STLOC3
+    /// 0F : OpCode.JMP 46
+    /// 11 : OpCode.LDLOC1
+    /// 12 : OpCode.LDLOC3
+    /// 13 : OpCode.PICKITEM
+    /// 14 : OpCode.STLOC4
+    /// 15 : OpCode.LDARG1
+    /// 16 : OpCode.PUSH0
+    /// 17 : OpCode.GT
+    /// 18 : OpCode.JMPIFNOT 37
+    /// 1A : OpCode.LDARG1
+    /// 1B : OpCode.DUP
+    /// 1C : OpCode.DEC
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.PUSHINT32 00000080
+    /// 23 : OpCode.JMPGE 04
+    /// 25 : OpCode.JMP 0A
+    /// 27 : OpCode.DUP
+    /// 28 : OpCode.PUSHINT32 FFFFFF7F
+    /// 2D : OpCode.JMPLE 1E
+    /// 2F : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 38 : OpCode.AND
+    /// 39 : OpCode.DUP
+    /// 3A : OpCode.PUSHINT32 FFFFFF7F
+    /// 3F : OpCode.JMPLE 0C
+    /// 41 : OpCode.PUSHINT64 0000000001000000
+    /// 4A : OpCode.SUB
+    /// 4B : OpCode.STARG1
+    /// 4C : OpCode.DROP
+    /// 4D : OpCode.JMP 05
+    /// 4F : OpCode.LDLOC0
+    /// 50 : OpCode.LDLOC4
+    /// 51 : OpCode.APPEND
+    /// 52 : OpCode.LDLOC3
+    /// 53 : OpCode.INC
+    /// 54 : OpCode.STLOC3
+    /// 55 : OpCode.LDLOC3
+    /// 56 : OpCode.LDLOC2
+    /// 57 : OpCode.JMPLT BA
+    /// 59 : OpCode.LDLOC0
+    /// 5A : OpCode.RET
     /// </remarks>
     [DisplayName("skip")]
     public abstract object? Skip(IList<object>? array, BigInteger? count);
@@ -651,54 +651,54 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUCeDReDHNlbGVjdG9yeTVJ+P//EHB4SnHKchBzIj1pa850aGx5Np5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGucc2tqMMNoQA==
-    /// 0000 : OpCode.INITSLOT 0502
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALL 5E
-    /// 0006 : OpCode.PUSHDATA1 73656C6563746F72
-    /// 0010 : OpCode.LDARG1
-    /// 0011 : OpCode.CALL_L 49F8FFFF
-    /// 0016 : OpCode.PUSH0
-    /// 0017 : OpCode.STLOC0
-    /// 0018 : OpCode.LDARG0
-    /// 0019 : OpCode.DUP
-    /// 001A : OpCode.STLOC1
-    /// 001B : OpCode.SIZE
-    /// 001C : OpCode.STLOC2
-    /// 001D : OpCode.PUSH0
-    /// 001E : OpCode.STLOC3
-    /// 001F : OpCode.JMP 3D
-    /// 0021 : OpCode.LDLOC1
-    /// 0022 : OpCode.LDLOC3
-    /// 0023 : OpCode.PICKITEM
-    /// 0024 : OpCode.STLOC4
-    /// 0025 : OpCode.LDLOC0
-    /// 0026 : OpCode.LDLOC4
-    /// 0027 : OpCode.LDARG1
-    /// 0028 : OpCode.CALLA
-    /// 0029 : OpCode.ADD
-    /// 002A : OpCode.DUP
-    /// 002B : OpCode.PUSHINT32 00000080
-    /// 0030 : OpCode.JMPGE 04
-    /// 0032 : OpCode.JMP 0A
-    /// 0034 : OpCode.DUP
-    /// 0035 : OpCode.PUSHINT32 FFFFFF7F
-    /// 003A : OpCode.JMPLE 1E
-    /// 003C : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0045 : OpCode.AND
-    /// 0046 : OpCode.DUP
-    /// 0047 : OpCode.PUSHINT32 FFFFFF7F
-    /// 004C : OpCode.JMPLE 0C
-    /// 004E : OpCode.PUSHINT64 0000000001000000
-    /// 0057 : OpCode.SUB
-    /// 0058 : OpCode.STLOC0
-    /// 0059 : OpCode.LDLOC3
-    /// 005A : OpCode.INC
-    /// 005B : OpCode.STLOC3
-    /// 005C : OpCode.LDLOC3
-    /// 005D : OpCode.LDLOC2
-    /// 005E : OpCode.JMPLT C3
-    /// 0060 : OpCode.LDLOC0
-    /// 0061 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0502
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 5E
+    /// 06 : OpCode.PUSHDATA1 73656C6563746F72
+    /// 10 : OpCode.LDARG1
+    /// 11 : OpCode.CALL_L 49F8FFFF
+    /// 16 : OpCode.PUSH0
+    /// 17 : OpCode.STLOC0
+    /// 18 : OpCode.LDARG0
+    /// 19 : OpCode.DUP
+    /// 1A : OpCode.STLOC1
+    /// 1B : OpCode.SIZE
+    /// 1C : OpCode.STLOC2
+    /// 1D : OpCode.PUSH0
+    /// 1E : OpCode.STLOC3
+    /// 1F : OpCode.JMP 3D
+    /// 21 : OpCode.LDLOC1
+    /// 22 : OpCode.LDLOC3
+    /// 23 : OpCode.PICKITEM
+    /// 24 : OpCode.STLOC4
+    /// 25 : OpCode.LDLOC0
+    /// 26 : OpCode.LDLOC4
+    /// 27 : OpCode.LDARG1
+    /// 28 : OpCode.CALLA
+    /// 29 : OpCode.ADD
+    /// 2A : OpCode.DUP
+    /// 2B : OpCode.PUSHINT32 00000080
+    /// 30 : OpCode.JMPGE 04
+    /// 32 : OpCode.JMP 0A
+    /// 34 : OpCode.DUP
+    /// 35 : OpCode.PUSHINT32 FFFFFF7F
+    /// 3A : OpCode.JMPLE 1E
+    /// 3C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 45 : OpCode.AND
+    /// 46 : OpCode.DUP
+    /// 47 : OpCode.PUSHINT32 FFFFFF7F
+    /// 4C : OpCode.JMPLE 0C
+    /// 4E : OpCode.PUSHINT64 0000000001000000
+    /// 57 : OpCode.SUB
+    /// 58 : OpCode.STLOC0
+    /// 59 : OpCode.LDLOC3
+    /// 5A : OpCode.INC
+    /// 5B : OpCode.STLOC3
+    /// 5C : OpCode.LDLOC3
+    /// 5D : OpCode.LDLOC2
+    /// 5E : OpCode.JMPLT C3
+    /// 60 : OpCode.LDLOC0
+    /// 61 : OpCode.RET
     /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(IList<object>? array);
@@ -708,11 +708,11 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABCoUAAAB4NANA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA 85000000
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.CALL 03
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA 85000000
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.CALL 03
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("sumTwice")]
     public abstract BigInteger? SumTwice(IList<object>? array);
@@ -722,58 +722,58 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUCeDRXwnB4SnHKchBzIkZpa850eRC2JgQiP2hsz3lKnUoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ+BRWucc2tqMLpoQA==
-    /// 0000 : OpCode.INITSLOT 0502
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALL 57
-    /// 0006 : OpCode.NEWARRAY0
-    /// 0007 : OpCode.STLOC0
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.DUP
-    /// 000A : OpCode.STLOC1
-    /// 000B : OpCode.SIZE
-    /// 000C : OpCode.STLOC2
-    /// 000D : OpCode.PUSH0
-    /// 000E : OpCode.STLOC3
-    /// 000F : OpCode.JMP 46
-    /// 0011 : OpCode.LDLOC1
-    /// 0012 : OpCode.LDLOC3
-    /// 0013 : OpCode.PICKITEM
-    /// 0014 : OpCode.STLOC4
-    /// 0015 : OpCode.LDARG1
-    /// 0016 : OpCode.PUSH0
-    /// 0017 : OpCode.LE
-    /// 0018 : OpCode.JMPIFNOT 04
-    /// 001A : OpCode.JMP 3F
-    /// 001C : OpCode.LDLOC0
-    /// 001D : OpCode.LDLOC4
-    /// 001E : OpCode.APPEND
-    /// 001F : OpCode.LDARG1
-    /// 0020 : OpCode.DUP
-    /// 0021 : OpCode.DEC
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.PUSHINT32 00000080
-    /// 0028 : OpCode.JMPGE 04
-    /// 002A : OpCode.JMP 0A
-    /// 002C : OpCode.DUP
-    /// 002D : OpCode.PUSHINT32 FFFFFF7F
-    /// 0032 : OpCode.JMPLE 1E
-    /// 0034 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 003D : OpCode.AND
-    /// 003E : OpCode.DUP
-    /// 003F : OpCode.PUSHINT32 FFFFFF7F
-    /// 0044 : OpCode.JMPLE 0C
-    /// 0046 : OpCode.PUSHINT64 0000000001000000
-    /// 004F : OpCode.SUB
-    /// 0050 : OpCode.STARG1
-    /// 0051 : OpCode.DROP
-    /// 0052 : OpCode.LDLOC3
-    /// 0053 : OpCode.INC
-    /// 0054 : OpCode.STLOC3
-    /// 0055 : OpCode.LDLOC3
-    /// 0056 : OpCode.LDLOC2
-    /// 0057 : OpCode.JMPLT BA
-    /// 0059 : OpCode.LDLOC0
-    /// 005A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0502
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 57
+    /// 06 : OpCode.NEWARRAY0
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.DUP
+    /// 0A : OpCode.STLOC1
+    /// 0B : OpCode.SIZE
+    /// 0C : OpCode.STLOC2
+    /// 0D : OpCode.PUSH0
+    /// 0E : OpCode.STLOC3
+    /// 0F : OpCode.JMP 46
+    /// 11 : OpCode.LDLOC1
+    /// 12 : OpCode.LDLOC3
+    /// 13 : OpCode.PICKITEM
+    /// 14 : OpCode.STLOC4
+    /// 15 : OpCode.LDARG1
+    /// 16 : OpCode.PUSH0
+    /// 17 : OpCode.LE
+    /// 18 : OpCode.JMPIFNOT 04
+    /// 1A : OpCode.JMP 3F
+    /// 1C : OpCode.LDLOC0
+    /// 1D : OpCode.LDLOC4
+    /// 1E : OpCode.APPEND
+    /// 1F : OpCode.LDARG1
+    /// 20 : OpCode.DUP
+    /// 21 : OpCode.DEC
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT32 00000080
+    /// 28 : OpCode.JMPGE 04
+    /// 2A : OpCode.JMP 0A
+    /// 2C : OpCode.DUP
+    /// 2D : OpCode.PUSHINT32 FFFFFF7F
+    /// 32 : OpCode.JMPLE 1E
+    /// 34 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 3D : OpCode.AND
+    /// 3E : OpCode.DUP
+    /// 3F : OpCode.PUSHINT32 FFFFFF7F
+    /// 44 : OpCode.JMPLE 0C
+    /// 46 : OpCode.PUSHINT64 0000000001000000
+    /// 4F : OpCode.SUB
+    /// 50 : OpCode.STARG1
+    /// 51 : OpCode.DROP
+    /// 52 : OpCode.LDLOC3
+    /// 53 : OpCode.INC
+    /// 54 : OpCode.STLOC3
+    /// 55 : OpCode.LDLOC3
+    /// 56 : OpCode.LDLOC2
+    /// 57 : OpCode.JMPLT BA
+    /// 59 : OpCode.LDLOC0
+    /// 5A : OpCode.RET
     /// </remarks>
     [DisplayName("take")]
     public abstract object? Take(IList<object>? array, BigInteger? count);
@@ -783,48 +783,48 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwUDeDRPDGtleVNlbGVjdG9yeTXd9v//DGVsZW1lbnRTZWxlY3Rvcno1xvb//8hweEpxynIQcyIUaWvOdGx6NkpseTZoU9BFa5xza2ow7GhA
-    /// 0000 : OpCode.INITSLOT 0503
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALL 4F
-    /// 0006 : OpCode.PUSHDATA1 6B657953656C6563746F72
-    /// 0013 : OpCode.LDARG1
-    /// 0014 : OpCode.CALL_L DDF6FFFF
-    /// 0019 : OpCode.PUSHDATA1 656C656D656E7453656C6563746F72
-    /// 002A : OpCode.LDARG2
-    /// 002B : OpCode.CALL_L C6F6FFFF
-    /// 0030 : OpCode.NEWMAP
-    /// 0031 : OpCode.STLOC0
-    /// 0032 : OpCode.LDARG0
-    /// 0033 : OpCode.DUP
-    /// 0034 : OpCode.STLOC1
-    /// 0035 : OpCode.SIZE
-    /// 0036 : OpCode.STLOC2
-    /// 0037 : OpCode.PUSH0
-    /// 0038 : OpCode.STLOC3
-    /// 0039 : OpCode.JMP 14
-    /// 003B : OpCode.LDLOC1
-    /// 003C : OpCode.LDLOC3
-    /// 003D : OpCode.PICKITEM
-    /// 003E : OpCode.STLOC4
-    /// 003F : OpCode.LDLOC4
-    /// 0040 : OpCode.LDARG2
-    /// 0041 : OpCode.CALLA
-    /// 0042 : OpCode.DUP
-    /// 0043 : OpCode.LDLOC4
-    /// 0044 : OpCode.LDARG1
-    /// 0045 : OpCode.CALLA
-    /// 0046 : OpCode.LDLOC0
-    /// 0047 : OpCode.REVERSE3
-    /// 0048 : OpCode.SETITEM
-    /// 0049 : OpCode.DROP
-    /// 004A : OpCode.LDLOC3
-    /// 004B : OpCode.INC
-    /// 004C : OpCode.STLOC3
-    /// 004D : OpCode.LDLOC3
-    /// 004E : OpCode.LDLOC2
-    /// 004F : OpCode.JMPLT EC
-    /// 0051 : OpCode.LDLOC0
-    /// 0052 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0503
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALL 4F
+    /// 06 : OpCode.PUSHDATA1 6B657953656C6563746F72
+    /// 13 : OpCode.LDARG1
+    /// 14 : OpCode.CALL_L DDF6FFFF
+    /// 19 : OpCode.PUSHDATA1 656C656D656E7453656C6563746F72
+    /// 2A : OpCode.LDARG2
+    /// 2B : OpCode.CALL_L C6F6FFFF
+    /// 30 : OpCode.NEWMAP
+    /// 31 : OpCode.STLOC0
+    /// 32 : OpCode.LDARG0
+    /// 33 : OpCode.DUP
+    /// 34 : OpCode.STLOC1
+    /// 35 : OpCode.SIZE
+    /// 36 : OpCode.STLOC2
+    /// 37 : OpCode.PUSH0
+    /// 38 : OpCode.STLOC3
+    /// 39 : OpCode.JMP 14
+    /// 3B : OpCode.LDLOC1
+    /// 3C : OpCode.LDLOC3
+    /// 3D : OpCode.PICKITEM
+    /// 3E : OpCode.STLOC4
+    /// 3F : OpCode.LDLOC4
+    /// 40 : OpCode.LDARG2
+    /// 41 : OpCode.CALLA
+    /// 42 : OpCode.DUP
+    /// 43 : OpCode.LDLOC4
+    /// 44 : OpCode.LDARG1
+    /// 45 : OpCode.CALLA
+    /// 46 : OpCode.LDLOC0
+    /// 47 : OpCode.REVERSE3
+    /// 48 : OpCode.SETITEM
+    /// 49 : OpCode.DROP
+    /// 4A : OpCode.LDLOC3
+    /// 4B : OpCode.INC
+    /// 4C : OpCode.STLOC3
+    /// 4D : OpCode.LDLOC3
+    /// 4E : OpCode.LDLOC2
+    /// 4F : OpCode.JMPLT EC
+    /// 51 : OpCode.LDLOC0
+    /// 52 : OpCode.RET
     /// </remarks>
     [DisplayName("toMap")]
     public abstract object? ToMap(IList<object>? array);
@@ -834,15 +834,14 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABCloAAAB4NANA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.PUSHA 5A000000
-    /// 0008 : OpCode.LDARG0
-    /// 0009 : OpCode.CALL 03
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.PUSHA 5A000000
+    /// 08 : OpCode.LDARG0
+    /// 09 : OpCode.CALL 03
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("whereGreaterThanZero")]
     public abstract object? WhereGreaterThanZero(IList<object>? array);
 
     #endregion
-
 }

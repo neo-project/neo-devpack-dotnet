@@ -35,12 +35,11 @@ public abstract class Contract_StaticByteArray(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: WEA=
-    /// 0000 : OpCode.LDSFLD0
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.LDSFLD0
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("testStaticByteArray")]
     public abstract byte[]? TestStaticByteArray();
 
     #endregion
-
 }

@@ -26,8 +26,8 @@ public abstract class Contract_TryCatch(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: DGV4Y2VwdGlvbjo=
-    /// 0000 : OpCode.PUSHDATA1 657863657074696F6E
-    /// 000B : OpCode.THROW
+    /// 00 : OpCode.PUSHDATA1 657863657074696F6E
+    /// 0B : OpCode.THROW
     /// </remarks>
     [DisplayName("throwCall")]
     public abstract object? ThrowCall();
@@ -153,5 +153,4 @@ public abstract class Contract_TryCatch(Neo.SmartContract.Testing.SmartContractI
     public abstract BigInteger? TryWithTwoFinally(bool? throwInInner, bool? throwInOuter, bool? enterInnerCatch, bool? enterOuterCatch, bool? enterInnerFinally, bool? enterOuterFinally);
 
     #endregion
-
 }

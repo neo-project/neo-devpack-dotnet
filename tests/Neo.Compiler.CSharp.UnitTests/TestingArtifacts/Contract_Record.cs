@@ -26,22 +26,22 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwECxUoLz0oQz3l4Ek00BXBoQA==
-    /// 0000 : OpCode.INITSLOT 0102
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHNULL
-    /// 0006 : OpCode.APPEND
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.PUSH0
-    /// 0009 : OpCode.APPEND
-    /// 000A : OpCode.LDARG1
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.PUSH2
-    /// 000D : OpCode.PICK
-    /// 000E : OpCode.CALL 05
-    /// 0010 : OpCode.STLOC0
-    /// 0011 : OpCode.LDLOC0
-    /// 0012 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHNULL
+    /// 06 : OpCode.APPEND
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.PUSH0
+    /// 09 : OpCode.APPEND
+    /// 0A : OpCode.LDARG1
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.PUSH2
+    /// 0D : OpCode.PICK
+    /// 0E : OpCode.CALL 05
+    /// 10 : OpCode.STLOC0
+    /// 11 : OpCode.LDLOC0
+    /// 12 : OpCode.RET
     /// </remarks>
     [DisplayName("test_CreateRecord")]
     public abstract object? Test_CreateRecord(string? n, BigInteger? a);
@@ -51,25 +51,25 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwECxUoLz0oQz3hLNAp5SxFR0HBoQA==
-    /// 0000 : OpCode.INITSLOT 0102
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHNULL
-    /// 0006 : OpCode.APPEND
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.PUSH0
-    /// 0009 : OpCode.APPEND
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.OVER
-    /// 000C : OpCode.CALL 0A
-    /// 000E : OpCode.LDARG1
-    /// 000F : OpCode.OVER
-    /// 0010 : OpCode.PUSH1
-    /// 0011 : OpCode.ROT
-    /// 0012 : OpCode.SETITEM
-    /// 0013 : OpCode.STLOC0
-    /// 0014 : OpCode.LDLOC0
-    /// 0015 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHNULL
+    /// 06 : OpCode.APPEND
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.PUSH0
+    /// 09 : OpCode.APPEND
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.OVER
+    /// 0C : OpCode.CALL 0A
+    /// 0E : OpCode.LDARG1
+    /// 0F : OpCode.OVER
+    /// 10 : OpCode.PUSH1
+    /// 11 : OpCode.ROT
+    /// 12 : OpCode.SETITEM
+    /// 13 : OpCode.STLOC0
+    /// 14 : OpCode.LDLOC0
+    /// 15 : OpCode.RET
     /// </remarks>
     [DisplayName("test_CreateRecord2")]
     public abstract object? Test_CreateRecord2(string? n, BigInteger? a);
@@ -79,29 +79,29 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwMCxUoLz0oQz3l4Ek01Ev///3BoSsFFcXJFaUA=
-    /// 0000 : OpCode.INITSLOT 0302
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHNULL
-    /// 0006 : OpCode.APPEND
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.PUSH0
-    /// 0009 : OpCode.APPEND
-    /// 000A : OpCode.LDARG1
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.PUSH2
-    /// 000D : OpCode.PICK
-    /// 000E : OpCode.CALL_L 12FFFFFF
-    /// 0013 : OpCode.STLOC0
-    /// 0014 : OpCode.LDLOC0
-    /// 0015 : OpCode.DUP
-    /// 0016 : OpCode.UNPACK
-    /// 0017 : OpCode.DROP
-    /// 0018 : OpCode.STLOC1
-    /// 0019 : OpCode.STLOC2
-    /// 001A : OpCode.DROP
-    /// 001B : OpCode.LDLOC1
-    /// 001C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0302
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHNULL
+    /// 06 : OpCode.APPEND
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.PUSH0
+    /// 09 : OpCode.APPEND
+    /// 0A : OpCode.LDARG1
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.PUSH2
+    /// 0D : OpCode.PICK
+    /// 0E : OpCode.CALL_L 12FFFFFF
+    /// 13 : OpCode.STLOC0
+    /// 14 : OpCode.LDLOC0
+    /// 15 : OpCode.DUP
+    /// 16 : OpCode.UNPACK
+    /// 17 : OpCode.DROP
+    /// 18 : OpCode.STLOC1
+    /// 19 : OpCode.STLOC2
+    /// 1A : OpCode.DROP
+    /// 1B : OpCode.LDLOC1
+    /// 1C : OpCode.RET
     /// </remarks>
     [DisplayName("test_DeconstructRecord")]
     public abstract string? Test_DeconstructRecord(string? n, BigInteger? a);
@@ -111,45 +111,45 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwICxUoLz0oQz3l4Ek00xXBowb95EZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSzQFcWhA
-    /// 0000 : OpCode.INITSLOT 0202
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHNULL
-    /// 0006 : OpCode.APPEND
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.PUSH0
-    /// 0009 : OpCode.APPEND
-    /// 000A : OpCode.LDARG1
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.PUSH2
-    /// 000D : OpCode.PICK
-    /// 000E : OpCode.CALL C5
-    /// 0010 : OpCode.STLOC0
-    /// 0011 : OpCode.LDLOC0
-    /// 0012 : OpCode.UNPACK
-    /// 0013 : OpCode.PACKSTRUCT
-    /// 0014 : OpCode.LDARG1
-    /// 0015 : OpCode.PUSH1
-    /// 0016 : OpCode.ADD
-    /// 0017 : OpCode.DUP
-    /// 0018 : OpCode.PUSHINT32 00000080
-    /// 001D : OpCode.JMPGE 04
-    /// 001F : OpCode.JMP 0A
-    /// 0021 : OpCode.DUP
-    /// 0022 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0027 : OpCode.JMPLE 1E
-    /// 0029 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0032 : OpCode.AND
-    /// 0033 : OpCode.DUP
-    /// 0034 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0039 : OpCode.JMPLE 0C
-    /// 003B : OpCode.PUSHINT64 0000000001000000
-    /// 0044 : OpCode.SUB
-    /// 0045 : OpCode.OVER
-    /// 0046 : OpCode.CALL 05
-    /// 0048 : OpCode.STLOC1
-    /// 0049 : OpCode.LDLOC0
-    /// 004A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHNULL
+    /// 06 : OpCode.APPEND
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.PUSH0
+    /// 09 : OpCode.APPEND
+    /// 0A : OpCode.LDARG1
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.PUSH2
+    /// 0D : OpCode.PICK
+    /// 0E : OpCode.CALL C5
+    /// 10 : OpCode.STLOC0
+    /// 11 : OpCode.LDLOC0
+    /// 12 : OpCode.UNPACK
+    /// 13 : OpCode.PACKSTRUCT
+    /// 14 : OpCode.LDARG1
+    /// 15 : OpCode.PUSH1
+    /// 16 : OpCode.ADD
+    /// 17 : OpCode.DUP
+    /// 18 : OpCode.PUSHINT32 00000080
+    /// 1D : OpCode.JMPGE 04
+    /// 1F : OpCode.JMP 0A
+    /// 21 : OpCode.DUP
+    /// 22 : OpCode.PUSHINT32 FFFFFF7F
+    /// 27 : OpCode.JMPLE 1E
+    /// 29 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 32 : OpCode.AND
+    /// 33 : OpCode.DUP
+    /// 34 : OpCode.PUSHINT32 FFFFFF7F
+    /// 39 : OpCode.JMPLE 0C
+    /// 3B : OpCode.PUSHINT64 0000000001000000
+    /// 44 : OpCode.SUB
+    /// 45 : OpCode.OVER
+    /// 46 : OpCode.CALL 05
+    /// 48 : OpCode.STLOC1
+    /// 49 : OpCode.LDLOC0
+    /// 4A : OpCode.RET
     /// </remarks>
     [DisplayName("test_UpdateRecord")]
     public abstract object? Test_UpdateRecord(string? n, BigInteger? a);
@@ -159,55 +159,54 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwICxUoLz0oQz3l4Ek01cv///3Bowb95EZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSzSvDDB4i9soSzQFcWlA
-    /// 0000 : OpCode.INITSLOT 0202
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHNULL
-    /// 0006 : OpCode.APPEND
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.PUSH0
-    /// 0009 : OpCode.APPEND
-    /// 000A : OpCode.LDARG1
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.PUSH2
-    /// 000D : OpCode.PICK
-    /// 000E : OpCode.CALL_L 72FFFFFF
-    /// 0013 : OpCode.STLOC0
-    /// 0014 : OpCode.LDLOC0
-    /// 0015 : OpCode.UNPACK
-    /// 0016 : OpCode.PACKSTRUCT
-    /// 0017 : OpCode.LDARG1
-    /// 0018 : OpCode.PUSH1
-    /// 0019 : OpCode.ADD
-    /// 001A : OpCode.DUP
-    /// 001B : OpCode.PUSHINT32 00000080
-    /// 0020 : OpCode.JMPGE 04
-    /// 0022 : OpCode.JMP 0A
-    /// 0024 : OpCode.DUP
-    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
-    /// 002A : OpCode.JMPLE 1E
-    /// 002C : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0035 : OpCode.AND
-    /// 0036 : OpCode.DUP
-    /// 0037 : OpCode.PUSHINT32 FFFFFF7F
-    /// 003C : OpCode.JMPLE 0C
-    /// 003E : OpCode.PUSHINT64 0000000001000000
-    /// 0047 : OpCode.SUB
-    /// 0048 : OpCode.OVER
-    /// 0049 : OpCode.CALL AF
-    /// 004B : OpCode.PUSHDATA1 30
-    /// 004E : OpCode.LDARG0
-    /// 004F : OpCode.CAT
-    /// 0050 : OpCode.CONVERT 28
-    /// 0052 : OpCode.OVER
-    /// 0053 : OpCode.CALL 05
-    /// 0055 : OpCode.STLOC1
-    /// 0056 : OpCode.LDLOC1
-    /// 0057 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHNULL
+    /// 06 : OpCode.APPEND
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.PUSH0
+    /// 09 : OpCode.APPEND
+    /// 0A : OpCode.LDARG1
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.PUSH2
+    /// 0D : OpCode.PICK
+    /// 0E : OpCode.CALL_L 72FFFFFF
+    /// 13 : OpCode.STLOC0
+    /// 14 : OpCode.LDLOC0
+    /// 15 : OpCode.UNPACK
+    /// 16 : OpCode.PACKSTRUCT
+    /// 17 : OpCode.LDARG1
+    /// 18 : OpCode.PUSH1
+    /// 19 : OpCode.ADD
+    /// 1A : OpCode.DUP
+    /// 1B : OpCode.PUSHINT32 00000080
+    /// 20 : OpCode.JMPGE 04
+    /// 22 : OpCode.JMP 0A
+    /// 24 : OpCode.DUP
+    /// 25 : OpCode.PUSHINT32 FFFFFF7F
+    /// 2A : OpCode.JMPLE 1E
+    /// 2C : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 35 : OpCode.AND
+    /// 36 : OpCode.DUP
+    /// 37 : OpCode.PUSHINT32 FFFFFF7F
+    /// 3C : OpCode.JMPLE 0C
+    /// 3E : OpCode.PUSHINT64 0000000001000000
+    /// 47 : OpCode.SUB
+    /// 48 : OpCode.OVER
+    /// 49 : OpCode.CALL AF
+    /// 4B : OpCode.PUSHDATA1 30
+    /// 4E : OpCode.LDARG0
+    /// 4F : OpCode.CAT
+    /// 50 : OpCode.CONVERT 28
+    /// 52 : OpCode.OVER
+    /// 53 : OpCode.CALL 05
+    /// 55 : OpCode.STLOC1
+    /// 56 : OpCode.LDLOC1
+    /// 57 : OpCode.RET
     /// </remarks>
     [DisplayName("test_UpdateRecord2")]
     public abstract object? Test_UpdateRecord2(string? n, BigInteger? a);
 
     #endregion
-
 }

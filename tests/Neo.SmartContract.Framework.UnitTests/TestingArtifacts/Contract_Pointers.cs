@@ -26,12 +26,12 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwEACvr///9waDZA
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSHA FAFFFFFF
-    /// 0008 : OpCode.STLOC0
-    /// 0009 : OpCode.LDLOC0
-    /// 000A : OpCode.CALLA
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHA FAFFFFFF
+    /// 08 : OpCode.STLOC0
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.CALLA
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("callFuncPointer")]
     public abstract BigInteger? CallFuncPointer();
@@ -41,14 +41,14 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwEACvb///9wDAsWIdswaDZA
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSHA F6FFFFFF
-    /// 0008 : OpCode.STLOC0
-    /// 0009 : OpCode.PUSHDATA1 0B1621
-    /// 000E : OpCode.CONVERT 30
-    /// 0010 : OpCode.LDLOC0
-    /// 0011 : OpCode.CALLA
-    /// 0012 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHA F6FFFFFF
+    /// 08 : OpCode.STLOC0
+    /// 09 : OpCode.PUSHDATA1 0B1621
+    /// 0E : OpCode.CONVERT 30
+    /// 10 : OpCode.LDLOC0
+    /// 11 : OpCode.CALLA
+    /// 12 : OpCode.RET
     /// </remarks>
     [DisplayName("callFuncPointerWithArg")]
     public abstract BigInteger? CallFuncPointerWithArg();
@@ -58,8 +58,8 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: CgYAAABA
-    /// 0000 : OpCode.PUSHA 06000000
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.PUSHA 06000000
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("createFuncPointer")]
     public abstract object? CreateFuncPointer();
@@ -69,8 +69,8 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: CgYAAABA
-    /// 0000 : OpCode.PUSHA 06000000
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.PUSHA 06000000
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("createFuncPointerWithArg")]
     public abstract object? CreateFuncPointerWithArg();
@@ -80,8 +80,8 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: AHtA
-    /// 0000 : OpCode.PUSHINT8 7B
-    /// 0002 : OpCode.RET
+    /// 00 : OpCode.PUSHINT8 7B
+    /// 02 : OpCode.RET
     /// </remarks>
     [DisplayName("myMethod")]
     public abstract BigInteger? MyMethod();
@@ -91,14 +91,13 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeNshQA==
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CONVERT 21
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CONVERT 21
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("myMethodWithArg")]
     public abstract BigInteger? MyMethodWithArg(byte[]? num);
 
     #endregion
-
 }

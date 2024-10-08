@@ -26,13 +26,12 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: VwABWEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDSFLD0
-    /// 0004 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDSFLD0
+    /// 04 : OpCode.RET
     /// </remarks>
     [DisplayName("testStaticClass")]
     public abstract BigInteger? TestStaticClass();
 
     #endregion
-
 }

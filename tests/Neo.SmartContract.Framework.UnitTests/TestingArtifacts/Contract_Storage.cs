@@ -26,39 +26,39 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwQCDAGq2zBwQZv2Z85xaGkSwHIQEcBKNBVKEHnQc2t4ajQPeGo0H3NrEM5A
-    /// 0000 : OpCode.INITSLOT 0402
-    /// 0003 : OpCode.PUSHDATA1 01AA
-    /// 0007 : OpCode.CONVERT 30
-    /// 0009 : OpCode.STLOC0
-    /// 000A : OpCode.SYSCALL 9BF667CE
-    /// 000F : OpCode.STLOC1
-    /// 0010 : OpCode.LDLOC0
-    /// 0011 : OpCode.LDLOC1
-    /// 0012 : OpCode.PUSH2
-    /// 0013 : OpCode.PACK
-    /// 0014 : OpCode.STLOC2
-    /// 0015 : OpCode.PUSH0
-    /// 0016 : OpCode.PUSH1
-    /// 0017 : OpCode.PACK
-    /// 0018 : OpCode.DUP
-    /// 0019 : OpCode.CALL 15
-    /// 001B : OpCode.DUP
-    /// 001C : OpCode.PUSH0
-    /// 001D : OpCode.LDARG1
-    /// 001E : OpCode.SETITEM
-    /// 001F : OpCode.STLOC3
-    /// 0020 : OpCode.LDLOC3
-    /// 0021 : OpCode.LDARG0
-    /// 0022 : OpCode.LDLOC2
-    /// 0023 : OpCode.CALL 0F
-    /// 0025 : OpCode.LDARG0
-    /// 0026 : OpCode.LDLOC2
-    /// 0027 : OpCode.CALL 1F
-    /// 0029 : OpCode.STLOC3
-    /// 002A : OpCode.LDLOC3
-    /// 002B : OpCode.PUSH0
-    /// 002C : OpCode.PICKITEM
-    /// 002D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0402
+    /// 03 : OpCode.PUSHDATA1 01AA
+    /// 07 : OpCode.CONVERT 30
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.SYSCALL 9BF667CE
+    /// 0F : OpCode.STLOC1
+    /// 10 : OpCode.LDLOC0
+    /// 11 : OpCode.LDLOC1
+    /// 12 : OpCode.PUSH2
+    /// 13 : OpCode.PACK
+    /// 14 : OpCode.STLOC2
+    /// 15 : OpCode.PUSH0
+    /// 16 : OpCode.PUSH1
+    /// 17 : OpCode.PACK
+    /// 18 : OpCode.DUP
+    /// 19 : OpCode.CALL 15
+    /// 1B : OpCode.DUP
+    /// 1C : OpCode.PUSH0
+    /// 1D : OpCode.LDARG1
+    /// 1E : OpCode.SETITEM
+    /// 1F : OpCode.STLOC3
+    /// 20 : OpCode.LDLOC3
+    /// 21 : OpCode.LDARG0
+    /// 22 : OpCode.LDLOC2
+    /// 23 : OpCode.CALL 0F
+    /// 25 : OpCode.LDARG0
+    /// 26 : OpCode.LDLOC2
+    /// 27 : OpCode.CALL 1F
+    /// 29 : OpCode.STLOC3
+    /// 2A : OpCode.LDLOC3
+    /// 2B : OpCode.PUSH0
+    /// 2C : OpCode.PICKITEM
+    /// 2D : OpCode.RET
     /// </remarks>
     [DisplayName("serializeTest")]
     public abstract BigInteger? SerializeTest(byte[]? key, BigInteger? value);
@@ -68,29 +68,29 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEBQZv2Z84AERGIThBR0FASwHB42yhowUVTi1BBL1jF7UA=
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.SYSCALL 9BF667CE
-    /// 0008 : OpCode.PUSHINT8 11
-    /// 000A : OpCode.PUSH1
-    /// 000B : OpCode.NEWBUFFER
-    /// 000C : OpCode.TUCK
-    /// 000D : OpCode.PUSH0
-    /// 000E : OpCode.ROT
-    /// 000F : OpCode.SETITEM
-    /// 0010 : OpCode.SWAP
-    /// 0011 : OpCode.PUSH2
-    /// 0012 : OpCode.PACK
-    /// 0013 : OpCode.STLOC0
-    /// 0014 : OpCode.LDARG0
-    /// 0015 : OpCode.CONVERT 28
-    /// 0017 : OpCode.LDLOC0
-    /// 0018 : OpCode.UNPACK
-    /// 0019 : OpCode.DROP
-    /// 001A : OpCode.REVERSE3
-    /// 001B : OpCode.CAT
-    /// 001C : OpCode.SWAP
-    /// 001D : OpCode.SYSCALL 2F58C5ED
-    /// 0022 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.SYSCALL 9BF667CE
+    /// 08 : OpCode.PUSHINT8 11
+    /// 0A : OpCode.PUSH1
+    /// 0B : OpCode.NEWBUFFER
+    /// 0C : OpCode.TUCK
+    /// 0D : OpCode.PUSH0
+    /// 0E : OpCode.ROT
+    /// 0F : OpCode.SETITEM
+    /// 10 : OpCode.SWAP
+    /// 11 : OpCode.PUSH2
+    /// 12 : OpCode.PACK
+    /// 13 : OpCode.STLOC0
+    /// 14 : OpCode.LDARG0
+    /// 15 : OpCode.CONVERT 28
+    /// 17 : OpCode.LDLOC0
+    /// 18 : OpCode.UNPACK
+    /// 19 : OpCode.DROP
+    /// 1A : OpCode.REVERSE3
+    /// 1B : OpCode.CAT
+    /// 1C : OpCode.SWAP
+    /// 1D : OpCode.SYSCALL 2F58C5ED
+    /// 22 : OpCode.RET
     /// </remarks>
     [DisplayName("testDeleteByte")]
     public abstract void TestDeleteByte(byte[]? key);
@@ -100,25 +100,25 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwIBDAD/2zBwaEGb9mfOEsBxeNsoacFFU4tQQS9Yxe1A
-    /// 0000 : OpCode.INITSLOT 0201
-    /// 0003 : OpCode.PUSHDATA1 00FF
-    /// 0007 : OpCode.CONVERT 30
-    /// 0009 : OpCode.STLOC0
-    /// 000A : OpCode.LDLOC0
-    /// 000B : OpCode.SYSCALL 9BF667CE
-    /// 0010 : OpCode.PUSH2
-    /// 0011 : OpCode.PACK
-    /// 0012 : OpCode.STLOC1
-    /// 0013 : OpCode.LDARG0
-    /// 0014 : OpCode.CONVERT 28
-    /// 0016 : OpCode.LDLOC1
-    /// 0017 : OpCode.UNPACK
-    /// 0018 : OpCode.DROP
-    /// 0019 : OpCode.REVERSE3
-    /// 001A : OpCode.CAT
-    /// 001B : OpCode.SWAP
-    /// 001C : OpCode.SYSCALL 2F58C5ED
-    /// 0021 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.PUSHDATA1 00FF
+    /// 07 : OpCode.CONVERT 30
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.LDLOC0
+    /// 0B : OpCode.SYSCALL 9BF667CE
+    /// 10 : OpCode.PUSH2
+    /// 11 : OpCode.PACK
+    /// 12 : OpCode.STLOC1
+    /// 13 : OpCode.LDARG0
+    /// 14 : OpCode.CONVERT 28
+    /// 16 : OpCode.LDLOC1
+    /// 17 : OpCode.UNPACK
+    /// 18 : OpCode.DROP
+    /// 19 : OpCode.REVERSE3
+    /// 1A : OpCode.CAT
+    /// 1B : OpCode.SWAP
+    /// 1C : OpCode.SYSCALL 2F58C5ED
+    /// 21 : OpCode.RET
     /// </remarks>
     [DisplayName("testDeleteByteArray")]
     public abstract void TestDeleteByteArray(byte[]? key);
@@ -128,24 +128,24 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwIBDGFhcGhBm/ZnzhLAcXjbKGnBRVOLUEEvWMXtQA==
-    /// 0000 : OpCode.INITSLOT 0201
-    /// 0003 : OpCode.PUSHDATA1 6161
-    /// 0007 : OpCode.STLOC0
-    /// 0008 : OpCode.LDLOC0
-    /// 0009 : OpCode.SYSCALL 9BF667CE
-    /// 000E : OpCode.PUSH2
-    /// 000F : OpCode.PACK
-    /// 0010 : OpCode.STLOC1
-    /// 0011 : OpCode.LDARG0
-    /// 0012 : OpCode.CONVERT 28
-    /// 0014 : OpCode.LDLOC1
-    /// 0015 : OpCode.UNPACK
-    /// 0016 : OpCode.DROP
-    /// 0017 : OpCode.REVERSE3
-    /// 0018 : OpCode.CAT
-    /// 0019 : OpCode.SWAP
-    /// 001A : OpCode.SYSCALL 2F58C5ED
-    /// 001F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.PUSHDATA1 6161
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDLOC0
+    /// 09 : OpCode.SYSCALL 9BF667CE
+    /// 0E : OpCode.PUSH2
+    /// 0F : OpCode.PACK
+    /// 10 : OpCode.STLOC1
+    /// 11 : OpCode.LDARG0
+    /// 12 : OpCode.CONVERT 28
+    /// 14 : OpCode.LDLOC1
+    /// 15 : OpCode.UNPACK
+    /// 16 : OpCode.DROP
+    /// 17 : OpCode.REVERSE3
+    /// 18 : OpCode.CAT
+    /// 19 : OpCode.SWAP
+    /// 1A : OpCode.SYSCALL 2F58C5ED
+    /// 1F : OpCode.RET
     /// </remarks>
     [DisplayName("testDeleteString")]
     public abstract void TestDeleteString(byte[]? key);
@@ -155,32 +155,32 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwIAQZv2Z85wDAHbMNsoDGtleTFoQeY/GIQMAtsw2ygMa2V5MmhB5j8YhBQMa2V5aEHfMLiacWlBnAjtnEVpQfNUvx1A
-    /// 0000 : OpCode.INITSLOT 0200
-    /// 0003 : OpCode.SYSCALL 9BF667CE
-    /// 0008 : OpCode.STLOC0
-    /// 0009 : OpCode.PUSHDATA1 01
-    /// 000C : OpCode.CONVERT 30
-    /// 000E : OpCode.CONVERT 28
-    /// 0010 : OpCode.PUSHDATA1 6B657931
-    /// 0016 : OpCode.LDLOC0
-    /// 0017 : OpCode.SYSCALL E63F1884
-    /// 001C : OpCode.PUSHDATA1 02
-    /// 001F : OpCode.CONVERT 30
-    /// 0021 : OpCode.CONVERT 28
-    /// 0023 : OpCode.PUSHDATA1 6B657932
-    /// 0029 : OpCode.LDLOC0
-    /// 002A : OpCode.SYSCALL E63F1884
-    /// 002F : OpCode.PUSH4
-    /// 0030 : OpCode.PUSHDATA1 6B6579
-    /// 0035 : OpCode.LDLOC0
-    /// 0036 : OpCode.SYSCALL DF30B89A
-    /// 003B : OpCode.STLOC1
-    /// 003C : OpCode.LDLOC1
-    /// 003D : OpCode.SYSCALL 9C08ED9C
-    /// 0042 : OpCode.DROP
-    /// 0043 : OpCode.LDLOC1
-    /// 0044 : OpCode.SYSCALL F354BF1D
-    /// 0049 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.SYSCALL 9BF667CE
+    /// 08 : OpCode.STLOC0
+    /// 09 : OpCode.PUSHDATA1 01
+    /// 0C : OpCode.CONVERT 30
+    /// 0E : OpCode.CONVERT 28
+    /// 10 : OpCode.PUSHDATA1 6B657931
+    /// 16 : OpCode.LDLOC0
+    /// 17 : OpCode.SYSCALL E63F1884
+    /// 1C : OpCode.PUSHDATA1 02
+    /// 1F : OpCode.CONVERT 30
+    /// 21 : OpCode.CONVERT 28
+    /// 23 : OpCode.PUSHDATA1 6B657932
+    /// 29 : OpCode.LDLOC0
+    /// 2A : OpCode.SYSCALL E63F1884
+    /// 2F : OpCode.PUSH4
+    /// 30 : OpCode.PUSHDATA1 6B6579
+    /// 35 : OpCode.LDLOC0
+    /// 36 : OpCode.SYSCALL DF30B89A
+    /// 3B : OpCode.STLOC1
+    /// 3C : OpCode.LDLOC1
+    /// 3D : OpCode.SYSCALL 9C08ED9C
+    /// 42 : OpCode.DROP
+    /// 43 : OpCode.LDLOC1
+    /// 44 : OpCode.SYSCALL F354BF1D
+    /// 49 : OpCode.RET
     /// </remarks>
     [DisplayName("testFind")]
     public abstract byte[]? TestFind();
@@ -190,34 +190,34 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwMBQfa0a+JwaAAREYhOEFHQUBLAcXjbKGnBRVOLUEGSXegxcmrbMEA=
-    /// 0000 : OpCode.INITSLOT 0301
-    /// 0003 : OpCode.SYSCALL F6B46BE2
-    /// 0008 : OpCode.STLOC0
-    /// 0009 : OpCode.LDLOC0
-    /// 000A : OpCode.PUSHINT8 11
-    /// 000C : OpCode.PUSH1
-    /// 000D : OpCode.NEWBUFFER
-    /// 000E : OpCode.TUCK
-    /// 000F : OpCode.PUSH0
-    /// 0010 : OpCode.ROT
-    /// 0011 : OpCode.SETITEM
-    /// 0012 : OpCode.SWAP
-    /// 0013 : OpCode.PUSH2
-    /// 0014 : OpCode.PACK
-    /// 0015 : OpCode.STLOC1
-    /// 0016 : OpCode.LDARG0
-    /// 0017 : OpCode.CONVERT 28
-    /// 0019 : OpCode.LDLOC1
-    /// 001A : OpCode.UNPACK
-    /// 001B : OpCode.DROP
-    /// 001C : OpCode.REVERSE3
-    /// 001D : OpCode.CAT
-    /// 001E : OpCode.SWAP
-    /// 001F : OpCode.SYSCALL 925DE831
-    /// 0024 : OpCode.STLOC2
-    /// 0025 : OpCode.LDLOC2
-    /// 0026 : OpCode.CONVERT 30
-    /// 0028 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0301
+    /// 03 : OpCode.SYSCALL F6B46BE2
+    /// 08 : OpCode.STLOC0
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.PUSHINT8 11
+    /// 0C : OpCode.PUSH1
+    /// 0D : OpCode.NEWBUFFER
+    /// 0E : OpCode.TUCK
+    /// 0F : OpCode.PUSH0
+    /// 10 : OpCode.ROT
+    /// 11 : OpCode.SETITEM
+    /// 12 : OpCode.SWAP
+    /// 13 : OpCode.PUSH2
+    /// 14 : OpCode.PACK
+    /// 15 : OpCode.STLOC1
+    /// 16 : OpCode.LDARG0
+    /// 17 : OpCode.CONVERT 28
+    /// 19 : OpCode.LDLOC1
+    /// 1A : OpCode.UNPACK
+    /// 1B : OpCode.DROP
+    /// 1C : OpCode.REVERSE3
+    /// 1D : OpCode.CAT
+    /// 1E : OpCode.SWAP
+    /// 1F : OpCode.SYSCALL 925DE831
+    /// 24 : OpCode.STLOC2
+    /// 25 : OpCode.LDLOC2
+    /// 26 : OpCode.CONVERT 30
+    /// 28 : OpCode.RET
     /// </remarks>
     [DisplayName("testGetByte")]
     public abstract byte[]? TestGetByte(byte[]? key);
@@ -227,31 +227,31 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwQBDAD/2zBwQZv2Z85Bdky/6XFoaRLAcnjbKGrBRVOLUEGSXegxc2vbMEA=
-    /// 0000 : OpCode.INITSLOT 0401
-    /// 0003 : OpCode.PUSHDATA1 00FF
-    /// 0007 : OpCode.CONVERT 30
-    /// 0009 : OpCode.STLOC0
-    /// 000A : OpCode.SYSCALL 9BF667CE
-    /// 000F : OpCode.SYSCALL 764CBFE9
-    /// 0014 : OpCode.STLOC1
-    /// 0015 : OpCode.LDLOC0
-    /// 0016 : OpCode.LDLOC1
-    /// 0017 : OpCode.PUSH2
-    /// 0018 : OpCode.PACK
-    /// 0019 : OpCode.STLOC2
-    /// 001A : OpCode.LDARG0
-    /// 001B : OpCode.CONVERT 28
-    /// 001D : OpCode.LDLOC2
-    /// 001E : OpCode.UNPACK
-    /// 001F : OpCode.DROP
-    /// 0020 : OpCode.REVERSE3
-    /// 0021 : OpCode.CAT
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.SYSCALL 925DE831
-    /// 0028 : OpCode.STLOC3
-    /// 0029 : OpCode.LDLOC3
-    /// 002A : OpCode.CONVERT 30
-    /// 002C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0401
+    /// 03 : OpCode.PUSHDATA1 00FF
+    /// 07 : OpCode.CONVERT 30
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.SYSCALL 9BF667CE
+    /// 0F : OpCode.SYSCALL 764CBFE9
+    /// 14 : OpCode.STLOC1
+    /// 15 : OpCode.LDLOC0
+    /// 16 : OpCode.LDLOC1
+    /// 17 : OpCode.PUSH2
+    /// 18 : OpCode.PACK
+    /// 19 : OpCode.STLOC2
+    /// 1A : OpCode.LDARG0
+    /// 1B : OpCode.CONVERT 28
+    /// 1D : OpCode.LDLOC2
+    /// 1E : OpCode.UNPACK
+    /// 1F : OpCode.DROP
+    /// 20 : OpCode.REVERSE3
+    /// 21 : OpCode.CAT
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.SYSCALL 925DE831
+    /// 28 : OpCode.STLOC3
+    /// 29 : OpCode.LDLOC3
+    /// 2A : OpCode.CONVERT 30
+    /// 2C : OpCode.RET
     /// </remarks>
     [DisplayName("testGetByteArray")]
     public abstract byte[]? TestGetByteArray(byte[]? key);
@@ -261,29 +261,29 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwQBDGFhcEH2tGvicWhpEsByeNsoasFFU4tQQZJd6DFza9swQA==
-    /// 0000 : OpCode.INITSLOT 0401
-    /// 0003 : OpCode.PUSHDATA1 6161
-    /// 0007 : OpCode.STLOC0
-    /// 0008 : OpCode.SYSCALL F6B46BE2
-    /// 000D : OpCode.STLOC1
-    /// 000E : OpCode.LDLOC0
-    /// 000F : OpCode.LDLOC1
-    /// 0010 : OpCode.PUSH2
-    /// 0011 : OpCode.PACK
-    /// 0012 : OpCode.STLOC2
-    /// 0013 : OpCode.LDARG0
-    /// 0014 : OpCode.CONVERT 28
-    /// 0016 : OpCode.LDLOC2
-    /// 0017 : OpCode.UNPACK
-    /// 0018 : OpCode.DROP
-    /// 0019 : OpCode.REVERSE3
-    /// 001A : OpCode.CAT
-    /// 001B : OpCode.SWAP
-    /// 001C : OpCode.SYSCALL 925DE831
-    /// 0021 : OpCode.STLOC3
-    /// 0022 : OpCode.LDLOC3
-    /// 0023 : OpCode.CONVERT 30
-    /// 0025 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0401
+    /// 03 : OpCode.PUSHDATA1 6161
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.SYSCALL F6B46BE2
+    /// 0D : OpCode.STLOC1
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.LDLOC1
+    /// 10 : OpCode.PUSH2
+    /// 11 : OpCode.PACK
+    /// 12 : OpCode.STLOC2
+    /// 13 : OpCode.LDARG0
+    /// 14 : OpCode.CONVERT 28
+    /// 16 : OpCode.LDLOC2
+    /// 17 : OpCode.UNPACK
+    /// 18 : OpCode.DROP
+    /// 19 : OpCode.REVERSE3
+    /// 1A : OpCode.CAT
+    /// 1B : OpCode.SWAP
+    /// 1C : OpCode.SYSCALL 925DE831
+    /// 21 : OpCode.STLOC3
+    /// 22 : OpCode.LDLOC3
+    /// 23 : OpCode.CONVERT 30
+    /// 25 : OpCode.RET
     /// </remarks>
     [DisplayName("testGetString")]
     public abstract byte[]? TestGetString(byte[]? key);
@@ -293,29 +293,29 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwQBDGlpcEH2tGvicWhpEsByeNsoasFFU4tQQZJd6DFza9swQA==
-    /// 0000 : OpCode.INITSLOT 0401
-    /// 0003 : OpCode.PUSHDATA1 6969
-    /// 0007 : OpCode.STLOC0
-    /// 0008 : OpCode.SYSCALL F6B46BE2
-    /// 000D : OpCode.STLOC1
-    /// 000E : OpCode.LDLOC0
-    /// 000F : OpCode.LDLOC1
-    /// 0010 : OpCode.PUSH2
-    /// 0011 : OpCode.PACK
-    /// 0012 : OpCode.STLOC2
-    /// 0013 : OpCode.LDARG0
-    /// 0014 : OpCode.CONVERT 28
-    /// 0016 : OpCode.LDLOC2
-    /// 0017 : OpCode.UNPACK
-    /// 0018 : OpCode.DROP
-    /// 0019 : OpCode.REVERSE3
-    /// 001A : OpCode.CAT
-    /// 001B : OpCode.SWAP
-    /// 001C : OpCode.SYSCALL 925DE831
-    /// 0021 : OpCode.STLOC3
-    /// 0022 : OpCode.LDLOC3
-    /// 0023 : OpCode.CONVERT 30
-    /// 0025 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0401
+    /// 03 : OpCode.PUSHDATA1 6969
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.SYSCALL F6B46BE2
+    /// 0D : OpCode.STLOC1
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.LDLOC1
+    /// 10 : OpCode.PUSH2
+    /// 11 : OpCode.PACK
+    /// 12 : OpCode.STLOC2
+    /// 13 : OpCode.LDARG0
+    /// 14 : OpCode.CONVERT 28
+    /// 16 : OpCode.LDLOC2
+    /// 17 : OpCode.UNPACK
+    /// 18 : OpCode.DROP
+    /// 19 : OpCode.REVERSE3
+    /// 1A : OpCode.CAT
+    /// 1B : OpCode.SWAP
+    /// 1C : OpCode.SYSCALL 925DE831
+    /// 21 : OpCode.STLOC3
+    /// 22 : OpCode.LDLOC3
+    /// 23 : OpCode.CONVERT 30
+    /// 25 : OpCode.RET
     /// </remarks>
     [DisplayName("testIndexGet")]
     public abstract byte[]? TestIndexGet(byte[]? key);
@@ -325,29 +325,29 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwICDGlpcGhBm/ZnzhLAcXnbKEp42yhpwUVTi1BB5j8YhEUIQA==
-    /// 0000 : OpCode.INITSLOT 0202
-    /// 0003 : OpCode.PUSHDATA1 6969
-    /// 0007 : OpCode.STLOC0
-    /// 0008 : OpCode.LDLOC0
-    /// 0009 : OpCode.SYSCALL 9BF667CE
-    /// 000E : OpCode.PUSH2
-    /// 000F : OpCode.PACK
-    /// 0010 : OpCode.STLOC1
-    /// 0011 : OpCode.LDARG1
-    /// 0012 : OpCode.CONVERT 28
-    /// 0014 : OpCode.DUP
-    /// 0015 : OpCode.LDARG0
-    /// 0016 : OpCode.CONVERT 28
-    /// 0018 : OpCode.LDLOC1
-    /// 0019 : OpCode.UNPACK
-    /// 001A : OpCode.DROP
-    /// 001B : OpCode.REVERSE3
-    /// 001C : OpCode.CAT
-    /// 001D : OpCode.SWAP
-    /// 001E : OpCode.SYSCALL E63F1884
-    /// 0023 : OpCode.DROP
-    /// 0024 : OpCode.PUSHT
-    /// 0025 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.PUSHDATA1 6969
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDLOC0
+    /// 09 : OpCode.SYSCALL 9BF667CE
+    /// 0E : OpCode.PUSH2
+    /// 0F : OpCode.PACK
+    /// 10 : OpCode.STLOC1
+    /// 11 : OpCode.LDARG1
+    /// 12 : OpCode.CONVERT 28
+    /// 14 : OpCode.DUP
+    /// 15 : OpCode.LDARG0
+    /// 16 : OpCode.CONVERT 28
+    /// 18 : OpCode.LDLOC1
+    /// 19 : OpCode.UNPACK
+    /// 1A : OpCode.DROP
+    /// 1B : OpCode.REVERSE3
+    /// 1C : OpCode.CAT
+    /// 1D : OpCode.SWAP
+    /// 1E : OpCode.SYSCALL E63F1884
+    /// 23 : OpCode.DROP
+    /// 24 : OpCode.PUSHT
+    /// 25 : OpCode.RET
     /// </remarks>
     [DisplayName("testIndexPut")]
     public abstract bool? TestIndexPut(byte[]? key, byte[]? value);
@@ -357,41 +357,41 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwUADAD/2zBwQZv2Z85xaGkSwHIMAAHbMHNrDGJ5dGVBcnJheWrBRVOLUEHmPxiEDGJ5dGVBcnJheWrBRVOLUEGSXegx2zB0bEA=
-    /// 0000 : OpCode.INITSLOT 0500
-    /// 0003 : OpCode.PUSHDATA1 00FF
-    /// 0007 : OpCode.CONVERT 30
-    /// 0009 : OpCode.STLOC0
-    /// 000A : OpCode.SYSCALL 9BF667CE
-    /// 000F : OpCode.STLOC1
-    /// 0010 : OpCode.LDLOC0
-    /// 0011 : OpCode.LDLOC1
-    /// 0012 : OpCode.PUSH2
-    /// 0013 : OpCode.PACK
-    /// 0014 : OpCode.STLOC2
-    /// 0015 : OpCode.PUSHDATA1 0001
-    /// 0019 : OpCode.CONVERT 30
-    /// 001B : OpCode.STLOC3
-    /// 001C : OpCode.LDLOC3
-    /// 001D : OpCode.PUSHDATA1 627974654172726179
-    /// 0028 : OpCode.LDLOC2
-    /// 0029 : OpCode.UNPACK
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.REVERSE3
-    /// 002C : OpCode.CAT
-    /// 002D : OpCode.SWAP
-    /// 002E : OpCode.SYSCALL E63F1884
-    /// 0033 : OpCode.PUSHDATA1 627974654172726179
-    /// 003E : OpCode.LDLOC2
-    /// 003F : OpCode.UNPACK
-    /// 0040 : OpCode.DROP
-    /// 0041 : OpCode.REVERSE3
-    /// 0042 : OpCode.CAT
-    /// 0043 : OpCode.SWAP
-    /// 0044 : OpCode.SYSCALL 925DE831
-    /// 0049 : OpCode.CONVERT 30
-    /// 004B : OpCode.STLOC4
-    /// 004C : OpCode.LDLOC4
-    /// 004D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0500
+    /// 03 : OpCode.PUSHDATA1 00FF
+    /// 07 : OpCode.CONVERT 30
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.SYSCALL 9BF667CE
+    /// 0F : OpCode.STLOC1
+    /// 10 : OpCode.LDLOC0
+    /// 11 : OpCode.LDLOC1
+    /// 12 : OpCode.PUSH2
+    /// 13 : OpCode.PACK
+    /// 14 : OpCode.STLOC2
+    /// 15 : OpCode.PUSHDATA1 0001
+    /// 19 : OpCode.CONVERT 30
+    /// 1B : OpCode.STLOC3
+    /// 1C : OpCode.LDLOC3
+    /// 1D : OpCode.PUSHDATA1 627974654172726179
+    /// 28 : OpCode.LDLOC2
+    /// 29 : OpCode.UNPACK
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.REVERSE3
+    /// 2C : OpCode.CAT
+    /// 2D : OpCode.SWAP
+    /// 2E : OpCode.SYSCALL E63F1884
+    /// 33 : OpCode.PUSHDATA1 627974654172726179
+    /// 3E : OpCode.LDLOC2
+    /// 3F : OpCode.UNPACK
+    /// 40 : OpCode.DROP
+    /// 41 : OpCode.REVERSE3
+    /// 42 : OpCode.CAT
+    /// 43 : OpCode.SWAP
+    /// 44 : OpCode.SYSCALL 925DE831
+    /// 49 : OpCode.CONVERT 30
+    /// 4B : OpCode.STLOC4
+    /// 4C : OpCode.LDLOC4
+    /// 4D : OpCode.RET
     /// </remarks>
     [DisplayName("testNewGetByteArray")]
     public abstract byte[]? TestNewGetByteArray();
@@ -608,39 +608,39 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwIADDsAMgMjIyMjAiMjAiMjAiMjAiMjAiMjAtswcAx0ZXN0X21hcEGb9mfOEsBxaNsoDAHbMNsoacFFU4tQQeY/GIQMAdsw2yhpwUVTi1BBkl3oMdswQA==
-    /// 0000 : OpCode.INITSLOT 0200
-    /// 0003 : OpCode.PUSHDATA1 3B0032032323232302232302232302232302232302232302
-    /// 001D : OpCode.CONVERT 30
-    /// 001F : OpCode.STLOC0
-    /// 0020 : OpCode.PUSHDATA1 746573745F6D6170
-    /// 002A : OpCode.SYSCALL 9BF667CE
-    /// 002F : OpCode.PUSH2
-    /// 0030 : OpCode.PACK
-    /// 0031 : OpCode.STLOC1
-    /// 0032 : OpCode.LDLOC0
-    /// 0033 : OpCode.CONVERT 28
-    /// 0035 : OpCode.PUSHDATA1 01
-    /// 0038 : OpCode.CONVERT 30
-    /// 003A : OpCode.CONVERT 28
-    /// 003C : OpCode.LDLOC1
-    /// 003D : OpCode.UNPACK
-    /// 003E : OpCode.DROP
-    /// 003F : OpCode.REVERSE3
-    /// 0040 : OpCode.CAT
-    /// 0041 : OpCode.SWAP
-    /// 0042 : OpCode.SYSCALL E63F1884
-    /// 0047 : OpCode.PUSHDATA1 01
-    /// 004A : OpCode.CONVERT 30
-    /// 004C : OpCode.CONVERT 28
-    /// 004E : OpCode.LDLOC1
-    /// 004F : OpCode.UNPACK
-    /// 0050 : OpCode.DROP
-    /// 0051 : OpCode.REVERSE3
-    /// 0052 : OpCode.CAT
-    /// 0053 : OpCode.SWAP
-    /// 0054 : OpCode.SYSCALL 925DE831
-    /// 0059 : OpCode.CONVERT 30
-    /// 005B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.PUSHDATA1 3B0032032323232302232302232302232302232302232302
+    /// 1D : OpCode.CONVERT 30
+    /// 1F : OpCode.STLOC0
+    /// 20 : OpCode.PUSHDATA1 746573745F6D6170
+    /// 2A : OpCode.SYSCALL 9BF667CE
+    /// 2F : OpCode.PUSH2
+    /// 30 : OpCode.PACK
+    /// 31 : OpCode.STLOC1
+    /// 32 : OpCode.LDLOC0
+    /// 33 : OpCode.CONVERT 28
+    /// 35 : OpCode.PUSHDATA1 01
+    /// 38 : OpCode.CONVERT 30
+    /// 3A : OpCode.CONVERT 28
+    /// 3C : OpCode.LDLOC1
+    /// 3D : OpCode.UNPACK
+    /// 3E : OpCode.DROP
+    /// 3F : OpCode.REVERSE3
+    /// 40 : OpCode.CAT
+    /// 41 : OpCode.SWAP
+    /// 42 : OpCode.SYSCALL E63F1884
+    /// 47 : OpCode.PUSHDATA1 01
+    /// 4A : OpCode.CONVERT 30
+    /// 4C : OpCode.CONVERT 28
+    /// 4E : OpCode.LDLOC1
+    /// 4F : OpCode.UNPACK
+    /// 50 : OpCode.DROP
+    /// 51 : OpCode.REVERSE3
+    /// 52 : OpCode.CAT
+    /// 53 : OpCode.SWAP
+    /// 54 : OpCode.SYSCALL 925DE831
+    /// 59 : OpCode.CONVERT 30
+    /// 5B : OpCode.RET
     /// </remarks>
     [DisplayName("testOver16Bytes")]
     public abstract byte[]? TestOver16Bytes();
@@ -650,32 +650,32 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwECQZv2Z84AERGIThBR0FASwHB52yh42yhowUVTi1BB5j8YhAhA
-    /// 0000 : OpCode.INITSLOT 0102
-    /// 0003 : OpCode.SYSCALL 9BF667CE
-    /// 0008 : OpCode.PUSHINT8 11
-    /// 000A : OpCode.PUSH1
-    /// 000B : OpCode.NEWBUFFER
-    /// 000C : OpCode.TUCK
-    /// 000D : OpCode.PUSH0
-    /// 000E : OpCode.ROT
-    /// 000F : OpCode.SETITEM
-    /// 0010 : OpCode.SWAP
-    /// 0011 : OpCode.PUSH2
-    /// 0012 : OpCode.PACK
-    /// 0013 : OpCode.STLOC0
-    /// 0014 : OpCode.LDARG1
-    /// 0015 : OpCode.CONVERT 28
-    /// 0017 : OpCode.LDARG0
-    /// 0018 : OpCode.CONVERT 28
-    /// 001A : OpCode.LDLOC0
-    /// 001B : OpCode.UNPACK
-    /// 001C : OpCode.DROP
-    /// 001D : OpCode.REVERSE3
-    /// 001E : OpCode.CAT
-    /// 001F : OpCode.SWAP
-    /// 0020 : OpCode.SYSCALL E63F1884
-    /// 0025 : OpCode.PUSHT
-    /// 0026 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0102
+    /// 03 : OpCode.SYSCALL 9BF667CE
+    /// 08 : OpCode.PUSHINT8 11
+    /// 0A : OpCode.PUSH1
+    /// 0B : OpCode.NEWBUFFER
+    /// 0C : OpCode.TUCK
+    /// 0D : OpCode.PUSH0
+    /// 0E : OpCode.ROT
+    /// 0F : OpCode.SETITEM
+    /// 10 : OpCode.SWAP
+    /// 11 : OpCode.PUSH2
+    /// 12 : OpCode.PACK
+    /// 13 : OpCode.STLOC0
+    /// 14 : OpCode.LDARG1
+    /// 15 : OpCode.CONVERT 28
+    /// 17 : OpCode.LDARG0
+    /// 18 : OpCode.CONVERT 28
+    /// 1A : OpCode.LDLOC0
+    /// 1B : OpCode.UNPACK
+    /// 1C : OpCode.DROP
+    /// 1D : OpCode.REVERSE3
+    /// 1E : OpCode.CAT
+    /// 1F : OpCode.SWAP
+    /// 20 : OpCode.SYSCALL E63F1884
+    /// 25 : OpCode.PUSHT
+    /// 26 : OpCode.RET
     /// </remarks>
     [DisplayName("testPutByte")]
     public abstract bool? TestPutByte(byte[]? key, byte[]? value);
@@ -685,28 +685,28 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwICDAD/2zBwaEGb9mfOEsBxedsoeNsoacFFU4tQQeY/GIQIQA==
-    /// 0000 : OpCode.INITSLOT 0202
-    /// 0003 : OpCode.PUSHDATA1 00FF
-    /// 0007 : OpCode.CONVERT 30
-    /// 0009 : OpCode.STLOC0
-    /// 000A : OpCode.LDLOC0
-    /// 000B : OpCode.SYSCALL 9BF667CE
-    /// 0010 : OpCode.PUSH2
-    /// 0011 : OpCode.PACK
-    /// 0012 : OpCode.STLOC1
-    /// 0013 : OpCode.LDARG1
-    /// 0014 : OpCode.CONVERT 28
-    /// 0016 : OpCode.LDARG0
-    /// 0017 : OpCode.CONVERT 28
-    /// 0019 : OpCode.LDLOC1
-    /// 001A : OpCode.UNPACK
-    /// 001B : OpCode.DROP
-    /// 001C : OpCode.REVERSE3
-    /// 001D : OpCode.CAT
-    /// 001E : OpCode.SWAP
-    /// 001F : OpCode.SYSCALL E63F1884
-    /// 0024 : OpCode.PUSHT
-    /// 0025 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.PUSHDATA1 00FF
+    /// 07 : OpCode.CONVERT 30
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.LDLOC0
+    /// 0B : OpCode.SYSCALL 9BF667CE
+    /// 10 : OpCode.PUSH2
+    /// 11 : OpCode.PACK
+    /// 12 : OpCode.STLOC1
+    /// 13 : OpCode.LDARG1
+    /// 14 : OpCode.CONVERT 28
+    /// 16 : OpCode.LDARG0
+    /// 17 : OpCode.CONVERT 28
+    /// 19 : OpCode.LDLOC1
+    /// 1A : OpCode.UNPACK
+    /// 1B : OpCode.DROP
+    /// 1C : OpCode.REVERSE3
+    /// 1D : OpCode.CAT
+    /// 1E : OpCode.SWAP
+    /// 1F : OpCode.SYSCALL E63F1884
+    /// 24 : OpCode.PUSHT
+    /// 25 : OpCode.RET
     /// </remarks>
     [DisplayName("testPutByteArray")]
     public abstract bool? TestPutByteArray(byte[]? key, byte[]? value);
@@ -716,31 +716,31 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwMCDAD/2zBwQZv2Z85Bdky/6XFoaRLAcnnbKHjbKGrBRVOLUEHmPxiECEA=
-    /// 0000 : OpCode.INITSLOT 0302
-    /// 0003 : OpCode.PUSHDATA1 00FF
-    /// 0007 : OpCode.CONVERT 30
-    /// 0009 : OpCode.STLOC0
-    /// 000A : OpCode.SYSCALL 9BF667CE
-    /// 000F : OpCode.SYSCALL 764CBFE9
-    /// 0014 : OpCode.STLOC1
-    /// 0015 : OpCode.LDLOC0
-    /// 0016 : OpCode.LDLOC1
-    /// 0017 : OpCode.PUSH2
-    /// 0018 : OpCode.PACK
-    /// 0019 : OpCode.STLOC2
-    /// 001A : OpCode.LDARG1
-    /// 001B : OpCode.CONVERT 28
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.CONVERT 28
-    /// 0020 : OpCode.LDLOC2
-    /// 0021 : OpCode.UNPACK
-    /// 0022 : OpCode.DROP
-    /// 0023 : OpCode.REVERSE3
-    /// 0024 : OpCode.CAT
-    /// 0025 : OpCode.SWAP
-    /// 0026 : OpCode.SYSCALL E63F1884
-    /// 002B : OpCode.PUSHT
-    /// 002C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0302
+    /// 03 : OpCode.PUSHDATA1 00FF
+    /// 07 : OpCode.CONVERT 30
+    /// 09 : OpCode.STLOC0
+    /// 0A : OpCode.SYSCALL 9BF667CE
+    /// 0F : OpCode.SYSCALL 764CBFE9
+    /// 14 : OpCode.STLOC1
+    /// 15 : OpCode.LDLOC0
+    /// 16 : OpCode.LDLOC1
+    /// 17 : OpCode.PUSH2
+    /// 18 : OpCode.PACK
+    /// 19 : OpCode.STLOC2
+    /// 1A : OpCode.LDARG1
+    /// 1B : OpCode.CONVERT 28
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.CONVERT 28
+    /// 20 : OpCode.LDLOC2
+    /// 21 : OpCode.UNPACK
+    /// 22 : OpCode.DROP
+    /// 23 : OpCode.REVERSE3
+    /// 24 : OpCode.CAT
+    /// 25 : OpCode.SWAP
+    /// 26 : OpCode.SYSCALL E63F1884
+    /// 2B : OpCode.PUSHT
+    /// 2C : OpCode.RET
     /// </remarks>
     [DisplayName("testPutReadOnly")]
     public abstract bool? TestPutReadOnly(byte[]? key, byte[]? value);
@@ -750,31 +750,30 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwICDGFhcGhBm/ZnzhLAcXnbKHjbKGnBRVOLUEHmPxiECEA=
-    /// 0000 : OpCode.INITSLOT 0202
-    /// 0003 : OpCode.PUSHDATA1 6161
-    /// 0007 : OpCode.STLOC0
-    /// 0008 : OpCode.LDLOC0
-    /// 0009 : OpCode.SYSCALL 9BF667CE
-    /// 000E : OpCode.PUSH2
-    /// 000F : OpCode.PACK
-    /// 0010 : OpCode.STLOC1
-    /// 0011 : OpCode.LDARG1
-    /// 0012 : OpCode.CONVERT 28
-    /// 0014 : OpCode.LDARG0
-    /// 0015 : OpCode.CONVERT 28
-    /// 0017 : OpCode.LDLOC1
-    /// 0018 : OpCode.UNPACK
-    /// 0019 : OpCode.DROP
-    /// 001A : OpCode.REVERSE3
-    /// 001B : OpCode.CAT
-    /// 001C : OpCode.SWAP
-    /// 001D : OpCode.SYSCALL E63F1884
-    /// 0022 : OpCode.PUSHT
-    /// 0023 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.PUSHDATA1 6161
+    /// 07 : OpCode.STLOC0
+    /// 08 : OpCode.LDLOC0
+    /// 09 : OpCode.SYSCALL 9BF667CE
+    /// 0E : OpCode.PUSH2
+    /// 0F : OpCode.PACK
+    /// 10 : OpCode.STLOC1
+    /// 11 : OpCode.LDARG1
+    /// 12 : OpCode.CONVERT 28
+    /// 14 : OpCode.LDARG0
+    /// 15 : OpCode.CONVERT 28
+    /// 17 : OpCode.LDLOC1
+    /// 18 : OpCode.UNPACK
+    /// 19 : OpCode.DROP
+    /// 1A : OpCode.REVERSE3
+    /// 1B : OpCode.CAT
+    /// 1C : OpCode.SWAP
+    /// 1D : OpCode.SYSCALL E63F1884
+    /// 22 : OpCode.PUSHT
+    /// 23 : OpCode.RET
     /// </remarks>
     [DisplayName("testPutString")]
     public abstract bool? TestPutString(byte[]? key, byte[]? value);
 
     #endregion
-
 }

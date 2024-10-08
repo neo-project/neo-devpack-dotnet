@@ -26,48 +26,48 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEBeHBoDDCXJCdoDDGXJCJoDDKXJB1oDDOXJBhoDDSXJBNoDDWXJA4iDhFAEkATQBRAFUAWQABjQA==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.PUSHDATA1 30
-    /// 0009 : OpCode.EQUAL
-    /// 000A : OpCode.JMPIF 27
-    /// 000C : OpCode.LDLOC0
-    /// 000D : OpCode.PUSHDATA1 31
-    /// 0010 : OpCode.EQUAL
-    /// 0011 : OpCode.JMPIF 22
-    /// 0013 : OpCode.LDLOC0
-    /// 0014 : OpCode.PUSHDATA1 32
-    /// 0017 : OpCode.EQUAL
-    /// 0018 : OpCode.JMPIF 1D
-    /// 001A : OpCode.LDLOC0
-    /// 001B : OpCode.PUSHDATA1 33
-    /// 001E : OpCode.EQUAL
-    /// 001F : OpCode.JMPIF 18
-    /// 0021 : OpCode.LDLOC0
-    /// 0022 : OpCode.PUSHDATA1 34
-    /// 0025 : OpCode.EQUAL
-    /// 0026 : OpCode.JMPIF 13
-    /// 0028 : OpCode.LDLOC0
-    /// 0029 : OpCode.PUSHDATA1 35
-    /// 002C : OpCode.EQUAL
-    /// 002D : OpCode.JMPIF 0E
-    /// 002F : OpCode.JMP 0E
-    /// 0031 : OpCode.PUSH1
-    /// 0032 : OpCode.RET
-    /// 0033 : OpCode.PUSH2
-    /// 0034 : OpCode.RET
-    /// 0035 : OpCode.PUSH3
-    /// 0036 : OpCode.RET
-    /// 0037 : OpCode.PUSH4
-    /// 0038 : OpCode.RET
-    /// 0039 : OpCode.PUSH5
-    /// 003A : OpCode.RET
-    /// 003B : OpCode.PUSH6
-    /// 003C : OpCode.RET
-    /// 003D : OpCode.PUSHINT8 63
-    /// 003F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSHDATA1 30
+    /// 09 : OpCode.EQUAL
+    /// 0A : OpCode.JMPIF 27
+    /// 0C : OpCode.LDLOC0
+    /// 0D : OpCode.PUSHDATA1 31
+    /// 10 : OpCode.EQUAL
+    /// 11 : OpCode.JMPIF 22
+    /// 13 : OpCode.LDLOC0
+    /// 14 : OpCode.PUSHDATA1 32
+    /// 17 : OpCode.EQUAL
+    /// 18 : OpCode.JMPIF 1D
+    /// 1A : OpCode.LDLOC0
+    /// 1B : OpCode.PUSHDATA1 33
+    /// 1E : OpCode.EQUAL
+    /// 1F : OpCode.JMPIF 18
+    /// 21 : OpCode.LDLOC0
+    /// 22 : OpCode.PUSHDATA1 34
+    /// 25 : OpCode.EQUAL
+    /// 26 : OpCode.JMPIF 13
+    /// 28 : OpCode.LDLOC0
+    /// 29 : OpCode.PUSHDATA1 35
+    /// 2C : OpCode.EQUAL
+    /// 2D : OpCode.JMPIF 0E
+    /// 2F : OpCode.JMP 0E
+    /// 31 : OpCode.PUSH1
+    /// 32 : OpCode.RET
+    /// 33 : OpCode.PUSH2
+    /// 34 : OpCode.RET
+    /// 35 : OpCode.PUSH3
+    /// 36 : OpCode.RET
+    /// 37 : OpCode.PUSH4
+    /// 38 : OpCode.RET
+    /// 39 : OpCode.PUSH5
+    /// 3A : OpCode.RET
+    /// 3B : OpCode.PUSH6
+    /// 3C : OpCode.RET
+    /// 3D : OpCode.PUSHINT8 63
+    /// 3F : OpCode.RET
     /// </remarks>
     [DisplayName("switch6")]
     public abstract object? Switch6(string? method);
@@ -77,51 +77,51 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEBeHBoDDCXJgQRQGgMMZcmBBJAaAwylyYEE0BoDDOXJgQUQGgMNJcmBBVAaAw1lyYEFkAIJgUAY0BoOg==
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.PUSHDATA1 30
-    /// 0009 : OpCode.EQUAL
-    /// 000A : OpCode.JMPIFNOT 04
-    /// 000C : OpCode.PUSH1
-    /// 000D : OpCode.RET
-    /// 000E : OpCode.LDLOC0
-    /// 000F : OpCode.PUSHDATA1 31
-    /// 0012 : OpCode.EQUAL
-    /// 0013 : OpCode.JMPIFNOT 04
-    /// 0015 : OpCode.PUSH2
-    /// 0016 : OpCode.RET
-    /// 0017 : OpCode.LDLOC0
-    /// 0018 : OpCode.PUSHDATA1 32
-    /// 001B : OpCode.EQUAL
-    /// 001C : OpCode.JMPIFNOT 04
-    /// 001E : OpCode.PUSH3
-    /// 001F : OpCode.RET
-    /// 0020 : OpCode.LDLOC0
-    /// 0021 : OpCode.PUSHDATA1 33
-    /// 0024 : OpCode.EQUAL
-    /// 0025 : OpCode.JMPIFNOT 04
-    /// 0027 : OpCode.PUSH4
-    /// 0028 : OpCode.RET
-    /// 0029 : OpCode.LDLOC0
-    /// 002A : OpCode.PUSHDATA1 34
-    /// 002D : OpCode.EQUAL
-    /// 002E : OpCode.JMPIFNOT 04
-    /// 0030 : OpCode.PUSH5
-    /// 0031 : OpCode.RET
-    /// 0032 : OpCode.LDLOC0
-    /// 0033 : OpCode.PUSHDATA1 35
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.JMPIFNOT 04
-    /// 0039 : OpCode.PUSH6
-    /// 003A : OpCode.RET
-    /// 003B : OpCode.PUSHT
-    /// 003C : OpCode.JMPIFNOT 05
-    /// 003E : OpCode.PUSHINT8 63
-    /// 0040 : OpCode.RET
-    /// 0041 : OpCode.LDLOC0
-    /// 0042 : OpCode.THROW
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSHDATA1 30
+    /// 09 : OpCode.EQUAL
+    /// 0A : OpCode.JMPIFNOT 04
+    /// 0C : OpCode.PUSH1
+    /// 0D : OpCode.RET
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.PUSHDATA1 31
+    /// 12 : OpCode.EQUAL
+    /// 13 : OpCode.JMPIFNOT 04
+    /// 15 : OpCode.PUSH2
+    /// 16 : OpCode.RET
+    /// 17 : OpCode.LDLOC0
+    /// 18 : OpCode.PUSHDATA1 32
+    /// 1B : OpCode.EQUAL
+    /// 1C : OpCode.JMPIFNOT 04
+    /// 1E : OpCode.PUSH3
+    /// 1F : OpCode.RET
+    /// 20 : OpCode.LDLOC0
+    /// 21 : OpCode.PUSHDATA1 33
+    /// 24 : OpCode.EQUAL
+    /// 25 : OpCode.JMPIFNOT 04
+    /// 27 : OpCode.PUSH4
+    /// 28 : OpCode.RET
+    /// 29 : OpCode.LDLOC0
+    /// 2A : OpCode.PUSHDATA1 34
+    /// 2D : OpCode.EQUAL
+    /// 2E : OpCode.JMPIFNOT 04
+    /// 30 : OpCode.PUSH5
+    /// 31 : OpCode.RET
+    /// 32 : OpCode.LDLOC0
+    /// 33 : OpCode.PUSHDATA1 35
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.JMPIFNOT 04
+    /// 39 : OpCode.PUSH6
+    /// 3A : OpCode.RET
+    /// 3B : OpCode.PUSHT
+    /// 3C : OpCode.JMPIFNOT 05
+    /// 3E : OpCode.PUSHINT8 63
+    /// 40 : OpCode.RET
+    /// 41 : OpCode.LDLOC0
+    /// 42 : OpCode.THROW
     /// </remarks>
     [DisplayName("switch6Inline")]
     public abstract object? Switch6Inline(string? method);
@@ -131,37 +131,37 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwIBEXB4cWkRlyQOaRKXJA1pE5ckDCIOEnAiDBNwIggWcCIEEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0201
-    /// 0003 : OpCode.PUSH1
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.STLOC1
-    /// 0007 : OpCode.LDLOC1
-    /// 0008 : OpCode.PUSH1
-    /// 0009 : OpCode.EQUAL
-    /// 000A : OpCode.JMPIF 0E
-    /// 000C : OpCode.LDLOC1
-    /// 000D : OpCode.PUSH2
-    /// 000E : OpCode.EQUAL
-    /// 000F : OpCode.JMPIF 0D
-    /// 0011 : OpCode.LDLOC1
-    /// 0012 : OpCode.PUSH3
-    /// 0013 : OpCode.EQUAL
-    /// 0014 : OpCode.JMPIF 0C
-    /// 0016 : OpCode.JMP 0E
-    /// 0018 : OpCode.PUSH2
-    /// 0019 : OpCode.STLOC0
-    /// 001A : OpCode.JMP 0C
-    /// 001C : OpCode.PUSH3
-    /// 001D : OpCode.STLOC0
-    /// 001E : OpCode.JMP 08
-    /// 0020 : OpCode.PUSH6
-    /// 0021 : OpCode.STLOC0
-    /// 0022 : OpCode.JMP 04
-    /// 0024 : OpCode.PUSH0
-    /// 0025 : OpCode.STLOC0
-    /// 0026 : OpCode.LDLOC0
-    /// 0027 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.PUSH1
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.STLOC1
+    /// 07 : OpCode.LDLOC1
+    /// 08 : OpCode.PUSH1
+    /// 09 : OpCode.EQUAL
+    /// 0A : OpCode.JMPIF 0E
+    /// 0C : OpCode.LDLOC1
+    /// 0D : OpCode.PUSH2
+    /// 0E : OpCode.EQUAL
+    /// 0F : OpCode.JMPIF 0D
+    /// 11 : OpCode.LDLOC1
+    /// 12 : OpCode.PUSH3
+    /// 13 : OpCode.EQUAL
+    /// 14 : OpCode.JMPIF 0C
+    /// 16 : OpCode.JMP 0E
+    /// 18 : OpCode.PUSH2
+    /// 19 : OpCode.STLOC0
+    /// 1A : OpCode.JMP 0C
+    /// 1C : OpCode.PUSH3
+    /// 1D : OpCode.STLOC0
+    /// 1E : OpCode.JMP 08
+    /// 20 : OpCode.PUSH6
+    /// 21 : OpCode.STLOC0
+    /// 22 : OpCode.JMP 04
+    /// 24 : OpCode.PUSH0
+    /// 25 : OpCode.STLOC0
+    /// 26 : OpCode.LDLOC0
+    /// 27 : OpCode.RET
     /// </remarks>
     [DisplayName("switchInteger")]
     public abstract object? SwitchInteger(BigInteger? b);
@@ -171,138 +171,138 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEBeHBoDDCXJbYAAABoDDGXJa4AAABoDDKXJaYAAABoDDOXJZ4AAABoDDSXJZYAAABoDDWXJY4AAABoDDaXJYYAAABoDDeXJX4AAABoDDiXJXYAAABoDDmXJG5oDDEwlyRoaAwxMZckYmgMMTKXJFxoDDEzlyRWaAwxNJckUGgMMTWXJEpoDDE2lyREaAwxN5ckP2gMMTiXJDpoDDE5lyQ1aAwyMJckMCIxEUASQBNAFEAVQBZAF0AYQBlAGkAbQBxAHUAeQB9AIEAAEUAAEkAAE0AAFEAAFUAAY0A=
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.PUSHDATA1 30
-    /// 0009 : OpCode.EQUAL
-    /// 000A : OpCode.JMPIF_L B6000000
-    /// 000F : OpCode.LDLOC0
-    /// 0010 : OpCode.PUSHDATA1 31
-    /// 0013 : OpCode.EQUAL
-    /// 0014 : OpCode.JMPIF_L AE000000
-    /// 0019 : OpCode.LDLOC0
-    /// 001A : OpCode.PUSHDATA1 32
-    /// 001D : OpCode.EQUAL
-    /// 001E : OpCode.JMPIF_L A6000000
-    /// 0023 : OpCode.LDLOC0
-    /// 0024 : OpCode.PUSHDATA1 33
-    /// 0027 : OpCode.EQUAL
-    /// 0028 : OpCode.JMPIF_L 9E000000
-    /// 002D : OpCode.LDLOC0
-    /// 002E : OpCode.PUSHDATA1 34
-    /// 0031 : OpCode.EQUAL
-    /// 0032 : OpCode.JMPIF_L 96000000
-    /// 0037 : OpCode.LDLOC0
-    /// 0038 : OpCode.PUSHDATA1 35
-    /// 003B : OpCode.EQUAL
-    /// 003C : OpCode.JMPIF_L 8E000000
-    /// 0041 : OpCode.LDLOC0
-    /// 0042 : OpCode.PUSHDATA1 36
-    /// 0045 : OpCode.EQUAL
-    /// 0046 : OpCode.JMPIF_L 86000000
-    /// 004B : OpCode.LDLOC0
-    /// 004C : OpCode.PUSHDATA1 37
-    /// 004F : OpCode.EQUAL
-    /// 0050 : OpCode.JMPIF_L 7E000000
-    /// 0055 : OpCode.LDLOC0
-    /// 0056 : OpCode.PUSHDATA1 38
-    /// 0059 : OpCode.EQUAL
-    /// 005A : OpCode.JMPIF_L 76000000
-    /// 005F : OpCode.LDLOC0
-    /// 0060 : OpCode.PUSHDATA1 39
-    /// 0063 : OpCode.EQUAL
-    /// 0064 : OpCode.JMPIF 6E
-    /// 0066 : OpCode.LDLOC0
-    /// 0067 : OpCode.PUSHDATA1 3130
-    /// 006B : OpCode.EQUAL
-    /// 006C : OpCode.JMPIF 68
-    /// 006E : OpCode.LDLOC0
-    /// 006F : OpCode.PUSHDATA1 3131
-    /// 0073 : OpCode.EQUAL
-    /// 0074 : OpCode.JMPIF 62
-    /// 0076 : OpCode.LDLOC0
-    /// 0077 : OpCode.PUSHDATA1 3132
-    /// 007B : OpCode.EQUAL
-    /// 007C : OpCode.JMPIF 5C
-    /// 007E : OpCode.LDLOC0
-    /// 007F : OpCode.PUSHDATA1 3133
-    /// 0083 : OpCode.EQUAL
-    /// 0084 : OpCode.JMPIF 56
-    /// 0086 : OpCode.LDLOC0
-    /// 0087 : OpCode.PUSHDATA1 3134
-    /// 008B : OpCode.EQUAL
-    /// 008C : OpCode.JMPIF 50
-    /// 008E : OpCode.LDLOC0
-    /// 008F : OpCode.PUSHDATA1 3135
-    /// 0093 : OpCode.EQUAL
-    /// 0094 : OpCode.JMPIF 4A
-    /// 0096 : OpCode.LDLOC0
-    /// 0097 : OpCode.PUSHDATA1 3136
-    /// 009B : OpCode.EQUAL
-    /// 009C : OpCode.JMPIF 44
-    /// 009E : OpCode.LDLOC0
-    /// 009F : OpCode.PUSHDATA1 3137
-    /// 00A3 : OpCode.EQUAL
-    /// 00A4 : OpCode.JMPIF 3F
-    /// 00A6 : OpCode.LDLOC0
-    /// 00A7 : OpCode.PUSHDATA1 3138
-    /// 00AB : OpCode.EQUAL
-    /// 00AC : OpCode.JMPIF 3A
-    /// 00AE : OpCode.LDLOC0
-    /// 00AF : OpCode.PUSHDATA1 3139
-    /// 00B3 : OpCode.EQUAL
-    /// 00B4 : OpCode.JMPIF 35
-    /// 00B6 : OpCode.LDLOC0
-    /// 00B7 : OpCode.PUSHDATA1 3230
-    /// 00BB : OpCode.EQUAL
-    /// 00BC : OpCode.JMPIF 30
-    /// 00BE : OpCode.JMP 31
-    /// 00C0 : OpCode.PUSH1
-    /// 00C1 : OpCode.RET
-    /// 00C2 : OpCode.PUSH2
-    /// 00C3 : OpCode.RET
-    /// 00C4 : OpCode.PUSH3
-    /// 00C5 : OpCode.RET
-    /// 00C6 : OpCode.PUSH4
-    /// 00C7 : OpCode.RET
-    /// 00C8 : OpCode.PUSH5
-    /// 00C9 : OpCode.RET
-    /// 00CA : OpCode.PUSH6
-    /// 00CB : OpCode.RET
-    /// 00CC : OpCode.PUSH7
-    /// 00CD : OpCode.RET
-    /// 00CE : OpCode.PUSH8
-    /// 00CF : OpCode.RET
-    /// 00D0 : OpCode.PUSH9
-    /// 00D1 : OpCode.RET
-    /// 00D2 : OpCode.PUSH10
-    /// 00D3 : OpCode.RET
-    /// 00D4 : OpCode.PUSH11
-    /// 00D5 : OpCode.RET
-    /// 00D6 : OpCode.PUSH12
-    /// 00D7 : OpCode.RET
-    /// 00D8 : OpCode.PUSH13
-    /// 00D9 : OpCode.RET
-    /// 00DA : OpCode.PUSH14
-    /// 00DB : OpCode.RET
-    /// 00DC : OpCode.PUSH15
-    /// 00DD : OpCode.RET
-    /// 00DE : OpCode.PUSH16
-    /// 00DF : OpCode.RET
-    /// 00E0 : OpCode.PUSHINT8 11
-    /// 00E2 : OpCode.RET
-    /// 00E3 : OpCode.PUSHINT8 12
-    /// 00E5 : OpCode.RET
-    /// 00E6 : OpCode.PUSHINT8 13
-    /// 00E8 : OpCode.RET
-    /// 00E9 : OpCode.PUSHINT8 14
-    /// 00EB : OpCode.RET
-    /// 00EC : OpCode.PUSHINT8 15
-    /// 00EE : OpCode.RET
-    /// 00EF : OpCode.PUSHINT8 63
-    /// 00F1 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSHDATA1 30
+    /// 09 : OpCode.EQUAL
+    /// 0A : OpCode.JMPIF_L B6000000
+    /// 0F : OpCode.LDLOC0
+    /// 10 : OpCode.PUSHDATA1 31
+    /// 13 : OpCode.EQUAL
+    /// 14 : OpCode.JMPIF_L AE000000
+    /// 19 : OpCode.LDLOC0
+    /// 1A : OpCode.PUSHDATA1 32
+    /// 1D : OpCode.EQUAL
+    /// 1E : OpCode.JMPIF_L A6000000
+    /// 23 : OpCode.LDLOC0
+    /// 24 : OpCode.PUSHDATA1 33
+    /// 27 : OpCode.EQUAL
+    /// 28 : OpCode.JMPIF_L 9E000000
+    /// 2D : OpCode.LDLOC0
+    /// 2E : OpCode.PUSHDATA1 34
+    /// 31 : OpCode.EQUAL
+    /// 32 : OpCode.JMPIF_L 96000000
+    /// 37 : OpCode.LDLOC0
+    /// 38 : OpCode.PUSHDATA1 35
+    /// 3B : OpCode.EQUAL
+    /// 3C : OpCode.JMPIF_L 8E000000
+    /// 41 : OpCode.LDLOC0
+    /// 42 : OpCode.PUSHDATA1 36
+    /// 45 : OpCode.EQUAL
+    /// 46 : OpCode.JMPIF_L 86000000
+    /// 4B : OpCode.LDLOC0
+    /// 4C : OpCode.PUSHDATA1 37
+    /// 4F : OpCode.EQUAL
+    /// 50 : OpCode.JMPIF_L 7E000000
+    /// 55 : OpCode.LDLOC0
+    /// 56 : OpCode.PUSHDATA1 38
+    /// 59 : OpCode.EQUAL
+    /// 5A : OpCode.JMPIF_L 76000000
+    /// 5F : OpCode.LDLOC0
+    /// 60 : OpCode.PUSHDATA1 39
+    /// 63 : OpCode.EQUAL
+    /// 64 : OpCode.JMPIF 6E
+    /// 66 : OpCode.LDLOC0
+    /// 67 : OpCode.PUSHDATA1 3130
+    /// 6B : OpCode.EQUAL
+    /// 6C : OpCode.JMPIF 68
+    /// 6E : OpCode.LDLOC0
+    /// 6F : OpCode.PUSHDATA1 3131
+    /// 73 : OpCode.EQUAL
+    /// 74 : OpCode.JMPIF 62
+    /// 76 : OpCode.LDLOC0
+    /// 77 : OpCode.PUSHDATA1 3132
+    /// 7B : OpCode.EQUAL
+    /// 7C : OpCode.JMPIF 5C
+    /// 7E : OpCode.LDLOC0
+    /// 7F : OpCode.PUSHDATA1 3133
+    /// 83 : OpCode.EQUAL
+    /// 84 : OpCode.JMPIF 56
+    /// 86 : OpCode.LDLOC0
+    /// 87 : OpCode.PUSHDATA1 3134
+    /// 8B : OpCode.EQUAL
+    /// 8C : OpCode.JMPIF 50
+    /// 8E : OpCode.LDLOC0
+    /// 8F : OpCode.PUSHDATA1 3135
+    /// 93 : OpCode.EQUAL
+    /// 94 : OpCode.JMPIF 4A
+    /// 96 : OpCode.LDLOC0
+    /// 97 : OpCode.PUSHDATA1 3136
+    /// 9B : OpCode.EQUAL
+    /// 9C : OpCode.JMPIF 44
+    /// 9E : OpCode.LDLOC0
+    /// 9F : OpCode.PUSHDATA1 3137
+    /// A3 : OpCode.EQUAL
+    /// A4 : OpCode.JMPIF 3F
+    /// A6 : OpCode.LDLOC0
+    /// A7 : OpCode.PUSHDATA1 3138
+    /// AB : OpCode.EQUAL
+    /// AC : OpCode.JMPIF 3A
+    /// AE : OpCode.LDLOC0
+    /// AF : OpCode.PUSHDATA1 3139
+    /// B3 : OpCode.EQUAL
+    /// B4 : OpCode.JMPIF 35
+    /// B6 : OpCode.LDLOC0
+    /// B7 : OpCode.PUSHDATA1 3230
+    /// BB : OpCode.EQUAL
+    /// BC : OpCode.JMPIF 30
+    /// BE : OpCode.JMP 31
+    /// C0 : OpCode.PUSH1
+    /// C1 : OpCode.RET
+    /// C2 : OpCode.PUSH2
+    /// C3 : OpCode.RET
+    /// C4 : OpCode.PUSH3
+    /// C5 : OpCode.RET
+    /// C6 : OpCode.PUSH4
+    /// C7 : OpCode.RET
+    /// C8 : OpCode.PUSH5
+    /// C9 : OpCode.RET
+    /// CA : OpCode.PUSH6
+    /// CB : OpCode.RET
+    /// CC : OpCode.PUSH7
+    /// CD : OpCode.RET
+    /// CE : OpCode.PUSH8
+    /// CF : OpCode.RET
+    /// D0 : OpCode.PUSH9
+    /// D1 : OpCode.RET
+    /// D2 : OpCode.PUSH10
+    /// D3 : OpCode.RET
+    /// D4 : OpCode.PUSH11
+    /// D5 : OpCode.RET
+    /// D6 : OpCode.PUSH12
+    /// D7 : OpCode.RET
+    /// D8 : OpCode.PUSH13
+    /// D9 : OpCode.RET
+    /// DA : OpCode.PUSH14
+    /// DB : OpCode.RET
+    /// DC : OpCode.PUSH15
+    /// DD : OpCode.RET
+    /// DE : OpCode.PUSH16
+    /// DF : OpCode.RET
+    /// E0 : OpCode.PUSHINT8 11
+    /// E2 : OpCode.RET
+    /// E3 : OpCode.PUSHINT8 12
+    /// E5 : OpCode.RET
+    /// E6 : OpCode.PUSHINT8 13
+    /// E8 : OpCode.RET
+    /// E9 : OpCode.PUSHINT8 14
+    /// EB : OpCode.RET
+    /// EC : OpCode.PUSHINT8 15
+    /// EE : OpCode.RET
+    /// EF : OpCode.PUSHINT8 63
+    /// F1 : OpCode.RET
     /// </remarks>
     [DisplayName("switchLong")]
     public abstract object? SwitchLong(string? method);
@@ -492,5 +492,4 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     public abstract object? SwitchLongLong(string? test);
 
     #endregion
-
 }

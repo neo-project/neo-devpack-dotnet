@@ -26,14 +26,14 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAiXDFVULUVSUk9SLTEyM+EVQA==
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHT
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.PUSHDATA1 55542D4552524F522D313233
-    /// 0014 : OpCode.ASSERTMSG
-    /// 0015 : OpCode.PUSH5
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHT
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.PUSHDATA1 55542D4552524F522D313233
+    /// 14 : OpCode.ASSERTMSG
+    /// 15 : OpCode.PUSH5
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("assertCall")]
     public abstract BigInteger? AssertCall(bool? value);
@@ -43,12 +43,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeA95pkA=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHM1
-    /// 0005 : OpCode.LDARG1
-    /// 0006 : OpCode.MODPOW
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHM1
+    /// 05 : OpCode.LDARG1
+    /// 06 : OpCode.MODPOW
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("modInverse")]
     public abstract BigInteger? ModInverse(BigInteger? value, BigInteger? modulus);
@@ -58,12 +58,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6pUA=
-    /// 0000 : OpCode.INITSLOT 0003
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.LDARG2
-    /// 0006 : OpCode.MODMUL
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.MODMUL
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("modMultiply")]
     public abstract BigInteger? ModMultiply(BigInteger? value, BigInteger? y, BigInteger? modulus);
@@ -73,12 +73,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6pkA=
-    /// 0000 : OpCode.INITSLOT 0003
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.LDARG2
-    /// 0006 : OpCode.MODPOW
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.MODPOW
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("modPow")]
     public abstract BigInteger? ModPow(BigInteger? value, BigInteger? exponent, BigInteger? modulus);
@@ -88,16 +88,16 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNsoStgmBEUQ2yFA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CONVERT 28
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.ISNULL
-    /// 0008 : OpCode.JMPIFNOT 04
-    /// 000A : OpCode.DROP
-    /// 000B : OpCode.PUSH0
-    /// 000C : OpCode.CONVERT 21
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CONVERT 28
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.ISNULL
+    /// 08 : OpCode.JMPIFNOT 04
+    /// 0A : OpCode.DROP
+    /// 0B : OpCode.PUSH0
+    /// 0C : OpCode.CONVERT 21
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("testBigIntegerCast")]
     public abstract BigInteger? TestBigIntegerCast(byte[]? data);
@@ -107,10 +107,10 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALLT 0000
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0000
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("testBigIntegerParseHexString")]
     public abstract BigInteger? TestBigIntegerParseHexString(string? data);
@@ -120,15 +120,15 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwIAEXBoEY1xaUA=
-    /// 0000 : OpCode.INITSLOT 0200
-    /// 0003 : OpCode.PUSH1
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.PUSH1
-    /// 0007 : OpCode.LEFT
-    /// 0008 : OpCode.STLOC1
-    /// 0009 : OpCode.LDLOC1
-    /// 000A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.PUSH1
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSH1
+    /// 07 : OpCode.LEFT
+    /// 08 : OpCode.STLOC1
+    /// 09 : OpCode.LDLOC1
+    /// 0A : OpCode.RET
     /// </remarks>
     [DisplayName("testByteToByteArray")]
     public abstract byte[]? TestByteToByteArray();
@@ -144,8 +144,8 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: WEA=
-    /// 0000 : OpCode.LDSFLD0
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.LDSFLD0
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("testHexToBytes")]
     public abstract byte[]? TestHexToBytes();
@@ -191,10 +191,10 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNshQA==
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CONVERT 21
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CONVERT 21
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testToBigInteger")]
     public abstract BigInteger? TestToBigInteger(byte[]? data);
@@ -210,16 +210,15 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAiXOUA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHT
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.ASSERT
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHT
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.ASSERT
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("voidAssertCall")]
     public abstract void VoidAssertCall(bool? value);
 
     #endregion
-
 }

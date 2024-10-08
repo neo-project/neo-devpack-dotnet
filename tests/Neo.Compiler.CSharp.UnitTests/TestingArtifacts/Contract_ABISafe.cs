@@ -35,8 +35,8 @@ public abstract class Contract_ABISafe(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: EUA=
-    /// 0000 : OpCode.PUSH1
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.PUSH1
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("unitTest_001")]
     public abstract BigInteger? UnitTest_001();
@@ -46,12 +46,11 @@ public abstract class Contract_ABISafe(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: E0A=
-    /// 0000 : OpCode.PUSH3
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.PUSH3
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("unitTest_003")]
     public abstract BigInteger? UnitTest_003();
 
     #endregion
-
 }

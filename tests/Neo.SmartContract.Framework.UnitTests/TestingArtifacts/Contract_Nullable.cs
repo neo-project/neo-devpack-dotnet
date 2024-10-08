@@ -26,49 +26,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("bigIntegerNullableEqual")]
     public abstract bool? BigIntegerNullableEqual(BigInteger? a, BigInteger? b);
@@ -78,18 +78,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("bigIntegerNullableEqualNull")]
     public abstract bool? BigIntegerNullableEqualNull(BigInteger? a);
@@ -99,51 +99,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("bigIntegerNullableNotEqual")]
     public abstract bool? BigIntegerNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -153,20 +153,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("bigIntegerNullableToString")]
     public abstract bool? BigIntegerNullableToString(BigInteger? a);
@@ -176,47 +176,47 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWXIgRFCSQFCSIVeXhK2CQJStgkCZciCEXYIgRFCSQECUB5eJdA
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.EQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 15
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 09
-    /// 0021 : OpCode.DUP
-    /// 0022 : OpCode.ISNULL
-    /// 0023 : OpCode.JMPIF 09
-    /// 0025 : OpCode.EQUAL
-    /// 0026 : OpCode.JMP 08
-    /// 0028 : OpCode.DROP
-    /// 0029 : OpCode.ISNULL
-    /// 002A : OpCode.JMP 04
-    /// 002C : OpCode.DROP
-    /// 002D : OpCode.PUSHF
-    /// 002E : OpCode.JMPIF 04
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.RET
-    /// 0032 : OpCode.LDARG1
-    /// 0033 : OpCode.LDARG0
-    /// 0034 : OpCode.EQUAL
-    /// 0035 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.EQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 15
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 09
+    /// 21 : OpCode.DUP
+    /// 22 : OpCode.ISNULL
+    /// 23 : OpCode.JMPIF 09
+    /// 25 : OpCode.EQUAL
+    /// 26 : OpCode.JMP 08
+    /// 28 : OpCode.DROP
+    /// 29 : OpCode.ISNULL
+    /// 2A : OpCode.JMP 04
+    /// 2C : OpCode.DROP
+    /// 2D : OpCode.PUSHF
+    /// 2E : OpCode.JMPIF 04
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.RET
+    /// 32 : OpCode.LDARG1
+    /// 33 : OpCode.LDARG0
+    /// 34 : OpCode.EQUAL
+    /// 35 : OpCode.RET
     /// </remarks>
     [DisplayName("boolNullableEqual")]
     public abstract bool? BoolNullableEqual(bool? a, bool? b);
@@ -226,18 +226,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("boolNullableEqualNull")]
     public abstract bool? BoolNullableEqualNull(bool? a);
@@ -247,49 +247,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWXIgRFCaokBQkiFnl4StgkCUrYJAmXIghF2CIERQmqJAQJQHl4mEA=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.EQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 16
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 09
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.EQUAL
-    /// 0027 : OpCode.JMP 08
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 04
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.PUSHF
-    /// 002F : OpCode.NOT
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.NOTEQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.EQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 16
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 09
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.EQUAL
+    /// 27 : OpCode.JMP 08
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 04
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.PUSHF
+    /// 2F : OpCode.NOT
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.NOTEQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("boolNullableNotEqual")]
     public abstract bool? BoolNullableNotEqual(bool? a, bool? b);
@@ -299,23 +299,23 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJBMkCwxGYWxzZSIIDFRydWVK2CYFRQwMVHJ1ZZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 13
-    /// 0008 : OpCode.JMPIF 0B
-    /// 000A : OpCode.PUSHDATA1 46616C7365
-    /// 0011 : OpCode.JMP 08
-    /// 0013 : OpCode.PUSHDATA1 54727565
-    /// 0019 : OpCode.DUP
-    /// 001A : OpCode.ISNULL
-    /// 001B : OpCode.JMPIFNOT 05
-    /// 001D : OpCode.DROP
-    /// 001E : OpCode.PUSHDATA1
-    /// 0020 : OpCode.PUSHDATA1 54727565
-    /// 0026 : OpCode.EQUAL
-    /// 0027 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 13
+    /// 08 : OpCode.JMPIF 0B
+    /// 0A : OpCode.PUSHDATA1 46616C7365
+    /// 11 : OpCode.JMP 08
+    /// 13 : OpCode.PUSHDATA1 54727565
+    /// 19 : OpCode.DUP
+    /// 1A : OpCode.ISNULL
+    /// 1B : OpCode.JMPIFNOT 05
+    /// 1D : OpCode.DROP
+    /// 1E : OpCode.PUSHDATA1
+    /// 20 : OpCode.PUSHDATA1 54727565
+    /// 26 : OpCode.EQUAL
+    /// 27 : OpCode.RET
     /// </remarks>
     [DisplayName("boolNullableToString")]
     public abstract bool? BoolNullableToString(bool? a);
@@ -325,49 +325,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("byteNullableEqual")]
     public abstract bool? ByteNullableEqual(BigInteger? a, BigInteger? b);
@@ -377,18 +377,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("byteNullableEqualNull")]
     public abstract bool? ByteNullableEqualNull(BigInteger? a);
@@ -398,51 +398,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("byteNullableNotEqual")]
     public abstract bool? ByteNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -452,20 +452,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("byteNullableToString")]
     public abstract bool? ByteNullableToString(BigInteger? a);
@@ -475,11 +475,11 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXQA==
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("h160NullableEqualNull")]
     public abstract bool? H160NullableEqualNull(UInt160? a);
@@ -489,31 +489,31 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIgZ4eZeqJAUJIgZ5eJeqJAQJQHl4mEA=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 06
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.EQUAL
-    /// 000E : OpCode.NOT
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.PUSHF
-    /// 0012 : OpCode.JMP 06
-    /// 0014 : OpCode.LDARG1
-    /// 0015 : OpCode.LDARG0
-    /// 0016 : OpCode.EQUAL
-    /// 0017 : OpCode.NOT
-    /// 0018 : OpCode.JMPIF 04
-    /// 001A : OpCode.PUSHF
-    /// 001B : OpCode.RET
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.NOTEQUAL
-    /// 001F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 06
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.EQUAL
+    /// 0E : OpCode.NOT
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.PUSHF
+    /// 12 : OpCode.JMP 06
+    /// 14 : OpCode.LDARG1
+    /// 15 : OpCode.LDARG0
+    /// 16 : OpCode.EQUAL
+    /// 17 : OpCode.NOT
+    /// 18 : OpCode.JMPIF 04
+    /// 1A : OpCode.PUSHF
+    /// 1B : OpCode.RET
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.NOTEQUAL
+    /// 1F : OpCode.RET
     /// </remarks>
     [DisplayName("h160NullableNotEqual")]
     public abstract bool? H160NullableNotEqual(UInt160? a, UInt160? b);
@@ -523,29 +523,29 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIgV4eZckBQkiBXl4lyQECUB5eJdA
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 05
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.EQUAL
-    /// 000E : OpCode.JMPIF 05
-    /// 0010 : OpCode.PUSHF
-    /// 0011 : OpCode.JMP 05
-    /// 0013 : OpCode.LDARG1
-    /// 0014 : OpCode.LDARG0
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.JMPIF 04
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.RET
-    /// 001A : OpCode.LDARG1
-    /// 001B : OpCode.LDARG0
-    /// 001C : OpCode.EQUAL
-    /// 001D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 05
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.EQUAL
+    /// 0E : OpCode.JMPIF 05
+    /// 10 : OpCode.PUSHF
+    /// 11 : OpCode.JMP 05
+    /// 13 : OpCode.LDARG1
+    /// 14 : OpCode.LDARG0
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.JMPIF 04
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.RET
+    /// 1A : OpCode.LDARG1
+    /// 1B : OpCode.LDARG0
+    /// 1C : OpCode.EQUAL
+    /// 1D : OpCode.RET
     /// </remarks>
     [DisplayName("h256NullableEqual")]
     public abstract bool? H256NullableEqual(UInt256? a, UInt256? b);
@@ -555,31 +555,31 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIgZ4eZeqJAUJIgZ5eJeqJAQJQHl4mEA=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 06
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.EQUAL
-    /// 000E : OpCode.NOT
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.PUSHF
-    /// 0012 : OpCode.JMP 06
-    /// 0014 : OpCode.LDARG1
-    /// 0015 : OpCode.LDARG0
-    /// 0016 : OpCode.EQUAL
-    /// 0017 : OpCode.NOT
-    /// 0018 : OpCode.JMPIF 04
-    /// 001A : OpCode.PUSHF
-    /// 001B : OpCode.RET
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.NOTEQUAL
-    /// 001F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 06
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.EQUAL
+    /// 0E : OpCode.NOT
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.PUSHF
+    /// 12 : OpCode.JMP 06
+    /// 14 : OpCode.LDARG1
+    /// 15 : OpCode.LDARG0
+    /// 16 : OpCode.EQUAL
+    /// 17 : OpCode.NOT
+    /// 18 : OpCode.JMPIF 04
+    /// 1A : OpCode.PUSHF
+    /// 1B : OpCode.RET
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.NOTEQUAL
+    /// 1F : OpCode.RET
     /// </remarks>
     [DisplayName("h256NullableNotEqual")]
     public abstract bool? H256NullableNotEqual(UInt256? a, UInt256? b);
@@ -589,49 +589,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("intNullableEqual")]
     public abstract bool? IntNullableEqual(BigInteger? a, BigInteger? b);
@@ -641,18 +641,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("intNullableEqualNull")]
     public abstract bool? IntNullableEqualNull(BigInteger? a);
@@ -662,51 +662,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("intNullableNotEqual")]
     public abstract bool? IntNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -716,20 +716,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("intNullableToString")]
     public abstract bool? IntNullableToString(BigInteger? a);
@@ -739,49 +739,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("longNullableEqual")]
     public abstract bool? LongNullableEqual(BigInteger? a, BigInteger? b);
@@ -791,18 +791,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("longNullableEqualNull")]
     public abstract bool? LongNullableEqualNull(BigInteger? a);
@@ -812,51 +812,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("longNullableNotEqual")]
     public abstract bool? LongNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -866,20 +866,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("longNullableToString")]
     public abstract bool? LongNullableToString(BigInteger? a);
@@ -889,49 +889,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("sByteNullableEqual")]
     public abstract bool? SByteNullableEqual(BigInteger? a, BigInteger? b);
@@ -941,18 +941,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("sByteNullableEqualNull")]
     public abstract bool? SByteNullableEqualNull(BigInteger? a);
@@ -962,51 +962,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("sByteNullableNotEqual")]
     public abstract bool? SByteNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -1016,20 +1016,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("sByteNullableToString")]
     public abstract bool? SByteNullableToString(BigInteger? a);
@@ -1039,49 +1039,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("shortNullableEqual")]
     public abstract bool? ShortNullableEqual(BigInteger? a, BigInteger? b);
@@ -1091,18 +1091,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("shortNullableEqualNull")]
     public abstract bool? ShortNullableEqualNull(BigInteger? a);
@@ -1112,51 +1112,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("shortNullableNotEqual")]
     public abstract bool? ShortNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -1166,20 +1166,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("shortNullableToString")]
     public abstract bool? ShortNullableToString(BigInteger? a);
@@ -1189,49 +1189,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("uIntNullableEqual")]
     public abstract bool? UIntNullableEqual(BigInteger? a, BigInteger? b);
@@ -1241,18 +1241,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("uIntNullableEqualNull")]
     public abstract bool? UIntNullableEqualNull(BigInteger? a);
@@ -1262,51 +1262,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("uIntNullableNotEqual")]
     public abstract bool? UIntNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -1316,20 +1316,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("uIntNullableToString")]
     public abstract bool? UIntNullableToString(BigInteger? a);
@@ -1339,49 +1339,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("uLongNullableEqual")]
     public abstract bool? ULongNullableEqual(BigInteger? a, BigInteger? b);
@@ -1391,18 +1391,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("uLongNullableEqualNull")]
     public abstract bool? ULongNullableEqualNull(BigInteger? a);
@@ -1412,51 +1412,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("uLongNullableNotEqual")]
     public abstract bool? ULongNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -1466,20 +1466,20 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("uLongNullableToString")]
     public abstract bool? ULongNullableToString(BigInteger? a);
@@ -1489,49 +1489,49 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmXJAUJIg14eUrYJAWzIgRFCSQFCSIXeXhK2CQKUErYJAmzIglF2CIFRUUJJAQJQHl4l0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0D
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.PUSHF
-    /// 0019 : OpCode.JMP 17
-    /// 001B : OpCode.LDARG1
-    /// 001C : OpCode.LDARG0
-    /// 001D : OpCode.DUP
-    /// 001E : OpCode.ISNULL
-    /// 001F : OpCode.JMPIF 0A
-    /// 0021 : OpCode.SWAP
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.ISNULL
-    /// 0024 : OpCode.JMPIF 09
-    /// 0026 : OpCode.NUMEQUAL
-    /// 0027 : OpCode.JMP 09
-    /// 0029 : OpCode.DROP
-    /// 002A : OpCode.ISNULL
-    /// 002B : OpCode.JMP 05
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.PUSHF
-    /// 0030 : OpCode.JMPIF 04
-    /// 0032 : OpCode.PUSHF
-    /// 0033 : OpCode.RET
-    /// 0034 : OpCode.LDARG1
-    /// 0035 : OpCode.LDARG0
-    /// 0036 : OpCode.EQUAL
-    /// 0037 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0D
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.PUSHF
+    /// 19 : OpCode.JMP 17
+    /// 1B : OpCode.LDARG1
+    /// 1C : OpCode.LDARG0
+    /// 1D : OpCode.DUP
+    /// 1E : OpCode.ISNULL
+    /// 1F : OpCode.JMPIF 0A
+    /// 21 : OpCode.SWAP
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.ISNULL
+    /// 24 : OpCode.JMPIF 09
+    /// 26 : OpCode.NUMEQUAL
+    /// 27 : OpCode.JMP 09
+    /// 29 : OpCode.DROP
+    /// 2A : OpCode.ISNULL
+    /// 2B : OpCode.JMP 05
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.PUSHF
+    /// 30 : OpCode.JMPIF 04
+    /// 32 : OpCode.PUSHF
+    /// 33 : OpCode.RET
+    /// 34 : OpCode.LDARG1
+    /// 35 : OpCode.LDARG0
+    /// 36 : OpCode.EQUAL
+    /// 37 : OpCode.RET
     /// </remarks>
     [DisplayName("uShortNullableEqual")]
     public abstract bool? UShortNullableEqual(BigInteger? a, BigInteger? b);
@@ -1541,18 +1541,18 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeAuXJAQJQHjYqqpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.PUSHNULL
-    /// 0005 : OpCode.EQUAL
-    /// 0006 : OpCode.JMPIF 04
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.RET
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.ISNULL
-    /// 000C : OpCode.NOT
-    /// 000D : OpCode.NOT
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHNULL
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.JMPIF 04
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.RET
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.ISNULL
+    /// 0C : OpCode.NOT
+    /// 0D : OpCode.NOT
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("uShortNullableEqualNull")]
     public abstract bool? UShortNullableEqualNull(BigInteger? a);
@@ -1562,51 +1562,51 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmYJAUJIg54eUrYJAWzIgRFCaokBQkiGHl4StgkClBK2CQJsyIJRdgiBUVFCaokBAlAeXiYQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.NOTEQUAL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.JMP 0E
-    /// 000B : OpCode.LDARG0
-    /// 000C : OpCode.LDARG1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.ISNULL
-    /// 000F : OpCode.JMPIF 05
-    /// 0011 : OpCode.NUMEQUAL
-    /// 0012 : OpCode.JMP 04
-    /// 0014 : OpCode.DROP
-    /// 0015 : OpCode.PUSHF
-    /// 0016 : OpCode.NOT
-    /// 0017 : OpCode.JMPIF 05
-    /// 0019 : OpCode.PUSHF
-    /// 001A : OpCode.JMP 18
-    /// 001C : OpCode.LDARG1
-    /// 001D : OpCode.LDARG0
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.ISNULL
-    /// 0020 : OpCode.JMPIF 0A
-    /// 0022 : OpCode.SWAP
-    /// 0023 : OpCode.DUP
-    /// 0024 : OpCode.ISNULL
-    /// 0025 : OpCode.JMPIF 09
-    /// 0027 : OpCode.NUMEQUAL
-    /// 0028 : OpCode.JMP 09
-    /// 002A : OpCode.DROP
-    /// 002B : OpCode.ISNULL
-    /// 002C : OpCode.JMP 05
-    /// 002E : OpCode.DROP
-    /// 002F : OpCode.DROP
-    /// 0030 : OpCode.PUSHF
-    /// 0031 : OpCode.NOT
-    /// 0032 : OpCode.JMPIF 04
-    /// 0034 : OpCode.PUSHF
-    /// 0035 : OpCode.RET
-    /// 0036 : OpCode.LDARG1
-    /// 0037 : OpCode.LDARG0
-    /// 0038 : OpCode.NOTEQUAL
-    /// 0039 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NOTEQUAL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.JMP 0E
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.LDARG1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.ISNULL
+    /// 0F : OpCode.JMPIF 05
+    /// 11 : OpCode.NUMEQUAL
+    /// 12 : OpCode.JMP 04
+    /// 14 : OpCode.DROP
+    /// 15 : OpCode.PUSHF
+    /// 16 : OpCode.NOT
+    /// 17 : OpCode.JMPIF 05
+    /// 19 : OpCode.PUSHF
+    /// 1A : OpCode.JMP 18
+    /// 1C : OpCode.LDARG1
+    /// 1D : OpCode.LDARG0
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.ISNULL
+    /// 20 : OpCode.JMPIF 0A
+    /// 22 : OpCode.SWAP
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.ISNULL
+    /// 25 : OpCode.JMPIF 09
+    /// 27 : OpCode.NUMEQUAL
+    /// 28 : OpCode.JMP 09
+    /// 2A : OpCode.DROP
+    /// 2B : OpCode.ISNULL
+    /// 2C : OpCode.JMP 05
+    /// 2E : OpCode.DROP
+    /// 2F : OpCode.DROP
+    /// 30 : OpCode.PUSHF
+    /// 31 : OpCode.NOT
+    /// 32 : OpCode.JMPIF 04
+    /// 34 : OpCode.PUSHF
+    /// 35 : OpCode.RET
+    /// 36 : OpCode.LDARG1
+    /// 37 : OpCode.LDARG0
+    /// 38 : OpCode.NOTEQUAL
+    /// 39 : OpCode.RET
     /// </remarks>
     [DisplayName("uShortNullableNotEqual")]
     public abstract bool? UShortNullableNotEqual(BigInteger? a, BigInteger? b);
@@ -1616,24 +1616,23 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.ISNULL
-    /// 0006 : OpCode.JMPIF 05
-    /// 0008 : OpCode.CALLT 0000
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.ISNULL
-    /// 000D : OpCode.JMPIFNOT 05
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.PUSHDATA1
-    /// 0012 : OpCode.PUSHDATA1 31
-    /// 0015 : OpCode.EQUAL
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.ISNULL
+    /// 06 : OpCode.JMPIF 05
+    /// 08 : OpCode.CALLT 0000
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.ISNULL
+    /// 0D : OpCode.JMPIFNOT 05
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.PUSHDATA1
+    /// 12 : OpCode.PUSHDATA1 31
+    /// 15 : OpCode.EQUAL
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("uShortNullableToString")]
     public abstract bool? UShortNullableToString(BigInteger? a);
 
     #endregion
-
 }

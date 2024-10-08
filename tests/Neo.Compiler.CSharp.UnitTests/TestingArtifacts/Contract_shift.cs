@@ -26,36 +26,36 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwMAGHBoEahKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcWgRqXJqaRLAQA==
-    /// 0000 : OpCode.INITSLOT 0300
-    /// 0003 : OpCode.PUSH8
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.PUSH1
-    /// 0007 : OpCode.SHL
-    /// 0008 : OpCode.DUP
-    /// 0009 : OpCode.PUSHINT32 00000080
-    /// 000E : OpCode.JMPGE 04
-    /// 0010 : OpCode.JMP 0A
-    /// 0012 : OpCode.DUP
-    /// 0013 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0018 : OpCode.JMPLE 1E
-    /// 001A : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0023 : OpCode.AND
-    /// 0024 : OpCode.DUP
-    /// 0025 : OpCode.PUSHINT32 FFFFFF7F
-    /// 002A : OpCode.JMPLE 0C
-    /// 002C : OpCode.PUSHINT64 0000000001000000
-    /// 0035 : OpCode.SUB
-    /// 0036 : OpCode.STLOC1
-    /// 0037 : OpCode.LDLOC0
-    /// 0038 : OpCode.PUSH1
-    /// 0039 : OpCode.SHR
-    /// 003A : OpCode.STLOC2
-    /// 003B : OpCode.LDLOC2
-    /// 003C : OpCode.LDLOC1
-    /// 003D : OpCode.PUSH2
-    /// 003E : OpCode.PACK
-    /// 003F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0300
+    /// 03 : OpCode.PUSH8
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSH1
+    /// 07 : OpCode.SHL
+    /// 08 : OpCode.DUP
+    /// 09 : OpCode.PUSHINT32 00000080
+    /// 0E : OpCode.JMPGE 04
+    /// 10 : OpCode.JMP 0A
+    /// 12 : OpCode.DUP
+    /// 13 : OpCode.PUSHINT32 FFFFFF7F
+    /// 18 : OpCode.JMPLE 1E
+    /// 1A : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 23 : OpCode.AND
+    /// 24 : OpCode.DUP
+    /// 25 : OpCode.PUSHINT32 FFFFFF7F
+    /// 2A : OpCode.JMPLE 0C
+    /// 2C : OpCode.PUSHINT64 0000000001000000
+    /// 35 : OpCode.SUB
+    /// 36 : OpCode.STLOC1
+    /// 37 : OpCode.LDLOC0
+    /// 38 : OpCode.PUSH1
+    /// 39 : OpCode.SHR
+    /// 3A : OpCode.STLOC2
+    /// 3B : OpCode.LDLOC2
+    /// 3C : OpCode.LDLOC1
+    /// 3D : OpCode.PUSH2
+    /// 3E : OpCode.PACK
+    /// 3F : OpCode.RET
     /// </remarks>
     [DisplayName("testShift")]
     public abstract IList<object>? TestShift();
@@ -65,36 +65,35 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwUAGHBoEKhxaBGocmgRqXNoEql0bGtqaRTAQA==
-    /// 0000 : OpCode.INITSLOT 0500
-    /// 0003 : OpCode.PUSH8
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.PUSH0
-    /// 0007 : OpCode.SHL
-    /// 0008 : OpCode.STLOC1
-    /// 0009 : OpCode.LDLOC0
-    /// 000A : OpCode.PUSH1
-    /// 000B : OpCode.SHL
-    /// 000C : OpCode.STLOC2
-    /// 000D : OpCode.LDLOC0
-    /// 000E : OpCode.PUSH1
-    /// 000F : OpCode.SHR
-    /// 0010 : OpCode.STLOC3
-    /// 0011 : OpCode.LDLOC0
-    /// 0012 : OpCode.PUSH2
-    /// 0013 : OpCode.SHR
-    /// 0014 : OpCode.STLOC4
-    /// 0015 : OpCode.LDLOC4
-    /// 0016 : OpCode.LDLOC3
-    /// 0017 : OpCode.LDLOC2
-    /// 0018 : OpCode.LDLOC1
-    /// 0019 : OpCode.PUSH4
-    /// 001A : OpCode.PACK
-    /// 001B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0500
+    /// 03 : OpCode.PUSH8
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSH0
+    /// 07 : OpCode.SHL
+    /// 08 : OpCode.STLOC1
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.PUSH1
+    /// 0B : OpCode.SHL
+    /// 0C : OpCode.STLOC2
+    /// 0D : OpCode.LDLOC0
+    /// 0E : OpCode.PUSH1
+    /// 0F : OpCode.SHR
+    /// 10 : OpCode.STLOC3
+    /// 11 : OpCode.LDLOC0
+    /// 12 : OpCode.PUSH2
+    /// 13 : OpCode.SHR
+    /// 14 : OpCode.STLOC4
+    /// 15 : OpCode.LDLOC4
+    /// 16 : OpCode.LDLOC3
+    /// 17 : OpCode.LDLOC2
+    /// 18 : OpCode.LDLOC1
+    /// 19 : OpCode.PUSH4
+    /// 1A : OpCode.PACK
+    /// 1B : OpCode.RET
     /// </remarks>
     [DisplayName("testShiftBigInt")]
     public abstract IList<object>? TestShiftBigInt();
 
     #endregion
-
 }

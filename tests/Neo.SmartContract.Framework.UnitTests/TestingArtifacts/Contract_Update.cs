@@ -26,12 +26,11 @@ public abstract class Contract_Update(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: DFlFU0A=
-    /// 0000 : OpCode.PUSHDATA1 594553
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.PUSHDATA1 594553
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("imUpdated")]
     public abstract string? ImUpdated();
 
     #endregion
-
 }

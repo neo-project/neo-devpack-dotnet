@@ -26,17 +26,17 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: xUoPz0oCwL3w/89KAwDwWisX////z0A=
-    /// 0000 : OpCode.NEWSTRUCT0
-    /// 0001 : OpCode.DUP
-    /// 0002 : OpCode.PUSHM1
-    /// 0003 : OpCode.APPEND
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHINT32 C0BDF0FF
-    /// 000A : OpCode.APPEND
-    /// 000B : OpCode.DUP
-    /// 000C : OpCode.PUSHINT64 00F05A2B17FFFFFF
-    /// 0015 : OpCode.APPEND
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.NEWSTRUCT0
+    /// 01 : OpCode.DUP
+    /// 02 : OpCode.PUSHM1
+    /// 03 : OpCode.APPEND
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHINT32 C0BDF0FF
+    /// 0A : OpCode.APPEND
+    /// 0B : OpCode.DUP
+    /// 0C : OpCode.PUSHINT64 00F05A2B17FFFFFF
+    /// 15 : OpCode.APPEND
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("test_External")]
     public abstract IList<object>? Test_External();
@@ -46,9 +46,9 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.RET
     /// </remarks>
     [DisplayName("test_Push_Integer")]
     public abstract BigInteger? Test_Push_Integer(BigInteger? value);
@@ -58,51 +58,50 @@ public abstract class Contract_Stack(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: xUoQz0oB/wDPSgCAz0oAf89KAQCAz0oB/3/PSgL//wAAz0oD/////wAAAADPSgIAAACAz0oC////f89KBP//////////AAAAAAAAAADPSgMAAAAAAAAAgM9KA/////////9/z0A=
-    /// 0000 : OpCode.NEWSTRUCT0
-    /// 0001 : OpCode.DUP
-    /// 0002 : OpCode.PUSH0
-    /// 0003 : OpCode.APPEND
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHINT16 FF00
-    /// 0008 : OpCode.APPEND
-    /// 0009 : OpCode.DUP
-    /// 000A : OpCode.PUSHINT8 80
-    /// 000C : OpCode.APPEND
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.PUSHINT8 7F
-    /// 0010 : OpCode.APPEND
-    /// 0011 : OpCode.DUP
-    /// 0012 : OpCode.PUSHINT16 0080
-    /// 0015 : OpCode.APPEND
-    /// 0016 : OpCode.DUP
-    /// 0017 : OpCode.PUSHINT16 FF7F
-    /// 001A : OpCode.APPEND
-    /// 001B : OpCode.DUP
-    /// 001C : OpCode.PUSHINT32 FFFF0000
-    /// 0021 : OpCode.APPEND
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 002C : OpCode.APPEND
-    /// 002D : OpCode.DUP
-    /// 002E : OpCode.PUSHINT32 00000080
-    /// 0033 : OpCode.APPEND
-    /// 0034 : OpCode.DUP
-    /// 0035 : OpCode.PUSHINT32 FFFFFF7F
-    /// 003A : OpCode.APPEND
-    /// 003B : OpCode.DUP
-    /// 003C : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
-    /// 004D : OpCode.APPEND
-    /// 004E : OpCode.DUP
-    /// 004F : OpCode.PUSHINT64 0000000000000080
-    /// 0058 : OpCode.APPEND
-    /// 0059 : OpCode.DUP
-    /// 005A : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F
-    /// 0063 : OpCode.APPEND
-    /// 0064 : OpCode.RET
+    /// 00 : OpCode.NEWSTRUCT0
+    /// 01 : OpCode.DUP
+    /// 02 : OpCode.PUSH0
+    /// 03 : OpCode.APPEND
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHINT16 FF00
+    /// 08 : OpCode.APPEND
+    /// 09 : OpCode.DUP
+    /// 0A : OpCode.PUSHINT8 80
+    /// 0C : OpCode.APPEND
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.PUSHINT8 7F
+    /// 10 : OpCode.APPEND
+    /// 11 : OpCode.DUP
+    /// 12 : OpCode.PUSHINT16 0080
+    /// 15 : OpCode.APPEND
+    /// 16 : OpCode.DUP
+    /// 17 : OpCode.PUSHINT16 FF7F
+    /// 1A : OpCode.APPEND
+    /// 1B : OpCode.DUP
+    /// 1C : OpCode.PUSHINT32 FFFF0000
+    /// 21 : OpCode.APPEND
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 2C : OpCode.APPEND
+    /// 2D : OpCode.DUP
+    /// 2E : OpCode.PUSHINT32 00000080
+    /// 33 : OpCode.APPEND
+    /// 34 : OpCode.DUP
+    /// 35 : OpCode.PUSHINT32 FFFFFF7F
+    /// 3A : OpCode.APPEND
+    /// 3B : OpCode.DUP
+    /// 3C : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
+    /// 4D : OpCode.APPEND
+    /// 4E : OpCode.DUP
+    /// 4F : OpCode.PUSHINT64 0000000000000080
+    /// 58 : OpCode.APPEND
+    /// 59 : OpCode.DUP
+    /// 5A : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F
+    /// 63 : OpCode.APPEND
+    /// 64 : OpCode.RET
     /// </remarks>
     [DisplayName("test_Push_Integer_Internal")]
     public abstract IList<object>? Test_Push_Integer_Internal();
 
     #endregion
-
 }

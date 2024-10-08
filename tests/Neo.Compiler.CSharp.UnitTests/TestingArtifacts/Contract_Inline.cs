@@ -101,5 +101,4 @@ public abstract class Contract_Inline(Neo.SmartContract.Testing.SmartContractIni
     public abstract BigInteger? TestInline(string? method);
 
     #endregion
-
 }

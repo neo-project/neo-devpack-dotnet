@@ -62,14 +62,13 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: NAY0N1lA
-    /// 0000 : OpCode.CALL 06
-    /// 0002 : OpCode.CALL 37
-    /// 0004 : OpCode.LDSFLD1
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.CALL 06
+    /// 02 : OpCode.CALL 37
+    /// 04 : OpCode.LDSFLD1
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();
 
     #endregion
-
 }

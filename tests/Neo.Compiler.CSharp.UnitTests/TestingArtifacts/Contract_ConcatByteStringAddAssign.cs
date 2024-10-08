@@ -26,30 +26,29 @@ public abstract class Contract_ConcatByteStringAddAssign(Neo.SmartContract.Testi
     /// </summary>
     /// <remarks>
     /// Script: VwEDDHBoeIvbKHBoeYvbKHBoeovbKHBoQA==
-    /// 0000 : OpCode.INITSLOT 0103
-    /// 0003 : OpCode.PUSHDATA1
-    /// 0005 : OpCode.STLOC0
-    /// 0006 : OpCode.LDLOC0
-    /// 0007 : OpCode.LDARG0
-    /// 0008 : OpCode.CAT
-    /// 0009 : OpCode.CONVERT 28
-    /// 000B : OpCode.STLOC0
-    /// 000C : OpCode.LDLOC0
-    /// 000D : OpCode.LDARG1
-    /// 000E : OpCode.CAT
-    /// 000F : OpCode.CONVERT 28
-    /// 0011 : OpCode.STLOC0
-    /// 0012 : OpCode.LDLOC0
-    /// 0013 : OpCode.LDARG2
-    /// 0014 : OpCode.CAT
-    /// 0015 : OpCode.CONVERT 28
-    /// 0017 : OpCode.STLOC0
-    /// 0018 : OpCode.LDLOC0
-    /// 0019 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0103
+    /// 03 : OpCode.PUSHDATA1
+    /// 05 : OpCode.STLOC0
+    /// 06 : OpCode.LDLOC0
+    /// 07 : OpCode.LDARG0
+    /// 08 : OpCode.CAT
+    /// 09 : OpCode.CONVERT 28
+    /// 0B : OpCode.STLOC0
+    /// 0C : OpCode.LDLOC0
+    /// 0D : OpCode.LDARG1
+    /// 0E : OpCode.CAT
+    /// 0F : OpCode.CONVERT 28
+    /// 11 : OpCode.STLOC0
+    /// 12 : OpCode.LDLOC0
+    /// 13 : OpCode.LDARG2
+    /// 14 : OpCode.CAT
+    /// 15 : OpCode.CONVERT 28
+    /// 17 : OpCode.STLOC0
+    /// 18 : OpCode.LDLOC0
+    /// 19 : OpCode.RET
     /// </remarks>
     [DisplayName("byteStringAddAssign")]
     public abstract byte[]? ByteStringAddAssign(byte[]? a, byte[]? b, string? c);
 
     #endregion
-
 }

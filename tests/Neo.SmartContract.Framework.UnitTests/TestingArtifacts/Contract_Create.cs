@@ -26,8 +26,8 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwQAQA==
-    /// 0000 : OpCode.CALLT 0400
-    /// 0003 : OpCode.RET
+    /// 00 : OpCode.CALLT 0400
+    /// 03 : OpCode.RET
     /// </remarks>
     [DisplayName("destroy")]
     public abstract void Destroy();
@@ -37,8 +37,8 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QZXaOoFA
-    /// 0000 : OpCode.SYSCALL 95DA3A81
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.SYSCALL 95DA3A81
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();
@@ -48,10 +48,10 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcBAEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALLT 0100
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0100
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("getContractById")]
     public abstract object? GetContractById(BigInteger? id);
@@ -61,17 +61,17 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEANwIAcGhBnAjtnEVoQfNUvx0RzkA=
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.CALLT 0200
-    /// 0006 : OpCode.STLOC0
-    /// 0007 : OpCode.LDLOC0
-    /// 0008 : OpCode.SYSCALL 9C08ED9C
-    /// 000D : OpCode.DROP
-    /// 000E : OpCode.LDLOC0
-    /// 000F : OpCode.SYSCALL F354BF1D
-    /// 0014 : OpCode.PUSH1
-    /// 0015 : OpCode.PICKITEM
-    /// 0016 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.CALLT 0200
+    /// 06 : OpCode.STLOC0
+    /// 07 : OpCode.LDLOC0
+    /// 08 : OpCode.SYSCALL 9C08ED9C
+    /// 0D : OpCode.DROP
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.SYSCALL F354BF1D
+    /// 14 : OpCode.PUSH1
+    /// 15 : OpCode.PICKITEM
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("getContractHashes")]
     public abstract object? GetContractHashes();
@@ -81,13 +81,13 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjw3AAAUzhDOQA==
-    /// 0000 : OpCode.SYSCALL 39536E3C
-    /// 0005 : OpCode.CALLT 0000
-    /// 0008 : OpCode.PUSH4
-    /// 0009 : OpCode.PICKITEM
-    /// 000A : OpCode.PUSH0
-    /// 000B : OpCode.PICKITEM
-    /// 000C : OpCode.RET
+    /// 00 : OpCode.SYSCALL 39536E3C
+    /// 05 : OpCode.CALLT 0000
+    /// 08 : OpCode.PUSH4
+    /// 09 : OpCode.PICKITEM
+    /// 0A : OpCode.PUSH0
+    /// 0B : OpCode.PICKITEM
+    /// 0C : OpCode.RET
     /// </remarks>
     [DisplayName("oldContract")]
     public abstract string? OldContract();
@@ -97,17 +97,16 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACC3l42yg3AwBA
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.PUSHNULL
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.CONVERT 28
-    /// 0008 : OpCode.CALLT 0300
-    /// 000B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.CONVERT 28
+    /// 08 : OpCode.CALLT 0300
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nef, string? manifest);
 
     #endregion
-
 }

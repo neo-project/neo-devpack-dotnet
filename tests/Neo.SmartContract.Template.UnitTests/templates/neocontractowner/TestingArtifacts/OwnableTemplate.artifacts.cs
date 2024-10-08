@@ -42,13 +42,13 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: Nc7+//+qJhYMTm8gYXV0aG9yaXphdGlvbi46NwEAQA==
-    /// 0000 : OpCode.CALL_L CEFEFFFF
-    /// 0005 : OpCode.NOT
-    /// 0006 : OpCode.JMPIFNOT 16
-    /// 0008 : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
-    /// 001B : OpCode.THROW
-    /// 001C : OpCode.CALLT 0100
-    /// 001F : OpCode.RET
+    /// 00 : OpCode.CALL_L CEFEFFFF
+    /// 05 : OpCode.NOT
+    /// 06 : OpCode.JMPIFNOT 16
+    /// 08 : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
+    /// 1B : OpCode.THROW
+    /// 1C : OpCode.CALLT 0100
+    /// 1F : OpCode.RET
     /// </remarks>
     [DisplayName("destroy")]
     public abstract void Destroy();
@@ -58,10 +58,10 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
-    /// 0000 : OpCode.PUSHDATA1 48656C6C6F
-    /// 0007 : OpCode.SYSCALL 9BF667CE
-    /// 000C : OpCode.SYSCALL 925DE831
-    /// 0011 : OpCode.RET
+    /// 00 : OpCode.PUSHDATA1 48656C6C6F
+    /// 07 : OpCode.SYSCALL 9BF667CE
+    /// 0C : OpCode.SYSCALL 925DE831
+    /// 11 : OpCode.RET
     /// </remarks>
     [DisplayName("myMethod")]
     public abstract string? MyMethod();
@@ -71,22 +71,21 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADNfL+//8JlyYWDE5vIGF1dGhvcml6YXRpb24uOnp5eDcAAEA=
-    /// 0000 : OpCode.INITSLOT 0003
-    /// 0003 : OpCode.CALL_L F2FEFFFF
-    /// 0008 : OpCode.PUSHF
-    /// 0009 : OpCode.EQUAL
-    /// 000A : OpCode.JMPIFNOT 16
-    /// 000C : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
-    /// 001F : OpCode.THROW
-    /// 0020 : OpCode.LDARG2
-    /// 0021 : OpCode.LDARG1
-    /// 0022 : OpCode.LDARG0
-    /// 0023 : OpCode.CALLT 0000
-    /// 0026 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.CALL_L F2FEFFFF
+    /// 08 : OpCode.PUSHF
+    /// 09 : OpCode.EQUAL
+    /// 0A : OpCode.JMPIFNOT 16
+    /// 0C : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
+    /// 1F : OpCode.THROW
+    /// 20 : OpCode.LDARG2
+    /// 21 : OpCode.LDARG1
+    /// 22 : OpCode.LDARG0
+    /// 23 : OpCode.CALLT 0000
+    /// 26 : OpCode.RET
     /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nefFile, string? manifest, object? data = null);
 
     #endregion
-
 }

@@ -26,8 +26,8 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwgAQA==
-    /// 0000 : OpCode.CALLT 0800
-    /// 0003 : OpCode.RET
+    /// 00 : OpCode.CALLT 0800
+    /// 03 : OpCode.RET
     /// </remarks>
     public abstract BigInteger? GAS_Decimals();
 
@@ -36,10 +36,10 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcCAEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALLT 0200
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0200
+    /// 07 : OpCode.RET
     /// </remarks>
     public abstract BigInteger? NEO_BalanceOf(UInt160? account);
 
@@ -48,8 +48,8 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwAAQA==
-    /// 0000 : OpCode.CALLT 0000
-    /// 0003 : OpCode.RET
+    /// 00 : OpCode.CALLT 0000
+    /// 03 : OpCode.RET
     /// </remarks>
     public abstract BigInteger? NEO_Decimals();
 
@@ -58,10 +58,10 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcDAEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALLT 0300
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0300
+    /// 07 : OpCode.RET
     /// </remarks>
     public abstract object? NEO_GetAccountState(UInt160? account);
 
@@ -70,8 +70,8 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwcAQA==
-    /// 0000 : OpCode.CALLT 0700
-    /// 0003 : OpCode.RET
+    /// 00 : OpCode.CALLT 0700
+    /// 03 : OpCode.RET
     /// </remarks>
     public abstract IList<object>? NEO_GetCandidates();
 
@@ -80,8 +80,8 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwQAQA==
-    /// 0000 : OpCode.CALLT 0400
-    /// 0003 : OpCode.RET
+    /// 00 : OpCode.CALLT 0400
+    /// 03 : OpCode.RET
     /// </remarks>
     public abstract BigInteger? NEO_GetGasPerBlock();
 
@@ -90,10 +90,10 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcGAEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALLT 0600
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0600
+    /// 07 : OpCode.RET
     /// </remarks>
     public abstract bool? NEO_RegisterCandidate(ECPoint? pubkey);
 
@@ -102,13 +102,13 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADC3p5eDcBAEA=
-    /// 0000 : OpCode.INITSLOT 0003
-    /// 0003 : OpCode.PUSHNULL
-    /// 0004 : OpCode.LDARG2
-    /// 0005 : OpCode.LDARG1
-    /// 0006 : OpCode.LDARG0
-    /// 0007 : OpCode.CALLT 0100
-    /// 000A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.LDARG2
+    /// 05 : OpCode.LDARG1
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.CALLT 0100
+    /// 0A : OpCode.RET
     /// </remarks>
     public abstract bool? NEO_Transfer(UInt160? from, UInt160? to, BigInteger? amount);
 
@@ -117,11 +117,11 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeXg3BQBA
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG1
-    /// 0004 : OpCode.LDARG0
-    /// 0005 : OpCode.CALLT 0500
-    /// 0008 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALLT 0500
+    /// 08 : OpCode.RET
     /// </remarks>
     public abstract BigInteger? NEO_UnclaimedGas(UInt160? account, BigInteger? end);
 
@@ -130,8 +130,8 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwkAQA==
-    /// 0000 : OpCode.CALLT 0900
-    /// 0003 : OpCode.RET
+    /// 00 : OpCode.CALLT 0900
+    /// 03 : OpCode.RET
     /// </remarks>
     public abstract BigInteger? Policy_GetFeePerByte();
 
@@ -140,13 +140,12 @@ public abstract class Contract_Native(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcKAEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALLT 0A00
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0A00
+    /// 07 : OpCode.RET
     /// </remarks>
     public abstract bool? Policy_IsBlocked(UInt160? account);
 
     #endregion
-
 }

@@ -26,12 +26,11 @@ public abstract class Contract_SupportedStandards(Neo.SmartContract.Testing.Smar
     /// </summary>
     /// <remarks>
     /// Script: CEA=
-    /// 0000 : OpCode.PUSHT
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.PUSHT
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("testStandard")]
     public abstract bool? TestStandard();
 
     #endregion
-
 }

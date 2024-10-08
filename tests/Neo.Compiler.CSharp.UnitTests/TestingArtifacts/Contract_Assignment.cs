@@ -26,26 +26,26 @@ public abstract class Contract_Assignment(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwIAEXBoEZc5EkpxcGgSlzlpEpc5QA==
-    /// 0000 : OpCode.INITSLOT 0200
-    /// 0003 : OpCode.PUSH1
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.PUSH1
-    /// 0007 : OpCode.EQUAL
-    /// 0008 : OpCode.ASSERT
-    /// 0009 : OpCode.PUSH2
-    /// 000A : OpCode.DUP
-    /// 000B : OpCode.STLOC1
-    /// 000C : OpCode.STLOC0
-    /// 000D : OpCode.LDLOC0
-    /// 000E : OpCode.PUSH2
-    /// 000F : OpCode.EQUAL
-    /// 0010 : OpCode.ASSERT
-    /// 0011 : OpCode.LDLOC1
-    /// 0012 : OpCode.PUSH2
-    /// 0013 : OpCode.EQUAL
-    /// 0014 : OpCode.ASSERT
-    /// 0015 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.PUSH1
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSH1
+    /// 07 : OpCode.EQUAL
+    /// 08 : OpCode.ASSERT
+    /// 09 : OpCode.PUSH2
+    /// 0A : OpCode.DUP
+    /// 0B : OpCode.STLOC1
+    /// 0C : OpCode.STLOC0
+    /// 0D : OpCode.LDLOC0
+    /// 0E : OpCode.PUSH2
+    /// 0F : OpCode.EQUAL
+    /// 10 : OpCode.ASSERT
+    /// 11 : OpCode.LDLOC1
+    /// 12 : OpCode.PUSH2
+    /// 13 : OpCode.EQUAL
+    /// 14 : OpCode.ASSERT
+    /// 15 : OpCode.RET
     /// </remarks>
     [DisplayName("testAssignment")]
     public abstract void TestAssignment();
@@ -55,40 +55,39 @@ public abstract class Contract_Assignment(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwEAC3Bo2CQFaCIFEUpwRWgRlzlo2CQFaCIFEkpwRWgRlzlA
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSHNULL
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.ISNULL
-    /// 0007 : OpCode.JMPIF 05
-    /// 0009 : OpCode.LDLOC0
-    /// 000A : OpCode.JMP 05
-    /// 000C : OpCode.PUSH1
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.STLOC0
-    /// 000F : OpCode.DROP
-    /// 0010 : OpCode.LDLOC0
-    /// 0011 : OpCode.PUSH1
-    /// 0012 : OpCode.EQUAL
-    /// 0013 : OpCode.ASSERT
-    /// 0014 : OpCode.LDLOC0
-    /// 0015 : OpCode.ISNULL
-    /// 0016 : OpCode.JMPIF 05
-    /// 0018 : OpCode.LDLOC0
-    /// 0019 : OpCode.JMP 05
-    /// 001B : OpCode.PUSH2
-    /// 001C : OpCode.DUP
-    /// 001D : OpCode.STLOC0
-    /// 001E : OpCode.DROP
-    /// 001F : OpCode.LDLOC0
-    /// 0020 : OpCode.PUSH1
-    /// 0021 : OpCode.EQUAL
-    /// 0022 : OpCode.ASSERT
-    /// 0023 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.ISNULL
+    /// 07 : OpCode.JMPIF 05
+    /// 09 : OpCode.LDLOC0
+    /// 0A : OpCode.JMP 05
+    /// 0C : OpCode.PUSH1
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.STLOC0
+    /// 0F : OpCode.DROP
+    /// 10 : OpCode.LDLOC0
+    /// 11 : OpCode.PUSH1
+    /// 12 : OpCode.EQUAL
+    /// 13 : OpCode.ASSERT
+    /// 14 : OpCode.LDLOC0
+    /// 15 : OpCode.ISNULL
+    /// 16 : OpCode.JMPIF 05
+    /// 18 : OpCode.LDLOC0
+    /// 19 : OpCode.JMP 05
+    /// 1B : OpCode.PUSH2
+    /// 1C : OpCode.DUP
+    /// 1D : OpCode.STLOC0
+    /// 1E : OpCode.DROP
+    /// 1F : OpCode.LDLOC0
+    /// 20 : OpCode.PUSH1
+    /// 21 : OpCode.EQUAL
+    /// 22 : OpCode.ASSERT
+    /// 23 : OpCode.RET
     /// </remarks>
     [DisplayName("testCoalesceAssignment")]
     public abstract void TestCoalesceAssignment();
 
     #endregion
-
 }

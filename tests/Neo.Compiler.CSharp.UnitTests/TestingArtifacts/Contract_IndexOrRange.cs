@@ -296,5 +296,4 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     public abstract void TestMain();
 
     #endregion
-
 }

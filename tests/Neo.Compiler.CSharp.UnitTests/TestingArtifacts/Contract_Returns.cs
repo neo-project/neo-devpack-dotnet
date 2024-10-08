@@ -26,12 +26,12 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmL2yhA
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.CAT
-    /// 0006 : OpCode.CONVERT 28
-    /// 0008 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.CAT
+    /// 06 : OpCode.CONVERT 28
+    /// 08 : OpCode.RET
     /// </remarks>
     [DisplayName("byteStringAdd")]
     public abstract byte[]? ByteStringAdd(byte[]? a, byte[]? b);
@@ -41,19 +41,19 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACxUp4eaHPSnh5os9A
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.LDARG1
-    /// 0007 : OpCode.DIV
-    /// 0008 : OpCode.APPEND
-    /// 0009 : OpCode.DUP
-    /// 000A : OpCode.LDARG0
-    /// 000B : OpCode.LDARG1
-    /// 000C : OpCode.MOD
-    /// 000D : OpCode.APPEND
-    /// 000E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.LDARG1
+    /// 07 : OpCode.DIV
+    /// 08 : OpCode.APPEND
+    /// 09 : OpCode.DUP
+    /// 0A : OpCode.LDARG0
+    /// 0B : OpCode.LDARG1
+    /// 0C : OpCode.MOD
+    /// 0D : OpCode.APPEND
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("div")]
     public abstract IList<object>? Div(BigInteger? a, BigInteger? b);
@@ -63,20 +63,20 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwICeXg07ErBRXBxRWloNK1A
-    /// 0000 : OpCode.INITSLOT 0202
-    /// 0003 : OpCode.LDARG1
-    /// 0004 : OpCode.LDARG0
-    /// 0005 : OpCode.CALL EC
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.UNPACK
-    /// 0009 : OpCode.DROP
-    /// 000A : OpCode.STLOC0
-    /// 000B : OpCode.STLOC1
-    /// 000C : OpCode.DROP
-    /// 000D : OpCode.LDLOC1
-    /// 000E : OpCode.LDLOC0
-    /// 000F : OpCode.CALL AD
-    /// 0011 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALL EC
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.UNPACK
+    /// 09 : OpCode.DROP
+    /// 0A : OpCode.STLOC0
+    /// 0B : OpCode.STLOC1
+    /// 0C : OpCode.DROP
+    /// 0D : OpCode.LDLOC1
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.CALL AD
+    /// 11 : OpCode.RET
     /// </remarks>
     [DisplayName("mix")]
     public abstract BigInteger? Mix(BigInteger? a, BigInteger? b);
@@ -86,25 +86,25 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmfSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.SUB
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.PUSHINT32 00000080
-    /// 000C : OpCode.JMPGE 04
-    /// 000E : OpCode.JMP 0A
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0016 : OpCode.JMPLE 1E
-    /// 0018 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0021 : OpCode.AND
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0028 : OpCode.JMPLE 0C
-    /// 002A : OpCode.PUSHINT64 0000000001000000
-    /// 0033 : OpCode.SUB
-    /// 0034 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.SUB
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.PUSHINT32 00000080
+    /// 0C : OpCode.JMPGE 04
+    /// 0E : OpCode.JMP 0A
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F
+    /// 16 : OpCode.JMPLE 1E
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 21 : OpCode.AND
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F
+    /// 28 : OpCode.JMPLE 0C
+    /// 2A : OpCode.PUSHINT64 0000000001000000
+    /// 33 : OpCode.SUB
+    /// 34 : OpCode.RET
     /// </remarks>
     [DisplayName("subtract")]
     public abstract BigInteger? Subtract(BigInteger? a, BigInteger? b);
@@ -114,29 +114,28 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.ADD
-    /// 0006 : OpCode.DUP
-    /// 0007 : OpCode.PUSHINT32 00000080
-    /// 000C : OpCode.JMPGE 04
-    /// 000E : OpCode.JMP 0A
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0016 : OpCode.JMPLE 1E
-    /// 0018 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0021 : OpCode.AND
-    /// 0022 : OpCode.DUP
-    /// 0023 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0028 : OpCode.JMPLE 0C
-    /// 002A : OpCode.PUSHINT64 0000000001000000
-    /// 0033 : OpCode.SUB
-    /// 0034 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.ADD
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.PUSHINT32 00000080
+    /// 0C : OpCode.JMPGE 04
+    /// 0E : OpCode.JMP 0A
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F
+    /// 16 : OpCode.JMPLE 1E
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 21 : OpCode.AND
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F
+    /// 28 : OpCode.JMPLE 0C
+    /// 2A : OpCode.PUSHINT64 0000000001000000
+    /// 33 : OpCode.SUB
+    /// 34 : OpCode.RET
     /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);
 
     #endregion
-
 }

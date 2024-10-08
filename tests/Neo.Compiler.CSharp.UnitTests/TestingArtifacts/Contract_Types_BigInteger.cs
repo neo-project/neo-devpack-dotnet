@@ -26,8 +26,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: WEA=
-    /// 0000 : OpCode.LDSFLD0
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.LDSFLD0
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("attribute")]
     public abstract BigInteger? Attribute();
@@ -37,8 +37,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: AEFA
-    /// 0000 : OpCode.PUSHINT8 41
-    /// 0002 : OpCode.RET
+    /// 00 : OpCode.PUSHINT8 41
+    /// 02 : OpCode.RET
     /// </remarks>
     [DisplayName("convertFromChar")]
     public abstract BigInteger? ConvertFromChar();
@@ -48,8 +48,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: D0A=
-    /// 0000 : OpCode.PUSHM1
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.PUSHM1
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("minusOne")]
     public abstract BigInteger? MinusOne();
@@ -59,8 +59,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: EUA=
-    /// 0000 : OpCode.PUSH1
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.PUSH1
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("one")]
     public abstract BigInteger? One();
@@ -70,10 +70,10 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEA=
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.CALLT 0000
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0000
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("parse")]
     public abstract BigInteger? Parse(string? value);
@@ -83,12 +83,11 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: EEA=
-    /// 0000 : OpCode.PUSH0
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.PUSH0
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("zero")]
     public abstract BigInteger? Zero();
 
     #endregion
-
 }

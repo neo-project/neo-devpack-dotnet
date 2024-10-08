@@ -26,24 +26,23 @@ public abstract class Contract_Throw(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwEBeMoRuCYHeBDOIikMUGxlYXNlIHN1cHBseSBhdCBsZWFzdCBvbmUgYXJndW1lbnQuOnBA
-    /// 0000 : OpCode.INITSLOT 0101
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.SIZE
-    /// 0005 : OpCode.PUSH1
-    /// 0006 : OpCode.GE
-    /// 0007 : OpCode.JMPIFNOT 07
-    /// 0009 : OpCode.LDARG0
-    /// 000A : OpCode.PUSH0
-    /// 000B : OpCode.PICKITEM
-    /// 000C : OpCode.JMP 29
-    /// 000E : OpCode.PUSHDATA1 506C6561736520737570706C79206174206C65617374206F6E6520617267756D656E742E
-    /// 0034 : OpCode.THROW
-    /// 0035 : OpCode.STLOC0
-    /// 0036 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.SIZE
+    /// 05 : OpCode.PUSH1
+    /// 06 : OpCode.GE
+    /// 07 : OpCode.JMPIFNOT 07
+    /// 09 : OpCode.LDARG0
+    /// 0A : OpCode.PUSH0
+    /// 0B : OpCode.PICKITEM
+    /// 0C : OpCode.JMP 29
+    /// 0E : OpCode.PUSHDATA1 506C6561736520737570706C79206174206C65617374206F6E6520617267756D656E742E
+    /// 34 : OpCode.THROW
+    /// 35 : OpCode.STLOC0
+    /// 36 : OpCode.RET
     /// </remarks>
     [DisplayName("testMain")]
     public abstract void TestMain(IList<object>? args);
 
     #endregion
-
 }

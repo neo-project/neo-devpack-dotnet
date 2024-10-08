@@ -26,15 +26,14 @@ public abstract class Contract_Extensions(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeXg0A0A=
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG1
-    /// 0004 : OpCode.LDARG0
-    /// 0005 : OpCode.CALL 03
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALL 03
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("testSum")]
     public abstract BigInteger? TestSum(BigInteger? a, BigInteger? b);
 
     #endregion
-
 }

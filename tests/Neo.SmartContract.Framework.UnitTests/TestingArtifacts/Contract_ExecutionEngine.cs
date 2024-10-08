@@ -26,9 +26,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjzbMEA=
-    /// 0000 : OpCode.SYSCALL 39536E3C
-    /// 0005 : OpCode.CONVERT 30
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.SYSCALL 39536E3C
+    /// 05 : OpCode.CONVERT 30
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("callingScriptHash")]
     public abstract byte[]? CallingScriptHash();
@@ -38,9 +38,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qfm04jjbMEA=
-    /// 0000 : OpCode.SYSCALL F9B4E238
-    /// 0005 : OpCode.CONVERT 30
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.SYSCALL F9B4E238
+    /// 05 : OpCode.CONVERT 30
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("entryScriptHash")]
     public abstract byte[]? EntryScriptHash();
@@ -50,9 +50,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qdv+qHTbMEA=
-    /// 0000 : OpCode.SYSCALL DBFEA874
-    /// 0005 : OpCode.CONVERT 30
-    /// 0007 : OpCode.RET
+    /// 00 : OpCode.SYSCALL DBFEA874
+    /// 05 : OpCode.CONVERT 30
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("executingScriptHash")]
     public abstract byte[]? ExecutingScriptHash();
@@ -62,8 +62,8 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 0000 : OpCode.SYSCALL 2D510830
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.SYSCALL 2D510830
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("scriptContainer")]
     public abstract object? ScriptContainer();
@@ -73,12 +73,11 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 0000 : OpCode.SYSCALL 2D510830
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.SYSCALL 2D510830
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("transaction")]
     public abstract object? Transaction();
 
     #endregion
-
 }

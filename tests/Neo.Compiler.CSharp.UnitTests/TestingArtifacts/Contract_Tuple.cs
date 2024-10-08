@@ -26,20 +26,20 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: xUoRz0oSz0oTz0oUz0A=
-    /// 0000 : OpCode.NEWSTRUCT0
-    /// 0001 : OpCode.DUP
-    /// 0002 : OpCode.PUSH1
-    /// 0003 : OpCode.APPEND
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSH2
-    /// 0006 : OpCode.APPEND
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.PUSH3
-    /// 0009 : OpCode.APPEND
-    /// 000A : OpCode.DUP
-    /// 000B : OpCode.PUSH4
-    /// 000C : OpCode.APPEND
-    /// 000D : OpCode.RET
+    /// 00 : OpCode.NEWSTRUCT0
+    /// 01 : OpCode.DUP
+    /// 02 : OpCode.PUSH1
+    /// 03 : OpCode.APPEND
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSH2
+    /// 06 : OpCode.APPEND
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.PUSH3
+    /// 09 : OpCode.APPEND
+    /// 0A : OpCode.DUP
+    /// 0B : OpCode.PUSH4
+    /// 0C : OpCode.APPEND
+    /// 0D : OpCode.RET
     /// </remarks>
     [DisplayName("getResult")]
     public abstract IList<object>? GetResult();
@@ -49,73 +49,72 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwIAxUoLz0oLz0oQz0oQz0oLz0o0MHDFSgvPShDPSjQpSmgUUdBFEHE0yUrBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
-    /// 0000 : OpCode.INITSLOT 0200
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.DUP
-    /// 0005 : OpCode.PUSHNULL
-    /// 0006 : OpCode.APPEND
-    /// 0007 : OpCode.DUP
-    /// 0008 : OpCode.PUSHNULL
-    /// 0009 : OpCode.APPEND
-    /// 000A : OpCode.DUP
-    /// 000B : OpCode.PUSH0
-    /// 000C : OpCode.APPEND
-    /// 000D : OpCode.DUP
-    /// 000E : OpCode.PUSH0
-    /// 000F : OpCode.APPEND
-    /// 0010 : OpCode.DUP
-    /// 0011 : OpCode.PUSHNULL
-    /// 0012 : OpCode.APPEND
-    /// 0013 : OpCode.DUP
-    /// 0014 : OpCode.CALL 30
-    /// 0016 : OpCode.STLOC0
-    /// 0017 : OpCode.NEWSTRUCT0
-    /// 0018 : OpCode.DUP
-    /// 0019 : OpCode.PUSHNULL
-    /// 001A : OpCode.APPEND
-    /// 001B : OpCode.DUP
-    /// 001C : OpCode.PUSH0
-    /// 001D : OpCode.APPEND
-    /// 001E : OpCode.DUP
-    /// 001F : OpCode.CALL 29
-    /// 0021 : OpCode.DUP
-    /// 0022 : OpCode.LDLOC0
-    /// 0023 : OpCode.PUSH4
-    /// 0024 : OpCode.ROT
-    /// 0025 : OpCode.SETITEM
-    /// 0026 : OpCode.DROP
-    /// 0027 : OpCode.PUSH0
-    /// 0028 : OpCode.STLOC1
-    /// 0029 : OpCode.CALL C9
-    /// 002B : OpCode.DUP
-    /// 002C : OpCode.UNPACK
-    /// 002D : OpCode.DROP
-    /// 002E : OpCode.LDLOC0
-    /// 002F : OpCode.PUSH2
-    /// 0030 : OpCode.ROT
-    /// 0031 : OpCode.SETITEM
-    /// 0032 : OpCode.LDLOC0
-    /// 0033 : OpCode.PUSH4
-    /// 0034 : OpCode.PICKITEM
-    /// 0035 : OpCode.PUSH1
-    /// 0036 : OpCode.ROT
-    /// 0037 : OpCode.SETITEM
-    /// 0038 : OpCode.DROP
-    /// 0039 : OpCode.STLOC1
-    /// 003A : OpCode.DROP
-    /// 003B : OpCode.LDLOC1
-    /// 003C : OpCode.DUP
-    /// 003D : OpCode.LDLOC0
-    /// 003E : OpCode.PUSH3
-    /// 003F : OpCode.ROT
-    /// 0040 : OpCode.SETITEM
-    /// 0041 : OpCode.DROP
-    /// 0042 : OpCode.LDLOC0
-    /// 0043 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.DUP
+    /// 05 : OpCode.PUSHNULL
+    /// 06 : OpCode.APPEND
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.PUSHNULL
+    /// 09 : OpCode.APPEND
+    /// 0A : OpCode.DUP
+    /// 0B : OpCode.PUSH0
+    /// 0C : OpCode.APPEND
+    /// 0D : OpCode.DUP
+    /// 0E : OpCode.PUSH0
+    /// 0F : OpCode.APPEND
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHNULL
+    /// 12 : OpCode.APPEND
+    /// 13 : OpCode.DUP
+    /// 14 : OpCode.CALL 30
+    /// 16 : OpCode.STLOC0
+    /// 17 : OpCode.NEWSTRUCT0
+    /// 18 : OpCode.DUP
+    /// 19 : OpCode.PUSHNULL
+    /// 1A : OpCode.APPEND
+    /// 1B : OpCode.DUP
+    /// 1C : OpCode.PUSH0
+    /// 1D : OpCode.APPEND
+    /// 1E : OpCode.DUP
+    /// 1F : OpCode.CALL 29
+    /// 21 : OpCode.DUP
+    /// 22 : OpCode.LDLOC0
+    /// 23 : OpCode.PUSH4
+    /// 24 : OpCode.ROT
+    /// 25 : OpCode.SETITEM
+    /// 26 : OpCode.DROP
+    /// 27 : OpCode.PUSH0
+    /// 28 : OpCode.STLOC1
+    /// 29 : OpCode.CALL C9
+    /// 2B : OpCode.DUP
+    /// 2C : OpCode.UNPACK
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.LDLOC0
+    /// 2F : OpCode.PUSH2
+    /// 30 : OpCode.ROT
+    /// 31 : OpCode.SETITEM
+    /// 32 : OpCode.LDLOC0
+    /// 33 : OpCode.PUSH4
+    /// 34 : OpCode.PICKITEM
+    /// 35 : OpCode.PUSH1
+    /// 36 : OpCode.ROT
+    /// 37 : OpCode.SETITEM
+    /// 38 : OpCode.DROP
+    /// 39 : OpCode.STLOC1
+    /// 3A : OpCode.DROP
+    /// 3B : OpCode.LDLOC1
+    /// 3C : OpCode.DUP
+    /// 3D : OpCode.LDLOC0
+    /// 3E : OpCode.PUSH3
+    /// 3F : OpCode.ROT
+    /// 40 : OpCode.SETITEM
+    /// 41 : OpCode.DROP
+    /// 42 : OpCode.LDLOC0
+    /// 43 : OpCode.RET
     /// </remarks>
     [DisplayName("t1")]
     public abstract object? T1();
 
     #endregion
-
 }

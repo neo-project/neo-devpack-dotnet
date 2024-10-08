@@ -1,24 +1,20 @@
+using Neo.Disassembler.CSharp;
 using Neo.IO;
+using Neo.Json;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Neo.Disassembler.CSharp;
-using Neo.Extensions;
-using Neo.Json;
-using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
 
 namespace Neo.SmartContract.Testing.Extensions
 {
     public static class ArtifactExtensions
     {
-        private static JToken _debugInfo = null;
-        private static NefFile _nefFile = null;
-        static readonly string[] _protectedWords = new string[]
-        {
+        static readonly string[] _protectedWords =
+        [
             "abstract", "as", "base", "bool", "break", "byte",
             "case", "catch", "char", "checked", "class", "const",
             "continue", "decimal", "default", "delegate", "do", "double",
@@ -32,7 +28,7 @@ namespace Neo.SmartContract.Testing.Extensions
             "struct", "switch", "this", "throw", "true", "try",
             "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort",
             "using", "virtual", "void", "volatile", "while"
-        };
+        ];
 
         /// <summary>
         /// Get source code from contract Manifest
@@ -42,11 +38,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="nef">Nef file</param>
         /// <param name="generateProperties">Generate properties</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, JToken debugInfo = null)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name, NefFile? nef = null, bool generateProperties = true, JToken? debugInfo = null)
         {
             name ??= manifest.Name;
-            _debugInfo = debugInfo;
-            _nefFile = nef;
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
@@ -153,7 +147,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     if (method.Name.StartsWith("_")) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo));
                     sourceCode.WriteLine();
                 }
 
@@ -172,11 +166,10 @@ namespace Neo.SmartContract.Testing.Extensions
 
                     if (method.Name.StartsWith("_")) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo));
                     sourceCode.WriteLine();
                 }
                 sourceCode.WriteLine("    #endregion");
-                sourceCode.WriteLine();
             }
 
             sourceCode.WriteLine("}");
@@ -337,8 +330,10 @@ namespace Neo.SmartContract.Testing.Extensions
         /// Create source code from manifest method
         /// </summary>
         /// <param name="method">Contract method</param>
+        /// <param name="nefFile">Nef File</param>
+        /// <param name="debugInfo">Debug info</param>
         /// <returns>Source</returns>
-        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method)
+        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method, NefFile? nefFile = null, JToken? debugInfo = null)
         {
             var methodName = TongleLowercase(EscapeName(method.Name));
 
@@ -353,9 +348,9 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine($"    /// </summary>");
 
             // Add the opcodes
-            if (_debugInfo != null)
+            if (debugInfo != null && nefFile != null)
             {
-                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(_nefFile, _debugInfo, method.Name);
+                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, debugInfo, method.Name);
                 if (instructions is not null && instructions.Count > 0)
                 {
                     var scripts = instructions.Select(i =>
@@ -364,11 +359,15 @@ namespace Neo.SmartContract.Testing.Extensions
                         var opCode = new[] { (byte)instruction.OpCode };
                         return instruction.Operand.Length == 0 ? opCode : opCode.Concat(instruction.Operand.ToArray());
                     }).SelectMany(p => p).ToArray();
+
+                    var maxAddressLength = instructions.Max(instruction => instruction.address.ToString("X").Length);
+                    var addressFormat = $"X{(maxAddressLength + 1) / 2 * 2}";
+
                     sourceCode.WriteLine("    /// <remarks>");
                     sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
                     foreach (var instruction in instructions)
                     {
-                        sourceCode.WriteLine($"    /// {instruction.address:X4} : {instruction.instruction.InstructionToString()}");
+                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()}");
                     }
                     sourceCode.WriteLine("    /// </remarks>");
                 }

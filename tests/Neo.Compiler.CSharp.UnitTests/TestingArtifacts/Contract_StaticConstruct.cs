@@ -26,12 +26,11 @@ public abstract class Contract_StaticConstruct(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: WEA=
-    /// 0000 : OpCode.LDSFLD0
-    /// 0001 : OpCode.RET
+    /// 00 : OpCode.LDSFLD0
+    /// 01 : OpCode.RET
     /// </remarks>
     [DisplayName("testStatic")]
     public abstract BigInteger? TestStatic();
 
     #endregion
-
 }

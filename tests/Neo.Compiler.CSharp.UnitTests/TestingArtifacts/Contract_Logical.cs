@@ -26,13 +26,13 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeCQECUB5QA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.JMPIF 04
-    /// 0006 : OpCode.PUSHF
-    /// 0007 : OpCode.RET
-    /// 0008 : OpCode.LDARG1
-    /// 0009 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.JMPIF 04
+    /// 06 : OpCode.PUSHF
+    /// 07 : OpCode.RET
+    /// 08 : OpCode.LDARG1
+    /// 09 : OpCode.RET
     /// </remarks>
     [DisplayName("testConditionalLogicalAnd")]
     public abstract bool? TestConditionalLogicalAnd(bool? x, bool? y);
@@ -42,13 +42,13 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeCYECEB5QA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.JMPIFNOT 04
-    /// 0006 : OpCode.PUSHT
-    /// 0007 : OpCode.RET
-    /// 0008 : OpCode.LDARG1
-    /// 0009 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.JMPIFNOT 04
+    /// 06 : OpCode.PUSHT
+    /// 07 : OpCode.RET
+    /// 08 : OpCode.LDARG1
+    /// 09 : OpCode.RET
     /// </remarks>
     [DisplayName("testConditionalLogicalOr")]
     public abstract bool? TestConditionalLogicalOr(bool? x, bool? y);
@@ -58,11 +58,11 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmRQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.AND
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.AND
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testLogicalAnd")]
     public abstract BigInteger? TestLogicalAnd(BigInteger? x, BigInteger? y);
@@ -72,11 +72,11 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmTQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.XOR
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.XOR
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testLogicalExclusiveOr")]
     public abstract bool? TestLogicalExclusiveOr(bool? x, bool? y);
@@ -86,10 +86,10 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwABeKpA
-    /// 0000 : OpCode.INITSLOT 0001
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.NOT
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.NOT
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("testLogicalNegation")]
     public abstract bool? TestLogicalNegation(bool? x);
@@ -99,15 +99,14 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmSQA==
-    /// 0000 : OpCode.INITSLOT 0002
-    /// 0003 : OpCode.LDARG0
-    /// 0004 : OpCode.LDARG1
-    /// 0005 : OpCode.OR
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.OR
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testLogicalOr")]
     public abstract BigInteger? TestLogicalOr(BigInteger? x, BigInteger? y);
 
     #endregion
-
 }

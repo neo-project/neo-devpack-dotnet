@@ -26,11 +26,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testBigIntegerDefault")]
     public abstract BigInteger? TestBigIntegerDefault();
@@ -40,11 +40,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEACXBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSHF
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHF
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testBooleanDefault")]
     public abstract bool? TestBooleanDefault();
@@ -54,11 +54,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testByteDefault")]
     public abstract BigInteger? TestByteDefault();
@@ -68,11 +68,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testCharDefault")]
     public abstract BigInteger? TestCharDefault();
@@ -82,11 +82,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAC3BoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSHNULL
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testClassDefault")]
     public abstract object? TestClassDefault();
@@ -96,11 +96,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testInt16Default")]
     public abstract BigInteger? TestInt16Default();
@@ -110,11 +110,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testInt32Default")]
     public abstract BigInteger? TestInt32Default();
@@ -124,11 +124,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testInt64Default")]
     public abstract BigInteger? TestInt64Default();
@@ -138,11 +138,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAC3BoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSHNULL
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testObjectDefault")]
     public abstract object? TestObjectDefault();
@@ -152,11 +152,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testSByteDefault")]
     public abstract BigInteger? TestSByteDefault();
@@ -166,11 +166,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAC3BoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSHNULL
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSHNULL
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testStringDefault")]
     public abstract string? TestStringDefault();
@@ -180,11 +180,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAxXBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.NEWSTRUCT0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.NEWSTRUCT0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testStructDefault")]
     public abstract IList<object>? TestStructDefault();
@@ -194,11 +194,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testUInt16Default")]
     public abstract BigInteger? TestUInt16Default();
@@ -208,11 +208,11 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testUInt32Default")]
     public abstract BigInteger? TestUInt32Default();
@@ -222,15 +222,14 @@ public abstract class Contract_Default(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHBoQA==
-    /// 0000 : OpCode.INITSLOT 0100
-    /// 0003 : OpCode.PUSH0
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDLOC0
-    /// 0006 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100
+    /// 03 : OpCode.PUSH0
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testUInt64Default")]
     public abstract BigInteger? TestUInt64Default();
 
     #endregion
-
 }

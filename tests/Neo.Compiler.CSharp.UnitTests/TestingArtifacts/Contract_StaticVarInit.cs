@@ -26,8 +26,8 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// </summary>
     /// <remarks>
     /// Script: Qdv+qHRA
-    /// 0000 : OpCode.SYSCALL DBFEA874
-    /// 0005 : OpCode.RET
+    /// 00 : OpCode.SYSCALL DBFEA874
+    /// 05 : OpCode.RET
     /// </remarks>
     [DisplayName("directGet")]
     public abstract UInt160? DirectGet();
@@ -37,12 +37,11 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// </summary>
     /// <remarks>
     /// Script: NANA
-    /// 0000 : OpCode.CALL 03
-    /// 0002 : OpCode.RET
+    /// 00 : OpCode.CALL 03
+    /// 02 : OpCode.RET
     /// </remarks>
     [DisplayName("staticInit")]
     public abstract UInt160? StaticInit();
 
     #endregion
-
 }
