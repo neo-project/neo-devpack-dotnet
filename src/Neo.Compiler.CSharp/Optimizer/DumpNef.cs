@@ -256,6 +256,7 @@ namespace Neo.Optimizer
         public static string GenerateDumpNef(NefFile nef, JToken? debugInfo)
         {
             Script script = nef.Script;
+            string addressPadding = script.GetInstructionAddressPadding();
             List<(int, Instruction)> addressAndInstructionsList = script.EnumerateInstructions().ToList();
             Dictionary<int, Instruction> addressToInstruction = new();
             foreach ((int a, Instruction i) in addressAndInstructionsList)
@@ -292,13 +293,13 @@ namespace Neo.Optimizer
             }
 
             Dictionary<string, string[]> docPathToContent = new();
-            string dumpnef = "";
+            StringBuilder dumpnef = new();
             foreach ((int a, Instruction i) in script.EnumerateInstructions(/*print: true*/).ToList())
             {
                 if (methodStartAddrToName.ContainsKey(a))
-                    dumpnef += $"# Method Start {methodStartAddrToName[a]}\n";
+                    dumpnef.AppendLine($"# Method Start {methodStartAddrToName[a]}");
                 if (methodEndAddrToName.ContainsKey(a))
-                    dumpnef += $"# Method End {methodEndAddrToName[a]}\n";
+                    dumpnef.AppendLine($"# Method End {methodEndAddrToName[a]}");
                 if (newAddrToSequencePoint.ContainsKey(a))
                 {
                     foreach ((int docId, int startLine, int startCol, int endLine, int endCol) in newAddrToSequencePoint[a])
@@ -309,7 +310,7 @@ namespace Neo.Optimizer
                         if (!docPathToContent.ContainsKey(docPath))
                             docPathToContent.Add(docPath, File.ReadAllLines(docPath).ToArray());
                         if (startLine == endLine)
-                            dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{docPathToContent[docPath][startLine - 1][(startCol - 1)..(endCol - 1)]}\"\n";
+                            dumpnef.AppendLine($"# Code {Path.GetFileName(docPath)} line {startLine}: \"{docPathToContent[docPath][startLine - 1][(startCol - 1)..(endCol - 1)]}\"");
                         else
                             for (int lineIndex = startLine; lineIndex <= endLine; lineIndex++)
                             {
@@ -320,14 +321,14 @@ namespace Neo.Optimizer
                                     src = docPathToContent[docPath][lineIndex - 1][..(endCol - 1)].Trim();
                                 else
                                     src = docPathToContent[docPath][lineIndex - 1].Trim();
-                                dumpnef += $"# Code {Path.GetFileName(docPath)} line {startLine}: \"{src}\"\n";
+                                dumpnef.AppendLine($"# Code {Path.GetFileName(docPath)} line {startLine}: \"{src}\"");
                             }
                     }
                 }
                 if (a < script.Length)
-                    dumpnef += $"{WriteInstruction(a, script.GetInstruction(a), script.GetInstructionAddressPadding(), nef.Tokens)}\n";
+                    dumpnef.AppendLine($"{WriteInstruction(a, script.GetInstruction(a), addressPadding, nef.Tokens)}");
             }
-            return dumpnef;
+            return dumpnef.ToString();
         }
     }
 }
