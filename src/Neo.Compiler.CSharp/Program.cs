@@ -153,21 +153,25 @@ namespace Neo.Compiler
         private static int ProcessDirectory(Options options, string path)
         {
             string? csproj = Directory.EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
-            if (csproj is null)
-            {
-                string obj = Path.Combine(path, "obj");
-                string[] sourceFiles = Directory.EnumerateFiles(path, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
-                if (sourceFiles.Length == 0)
-                {
-                    Console.Error.WriteLine($"No .cs file is found in \"{path}\".");
-                    return 2;
-                }
-                return ProcessSources(options, path, sourceFiles);
-            }
-            else
-            {
+            if (csproj is not null)
                 return ProcessCsproj(options, csproj);
+            Console.WriteLine($"No .csproj file found in \"{path}\". Searching in sub-directories.");
+            List<string> csprojFiles = Directory.EnumerateFiles(path, "*.csproj", SearchOption.AllDirectories).ToList();
+            if (csprojFiles.Count > 0)
+            {
+                Console.WriteLine($"Will process {csprojFiles.Count} .csproj files in sub-directories.");
+                return Enumerable.Max(csprojFiles.Select((csprojFile) =>
+                    ProcessCsproj(options, csprojFile)));
             }
+            string obj = Path.Combine(path, "obj");
+            string[] sourceFiles = Directory.EnumerateFiles(path, "*.cs", SearchOption.AllDirectories).Where(p => !p.StartsWith(obj)).ToArray();
+            if (sourceFiles.Length == 0)
+            {
+                Console.Error.WriteLine($"No .cs file is found in \"{path}\".");
+                return 2;
+            }
+            Console.WriteLine($"Will process {sourceFiles.Length} .cs files in the requested path and its sub-directories.");
+            return ProcessSources(options, path, sourceFiles);
         }
 
         private static int ProcessCsproj(Options options, string path)
