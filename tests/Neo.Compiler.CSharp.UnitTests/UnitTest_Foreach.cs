@@ -14,46 +14,46 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void IntForeachTest()
         {
             Assert.AreEqual(10, Contract.IntForeach());
-            AssertGasConsumed(1124070);
+            AssertGasConsumed(1123770);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1187970);
+            AssertGasConsumed(1187670);
         }
 
         [TestMethod]
         public void IntForloopTest()
         {
             Assert.AreEqual(10, Contract.IntForloop());
-            AssertGasConsumed(1126710);
+            AssertGasConsumed(1126410);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1187970);
+            AssertGasConsumed(1187670);
         }
 
         [TestMethod]
         public void StringForeachTest()
         {
             Assert.AreEqual("abcdefhij", Contract.StringForeach());
-            AssertGasConsumed(2041620);
+            AssertGasConsumed(2041320);
         }
 
         [TestMethod]
         public void ByteStringEmptyTest()
         {
             Assert.AreEqual(0, Contract.ByteStringEmpty());
-            AssertGasConsumed(1049100);
+            AssertGasConsumed(1048800);
         }
 
         [TestMethod]
         public void BytestringForeachTest()
         {
             Assert.AreEqual("abcdefhij", Encoding.ASCII.GetString(Contract.ByteStringForeach()!));
-            AssertGasConsumed(2661900);
+            AssertGasConsumed(2661600);
         }
 
         [TestMethod]
         public void StructForeachTest()
         {
             var map = Contract.StructForeach()!;
-            AssertGasConsumed(3620220);
+            AssertGasConsumed(3619920);
 
             Assert.AreEqual(map[(ByteString)"test1"], new BigInteger(1));
             Assert.AreEqual(map[(ByteString)"test2"], new BigInteger(2));
@@ -63,7 +63,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ByteArrayForeachTest()
         {
             var array = Contract.ByteArrayForeach()!;
-            AssertGasConsumed(2041170);
+            AssertGasConsumed(2040870);
 
             Assert.AreEqual(array[0], new BigInteger(1));
             Assert.AreEqual(array[1], new BigInteger(10));
@@ -74,7 +74,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Uint160ForeachTest()
         {
             var array = Contract.UInt160Foreach()!;
-            AssertGasConsumed(1608720);
+            AssertGasConsumed(1608420);
 
             Assert.AreEqual(array.Count, 2);
             Assert.AreEqual((array[0] as ByteString)!.GetSpan().ToHexString(), "0000000000000000000000000000000000000000");
@@ -85,7 +85,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Uint256ForeachTest()
         {
             var array = Contract.UInt256Foreach()!;
-            AssertGasConsumed(1608720);
+            AssertGasConsumed(1608420);
 
             Assert.AreEqual(array.Count, 2);
             Assert.AreEqual((array[0] as ByteString)!.GetSpan().ToHexString(), "0000000000000000000000000000000000000000000000000000000000000000");
@@ -96,7 +96,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void EcpointForeachTest()
         {
             var array = Contract.ECPointForeach()!;
-            AssertGasConsumed(2100780);
+            AssertGasConsumed(2100840);
 
             Assert.AreEqual(array.Count, 2);
             Assert.AreEqual((array[0] as ByteString)!.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void BigintegerForeachTest()
         {
             var array = Contract.BigIntegerForeach()!;
-            AssertGasConsumed(2105160);
+            AssertGasConsumed(2104860);
             BigInteger[] expected = [10_000, 1000_000, 1000_000_000, 1000_000_000_000_000_000];
 
             Assert.AreEqual(array.Count, 4);
@@ -121,7 +121,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ObjectarrayForeachTest()
         {
             var array = Contract.ObjectArrayForeach()!;
-            AssertGasConsumed(2102910);
+            AssertGasConsumed(2102610);
 
             Assert.AreEqual(array.Count, 3);
             CollectionAssert.AreEqual(array[0] as byte[], new byte[] { 0x01, 0x02 });

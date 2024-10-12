@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -41,9 +42,7 @@ namespace Neo.Optimizer
         {
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
             InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
-            Dictionary<int, Instruction> oldAddressToInstruction = new();
-            foreach ((int a, Instruction i) in oldContractCoverage.addressAndInstructions)
-                oldAddressToInstruction.Add(a, i);
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
             (Dictionary<Instruction, Instruction> jumpSourceToTargets,
                 Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
                 Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
@@ -87,6 +86,188 @@ namespace Neo.Optimizer
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction);
+        }
+
+        /// <summary>
+        /// Delete unnecessary STSFLD in _initialize method
+        /// and replace LDSFLD with PUSH const.
+        /// This may increase contract size.
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 5)]
+        public static (NefFile, ContractManifest, JObject?) InitStaticToConst(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+
+            int[] inits = oldContractCoverage.entryPointsByMethod
+                .Where(kv => kv.Value == EntryType.Initialize)
+                .Select(kv => kv.Key).ToArray();
+            if (inits.Length > 1)
+                throw new BadScriptException($"{inits.Length} _initialize methods in contract {manifest.Name}");
+            if (inits.Length == 0)  // no _initialize method; do nothing
+                return (nef, manifest, debugInfo);
+            HashSet<BasicBlock> initBlocks = contractInBasicBlocks.BlocksCoveredFromAddr(inits[0], true);
+            HashSet<int> initAddrs = ContractInBasicBlocks.AddrCoveredByBlocks(initBlocks);
+
+            // key: static field index
+            // value: instruction that sets const value for the field
+            // If we decide not to handle a field, store RET in value
+            // We remove PUSH and STSFLD in _initialize if the field is written with const only once and never read in _initialize.
+            // We replace LDSFLD with PUSH in an ordinary method if the field is written with const only once in _initialize
+            // and never written in the method.
+            Dictionary<byte, Instruction> writtenConstInInit = [];
+            // all instructions before STSFLD that push const
+            HashSet<Instruction> pushConstStaticInInit = [];
+            HashSet<byte> readInInit = [];
+
+            foreach (BasicBlock currentBlock in initBlocks)
+            {
+                Instruction? prevPushConst = null;
+                foreach (Instruction i in currentBlock.instructions)
+                {
+                    if (OpCodeTypes.storeStaticFields.Contains(i.OpCode))
+                    {
+                        byte staticFieldIndex = OpCodeTypes.SlotIndex(i);
+                        if (prevPushConst == null)
+                            // No const pushed from prev instruction. Give up.
+                            writtenConstInInit[staticFieldIndex] = Instruction.RET;
+                        else if (!writtenConstInInit.TryAdd(staticFieldIndex, prevPushConst))
+                            // multiple STSFLD to the same index
+                            // do not handle this staticfield.
+                            writtenConstInInit[staticFieldIndex] = Instruction.RET;
+                        else
+                            pushConstStaticInInit.Add(prevPushConst);
+                        prevPushConst = null;
+                    }
+                    if (OpCodeTypes.loadStaticFields.Contains(i.OpCode))
+                        readInInit.Add(OpCodeTypes.SlotIndex(i));
+                    if (OpCodeTypes.pushConst.Contains(i.OpCode))
+                        prevPushConst = i;
+                    else
+                        prevPushConst = null;
+                }
+            }
+
+            // do not replace these LDSFLD with PUSH
+            // because they are written in ordinary methods
+            HashSet<int> doNotReplaceLdsfld = [];
+            HashSet<byte> doNotDeleteStsfld = [];
+            foreach ((int entry, EntryType _) in oldContractCoverage.entryPointsByMethod
+                .Where(kv => kv.Value != EntryType.Initialize))
+            {
+                HashSet<BasicBlock> blocks = contractInBasicBlocks.BlocksCoveredFromAddr(entry, true);
+                HashSet<int> addrs = ContractInBasicBlocks.AddrCoveredByBlocks(blocks);
+                HashSet<byte> stsfldInOrdinaryMethod = [];
+                Dictionary<byte, HashSet<int>> ldsfldInOrdinaryMethod = [];
+                foreach (int a in addrs)
+                {
+                    Instruction i = oldAddressToInstruction[a];
+                    if (OpCodeTypes.storeStaticFields.Contains(i.OpCode))
+                        stsfldInOrdinaryMethod.Add(OpCodeTypes.SlotIndex(i));
+                    if (OpCodeTypes.loadStaticFields.Contains(i.OpCode))
+                    {
+                        byte staticFieldIndex = OpCodeTypes.SlotIndex(i);
+                        if (!ldsfldInOrdinaryMethod.TryGetValue(staticFieldIndex, out HashSet<int>? ldAddrs))
+                        {
+                            ldAddrs = new HashSet<int>();
+                            ldsfldInOrdinaryMethod.Add(staticFieldIndex, ldAddrs);
+                        }
+                        ldAddrs.Add(a);
+                    }
+                }
+                foreach (byte staticFieldIndex in stsfldInOrdinaryMethod)
+                    if (ldsfldInOrdinaryMethod.TryGetValue(staticFieldIndex, out HashSet<int>? ldAddrs))
+                        doNotReplaceLdsfld = doNotReplaceLdsfld.Union(ldAddrs).ToHashSet();
+                doNotDeleteStsfld = doNotDeleteStsfld.Union(stsfldInOrdinaryMethod).ToHashSet();
+            }
+
+            // Start building new script
+            int currentAddr = 0;
+            Instruction? oldI = null;
+            for (int a = 0; a < nef.Script.Length; a += oldI.Size)
+            {
+                if (!oldAddressToInstruction.TryGetValue(a, out oldI))
+                    oldI = Instruction.RET;
+                if (!initAddrs.Contains(a) && OpCodeTypes.loadStaticFields.Contains(oldI.OpCode)
+                 && !doNotReplaceLdsfld.Contains(a))
+                {
+                    byte staticFieldIndex = OpCodeTypes.SlotIndex(oldI);
+                    if (writtenConstInInit.TryGetValue(staticFieldIndex, out Instruction? push))
+                        if (OpCodeTypes.pushConst.Contains(push.OpCode))
+                        {// copy a push and add it
+                            IEnumerable<byte> pushInBytes = [(byte)push.OpCode];
+                            pushInBytes = pushInBytes.Concat(BitConverter.GetBytes(push.Operand.Length)[0..Optimizer.OperandSizePrefixTable[(int)push.OpCode]]).Concat(push.Operand.ToArray());
+                            Instruction copiedPush = new Script(pushInBytes.ToArray()).GetInstruction(0);
+                            simplifiedInstructionsToAddress.Add(copiedPush, currentAddr);
+                            oldSequencePointAddressToNew[a] = currentAddr;
+                            currentAddr += copiedPush.Size;
+                            if (JumpTarget.SingleJumpInOperand(copiedPush))
+                            {
+                                jumpSourceToTargets[copiedPush] = jumpSourceToTargets[push];
+                                jumpTargetToSources[jumpSourceToTargets[copiedPush]].Add(copiedPush);
+                            }
+                            OptimizedScriptBuilder.RetargetJump(oldI, copiedPush,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            continue;
+                        }
+                }
+                if (initAddrs.Contains(a) && pushConstStaticInInit.Contains(oldI))
+                {
+                    Instruction push = oldI;
+                    Instruction store = oldAddressToInstruction[a + push.Size];
+                    byte staticFieldIndex = OpCodeTypes.SlotIndex(store);
+                    if (!readInInit.Contains(staticFieldIndex))
+                    {
+                        if (doNotDeleteStsfld.Contains(staticFieldIndex))
+                        {// keep this PUSH and STSFLD
+                            simplifiedInstructionsToAddress.Add(push, currentAddr);
+                            currentAddr += push.Size;
+                            continue;
+                        }
+                        // delete PUSH+STSFLD instruction; just re-target jump
+                        if (!oldAddressToInstruction.TryGetValue(a + push.Size + store.Size, out Instruction? nextI))
+                        {// maybe this STSFLD is last instruction of the script; should RET after it
+                            nextI = Instruction.RET;
+                            simplifiedInstructionsToAddress.Add(Instruction.RET, currentAddr);
+                            currentAddr += Instruction.RET.Size;
+                            oldSequencePointAddressToNew[a] = currentAddr;
+                            oldSequencePointAddressToNew[a + push.Size] = currentAddr;
+                        }
+                        OptimizedScriptBuilder.RetargetJump(push, nextI,
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        a += push.Size;
+                        oldI = store;
+                        continue;
+                    }
+                }
+                simplifiedInstructionsToAddress.Add(oldI, currentAddr);
+                currentAddr += oldI.Size;
+            }
+            // TODO: possible JMP to JMP_L
+            try
+            {
+                return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                    simplifiedInstructionsToAddress,
+                    jumpSourceToTargets, trySourceToTargets,
+                    oldAddressToInstruction, oldSequencePointAddressToNew);
+            }
+            catch (NotImplementedException)
+            {// some short JMP exceeded the capable range
+                return (nef, manifest, debugInfo);
+            }
         }
     }
 }

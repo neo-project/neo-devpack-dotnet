@@ -28,5 +28,4 @@ public abstract class Contract_ManifestAttribute(Neo.SmartContract.Testing.Smart
     public abstract void ReentrantTest(BigInteger? value);
 
     #endregion
-
 }

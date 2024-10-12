@@ -48,7 +48,11 @@ namespace Neo.Optimizer
                         throw new BadScriptException($"Target instruction of {i.OpCode} at new address {a} is deleted");
                     }
                     if (i.OpCode == OpCode.JMP || conditionalJump.Contains(i.OpCode) || i.OpCode == OpCode.CALL || i.OpCode == OpCode.ENDTRY)
-                        simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
+                        if (sbyte.MinValue <= delta && delta <= sbyte.MaxValue)
+                            simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
+                        else
+                            // TODO: build with _L version
+                            throw new NotImplementedException($"Need {i.OpCode}_L for delta={delta}");
                     if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
                         simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(delta)).ToList();
                     continue;

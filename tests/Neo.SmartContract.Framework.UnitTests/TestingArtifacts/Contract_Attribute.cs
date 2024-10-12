@@ -46,5 +46,4 @@ public abstract class Contract_Attribute(Neo.SmartContract.Testing.SmartContract
     public abstract bool? Test();
 
     #endregion
-
 }
