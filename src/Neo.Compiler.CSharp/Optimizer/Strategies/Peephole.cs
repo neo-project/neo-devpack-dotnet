@@ -269,5 +269,74 @@ namespace Neo.Optimizer
                 return (nef, manifest, debugInfo);
             }
         }
+
+        /// <summary>
+        /// Delete unnecessary _initialize method
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 5)]
+        public static (NefFile, ContractManifest, JObject?) RemoveInitialize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+
+            int[] inits = oldContractCoverage.entryPointsByMethod
+                .Where(kv => kv.Value == EntryType.Initialize)
+                .Select(kv => kv.Key).ToArray();
+            if (inits.Length > 1)
+                throw new BadScriptException($"{inits.Length} _initialize methods in contract {manifest.Name}");
+            if (inits.Length == 0)  // no _initialize method; do nothing
+                return (nef, manifest, debugInfo);
+            int init = inits[0];
+
+            if (!oldAddressToInstruction.TryGetValue(init, out Instruction? initsslot)
+             || initsslot.OpCode != OpCode.INITSSLOT)
+                return (nef, manifest, debugInfo);
+            if (jumpTargetToSources.TryGetValue(initsslot, out HashSet<Instruction>? sources)
+             && sources.Count > 0)
+                return (nef, manifest, debugInfo);
+
+            int currentAddr = 0;
+            Instruction? oldI = null;
+            for (int a = 0; a < nef.Script.Length; a += oldI.Size)
+            {
+                if (a == init)
+                {
+                    if (!oldAddressToInstruction.TryGetValue(a + initsslot.Size, out Instruction? ret)
+                     || ret.OpCode == OpCode.RET)
+                    {
+                        List<ContractMethodDescriptor> methods = manifest.Abi.Methods.ToList();
+                        methods.RemoveAll(m => m.Offset == init);
+                        manifest.Abi.Methods = methods.ToArray();
+                        // skip!
+                        a += initsslot.Size;
+                        oldI = Instruction.RET;
+                        continue;
+                    }
+                }
+                if (!oldAddressToInstruction.TryGetValue(a, out oldI))
+                    oldI = Instruction.RET;
+                if (OpCodeTypes.loadStaticFields.Contains(oldI.OpCode))
+                    return (nef, manifest, debugInfo);
+                simplifiedInstructionsToAddress.Add(oldI, currentAddr);
+                currentAddr += oldI.Size;
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction);
+        }
     }
 }
