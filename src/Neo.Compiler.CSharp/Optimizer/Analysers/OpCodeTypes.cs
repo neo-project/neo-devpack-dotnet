@@ -19,8 +19,10 @@ namespace Neo.Optimizer
 {
     static class OpCodeTypes
     {
-        public static readonly HashSet<OpCode> push = new();
         public static readonly HashSet<OpCode> pushConst = new();
+        public static readonly HashSet<OpCode> push;
+        public static readonly HashSet<OpCode> longInstructions;
+        public static readonly HashSet<OpCode> shortInstructions;
         public static readonly HashSet<OpCode> allowedBasicBlockEnds;
 
         static OpCodeTypes()
@@ -36,6 +38,10 @@ namespace Neo.Optimizer
             pushConst.Add(PUSHNULL);
 
             push = pushConst.Union(pushStackOps).ToHashSet();
+
+            longInstructions = new() { TRY_L, ENDTRY_L, JMP_L, CALL_L, };
+            longInstructions = longInstructions.Union(conditionalJump_L).ToHashSet();
+            shortInstructions = longInstructions.Select(i => i - 1).ToHashSet();
 
             allowedBasicBlockEnds = ((OpCode[])Enum.GetValues(typeof(OpCode)))
                     .Where(i => JumpTarget.SingleJumpInOperand(i) && i != PUSHA || JumpTarget.DoubleJumpInOperand(i)).ToHashSet()

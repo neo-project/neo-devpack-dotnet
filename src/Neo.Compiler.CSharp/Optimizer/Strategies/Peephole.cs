@@ -100,6 +100,8 @@ namespace Neo.Optimizer
         [Strategy(Priority = 1 << 5)]
         public static (NefFile, ContractManifest, JObject?) InitStaticToConst(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
+            (nef, manifest, debugInfo) = JumpCompresser.UncompressJump(nef, manifest, debugInfo);
+
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
             InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
             Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
@@ -256,18 +258,12 @@ namespace Neo.Optimizer
                 simplifiedInstructionsToAddress.Add(oldI, currentAddr);
                 currentAddr += oldI.Size;
             }
-            // TODO: possible JMP to JMP_L
-            try
-            {
-                return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
-                    simplifiedInstructionsToAddress,
-                    jumpSourceToTargets, trySourceToTargets,
-                    oldAddressToInstruction, oldSequencePointAddressToNew);
-            }
-            catch (NotImplementedException)
-            {// some short JMP exceeded the capable range
-                return (nef, manifest, debugInfo);
-            }
+
+            (nef, manifest, debugInfo) = AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew);
+            return JumpCompresser.CompressJump(nef, manifest, debugInfo);
         }
 
         /// <summary>
