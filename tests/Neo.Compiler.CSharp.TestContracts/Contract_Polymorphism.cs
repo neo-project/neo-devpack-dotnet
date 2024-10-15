@@ -38,4 +38,17 @@ namespace Neo.Compiler.CSharp.TestContracts
             return base.test2() + ".test";
         }
     }
+
+    public class Contract_Polymorphism_Override : Contract_Polymorphism
+    {
+        public override string test()
+        {
+            return "test";
+        }
+
+        public override string test2()
+        {
+            return base.test2() + ".test";
+        }
+    }
 }

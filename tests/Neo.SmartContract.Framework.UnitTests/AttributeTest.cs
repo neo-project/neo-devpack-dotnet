@@ -13,11 +13,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             Engine.SetTransactionSigners(UInt160.Zero);
             Assert.IsTrue(Contract.Test());
-            AssertGasConsumed(3284760);
+            AssertGasConsumed(2853570);
 
             Engine.SetTransactionSigners(Array.Empty<UInt160>());
             Assert.ThrowsException<TestException>(() => Contract.Test());
-            AssertGasConsumed(3300330);
+            AssertGasConsumed(2869140);
         }
 
         [TestMethod]
@@ -26,17 +26,17 @@ namespace Neo.SmartContract.Framework.UnitTests
             // return in the middle
 
             Contract.ReentrantTest(0);
-            AssertGasConsumed(7250820);
+            AssertGasConsumed(6819630);
 
             // Method end
 
             Contract.ReentrantTest(1);
-            AssertGasConsumed(7251870);
+            AssertGasConsumed(6820680);
 
             // Reentrant test
 
             var ex = Assert.ThrowsException<TestException>(() => Contract.ReentrantTest(123));
-            AssertGasConsumed(7270740);
+            AssertGasConsumed(6839550);
             Assert.IsTrue(ex.Message.Contains("Already entered"));
         }
 
@@ -45,11 +45,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // should be ok
             Contract.ReentrantB();
-            AssertGasConsumed(6986710);
+            AssertGasConsumed(6555520);
 
             // Reentrant test
             var ex = Assert.ThrowsException<TestException>(Contract.ReentrantA);
-            AssertGasConsumed(8153890);
+            AssertGasConsumed(7476820);
             Assert.IsTrue(ex.Message.Contains("Already entered"));
         }
     }
