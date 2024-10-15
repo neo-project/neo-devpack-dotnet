@@ -304,6 +304,10 @@ namespace Neo.Optimizer
              && sources.Count > 0)
                 return (nef, manifest, debugInfo);
 
+            foreach (Instruction i in oldAddressToInstruction.Values)
+                if (OpCodeTypes.loadStaticFields.Contains(i.OpCode))
+                    return (nef, manifest, debugInfo);
+
             int currentAddr = 0;
             Instruction? oldI = null;
             for (int a = 0; a < nef.Script.Length; a += oldI.Size)
@@ -324,8 +328,6 @@ namespace Neo.Optimizer
                 }
                 if (!oldAddressToInstruction.TryGetValue(a, out oldI))
                     oldI = Instruction.RET;
-                if (OpCodeTypes.loadStaticFields.Contains(oldI.OpCode))
-                    return (nef, manifest, debugInfo);
                 simplifiedInstructionsToAddress.Add(oldI, currentAddr);
                 currentAddr += oldI.Size;
             }
