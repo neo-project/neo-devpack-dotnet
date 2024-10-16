@@ -196,6 +196,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(sbyte.MinValue);
@@ -211,6 +213,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(sbyte.MinValue);
@@ -226,6 +230,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(byte.MinValue);
@@ -241,6 +247,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(short.MinValue);
@@ -256,6 +264,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(ushort.MinValue);
@@ -271,6 +281,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(int.MinValue);
@@ -286,6 +298,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(uint.MinValue);
@@ -301,6 +315,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(long.MinValue);
@@ -316,6 +332,8 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (!methodConvert._checkedStack.Peek())
+            return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
         methodConvert.Push(ulong.MinValue);
