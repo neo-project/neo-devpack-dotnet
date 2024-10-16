@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -53,9 +54,16 @@ namespace Neo.Optimizer
             this.instructions = addrToInstructions.Select(kv => kv.i).ToList();
         }
 
-        //public void SetNextBasicBlock(BasicBlock block) => this.nextBlock = block;
-        //public void SetJumpTargetBlock1(BasicBlock block) => this.jumpTargetBlock1 = block;
-        //public void SetJumpTargetBlock2(BasicBlock block) => this.jumpTargetBlock2 = block;
+        public int FindFirstOpCode(OpCode opCode, ReadOnlyMemory<byte>? operand = null)
+        {
+            int addr = this.startAddr;
+            foreach (Instruction i in this.instructions)
+                if (i.OpCode == opCode && (operand == null || operand.Equals(i.Operand)))
+                    return addr;
+                else
+                    addr += i.Size;
+            return -1;
+        }
     }
 
     /// <summary>
@@ -116,6 +124,53 @@ namespace Neo.Optimizer
                         basicBlocksByStartAddr[target].jumpSourceBlocks.Add(basicBlocksByStartAddr[startAddr]);
                     }
             }
+        }
+
+        /// <summary>
+        /// Get the tree of basic blocks covered from the entryAddr.
+        /// </summary>
+        /// <param name="entryAddr">Entry address of a basic block</param>
+        /// <param name="includeCall">If true, calls to other basic blocks are included</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public HashSet<BasicBlock> BlocksCoveredFromAddr(int entryAddr, bool includeCall = true)
+        {
+            if (!basicBlocksByStartAddr.TryGetValue(entryAddr, out BasicBlock? entryBlock))
+                throw new ArgumentException($"{nameof(entryAddr)} must be starting address of a basic block");
+            BasicBlock currentBlock = entryBlock;
+            HashSet<BasicBlock> returned = new() { currentBlock };
+            Queue<BasicBlock> queue = new Queue<BasicBlock>(returned);
+            while (queue.Count > 0)
+            {
+                currentBlock = queue.Dequeue();
+                if (currentBlock.nextBlock != null && returned.Add(currentBlock.nextBlock))
+                    queue.Enqueue(currentBlock.nextBlock);
+                if (includeCall || !OpCodeTypes.callWithJump.Contains(currentBlock.instructions.Last().OpCode))
+                    foreach (BasicBlock target in currentBlock.jumpTargetBlocks)
+                        if (returned.Add(target))
+                            queue.Enqueue(target);
+            }
+            return returned;
+        }
+
+        /// <summary>
+        /// Get the set of addresses covered by the input set of BasicBlocks
+        /// </summary>
+        /// <param name="blocks"></param>
+        /// <returns></returns>
+        public static HashSet<int> AddrCoveredByBlocks(IEnumerable<BasicBlock> blocks)
+        {
+            HashSet<int> result = new();
+            foreach (BasicBlock currentBlock in blocks)
+            {
+                int addr = currentBlock.startAddr;
+                foreach (Instruction i in currentBlock.instructions)
+                {
+                    result.Add(addr);
+                    addr += i.Size;
+                }
+            }
+            return result;
         }
 
         public IEnumerable<Instruction> GetScriptInstructions()

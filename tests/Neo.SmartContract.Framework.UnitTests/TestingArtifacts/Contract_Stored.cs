@@ -91,5 +91,4 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     public abstract void PutWithString(BigInteger? value);
 
     #endregion
-
 }

@@ -165,7 +165,7 @@ public abstract class Contract_SupportedStandard11Enum(Neo.SmartContract.Testing
     /// Safe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBExGIThBR0EGb9mfOEsBweGjBRVOLUEGSXegxNwAAcchpEc5LU9BA
+    /// Script: VwIBExGIThBR0EGb9mfOEsBweGjBRVOLUEGSXegxNwAAcchKDG5hbWVpEc7QQA==
     /// 00 : OpCode.INITSLOT 0201
     /// 03 : OpCode.PUSH3
     /// 04 : OpCode.PUSH1
@@ -189,13 +189,13 @@ public abstract class Contract_SupportedStandard11Enum(Neo.SmartContract.Testing
     /// 1E : OpCode.CALLT 0000
     /// 21 : OpCode.STLOC1
     /// 22 : OpCode.NEWMAP
-    /// 23 : OpCode.LDLOC1
-    /// 24 : OpCode.PUSH1
-    /// 25 : OpCode.PICKITEM
-    /// 26 : OpCode.OVER
-    /// 27 : OpCode.REVERSE3
-    /// 28 : OpCode.SETITEM
-    /// 29 : OpCode.RET
+    /// 23 : OpCode.DUP
+    /// 24 : OpCode.PUSHDATA1 6E616D65
+    /// 2A : OpCode.LDLOC1
+    /// 2B : OpCode.PUSH1
+    /// 2C : OpCode.PICKITEM
+    /// 2D : OpCode.SETITEM
+    /// 2E : OpCode.RET
     /// </remarks>
     [DisplayName("properties")]
     public abstract IDictionary<object, object>? Properties(byte[]? tokenId);

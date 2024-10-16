@@ -36,7 +36,11 @@ namespace Neo.Optimizer
             //nef.Compiler = AppDomain.CurrentDomain.FriendlyName;
             nef.CheckSum = NefFile.ComputeChecksum(nef);
             foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-                method.Offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[method.Offset]]!;
+                if (oldAddressToInstruction.TryGetValue(method.Offset, out Instruction? i)
+                 && simplifiedInstructionsToAddress.Contains(i))
+                    method.Offset = (int)simplifiedInstructionsToAddress[i]!;
+                else  // old start of method was deleted
+                    method.Offset = oldSequencePointAddressToNew![method.Offset];
             debugInfo = DebugInfoBuilder.ModifyDebugInfo(
                 debugInfo, simplifiedInstructionsToAddress, oldAddressToInstruction,
                 oldSequencePointAddressToNew: oldSequencePointAddressToNew);

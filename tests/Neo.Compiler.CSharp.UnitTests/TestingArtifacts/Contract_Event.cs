@@ -37,5 +37,4 @@ public abstract class Contract_Event(Neo.SmartContract.Testing.SmartContractInit
     public abstract void Test();
 
     #endregion
-
 }

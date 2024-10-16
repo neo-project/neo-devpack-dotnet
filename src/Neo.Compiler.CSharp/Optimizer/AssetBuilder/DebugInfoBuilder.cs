@@ -30,12 +30,14 @@ namespace Neo.Optimizer
             {
                 GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
                 (int oldMethodStart, int oldMethodEnd) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
-                if (!simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[oldMethodStart]))
+                int methodStart;
+                if (simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[oldMethodStart]))
+                    methodStart = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]]!;
+                else if (oldSequencePointAddressToNew?.TryGetValue(oldMethodStart, out methodStart) != true)
                 {
                     methodsToRemove.Add(method);
                     continue;
                 }
-                int methodStart = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]]!;
                 // The instruction at the end of the method may have been deleted.
                 // We need to find the last instruction that is not deleted.
                 //int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
