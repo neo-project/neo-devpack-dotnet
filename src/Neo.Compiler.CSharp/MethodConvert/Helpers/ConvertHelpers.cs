@@ -209,28 +209,29 @@ internal partial class MethodConvert
     {
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
         var fields = members.OfType<IFieldSymbol>().ToArray();
+
+        int needVirtualMethodTable = 0;
+        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+        if (type.IsRecord || virtualMethods.Length <= 0)
+        {
+            needVirtualMethodTable += 1;
+            byte vTableIndex = _context.AddVTable(type);
+            AccessSlot(OpCode.LDSFLD, vTableIndex);
+        }
+
         if (fields.Length == 0 || type.IsValueType || type.IsRecord)
         {
-            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
-            foreach (var field in fields)
-            {
-                AddInstruction(OpCode.DUP);
+            foreach (var field in fields.Reverse())
                 InitializeFieldForObject(model, field, initializer);
-                AddInstruction(OpCode.APPEND);
-            }
+            Push(fields.Length + needVirtualMethodTable);
+            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
         }
         else
         {
             for (int i = fields.Length - 1; i >= 0; i--)
                 InitializeFieldForObject(model, fields[i], initializer);
-            Push(fields.Length);
+            Push(fields.Length + needVirtualMethodTable);
             AddInstruction(OpCode.PACK);
         }
-        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        if (type.IsRecord || virtualMethods.Length <= 0) return;
-        var index = _context.AddVTable(type);
-        AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.LDSFLD, index);
-        AddInstruction(OpCode.APPEND);
     }
 }
