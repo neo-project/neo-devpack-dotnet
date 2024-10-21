@@ -13,6 +13,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -35,12 +36,9 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/anonymous-types">Anonymous types</seealso>
     private void ConvertAnonymousObjectCreationExpression(SemanticModel model, AnonymousObjectCreationExpressionSyntax expression)
     {
-        AddInstruction(OpCode.NEWARRAY0);
-        foreach (AnonymousObjectMemberDeclaratorSyntax initializer in expression.Initializers)
-        {
-            AddInstruction(OpCode.DUP);
+        foreach (AnonymousObjectMemberDeclaratorSyntax initializer in expression.Initializers.Reverse())
             ConvertExpression(model, initializer.Expression);
-            AddInstruction(OpCode.APPEND);
-        }
+        Push(expression.Initializers.Count);
+        AddInstruction(OpCode.PACK);
     }
 }
