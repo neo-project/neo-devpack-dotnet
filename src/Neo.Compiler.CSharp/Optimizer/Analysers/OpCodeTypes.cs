@@ -32,12 +32,12 @@ namespace Neo.Optimizer
                 .Union(pushBool)
                 .Union(pushData)
                 .Union(pushConstInt)
-                .Union(pushNewCompoundType)
+                //.Union(pushNewCompoundType)  // array, struct and map are mutable; not considered const
                 .ToHashSet();
             pushConst.Add(PUSHA);
             pushConst.Add(PUSHNULL);
 
-            push = pushConst.Union(pushStackOps).ToHashSet();
+            push = pushConst.Union(pushNewCompoundType).Union(pushStackOps).ToHashSet();
 
             longInstructions = new() { TRY_L, ENDTRY_L, JMP_L, CALL_L, };
             longInstructions = longInstructions.Union(conditionalJump_L).ToHashSet();
