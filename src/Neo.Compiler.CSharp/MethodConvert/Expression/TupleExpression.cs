@@ -13,6 +13,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -37,12 +38,9 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/value-tuples">Tuple types</seealso>
     private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
     {
-        AddInstruction(OpCode.NEWSTRUCT0);
-        foreach (ArgumentSyntax argument in expression.Arguments)
-        {
-            AddInstruction(OpCode.DUP);
+        foreach (ArgumentSyntax argument in expression.Arguments.Reverse())
             ConvertExpression(model, argument.Expression);
-            AddInstruction(OpCode.APPEND);
-        }
+        Push(expression.Arguments.Count);
+        AddInstruction(OpCode.PACKSTRUCT);
     }
 }
