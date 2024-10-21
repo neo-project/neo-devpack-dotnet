@@ -518,16 +518,10 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         // Create an array of names
-        methodConvert.Push(enumMembers.Length);       // Stack: [..., size]
-        methodConvert.AddInstruction(OpCode.NEWARRAY); // Stack: [..., array]
-
-        for (int i = 0; i < enumMembers.Length; i++)
-        {
-            methodConvert.Dup();                      // Duplicate array reference
-            methodConvert.Push(i);                    // Index
-            methodConvert.Push(enumMembers[i].Name);  // Name
-            methodConvert.AddInstruction(OpCode.SETITEM); // array[i] = name
-        }
+        foreach (IFieldSymbol m in enumMembers.Reverse())
+            methodConvert.Push(m.Name);
+        methodConvert.Push(enumMembers.Length);
+        methodConvert.AddInstruction(OpCode.PACK);
 
         methodConvert.AddInstruction(OpCode.RET);
     }
@@ -568,16 +562,10 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         // Create an array of values
-        methodConvert.Push(enumMembers.Length);       // Stack: [..., size]
-        methodConvert.AddInstruction(OpCode.NEWARRAY); // Stack: [..., array]
-
-        for (int i = 0; i < enumMembers.Length; i++)
-        {
-            methodConvert.Dup();                      // Duplicate array reference
-            methodConvert.Push(i);                    // Index
-            methodConvert.Push(enumMembers[i].ConstantValue); // Value
-            methodConvert.AddInstruction(OpCode.SETITEM); // array[i] = value
-        }
+        foreach (IFieldSymbol m in enumMembers.Reverse())
+            methodConvert.Push(m.ConstantValue);
+        methodConvert.Push(enumMembers.Length);
+        methodConvert.AddInstruction(OpCode.PACK);
 
         methodConvert.AddInstruction(OpCode.RET);
     }
