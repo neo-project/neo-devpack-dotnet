@@ -15,7 +15,7 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOVXAQF4cGgLl0BXAAELeJdAVwABeAuXQFcAAQt4mEBXAAF4C5hAVwEBeErYJAUREoxwaEBXAQF4StgmCkUMBWxpbnV4cGhAVwABeErYJAPKELdAVwABeErYJAPKELVAVwABeErYJAPKELhAVwABeErYJAPKELZAVwABeErYJAPKEJhAVwABeCYECEAJQFcBAUGb9mfOcHhoQZJd6DFK2CYKRQwBe9sw2yhAVwEBQZv2Z85wDAMxMTF4aEHmPxiEeGhBkl3oMUrYJgpFDAF72zDbKEBXAQALcGhK2CQFNAVARUBXAAFARiQ5mA=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN9XAQF4cGgLl0BXAAELeJdAVwABeAuXQFcAAQt4mEBXAAF4C5hAVwEBeErYJAUREoxwaEBXAQF4StgmCkUMBWxpbnV4cGhAVwABeErYJAPKELdAVwABeErYJAPKELVAVwABeErYJAPKELhAVwABeErYJAPKELZAVwABeErYJAPKEJhAVwABeCYECEAJQFcBAUGb9mfOcHhoQZJd6DFK2CYKRQwBe9sw2yhAVwEBQZv2Z85wDAMxMTF4aEHmPxiEeGhBkl3oMUrYJgpFDAF72zDbKEBXAQALcGhK2CQDQEVAaY7bZQ=="));
 
     #endregion
 
@@ -292,18 +292,17 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAC3BoStgkBTQFQEVA
+    /// Script: VwEAC3BoStgkA0BFQA==
     /// 00 : OpCode.INITSLOT 0100
     /// 03 : OpCode.PUSHNULL
     /// 04 : OpCode.STLOC0
     /// 05 : OpCode.LDLOC0
     /// 06 : OpCode.DUP
     /// 07 : OpCode.ISNULL
-    /// 08 : OpCode.JMPIF 05
-    /// 0A : OpCode.CALL 05
+    /// 08 : OpCode.JMPIF 03
+    /// 0A : OpCode.RET
+    /// 0B : OpCode.DROP
     /// 0C : OpCode.RET
-    /// 0D : OpCode.DROP
-    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("nullType")]
     public abstract void NullType();

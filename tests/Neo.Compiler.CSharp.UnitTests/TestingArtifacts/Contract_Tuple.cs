@@ -15,7 +15,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFrFShHPShLPShPPShTPQFcCAMVKC89KC89KEM9KEM9KC89KNDBwxUoLz0oQz0o0KUpoFFHQRRBxNMlKwUVoElHQaBTOEVHQRXFFaUpoE1HQRWhAVwABQFcAAUB+EaX0"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEzFShHPShLPShPPShTPQFcCAMVKC89KC89KEM9KEM9KC89wxUoLz0oQz0poFFHQRRBxNM9KwUVoElHQaBTOEVHQRXFFaUpoE1HQRWhAW5sP4w=="));
 
     #endregion
 
@@ -48,7 +48,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAxUoLz0oLz0oQz0oQz0oLz0o0MHDFSgvPShDPSjQpSmgUUdBFEHE0yUrBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
+    /// Script: VwIAxUoLz0oLz0oQz0oQz0oLz3DFSgvPShDPSmgUUdBFEHE0z0rBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
     /// 00 : OpCode.INITSLOT 0200
     /// 03 : OpCode.NEWSTRUCT0
     /// 04 : OpCode.DUP
@@ -66,52 +66,48 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// 10 : OpCode.DUP
     /// 11 : OpCode.PUSHNULL
     /// 12 : OpCode.APPEND
-    /// 13 : OpCode.DUP
-    /// 14 : OpCode.CALL 30
-    /// 16 : OpCode.STLOC0
-    /// 17 : OpCode.NEWSTRUCT0
+    /// 13 : OpCode.STLOC0
+    /// 14 : OpCode.NEWSTRUCT0
+    /// 15 : OpCode.DUP
+    /// 16 : OpCode.PUSHNULL
+    /// 17 : OpCode.APPEND
     /// 18 : OpCode.DUP
-    /// 19 : OpCode.PUSHNULL
+    /// 19 : OpCode.PUSH0
     /// 1A : OpCode.APPEND
     /// 1B : OpCode.DUP
-    /// 1C : OpCode.PUSH0
-    /// 1D : OpCode.APPEND
-    /// 1E : OpCode.DUP
-    /// 1F : OpCode.CALL 29
-    /// 21 : OpCode.DUP
-    /// 22 : OpCode.LDLOC0
-    /// 23 : OpCode.PUSH4
-    /// 24 : OpCode.ROT
-    /// 25 : OpCode.SETITEM
-    /// 26 : OpCode.DROP
-    /// 27 : OpCode.PUSH0
-    /// 28 : OpCode.STLOC1
-    /// 29 : OpCode.CALL C9
-    /// 2B : OpCode.DUP
-    /// 2C : OpCode.UNPACK
-    /// 2D : OpCode.DROP
-    /// 2E : OpCode.LDLOC0
-    /// 2F : OpCode.PUSH2
+    /// 1C : OpCode.LDLOC0
+    /// 1D : OpCode.PUSH4
+    /// 1E : OpCode.ROT
+    /// 1F : OpCode.SETITEM
+    /// 20 : OpCode.DROP
+    /// 21 : OpCode.PUSH0
+    /// 22 : OpCode.STLOC1
+    /// 23 : OpCode.CALL CF
+    /// 25 : OpCode.DUP
+    /// 26 : OpCode.UNPACK
+    /// 27 : OpCode.DROP
+    /// 28 : OpCode.LDLOC0
+    /// 29 : OpCode.PUSH2
+    /// 2A : OpCode.ROT
+    /// 2B : OpCode.SETITEM
+    /// 2C : OpCode.LDLOC0
+    /// 2D : OpCode.PUSH4
+    /// 2E : OpCode.PICKITEM
+    /// 2F : OpCode.PUSH1
     /// 30 : OpCode.ROT
     /// 31 : OpCode.SETITEM
-    /// 32 : OpCode.LDLOC0
-    /// 33 : OpCode.PUSH4
-    /// 34 : OpCode.PICKITEM
-    /// 35 : OpCode.PUSH1
-    /// 36 : OpCode.ROT
-    /// 37 : OpCode.SETITEM
-    /// 38 : OpCode.DROP
-    /// 39 : OpCode.STLOC1
-    /// 3A : OpCode.DROP
-    /// 3B : OpCode.LDLOC1
-    /// 3C : OpCode.DUP
-    /// 3D : OpCode.LDLOC0
-    /// 3E : OpCode.PUSH3
-    /// 3F : OpCode.ROT
-    /// 40 : OpCode.SETITEM
-    /// 41 : OpCode.DROP
-    /// 42 : OpCode.LDLOC0
-    /// 43 : OpCode.RET
+    /// 32 : OpCode.DROP
+    /// 33 : OpCode.STLOC1
+    /// 34 : OpCode.DROP
+    /// 35 : OpCode.LDLOC1
+    /// 36 : OpCode.DUP
+    /// 37 : OpCode.LDLOC0
+    /// 38 : OpCode.PUSH3
+    /// 39 : OpCode.ROT
+    /// 3A : OpCode.SETITEM
+    /// 3B : OpCode.DROP
+    /// 3C : OpCode.LDLOC0
+    /// 3D : OpCode.RET
     /// </remarks>
     [DisplayName("t1")]
     public abstract object? T1();

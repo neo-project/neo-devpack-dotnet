@@ -73,6 +73,15 @@ internal partial class MethodConvert
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
 
+        if (NeedInstanceConstructor(symbol) && convert != null && convert.Instructions.Count >= 2)
+        {
+            Instruction initslot = convert.Instructions[0];
+            Instruction ret = convert.Instructions[1];
+            if (initslot.OpCode == OpCode.INITSLOT && initslot.Operand?[0] == 0 && initslot.Operand[1] == 1
+             && ret.OpCode == OpCode.RET)
+                return;  // Do not call meaningless contructors
+        }
+
         HandleConstructorDuplication(instanceOnStack, methodCallingConvention, symbol);
 
         PrepareArgumentsForMethod(model, symbol, arguments, methodCallingConvention);
@@ -97,6 +106,15 @@ internal partial class MethodConvert
             return;
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol, instanceExpression);
+
+        if (NeedInstanceConstructor(symbol) && convert != null && convert.Instructions.Count >= 2)
+        {
+            Instruction initslot = convert.Instructions[0];
+            Instruction ret = convert.Instructions[1];
+            if (initslot.OpCode == OpCode.INITSLOT && initslot.Operand?[0] == 0 && initslot.Operand[1] == 1
+             && ret.OpCode == OpCode.RET)
+                return;  // Do not call meaningless contructors
+        }
 
         HandleInstanceExpression(model, symbol, instanceExpression, methodCallingConvention, beforeArguments: true);
 

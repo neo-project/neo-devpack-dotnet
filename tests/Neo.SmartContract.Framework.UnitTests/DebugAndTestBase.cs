@@ -8,7 +8,8 @@ public class DebugAndTestBase<T> : TestBase<T>
     where T : SmartContract.Testing.SmartContract, IContractInfo
 {
 
-    internal bool TestGasConsume { set; get; } = true;
+    // allowing specific derived class to enable/disable Gas test
+    protected virtual bool TestGasConsume { set; get; } = false;
 
     static DebugAndTestBase()
     {
