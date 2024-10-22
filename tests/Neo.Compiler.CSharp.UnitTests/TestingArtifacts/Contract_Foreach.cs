@@ -10,12 +10,12 @@ public abstract class Contract_Foreach(Neo.SmartContract.Testing.SmartContractIn
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Foreach"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""intForeach"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""stringForeach"",""parameters"":[],""returntype"":""String"",""offset"":84,""safe"":false},{""name"":""byteStringEmpty"",""parameters"":[],""returntype"":""Integer"",""offset"":136,""safe"":false},{""name"":""byteStringForeach"",""parameters"":[],""returntype"":""ByteArray"",""offset"":145,""safe"":false},{""name"":""structForeach"",""parameters"":[],""returntype"":""Map"",""offset"":201,""safe"":false},{""name"":""byteArrayForeach"",""parameters"":[],""returntype"":""Array"",""offset"":313,""safe"":false},{""name"":""uInt160Foreach"",""parameters"":[],""returntype"":""Array"",""offset"":351,""safe"":false},{""name"":""uInt256Foreach"",""parameters"":[],""returntype"":""Array"",""offset"":428,""safe"":false},{""name"":""eCPointForeach"",""parameters"":[],""returntype"":""Array"",""offset"":529,""safe"":false},{""name"":""bigIntegerForeach"",""parameters"":[],""returntype"":""Array"",""offset"":590,""safe"":false},{""name"":""objectArrayForeach"",""parameters"":[],""returntype"":""Array"",""offset"":645,""safe"":false},{""name"":""intForeachBreak"",""parameters"":[{""name"":""breakIndex"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":692,""safe"":false},{""name"":""testContinue"",""parameters"":[],""returntype"":""Integer"",""offset"":846,""safe"":false},{""name"":""intForloop"",""parameters"":[],""returntype"":""Integer"",""offset"":948,""safe"":false},{""name"":""testIteratorForEach"",""parameters"":[],""returntype"":""Void"",""offset"":1075,""safe"":false},{""name"":""testForEachVariable"",""parameters"":[],""returntype"":""Void"",""offset"":1181,""safe"":false},{""name"":""testDo"",""parameters"":[],""returntype"":""Void"",""offset"":1227,""safe"":false},{""name"":""testWhile"",""parameters"":[],""returntype"":""Void"",""offset"":1298,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":1371,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Foreach"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""intForeach"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""stringForeach"",""parameters"":[],""returntype"":""String"",""offset"":84,""safe"":false},{""name"":""byteStringEmpty"",""parameters"":[],""returntype"":""Integer"",""offset"":136,""safe"":false},{""name"":""byteStringForeach"",""parameters"":[],""returntype"":""ByteArray"",""offset"":145,""safe"":false},{""name"":""structForeach"",""parameters"":[],""returntype"":""Map"",""offset"":201,""safe"":false},{""name"":""byteArrayForeach"",""parameters"":[],""returntype"":""Array"",""offset"":303,""safe"":false},{""name"":""uInt160Foreach"",""parameters"":[],""returntype"":""Array"",""offset"":341,""safe"":false},{""name"":""uInt256Foreach"",""parameters"":[],""returntype"":""Array"",""offset"":418,""safe"":false},{""name"":""eCPointForeach"",""parameters"":[],""returntype"":""Array"",""offset"":519,""safe"":false},{""name"":""bigIntegerForeach"",""parameters"":[],""returntype"":""Array"",""offset"":580,""safe"":false},{""name"":""objectArrayForeach"",""parameters"":[],""returntype"":""Array"",""offset"":635,""safe"":false},{""name"":""intForeachBreak"",""parameters"":[{""name"":""breakIndex"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":682,""safe"":false},{""name"":""testContinue"",""parameters"":[],""returntype"":""Integer"",""offset"":836,""safe"":false},{""name"":""intForloop"",""parameters"":[],""returntype"":""Integer"",""offset"":938,""safe"":false},{""name"":""testIteratorForEach"",""parameters"":[],""returntype"":""Void"",""offset"":1065,""safe"":false},{""name"":""testForEachVariable"",""parameters"":[],""returntype"":""Void"",""offset"":1143,""safe"":false},{""name"":""testDo"",""parameters"":[],""returntype"":""Void"",""offset"":1189,""safe"":false},{""name"":""testWhile"",""parameters"":[],""returntype"":""Void"",""offset"":1260,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":1333,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/ZQFVwYAFBMSERTAcBBxaEpyynMQdCI7amzOdWltnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xbJx0bGswxWlAVwYADANoaWoMA2RlZgwDYWJjE8BwDABxaEpyynMQdCIPamzOdWlti9socWycdGxrMPFpQFcBAAwAcGjKQFcGAAwADAAMA2hpagwDZGVmDANhYmMVwHAMAHFoSnLKcxB0Ig9qbM51aW2L2yhxbJx0bGsw8WlAVwgAxUoLz0oQz0o0YXAMBXRlc3QxSmgQUdBFEUpoEVHQRcVKC89KEM9KNEJxDAV0ZXN0MkppEFHQRRJKaRFR0EVpaBLAcshzakp0ynUQdiIXbG7OdwdvBxHOSm8HEM5rU9BFbpx2bm0w6WtAVwABQFcGAAwDAQoR2zBwwnFoSnLKcxB0IgxqbM51aW3PbJx0bGsw9GlAVwYADBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAASwHDCcWhKcspzEHQiDGpsznVpbc9snHRsazD0aUBXBgAMIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABLAcMJxaEpyynMQdCIMamzOdWltz2ycdGxrMPRpQFcGAFjbKErYJAlKygAhKAM6WNsoStgkCUrKACEoAzoSwHDCcWhKcspzEHQiDGpsznVpbc9snHRsazD0aUBXBgADAABkp7O24A0CAMqaOwJAQg8AARAnFMBwwnFoSnLKcxB0IgxqbM51aW3PbJx0bGsw9GlAVwYAAHsMBHRlc3QMAgEC2zATwHDCcWhKcspzEHQiDGpsznVpbc9snHRsazD0aUBXBgEUExIRFMBwEHE8iQAAAAAAAABoSnLKcxB0InNqbM51eEqdSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn4AQtiYEIjtpbZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcWycdGxrMI09BXI9AmlAVwYAFRQTEhEVwHAQcTtUAGhKcspzEHQiRGpsznVtEqIQlyYEIjRpbZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcWycdGxrMLw9BXI9AmlAVwMAFBMSERTAcBBxEHIiaWloas6eSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FqSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfckVqaMq1JJVpQFcDABNBm/ZnzhMRiE4QUdBQEsDBRUHfMLiacGhxIhFpQfNUvx1yatsoQc/nR5ZpQZwI7Zwk60DFShDPSgvPSlnPDAV3b3JsZBISTTQbxUoQz0oLz0pZzwwFaGVsbG8REk00BRLAQFcAAUBXBQA0ykpwynEQciIeaGrOwUVzdGs3AAAMAjogi2yL2yhBz+dHlmqccmppMOJAVwEAEHBoNwAAQc/nR5ZoSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcEVoFbUkwUBXAQAQcGgVtSZAaDcAAEHP50eWaEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFIr9AVgIMIQJHANsukNnwLE+fyGKrrKknJflbT93MjX/6U4aT7PRjqWAKAAAAAAoAAAAACgAAAAATwGFAuhdxtQ=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"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"));
 
     #endregion
 
@@ -516,7 +516,7 @@ public abstract class Contract_Foreach(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwgAxUoLz0oQz0o0YXAMdGVzdDFKaBBR0EURSmgRUdBFxUoLz0oQz0o0QnEMdGVzdDJKaRBR0EUSSmkRUdBFaWgSwHLIc2pKdMp1EHYiF2xuzncHbwcRzkpvBxDOa1PQRW6cdm5tMOlrQA==
+    /// Script: VwgAxUoLz0oQz3AMdGVzdDFKaBBR0EURSmgRUdBFxUoLz0oQz3EMdGVzdDJKaRBR0EUSSmkRUdBFaWgSwHLIc2pKdMp1EHYiF2xuzncHbwcRzkpvBxDOa1PQRW6cdm5tMOlrQA==
     /// 00 : OpCode.INITSLOT 0800
     /// 03 : OpCode.NEWSTRUCT0
     /// 04 : OpCode.DUP
@@ -525,85 +525,81 @@ public abstract class Contract_Foreach(Neo.SmartContract.Testing.SmartContractIn
     /// 07 : OpCode.DUP
     /// 08 : OpCode.PUSH0
     /// 09 : OpCode.APPEND
-    /// 0A : OpCode.DUP
-    /// 0B : OpCode.CALL 61
-    /// 0D : OpCode.STLOC0
-    /// 0E : OpCode.PUSHDATA1 7465737431
-    /// 15 : OpCode.DUP
-    /// 16 : OpCode.LDLOC0
-    /// 17 : OpCode.PUSH0
-    /// 18 : OpCode.ROT
-    /// 19 : OpCode.SETITEM
-    /// 1A : OpCode.DROP
+    /// 0A : OpCode.STLOC0
+    /// 0B : OpCode.PUSHDATA1 7465737431
+    /// 12 : OpCode.DUP
+    /// 13 : OpCode.LDLOC0
+    /// 14 : OpCode.PUSH0
+    /// 15 : OpCode.ROT
+    /// 16 : OpCode.SETITEM
+    /// 17 : OpCode.DROP
+    /// 18 : OpCode.PUSH1
+    /// 19 : OpCode.DUP
+    /// 1A : OpCode.LDLOC0
     /// 1B : OpCode.PUSH1
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.LDLOC0
-    /// 1E : OpCode.PUSH1
-    /// 1F : OpCode.ROT
-    /// 20 : OpCode.SETITEM
-    /// 21 : OpCode.DROP
-    /// 22 : OpCode.NEWSTRUCT0
+    /// 1C : OpCode.ROT
+    /// 1D : OpCode.SETITEM
+    /// 1E : OpCode.DROP
+    /// 1F : OpCode.NEWSTRUCT0
+    /// 20 : OpCode.DUP
+    /// 21 : OpCode.PUSHNULL
+    /// 22 : OpCode.APPEND
     /// 23 : OpCode.DUP
-    /// 24 : OpCode.PUSHNULL
+    /// 24 : OpCode.PUSH0
     /// 25 : OpCode.APPEND
-    /// 26 : OpCode.DUP
-    /// 27 : OpCode.PUSH0
-    /// 28 : OpCode.APPEND
-    /// 29 : OpCode.DUP
-    /// 2A : OpCode.CALL 42
-    /// 2C : OpCode.STLOC1
-    /// 2D : OpCode.PUSHDATA1 7465737432
-    /// 34 : OpCode.DUP
-    /// 35 : OpCode.LDLOC1
-    /// 36 : OpCode.PUSH0
-    /// 37 : OpCode.ROT
-    /// 38 : OpCode.SETITEM
-    /// 39 : OpCode.DROP
-    /// 3A : OpCode.PUSH2
-    /// 3B : OpCode.DUP
-    /// 3C : OpCode.LDLOC1
-    /// 3D : OpCode.PUSH1
-    /// 3E : OpCode.ROT
-    /// 3F : OpCode.SETITEM
-    /// 40 : OpCode.DROP
-    /// 41 : OpCode.LDLOC1
-    /// 42 : OpCode.LDLOC0
-    /// 43 : OpCode.PUSH2
-    /// 44 : OpCode.PACK
-    /// 45 : OpCode.STLOC2
-    /// 46 : OpCode.NEWMAP
-    /// 47 : OpCode.STLOC3
-    /// 48 : OpCode.LDLOC2
-    /// 49 : OpCode.DUP
-    /// 4A : OpCode.STLOC4
-    /// 4B : OpCode.SIZE
-    /// 4C : OpCode.STLOC5
-    /// 4D : OpCode.PUSH0
-    /// 4E : OpCode.STLOC6
-    /// 4F : OpCode.JMP 17
-    /// 51 : OpCode.LDLOC4
-    /// 52 : OpCode.LDLOC6
+    /// 26 : OpCode.STLOC1
+    /// 27 : OpCode.PUSHDATA1 7465737432
+    /// 2E : OpCode.DUP
+    /// 2F : OpCode.LDLOC1
+    /// 30 : OpCode.PUSH0
+    /// 31 : OpCode.ROT
+    /// 32 : OpCode.SETITEM
+    /// 33 : OpCode.DROP
+    /// 34 : OpCode.PUSH2
+    /// 35 : OpCode.DUP
+    /// 36 : OpCode.LDLOC1
+    /// 37 : OpCode.PUSH1
+    /// 38 : OpCode.ROT
+    /// 39 : OpCode.SETITEM
+    /// 3A : OpCode.DROP
+    /// 3B : OpCode.LDLOC1
+    /// 3C : OpCode.LDLOC0
+    /// 3D : OpCode.PUSH2
+    /// 3E : OpCode.PACK
+    /// 3F : OpCode.STLOC2
+    /// 40 : OpCode.NEWMAP
+    /// 41 : OpCode.STLOC3
+    /// 42 : OpCode.LDLOC2
+    /// 43 : OpCode.DUP
+    /// 44 : OpCode.STLOC4
+    /// 45 : OpCode.SIZE
+    /// 46 : OpCode.STLOC5
+    /// 47 : OpCode.PUSH0
+    /// 48 : OpCode.STLOC6
+    /// 49 : OpCode.JMP 17
+    /// 4B : OpCode.LDLOC4
+    /// 4C : OpCode.LDLOC6
+    /// 4D : OpCode.PICKITEM
+    /// 4E : OpCode.STLOC 07
+    /// 50 : OpCode.LDLOC 07
+    /// 52 : OpCode.PUSH1
     /// 53 : OpCode.PICKITEM
-    /// 54 : OpCode.STLOC 07
-    /// 56 : OpCode.LDLOC 07
-    /// 58 : OpCode.PUSH1
-    /// 59 : OpCode.PICKITEM
-    /// 5A : OpCode.DUP
-    /// 5B : OpCode.LDLOC 07
-    /// 5D : OpCode.PUSH0
-    /// 5E : OpCode.PICKITEM
-    /// 5F : OpCode.LDLOC3
-    /// 60 : OpCode.REVERSE3
-    /// 61 : OpCode.SETITEM
-    /// 62 : OpCode.DROP
-    /// 63 : OpCode.LDLOC6
-    /// 64 : OpCode.INC
-    /// 65 : OpCode.STLOC6
-    /// 66 : OpCode.LDLOC6
-    /// 67 : OpCode.LDLOC5
-    /// 68 : OpCode.JMPLT E9
-    /// 6A : OpCode.LDLOC3
-    /// 6B : OpCode.RET
+    /// 54 : OpCode.DUP
+    /// 55 : OpCode.LDLOC 07
+    /// 57 : OpCode.PUSH0
+    /// 58 : OpCode.PICKITEM
+    /// 59 : OpCode.LDLOC3
+    /// 5A : OpCode.REVERSE3
+    /// 5B : OpCode.SETITEM
+    /// 5C : OpCode.DROP
+    /// 5D : OpCode.LDLOC6
+    /// 5E : OpCode.INC
+    /// 5F : OpCode.STLOC6
+    /// 60 : OpCode.LDLOC6
+    /// 61 : OpCode.LDLOC5
+    /// 62 : OpCode.JMPLT E9
+    /// 64 : OpCode.LDLOC3
+    /// 65 : OpCode.RET
     /// </remarks>
     [DisplayName("structForeach")]
     public abstract IDictionary<object, object>? StructForeach();
@@ -720,9 +716,9 @@ public abstract class Contract_Foreach(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUANMpKcMpxEHIiHmhqzsFFc3RrNwAADDogi2yL2yhBz+dHlmqccmppMOJA
+    /// Script: VwUANOZKcMpxEHIiHmhqzsFFc3RrNwAADDogi2yL2yhBz+dHlmqccmppMOJA
     /// 00 : OpCode.INITSLOT 0500
-    /// 03 : OpCode.CALL CA
+    /// 03 : OpCode.CALL E6
     /// 05 : OpCode.DUP
     /// 06 : OpCode.STLOC0
     /// 07 : OpCode.SIZE
