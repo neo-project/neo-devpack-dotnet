@@ -26,8 +26,8 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwQAQA==
-    /// 00 : OpCode.CALLT 0400
-    /// 03 : OpCode.RET
+    /// 00 : OpCode.CALLT 0400 	-> 32768 datoshi
+    /// 03 : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("destroy")]
     public abstract void Destroy();
@@ -37,8 +37,8 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QZXaOoFA
-    /// 00 : OpCode.SYSCALL 95DA3A81
-    /// 05 : OpCode.RET
+    /// 00 : OpCode.SYSCALL 95DA3A81 	-> 0 datoshi
+    /// 05 : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();
@@ -48,10 +48,10 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcBAEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.CALLT 0100
-    /// 07 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
+    /// 03 : OpCode.LDARG0 	-> 2 datoshi
+    /// 04 : OpCode.CALLT 0100 	-> 32768 datoshi
+    /// 07 : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("getContractById")]
     public abstract object? GetContractById(BigInteger? id);
@@ -61,17 +61,17 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEANwIAcGhBnAjtnEVoQfNUvx0RzkA=
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.CALLT 0200
-    /// 06 : OpCode.STLOC0
-    /// 07 : OpCode.LDLOC0
-    /// 08 : OpCode.SYSCALL 9C08ED9C
-    /// 0D : OpCode.DROP
-    /// 0E : OpCode.LDLOC0
-    /// 0F : OpCode.SYSCALL F354BF1D
-    /// 14 : OpCode.PUSH1
-    /// 15 : OpCode.PICKITEM
-    /// 16 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 	-> 64 datoshi
+    /// 03 : OpCode.CALLT 0200 	-> 32768 datoshi
+    /// 06 : OpCode.STLOC0 	-> 2 datoshi
+    /// 07 : OpCode.LDLOC0 	-> 2 datoshi
+    /// 08 : OpCode.SYSCALL 9C08ED9C 	-> 0 datoshi
+    /// 0D : OpCode.DROP 	-> 2 datoshi
+    /// 0E : OpCode.LDLOC0 	-> 2 datoshi
+    /// 0F : OpCode.SYSCALL F354BF1D 	-> 0 datoshi
+    /// 14 : OpCode.PUSH1 	-> 1 datoshi
+    /// 15 : OpCode.PICKITEM 	-> 64 datoshi
+    /// 16 : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("getContractHashes")]
     public abstract object? GetContractHashes();
@@ -81,13 +81,13 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjw3AAAUzhDOQA==
-    /// 00 : OpCode.SYSCALL 39536E3C
-    /// 05 : OpCode.CALLT 0000
-    /// 08 : OpCode.PUSH4
-    /// 09 : OpCode.PICKITEM
-    /// 0A : OpCode.PUSH0
-    /// 0B : OpCode.PICKITEM
-    /// 0C : OpCode.RET
+    /// 00 : OpCode.SYSCALL 39536E3C 	-> 0 datoshi
+    /// 05 : OpCode.CALLT 0000 	-> 32768 datoshi
+    /// 08 : OpCode.PUSH4 	-> 1 datoshi
+    /// 09 : OpCode.PICKITEM 	-> 64 datoshi
+    /// 0A : OpCode.PUSH0 	-> 1 datoshi
+    /// 0B : OpCode.PICKITEM 	-> 64 datoshi
+    /// 0C : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("oldContract")]
     public abstract string? OldContract();
@@ -97,13 +97,13 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACC3l42yg3AwBA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.PUSHNULL
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG0
-    /// 06 : OpCode.CONVERT 28
-    /// 08 : OpCode.CALLT 0300
-    /// 0B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
+    /// 03 : OpCode.PUSHNULL 	-> 1 datoshi
+    /// 04 : OpCode.LDARG1 	-> 2 datoshi
+    /// 05 : OpCode.LDARG0 	-> 2 datoshi
+    /// 06 : OpCode.CONVERT 28 	-> 8192 datoshi
+    /// 08 : OpCode.CALLT 0300 	-> 32768 datoshi
+    /// 0B : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nef, string? manifest);

@@ -26,16 +26,16 @@ public abstract class Contract_IOracle(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwAEQTlTbjwMWIcXEX4KqBByr6tx0t2J/nxLkv6YJhIMVW5hdXRob3JpemVkIToMT3JhY2xlIGNhbGwhQc/nR5ZA
-    /// 00 : OpCode.INITSLOT 0004
-    /// 03 : OpCode.SYSCALL 39536E3C
-    /// 08 : OpCode.PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE
-    /// 1E : OpCode.NOTEQUAL
-    /// 1F : OpCode.JMPIFNOT 12
-    /// 21 : OpCode.PUSHDATA1 556E617574686F72697A656421
-    /// 30 : OpCode.THROW
-    /// 31 : OpCode.PUSHDATA1 4F7261636C652063616C6C21
-    /// 3F : OpCode.SYSCALL CFE74796
-    /// 44 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0004 	-> 64 datoshi
+    /// 03 : OpCode.SYSCALL 39536E3C 	-> 0 datoshi
+    /// 08 : OpCode.PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE 	-> 8 datoshi
+    /// 1E : OpCode.NOTEQUAL 	-> 32 datoshi
+    /// 1F : OpCode.JMPIFNOT 12 	-> 2 datoshi
+    /// 21 : OpCode.PUSHDATA1 556E617574686F72697A656421 	-> 8 datoshi
+    /// 30 : OpCode.THROW 	-> 512 datoshi
+    /// 31 : OpCode.PUSHDATA1 4F7261636C652063616C6C21 	-> 8 datoshi
+    /// 3F : OpCode.SYSCALL CFE74796 	-> 0 datoshi
+    /// 44 : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("onOracleResponse")]
     public abstract void OnOracleResponse(string? url, object? userData, BigInteger? code, string? result);

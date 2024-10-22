@@ -26,29 +26,29 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwICE3B4eYvbKHFpDGhlbGxvlyYGFHAiD2kMd29ybGSXJgQVcGhA
-    /// 00 : OpCode.INITSLOT 0202
-    /// 03 : OpCode.PUSH3
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDARG0
-    /// 06 : OpCode.LDARG1
-    /// 07 : OpCode.CAT
-    /// 08 : OpCode.CONVERT 28
-    /// 0A : OpCode.STLOC1
-    /// 0B : OpCode.LDLOC1
-    /// 0C : OpCode.PUSHDATA1 68656C6C6F
-    /// 13 : OpCode.EQUAL
-    /// 14 : OpCode.JMPIFNOT 06
-    /// 16 : OpCode.PUSH4
-    /// 17 : OpCode.STLOC0
-    /// 18 : OpCode.JMP 0F
-    /// 1A : OpCode.LDLOC1
-    /// 1B : OpCode.PUSHDATA1 776F726C64
-    /// 22 : OpCode.EQUAL
-    /// 23 : OpCode.JMPIFNOT 04
-    /// 25 : OpCode.PUSH5
-    /// 26 : OpCode.STLOC0
-    /// 27 : OpCode.LDLOC0
-    /// 28 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202 	-> 64 datoshi
+    /// 03 : OpCode.PUSH3 	-> 1 datoshi
+    /// 04 : OpCode.STLOC0 	-> 2 datoshi
+    /// 05 : OpCode.LDARG0 	-> 2 datoshi
+    /// 06 : OpCode.LDARG1 	-> 2 datoshi
+    /// 07 : OpCode.CAT 	-> 2048 datoshi
+    /// 08 : OpCode.CONVERT 28 	-> 8192 datoshi
+    /// 0A : OpCode.STLOC1 	-> 2 datoshi
+    /// 0B : OpCode.LDLOC1 	-> 2 datoshi
+    /// 0C : OpCode.PUSHDATA1 68656C6C6F 	-> 8 datoshi
+    /// 13 : OpCode.EQUAL 	-> 32 datoshi
+    /// 14 : OpCode.JMPIFNOT 06 	-> 2 datoshi
+    /// 16 : OpCode.PUSH4 	-> 1 datoshi
+    /// 17 : OpCode.STLOC0 	-> 2 datoshi
+    /// 18 : OpCode.JMP 0F 	-> 2 datoshi
+    /// 1A : OpCode.LDLOC1 	-> 2 datoshi
+    /// 1B : OpCode.PUSHDATA1 776F726C64 	-> 8 datoshi
+    /// 22 : OpCode.EQUAL 	-> 32 datoshi
+    /// 23 : OpCode.JMPIFNOT 04 	-> 2 datoshi
+    /// 25 : OpCode.PUSH5 	-> 1 datoshi
+    /// 26 : OpCode.STLOC0 	-> 2 datoshi
+    /// 27 : OpCode.LDLOC0 	-> 2 datoshi
+    /// 28 : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("testStringAdd")]
     public abstract BigInteger? TestStringAdd(string? s1, string? s2);
@@ -58,13 +58,13 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeHk3AACL2yhA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.CALLT 0000
-    /// 08 : OpCode.CAT
-    /// 09 : OpCode.CONVERT 28
-    /// 0B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
+    /// 03 : OpCode.LDARG0 	-> 2 datoshi
+    /// 04 : OpCode.LDARG1 	-> 2 datoshi
+    /// 05 : OpCode.CALLT 0000 	-> 32768 datoshi
+    /// 08 : OpCode.CAT 	-> 2048 datoshi
+    /// 09 : OpCode.CONVERT 28 	-> 8192 datoshi
+    /// 0B : OpCode.RET 	-> 0 datoshi
     /// </remarks>
     [DisplayName("testStringAddInt")]
     public abstract string? TestStringAddInt(string? s, BigInteger? i);
