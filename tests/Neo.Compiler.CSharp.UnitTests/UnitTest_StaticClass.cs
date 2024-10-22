@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StaticClass()
         {
             Assert.AreEqual(2, Contract.TestStaticClass());
-            AssertGasConsumed(1055790);
+            AssertGasConsumed(1021110);
         }
     }
 }

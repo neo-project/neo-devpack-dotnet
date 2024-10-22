@@ -28,12 +28,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             int src = 100, aux = 200, dst = 300;
             var result = Contract.HanoiTower(1, src, aux, dst)!;
-            AssertGasConsumed(2788260);
+            AssertGasConsumed(1356810);
             Assert.AreEqual(result.Count, 1);
             List<(BigInteger rodId, BigInteger src, BigInteger dst)> expectedResult = [(1, src, dst)];
             for (int i = 0; i < expectedResult.Count; ++i)
             {
-                StackItem[] step = ((Struct)result[i]).SubItems.ToArray();
+                StackItem[] step = ((Array)result[i]).SubItems.ToArray();
                 Assert.AreEqual(step[0], expectedResult[i].rodId);
                 Assert.AreEqual(step[1], expectedResult[i].src);
                 Assert.AreEqual(step[2], expectedResult[i].dst);
@@ -51,7 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             };
             for (int i = 0; i < expectedResult.Count; ++i)
             {
-                StackItem[] step = ((Struct)result[i]).SubItems.ToArray();
+                StackItem[] step = ((Array)result[i]).SubItems.ToArray();
                 Assert.AreEqual(step[0], expectedResult[i].rodId);
                 Assert.AreEqual(step[1], expectedResult[i].src);
                 Assert.AreEqual(step[2], expectedResult[i].dst);

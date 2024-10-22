@@ -33,7 +33,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod3()
         {
             var person = Contract.TestProperty3()! as Array;
-            AssertGasConsumed(1309080); // Adjust this value based on actual gas consumption
+            AssertGasConsumed(1291740); // Adjust this value based on actual gas consumption
 
             Assert.IsNotNull(person);
             Assert.AreEqual(3, person.Count);
