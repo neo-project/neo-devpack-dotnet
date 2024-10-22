@@ -212,7 +212,7 @@ internal partial class MethodConvert
 
         int needVirtualMethodTable = 0;
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        if (type.IsRecord || virtualMethods.Length <= 0)
+        if (!type.IsRecord && virtualMethods.Length > 0)
         {
             needVirtualMethodTable += 1;
             byte vTableIndex = _context.AddVTable(type);
