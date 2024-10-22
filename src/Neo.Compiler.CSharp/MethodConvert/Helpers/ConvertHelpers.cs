@@ -42,7 +42,14 @@ internal partial class MethodConvert
         using (InsertSequencePoint(syntax))
         {
             if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments);
-            if (syntax.Body != null) ConvertStatement(model, syntax.Body);
+            if (syntax.Body != null)
+            {
+                ConvertStatement(model, syntax.Body);
+            }
+            else if (syntax.ExpressionBody != null)
+            {
+                ConvertExpression(model, syntax.ExpressionBody.Expression);
+            }
         }
         return true;
     }
