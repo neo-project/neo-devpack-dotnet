@@ -15,7 +15,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/FShDPShDPSjQDQFcAAUA8l/ge"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjFShDPShDPQEc58Bo="));
 
     #endregion
 
@@ -28,5 +28,4 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     public abstract IList<object>? TestInitInt();
 
     #endregion
-
 }
