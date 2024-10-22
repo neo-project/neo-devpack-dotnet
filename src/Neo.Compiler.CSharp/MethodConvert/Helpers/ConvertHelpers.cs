@@ -219,19 +219,15 @@ internal partial class MethodConvert
             AccessSlot(OpCode.LDSFLD, vTableIndex);
         }
 
-        if (fields.Length == 0 || type.IsValueType || type.IsRecord)
+        if (fields.Length == 0 && needVirtualMethodTable == 0)
         {
-            foreach (var field in fields.Reverse())
-                InitializeFieldForObject(model, field, initializer);
-            Push(fields.Length + needVirtualMethodTable);
-            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+            AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
+            return;
         }
-        else
-        {
-            for (int i = fields.Length - 1; i >= 0; i--)
-                InitializeFieldForObject(model, fields[i], initializer);
-            Push(fields.Length + needVirtualMethodTable);
-            AddInstruction(OpCode.PACK);
-        }
+
+        foreach (var field in fields.Reverse())
+            InitializeFieldForObject(model, field, initializer);
+        Push(fields.Length + needVirtualMethodTable);
+        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
     }
 }
