@@ -182,7 +182,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Struct_Test()
         {
             var item = Contract.CheckStruct();
-            AssertGasConsumed(1496010);
+            AssertGasConsumed(1293840);
             Assert.IsInstanceOfType(item, typeof(Struct));
             Assert.AreEqual(1, ((Struct)item).Count);
             Assert.AreEqual("neo", (((Struct)item)[0] as ByteString)?.GetString());
@@ -192,7 +192,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Tuple_Test()
         {
             var item = Contract.CheckTuple()!;
-            AssertGasConsumed(1476630);
+            AssertGasConsumed(1045980);
             Assert.AreEqual(2, item.Count);
             Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
             Assert.AreEqual("smart economy", (item[1] as ByteString)?.GetString());
@@ -202,7 +202,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Tuple2_Test()
         {
             var item = Contract.CheckTuple2()!;
-            AssertGasConsumed(1478670);
+            AssertGasConsumed(1048020);
             Assert.AreEqual(2, item.Count);
             Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
             Assert.AreEqual("smart economy", (item[1] as ByteString)?.GetString());
@@ -269,7 +269,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.OnDummyEvent -= delEvent;
             Assert.AreEqual(1, notifications.Count);
             Assert.AreEqual("neo", notifications.Last());
-            AssertGasConsumed(2213850);
+            AssertGasConsumed(2029020);
         }
     }
 }
