@@ -431,7 +431,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
                     foreach (var instruction in instructions)
                     {
-                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()}\t[{ApplicationEngine.OpCodePriceTable[(byte)instruction.instruction.OpCode]} datoshi]");
+                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()}\t[{GetPrice(instruction.instruction)} datoshi]");
                     }
                     sourceCode.WriteLine("    /// </remarks>");
                 }
@@ -467,6 +467,21 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine(");");
 
             return builder.ToString();
+        }
+
+        private static long GetPrice(VM.Instruction instruction)
+        {
+            var fixedPrice = ApplicationEngine.OpCodePriceTable[(byte)instruction.OpCode];
+
+            if (instruction.OpCode == VM.OpCode.SYSCALL)
+            {
+                // Add Syscall price
+
+                var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
+                fixedPrice += descriptor.FixedPrice;
+            }
+
+            return fixedPrice;
         }
 
         private static string TongleLowercase(string value)
