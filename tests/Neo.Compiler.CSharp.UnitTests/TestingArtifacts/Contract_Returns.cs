@@ -10,12 +10,12 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Returns"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""subtract"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":53,""safe"":false},{""name"":""div"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Array"",""offset"":106,""safe"":false},{""name"":""mix"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":121,""safe"":false},{""name"":""byteStringAdd"",""parameters"":[{""name"":""a"",""type"":""ByteArray""},{""name"":""b"",""type"":""ByteArray""}],""returntype"":""ByteArray"",""offset"":139,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Returns"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""subtract"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":53,""safe"":false},{""name"":""div"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Array"",""offset"":106,""safe"":false},{""name"":""mix"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":118,""safe"":false},{""name"":""byteStringAdd"",""parameters"":[{""name"":""a"",""type"":""ByteArray""},{""name"":""b"",""type"":""ByteArray""}],""returntype"":""ByteArray"",""offset"":136,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJRXAAJ4eZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAAnh5n0oCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACxUp4eaHPSnh5os9AVwICeXg07ErBRXBxRWloNK1AVwACeHmL2yhAGjay3A=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJFXAAJ4eZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAAnh5n0oCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACeHmieHmhEr9AVwICeXg070rBRXBxRWloNLBAVwACeHmL2yhAbONrzw=="));
 
     #endregion
 
@@ -26,12 +26,12 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmL2yhA
-    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.LDARG1	[2 datoshi]
-    /// 05 : OpCode.CAT	[2048 datoshi]
-    /// 06 : OpCode.CONVERT 28	[8192 datoshi]
-    /// 08 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.CAT
+    /// 06 : OpCode.CONVERT 28
+    /// 08 : OpCode.RET
     /// </remarks>
     [DisplayName("byteStringAdd")]
     public abstract byte[]? ByteStringAdd(byte[]? a, byte[]? b);
@@ -40,20 +40,17 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACxUp4eaHPSnh5os9A
-    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
-    /// 03 : OpCode.NEWSTRUCT0	[16 datoshi]
-    /// 04 : OpCode.DUP	[2 datoshi]
-    /// 05 : OpCode.LDARG0	[2 datoshi]
-    /// 06 : OpCode.LDARG1	[2 datoshi]
-    /// 07 : OpCode.DIV	[8 datoshi]
-    /// 08 : OpCode.APPEND	[8192 datoshi]
-    /// 09 : OpCode.DUP	[2 datoshi]
-    /// 0A : OpCode.LDARG0	[2 datoshi]
-    /// 0B : OpCode.LDARG1	[2 datoshi]
-    /// 0C : OpCode.MOD	[8 datoshi]
-    /// 0D : OpCode.APPEND	[8192 datoshi]
-    /// 0E : OpCode.RET	[0 datoshi]
+    /// Script: VwACeHmieHmhEr9A
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.MOD
+    /// 06 : OpCode.LDARG0
+    /// 07 : OpCode.LDARG1
+    /// 08 : OpCode.DIV
+    /// 09 : OpCode.PUSH2
+    /// 0A : OpCode.PACKSTRUCT
+    /// 0B : OpCode.RET
     /// </remarks>
     [DisplayName("div")]
     public abstract IList<object>? Div(BigInteger? a, BigInteger? b);
@@ -62,21 +59,21 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICeXg07ErBRXBxRWloNK1A
-    /// 00 : OpCode.INITSLOT 0202	[64 datoshi]
-    /// 03 : OpCode.LDARG1	[2 datoshi]
-    /// 04 : OpCode.LDARG0	[2 datoshi]
-    /// 05 : OpCode.CALL EC	[512 datoshi]
-    /// 07 : OpCode.DUP	[2 datoshi]
-    /// 08 : OpCode.UNPACK	[2048 datoshi]
-    /// 09 : OpCode.DROP	[2 datoshi]
-    /// 0A : OpCode.STLOC0	[2 datoshi]
-    /// 0B : OpCode.STLOC1	[2 datoshi]
-    /// 0C : OpCode.DROP	[2 datoshi]
-    /// 0D : OpCode.LDLOC1	[2 datoshi]
-    /// 0E : OpCode.LDLOC0	[2 datoshi]
-    /// 0F : OpCode.CALL AD	[512 datoshi]
-    /// 11 : OpCode.RET	[0 datoshi]
+    /// Script: VwICeXg070rBRXBxRWloNLBA
+    /// 00 : OpCode.INITSLOT 0202
+    /// 03 : OpCode.LDARG1
+    /// 04 : OpCode.LDARG0
+    /// 05 : OpCode.CALL EF
+    /// 07 : OpCode.DUP
+    /// 08 : OpCode.UNPACK
+    /// 09 : OpCode.DROP
+    /// 0A : OpCode.STLOC0
+    /// 0B : OpCode.STLOC1
+    /// 0C : OpCode.DROP
+    /// 0D : OpCode.LDLOC1
+    /// 0E : OpCode.LDLOC0
+    /// 0F : OpCode.CALL B0
+    /// 11 : OpCode.RET
     /// </remarks>
     [DisplayName("mix")]
     public abstract BigInteger? Mix(BigInteger? a, BigInteger? b);
@@ -86,25 +83,25 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmfSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
-    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.LDARG1	[2 datoshi]
-    /// 05 : OpCode.SUB	[8 datoshi]
-    /// 06 : OpCode.DUP	[2 datoshi]
-    /// 07 : OpCode.PUSHINT32 00000080	[1 datoshi]
-    /// 0C : OpCode.JMPGE 04	[2 datoshi]
-    /// 0E : OpCode.JMP 0A	[2 datoshi]
-    /// 10 : OpCode.DUP	[2 datoshi]
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
-    /// 16 : OpCode.JMPLE 1E	[2 datoshi]
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000	[1 datoshi]
-    /// 21 : OpCode.AND	[8 datoshi]
-    /// 22 : OpCode.DUP	[2 datoshi]
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
-    /// 28 : OpCode.JMPLE 0C	[2 datoshi]
-    /// 2A : OpCode.PUSHINT64 0000000001000000	[1 datoshi]
-    /// 33 : OpCode.SUB	[8 datoshi]
-    /// 34 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.SUB
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.PUSHINT32 00000080
+    /// 0C : OpCode.JMPGE 04
+    /// 0E : OpCode.JMP 0A
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F
+    /// 16 : OpCode.JMPLE 1E
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 21 : OpCode.AND
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F
+    /// 28 : OpCode.JMPLE 0C
+    /// 2A : OpCode.PUSHINT64 0000000001000000
+    /// 33 : OpCode.SUB
+    /// 34 : OpCode.RET
     /// </remarks>
     [DisplayName("subtract")]
     public abstract BigInteger? Subtract(BigInteger? a, BigInteger? b);
@@ -114,25 +111,25 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
-    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.LDARG1	[2 datoshi]
-    /// 05 : OpCode.ADD	[8 datoshi]
-    /// 06 : OpCode.DUP	[2 datoshi]
-    /// 07 : OpCode.PUSHINT32 00000080	[1 datoshi]
-    /// 0C : OpCode.JMPGE 04	[2 datoshi]
-    /// 0E : OpCode.JMP 0A	[2 datoshi]
-    /// 10 : OpCode.DUP	[2 datoshi]
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
-    /// 16 : OpCode.JMPLE 1E	[2 datoshi]
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000	[1 datoshi]
-    /// 21 : OpCode.AND	[8 datoshi]
-    /// 22 : OpCode.DUP	[2 datoshi]
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
-    /// 28 : OpCode.JMPLE 0C	[2 datoshi]
-    /// 2A : OpCode.PUSHINT64 0000000001000000	[1 datoshi]
-    /// 33 : OpCode.SUB	[8 datoshi]
-    /// 34 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.ADD
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.PUSHINT32 00000080
+    /// 0C : OpCode.JMPGE 04
+    /// 0E : OpCode.JMP 0A
+    /// 10 : OpCode.DUP
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F
+    /// 16 : OpCode.JMPLE 1E
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
+    /// 21 : OpCode.AND
+    /// 22 : OpCode.DUP
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F
+    /// 28 : OpCode.JMPLE 0C
+    /// 2A : OpCode.PUSHINT64 0000000001000000
+    /// 33 : OpCode.SUB
+    /// 34 : OpCode.RET
     /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);
