@@ -431,7 +431,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
                     foreach (var instruction in instructions)
                     {
-                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()}\t[{GetPrice(instruction.instruction)} datoshi]");
+                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()}\t{GetExtraInformation(instruction.instruction)}");
                     }
                     sourceCode.WriteLine("    /// </remarks>");
                 }
@@ -469,7 +469,7 @@ namespace Neo.SmartContract.Testing.Extensions
             return builder.ToString();
         }
 
-        private static long GetPrice(VM.Instruction instruction)
+        private static string GetExtraInformation(VM.Instruction instruction)
         {
             var fixedPrice = ApplicationEngine.OpCodePriceTable[(byte)instruction.OpCode];
 
@@ -479,9 +479,10 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
                 fixedPrice += descriptor.FixedPrice;
+                return $"[{descriptor.Name}][{fixedPrice} datoshi]";
             }
 
-            return fixedPrice;
+            return $"[{fixedPrice} datoshi]";
         }
 
         private static string TongleLowercase(string value)
