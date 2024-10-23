@@ -216,28 +216,25 @@ internal partial class MethodConvert
     {
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
         var fields = members.OfType<IFieldSymbol>().ToArray();
-        if (fields.Length == 0 || type.IsValueType || type.IsRecord)
+
+        int needVirtualMethodTable = 0;
+        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+        if (!type.IsRecord && virtualMethods.Length > 0)
+        {
+            needVirtualMethodTable += 1;
+            byte vTableIndex = _context.AddVTable(type);
+            AccessSlot(OpCode.LDSFLD, vTableIndex);
+        }
+
+        if (fields.Length == 0 && needVirtualMethodTable == 0)
         {
             AddInstruction(type.IsValueType || type.IsRecord ? OpCode.NEWSTRUCT0 : OpCode.NEWARRAY0);
-            foreach (var field in fields)
-            {
-                AddInstruction(OpCode.DUP);
-                InitializeFieldForObject(model, field, initializer);
-                AddInstruction(OpCode.APPEND);
-            }
+            return;
         }
-        else
-        {
-            for (int i = fields.Length - 1; i >= 0; i--)
-                InitializeFieldForObject(model, fields[i], initializer);
-            Push(fields.Length);
-            AddInstruction(OpCode.PACK);
-        }
-        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        if (type.IsRecord || virtualMethods.Length <= 0) return;
-        var index = _context.AddVTable(type);
-        AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.LDSFLD, index);
-        AddInstruction(OpCode.APPEND);
+
+        foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
+            InitializeFieldForObject(model, field, initializer);
+        Push(fields.Length + needVirtualMethodTable);
+        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
     }
 }
