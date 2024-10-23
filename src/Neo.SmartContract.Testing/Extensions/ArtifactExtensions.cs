@@ -431,7 +431,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
                     foreach (var instruction in instructions)
                     {
-                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()}\t{GetExtraInformation(instruction.instruction)}");
+                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()} {GetExtraInformation(instruction.instruction)}");
                     }
                     sourceCode.WriteLine("    /// </remarks>");
                 }
@@ -479,7 +479,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
                 fixedPrice += descriptor.FixedPrice;
-                return $"[{descriptor.Name}][{fixedPrice} datoshi]";
+                return $"'{descriptor.Name}' [{fixedPrice} datoshi]";
             }
 
             return $"[{fixedPrice} datoshi]";
