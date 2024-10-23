@@ -50,6 +50,11 @@ internal class RpcSnapshot : ISnapshot
         return Store.Seek(keyOrPrefix, direction);
     }
 
+    public bool TryGet(byte[] key, out byte[]? value)
+    {
+        return Store.TryGet(key, out value);
+    }
+
     public byte[]? TryGet(byte[] key)
     {
         return Store.TryGet(key);

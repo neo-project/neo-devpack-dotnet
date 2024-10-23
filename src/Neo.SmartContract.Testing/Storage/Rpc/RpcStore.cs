@@ -131,7 +131,7 @@ public class RpcStore : IStore
         throw new Exception();
     }
 
-    public byte[]? TryGet(byte[] key)
+    public bool TryGet(byte[] key, out byte[]? value)
     {
         var skey = new StorageKey(key);
         var requestBody = new
@@ -152,7 +152,8 @@ public class RpcStore : IStore
         {
             // {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"Aw==\"}
 
-            return Convert.FromBase64String(result);
+            value = Convert.FromBase64String(result);
+            return true;
         }
         else
         {
@@ -162,11 +163,22 @@ public class RpcStore : IStore
                 error["code"]?.Value<int>() is int errorCode &&
                 (errorCode == -100 || errorCode == -104))
             {
-                return null;
+                value = null;
+                return false;
             }
 
             throw new Exception();
         }
+    }
+
+    public byte[]? TryGet(byte[] key)
+    {
+        if (TryGet(key, out var value))
+        {
+            return value;
+        }
+
+        return null;
     }
 
     #endregion
