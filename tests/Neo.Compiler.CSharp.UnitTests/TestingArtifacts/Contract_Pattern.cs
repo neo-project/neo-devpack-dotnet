@@ -219,7 +219,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// 19 : OpCode.STLOC2	[2 datoshi]
     /// 1A : OpCode.JMPIFNOT 08	[2 datoshi]
     /// 1C : OpCode.LDLOC2	[2 datoshi]
-    /// 1D : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 1D : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 22 : OpCode.PUSHDATA1 48656C6C6F2C20576F726C6421	[8 datoshi]
     /// 31 : OpCode.STLOC2	[2 datoshi]
     /// 32 : OpCode.LDLOC2	[2 datoshi]
@@ -228,7 +228,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// 35 : OpCode.ISTYPE 28	[2 datoshi]
     /// 37 : OpCode.JMPIFNOT 1C	[2 datoshi]
     /// 39 : OpCode.PUSHDATA1 6772656574696E673220697320737472696E67	[8 datoshi]
-    /// 4E : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 4E : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 53 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testDeclarationPattern")]

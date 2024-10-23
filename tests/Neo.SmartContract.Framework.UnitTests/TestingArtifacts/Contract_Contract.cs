@@ -31,7 +31,7 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// 04 : OpCode.LDARG2	[2 datoshi]
     /// 05 : OpCode.LDARG1	[2 datoshi]
     /// 06 : OpCode.LDARG0	[2 datoshi]
-    /// 07 : OpCode.SYSCALL 627D5B52	[0 datoshi]
+    /// 07 : OpCode.SYSCALL 627D5B52	[System.Contract.Call][32768 datoshi]
     /// 0C : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("call")]
@@ -60,7 +60,7 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// Script: VwABeEHPmYcCQA==
     /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
     /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.SYSCALL CF998702	[0 datoshi]
+    /// 04 : OpCode.SYSCALL CF998702	[System.Contract.CreateStandardAccount][0 datoshi]
     /// 09 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("createStandardAccount")]
@@ -71,7 +71,7 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: QZXaOoFA
-    /// 00 : OpCode.SYSCALL 95DA3A81	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 95DA3A81	[System.Contract.GetCallFlags][1024 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getCallFlags")]

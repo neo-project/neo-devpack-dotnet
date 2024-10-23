@@ -28,7 +28,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// Script: VwABeEH4J+yMQA==
     /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
     /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.SYSCALL F827EC8C	[0 datoshi]
+    /// 04 : OpCode.SYSCALL F827EC8C	[System.Runtime.CheckWitness][1024 datoshi]
     /// 09 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("checkWitness")]
@@ -50,7 +50,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// 0E : OpCode.PACK	[2048 datoshi]
     /// 0F : OpCode.PUSH15	[1 datoshi]
     /// 10 : OpCode.LDLOC0	[2 datoshi]
-    /// 11 : OpCode.SYSCALL B30C808F	[0 datoshi]
+    /// 11 : OpCode.SYSCALL B30C808F	[System.Runtime.LoadScript][32768 datoshi]
     /// 16 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("dynamicSum")]
@@ -61,7 +61,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: QUxJktxA
-    /// 00 : OpCode.SYSCALL 4C4992DC	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 4C4992DC	[System.Runtime.GetAddressVersion][8 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getAddressVersion")]
@@ -76,7 +76,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// 03 : OpCode.PUSH0	[1 datoshi]
     /// 04 : OpCode.STLOC0	[2 datoshi]
     /// 05 : OpCode.PUSHNULL	[1 datoshi]
-    /// 06 : OpCode.SYSCALL 274335F1	[0 datoshi]
+    /// 06 : OpCode.SYSCALL 274335F1	[System.Runtime.GetNotifications][4096 datoshi]
     /// 0B : OpCode.STLOC1	[2 datoshi]
     /// 0C : OpCode.PUSH0	[1 datoshi]
     /// 0D : OpCode.STLOC2	[2 datoshi]
@@ -142,7 +142,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: QRSI2M5A
-    /// 00 : OpCode.SYSCALL 1488D8CE	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 1488D8CE	[System.Runtime.GasLeft][16 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getGasLeft")]
@@ -153,7 +153,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: QYQnEUNA
-    /// 00 : OpCode.SYSCALL 84271143	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 84271143	[System.Runtime.GetInvocationCounter][16 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getInvocationCounter")]
@@ -164,7 +164,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: QcX7oOBA
-    /// 00 : OpCode.SYSCALL C5FBA0E0	[0 datoshi]
+    /// 00 : OpCode.SYSCALL C5FBA0E0	[System.Runtime.GetNetwork][8 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getNetwork")]
@@ -179,7 +179,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// 03 : OpCode.PUSH0	[1 datoshi]
     /// 04 : OpCode.STLOC0	[2 datoshi]
     /// 05 : OpCode.LDARG0	[2 datoshi]
-    /// 06 : OpCode.SYSCALL 274335F1	[0 datoshi]
+    /// 06 : OpCode.SYSCALL 274335F1	[System.Runtime.GetNotifications][4096 datoshi]
     /// 0B : OpCode.STLOC1	[2 datoshi]
     /// 0C : OpCode.PUSH0	[1 datoshi]
     /// 0D : OpCode.STLOC2	[2 datoshi]
@@ -245,7 +245,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// Script: VwEBeEEnQzXxcGjKQA==
     /// 00 : OpCode.INITSLOT 0101	[64 datoshi]
     /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.SYSCALL 274335F1	[0 datoshi]
+    /// 04 : OpCode.SYSCALL 274335F1	[System.Runtime.GetNotifications][4096 datoshi]
     /// 09 : OpCode.STLOC0	[2 datoshi]
     /// 0A : OpCode.LDLOC0	[2 datoshi]
     /// 0B : OpCode.SIZE	[4 datoshi]
@@ -259,7 +259,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: QbJ5/PZA
-    /// 00 : OpCode.SYSCALL B279FCF6	[0 datoshi]
+    /// 00 : OpCode.SYSCALL B279FCF6	[System.Runtime.Platform][8 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getPlatform")]
@@ -270,7 +270,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: QWveqShA
-    /// 00 : OpCode.SYSCALL 6BDEA928	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 6BDEA928	[System.Runtime.GetRandom][0 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getRandom")]
@@ -281,7 +281,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: QbfDiANA
-    /// 00 : OpCode.SYSCALL B7C38803	[0 datoshi]
+    /// 00 : OpCode.SYSCALL B7C38803	[System.Runtime.GetTime][8 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getTime")]
@@ -293,7 +293,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaEA=
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.RET	[0 datoshi]
@@ -307,7 +307,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBDOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH0	[1 datoshi]
@@ -323,7 +323,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBXOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH5	[1 datoshi]
@@ -339,7 +339,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBLOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH2	[1 datoshi]
@@ -355,7 +355,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBfOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH7	[1 datoshi]
@@ -371,7 +371,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBPOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH3	[1 datoshi]
@@ -387,7 +387,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBTOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH4	[1 datoshi]
@@ -403,7 +403,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBbOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH6	[1 datoshi]
@@ -419,7 +419,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwEAQS1RCDBwaBHOQA==
     /// 00 : OpCode.INITSLOT 0100	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDLOC0	[2 datoshi]
     /// 0A : OpCode.PUSH1	[1 datoshi]
@@ -434,7 +434,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: Qel9OKBA
-    /// 00 : OpCode.SYSCALL E97D38A0	[0 datoshi]
+    /// 00 : OpCode.SYSCALL E97D38A0	[System.Runtime.GetTrigger][8 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getTrigger")]
@@ -447,7 +447,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// Script: VwABeEHP50eWQA==
     /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
     /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 04 : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 09 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("log")]

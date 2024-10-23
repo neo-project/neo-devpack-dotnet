@@ -39,7 +39,7 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// 13 : OpCode.PUSH1	[1 datoshi]
     /// 14 : OpCode.PACK	[2048 datoshi]
     /// 15 : OpCode.PUSHDATA1 4465627567	[8 datoshi]
-    /// 1C : OpCode.SYSCALL 95016F61	[0 datoshi]
+    /// 1C : OpCode.SYSCALL 95016F61	[System.Runtime.Notify][32768 datoshi]
     /// 21 : OpCode.PUSH1	[1 datoshi]
     /// 22 : OpCode.RET	[0 datoshi]
     /// </remarks>

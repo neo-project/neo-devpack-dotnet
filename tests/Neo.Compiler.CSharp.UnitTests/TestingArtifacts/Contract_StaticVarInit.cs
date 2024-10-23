@@ -26,7 +26,7 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// </summary>
     /// <remarks>
     /// Script: Qdv+qHRA
-    /// 00 : OpCode.SYSCALL DBFEA874	[0 datoshi]
+    /// 00 : OpCode.SYSCALL DBFEA874	[System.Runtime.GetExecutingScriptHash][16 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("directGet")]

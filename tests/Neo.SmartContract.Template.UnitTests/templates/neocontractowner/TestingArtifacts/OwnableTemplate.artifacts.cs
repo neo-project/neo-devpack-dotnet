@@ -59,8 +59,8 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// <remarks>
     /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
     /// 00 : OpCode.PUSHDATA1 48656C6C6F	[8 datoshi]
-    /// 07 : OpCode.SYSCALL 9BF667CE	[0 datoshi]
-    /// 0C : OpCode.SYSCALL 925DE831	[0 datoshi]
+    /// 07 : OpCode.SYSCALL 9BF667CE	[System.Storage.GetContext][16 datoshi]
+    /// 0C : OpCode.SYSCALL 925DE831	[System.Storage.Get][32768 datoshi]
     /// 11 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("myMethod")]

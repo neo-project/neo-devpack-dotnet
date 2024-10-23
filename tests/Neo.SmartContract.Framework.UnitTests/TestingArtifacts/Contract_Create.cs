@@ -37,7 +37,7 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QZXaOoFA
-    /// 00 : OpCode.SYSCALL 95DA3A81	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 95DA3A81	[System.Contract.GetCallFlags][1024 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("getCallFlags")]
@@ -65,10 +65,10 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// 03 : OpCode.CALLT 0200	[32768 datoshi]
     /// 06 : OpCode.STLOC0	[2 datoshi]
     /// 07 : OpCode.LDLOC0	[2 datoshi]
-    /// 08 : OpCode.SYSCALL 9C08ED9C	[0 datoshi]
+    /// 08 : OpCode.SYSCALL 9C08ED9C	[System.Iterator.Next][32768 datoshi]
     /// 0D : OpCode.DROP	[2 datoshi]
     /// 0E : OpCode.LDLOC0	[2 datoshi]
-    /// 0F : OpCode.SYSCALL F354BF1D	[0 datoshi]
+    /// 0F : OpCode.SYSCALL F354BF1D	[System.Iterator.Value][16 datoshi]
     /// 14 : OpCode.PUSH1	[1 datoshi]
     /// 15 : OpCode.PICKITEM	[64 datoshi]
     /// 16 : OpCode.RET	[0 datoshi]
@@ -81,7 +81,7 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjw3AAAUzhDOQA==
-    /// 00 : OpCode.SYSCALL 39536E3C	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 39536E3C	[System.Runtime.GetCallingScriptHash][16 datoshi]
     /// 05 : OpCode.CALLT 0000	[32768 datoshi]
     /// 08 : OpCode.PUSH4	[1 datoshi]
     /// 09 : OpCode.PICKITEM	[64 datoshi]

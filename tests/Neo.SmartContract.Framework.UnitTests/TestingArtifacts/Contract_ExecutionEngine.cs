@@ -26,7 +26,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjzbMEA=
-    /// 00 : OpCode.SYSCALL 39536E3C	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 39536E3C	[System.Runtime.GetCallingScriptHash][16 datoshi]
     /// 05 : OpCode.CONVERT 30	[8192 datoshi]
     /// 07 : OpCode.RET	[0 datoshi]
     /// </remarks>
@@ -38,7 +38,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qfm04jjbMEA=
-    /// 00 : OpCode.SYSCALL F9B4E238	[0 datoshi]
+    /// 00 : OpCode.SYSCALL F9B4E238	[System.Runtime.GetEntryScriptHash][16 datoshi]
     /// 05 : OpCode.CONVERT 30	[8192 datoshi]
     /// 07 : OpCode.RET	[0 datoshi]
     /// </remarks>
@@ -50,7 +50,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qdv+qHTbMEA=
-    /// 00 : OpCode.SYSCALL DBFEA874	[0 datoshi]
+    /// 00 : OpCode.SYSCALL DBFEA874	[System.Runtime.GetExecutingScriptHash][16 datoshi]
     /// 05 : OpCode.CONVERT 30	[8192 datoshi]
     /// 07 : OpCode.RET	[0 datoshi]
     /// </remarks>
@@ -62,7 +62,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 00 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("scriptContainer")]
@@ -73,7 +73,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 00 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 00 : OpCode.SYSCALL 2D510830	[System.Runtime.GetScriptContainer][8 datoshi]
     /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("transaction")]

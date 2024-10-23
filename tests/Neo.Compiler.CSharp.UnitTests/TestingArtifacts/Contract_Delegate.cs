@@ -45,7 +45,7 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// 16 : OpCode.CALLT 0000	[32768 datoshi]
     /// 19 : OpCode.CAT	[2048 datoshi]
     /// 1A : OpCode.CONVERT 28	[8192 datoshi]
-    /// 1C : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 1C : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 21 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testDelegate")]

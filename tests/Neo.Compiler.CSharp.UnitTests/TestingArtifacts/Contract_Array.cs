@@ -285,7 +285,7 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// 19 : OpCode.PUSH4	[1 datoshi]
     /// 1A : OpCode.PICKITEM	[64 datoshi]
     /// 1B : OpCode.CALLT 0100	[32768 datoshi]
-    /// 1E : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 1E : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 23 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testElementBinding")]

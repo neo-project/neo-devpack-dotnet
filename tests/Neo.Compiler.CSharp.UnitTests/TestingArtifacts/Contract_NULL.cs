@@ -154,11 +154,11 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// <remarks>
     /// Script: VwEBQZv2Z85weGhBkl3oMUrYJgpFDHvbMNsoQA==
     /// 00 : OpCode.INITSLOT 0101	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 9BF667CE	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 9BF667CE	[System.Storage.GetContext][16 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.LDARG0	[2 datoshi]
     /// 0A : OpCode.LDLOC0	[2 datoshi]
-    /// 0B : OpCode.SYSCALL 925DE831	[0 datoshi]
+    /// 0B : OpCode.SYSCALL 925DE831	[System.Storage.Get][32768 datoshi]
     /// 10 : OpCode.DUP	[2 datoshi]
     /// 11 : OpCode.ISNULL	[2 datoshi]
     /// 12 : OpCode.JMPIFNOT 0A	[2 datoshi]
@@ -177,15 +177,15 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// <remarks>
     /// Script: VwEBQZv2Z85wDDExMXhoQeY/GIR4aEGSXegxStgmCkUMe9sw2yhA
     /// 00 : OpCode.INITSLOT 0101	[64 datoshi]
-    /// 03 : OpCode.SYSCALL 9BF667CE	[0 datoshi]
+    /// 03 : OpCode.SYSCALL 9BF667CE	[System.Storage.GetContext][16 datoshi]
     /// 08 : OpCode.STLOC0	[2 datoshi]
     /// 09 : OpCode.PUSHDATA1 313131	[8 datoshi]
     /// 0E : OpCode.LDARG0	[2 datoshi]
     /// 0F : OpCode.LDLOC0	[2 datoshi]
-    /// 10 : OpCode.SYSCALL E63F1884	[0 datoshi]
+    /// 10 : OpCode.SYSCALL E63F1884	[System.Storage.Put][32768 datoshi]
     /// 15 : OpCode.LDARG0	[2 datoshi]
     /// 16 : OpCode.LDLOC0	[2 datoshi]
-    /// 17 : OpCode.SYSCALL 925DE831	[0 datoshi]
+    /// 17 : OpCode.SYSCALL 925DE831	[System.Storage.Get][32768 datoshi]
     /// 1C : OpCode.DUP	[2 datoshi]
     /// 1D : OpCode.ISNULL	[2 datoshi]
     /// 1E : OpCode.JMPIFNOT 0A	[2 datoshi]

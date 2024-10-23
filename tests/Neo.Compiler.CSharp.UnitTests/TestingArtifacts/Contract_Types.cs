@@ -40,7 +40,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// 04 : OpCode.LDARG2	[2 datoshi]
     /// 05 : OpCode.LDARG1	[2 datoshi]
     /// 06 : OpCode.LDARG0	[2 datoshi]
-    /// 07 : OpCode.SYSCALL 627D5B52	[0 datoshi]
+    /// 07 : OpCode.SYSCALL 627D5B52	[System.Contract.Call][32768 datoshi]
     /// 0C : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("call")]

@@ -128,7 +128,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 18 : OpCode.PUSHDATA1 46616C7365	[8 datoshi]
     /// 1F : OpCode.JMP 08	[2 datoshi]
     /// 21 : OpCode.PUSHDATA1 54727565	[8 datoshi]
-    /// 27 : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 27 : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 2C : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEqual")]
@@ -313,7 +313,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 46 : OpCode.PUSHDATA1 2E	[8 datoshi]
     /// 49 : OpCode.CAT	[2048 datoshi]
     /// 4A : OpCode.CONVERT 28	[8192 datoshi]
-    /// 4C : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 4C : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 51 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]
@@ -348,12 +348,12 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 12 : OpCode.OVER	[2 datoshi]
     /// 13 : OpCode.SUB	[8 datoshi]
     /// 14 : OpCode.SUBSTR	[2048 datoshi]
-    /// 15 : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 15 : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 1A : OpCode.LDLOC0	[2 datoshi]
     /// 1B : OpCode.PUSH1	[1 datoshi]
     /// 1C : OpCode.PUSH4	[1 datoshi]
     /// 1D : OpCode.SUBSTR	[2048 datoshi]
-    /// 1E : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 1E : OpCode.SYSCALL CFE74796	[System.Runtime.Log][32768 datoshi]
     /// 23 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testSubstring")]

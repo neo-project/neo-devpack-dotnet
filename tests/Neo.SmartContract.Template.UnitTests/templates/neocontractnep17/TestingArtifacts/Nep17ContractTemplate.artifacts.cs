@@ -86,7 +86,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// 18 : OpCode.JMPIFNOT 25	[2 datoshi]
     /// 1A : OpCode.PUSHDATA1 54686520617267756D656E7420226F776E65722220697320696E76616C69642E	[8 datoshi]
     /// 3C : OpCode.THROW	[512 datoshi]
-    /// 3D : OpCode.SYSCALL 9BF667CE	[0 datoshi]
+    /// 3D : OpCode.SYSCALL 9BF667CE	[System.Storage.GetContext][16 datoshi]
     /// 42 : OpCode.PUSH1	[1 datoshi]
     /// 43 : OpCode.PUSH1	[1 datoshi]
     /// 44 : OpCode.NEWBUFFER	[256 datoshi]
@@ -105,7 +105,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// 51 : OpCode.REVERSE3	[2 datoshi]
     /// 52 : OpCode.CAT	[2048 datoshi]
     /// 53 : OpCode.SWAP	[2 datoshi]
-    /// 54 : OpCode.SYSCALL 925DE831	[0 datoshi]
+    /// 54 : OpCode.SYSCALL 925DE831	[System.Storage.Get][32768 datoshi]
     /// 59 : OpCode.DUP	[2 datoshi]
     /// 5A : OpCode.ISNULL	[2 datoshi]
     /// 5B : OpCode.JMPIFNOT 04	[2 datoshi]
@@ -167,8 +167,8 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// <remarks>
     /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
     /// 00 : OpCode.PUSHDATA1 48656C6C6F	[8 datoshi]
-    /// 07 : OpCode.SYSCALL 9BF667CE	[0 datoshi]
-    /// 0C : OpCode.SYSCALL 925DE831	[0 datoshi]
+    /// 07 : OpCode.SYSCALL 9BF667CE	[System.Storage.GetContext][16 datoshi]
+    /// 0C : OpCode.SYSCALL 925DE831	[System.Storage.Get][32768 datoshi]
     /// 11 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("myMethod")]
@@ -227,7 +227,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// 78 : OpCode.PUSHDATA1 54686520616D6F756E74206D757374206265206120706F736974697665206E756D6265722E	[8 datoshi]
     /// 9F : OpCode.THROW	[512 datoshi]
     /// A0 : OpCode.LDARG0	[2 datoshi]
-    /// A1 : OpCode.SYSCALL F827EC8C	[0 datoshi]
+    /// A1 : OpCode.SYSCALL F827EC8C	[System.Runtime.CheckWitness][1024 datoshi]
     /// A6 : OpCode.NOT	[4 datoshi]
     /// A7 : OpCode.JMPIFNOT 04	[2 datoshi]
     /// A9 : OpCode.PUSHF	[1 datoshi]
