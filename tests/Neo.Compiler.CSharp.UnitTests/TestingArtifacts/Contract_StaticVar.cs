@@ -62,10 +62,10 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: NAY0N1lA
-    /// 00 : OpCode.CALL 06 	-> 512 datoshi
-    /// 02 : OpCode.CALL 37 	-> 512 datoshi
-    /// 04 : OpCode.LDSFLD1 	-> 2 datoshi
-    /// 05 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.CALL 06	[512 datoshi]
+    /// 02 : OpCode.CALL 37	[512 datoshi]
+    /// 04 : OpCode.LDSFLD1	[2 datoshi]
+    /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();

@@ -26,32 +26,32 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeEoRlyYMRQxWYWx1ZTFAShKXJgxFDFZhbHVlMkBKE5cmDEUMVmFsdWUzQEULQA==
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.DUP 	-> 2 datoshi
-    /// 05 : OpCode.PUSH1 	-> 1 datoshi
-    /// 06 : OpCode.EQUAL 	-> 32 datoshi
-    /// 07 : OpCode.JMPIFNOT 0C 	-> 2 datoshi
-    /// 09 : OpCode.DROP 	-> 2 datoshi
-    /// 0A : OpCode.PUSHDATA1 56616C756531 	-> 8 datoshi
-    /// 12 : OpCode.RET 	-> 0 datoshi
-    /// 13 : OpCode.DUP 	-> 2 datoshi
-    /// 14 : OpCode.PUSH2 	-> 1 datoshi
-    /// 15 : OpCode.EQUAL 	-> 32 datoshi
-    /// 16 : OpCode.JMPIFNOT 0C 	-> 2 datoshi
-    /// 18 : OpCode.DROP 	-> 2 datoshi
-    /// 19 : OpCode.PUSHDATA1 56616C756532 	-> 8 datoshi
-    /// 21 : OpCode.RET 	-> 0 datoshi
-    /// 22 : OpCode.DUP 	-> 2 datoshi
-    /// 23 : OpCode.PUSH3 	-> 1 datoshi
-    /// 24 : OpCode.EQUAL 	-> 32 datoshi
-    /// 25 : OpCode.JMPIFNOT 0C 	-> 2 datoshi
-    /// 27 : OpCode.DROP 	-> 2 datoshi
-    /// 28 : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 30 : OpCode.RET 	-> 0 datoshi
-    /// 31 : OpCode.DROP 	-> 2 datoshi
-    /// 32 : OpCode.PUSHNULL 	-> 1 datoshi
-    /// 33 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.DUP	[2 datoshi]
+    /// 05 : OpCode.PUSH1	[1 datoshi]
+    /// 06 : OpCode.EQUAL	[32 datoshi]
+    /// 07 : OpCode.JMPIFNOT 0C	[2 datoshi]
+    /// 09 : OpCode.DROP	[2 datoshi]
+    /// 0A : OpCode.PUSHDATA1 56616C756531	[8 datoshi]
+    /// 12 : OpCode.RET	[0 datoshi]
+    /// 13 : OpCode.DUP	[2 datoshi]
+    /// 14 : OpCode.PUSH2	[1 datoshi]
+    /// 15 : OpCode.EQUAL	[32 datoshi]
+    /// 16 : OpCode.JMPIFNOT 0C	[2 datoshi]
+    /// 18 : OpCode.DROP	[2 datoshi]
+    /// 19 : OpCode.PUSHDATA1 56616C756532	[8 datoshi]
+    /// 21 : OpCode.RET	[0 datoshi]
+    /// 22 : OpCode.DUP	[2 datoshi]
+    /// 23 : OpCode.PUSH3	[1 datoshi]
+    /// 24 : OpCode.EQUAL	[32 datoshi]
+    /// 25 : OpCode.JMPIFNOT 0C	[2 datoshi]
+    /// 27 : OpCode.DROP	[2 datoshi]
+    /// 28 : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 30 : OpCode.RET	[0 datoshi]
+    /// 31 : OpCode.DROP	[2 datoshi]
+    /// 32 : OpCode.PUSHNULL	[1 datoshi]
+    /// 33 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetName")]
     public abstract string? TestEnumGetName(BigInteger? value);
@@ -61,22 +61,22 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: DFRlc3RFbnVtE8NKEAxWYWx1ZTHQShEMVmFsdWUy0EoSDFZhbHVlM9BA
-    /// 00 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0A : OpCode.PUSH3 	-> 1 datoshi
-    /// 0B : OpCode.NEWARRAY 	-> 512 datoshi
-    /// 0C : OpCode.DUP 	-> 2 datoshi
-    /// 0D : OpCode.PUSH0 	-> 1 datoshi
-    /// 0E : OpCode.PUSHDATA1 56616C756531 	-> 8 datoshi
-    /// 16 : OpCode.SETITEM 	-> 8192 datoshi
-    /// 17 : OpCode.DUP 	-> 2 datoshi
-    /// 18 : OpCode.PUSH1 	-> 1 datoshi
-    /// 19 : OpCode.PUSHDATA1 56616C756532 	-> 8 datoshi
-    /// 21 : OpCode.SETITEM 	-> 8192 datoshi
-    /// 22 : OpCode.DUP 	-> 2 datoshi
-    /// 23 : OpCode.PUSH2 	-> 1 datoshi
-    /// 24 : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 2C : OpCode.SETITEM 	-> 8192 datoshi
-    /// 2D : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0A : OpCode.PUSH3	[1 datoshi]
+    /// 0B : OpCode.NEWARRAY	[512 datoshi]
+    /// 0C : OpCode.DUP	[2 datoshi]
+    /// 0D : OpCode.PUSH0	[1 datoshi]
+    /// 0E : OpCode.PUSHDATA1 56616C756531	[8 datoshi]
+    /// 16 : OpCode.SETITEM	[8192 datoshi]
+    /// 17 : OpCode.DUP	[2 datoshi]
+    /// 18 : OpCode.PUSH1	[1 datoshi]
+    /// 19 : OpCode.PUSHDATA1 56616C756532	[8 datoshi]
+    /// 21 : OpCode.SETITEM	[8192 datoshi]
+    /// 22 : OpCode.DUP	[2 datoshi]
+    /// 23 : OpCode.PUSH2	[1 datoshi]
+    /// 24 : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 2C : OpCode.SETITEM	[8192 datoshi]
+    /// 2D : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetNames")]
     public abstract IList<object>? TestEnumGetNames();
@@ -86,37 +86,37 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABDFRlc3RFbnVteEoRlyYNRUUMVmFsdWUxQEoSlyYNRUUMVmFsdWUyQEoTlyYNRUUMVmFsdWUzQEVFC0A=
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0D : OpCode.LDARG0 	-> 2 datoshi
-    /// 0E : OpCode.DUP 	-> 2 datoshi
-    /// 0F : OpCode.PUSH1 	-> 1 datoshi
-    /// 10 : OpCode.EQUAL 	-> 32 datoshi
-    /// 11 : OpCode.JMPIFNOT 0D 	-> 2 datoshi
-    /// 13 : OpCode.DROP 	-> 2 datoshi
-    /// 14 : OpCode.DROP 	-> 2 datoshi
-    /// 15 : OpCode.PUSHDATA1 56616C756531 	-> 8 datoshi
-    /// 1D : OpCode.RET 	-> 0 datoshi
-    /// 1E : OpCode.DUP 	-> 2 datoshi
-    /// 1F : OpCode.PUSH2 	-> 1 datoshi
-    /// 20 : OpCode.EQUAL 	-> 32 datoshi
-    /// 21 : OpCode.JMPIFNOT 0D 	-> 2 datoshi
-    /// 23 : OpCode.DROP 	-> 2 datoshi
-    /// 24 : OpCode.DROP 	-> 2 datoshi
-    /// 25 : OpCode.PUSHDATA1 56616C756532 	-> 8 datoshi
-    /// 2D : OpCode.RET 	-> 0 datoshi
-    /// 2E : OpCode.DUP 	-> 2 datoshi
-    /// 2F : OpCode.PUSH3 	-> 1 datoshi
-    /// 30 : OpCode.EQUAL 	-> 32 datoshi
-    /// 31 : OpCode.JMPIFNOT 0D 	-> 2 datoshi
-    /// 33 : OpCode.DROP 	-> 2 datoshi
-    /// 34 : OpCode.DROP 	-> 2 datoshi
-    /// 35 : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 3D : OpCode.RET 	-> 0 datoshi
-    /// 3E : OpCode.DROP 	-> 2 datoshi
-    /// 3F : OpCode.DROP 	-> 2 datoshi
-    /// 40 : OpCode.PUSHNULL 	-> 1 datoshi
-    /// 41 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0D : OpCode.LDARG0	[2 datoshi]
+    /// 0E : OpCode.DUP	[2 datoshi]
+    /// 0F : OpCode.PUSH1	[1 datoshi]
+    /// 10 : OpCode.EQUAL	[32 datoshi]
+    /// 11 : OpCode.JMPIFNOT 0D	[2 datoshi]
+    /// 13 : OpCode.DROP	[2 datoshi]
+    /// 14 : OpCode.DROP	[2 datoshi]
+    /// 15 : OpCode.PUSHDATA1 56616C756531	[8 datoshi]
+    /// 1D : OpCode.RET	[0 datoshi]
+    /// 1E : OpCode.DUP	[2 datoshi]
+    /// 1F : OpCode.PUSH2	[1 datoshi]
+    /// 20 : OpCode.EQUAL	[32 datoshi]
+    /// 21 : OpCode.JMPIFNOT 0D	[2 datoshi]
+    /// 23 : OpCode.DROP	[2 datoshi]
+    /// 24 : OpCode.DROP	[2 datoshi]
+    /// 25 : OpCode.PUSHDATA1 56616C756532	[8 datoshi]
+    /// 2D : OpCode.RET	[0 datoshi]
+    /// 2E : OpCode.DUP	[2 datoshi]
+    /// 2F : OpCode.PUSH3	[1 datoshi]
+    /// 30 : OpCode.EQUAL	[32 datoshi]
+    /// 31 : OpCode.JMPIFNOT 0D	[2 datoshi]
+    /// 33 : OpCode.DROP	[2 datoshi]
+    /// 34 : OpCode.DROP	[2 datoshi]
+    /// 35 : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 3D : OpCode.RET	[0 datoshi]
+    /// 3E : OpCode.DROP	[2 datoshi]
+    /// 3F : OpCode.DROP	[2 datoshi]
+    /// 40 : OpCode.PUSHNULL	[1 datoshi]
+    /// 41 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetNameWithType")]
     public abstract string? TestEnumGetNameWithType(object? value = null);
@@ -126,22 +126,22 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: DFRlc3RFbnVtE8NKEBHQShES0EoSE9BA
-    /// 00 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0A : OpCode.PUSH3 	-> 1 datoshi
-    /// 0B : OpCode.NEWARRAY 	-> 512 datoshi
-    /// 0C : OpCode.DUP 	-> 2 datoshi
-    /// 0D : OpCode.PUSH0 	-> 1 datoshi
-    /// 0E : OpCode.PUSH1 	-> 1 datoshi
-    /// 0F : OpCode.SETITEM 	-> 8192 datoshi
-    /// 10 : OpCode.DUP 	-> 2 datoshi
-    /// 11 : OpCode.PUSH1 	-> 1 datoshi
-    /// 12 : OpCode.PUSH2 	-> 1 datoshi
-    /// 13 : OpCode.SETITEM 	-> 8192 datoshi
-    /// 14 : OpCode.DUP 	-> 2 datoshi
-    /// 15 : OpCode.PUSH2 	-> 1 datoshi
-    /// 16 : OpCode.PUSH3 	-> 1 datoshi
-    /// 17 : OpCode.SETITEM 	-> 8192 datoshi
-    /// 18 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0A : OpCode.PUSH3	[1 datoshi]
+    /// 0B : OpCode.NEWARRAY	[512 datoshi]
+    /// 0C : OpCode.DUP	[2 datoshi]
+    /// 0D : OpCode.PUSH0	[1 datoshi]
+    /// 0E : OpCode.PUSH1	[1 datoshi]
+    /// 0F : OpCode.SETITEM	[8192 datoshi]
+    /// 10 : OpCode.DUP	[2 datoshi]
+    /// 11 : OpCode.PUSH1	[1 datoshi]
+    /// 12 : OpCode.PUSH2	[1 datoshi]
+    /// 13 : OpCode.SETITEM	[8192 datoshi]
+    /// 14 : OpCode.DUP	[2 datoshi]
+    /// 15 : OpCode.PUSH2	[1 datoshi]
+    /// 16 : OpCode.PUSH3	[1 datoshi]
+    /// 17 : OpCode.SETITEM	[8192 datoshi]
+    /// 18 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetValues")]
     public abstract IList<object>? TestEnumGetValues();
@@ -151,37 +151,37 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABDFRlc3RFbnVteEoRlyYGRUUIQEoSlyYGRUUIQEoTlyYGRUUIQEVFCUA=
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0D : OpCode.LDARG0 	-> 2 datoshi
-    /// 0E : OpCode.DUP 	-> 2 datoshi
-    /// 0F : OpCode.PUSH1 	-> 1 datoshi
-    /// 10 : OpCode.EQUAL 	-> 32 datoshi
-    /// 11 : OpCode.JMPIFNOT 06 	-> 2 datoshi
-    /// 13 : OpCode.DROP 	-> 2 datoshi
-    /// 14 : OpCode.DROP 	-> 2 datoshi
-    /// 15 : OpCode.PUSHT 	-> 1 datoshi
-    /// 16 : OpCode.RET 	-> 0 datoshi
-    /// 17 : OpCode.DUP 	-> 2 datoshi
-    /// 18 : OpCode.PUSH2 	-> 1 datoshi
-    /// 19 : OpCode.EQUAL 	-> 32 datoshi
-    /// 1A : OpCode.JMPIFNOT 06 	-> 2 datoshi
-    /// 1C : OpCode.DROP 	-> 2 datoshi
-    /// 1D : OpCode.DROP 	-> 2 datoshi
-    /// 1E : OpCode.PUSHT 	-> 1 datoshi
-    /// 1F : OpCode.RET 	-> 0 datoshi
-    /// 20 : OpCode.DUP 	-> 2 datoshi
-    /// 21 : OpCode.PUSH3 	-> 1 datoshi
-    /// 22 : OpCode.EQUAL 	-> 32 datoshi
-    /// 23 : OpCode.JMPIFNOT 06 	-> 2 datoshi
-    /// 25 : OpCode.DROP 	-> 2 datoshi
-    /// 26 : OpCode.DROP 	-> 2 datoshi
-    /// 27 : OpCode.PUSHT 	-> 1 datoshi
-    /// 28 : OpCode.RET 	-> 0 datoshi
-    /// 29 : OpCode.DROP 	-> 2 datoshi
-    /// 2A : OpCode.DROP 	-> 2 datoshi
-    /// 2B : OpCode.PUSHF 	-> 1 datoshi
-    /// 2C : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0D : OpCode.LDARG0	[2 datoshi]
+    /// 0E : OpCode.DUP	[2 datoshi]
+    /// 0F : OpCode.PUSH1	[1 datoshi]
+    /// 10 : OpCode.EQUAL	[32 datoshi]
+    /// 11 : OpCode.JMPIFNOT 06	[2 datoshi]
+    /// 13 : OpCode.DROP	[2 datoshi]
+    /// 14 : OpCode.DROP	[2 datoshi]
+    /// 15 : OpCode.PUSHT	[1 datoshi]
+    /// 16 : OpCode.RET	[0 datoshi]
+    /// 17 : OpCode.DUP	[2 datoshi]
+    /// 18 : OpCode.PUSH2	[1 datoshi]
+    /// 19 : OpCode.EQUAL	[32 datoshi]
+    /// 1A : OpCode.JMPIFNOT 06	[2 datoshi]
+    /// 1C : OpCode.DROP	[2 datoshi]
+    /// 1D : OpCode.DROP	[2 datoshi]
+    /// 1E : OpCode.PUSHT	[1 datoshi]
+    /// 1F : OpCode.RET	[0 datoshi]
+    /// 20 : OpCode.DUP	[2 datoshi]
+    /// 21 : OpCode.PUSH3	[1 datoshi]
+    /// 22 : OpCode.EQUAL	[32 datoshi]
+    /// 23 : OpCode.JMPIFNOT 06	[2 datoshi]
+    /// 25 : OpCode.DROP	[2 datoshi]
+    /// 26 : OpCode.DROP	[2 datoshi]
+    /// 27 : OpCode.PUSHT	[1 datoshi]
+    /// 28 : OpCode.RET	[0 datoshi]
+    /// 29 : OpCode.DROP	[2 datoshi]
+    /// 2A : OpCode.DROP	[2 datoshi]
+    /// 2B : OpCode.PUSHF	[1 datoshi]
+    /// 2C : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumIsDefined")]
     public abstract bool? TestEnumIsDefined(object? value = null);
@@ -191,37 +191,37 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABDFRlc3RFbnVteEoMVmFsdWUxlyYGRUUIQEoMVmFsdWUylyYGRUUIQEoMVmFsdWUzlyYGRUUIQEVFCUA=
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0D : OpCode.LDARG0 	-> 2 datoshi
-    /// 0E : OpCode.DUP 	-> 2 datoshi
-    /// 0F : OpCode.PUSHDATA1 56616C756531 	-> 8 datoshi
-    /// 17 : OpCode.EQUAL 	-> 32 datoshi
-    /// 18 : OpCode.JMPIFNOT 06 	-> 2 datoshi
-    /// 1A : OpCode.DROP 	-> 2 datoshi
-    /// 1B : OpCode.DROP 	-> 2 datoshi
-    /// 1C : OpCode.PUSHT 	-> 1 datoshi
-    /// 1D : OpCode.RET 	-> 0 datoshi
-    /// 1E : OpCode.DUP 	-> 2 datoshi
-    /// 1F : OpCode.PUSHDATA1 56616C756532 	-> 8 datoshi
-    /// 27 : OpCode.EQUAL 	-> 32 datoshi
-    /// 28 : OpCode.JMPIFNOT 06 	-> 2 datoshi
-    /// 2A : OpCode.DROP 	-> 2 datoshi
-    /// 2B : OpCode.DROP 	-> 2 datoshi
-    /// 2C : OpCode.PUSHT 	-> 1 datoshi
-    /// 2D : OpCode.RET 	-> 0 datoshi
-    /// 2E : OpCode.DUP 	-> 2 datoshi
-    /// 2F : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 37 : OpCode.EQUAL 	-> 32 datoshi
-    /// 38 : OpCode.JMPIFNOT 06 	-> 2 datoshi
-    /// 3A : OpCode.DROP 	-> 2 datoshi
-    /// 3B : OpCode.DROP 	-> 2 datoshi
-    /// 3C : OpCode.PUSHT 	-> 1 datoshi
-    /// 3D : OpCode.RET 	-> 0 datoshi
-    /// 3E : OpCode.DROP 	-> 2 datoshi
-    /// 3F : OpCode.DROP 	-> 2 datoshi
-    /// 40 : OpCode.PUSHF 	-> 1 datoshi
-    /// 41 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0D : OpCode.LDARG0	[2 datoshi]
+    /// 0E : OpCode.DUP	[2 datoshi]
+    /// 0F : OpCode.PUSHDATA1 56616C756531	[8 datoshi]
+    /// 17 : OpCode.EQUAL	[32 datoshi]
+    /// 18 : OpCode.JMPIFNOT 06	[2 datoshi]
+    /// 1A : OpCode.DROP	[2 datoshi]
+    /// 1B : OpCode.DROP	[2 datoshi]
+    /// 1C : OpCode.PUSHT	[1 datoshi]
+    /// 1D : OpCode.RET	[0 datoshi]
+    /// 1E : OpCode.DUP	[2 datoshi]
+    /// 1F : OpCode.PUSHDATA1 56616C756532	[8 datoshi]
+    /// 27 : OpCode.EQUAL	[32 datoshi]
+    /// 28 : OpCode.JMPIFNOT 06	[2 datoshi]
+    /// 2A : OpCode.DROP	[2 datoshi]
+    /// 2B : OpCode.DROP	[2 datoshi]
+    /// 2C : OpCode.PUSHT	[1 datoshi]
+    /// 2D : OpCode.RET	[0 datoshi]
+    /// 2E : OpCode.DUP	[2 datoshi]
+    /// 2F : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 37 : OpCode.EQUAL	[32 datoshi]
+    /// 38 : OpCode.JMPIFNOT 06	[2 datoshi]
+    /// 3A : OpCode.DROP	[2 datoshi]
+    /// 3B : OpCode.DROP	[2 datoshi]
+    /// 3C : OpCode.PUSHT	[1 datoshi]
+    /// 3D : OpCode.RET	[0 datoshi]
+    /// 3E : OpCode.DROP	[2 datoshi]
+    /// 3F : OpCode.DROP	[2 datoshi]
+    /// 40 : OpCode.PUSHF	[1 datoshi]
+    /// 41 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumIsDefinedByName")]
     public abstract bool? TestEnumIsDefinedByName(string? name);
@@ -231,39 +231,39 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABDFRlc3RFbnVteEoMVmFsdWUxlyYHEVNFRUBKDFZhbHVlMpcmBxJTRUVASgxWYWx1ZTOXJgcTU0VFQEUMTm8gc3VjaCBlbnVtIHZhbHVlOg==
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0D : OpCode.LDARG0 	-> 2 datoshi
-    /// 0E : OpCode.DUP 	-> 2 datoshi
-    /// 0F : OpCode.PUSHDATA1 56616C756531 	-> 8 datoshi
-    /// 17 : OpCode.EQUAL 	-> 32 datoshi
-    /// 18 : OpCode.JMPIFNOT 07 	-> 2 datoshi
-    /// 1A : OpCode.PUSH1 	-> 1 datoshi
-    /// 1B : OpCode.REVERSE3 	-> 2 datoshi
-    /// 1C : OpCode.DROP 	-> 2 datoshi
-    /// 1D : OpCode.DROP 	-> 2 datoshi
-    /// 1E : OpCode.RET 	-> 0 datoshi
-    /// 1F : OpCode.DUP 	-> 2 datoshi
-    /// 20 : OpCode.PUSHDATA1 56616C756532 	-> 8 datoshi
-    /// 28 : OpCode.EQUAL 	-> 32 datoshi
-    /// 29 : OpCode.JMPIFNOT 07 	-> 2 datoshi
-    /// 2B : OpCode.PUSH2 	-> 1 datoshi
-    /// 2C : OpCode.REVERSE3 	-> 2 datoshi
-    /// 2D : OpCode.DROP 	-> 2 datoshi
-    /// 2E : OpCode.DROP 	-> 2 datoshi
-    /// 2F : OpCode.RET 	-> 0 datoshi
-    /// 30 : OpCode.DUP 	-> 2 datoshi
-    /// 31 : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 39 : OpCode.EQUAL 	-> 32 datoshi
-    /// 3A : OpCode.JMPIFNOT 07 	-> 2 datoshi
-    /// 3C : OpCode.PUSH3 	-> 1 datoshi
-    /// 3D : OpCode.REVERSE3 	-> 2 datoshi
-    /// 3E : OpCode.DROP 	-> 2 datoshi
-    /// 3F : OpCode.DROP 	-> 2 datoshi
-    /// 40 : OpCode.RET 	-> 0 datoshi
-    /// 41 : OpCode.DROP 	-> 2 datoshi
-    /// 42 : OpCode.PUSHDATA1 4E6F207375636820656E756D2076616C7565 	-> 8 datoshi
-    /// 56 : OpCode.THROW 	-> 512 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0D : OpCode.LDARG0	[2 datoshi]
+    /// 0E : OpCode.DUP	[2 datoshi]
+    /// 0F : OpCode.PUSHDATA1 56616C756531	[8 datoshi]
+    /// 17 : OpCode.EQUAL	[32 datoshi]
+    /// 18 : OpCode.JMPIFNOT 07	[2 datoshi]
+    /// 1A : OpCode.PUSH1	[1 datoshi]
+    /// 1B : OpCode.REVERSE3	[2 datoshi]
+    /// 1C : OpCode.DROP	[2 datoshi]
+    /// 1D : OpCode.DROP	[2 datoshi]
+    /// 1E : OpCode.RET	[0 datoshi]
+    /// 1F : OpCode.DUP	[2 datoshi]
+    /// 20 : OpCode.PUSHDATA1 56616C756532	[8 datoshi]
+    /// 28 : OpCode.EQUAL	[32 datoshi]
+    /// 29 : OpCode.JMPIFNOT 07	[2 datoshi]
+    /// 2B : OpCode.PUSH2	[1 datoshi]
+    /// 2C : OpCode.REVERSE3	[2 datoshi]
+    /// 2D : OpCode.DROP	[2 datoshi]
+    /// 2E : OpCode.DROP	[2 datoshi]
+    /// 2F : OpCode.RET	[0 datoshi]
+    /// 30 : OpCode.DUP	[2 datoshi]
+    /// 31 : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 39 : OpCode.EQUAL	[32 datoshi]
+    /// 3A : OpCode.JMPIFNOT 07	[2 datoshi]
+    /// 3C : OpCode.PUSH3	[1 datoshi]
+    /// 3D : OpCode.REVERSE3	[2 datoshi]
+    /// 3E : OpCode.DROP	[2 datoshi]
+    /// 3F : OpCode.DROP	[2 datoshi]
+    /// 40 : OpCode.RET	[0 datoshi]
+    /// 41 : OpCode.DROP	[2 datoshi]
+    /// 42 : OpCode.PUSHDATA1 4E6F207375636820656E756D2076616C7565	[8 datoshi]
+    /// 56 : OpCode.THROW	[512 datoshi]
     /// </remarks>
     [DisplayName("testEnumParse")]
     public abstract object? TestEnumParse(string? value);
@@ -273,84 +273,84 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACDFRlc3RFbnVteHkmLgwQSnjKtSYiSnhQzkoAYQB7uyQJUVCLUJwi6QBhnwBBnlFQi1CcItxF2yhKeSY0DFZBTFVFMZcmB0VFRRFASnkmIAxWQUxVRTKXJgdFRUUSQEp5JgwMVkFMVUUzIgoMVmFsdWUzlyYHRUVFE0BFRQxObyBzdWNoIGVudW0gdmFsdWU6
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0D : OpCode.LDARG0 	-> 2 datoshi
-    /// 0E : OpCode.LDARG1 	-> 2 datoshi
-    /// 0F : OpCode.JMPIFNOT 2E 	-> 2 datoshi
-    /// 11 : OpCode.PUSHDATA1 	-> 8 datoshi
-    /// 13 : OpCode.PUSH0 	-> 1 datoshi
-    /// 14 : OpCode.DUP 	-> 2 datoshi
-    /// 15 : OpCode.LDARG0 	-> 2 datoshi
-    /// 16 : OpCode.SIZE 	-> 4 datoshi
-    /// 17 : OpCode.LT 	-> 8 datoshi
-    /// 18 : OpCode.JMPIFNOT 22 	-> 2 datoshi
-    /// 1A : OpCode.DUP 	-> 2 datoshi
-    /// 1B : OpCode.LDARG0 	-> 2 datoshi
-    /// 1C : OpCode.SWAP 	-> 2 datoshi
-    /// 1D : OpCode.PICKITEM 	-> 64 datoshi
-    /// 1E : OpCode.DUP 	-> 2 datoshi
-    /// 1F : OpCode.PUSHINT8 61 	-> 1 datoshi
-    /// 21 : OpCode.PUSHINT8 7B 	-> 1 datoshi
-    /// 23 : OpCode.WITHIN 	-> 8 datoshi
-    /// 24 : OpCode.JMPIF 09 	-> 2 datoshi
-    /// 26 : OpCode.ROT 	-> 2 datoshi
-    /// 27 : OpCode.SWAP 	-> 2 datoshi
-    /// 28 : OpCode.CAT 	-> 2048 datoshi
-    /// 29 : OpCode.SWAP 	-> 2 datoshi
-    /// 2A : OpCode.INC 	-> 4 datoshi
-    /// 2B : OpCode.JMP E9 	-> 2 datoshi
-    /// 2D : OpCode.PUSHINT8 61 	-> 1 datoshi
-    /// 2F : OpCode.SUB 	-> 8 datoshi
-    /// 30 : OpCode.PUSHINT8 41 	-> 1 datoshi
-    /// 32 : OpCode.ADD 	-> 8 datoshi
-    /// 33 : OpCode.ROT 	-> 2 datoshi
-    /// 34 : OpCode.SWAP 	-> 2 datoshi
-    /// 35 : OpCode.CAT 	-> 2048 datoshi
-    /// 36 : OpCode.SWAP 	-> 2 datoshi
-    /// 37 : OpCode.INC 	-> 4 datoshi
-    /// 38 : OpCode.JMP DC 	-> 2 datoshi
-    /// 3A : OpCode.DROP 	-> 2 datoshi
-    /// 3B : OpCode.CONVERT 28 	-> 8192 datoshi
-    /// 3D : OpCode.DUP 	-> 2 datoshi
-    /// 3E : OpCode.LDARG1 	-> 2 datoshi
-    /// 3F : OpCode.JMPIFNOT 34 	-> 2 datoshi
-    /// 41 : OpCode.PUSHDATA1 56414C554531 	-> 8 datoshi
-    /// 49 : OpCode.EQUAL 	-> 32 datoshi
-    /// 4A : OpCode.JMPIFNOT 07 	-> 2 datoshi
-    /// 4C : OpCode.DROP 	-> 2 datoshi
-    /// 4D : OpCode.DROP 	-> 2 datoshi
-    /// 4E : OpCode.DROP 	-> 2 datoshi
-    /// 4F : OpCode.PUSH1 	-> 1 datoshi
-    /// 50 : OpCode.RET 	-> 0 datoshi
-    /// 51 : OpCode.DUP 	-> 2 datoshi
-    /// 52 : OpCode.LDARG1 	-> 2 datoshi
-    /// 53 : OpCode.JMPIFNOT 20 	-> 2 datoshi
-    /// 55 : OpCode.PUSHDATA1 56414C554532 	-> 8 datoshi
-    /// 5D : OpCode.EQUAL 	-> 32 datoshi
-    /// 5E : OpCode.JMPIFNOT 07 	-> 2 datoshi
-    /// 60 : OpCode.DROP 	-> 2 datoshi
-    /// 61 : OpCode.DROP 	-> 2 datoshi
-    /// 62 : OpCode.DROP 	-> 2 datoshi
-    /// 63 : OpCode.PUSH2 	-> 1 datoshi
-    /// 64 : OpCode.RET 	-> 0 datoshi
-    /// 65 : OpCode.DUP 	-> 2 datoshi
-    /// 66 : OpCode.LDARG1 	-> 2 datoshi
-    /// 67 : OpCode.JMPIFNOT 0C 	-> 2 datoshi
-    /// 69 : OpCode.PUSHDATA1 56414C554533 	-> 8 datoshi
-    /// 71 : OpCode.JMP 0A 	-> 2 datoshi
-    /// 73 : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 7B : OpCode.EQUAL 	-> 32 datoshi
-    /// 7C : OpCode.JMPIFNOT 07 	-> 2 datoshi
-    /// 7E : OpCode.DROP 	-> 2 datoshi
-    /// 7F : OpCode.DROP 	-> 2 datoshi
-    /// 80 : OpCode.DROP 	-> 2 datoshi
-    /// 81 : OpCode.PUSH3 	-> 1 datoshi
-    /// 82 : OpCode.RET 	-> 0 datoshi
-    /// 83 : OpCode.DROP 	-> 2 datoshi
-    /// 84 : OpCode.DROP 	-> 2 datoshi
-    /// 85 : OpCode.PUSHDATA1 4E6F207375636820656E756D2076616C7565 	-> 8 datoshi
-    /// 99 : OpCode.THROW 	-> 512 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0D : OpCode.LDARG0	[2 datoshi]
+    /// 0E : OpCode.LDARG1	[2 datoshi]
+    /// 0F : OpCode.JMPIFNOT 2E	[2 datoshi]
+    /// 11 : OpCode.PUSHDATA1	[8 datoshi]
+    /// 13 : OpCode.PUSH0	[1 datoshi]
+    /// 14 : OpCode.DUP	[2 datoshi]
+    /// 15 : OpCode.LDARG0	[2 datoshi]
+    /// 16 : OpCode.SIZE	[4 datoshi]
+    /// 17 : OpCode.LT	[8 datoshi]
+    /// 18 : OpCode.JMPIFNOT 22	[2 datoshi]
+    /// 1A : OpCode.DUP	[2 datoshi]
+    /// 1B : OpCode.LDARG0	[2 datoshi]
+    /// 1C : OpCode.SWAP	[2 datoshi]
+    /// 1D : OpCode.PICKITEM	[64 datoshi]
+    /// 1E : OpCode.DUP	[2 datoshi]
+    /// 1F : OpCode.PUSHINT8 61	[1 datoshi]
+    /// 21 : OpCode.PUSHINT8 7B	[1 datoshi]
+    /// 23 : OpCode.WITHIN	[8 datoshi]
+    /// 24 : OpCode.JMPIF 09	[2 datoshi]
+    /// 26 : OpCode.ROT	[2 datoshi]
+    /// 27 : OpCode.SWAP	[2 datoshi]
+    /// 28 : OpCode.CAT	[2048 datoshi]
+    /// 29 : OpCode.SWAP	[2 datoshi]
+    /// 2A : OpCode.INC	[4 datoshi]
+    /// 2B : OpCode.JMP E9	[2 datoshi]
+    /// 2D : OpCode.PUSHINT8 61	[1 datoshi]
+    /// 2F : OpCode.SUB	[8 datoshi]
+    /// 30 : OpCode.PUSHINT8 41	[1 datoshi]
+    /// 32 : OpCode.ADD	[8 datoshi]
+    /// 33 : OpCode.ROT	[2 datoshi]
+    /// 34 : OpCode.SWAP	[2 datoshi]
+    /// 35 : OpCode.CAT	[2048 datoshi]
+    /// 36 : OpCode.SWAP	[2 datoshi]
+    /// 37 : OpCode.INC	[4 datoshi]
+    /// 38 : OpCode.JMP DC	[2 datoshi]
+    /// 3A : OpCode.DROP	[2 datoshi]
+    /// 3B : OpCode.CONVERT 28	[8192 datoshi]
+    /// 3D : OpCode.DUP	[2 datoshi]
+    /// 3E : OpCode.LDARG1	[2 datoshi]
+    /// 3F : OpCode.JMPIFNOT 34	[2 datoshi]
+    /// 41 : OpCode.PUSHDATA1 56414C554531	[8 datoshi]
+    /// 49 : OpCode.EQUAL	[32 datoshi]
+    /// 4A : OpCode.JMPIFNOT 07	[2 datoshi]
+    /// 4C : OpCode.DROP	[2 datoshi]
+    /// 4D : OpCode.DROP	[2 datoshi]
+    /// 4E : OpCode.DROP	[2 datoshi]
+    /// 4F : OpCode.PUSH1	[1 datoshi]
+    /// 50 : OpCode.RET	[0 datoshi]
+    /// 51 : OpCode.DUP	[2 datoshi]
+    /// 52 : OpCode.LDARG1	[2 datoshi]
+    /// 53 : OpCode.JMPIFNOT 20	[2 datoshi]
+    /// 55 : OpCode.PUSHDATA1 56414C554532	[8 datoshi]
+    /// 5D : OpCode.EQUAL	[32 datoshi]
+    /// 5E : OpCode.JMPIFNOT 07	[2 datoshi]
+    /// 60 : OpCode.DROP	[2 datoshi]
+    /// 61 : OpCode.DROP	[2 datoshi]
+    /// 62 : OpCode.DROP	[2 datoshi]
+    /// 63 : OpCode.PUSH2	[1 datoshi]
+    /// 64 : OpCode.RET	[0 datoshi]
+    /// 65 : OpCode.DUP	[2 datoshi]
+    /// 66 : OpCode.LDARG1	[2 datoshi]
+    /// 67 : OpCode.JMPIFNOT 0C	[2 datoshi]
+    /// 69 : OpCode.PUSHDATA1 56414C554533	[8 datoshi]
+    /// 71 : OpCode.JMP 0A	[2 datoshi]
+    /// 73 : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 7B : OpCode.EQUAL	[32 datoshi]
+    /// 7C : OpCode.JMPIFNOT 07	[2 datoshi]
+    /// 7E : OpCode.DROP	[2 datoshi]
+    /// 7F : OpCode.DROP	[2 datoshi]
+    /// 80 : OpCode.DROP	[2 datoshi]
+    /// 81 : OpCode.PUSH3	[1 datoshi]
+    /// 82 : OpCode.RET	[0 datoshi]
+    /// 83 : OpCode.DROP	[2 datoshi]
+    /// 84 : OpCode.DROP	[2 datoshi]
+    /// 85 : OpCode.PUSHDATA1 4E6F207375636820656E756D2076616C7565	[8 datoshi]
+    /// 99 : OpCode.THROW	[512 datoshi]
     /// </remarks>
     [DisplayName("testEnumParseIgnoreCase")]
     public abstract object? TestEnumParseIgnoreCase(string? value, bool? ignoreCase);
@@ -360,49 +360,49 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABC2AMVGVzdEVudW14WEVKDFZhbHVlMZcmCEVFEWAIQEoMVmFsdWUylyYIRUUSYAhASgxWYWx1ZTOXJghFRRNgCEBFRRBgCUA=
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.PUSHNULL 	-> 1 datoshi
-    /// 04 : OpCode.STSFLD0 	-> 2 datoshi
-    /// 05 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0F : OpCode.LDARG0 	-> 2 datoshi
-    /// 10 : OpCode.LDSFLD0 	-> 2 datoshi
-    /// 11 : OpCode.DROP 	-> 2 datoshi
-    /// 12 : OpCode.DUP 	-> 2 datoshi
-    /// 13 : OpCode.PUSHDATA1 56616C756531 	-> 8 datoshi
-    /// 1B : OpCode.EQUAL 	-> 32 datoshi
-    /// 1C : OpCode.JMPIFNOT 08 	-> 2 datoshi
-    /// 1E : OpCode.DROP 	-> 2 datoshi
-    /// 1F : OpCode.DROP 	-> 2 datoshi
-    /// 20 : OpCode.PUSH1 	-> 1 datoshi
-    /// 21 : OpCode.STSFLD0 	-> 2 datoshi
-    /// 22 : OpCode.PUSHT 	-> 1 datoshi
-    /// 23 : OpCode.RET 	-> 0 datoshi
-    /// 24 : OpCode.DUP 	-> 2 datoshi
-    /// 25 : OpCode.PUSHDATA1 56616C756532 	-> 8 datoshi
-    /// 2D : OpCode.EQUAL 	-> 32 datoshi
-    /// 2E : OpCode.JMPIFNOT 08 	-> 2 datoshi
-    /// 30 : OpCode.DROP 	-> 2 datoshi
-    /// 31 : OpCode.DROP 	-> 2 datoshi
-    /// 32 : OpCode.PUSH2 	-> 1 datoshi
-    /// 33 : OpCode.STSFLD0 	-> 2 datoshi
-    /// 34 : OpCode.PUSHT 	-> 1 datoshi
-    /// 35 : OpCode.RET 	-> 0 datoshi
-    /// 36 : OpCode.DUP 	-> 2 datoshi
-    /// 37 : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 3F : OpCode.EQUAL 	-> 32 datoshi
-    /// 40 : OpCode.JMPIFNOT 08 	-> 2 datoshi
-    /// 42 : OpCode.DROP 	-> 2 datoshi
-    /// 43 : OpCode.DROP 	-> 2 datoshi
-    /// 44 : OpCode.PUSH3 	-> 1 datoshi
-    /// 45 : OpCode.STSFLD0 	-> 2 datoshi
-    /// 46 : OpCode.PUSHT 	-> 1 datoshi
-    /// 47 : OpCode.RET 	-> 0 datoshi
-    /// 48 : OpCode.DROP 	-> 2 datoshi
-    /// 49 : OpCode.DROP 	-> 2 datoshi
-    /// 4A : OpCode.PUSH0 	-> 1 datoshi
-    /// 4B : OpCode.STSFLD0 	-> 2 datoshi
-    /// 4C : OpCode.PUSHF 	-> 1 datoshi
-    /// 4D : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.PUSHNULL	[1 datoshi]
+    /// 04 : OpCode.STSFLD0	[2 datoshi]
+    /// 05 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0F : OpCode.LDARG0	[2 datoshi]
+    /// 10 : OpCode.LDSFLD0	[2 datoshi]
+    /// 11 : OpCode.DROP	[2 datoshi]
+    /// 12 : OpCode.DUP	[2 datoshi]
+    /// 13 : OpCode.PUSHDATA1 56616C756531	[8 datoshi]
+    /// 1B : OpCode.EQUAL	[32 datoshi]
+    /// 1C : OpCode.JMPIFNOT 08	[2 datoshi]
+    /// 1E : OpCode.DROP	[2 datoshi]
+    /// 1F : OpCode.DROP	[2 datoshi]
+    /// 20 : OpCode.PUSH1	[1 datoshi]
+    /// 21 : OpCode.STSFLD0	[2 datoshi]
+    /// 22 : OpCode.PUSHT	[1 datoshi]
+    /// 23 : OpCode.RET	[0 datoshi]
+    /// 24 : OpCode.DUP	[2 datoshi]
+    /// 25 : OpCode.PUSHDATA1 56616C756532	[8 datoshi]
+    /// 2D : OpCode.EQUAL	[32 datoshi]
+    /// 2E : OpCode.JMPIFNOT 08	[2 datoshi]
+    /// 30 : OpCode.DROP	[2 datoshi]
+    /// 31 : OpCode.DROP	[2 datoshi]
+    /// 32 : OpCode.PUSH2	[1 datoshi]
+    /// 33 : OpCode.STSFLD0	[2 datoshi]
+    /// 34 : OpCode.PUSHT	[1 datoshi]
+    /// 35 : OpCode.RET	[0 datoshi]
+    /// 36 : OpCode.DUP	[2 datoshi]
+    /// 37 : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 3F : OpCode.EQUAL	[32 datoshi]
+    /// 40 : OpCode.JMPIFNOT 08	[2 datoshi]
+    /// 42 : OpCode.DROP	[2 datoshi]
+    /// 43 : OpCode.DROP	[2 datoshi]
+    /// 44 : OpCode.PUSH3	[1 datoshi]
+    /// 45 : OpCode.STSFLD0	[2 datoshi]
+    /// 46 : OpCode.PUSHT	[1 datoshi]
+    /// 47 : OpCode.RET	[0 datoshi]
+    /// 48 : OpCode.DROP	[2 datoshi]
+    /// 49 : OpCode.DROP	[2 datoshi]
+    /// 4A : OpCode.PUSH0	[1 datoshi]
+    /// 4B : OpCode.STSFLD0	[2 datoshi]
+    /// 4C : OpCode.PUSHF	[1 datoshi]
+    /// 4D : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumTryParse")]
     public abstract bool? TestEnumTryParse(string? value);
@@ -412,95 +412,95 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACC2EMVGVzdEVudW14eVlFJjBQRQwQSnjKtSYiSnhQzkoAYQB7uyQJUVCLUJwi6QBhnwBBnlFQi1CcItxF2yhKeSY2DFZBTFVFMZcmCEVFEWEIQEp5JiEMVkFMVUUylyYIRUUSYQhASnkmDAxWQUxVRTMiCgxWYWx1ZTOXJghFRRNhCEBFRRBhCUA=
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.PUSHNULL 	-> 1 datoshi
-    /// 04 : OpCode.STSFLD1 	-> 2 datoshi
-    /// 05 : OpCode.PUSHDATA1 54657374456E756D 	-> 8 datoshi
-    /// 0F : OpCode.LDARG0 	-> 2 datoshi
-    /// 10 : OpCode.LDARG1 	-> 2 datoshi
-    /// 11 : OpCode.LDSFLD1 	-> 2 datoshi
-    /// 12 : OpCode.DROP 	-> 2 datoshi
-    /// 13 : OpCode.JMPIFNOT 30 	-> 2 datoshi
-    /// 15 : OpCode.SWAP 	-> 2 datoshi
-    /// 16 : OpCode.DROP 	-> 2 datoshi
-    /// 17 : OpCode.PUSHDATA1 	-> 8 datoshi
-    /// 19 : OpCode.PUSH0 	-> 1 datoshi
-    /// 1A : OpCode.DUP 	-> 2 datoshi
-    /// 1B : OpCode.LDARG0 	-> 2 datoshi
-    /// 1C : OpCode.SIZE 	-> 4 datoshi
-    /// 1D : OpCode.LT 	-> 8 datoshi
-    /// 1E : OpCode.JMPIFNOT 22 	-> 2 datoshi
-    /// 20 : OpCode.DUP 	-> 2 datoshi
-    /// 21 : OpCode.LDARG0 	-> 2 datoshi
-    /// 22 : OpCode.SWAP 	-> 2 datoshi
-    /// 23 : OpCode.PICKITEM 	-> 64 datoshi
-    /// 24 : OpCode.DUP 	-> 2 datoshi
-    /// 25 : OpCode.PUSHINT8 61 	-> 1 datoshi
-    /// 27 : OpCode.PUSHINT8 7B 	-> 1 datoshi
-    /// 29 : OpCode.WITHIN 	-> 8 datoshi
-    /// 2A : OpCode.JMPIF 09 	-> 2 datoshi
-    /// 2C : OpCode.ROT 	-> 2 datoshi
-    /// 2D : OpCode.SWAP 	-> 2 datoshi
-    /// 2E : OpCode.CAT 	-> 2048 datoshi
-    /// 2F : OpCode.SWAP 	-> 2 datoshi
-    /// 30 : OpCode.INC 	-> 4 datoshi
-    /// 31 : OpCode.JMP E9 	-> 2 datoshi
-    /// 33 : OpCode.PUSHINT8 61 	-> 1 datoshi
-    /// 35 : OpCode.SUB 	-> 8 datoshi
-    /// 36 : OpCode.PUSHINT8 41 	-> 1 datoshi
-    /// 38 : OpCode.ADD 	-> 8 datoshi
-    /// 39 : OpCode.ROT 	-> 2 datoshi
-    /// 3A : OpCode.SWAP 	-> 2 datoshi
-    /// 3B : OpCode.CAT 	-> 2048 datoshi
-    /// 3C : OpCode.SWAP 	-> 2 datoshi
-    /// 3D : OpCode.INC 	-> 4 datoshi
-    /// 3E : OpCode.JMP DC 	-> 2 datoshi
-    /// 40 : OpCode.DROP 	-> 2 datoshi
-    /// 41 : OpCode.CONVERT 28 	-> 8192 datoshi
-    /// 43 : OpCode.DUP 	-> 2 datoshi
-    /// 44 : OpCode.LDARG1 	-> 2 datoshi
-    /// 45 : OpCode.JMPIFNOT 36 	-> 2 datoshi
-    /// 47 : OpCode.PUSHDATA1 56414C554531 	-> 8 datoshi
-    /// 4F : OpCode.EQUAL 	-> 32 datoshi
-    /// 50 : OpCode.JMPIFNOT 08 	-> 2 datoshi
-    /// 52 : OpCode.DROP 	-> 2 datoshi
-    /// 53 : OpCode.DROP 	-> 2 datoshi
-    /// 54 : OpCode.PUSH1 	-> 1 datoshi
-    /// 55 : OpCode.STSFLD1 	-> 2 datoshi
-    /// 56 : OpCode.PUSHT 	-> 1 datoshi
-    /// 57 : OpCode.RET 	-> 0 datoshi
-    /// 58 : OpCode.DUP 	-> 2 datoshi
-    /// 59 : OpCode.LDARG1 	-> 2 datoshi
-    /// 5A : OpCode.JMPIFNOT 21 	-> 2 datoshi
-    /// 5C : OpCode.PUSHDATA1 56414C554532 	-> 8 datoshi
-    /// 64 : OpCode.EQUAL 	-> 32 datoshi
-    /// 65 : OpCode.JMPIFNOT 08 	-> 2 datoshi
-    /// 67 : OpCode.DROP 	-> 2 datoshi
-    /// 68 : OpCode.DROP 	-> 2 datoshi
-    /// 69 : OpCode.PUSH2 	-> 1 datoshi
-    /// 6A : OpCode.STSFLD1 	-> 2 datoshi
-    /// 6B : OpCode.PUSHT 	-> 1 datoshi
-    /// 6C : OpCode.RET 	-> 0 datoshi
-    /// 6D : OpCode.DUP 	-> 2 datoshi
-    /// 6E : OpCode.LDARG1 	-> 2 datoshi
-    /// 6F : OpCode.JMPIFNOT 0C 	-> 2 datoshi
-    /// 71 : OpCode.PUSHDATA1 56414C554533 	-> 8 datoshi
-    /// 79 : OpCode.JMP 0A 	-> 2 datoshi
-    /// 7B : OpCode.PUSHDATA1 56616C756533 	-> 8 datoshi
-    /// 83 : OpCode.EQUAL 	-> 32 datoshi
-    /// 84 : OpCode.JMPIFNOT 08 	-> 2 datoshi
-    /// 86 : OpCode.DROP 	-> 2 datoshi
-    /// 87 : OpCode.DROP 	-> 2 datoshi
-    /// 88 : OpCode.PUSH3 	-> 1 datoshi
-    /// 89 : OpCode.STSFLD1 	-> 2 datoshi
-    /// 8A : OpCode.PUSHT 	-> 1 datoshi
-    /// 8B : OpCode.RET 	-> 0 datoshi
-    /// 8C : OpCode.DROP 	-> 2 datoshi
-    /// 8D : OpCode.DROP 	-> 2 datoshi
-    /// 8E : OpCode.PUSH0 	-> 1 datoshi
-    /// 8F : OpCode.STSFLD1 	-> 2 datoshi
-    /// 90 : OpCode.PUSHF 	-> 1 datoshi
-    /// 91 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.PUSHNULL	[1 datoshi]
+    /// 04 : OpCode.STSFLD1	[2 datoshi]
+    /// 05 : OpCode.PUSHDATA1 54657374456E756D	[8 datoshi]
+    /// 0F : OpCode.LDARG0	[2 datoshi]
+    /// 10 : OpCode.LDARG1	[2 datoshi]
+    /// 11 : OpCode.LDSFLD1	[2 datoshi]
+    /// 12 : OpCode.DROP	[2 datoshi]
+    /// 13 : OpCode.JMPIFNOT 30	[2 datoshi]
+    /// 15 : OpCode.SWAP	[2 datoshi]
+    /// 16 : OpCode.DROP	[2 datoshi]
+    /// 17 : OpCode.PUSHDATA1	[8 datoshi]
+    /// 19 : OpCode.PUSH0	[1 datoshi]
+    /// 1A : OpCode.DUP	[2 datoshi]
+    /// 1B : OpCode.LDARG0	[2 datoshi]
+    /// 1C : OpCode.SIZE	[4 datoshi]
+    /// 1D : OpCode.LT	[8 datoshi]
+    /// 1E : OpCode.JMPIFNOT 22	[2 datoshi]
+    /// 20 : OpCode.DUP	[2 datoshi]
+    /// 21 : OpCode.LDARG0	[2 datoshi]
+    /// 22 : OpCode.SWAP	[2 datoshi]
+    /// 23 : OpCode.PICKITEM	[64 datoshi]
+    /// 24 : OpCode.DUP	[2 datoshi]
+    /// 25 : OpCode.PUSHINT8 61	[1 datoshi]
+    /// 27 : OpCode.PUSHINT8 7B	[1 datoshi]
+    /// 29 : OpCode.WITHIN	[8 datoshi]
+    /// 2A : OpCode.JMPIF 09	[2 datoshi]
+    /// 2C : OpCode.ROT	[2 datoshi]
+    /// 2D : OpCode.SWAP	[2 datoshi]
+    /// 2E : OpCode.CAT	[2048 datoshi]
+    /// 2F : OpCode.SWAP	[2 datoshi]
+    /// 30 : OpCode.INC	[4 datoshi]
+    /// 31 : OpCode.JMP E9	[2 datoshi]
+    /// 33 : OpCode.PUSHINT8 61	[1 datoshi]
+    /// 35 : OpCode.SUB	[8 datoshi]
+    /// 36 : OpCode.PUSHINT8 41	[1 datoshi]
+    /// 38 : OpCode.ADD	[8 datoshi]
+    /// 39 : OpCode.ROT	[2 datoshi]
+    /// 3A : OpCode.SWAP	[2 datoshi]
+    /// 3B : OpCode.CAT	[2048 datoshi]
+    /// 3C : OpCode.SWAP	[2 datoshi]
+    /// 3D : OpCode.INC	[4 datoshi]
+    /// 3E : OpCode.JMP DC	[2 datoshi]
+    /// 40 : OpCode.DROP	[2 datoshi]
+    /// 41 : OpCode.CONVERT 28	[8192 datoshi]
+    /// 43 : OpCode.DUP	[2 datoshi]
+    /// 44 : OpCode.LDARG1	[2 datoshi]
+    /// 45 : OpCode.JMPIFNOT 36	[2 datoshi]
+    /// 47 : OpCode.PUSHDATA1 56414C554531	[8 datoshi]
+    /// 4F : OpCode.EQUAL	[32 datoshi]
+    /// 50 : OpCode.JMPIFNOT 08	[2 datoshi]
+    /// 52 : OpCode.DROP	[2 datoshi]
+    /// 53 : OpCode.DROP	[2 datoshi]
+    /// 54 : OpCode.PUSH1	[1 datoshi]
+    /// 55 : OpCode.STSFLD1	[2 datoshi]
+    /// 56 : OpCode.PUSHT	[1 datoshi]
+    /// 57 : OpCode.RET	[0 datoshi]
+    /// 58 : OpCode.DUP	[2 datoshi]
+    /// 59 : OpCode.LDARG1	[2 datoshi]
+    /// 5A : OpCode.JMPIFNOT 21	[2 datoshi]
+    /// 5C : OpCode.PUSHDATA1 56414C554532	[8 datoshi]
+    /// 64 : OpCode.EQUAL	[32 datoshi]
+    /// 65 : OpCode.JMPIFNOT 08	[2 datoshi]
+    /// 67 : OpCode.DROP	[2 datoshi]
+    /// 68 : OpCode.DROP	[2 datoshi]
+    /// 69 : OpCode.PUSH2	[1 datoshi]
+    /// 6A : OpCode.STSFLD1	[2 datoshi]
+    /// 6B : OpCode.PUSHT	[1 datoshi]
+    /// 6C : OpCode.RET	[0 datoshi]
+    /// 6D : OpCode.DUP	[2 datoshi]
+    /// 6E : OpCode.LDARG1	[2 datoshi]
+    /// 6F : OpCode.JMPIFNOT 0C	[2 datoshi]
+    /// 71 : OpCode.PUSHDATA1 56414C554533	[8 datoshi]
+    /// 79 : OpCode.JMP 0A	[2 datoshi]
+    /// 7B : OpCode.PUSHDATA1 56616C756533	[8 datoshi]
+    /// 83 : OpCode.EQUAL	[32 datoshi]
+    /// 84 : OpCode.JMPIFNOT 08	[2 datoshi]
+    /// 86 : OpCode.DROP	[2 datoshi]
+    /// 87 : OpCode.DROP	[2 datoshi]
+    /// 88 : OpCode.PUSH3	[1 datoshi]
+    /// 89 : OpCode.STSFLD1	[2 datoshi]
+    /// 8A : OpCode.PUSHT	[1 datoshi]
+    /// 8B : OpCode.RET	[0 datoshi]
+    /// 8C : OpCode.DROP	[2 datoshi]
+    /// 8D : OpCode.DROP	[2 datoshi]
+    /// 8E : OpCode.PUSH0	[1 datoshi]
+    /// 8F : OpCode.STSFLD1	[2 datoshi]
+    /// 90 : OpCode.PUSHF	[1 datoshi]
+    /// 91 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEnumTryParseIgnoreCase")]
     public abstract bool? TestEnumTryParseIgnoreCase(string? value, bool? ignoreCase);

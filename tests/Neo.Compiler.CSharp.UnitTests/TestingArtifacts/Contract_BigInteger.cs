@@ -26,8 +26,8 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: BAAAAOTSDMjc0rdSAAAAAABA
-    /// 00 : OpCode.PUSHINT128 000000E4D20CC8DCD2B7520000000000 	-> 4 datoshi
-    /// 11 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.PUSHINT128 000000E4D20CC8DCD2B7520000000000	[4 datoshi]
+    /// 11 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("parseConstant")]
     public abstract BigInteger? ParseConstant();
@@ -37,11 +37,11 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeQA==
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.ADD 	-> 8 datoshi
-    /// 06 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.ADD	[8 datoshi]
+    /// 06 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testAdd")]
     public abstract BigInteger? TestAdd(BigInteger? x, BigInteger? y);
@@ -69,12 +69,12 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmfmUA=
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.SUB 	-> 8 datoshi
-    /// 06 : OpCode.SIGN 	-> 4 datoshi
-    /// 07 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.SUB	[8 datoshi]
+    /// 06 : OpCode.SIGN	[4 datoshi]
+    /// 07 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testCompare")]
     public abstract BigInteger? TestCompare(BigInteger? x, BigInteger? y);
@@ -84,11 +84,11 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmhQA==
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.DIV 	-> 8 datoshi
-    /// 06 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.DIV	[8 datoshi]
+    /// 06 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testDivide")]
     public abstract BigInteger? TestDivide(BigInteger? x, BigInteger? y);
@@ -98,11 +98,11 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmzQA==
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.NUMEQUAL 	-> 8 datoshi
-    /// 06 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.NUMEQUAL	[8 datoshi]
+    /// 06 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testEquals")]
     public abstract bool? TestEquals(BigInteger? x, BigInteger? y);
@@ -112,20 +112,20 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHlKU1CiShCzJvlFmkA=
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.DUP 	-> 2 datoshi
-    /// 06 : OpCode.REVERSE3 	-> 2 datoshi
-    /// 07 : OpCode.SWAP 	-> 2 datoshi
-    /// 08 : OpCode.MOD 	-> 8 datoshi
-    /// 09 : OpCode.DUP 	-> 2 datoshi
-    /// 0A : OpCode.PUSH0 	-> 1 datoshi
-    /// 0B : OpCode.NUMEQUAL 	-> 8 datoshi
-    /// 0C : OpCode.JMPIFNOT F9 	-> 2 datoshi
-    /// 0E : OpCode.DROP 	-> 2 datoshi
-    /// 0F : OpCode.ABS 	-> 4 datoshi
-    /// 10 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.DUP	[2 datoshi]
+    /// 06 : OpCode.REVERSE3	[2 datoshi]
+    /// 07 : OpCode.SWAP	[2 datoshi]
+    /// 08 : OpCode.MOD	[8 datoshi]
+    /// 09 : OpCode.DUP	[2 datoshi]
+    /// 0A : OpCode.PUSH0	[1 datoshi]
+    /// 0B : OpCode.NUMEQUAL	[8 datoshi]
+    /// 0C : OpCode.JMPIFNOT F9	[2 datoshi]
+    /// 0E : OpCode.DROP	[2 datoshi]
+    /// 0F : OpCode.ABS	[4 datoshi]
+    /// 10 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testGreatestCommonDivisor")]
     public abstract BigInteger? TestGreatestCommonDivisor(BigInteger? x, BigInteger? y);
@@ -165,18 +165,18 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwMAGnATcQAecmhpaqZA
-    /// 00 : OpCode.INITSLOT 0300 	-> 64 datoshi
-    /// 03 : OpCode.PUSH10 	-> 1 datoshi
-    /// 04 : OpCode.STLOC0 	-> 2 datoshi
-    /// 05 : OpCode.PUSH3 	-> 1 datoshi
-    /// 06 : OpCode.STLOC1 	-> 2 datoshi
-    /// 07 : OpCode.PUSHINT8 1E 	-> 1 datoshi
-    /// 09 : OpCode.STLOC2 	-> 2 datoshi
-    /// 0A : OpCode.LDLOC0 	-> 2 datoshi
-    /// 0B : OpCode.LDLOC1 	-> 2 datoshi
-    /// 0C : OpCode.LDLOC2 	-> 2 datoshi
-    /// 0D : OpCode.MODPOW 	-> 2048 datoshi
-    /// 0E : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0300	[64 datoshi]
+    /// 03 : OpCode.PUSH10	[1 datoshi]
+    /// 04 : OpCode.STLOC0	[2 datoshi]
+    /// 05 : OpCode.PUSH3	[1 datoshi]
+    /// 06 : OpCode.STLOC1	[2 datoshi]
+    /// 07 : OpCode.PUSHINT8 1E	[1 datoshi]
+    /// 09 : OpCode.STLOC2	[2 datoshi]
+    /// 0A : OpCode.LDLOC0	[2 datoshi]
+    /// 0B : OpCode.LDLOC1	[2 datoshi]
+    /// 0C : OpCode.LDLOC2	[2 datoshi]
+    /// 0D : OpCode.MODPOW	[2048 datoshi]
+    /// 0E : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testModPow")]
     public abstract BigInteger? TestModPow();
@@ -186,11 +186,11 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmgQA==
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.MUL 	-> 8 datoshi
-    /// 06 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.MUL	[8 datoshi]
+    /// 06 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testMultiply")]
     public abstract BigInteger? TestMultiply(BigInteger? x, BigInteger? y);
@@ -200,10 +200,10 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwABeJtA
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.NEGATE 	-> 4 datoshi
-    /// 05 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.NEGATE	[4 datoshi]
+    /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testNegate")]
     public abstract BigInteger? TestNegate(BigInteger? x);
@@ -213,11 +213,11 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmjQA==
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.POW 	-> 64 datoshi
-    /// 06 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.POW	[64 datoshi]
+    /// 06 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testPow")]
     public abstract BigInteger? TestPow(BigInteger? x, BigInteger? y);
@@ -227,11 +227,11 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmiQA==
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.MOD 	-> 8 datoshi
-    /// 06 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.MOD	[8 datoshi]
+    /// 06 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testRemainder")]
     public abstract BigInteger? TestRemainder(BigInteger? x, BigInteger? y);
@@ -259,10 +259,10 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwABeKRA
-    /// 00 : OpCode.INITSLOT 0001 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.SQRT 	-> 64 datoshi
-    /// 05 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.SQRT	[64 datoshi]
+    /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testSqrt")]
     public abstract BigInteger? TestSqrt(BigInteger? x);
@@ -272,11 +272,11 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmfQA==
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.SUB 	-> 8 datoshi
-    /// 06 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.SUB	[8 datoshi]
+    /// 06 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testSubtract")]
     public abstract BigInteger? TestSubtract(BigInteger? x, BigInteger? y);

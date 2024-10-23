@@ -431,7 +431,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
                     foreach (var instruction in instructions)
                     {
-                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()} \t-> {ApplicationEngine.OpCodePriceTable[(byte)instruction.instruction.OpCode]} datoshi");
+                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString()}\t[{ApplicationEngine.OpCodePriceTable[(byte)instruction.instruction.OpCode]} datoshi]");
                     }
                     sourceCode.WriteLine("    /// </remarks>");
                 }

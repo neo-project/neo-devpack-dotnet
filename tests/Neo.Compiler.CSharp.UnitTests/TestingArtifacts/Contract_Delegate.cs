@@ -32,21 +32,21 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwIACsj///9wFhVoNnEMU3VtOiBpNwAAi9soQc/nR5ZA
-    /// 00 : OpCode.INITSLOT 0200 	-> 64 datoshi
-    /// 03 : OpCode.PUSHA C8FFFFFF 	-> 4 datoshi
-    /// 08 : OpCode.STLOC0 	-> 2 datoshi
-    /// 09 : OpCode.PUSH6 	-> 1 datoshi
-    /// 0A : OpCode.PUSH5 	-> 1 datoshi
-    /// 0B : OpCode.LDLOC0 	-> 2 datoshi
-    /// 0C : OpCode.CALLA 	-> 512 datoshi
-    /// 0D : OpCode.STLOC1 	-> 2 datoshi
-    /// 0E : OpCode.PUSHDATA1 53756D3A20 	-> 8 datoshi
-    /// 15 : OpCode.LDLOC1 	-> 2 datoshi
-    /// 16 : OpCode.CALLT 0000 	-> 32768 datoshi
-    /// 19 : OpCode.CAT 	-> 2048 datoshi
-    /// 1A : OpCode.CONVERT 28 	-> 8192 datoshi
-    /// 1C : OpCode.SYSCALL CFE74796 	-> 0 datoshi
-    /// 21 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0200	[64 datoshi]
+    /// 03 : OpCode.PUSHA C8FFFFFF	[4 datoshi]
+    /// 08 : OpCode.STLOC0	[2 datoshi]
+    /// 09 : OpCode.PUSH6	[1 datoshi]
+    /// 0A : OpCode.PUSH5	[1 datoshi]
+    /// 0B : OpCode.LDLOC0	[2 datoshi]
+    /// 0C : OpCode.CALLA	[512 datoshi]
+    /// 0D : OpCode.STLOC1	[2 datoshi]
+    /// 0E : OpCode.PUSHDATA1 53756D3A20	[8 datoshi]
+    /// 15 : OpCode.LDLOC1	[2 datoshi]
+    /// 16 : OpCode.CALLT 0000	[32768 datoshi]
+    /// 19 : OpCode.CAT	[2048 datoshi]
+    /// 1A : OpCode.CONVERT 28	[8192 datoshi]
+    /// 1C : OpCode.SYSCALL CFE74796	[0 datoshi]
+    /// 21 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("testDelegate")]
     public abstract void TestDelegate();

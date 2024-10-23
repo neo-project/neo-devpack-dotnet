@@ -35,13 +35,13 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwAEe3p5eEFifVtSQA==
-    /// 00 : OpCode.INITSLOT 0004 	-> 64 datoshi
-    /// 03 : OpCode.LDARG3 	-> 2 datoshi
-    /// 04 : OpCode.LDARG2 	-> 2 datoshi
-    /// 05 : OpCode.LDARG1 	-> 2 datoshi
-    /// 06 : OpCode.LDARG0 	-> 2 datoshi
-    /// 07 : OpCode.SYSCALL 627D5B52 	-> 0 datoshi
-    /// 0C : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0004	[64 datoshi]
+    /// 03 : OpCode.LDARG3	[2 datoshi]
+    /// 04 : OpCode.LDARG2	[2 datoshi]
+    /// 05 : OpCode.LDARG1	[2 datoshi]
+    /// 06 : OpCode.LDARG0	[2 datoshi]
+    /// 07 : OpCode.SYSCALL 627D5B52	[0 datoshi]
+    /// 0C : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
@@ -225,13 +225,13 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwACC3l42yg3AQBA
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.PUSHNULL 	-> 1 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.LDARG0 	-> 2 datoshi
-    /// 06 : OpCode.CONVERT 28 	-> 8192 datoshi
-    /// 08 : OpCode.CALLT 0100 	-> 32768 datoshi
-    /// 0B : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.PUSHNULL	[1 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.LDARG0	[2 datoshi]
+    /// 06 : OpCode.CONVERT 28	[8192 datoshi]
+    /// 08 : OpCode.CALLT 0100	[32768 datoshi]
+    /// 0B : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
@@ -241,22 +241,22 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwECEYhKEHnQcGh4i3Bo2yg3AABA
-    /// 00 : OpCode.INITSLOT 0102 	-> 64 datoshi
-    /// 03 : OpCode.PUSH1 	-> 1 datoshi
-    /// 04 : OpCode.NEWBUFFER 	-> 256 datoshi
-    /// 05 : OpCode.DUP 	-> 2 datoshi
-    /// 06 : OpCode.PUSH0 	-> 1 datoshi
-    /// 07 : OpCode.LDARG1 	-> 2 datoshi
-    /// 08 : OpCode.SETITEM 	-> 8192 datoshi
-    /// 09 : OpCode.STLOC0 	-> 2 datoshi
-    /// 0A : OpCode.LDLOC0 	-> 2 datoshi
-    /// 0B : OpCode.LDARG0 	-> 2 datoshi
-    /// 0C : OpCode.CAT 	-> 2048 datoshi
-    /// 0D : OpCode.STLOC0 	-> 2 datoshi
-    /// 0E : OpCode.LDLOC0 	-> 2 datoshi
-    /// 0F : OpCode.CONVERT 28 	-> 8192 datoshi
-    /// 11 : OpCode.CALLT 0000 	-> 32768 datoshi
-    /// 14 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0102	[64 datoshi]
+    /// 03 : OpCode.PUSH1	[1 datoshi]
+    /// 04 : OpCode.NEWBUFFER	[256 datoshi]
+    /// 05 : OpCode.DUP	[2 datoshi]
+    /// 06 : OpCode.PUSH0	[1 datoshi]
+    /// 07 : OpCode.LDARG1	[2 datoshi]
+    /// 08 : OpCode.SETITEM	[8192 datoshi]
+    /// 09 : OpCode.STLOC0	[2 datoshi]
+    /// 0A : OpCode.LDLOC0	[2 datoshi]
+    /// 0B : OpCode.LDARG0	[2 datoshi]
+    /// 0C : OpCode.CAT	[2048 datoshi]
+    /// 0D : OpCode.STLOC0	[2 datoshi]
+    /// 0E : OpCode.LDLOC0	[2 datoshi]
+    /// 0F : OpCode.CONVERT 28	[8192 datoshi]
+    /// 11 : OpCode.CALLT 0000	[32768 datoshi]
+    /// 14 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? address, BigInteger? version);

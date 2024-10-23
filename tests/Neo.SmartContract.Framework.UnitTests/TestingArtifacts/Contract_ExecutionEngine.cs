@@ -26,9 +26,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjzbMEA=
-    /// 00 : OpCode.SYSCALL 39536E3C 	-> 0 datoshi
-    /// 05 : OpCode.CONVERT 30 	-> 8192 datoshi
-    /// 07 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.SYSCALL 39536E3C	[0 datoshi]
+    /// 05 : OpCode.CONVERT 30	[8192 datoshi]
+    /// 07 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("callingScriptHash")]
     public abstract byte[]? CallingScriptHash();
@@ -38,9 +38,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qfm04jjbMEA=
-    /// 00 : OpCode.SYSCALL F9B4E238 	-> 0 datoshi
-    /// 05 : OpCode.CONVERT 30 	-> 8192 datoshi
-    /// 07 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.SYSCALL F9B4E238	[0 datoshi]
+    /// 05 : OpCode.CONVERT 30	[8192 datoshi]
+    /// 07 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("entryScriptHash")]
     public abstract byte[]? EntryScriptHash();
@@ -50,9 +50,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qdv+qHTbMEA=
-    /// 00 : OpCode.SYSCALL DBFEA874 	-> 0 datoshi
-    /// 05 : OpCode.CONVERT 30 	-> 8192 datoshi
-    /// 07 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.SYSCALL DBFEA874	[0 datoshi]
+    /// 05 : OpCode.CONVERT 30	[8192 datoshi]
+    /// 07 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("executingScriptHash")]
     public abstract byte[]? ExecutingScriptHash();
@@ -62,8 +62,8 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 00 : OpCode.SYSCALL 2D510830 	-> 0 datoshi
-    /// 05 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("scriptContainer")]
     public abstract object? ScriptContainer();
@@ -73,8 +73,8 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 00 : OpCode.SYSCALL 2D510830 	-> 0 datoshi
-    /// 05 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.SYSCALL 2D510830	[0 datoshi]
+    /// 05 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("transaction")]
     public abstract object? Transaction();

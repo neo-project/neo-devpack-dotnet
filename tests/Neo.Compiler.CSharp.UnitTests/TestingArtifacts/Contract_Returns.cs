@@ -26,12 +26,12 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmL2yhA
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.CAT 	-> 2048 datoshi
-    /// 06 : OpCode.CONVERT 28 	-> 8192 datoshi
-    /// 08 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.CAT	[2048 datoshi]
+    /// 06 : OpCode.CONVERT 28	[8192 datoshi]
+    /// 08 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("byteStringAdd")]
     public abstract byte[]? ByteStringAdd(byte[]? a, byte[]? b);
@@ -41,19 +41,19 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACxUp4eaHPSnh5os9A
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.NEWSTRUCT0 	-> 16 datoshi
-    /// 04 : OpCode.DUP 	-> 2 datoshi
-    /// 05 : OpCode.LDARG0 	-> 2 datoshi
-    /// 06 : OpCode.LDARG1 	-> 2 datoshi
-    /// 07 : OpCode.DIV 	-> 8 datoshi
-    /// 08 : OpCode.APPEND 	-> 8192 datoshi
-    /// 09 : OpCode.DUP 	-> 2 datoshi
-    /// 0A : OpCode.LDARG0 	-> 2 datoshi
-    /// 0B : OpCode.LDARG1 	-> 2 datoshi
-    /// 0C : OpCode.MOD 	-> 8 datoshi
-    /// 0D : OpCode.APPEND 	-> 8192 datoshi
-    /// 0E : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.NEWSTRUCT0	[16 datoshi]
+    /// 04 : OpCode.DUP	[2 datoshi]
+    /// 05 : OpCode.LDARG0	[2 datoshi]
+    /// 06 : OpCode.LDARG1	[2 datoshi]
+    /// 07 : OpCode.DIV	[8 datoshi]
+    /// 08 : OpCode.APPEND	[8192 datoshi]
+    /// 09 : OpCode.DUP	[2 datoshi]
+    /// 0A : OpCode.LDARG0	[2 datoshi]
+    /// 0B : OpCode.LDARG1	[2 datoshi]
+    /// 0C : OpCode.MOD	[8 datoshi]
+    /// 0D : OpCode.APPEND	[8192 datoshi]
+    /// 0E : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("div")]
     public abstract IList<object>? Div(BigInteger? a, BigInteger? b);
@@ -63,20 +63,20 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwICeXg07ErBRXBxRWloNK1A
-    /// 00 : OpCode.INITSLOT 0202 	-> 64 datoshi
-    /// 03 : OpCode.LDARG1 	-> 2 datoshi
-    /// 04 : OpCode.LDARG0 	-> 2 datoshi
-    /// 05 : OpCode.CALL EC 	-> 512 datoshi
-    /// 07 : OpCode.DUP 	-> 2 datoshi
-    /// 08 : OpCode.UNPACK 	-> 2048 datoshi
-    /// 09 : OpCode.DROP 	-> 2 datoshi
-    /// 0A : OpCode.STLOC0 	-> 2 datoshi
-    /// 0B : OpCode.STLOC1 	-> 2 datoshi
-    /// 0C : OpCode.DROP 	-> 2 datoshi
-    /// 0D : OpCode.LDLOC1 	-> 2 datoshi
-    /// 0E : OpCode.LDLOC0 	-> 2 datoshi
-    /// 0F : OpCode.CALL AD 	-> 512 datoshi
-    /// 11 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0202	[64 datoshi]
+    /// 03 : OpCode.LDARG1	[2 datoshi]
+    /// 04 : OpCode.LDARG0	[2 datoshi]
+    /// 05 : OpCode.CALL EC	[512 datoshi]
+    /// 07 : OpCode.DUP	[2 datoshi]
+    /// 08 : OpCode.UNPACK	[2048 datoshi]
+    /// 09 : OpCode.DROP	[2 datoshi]
+    /// 0A : OpCode.STLOC0	[2 datoshi]
+    /// 0B : OpCode.STLOC1	[2 datoshi]
+    /// 0C : OpCode.DROP	[2 datoshi]
+    /// 0D : OpCode.LDLOC1	[2 datoshi]
+    /// 0E : OpCode.LDLOC0	[2 datoshi]
+    /// 0F : OpCode.CALL AD	[512 datoshi]
+    /// 11 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("mix")]
     public abstract BigInteger? Mix(BigInteger? a, BigInteger? b);
@@ -86,25 +86,25 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmfSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.SUB 	-> 8 datoshi
-    /// 06 : OpCode.DUP 	-> 2 datoshi
-    /// 07 : OpCode.PUSHINT32 00000080 	-> 1 datoshi
-    /// 0C : OpCode.JMPGE 04 	-> 2 datoshi
-    /// 0E : OpCode.JMP 0A 	-> 2 datoshi
-    /// 10 : OpCode.DUP 	-> 2 datoshi
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F 	-> 1 datoshi
-    /// 16 : OpCode.JMPLE 1E 	-> 2 datoshi
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 	-> 1 datoshi
-    /// 21 : OpCode.AND 	-> 8 datoshi
-    /// 22 : OpCode.DUP 	-> 2 datoshi
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F 	-> 1 datoshi
-    /// 28 : OpCode.JMPLE 0C 	-> 2 datoshi
-    /// 2A : OpCode.PUSHINT64 0000000001000000 	-> 1 datoshi
-    /// 33 : OpCode.SUB 	-> 8 datoshi
-    /// 34 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.SUB	[8 datoshi]
+    /// 06 : OpCode.DUP	[2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080	[1 datoshi]
+    /// 0C : OpCode.JMPGE 04	[2 datoshi]
+    /// 0E : OpCode.JMP 0A	[2 datoshi]
+    /// 10 : OpCode.DUP	[2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
+    /// 16 : OpCode.JMPLE 1E	[2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000	[1 datoshi]
+    /// 21 : OpCode.AND	[8 datoshi]
+    /// 22 : OpCode.DUP	[2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
+    /// 28 : OpCode.JMPLE 0C	[2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000	[1 datoshi]
+    /// 33 : OpCode.SUB	[8 datoshi]
+    /// 34 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("subtract")]
     public abstract BigInteger? Subtract(BigInteger? a, BigInteger? b);
@@ -114,25 +114,25 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
-    /// 00 : OpCode.INITSLOT 0002 	-> 64 datoshi
-    /// 03 : OpCode.LDARG0 	-> 2 datoshi
-    /// 04 : OpCode.LDARG1 	-> 2 datoshi
-    /// 05 : OpCode.ADD 	-> 8 datoshi
-    /// 06 : OpCode.DUP 	-> 2 datoshi
-    /// 07 : OpCode.PUSHINT32 00000080 	-> 1 datoshi
-    /// 0C : OpCode.JMPGE 04 	-> 2 datoshi
-    /// 0E : OpCode.JMP 0A 	-> 2 datoshi
-    /// 10 : OpCode.DUP 	-> 2 datoshi
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F 	-> 1 datoshi
-    /// 16 : OpCode.JMPLE 1E 	-> 2 datoshi
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 	-> 1 datoshi
-    /// 21 : OpCode.AND 	-> 8 datoshi
-    /// 22 : OpCode.DUP 	-> 2 datoshi
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F 	-> 1 datoshi
-    /// 28 : OpCode.JMPLE 0C 	-> 2 datoshi
-    /// 2A : OpCode.PUSHINT64 0000000001000000 	-> 1 datoshi
-    /// 33 : OpCode.SUB 	-> 8 datoshi
-    /// 34 : OpCode.RET 	-> 0 datoshi
+    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
+    /// 03 : OpCode.LDARG0	[2 datoshi]
+    /// 04 : OpCode.LDARG1	[2 datoshi]
+    /// 05 : OpCode.ADD	[8 datoshi]
+    /// 06 : OpCode.DUP	[2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080	[1 datoshi]
+    /// 0C : OpCode.JMPGE 04	[2 datoshi]
+    /// 0E : OpCode.JMP 0A	[2 datoshi]
+    /// 10 : OpCode.DUP	[2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
+    /// 16 : OpCode.JMPLE 1E	[2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000	[1 datoshi]
+    /// 21 : OpCode.AND	[8 datoshi]
+    /// 22 : OpCode.DUP	[2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F	[1 datoshi]
+    /// 28 : OpCode.JMPLE 0C	[2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000	[1 datoshi]
+    /// 33 : OpCode.SUB	[8 datoshi]
+    /// 34 : OpCode.RET	[0 datoshi]
     /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);
