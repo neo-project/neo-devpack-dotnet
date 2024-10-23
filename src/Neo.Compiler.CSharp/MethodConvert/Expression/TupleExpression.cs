@@ -38,7 +38,7 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/value-tuples">Tuple types</seealso>
     private void ConvertTupleExpression(SemanticModel model, TupleExpressionSyntax expression)
     {
-        foreach (ArgumentSyntax argument in expression.Arguments.Reverse())
+        foreach (ArgumentSyntax argument in expression.Arguments.Reverse())  // PACKSTRUCT works in a reversed way
             ConvertExpression(model, argument.Expression);
         Push(expression.Arguments.Count);
         AddInstruction(OpCode.PACKSTRUCT);
