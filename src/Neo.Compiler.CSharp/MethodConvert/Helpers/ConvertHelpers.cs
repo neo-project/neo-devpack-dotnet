@@ -225,7 +225,7 @@ internal partial class MethodConvert
             return;
         }
 
-        foreach (var field in fields.Reverse())
+        foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
             InitializeFieldForObject(model, field, initializer);
         Push(fields.Length + needVirtualMethodTable);
         AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);

@@ -518,7 +518,7 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         // Create an array of names
-        foreach (IFieldSymbol m in enumMembers.Reverse())
+        foreach (IFieldSymbol m in enumMembers.Reverse())  // PACK works in a reversed way
             methodConvert.Push(m.Name);
         methodConvert.Push(enumMembers.Length);
         methodConvert.AddInstruction(OpCode.PACK);
@@ -562,7 +562,7 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         // Create an array of values
-        foreach (IFieldSymbol m in enumMembers.Reverse())
+        foreach (IFieldSymbol m in enumMembers.Reverse())  // PACK works in a reversed way
             methodConvert.Push(m.ConstantValue);
         methodConvert.Push(enumMembers.Length);
         methodConvert.AddInstruction(OpCode.PACK);
