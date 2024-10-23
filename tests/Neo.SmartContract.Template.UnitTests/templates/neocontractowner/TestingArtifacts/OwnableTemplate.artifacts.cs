@@ -42,13 +42,13 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NdT+//+qJhYMTm8gYXV0aG9yaXphdGlvbi46NwEAQA==
-    /// 00 : OpCode.CALL_L D4FEFFFF
-    /// 05 : OpCode.NOT
-    /// 06 : OpCode.JMPIFNOT 16
-    /// 08 : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
-    /// 1B : OpCode.THROW
-    /// 1C : OpCode.CALLT 0100
-    /// 1F : OpCode.RET
+    /// 00 : OpCode.CALL_L D4FEFFFF [512 datoshi]
+    /// 05 : OpCode.NOT [4 datoshi]
+    /// 06 : OpCode.JMPIFNOT 16 [2 datoshi]
+    /// 08 : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E [8 datoshi]
+    /// 1B : OpCode.THROW [512 datoshi]
+    /// 1C : OpCode.CALLT 0100 [32768 datoshi]
+    /// 1F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("destroy")]
     public abstract void Destroy();
@@ -58,10 +58,10 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
-    /// 00 : OpCode.PUSHDATA1 48656C6C6F
-    /// 07 : OpCode.SYSCALL 9BF667CE
-    /// 0C : OpCode.SYSCALL 925DE831
-    /// 11 : OpCode.RET
+    /// 00 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
+    /// 07 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
+    /// 0C : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
+    /// 11 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("myMethod")]
     public abstract string? MyMethod();
@@ -71,18 +71,18 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADNfj+//8JlyYWDE5vIGF1dGhvcml6YXRpb24uOnp5eDcAAEA=
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.CALL_L F8FEFFFF
-    /// 08 : OpCode.PUSHF
-    /// 09 : OpCode.EQUAL
-    /// 0A : OpCode.JMPIFNOT 16
-    /// 0C : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
-    /// 1F : OpCode.THROW
-    /// 20 : OpCode.LDARG2
-    /// 21 : OpCode.LDARG1
-    /// 22 : OpCode.LDARG0
-    /// 23 : OpCode.CALLT 0000
-    /// 26 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.CALL_L F8FEFFFF [512 datoshi]
+    /// 08 : OpCode.PUSHF [1 datoshi]
+    /// 09 : OpCode.EQUAL [32 datoshi]
+    /// 0A : OpCode.JMPIFNOT 16 [2 datoshi]
+    /// 0C : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E [8 datoshi]
+    /// 1F : OpCode.THROW [512 datoshi]
+    /// 20 : OpCode.LDARG2 [2 datoshi]
+    /// 21 : OpCode.LDARG1 [2 datoshi]
+    /// 22 : OpCode.LDARG0 [2 datoshi]
+    /// 23 : OpCode.CALLT 0000 [32768 datoshi]
+    /// 26 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nefFile, string? manifest, object? data = null);
