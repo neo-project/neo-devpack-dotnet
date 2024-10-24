@@ -67,8 +67,11 @@ namespace Neo.Optimizer
             (nef, manifest, debugInfo) = Peephole.RemoveDupDrop(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.UseIsNull(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.FoldNotInJmp(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.InitStaticToConst(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.RemoveInitialize(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.CompressJump(nef, manifest, debugInfo);
             return (nef, manifest, debugInfo);
         }
     }
