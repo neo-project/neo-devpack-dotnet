@@ -172,7 +172,7 @@ namespace Neo.Optimizer
         }
 
         /// <summary>
-        /// NZ JMPIF -> JMPIF
+        /// NZ JMPIF -> JMPIF  // not applied, because NZ for null throws exception
         /// NOT JMPIFNOT -> JMPIF
         /// </summary>
         /// <param name="nef"></param>
@@ -207,12 +207,12 @@ namespace Neo.Optimizer
                         Instruction next = basicBlock[index + 1];
                         if (JmpWithNotOpCodes.Contains(next.OpCode))
                         {
-                            if (current.OpCode == OpCode.NZ)
-                            {// skip this NZ
-                                currentAddress += current.Size;
-                                oldAddr += current.Size;
-                                continue;
-                            }
+                            //if (current.OpCode == OpCode.NZ)
+                            //{// skip this NZ
+                            //    currentAddress += current.Size;
+                            //    oldAddr += current.Size;
+                            //    continue;
+                            //}
                             if (current.OpCode == OpCode.NOT)
                             {
                                 OpCode newJmpOpCode = next.OpCode switch
