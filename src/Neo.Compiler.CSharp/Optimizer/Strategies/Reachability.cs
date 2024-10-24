@@ -28,22 +28,20 @@ namespace Neo.Optimizer
             InstructionCoverage oldContractCoverage = new InstructionCoverage(nef, manifest);
             Dictionary<int, BranchType> coveredMap = oldContractCoverage.coveredMap;
             List<(int, Instruction)> oldAddressAndInstructionsList = oldContractCoverage.addressAndInstructions;
-            Dictionary<int, Instruction> oldAddressToInstruction = new();
-            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
-                oldAddressToInstruction.Add(a, i);
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
             //DumpNef.GenerateDumpNef(nef, debugInfo);
             //coveredMap.Where(kv => !kv.Value).Select(kv => (kv.Key, oldAddressToInstruction[kv.Key].OpCode)).ToList();
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
             {
-                if (coveredMap[a] != BranchType.UNCOVERED)
+                if (coveredMap[a] != BranchType.UNCOVERED && i.OpCode != OpCode.NOP)
                 {
                     simplifiedInstructionsToAddress.Add(i, currentAddress);
                     currentAddress += i.Size;
                 }
             }
-            // retarget all NOP targets
+            // retarget all NOP jump targets
             foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
             {
                 if (i.OpCode == OpCode.NOP && oldContractCoverage.jumpTargetToSources.ContainsKey(i))
@@ -86,9 +84,7 @@ namespace Neo.Optimizer
         {
             Script script = nef.Script;
             List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
-            Dictionary<int, Instruction> oldAddressToInstruction = new();
-            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
-                oldAddressToInstruction.Add(a, i);
+            Dictionary<int, Instruction> oldAddressToInstruction = oldAddressAndInstructionsList.ToDictionary(e => e.a, e => e.i);
             (Dictionary<Instruction, Instruction> jumpSourceToTargets,
                 Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
                 Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
@@ -139,9 +135,7 @@ namespace Neo.Optimizer
         {
             Script script = nef.Script;
             List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
-            Dictionary<int, Instruction> oldAddressToInstruction = new();
-            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
-                oldAddressToInstruction.Add(a, i);
+            Dictionary<int, Instruction> oldAddressToInstruction = oldAddressAndInstructionsList.ToDictionary(e => e.a, e => e.i);
             (Dictionary<Instruction, Instruction> jumpSourceToTargets,
                 Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
                 Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =

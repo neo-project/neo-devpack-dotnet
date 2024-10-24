@@ -19,29 +19,61 @@ namespace Neo.Optimizer
 {
     static class OpCodeTypes
     {
-        public static readonly HashSet<OpCode> push = new();
+        public static readonly HashSet<OpCode> pushConst = new();
+        public static readonly HashSet<OpCode> push;
+        public static readonly HashSet<OpCode> longInstructions;
+        public static readonly HashSet<OpCode> shortInstructions;
         public static readonly HashSet<OpCode> allowedBasicBlockEnds;
 
         static OpCodeTypes()
         {
-            foreach (OpCode op in pushInt)
-                push.Add(op);
-            foreach (OpCode op in pushBool)
-                push.Add(op);
-            push.Add(PUSHA);
-            push.Add(PUSHNULL);
-            foreach (OpCode op in pushData)
-                push.Add(op);
-            foreach (OpCode op in pushConstInt)
-                push.Add(op);
-            foreach (OpCode op in pushStackOps)
-                push.Add(op);
-            foreach (OpCode op in pushNewCompoundType)
-                push.Add(op);
+            pushConst = pushConst
+                .Union(pushInt)
+                .Union(pushBool)
+                .Union(pushData)
+                .Union(pushConstInt)
+                //.Union(pushNewCompoundType)  // array, struct and map are mutable; not considered const
+                .ToHashSet();
+            pushConst.Add(PUSHA);
+            pushConst.Add(PUSHNULL);
+
+            push = pushConst.Union(pushNewCompoundType).Union(pushStackOps).ToHashSet();
+
+            longInstructions = new() { TRY_L, ENDTRY_L, JMP_L, CALL_L, };
+            longInstructions = longInstructions.Union(conditionalJump_L).ToHashSet();
+            shortInstructions = longInstructions.Select(i => i - 1).ToHashSet();
+
             allowedBasicBlockEnds = ((OpCode[])Enum.GetValues(typeof(OpCode)))
                     .Where(i => JumpTarget.SingleJumpInOperand(i) && i != PUSHA || JumpTarget.DoubleJumpInOperand(i)).ToHashSet()
-                    .Union(new HashSet<OpCode>() { RET, ABORT, ABORTMSG, THROW, ENDFINALLY
-            }).ToHashSet();
+                    .Union(new HashSet<OpCode>() { RET, ABORT, ABORTMSG, THROW, ENDFINALLY })
+                    .ToHashSet();
+        }
+
+        public static byte SlotIndex(Instruction i)
+        {
+            OpCode o = i.OpCode;
+            if (slotNonConst.Contains(o))
+                return i.TokenU8;
+            return SlotIndex(o);
+        }
+
+        public static byte SlotIndex(OpCode o)
+        {
+            if (slotNonConst.Contains(o))
+                throw new ArgumentException($"Instruction is needed to get slot index for {o}");
+            if (loadArguments.Contains(o))
+                return o - LDARG0;
+            if (storeArguments.Contains(o))
+                return o - STARG0;
+            if (loadLocalVariables.Contains(o))
+                return o - LDLOC0;
+            if (storeLocalVariables.Contains(o))
+                return o - STLOC0;
+            if (loadStaticFields.Contains(o))
+                return o - LDSFLD0;
+            if (storeStaticFields.Contains(o))
+                return o - STSFLD0;
+            throw new ArgumentException($"OpCode {o} cannot access slot");
         }
 
         public static readonly HashSet<OpCode> pushInt = new()
@@ -124,6 +156,7 @@ namespace Neo.Optimizer
             CALL,
             CALL_L,
             CALLA,
+            // CALLT is not included because it generally calls another contract
         };
 
         public static readonly HashSet<OpCode> conditionalJump = new()
@@ -215,6 +248,11 @@ namespace Neo.Optimizer
             STARG4,
             STARG5,
             STARG6,
+        };
+        public static readonly HashSet<OpCode> slotNonConst = new()
+        {
+            LDARG, LDLOC, LDSFLD,
+            STARG, STLOC, STSFLD,
         };
     }
 }

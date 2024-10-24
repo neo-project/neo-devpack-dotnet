@@ -13,7 +13,8 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
 
         public virtual string test() { return "base"; }
-        public virtual string test2() { return "base"; }
+        public virtual string test2() { return "base2"; }
+        public abstract string abstractTest();
     }
 
     public abstract class B : A
@@ -26,7 +27,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
     }
 
-    public class Contract_Polymorphism : B
+    public class C : B
     {
         public override string test()
         {
@@ -35,7 +36,32 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public override string test2()
         {
-            return base.test2() + ".test";
+            return base.test2() + ".test2";
+        }
+
+        public override string abstractTest()
+        {
+            return "abstractTest";
+        }
+    }
+
+    public class Contract_Polymorphism : C
+    {
+        public override string test()
+        {
+            return "testFinal";
+        }
+
+        public override string test2()
+        {   //     test          base2.test2    .test
+            return base.test() + base.test2() + ".test";
+            //     base.test() calls an overridden method
+            //     base.test2()calls an overriden method, which recursively calls a virtual method
+        }
+
+        public override string abstractTest()
+        {
+            return base.abstractTest() + "overridenAbstract";
         }
     }
 }

@@ -15,7 +15,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGtXAQAQcAg5EXAJOQBkcGhAVwEAEHA063ARcGhAVwIAEHA7CA003HA9CnERcD0FEnA/aEBXAgAQcDsRFxFwDAlleGNlcHRpb246cTS2cD0FEnA/aEBXAgAQcDsHDBFwPQBxEnA9ADWb////QJ1a8Js="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhXAQAQcAg5EXAJOQBkcGhAVwEAEHA063ARcGhAVwIAEHA7CA003HA9CnERcD0FEnA/aEBXAgAQcDsRFxFwDAlleGNlcHRpb246cTS2cD0FEnA/aEBXAgAQcDsHDBFwPQBxEnA9ADSbQDbfjGM="));
 
     #endregion
 
@@ -73,7 +73,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAEHA7BwwRcD0AcRJwPQA1m////w==
+    /// Script: VwIAEHA7BwwRcD0AcRJw
     /// 00 : OpCode.INITSLOT 0200
     /// 03 : OpCode.PUSH0
     /// 04 : OpCode.STLOC0
@@ -84,8 +84,6 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// 0C : OpCode.STLOC1
     /// 0D : OpCode.PUSH2
     /// 0E : OpCode.STLOC0
-    /// 0F : OpCode.ENDTRY 00
-    /// 11 : OpCode.CALL_L 9BFFFFFF
     /// </remarks>
     [DisplayName("testAssertInFinally")]
     public abstract BigInteger? TestAssertInFinally();
