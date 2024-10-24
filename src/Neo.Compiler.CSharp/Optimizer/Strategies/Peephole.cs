@@ -162,6 +162,7 @@ namespace Neo.Optimizer
                     }
                     simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
                     currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
                 }
             }
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
@@ -238,6 +239,7 @@ namespace Neo.Optimizer
                     }
                     simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
                     currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
                 }
             }
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
