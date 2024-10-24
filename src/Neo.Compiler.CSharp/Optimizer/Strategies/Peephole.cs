@@ -91,85 +91,6 @@ namespace Neo.Optimizer
         }
 
         /// <summary>
-        /// PUSH0 EQUAL -> NOT
-        /// PUSH0 NOTEQUAL -> NZ  // not applied for now, because NZ cannot handle null
-        /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
-        /// <returns></returns>
-        [Strategy(Priority = 1 << 9)]
-        public static (NefFile, ContractManifest, JObject?) UseNz(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
-        {
-            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
-            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
-            Dictionary<int, Instruction> oldAddressToInstruction = new();
-            foreach ((int a, Instruction i) in oldContractCoverage.addressAndInstructions)
-                oldAddressToInstruction.Add(a, i);
-            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
-                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
-                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
-                (oldContractCoverage.jumpInstructionSourceToTargets,
-                oldContractCoverage.tryInstructionSourceToTargets,
-                oldContractCoverage.jumpTargetToSources);
-            Dictionary<int, int> oldSequencePointAddressToNew = new();
-            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
-            int currentAddress = 0;
-            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
-            {
-                int oldAddr = oldStartAddr;
-                for (int index = 0; index < basicBlock.Count; index++)
-                {
-                    if (index + 1 < basicBlock.Count)
-                    {
-                        Instruction current = basicBlock[index];
-                        Instruction next = basicBlock[index + 1];
-                        if (OpCodeTypes.pushInt.Contains(current.OpCode)
-                         && new System.Numerics.BigInteger(current.Operand.Span) == 0
-                         || current.OpCode == OpCode.PUSH0)
-                        {
-                            if (next.OpCode == OpCode.EQUAL)
-                            {
-                                Instruction not_ = new Script(new byte[] { (byte)OpCode.NOT }).GetInstruction(0);
-                                simplifiedInstructionsToAddress.Add(not_, currentAddress);
-                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                                oldAddr += current.Size;
-                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                                oldAddr += next.Size;
-                                currentAddress += not_.Size;
-                                index += 1;
-                                OptimizedScriptBuilder.RetargetJump(current, not_,
-                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
-                                continue;
-                            }
-                            //if (next.OpCode == OpCode.NOTEQUAL)
-                            //{
-                            //    Instruction nz = new Script(new byte[] { (byte)OpCode.NZ }).GetInstruction(0);
-                            //    simplifiedInstructionsToAddress.Add(nz, currentAddress);
-                            //    oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                            //    oldAddr += current.Size;
-                            //    oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
-                            //    oldAddr += next.Size;
-                            //    currentAddress += nz.Size;
-                            //    index += 1;
-                            //    OptimizedScriptBuilder.RetargetJump(current, nz,
-                            //        jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
-                            //    continue;
-                            //}
-                        }
-                    }
-                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
-                    currentAddress += basicBlock[index].Size;
-                    oldAddr += basicBlock[index].Size;
-                }
-            }
-            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
-                simplifiedInstructionsToAddress,
-                jumpSourceToTargets, trySourceToTargets,
-                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
-        }
-
-        /// <summary>
         /// PUSHNULL EQUAL -> ISNULL
         /// PUSHNULL NOTEQUAL -> ISNULL NOT
         /// </summary>
@@ -258,7 +179,7 @@ namespace Neo.Optimizer
         /// <param name="manifest"></param>
         /// <param name="debugInfo"></param>
         /// <returns></returns>
-        [Strategy(Priority = 1 << 8)]
+        [Strategy(Priority = (1 << 9) - 1)]
         public static (NefFile, ContractManifest, JObject?) FoldNotInJmp(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
