@@ -17,35 +17,49 @@ namespace Neo.SmartContract.Framework
 {
     public abstract class TokenContract : SmartContract
     {
-        protected const byte Prefix_TotalSupply = 0x00;
-        protected const byte Prefix_Balance = 0x01;
+        protected static readonly ByteString Prefix_TotalSupply = "\x00";
+        protected static readonly ByteString Prefix_Balance = "\x01";
 
         public abstract string Symbol { [Safe] get; }
 
         public abstract byte Decimals { [Safe] get; }
 
-        [Stored(Prefix_TotalSupply)]
-        public static BigInteger TotalSupply { [Safe] get; protected set; }
+        public static BigInteger TotalSupply
+        {
+            [Safe]
+            get
+            {
+                ByteString? stored = Storage.Get(Prefix_TotalSupply);
+                return stored != null ? (BigInteger)stored : 0;
+            }
+            protected set
+            {
+                Storage.Put(Prefix_TotalSupply, value);
+            }
+        }
 
         [Safe]
         public static BigInteger BalanceOf(UInt160 owner)
         {
             if (owner is null || !owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid.");
-            StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
-            return (BigInteger)balanceMap[owner];
+            ByteString? balanceStored = Storage.Get(Prefix_Balance + owner);
+            return balanceStored != null ? (BigInteger)balanceStored : 0;
         }
 
         protected static bool UpdateBalance(UInt160 owner, BigInteger increment)
         {
-            StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
-            BigInteger balance = (BigInteger)balanceMap[owner];
+            StorageContext currentContext = Storage.CurrentContext;
+            ByteString ownerKey = Prefix_Balance + owner;
+            ByteString? balanceStored = Storage.Get(currentContext, ownerKey);
+            BigInteger balance = balanceStored != null ? (BigInteger)balanceStored : 0;
             balance += increment;
-            if (balance < 0) return false;
-            if (balance.IsZero)
-                balanceMap.Delete(owner);
+            if (balance < 0)
+                return false;
+            if (balance == 0)
+                Storage.Delete(currentContext, ownerKey);
             else
-                balanceMap.Put(owner, balance);
+                Storage.Put(currentContext, ownerKey, balance);
             return true;
         }
     }
