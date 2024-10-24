@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Framework
             get
             {
                 ByteString? stored = Storage.Get(Prefix_TotalSupply);
-                return stored != null ? (BigInteger)stored : 0;
+                return (BigInteger)stored!;
             }
             protected set
             {
@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Framework
             if (owner is null || !owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid.");
             ByteString? balanceStored = Storage.Get(Prefix_Balance + owner);
-            return balanceStored != null ? (BigInteger)balanceStored : 0;
+            return (BigInteger)balanceStored!;
         }
 
         protected static bool UpdateBalance(UInt160 owner, BigInteger increment)
@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Framework
             StorageContext currentContext = Storage.CurrentContext;
             ByteString ownerKey = Prefix_Balance + owner;
             ByteString? balanceStored = Storage.Get(currentContext, ownerKey);
-            BigInteger balance = balanceStored != null ? (BigInteger)balanceStored : 0;
+            BigInteger balance = (BigInteger)balanceStored!;
             balance += increment;
             if (balance < 0)
                 return false;
