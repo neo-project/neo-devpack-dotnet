@@ -10,14 +10,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test()
         {
             Assert.AreEqual(14, Contract.Sum(5, 9));
-            AssertGasConsumed(1452840);
+            AssertGasConsumed(1233330);
             Assert.AreEqual(40, Contract.Mul(5, 8));
-            AssertGasConsumed(1470180);
-            Assert.AreEqual("testFinal", Contract.Test());
-            AssertGasConsumed(1197510);
-            Assert.AreEqual("testbase2.test2.test", Contract.Test2());
-            AssertGasConsumed(2171850);
-            Assert.AreEqual("abstractTestoverridenAbstract", Contract.AbstractTest());
+            AssertGasConsumed(1233330);
+            Assert.AreEqual("test", Contract.Test());
+            AssertGasConsumed(1233570);
+            Assert.AreEqual("base.test", Contract.Test2());
+            AssertGasConsumed(1558350);
         }
     }
 }
