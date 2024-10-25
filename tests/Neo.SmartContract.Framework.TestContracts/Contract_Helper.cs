@@ -27,6 +27,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return new BigInteger(data);
         }
 
+        public static bool TestNumEqual(BigInteger a, BigInteger b) => Helper.NumEqual(a, b);
+        public static bool TestNumNotEqual(BigInteger a, BigInteger b) => Helper.NumNotEqual(a, b);
+
         public static BigInteger ModMultiply(BigInteger value, BigInteger y, BigInteger modulus)
         {
             return value.ModMultiply(y, modulus);
