@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Template
 
         public static void SetOwner(UInt160 newOwner)
         {
-            if (IsOwner() == false)
+            if (!IsOwner())
                 throw new InvalidOperationException("No Authorization!");
 
             ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Template
 
         public static void Update(ByteString nefFile, string manifest, object? data = null)
         {
-            if (IsOwner() == false)
+            if (!IsOwner())
                 throw new InvalidOperationException("No authorization.");
             ContractManagement.Update(nefFile, manifest, data);
         }

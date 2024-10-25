@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework
             balance += increment;
             if (balance < 0)
                 return false;
-            if (balance == 0)
+            if (Helper.NumEqual(balance, 0))
                 Storage.Delete(currentContext, ownerKey);
             else
                 Storage.Put(currentContext, ownerKey, balance);
