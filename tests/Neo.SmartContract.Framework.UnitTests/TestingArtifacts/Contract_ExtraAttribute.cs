@@ -26,9 +26,9 @@ public abstract class Contract_ExtraAttribute(Neo.SmartContract.Testing.SmartCon
     /// </summary>
     /// <remarks>
     /// Script: VwACCEA=
-    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
-    /// 03 : OpCode.PUSHT	[1 datoshi]
-    /// 04 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.PUSHT [1 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("main2")]
     public abstract object? Main2(string? method, IList<object>? args);

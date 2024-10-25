@@ -38,8 +38,8 @@ public abstract class Contract_InvokeCsNef(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: ABZA
-    /// 00 : OpCode.PUSHINT8 16	[1 datoshi]
-    /// 02 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.PUSHINT8 16 [1 datoshi]
+    /// 02 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();

@@ -26,8 +26,8 @@ public abstract class Contract_TryCatch(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: DGV4Y2VwdGlvbjo=
-    /// 00 : OpCode.PUSHDATA1 657863657074696F6E	[8 datoshi]
-    /// 0B : OpCode.THROW	[512 datoshi]
+    /// 00 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 0B : OpCode.THROW [512 datoshi]
     /// </remarks>
     [DisplayName("throwCall")]
     public abstract object? ThrowCall();
