@@ -101,7 +101,7 @@ internal partial class MethodConvert
             else
                 PushDefault(fields[i].Type);
         Push(fields.Length + needVirtualMethodTable);
-        AddInstruction(OpCode.PACK);
+        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
         return true;
     }
 
