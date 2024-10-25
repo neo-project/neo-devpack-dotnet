@@ -27,7 +27,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// <remarks>
     /// Script: QTlTbjzbMEA=
     /// 00 : OpCode.SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
-    /// 05 : OpCode.CONVERT 30 [8192 datoshi]
+    /// 05 : OpCode.CONVERT (Buffer) [8192 datoshi]
     /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("callingScriptHash")]
@@ -39,7 +39,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// <remarks>
     /// Script: Qfm04jjbMEA=
     /// 00 : OpCode.SYSCALL F9B4E238 'System.Runtime.GetEntryScriptHash' [16 datoshi]
-    /// 05 : OpCode.CONVERT 30 [8192 datoshi]
+    /// 05 : OpCode.CONVERT (Buffer) [8192 datoshi]
     /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("entryScriptHash")]
@@ -51,7 +51,7 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// <remarks>
     /// Script: Qdv+qHTbMEA=
     /// 00 : OpCode.SYSCALL DBFEA874 'System.Runtime.GetExecutingScriptHash' [16 datoshi]
-    /// 05 : OpCode.CONVERT 30 [8192 datoshi]
+    /// 05 : OpCode.CONVERT (Buffer) [8192 datoshi]
     /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("executingScriptHash")]

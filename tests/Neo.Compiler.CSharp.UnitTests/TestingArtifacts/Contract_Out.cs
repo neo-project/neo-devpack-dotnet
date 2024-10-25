@@ -66,7 +66,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// 24 : OpCode.JMP 09 [2 datoshi]
     /// 26 : OpCode.PUSHDATA1 46616C7365 [8 datoshi]
     /// 2D : OpCode.CAT [2048 datoshi]
-    /// 2E : OpCode.CONVERT 28 [8192 datoshi]
+    /// 2E : OpCode.CONVERT (ByteString) [8192 datoshi]
     /// 30 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMultipleOut")]

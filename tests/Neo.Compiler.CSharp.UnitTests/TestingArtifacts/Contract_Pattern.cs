@@ -195,7 +195,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// 98 : OpCode.CAT [2048 datoshi]
     /// 99 : OpCode.PUSHDATA1 2E [8 datoshi]
     /// 9C : OpCode.CAT [2048 datoshi]
-    /// 9D : OpCode.CONVERT 28 [8192 datoshi]
+    /// 9D : OpCode.CONVERT (ByteString) [8192 datoshi]
     /// 9F : OpCode.THROW [512 datoshi]
     /// A0 : OpCode.LDLOC0 [2 datoshi]
     /// A1 : OpCode.THROW [512 datoshi]

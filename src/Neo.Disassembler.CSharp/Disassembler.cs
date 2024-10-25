@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.VM;
+using Neo.VM.Types;
 using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Disassembler.CSharp;
@@ -65,10 +66,16 @@ public static class Disassembler
         var opcode = instruction.OpCode.ToString();
         var operand = instruction.Operand;
 
-        if (operand.IsEmpty || operand.Length == 0)
+        if (operand.IsEmpty)
         {
             return $"OpCode.{opcode}";
         }
+
+        if (instruction.OpCode == OpCode.CONVERT)
+        {
+            return $"OpCode.{opcode} ({(StackItemType)operand.Span[0]})";
+        }
+
         var operandString = BitConverter.ToString(operand.ToArray()).Replace("-", "");
         return $"OpCode.{opcode} {operandString}";
     }

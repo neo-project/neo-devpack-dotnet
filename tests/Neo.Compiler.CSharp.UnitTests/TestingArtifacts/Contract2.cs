@@ -28,7 +28,7 @@ public abstract class Contract2(Neo.SmartContract.Testing.SmartContractInitializ
     /// Script: VwECDAECAwTbMHBoEs5A
     /// 00 : OpCode.INITSLOT 0102 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 01020304 [8 datoshi]
-    /// 09 : OpCode.CONVERT 30 [8192 datoshi]
+    /// 09 : OpCode.CONVERT (Buffer) [8192 datoshi]
     /// 0B : OpCode.STLOC0 [2 datoshi]
     /// 0C : OpCode.LDLOC0 [2 datoshi]
     /// 0D : OpCode.PUSH2 [1 datoshi]
