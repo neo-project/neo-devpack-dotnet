@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static BigInteger BalanceOf(UInt160 owner)
         {
-            if (owner is null || !owner.IsValid)
+            if (!owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid.");
             ByteString? balanceStored = Storage.Get(Prefix_Balance + owner);
             return (BigInteger)balanceStored!;
