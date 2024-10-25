@@ -24,7 +24,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
             AssertGasConsumed(1047930);
-            Assert.ThrowsException<TestException>(() => Contract.ValidateAddress(InvalidUInt160.Null));
+            Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.Null));
             AssertGasConsumed(1047330);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
             AssertGasConsumed(1047930);
