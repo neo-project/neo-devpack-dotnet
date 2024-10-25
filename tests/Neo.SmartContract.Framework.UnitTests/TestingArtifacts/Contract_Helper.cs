@@ -10,12 +10,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Helper"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testHexToBytes"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""assertCall"",""parameters"":[{""name"":""value"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":2,""safe"":false},{""name"":""testToBigInteger"",""parameters"":[{""name"":""data"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":25,""safe"":false},{""name"":""modMultiply"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""y"",""type"":""Integer""},{""name"":""modulus"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":32,""safe"":false},{""name"":""modInverse"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""modulus"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":40,""safe"":false},{""name"":""modPow"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""exponent"",""type"":""Integer""},{""name"":""modulus"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":56,""safe"":false},{""name"":""testBigIntegerCast"",""parameters"":[{""name"":""data"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":64,""safe"":false},{""name"":""testBigIntegerParseHexString"",""parameters"":[{""name"":""data"",""type"":""String""}],""returntype"":""Integer"",""offset"":79,""safe"":false},{""name"":""voidAssertCall"",""parameters"":[{""name"":""value"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":87,""safe"":false},{""name"":""testByteToByteArray"",""parameters"":[],""returntype"":""ByteArray"",""offset"":95,""safe"":false},{""name"":""testReverse"",""parameters"":[],""returntype"":""ByteArray"",""offset"":106,""safe"":false},{""name"":""testSbyteToByteArray"",""parameters"":[],""returntype"":""ByteArray"",""offset"":121,""safe"":false},{""name"":""testStringToByteArray"",""parameters"":[],""returntype"":""ByteArray"",""offset"":132,""safe"":false},{""name"":""testConcat"",""parameters"":[],""returntype"":""ByteArray"",""offset"":155,""safe"":false},{""name"":""testRange"",""parameters"":[],""returntype"":""ByteArray"",""offset"":180,""safe"":false},{""name"":""testTake"",""parameters"":[],""returntype"":""ByteArray"",""offset"":198,""safe"":false},{""name"":""testLast"",""parameters"":[],""returntype"":""ByteArray"",""offset"":215,""safe"":false},{""name"":""testToScriptHash"",""parameters"":[],""returntype"":""ByteArray"",""offset"":232,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":234,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""atoi""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Helper"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testHexToBytes"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""assertCall"",""parameters"":[{""name"":""value"",""type"":""Boolean""}],""returntype"":""Integer"",""offset"":9,""safe"":false},{""name"":""testToBigInteger"",""parameters"":[{""name"":""data"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":32,""safe"":false},{""name"":""testNumEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":39,""safe"":false},{""name"":""testNumNotEqual"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":46,""safe"":false},{""name"":""modMultiply"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""y"",""type"":""Integer""},{""name"":""modulus"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":53,""safe"":false},{""name"":""modInverse"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""modulus"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":61,""safe"":false},{""name"":""modPow"",""parameters"":[{""name"":""value"",""type"":""Integer""},{""name"":""exponent"",""type"":""Integer""},{""name"":""modulus"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":77,""safe"":false},{""name"":""testBigIntegerCast"",""parameters"":[{""name"":""data"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":85,""safe"":false},{""name"":""testBigIntegerParseHexString"",""parameters"":[{""name"":""data"",""type"":""String""}],""returntype"":""Integer"",""offset"":100,""safe"":false},{""name"":""voidAssertCall"",""parameters"":[{""name"":""value"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":108,""safe"":false},{""name"":""testByteToByteArray"",""parameters"":[],""returntype"":""ByteArray"",""offset"":116,""safe"":false},{""name"":""testReverse"",""parameters"":[],""returntype"":""ByteArray"",""offset"":127,""safe"":false},{""name"":""testSbyteToByteArray"",""parameters"":[],""returntype"":""ByteArray"",""offset"":142,""safe"":false},{""name"":""testStringToByteArray"",""parameters"":[],""returntype"":""ByteArray"",""offset"":153,""safe"":false},{""name"":""testConcat"",""parameters"":[],""returntype"":""ByteArray"",""offset"":176,""safe"":false},{""name"":""testRange"",""parameters"":[],""returntype"":""ByteArray"",""offset"":201,""safe"":false},{""name"":""testTake"",""parameters"":[],""returntype"":""ByteArray"",""offset"":219,""safe"":false},{""name"":""testLast"",""parameters"":[],""returntype"":""ByteArray"",""offset"":236,""safe"":false},{""name"":""testToScriptHash"",""parameters"":[],""returntype"":""ByteArray"",""offset"":253,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""atoi""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABDwAA/Q0BWEBXAAF4CJcMDFVULUVSUk9SLTEyM+EVQFcAAXjbIUBXAAN4eXqlQFcAAnl4NANAVwACeA95pkBXAAN4eXqmQFcAAXjbKErYJgRFENshQFcAAXg3AABAVwABeAiXOUBXAgARcGgRjXFpQFcBAAwDAQID2zBK0XBoQFcCAA9waNswcWlAVwIADAtoZWxsbyB3b3JsZHBo2zBxaUBXAwAMAwECA9swcAwDBAUG2zBxaGmLcmpAVwIADAMBAgPbMHBoERGMcWlAVwIADAMBAgPbMHBoEo1xaUBXAgAMAwECA9swcGgSjnFpQFlAVgIMBgoLDA0OD2AMFAECAwQFBgcICQoLDA0OD6q7zN3uYUCPhy73"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABDwAA/RQBDAYKCwwNDg9AVwABeAiXDAxVVC1FUlJPUi0xMjPhFUBXAAF42yFAVwACeHmzQFcAAnh5tEBXAAN4eXqlQFcAAnl4NANAVwACeA95pkBXAAN4eXqmQFcAAXjbKErYJgRFENshQFcAAXg3AABAVwABeAiXOUBXAgARcGgRjXFpQFcBAAwDAQID2zBK0XBoQFcCAA9waNswcWlAVwIADAtoZWxsbyB3b3JsZHBo2zBxaUBXAwAMAwECA9swcAwDBAUG2zBxaGmLcmpAVwIADAMBAgPbMHBoERGMcWlAVwIADAMBAgPbMHBoEo1xaUBXAgAMAwECA9swcGgSjnFpQAwUAQIDBAUGBwgJCgsMDQ4PqrvM3e5Annk7Sw=="));
 
     #endregion
 
@@ -26,14 +26,14 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAiXDFVULUVSUk9SLTEyM+EVQA==
-    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.PUSHT	[1 datoshi]
-    /// 05 : OpCode.EQUAL	[32 datoshi]
-    /// 06 : OpCode.PUSHDATA1 55542D4552524F522D313233	[8 datoshi]
-    /// 14 : OpCode.ASSERTMSG	[1 datoshi]
-    /// 15 : OpCode.PUSH5	[1 datoshi]
-    /// 16 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHT
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.PUSHDATA1 55542D4552524F522D313233
+    /// 14 : OpCode.ASSERTMSG
+    /// 15 : OpCode.PUSH5
+    /// 16 : OpCode.RET
     /// </remarks>
     [DisplayName("assertCall")]
     public abstract BigInteger? AssertCall(bool? value);
@@ -43,12 +43,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeA95pkA=
-    /// 00 : OpCode.INITSLOT 0002	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.PUSHM1	[1 datoshi]
-    /// 05 : OpCode.LDARG1	[2 datoshi]
-    /// 06 : OpCode.MODPOW	[2048 datoshi]
-    /// 07 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHM1
+    /// 05 : OpCode.LDARG1
+    /// 06 : OpCode.MODPOW
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("modInverse")]
     public abstract BigInteger? ModInverse(BigInteger? value, BigInteger? modulus);
@@ -58,12 +58,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6pUA=
-    /// 00 : OpCode.INITSLOT 0003	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.LDARG1	[2 datoshi]
-    /// 05 : OpCode.LDARG2	[2 datoshi]
-    /// 06 : OpCode.MODMUL	[32 datoshi]
-    /// 07 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.MODMUL
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("modMultiply")]
     public abstract BigInteger? ModMultiply(BigInteger? value, BigInteger? y, BigInteger? modulus);
@@ -73,12 +73,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6pkA=
-    /// 00 : OpCode.INITSLOT 0003	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.LDARG1	[2 datoshi]
-    /// 05 : OpCode.LDARG2	[2 datoshi]
-    /// 06 : OpCode.MODPOW	[2048 datoshi]
-    /// 07 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0003
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.LDARG2
+    /// 06 : OpCode.MODPOW
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("modPow")]
     public abstract BigInteger? ModPow(BigInteger? value, BigInteger? exponent, BigInteger? modulus);
@@ -88,16 +88,16 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNsoStgmBEUQ2yFA
-    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.CONVERT 28	[8192 datoshi]
-    /// 06 : OpCode.DUP	[2 datoshi]
-    /// 07 : OpCode.ISNULL	[2 datoshi]
-    /// 08 : OpCode.JMPIFNOT 04	[2 datoshi]
-    /// 0A : OpCode.DROP	[2 datoshi]
-    /// 0B : OpCode.PUSH0	[1 datoshi]
-    /// 0C : OpCode.CONVERT 21	[8192 datoshi]
-    /// 0E : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CONVERT 28
+    /// 06 : OpCode.DUP
+    /// 07 : OpCode.ISNULL
+    /// 08 : OpCode.JMPIFNOT 04
+    /// 0A : OpCode.DROP
+    /// 0B : OpCode.PUSH0
+    /// 0C : OpCode.CONVERT 21
+    /// 0E : OpCode.RET
     /// </remarks>
     [DisplayName("testBigIntegerCast")]
     public abstract BigInteger? TestBigIntegerCast(byte[]? data);
@@ -107,10 +107,10 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEA=
-    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.CALLT 0000	[32768 datoshi]
-    /// 07 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CALLT 0000
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("testBigIntegerParseHexString")]
     public abstract BigInteger? TestBigIntegerParseHexString(string? data);
@@ -120,15 +120,15 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwIAEXBoEY1xaUA=
-    /// 00 : OpCode.INITSLOT 0200	[64 datoshi]
-    /// 03 : OpCode.PUSH1	[1 datoshi]
-    /// 04 : OpCode.STLOC0	[2 datoshi]
-    /// 05 : OpCode.LDLOC0	[2 datoshi]
-    /// 06 : OpCode.PUSH1	[1 datoshi]
-    /// 07 : OpCode.LEFT	[2048 datoshi]
-    /// 08 : OpCode.STLOC1	[2 datoshi]
-    /// 09 : OpCode.LDLOC1	[2 datoshi]
-    /// 0A : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0200
+    /// 03 : OpCode.PUSH1
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDLOC0
+    /// 06 : OpCode.PUSH1
+    /// 07 : OpCode.LEFT
+    /// 08 : OpCode.STLOC1
+    /// 09 : OpCode.LDLOC1
+    /// 0A : OpCode.RET
     /// </remarks>
     [DisplayName("testByteToByteArray")]
     public abstract byte[]? TestByteToByteArray();
@@ -143,9 +143,9 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: WEA=
-    /// 00 : OpCode.LDSFLD0	[2 datoshi]
-    /// 01 : OpCode.RET	[0 datoshi]
+    /// Script: DAoLDA0OD0A=
+    /// 00 : OpCode.PUSHDATA1 0A0B0C0D0E0F
+    /// 08 : OpCode.RET
     /// </remarks>
     [DisplayName("testHexToBytes")]
     public abstract byte[]? TestHexToBytes();
@@ -155,6 +155,34 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     [DisplayName("testLast")]
     public abstract byte[]? TestLast();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmzQA==
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NUMEQUAL
+    /// 06 : OpCode.RET
+    /// </remarks>
+    [DisplayName("testNumEqual")]
+    public abstract bool? TestNumEqual(BigInteger? a, BigInteger? b);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwACeHm0QA==
+    /// 00 : OpCode.INITSLOT 0002
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.LDARG1
+    /// 05 : OpCode.NUMNOTEQUAL
+    /// 06 : OpCode.RET
+    /// </remarks>
+    [DisplayName("testNumNotEqual")]
+    public abstract bool? TestNumNotEqual(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
@@ -191,10 +219,10 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNshQA==
-    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.CONVERT 21	[8192 datoshi]
-    /// 06 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.CONVERT 21
+    /// 06 : OpCode.RET
     /// </remarks>
     [DisplayName("testToBigInteger")]
     public abstract BigInteger? TestToBigInteger(byte[]? data);
@@ -210,12 +238,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAiXOUA=
-    /// 00 : OpCode.INITSLOT 0001	[64 datoshi]
-    /// 03 : OpCode.LDARG0	[2 datoshi]
-    /// 04 : OpCode.PUSHT	[1 datoshi]
-    /// 05 : OpCode.EQUAL	[32 datoshi]
-    /// 06 : OpCode.ASSERT	[1 datoshi]
-    /// 07 : OpCode.RET	[0 datoshi]
+    /// 00 : OpCode.INITSLOT 0001
+    /// 03 : OpCode.LDARG0
+    /// 04 : OpCode.PUSHT
+    /// 05 : OpCode.EQUAL
+    /// 06 : OpCode.ASSERT
+    /// 07 : OpCode.RET
     /// </remarks>
     [DisplayName("voidAssertCall")]
     public abstract void VoidAssertCall(bool? value);

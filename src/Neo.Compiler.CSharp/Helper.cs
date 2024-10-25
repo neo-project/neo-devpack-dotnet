@@ -48,7 +48,7 @@ namespace Neo.Compiler
 
         public static bool IsVirtualMethod(this IMethodSymbol method)
         {
-            return method.IsAbstract || method.IsVirtual || method.IsOverride;
+            return method.IsAbstract || method.IsVirtual;
         }
 
         public static bool IsInternalCoreMethod(this IMethodSymbol method)
