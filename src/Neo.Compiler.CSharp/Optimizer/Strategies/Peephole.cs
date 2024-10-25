@@ -23,6 +23,7 @@ namespace Neo.Optimizer
     {
         public static HashSet<OpCode> RemoveDupDropOpCodes = new() { OpCode.REVERSEITEMS, OpCode.CLEARITEMS, OpCode.DUP, OpCode.DROP, OpCode.ABORTMSG };
         public static HashSet<OpCode> JmpWithNotOpCodes = new() { OpCode.JMPIF, OpCode.JMPIFNOT, OpCode.JMPIF_L, OpCode.JMPIFNOT_L };
+        public static HashSet<OpCode> EqualOpCodes = new() { OpCode.EQUAL, OpCode.NOTEQUAL, OpCode.NUMEQUAL, OpCode.NUMNOTEQUAL };
 
         /// <summary>
         /// DUP SOMEOP DROP
@@ -237,6 +238,77 @@ namespace Neo.Optimizer
                                 currentAddress += not_.Size;
                                 index += 1;
                                 OptimizedScriptBuilder.RetargetJump(current, isNull,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
+        /// NUMEQUAL NOT -> NUMNOTEQUAL
+        /// NUMNOTEQUAL NOT -> NUMEQUAL
+        /// EQUAL NOT -> NOTEQUAL
+        /// NOTEQUAL NOT -> EQUAL
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 10)]
+        public static (NefFile, ContractManifest, JObject?) FoldNotInEqual(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        if (next.OpCode == OpCode.NOT)
+                        {
+                            if (EqualOpCodes.Contains(current.OpCode))
+                            {
+                                OpCode newOpCode = current.OpCode switch
+                                {
+                                    OpCode.EQUAL => OpCode.NOTEQUAL,
+                                    OpCode.NOTEQUAL => OpCode.EQUAL,
+                                    OpCode.NUMEQUAL => OpCode.NUMNOTEQUAL,
+                                    OpCode.NUMNOTEQUAL => OpCode.NUMEQUAL,
+                                    _ => throw new BadScriptException($"Bad definition in optimizer: {current.OpCode} in {nameof(EqualOpCodes)}. This is a bug from author.")
+                                };
+                                Instruction newInstruction = new Script(new byte[] { (byte)newOpCode }).GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(newInstruction, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += newInstruction.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, newInstruction,
                                     jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
                                 continue;
                             }
