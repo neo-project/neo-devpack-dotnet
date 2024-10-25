@@ -9,6 +9,8 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_BigInteger : DebugAndTestBase<Contract_BigInteger>
     {
+        public UnitTest_BigInteger() : base(compilationOptions: TestCleanup.TestCompilationOptionsSimOverFlow) { }
+
         [TestMethod]
         public void Test_ParseConstant()
         {

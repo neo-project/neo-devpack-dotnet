@@ -15,7 +15,7 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP1gA1cBAXhwaAwBMJclrQAAAGgMATGXJaUAAABoDAEylyWdAAAAaAwBM5cllQAAAGgMATSXJY0AAABoDAE1lyWFAAAAaAwBNpckfWgMATeXJHhoDAE4lyRzaAwBOZckbmgMAjEwlyRoaAwCMTGXJGJoDAIxMpckXGgMAjEzlyRWaAwCMTSXJFBoDAIxNZckSmgMAjE2lyREaAwCMTeXJD9oDAIxOJckOmgMAjE5lyQ1aAwCMjCXJDAiMRFAEkATQBRAFUAWQBdAGEAZQBpAG0AcQB1AHkAfQCBAABFAABJAABNAABRAABVAAGNAVwEBeHBoDAEwlyQnaAwBMZckImgMATKXJB1oDAEzlyQYaAwBNJckE2gMATWXJA4iDhFAEkATQBRAFUAWQABjQFcBAXhwaAwBMJcmBBFAaAwBMZcmBBJAaAwBMpcmBBNAaAwBM5cmBBRAaAwBNJcmBBVAaAwBNZcmBBZACCYFAGNAaDpXAgERcHhxaRGXJA5pEpckDWkTlyQMIg4ScCIME3AiCBZwIgQQcGhAVwIBEXB4cWkMAWGXJEBpDAFjlyRxaQwBYpcloQAAAGkMAWSXJc8AAABpDAFllyX8AAAAaQwBZpclJgEAAGkMAWeXJVABAAAjfwEAAGhKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRSNLAQAAaBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3AjFAEAAGhKnUoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRSPcAAAAaA+gSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3AjpQAAAGhooEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wIm5oE6BKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcCI6aBKeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3AiBmgRoXBoQH2/0+M="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0AAlcBAXhwaAwBMJclrQAAAGgMATGXJaUAAABoDAEylyWdAAAAaAwBM5cllQAAAGgMATSXJY0AAABoDAE1lyWFAAAAaAwBNpckfWgMATeXJHhoDAE4lyRzaAwBOZckbmgMAjEwlyRoaAwCMTGXJGJoDAIxMpckXGgMAjEzlyRWaAwCMTSXJFBoDAIxNZckSmgMAjE2lyREaAwCMTeXJD9oDAIxOJckOmgMAjE5lyQ1aAwCMjCXJDAiMRFAEkATQBRAFUAWQBdAGEAZQBpAG0AcQB1AHkAfQCBAABFAABJAABNAABRAABVAAGNAVwEBeHBoDAEwlyQnaAwBMZckImgMATKXJB1oDAEzlyQYaAwBNJckE2gMATWXJA4iDhFAEkATQBRAFUAWQABjQFcBAXhwaAwBMJcmBBFAaAwBMZcmBBJAaAwBMpcmBBNAaAwBM5cmBBRAaAwBNJcmBBVAaAwBNZcmBBZACCYFAGNAaDpXAgERcHhxaRGXJA5pEpckDWkTlyQMIg4ScCIME3AiCBZwIgQQcGhAVwIBEXB4cWkMAWGXJC5pDAFjlyQuaQwBYpckLWkMAWSXJC1pDAFllyQsaQwBZpckK2kMAWeXJCoiLmhKnHBFIitoEqBwIiVoSp1wRSIeaA+gcCIYaGigcCISaBOgcCIMaBKecCIGaBGhcGhADierhw=="));
 
     #endregion
 
@@ -311,182 +311,84 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBEXB4cWkMYZckQGkMY5ckcWkMYpcloQAAAGkMZJclzwAAAGkMZZcl/AAAAGkMZpclJgEAAGkMZ5clUAEAACN/AQAAaEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFI0sBAABoEqBKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcCMUAQAAaEqdSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFI9wAAABoD6BKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcCOlAAAAaGigSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3AibmgToEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wIjpoEp5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcCIGaBGhcGhA
-    /// 0000 : OpCode.INITSLOT 0201
-    /// 0003 : OpCode.PUSH1
-    /// 0004 : OpCode.STLOC0
-    /// 0005 : OpCode.LDARG0
-    /// 0006 : OpCode.STLOC1
-    /// 0007 : OpCode.LDLOC1
-    /// 0008 : OpCode.PUSHDATA1 61
-    /// 000B : OpCode.EQUAL
-    /// 000C : OpCode.JMPIF 40
-    /// 000E : OpCode.LDLOC1
-    /// 000F : OpCode.PUSHDATA1 63
-    /// 0012 : OpCode.EQUAL
-    /// 0013 : OpCode.JMPIF 71
-    /// 0015 : OpCode.LDLOC1
-    /// 0016 : OpCode.PUSHDATA1 62
-    /// 0019 : OpCode.EQUAL
-    /// 001A : OpCode.JMPIF_L A1000000
-    /// 001F : OpCode.LDLOC1
-    /// 0020 : OpCode.PUSHDATA1 64
-    /// 0023 : OpCode.EQUAL
-    /// 0024 : OpCode.JMPIF_L CF000000
-    /// 0029 : OpCode.LDLOC1
-    /// 002A : OpCode.PUSHDATA1 65
-    /// 002D : OpCode.EQUAL
-    /// 002E : OpCode.JMPIF_L FC000000
-    /// 0033 : OpCode.LDLOC1
-    /// 0034 : OpCode.PUSHDATA1 66
-    /// 0037 : OpCode.EQUAL
-    /// 0038 : OpCode.JMPIF_L 26010000
-    /// 003D : OpCode.LDLOC1
-    /// 003E : OpCode.PUSHDATA1 67
-    /// 0041 : OpCode.EQUAL
-    /// 0042 : OpCode.JMPIF_L 50010000
-    /// 0047 : OpCode.JMP_L 7F010000
-    /// 004C : OpCode.LDLOC0
-    /// 004D : OpCode.DUP
-    /// 004E : OpCode.INC
-    /// 004F : OpCode.DUP
-    /// 0050 : OpCode.PUSHINT32 00000080
-    /// 0055 : OpCode.JMPGE 04
-    /// 0057 : OpCode.JMP 0A
-    /// 0059 : OpCode.DUP
-    /// 005A : OpCode.PUSHINT32 FFFFFF7F
-    /// 005F : OpCode.JMPLE 1E
-    /// 0061 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 006A : OpCode.AND
-    /// 006B : OpCode.DUP
-    /// 006C : OpCode.PUSHINT32 FFFFFF7F
-    /// 0071 : OpCode.JMPLE 0C
-    /// 0073 : OpCode.PUSHINT64 0000000001000000
-    /// 007C : OpCode.SUB
-    /// 007D : OpCode.STLOC0
-    /// 007E : OpCode.DROP
-    /// 007F : OpCode.JMP_L 4B010000
-    /// 0084 : OpCode.LDLOC0
-    /// 0085 : OpCode.PUSH2
-    /// 0086 : OpCode.MUL
-    /// 0087 : OpCode.DUP
-    /// 0088 : OpCode.PUSHINT32 00000080
-    /// 008D : OpCode.JMPGE 04
-    /// 008F : OpCode.JMP 0A
-    /// 0091 : OpCode.DUP
-    /// 0092 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0097 : OpCode.JMPLE 1E
-    /// 0099 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 00A2 : OpCode.AND
-    /// 00A3 : OpCode.DUP
-    /// 00A4 : OpCode.PUSHINT32 FFFFFF7F
-    /// 00A9 : OpCode.JMPLE 0C
-    /// 00AB : OpCode.PUSHINT64 0000000001000000
-    /// 00B4 : OpCode.SUB
-    /// 00B5 : OpCode.STLOC0
-    /// 00B6 : OpCode.JMP_L 14010000
-    /// 00BB : OpCode.LDLOC0
-    /// 00BC : OpCode.DUP
-    /// 00BD : OpCode.DEC
-    /// 00BE : OpCode.DUP
-    /// 00BF : OpCode.PUSHINT32 00000080
-    /// 00C4 : OpCode.JMPGE 04
-    /// 00C6 : OpCode.JMP 0A
-    /// 00C8 : OpCode.DUP
-    /// 00C9 : OpCode.PUSHINT32 FFFFFF7F
-    /// 00CE : OpCode.JMPLE 1E
-    /// 00D0 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 00D9 : OpCode.AND
-    /// 00DA : OpCode.DUP
-    /// 00DB : OpCode.PUSHINT32 FFFFFF7F
-    /// 00E0 : OpCode.JMPLE 0C
-    /// 00E2 : OpCode.PUSHINT64 0000000001000000
-    /// 00EB : OpCode.SUB
-    /// 00EC : OpCode.STLOC0
-    /// 00ED : OpCode.DROP
-    /// 00EE : OpCode.JMP_L DC000000
-    /// 00F3 : OpCode.LDLOC0
-    /// 00F4 : OpCode.PUSHM1
-    /// 00F5 : OpCode.MUL
-    /// 00F6 : OpCode.DUP
-    /// 00F7 : OpCode.PUSHINT32 00000080
-    /// 00FC : OpCode.JMPGE 04
-    /// 00FE : OpCode.JMP 0A
-    /// 0100 : OpCode.DUP
-    /// 0101 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0106 : OpCode.JMPLE 1E
-    /// 0108 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0111 : OpCode.AND
-    /// 0112 : OpCode.DUP
-    /// 0113 : OpCode.PUSHINT32 FFFFFF7F
-    /// 0118 : OpCode.JMPLE 0C
-    /// 011A : OpCode.PUSHINT64 0000000001000000
-    /// 0123 : OpCode.SUB
-    /// 0124 : OpCode.STLOC0
-    /// 0125 : OpCode.JMP_L A5000000
-    /// 012A : OpCode.LDLOC0
-    /// 012B : OpCode.LDLOC0
-    /// 012C : OpCode.MUL
-    /// 012D : OpCode.DUP
-    /// 012E : OpCode.PUSHINT32 00000080
-    /// 0133 : OpCode.JMPGE 04
-    /// 0135 : OpCode.JMP 0A
-    /// 0137 : OpCode.DUP
-    /// 0138 : OpCode.PUSHINT32 FFFFFF7F
-    /// 013D : OpCode.JMPLE 1E
-    /// 013F : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 0148 : OpCode.AND
-    /// 0149 : OpCode.DUP
-    /// 014A : OpCode.PUSHINT32 FFFFFF7F
-    /// 014F : OpCode.JMPLE 0C
-    /// 0151 : OpCode.PUSHINT64 0000000001000000
-    /// 015A : OpCode.SUB
-    /// 015B : OpCode.STLOC0
-    /// 015C : OpCode.JMP 6E
-    /// 015E : OpCode.LDLOC0
-    /// 015F : OpCode.PUSH3
-    /// 0160 : OpCode.MUL
-    /// 0161 : OpCode.DUP
-    /// 0162 : OpCode.PUSHINT32 00000080
-    /// 0167 : OpCode.JMPGE 04
-    /// 0169 : OpCode.JMP 0A
-    /// 016B : OpCode.DUP
-    /// 016C : OpCode.PUSHINT32 FFFFFF7F
-    /// 0171 : OpCode.JMPLE 1E
-    /// 0173 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 017C : OpCode.AND
-    /// 017D : OpCode.DUP
-    /// 017E : OpCode.PUSHINT32 FFFFFF7F
-    /// 0183 : OpCode.JMPLE 0C
-    /// 0185 : OpCode.PUSHINT64 0000000001000000
-    /// 018E : OpCode.SUB
-    /// 018F : OpCode.STLOC0
-    /// 0190 : OpCode.JMP 3A
-    /// 0192 : OpCode.LDLOC0
-    /// 0193 : OpCode.PUSH2
-    /// 0194 : OpCode.ADD
-    /// 0195 : OpCode.DUP
-    /// 0196 : OpCode.PUSHINT32 00000080
-    /// 019B : OpCode.JMPGE 04
-    /// 019D : OpCode.JMP 0A
-    /// 019F : OpCode.DUP
-    /// 01A0 : OpCode.PUSHINT32 FFFFFF7F
-    /// 01A5 : OpCode.JMPLE 1E
-    /// 01A7 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 01B0 : OpCode.AND
-    /// 01B1 : OpCode.DUP
-    /// 01B2 : OpCode.PUSHINT32 FFFFFF7F
-    /// 01B7 : OpCode.JMPLE 0C
-    /// 01B9 : OpCode.PUSHINT64 0000000001000000
-    /// 01C2 : OpCode.SUB
-    /// 01C3 : OpCode.STLOC0
-    /// 01C4 : OpCode.JMP 06
-    /// 01C6 : OpCode.LDLOC0
-    /// 01C7 : OpCode.PUSH1
-    /// 01C8 : OpCode.DIV
-    /// 01C9 : OpCode.STLOC0
-    /// 01CA : OpCode.LDLOC0
-    /// 01CB : OpCode.RET
+    /// Script: VwIBEXB4cWkMYZckLmkMY5ckLmkMYpckLWkMZJckLWkMZZckLGkMZpckK2kMZ5ckKiIuaEqccEUiK2gSoHAiJWhKnXBFIh5oD6BwIhhoaKBwIhJoE6BwIgxoEp5wIgZoEaFwaEA=
+    /// 00 : OpCode.INITSLOT 0201
+    /// 03 : OpCode.PUSH1
+    /// 04 : OpCode.STLOC0
+    /// 05 : OpCode.LDARG0
+    /// 06 : OpCode.STLOC1
+    /// 07 : OpCode.LDLOC1
+    /// 08 : OpCode.PUSHDATA1 61
+    /// 0B : OpCode.EQUAL
+    /// 0C : OpCode.JMPIF 2E
+    /// 0E : OpCode.LDLOC1
+    /// 0F : OpCode.PUSHDATA1 63
+    /// 12 : OpCode.EQUAL
+    /// 13 : OpCode.JMPIF 2E
+    /// 15 : OpCode.LDLOC1
+    /// 16 : OpCode.PUSHDATA1 62
+    /// 19 : OpCode.EQUAL
+    /// 1A : OpCode.JMPIF 2D
+    /// 1C : OpCode.LDLOC1
+    /// 1D : OpCode.PUSHDATA1 64
+    /// 20 : OpCode.EQUAL
+    /// 21 : OpCode.JMPIF 2D
+    /// 23 : OpCode.LDLOC1
+    /// 24 : OpCode.PUSHDATA1 65
+    /// 27 : OpCode.EQUAL
+    /// 28 : OpCode.JMPIF 2C
+    /// 2A : OpCode.LDLOC1
+    /// 2B : OpCode.PUSHDATA1 66
+    /// 2E : OpCode.EQUAL
+    /// 2F : OpCode.JMPIF 2B
+    /// 31 : OpCode.LDLOC1
+    /// 32 : OpCode.PUSHDATA1 67
+    /// 35 : OpCode.EQUAL
+    /// 36 : OpCode.JMPIF 2A
+    /// 38 : OpCode.JMP 2E
+    /// 3A : OpCode.LDLOC0
+    /// 3B : OpCode.DUP
+    /// 3C : OpCode.INC
+    /// 3D : OpCode.STLOC0
+    /// 3E : OpCode.DROP
+    /// 3F : OpCode.JMP 2B
+    /// 41 : OpCode.LDLOC0
+    /// 42 : OpCode.PUSH2
+    /// 43 : OpCode.MUL
+    /// 44 : OpCode.STLOC0
+    /// 45 : OpCode.JMP 25
+    /// 47 : OpCode.LDLOC0
+    /// 48 : OpCode.DUP
+    /// 49 : OpCode.DEC
+    /// 4A : OpCode.STLOC0
+    /// 4B : OpCode.DROP
+    /// 4C : OpCode.JMP 1E
+    /// 4E : OpCode.LDLOC0
+    /// 4F : OpCode.PUSHM1
+    /// 50 : OpCode.MUL
+    /// 51 : OpCode.STLOC0
+    /// 52 : OpCode.JMP 18
+    /// 54 : OpCode.LDLOC0
+    /// 55 : OpCode.LDLOC0
+    /// 56 : OpCode.MUL
+    /// 57 : OpCode.STLOC0
+    /// 58 : OpCode.JMP 12
+    /// 5A : OpCode.LDLOC0
+    /// 5B : OpCode.PUSH3
+    /// 5C : OpCode.MUL
+    /// 5D : OpCode.STLOC0
+    /// 5E : OpCode.JMP 0C
+    /// 60 : OpCode.LDLOC0
+    /// 61 : OpCode.PUSH2
+    /// 62 : OpCode.ADD
+    /// 63 : OpCode.STLOC0
+    /// 64 : OpCode.JMP 06
+    /// 66 : OpCode.LDLOC0
+    /// 67 : OpCode.PUSH1
+    /// 68 : OpCode.DIV
+    /// 69 : OpCode.STLOC0
+    /// 6A : OpCode.LDLOC0
+    /// 6B : OpCode.RET
     /// </remarks>
     [DisplayName("switchLongLong")]
     public abstract object? SwitchLongLong(string? test);

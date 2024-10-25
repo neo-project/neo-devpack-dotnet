@@ -24,13 +24,22 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static readonly string TestContractsPath = Path.GetFullPath(Path.Combine("..", "..", "..", "..", "Neo.Compiler.CSharp.TestContracts", "Neo.Compiler.CSharp.TestContracts.csproj"));
         private static readonly string RootPath = Path.GetPathRoot(TestContractsPath) ?? string.Empty;
 
-        private static readonly Lazy<CompilationEngine> _compilationEngine = new(() => new CompilationEngine(new CompilationOptions
+        public static readonly CompilationOptions DefaultTestCompilationOptions = new CompilationOptions
         {
             Debug = true,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = NullableContextOptions.Enable
-        }));
+        };
+        public static readonly CompilationOptions TestCompilationOptionsSimOverFlow = new CompilationOptions
+        {
+            SimulateOverflow = true,
+            Debug = true,
+            CompilerVersion = "TestingEngine",
+            Optimize = CompilationOptions.OptimizationType.All,
+            Nullable = NullableContextOptions.Enable
+        };
+        private static readonly Lazy<CompilationEngine> _compilationEngine = new(() => new CompilationEngine(DefaultTestCompilationOptions));
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private static List<INamedTypeSymbol> _sortedClasses;
@@ -48,7 +57,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 _compilationEngine.Value.PrepareProjectContracts(TestContractsPath);
         }
 
-        public static CompilationContext? TestInitialize(Type contract)
+        public static CompilationContext? TestInitialize(Type contract, CompilationOptions? compilationOptions = null)
         {
             try
             {
@@ -62,7 +71,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     return data.Context;
                 }
 
-                return EnsureArtifactUpToDateInternal(contract.Name);
+                return EnsureArtifactUpToDateInternal(contract.Name, compilationOptions: compilationOptions);
             }
             catch (Exception e)
             {
@@ -97,9 +106,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
         }
 
-        internal static CompilationContext EnsureArtifactUpToDateInternal(string singleContractName)
+        internal static CompilationContext EnsureArtifactUpToDateInternal(string singleContractName,
+            CompilationOptions? compilationOptions = null)
         {
-            var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault()
+            CompilationEngine ce = _compilationEngine.Value;
+            if (compilationOptions != null)
+                ce = new(compilationOptions);
+            var result = ce.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault()
                 ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
 
             if (result.ContractName != "Contract_DuplicateNames" && !result.Success)

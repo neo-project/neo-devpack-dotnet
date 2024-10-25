@@ -41,6 +41,7 @@ namespace Neo.Compiler
                 new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
                 new Option<string>("--base-name", "Specifies the base name of the output files."),
                 new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."),
+                new Option<bool>("--simulate-overflow", "Indicates whether to simulate overflow and underflow. If false, --checked does not take effect."),
                 new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."),
                 new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),

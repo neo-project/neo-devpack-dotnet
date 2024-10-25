@@ -10,12 +10,12 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_PostfixUnary"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""isValid"",""parameters"":[{""name"":""person"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":172,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_PostfixUnary"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""isValid"",""parameters"":[{""name"":""person"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":74,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMJXAQALEAsTwAwESm9obks1hwAAAHBoNZYAAAAmeWhKEc5OnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8RUNBFaBLOEUtLzkpUU5xKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACf0EVoEM5AC0BXAAJ4EgBQADwAUBPA0HlKeBBR0EVAVwEBeHBoC5eqJAQJQHgQznBoC5eqQFsFvBY="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGBXAQALEAsTwAwESm9obks0JXBoNDcmHWhKEc5OnBFQ0EVoEs4RS0vOSlRTnNBFaBDOQAtAVwACeBIAUAA8AFATwNB5SngQUdBFQFcBAXhwaAuXqiQECUB4EM5waAuXqkC6FsDO"));
 
     #endregion
 
@@ -53,7 +53,7 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACxALE8AMSm9obks1hwAAAHBoNZYAAAAmeWhKEc5OnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8RUNBFaBLOEUtLzkpUU5xKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACf0EVoEM5AC0A=
+    /// Script: VwEACxALE8AMSm9obks0JXBoNDcmHWhKEc5OnBFQ0EVoEs4RS0vOSlRTnNBFaBDOQAtA
     /// 00 : OpCode.INITSLOT 0100
     /// 03 : OpCode.PUSHNULL
     /// 04 : OpCode.PUSH0
@@ -62,68 +62,40 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// 07 : OpCode.PACK
     /// 08 : OpCode.PUSHDATA1 4A6F686E
     /// 0E : OpCode.OVER
-    /// 0F : OpCode.CALL_L 87000000
-    /// 14 : OpCode.STLOC0
-    /// 15 : OpCode.LDLOC0
-    /// 16 : OpCode.CALL_L 96000000
-    /// 1B : OpCode.JMPIFNOT 79
-    /// 1D : OpCode.LDLOC0
-    /// 1E : OpCode.DUP
-    /// 1F : OpCode.PUSH1
-    /// 20 : OpCode.PICKITEM
-    /// 21 : OpCode.TUCK
-    /// 22 : OpCode.INC
-    /// 23 : OpCode.DUP
-    /// 24 : OpCode.PUSHINT32 00000080
-    /// 29 : OpCode.JMPGE 04
-    /// 2B : OpCode.JMP 0A
-    /// 2D : OpCode.DUP
-    /// 2E : OpCode.PUSHINT32 FFFFFF7F
-    /// 33 : OpCode.JMPLE 1E
-    /// 35 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 3E : OpCode.AND
-    /// 3F : OpCode.DUP
-    /// 40 : OpCode.PUSHINT32 FFFFFF7F
-    /// 45 : OpCode.JMPLE 0C
-    /// 47 : OpCode.PUSHINT64 0000000001000000
-    /// 50 : OpCode.SUB
-    /// 51 : OpCode.PUSH1
-    /// 52 : OpCode.SWAP
-    /// 53 : OpCode.SETITEM
-    /// 54 : OpCode.DROP
-    /// 55 : OpCode.LDLOC0
-    /// 56 : OpCode.PUSH2
-    /// 57 : OpCode.PICKITEM
-    /// 58 : OpCode.PUSH1
-    /// 59 : OpCode.OVER
-    /// 5A : OpCode.OVER
-    /// 5B : OpCode.PICKITEM
-    /// 5C : OpCode.DUP
-    /// 5D : OpCode.REVERSE4
-    /// 5E : OpCode.REVERSE3
-    /// 5F : OpCode.INC
-    /// 60 : OpCode.DUP
-    /// 61 : OpCode.PUSHINT32 00000080
-    /// 66 : OpCode.JMPGE 04
-    /// 68 : OpCode.JMP 0A
-    /// 6A : OpCode.DUP
-    /// 6B : OpCode.PUSHINT32 FFFFFF7F
-    /// 70 : OpCode.JMPLE 1E
-    /// 72 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 7B : OpCode.AND
-    /// 7C : OpCode.DUP
-    /// 7D : OpCode.PUSHINT32 FFFFFF7F
-    /// 82 : OpCode.JMPLE 0C
-    /// 84 : OpCode.PUSHINT64 0000000001000000
-    /// 8D : OpCode.SUB
-    /// 8E : OpCode.SETITEM
-    /// 8F : OpCode.DROP
-    /// 90 : OpCode.LDLOC0
-    /// 91 : OpCode.PUSH0
-    /// 92 : OpCode.PICKITEM
-    /// 93 : OpCode.RET
-    /// 94 : OpCode.PUSHNULL
-    /// 95 : OpCode.RET
+    /// 0F : OpCode.CALL 25
+    /// 11 : OpCode.STLOC0
+    /// 12 : OpCode.LDLOC0
+    /// 13 : OpCode.CALL 37
+    /// 15 : OpCode.JMPIFNOT 1D
+    /// 17 : OpCode.LDLOC0
+    /// 18 : OpCode.DUP
+    /// 19 : OpCode.PUSH1
+    /// 1A : OpCode.PICKITEM
+    /// 1B : OpCode.TUCK
+    /// 1C : OpCode.INC
+    /// 1D : OpCode.PUSH1
+    /// 1E : OpCode.SWAP
+    /// 1F : OpCode.SETITEM
+    /// 20 : OpCode.DROP
+    /// 21 : OpCode.LDLOC0
+    /// 22 : OpCode.PUSH2
+    /// 23 : OpCode.PICKITEM
+    /// 24 : OpCode.PUSH1
+    /// 25 : OpCode.OVER
+    /// 26 : OpCode.OVER
+    /// 27 : OpCode.PICKITEM
+    /// 28 : OpCode.DUP
+    /// 29 : OpCode.REVERSE4
+    /// 2A : OpCode.REVERSE3
+    /// 2B : OpCode.INC
+    /// 2C : OpCode.SETITEM
+    /// 2D : OpCode.DROP
+    /// 2E : OpCode.LDLOC0
+    /// 2F : OpCode.PUSH0
+    /// 30 : OpCode.PICKITEM
+    /// 31 : OpCode.RET
+    /// 32 : OpCode.PUSHNULL
+    /// 33 : OpCode.RET
     /// </remarks>
     [DisplayName("test")]
     public abstract string? Test();
