@@ -26,14 +26,14 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAiXDFVULUVSUk9SLTEyM+EVQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSHT
-    /// 05 : OpCode.EQUAL
-    /// 06 : OpCode.PUSHDATA1 55542D4552524F522D313233
-    /// 14 : OpCode.ASSERTMSG
-    /// 15 : OpCode.PUSH5
-    /// 16 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSHT [1 datoshi]
+    /// 05 : OpCode.EQUAL [32 datoshi]
+    /// 06 : OpCode.PUSHDATA1 55542D4552524F522D313233 [8 datoshi]
+    /// 14 : OpCode.ASSERTMSG [1 datoshi]
+    /// 15 : OpCode.PUSH5 [1 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("assertCall")]
     public abstract BigInteger? AssertCall(bool? value);
@@ -43,12 +43,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeA95pkA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSHM1
-    /// 05 : OpCode.LDARG1
-    /// 06 : OpCode.MODPOW
-    /// 07 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSHM1 [1 datoshi]
+    /// 05 : OpCode.LDARG1 [2 datoshi]
+    /// 06 : OpCode.MODPOW [2048 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("modInverse")]
     public abstract BigInteger? ModInverse(BigInteger? value, BigInteger? modulus);
@@ -58,12 +58,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6pUA=
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.MODMUL
-    /// 07 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.LDARG2 [2 datoshi]
+    /// 06 : OpCode.MODMUL [32 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("modMultiply")]
     public abstract BigInteger? ModMultiply(BigInteger? value, BigInteger? y, BigInteger? modulus);
@@ -73,12 +73,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6pkA=
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.MODPOW
-    /// 07 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.LDARG2 [2 datoshi]
+    /// 06 : OpCode.MODPOW [2048 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("modPow")]
     public abstract BigInteger? ModPow(BigInteger? value, BigInteger? exponent, BigInteger? modulus);
@@ -88,16 +88,16 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNsoStgmBEUQ2yFA
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.CONVERT 28
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.ISNULL
-    /// 08 : OpCode.JMPIFNOT 04
-    /// 0A : OpCode.DROP
-    /// 0B : OpCode.PUSH0
-    /// 0C : OpCode.CONVERT 21
-    /// 0E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.CONVERT 28 [8192 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.ISNULL [2 datoshi]
+    /// 08 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 0A : OpCode.DROP [2 datoshi]
+    /// 0B : OpCode.PUSH0 [1 datoshi]
+    /// 0C : OpCode.CONVERT 21 [8192 datoshi]
+    /// 0E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerCast")]
     public abstract BigInteger? TestBigIntegerCast(byte[]? data);
@@ -107,10 +107,10 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.CALLT 0000
-    /// 07 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerParseHexString")]
     public abstract BigInteger? TestBigIntegerParseHexString(string? data);
@@ -120,15 +120,15 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwIAEXBoEY1xaUA=
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSH1
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSH1
-    /// 07 : OpCode.LEFT
-    /// 08 : OpCode.STLOC1
-    /// 09 : OpCode.LDLOC1
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSH1 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH1 [1 datoshi]
+    /// 07 : OpCode.LEFT [2048 datoshi]
+    /// 08 : OpCode.STLOC1 [2 datoshi]
+    /// 09 : OpCode.LDLOC1 [2 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteToByteArray")]
     public abstract byte[]? TestByteToByteArray();
@@ -144,8 +144,8 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: DAoLDA0OD0A=
-    /// 00 : OpCode.PUSHDATA1 0A0B0C0D0E0F
-    /// 08 : OpCode.RET
+    /// 00 : OpCode.PUSHDATA1 0A0B0C0D0E0F [8 datoshi]
+    /// 08 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testHexToBytes")]
     public abstract byte[]? TestHexToBytes();
@@ -161,11 +161,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmzQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.NUMEQUAL
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.NUMEQUAL [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testNumEqual")]
     public abstract bool? TestNumEqual(BigInteger? a, BigInteger? b);
@@ -175,11 +175,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm0QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.NUMNOTEQUAL
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.NUMNOTEQUAL [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testNumNotEqual")]
     public abstract bool? TestNumNotEqual(BigInteger? a, BigInteger? b);
@@ -219,10 +219,10 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNshQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.CONVERT 21
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.CONVERT 21 [8192 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testToBigInteger")]
     public abstract BigInteger? TestToBigInteger(byte[]? data);
@@ -238,12 +238,12 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAiXOUA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSHT
-    /// 05 : OpCode.EQUAL
-    /// 06 : OpCode.ASSERT
-    /// 07 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSHT [1 datoshi]
+    /// 05 : OpCode.EQUAL [32 datoshi]
+    /// 06 : OpCode.ASSERT [1 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("voidAssertCall")]
     public abstract void VoidAssertCall(bool? value);
