@@ -34,6 +34,21 @@ namespace Neo.SmartContract.Framework.UnitTests
         }
 
         [TestMethod]
+        public void TestNumEqual()
+        {
+            Assert.IsTrue(Contract.TestNumEqual(1, 1));
+            Assert.IsFalse(Contract.TestNumEqual(1, 2));
+            Assert.ThrowsException<TestException>(() => Contract.TestNumEqual(null, 2));
+            Assert.ThrowsException<TestException>(() => Contract.TestNumEqual(1, null));
+            Assert.ThrowsException<TestException>(() => Contract.TestNumEqual(null, null));
+            Assert.IsFalse(Contract.TestNumNotEqual(-1, -1));
+            Assert.IsTrue(Contract.TestNumNotEqual(-1, -2));
+            Assert.ThrowsException<TestException>(() => Contract.TestNumNotEqual(null, -2));
+            Assert.ThrowsException<TestException>(() => Contract.TestNumNotEqual(-1, null));
+            Assert.ThrowsException<TestException>(() => Contract.TestNumNotEqual(null, null));
+        }
+
+        [TestMethod]
         public void TestModPow()
         {
             Assert.AreEqual(4, Contract.ModMultiply(4, 7, 6));
