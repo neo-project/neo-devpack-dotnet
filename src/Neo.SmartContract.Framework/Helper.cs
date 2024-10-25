@@ -42,6 +42,18 @@ namespace Neo.SmartContract.Framework
         public extern static string ToByteString(this byte[] source);
 
         /// <summary>
+        /// Saves GAS (compared to OpCode.EQUAL); throw exception when any input is null
+        /// </summary>
+        [OpCode(OpCode.NUMEQUAL)]
+        public extern static bool NumEqual(BigInteger a, BigInteger b);
+
+        /// <summary>
+        /// Saves GAS (compared to OpCode.EQUAL); throw exception when any input is null
+        /// </summary>
+        [OpCode(OpCode.NUMNOTEQUAL)]
+        public extern static bool NumNotEqual(BigInteger a, BigInteger b);
+
+        /// <summary>
         /// Returns true iff a <= x && x < b. Examples: x=5 a=5 b=15 is true; x=15 a=5 b=15 is false
         /// </summary>
         [OpCode(OpCode.WITHIN)]
