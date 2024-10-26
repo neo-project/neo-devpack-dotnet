@@ -112,9 +112,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public extern ByteString? Get(ByteString key);
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -206,9 +204,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         public extern ByteString? Get(byte[] key);
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
