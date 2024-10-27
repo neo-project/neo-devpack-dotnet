@@ -15,7 +15,7 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMJXAQALEAsTwAwESm9obks1hwAAAHBoNZYAAAAmeWhKEc5OnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8RUNBFaBLOEUtLzkpUU5xKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACf0EVoEM5AC0BXAAJ4EgBQADwAUBPA0HlKeBBR0EVAVwEBeHBoC5eqJAQJQHgQznBoC5eqQFsFvBY="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL9XAQALEAsTwAwESm9obks1hwAAAHBoNZYAAAAmeWhKEc5OnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8RUNBFaBLOEUtLzkpUU5xKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACf0EVoEM5AC0BXAAJ4EgBQADwAUBPA0HlKeBBR0EVAVwEBeHBo2CYECUB4EM5waNiqQAQGYzE="));
 
     #endregion
 
@@ -25,26 +25,23 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoC5eqJAQJQHgQznBoC5eqQA==
+    /// Script: VwEBeHBo2CYECUB4EM5waNiqQA==
     /// 00 : OpCode.INITSLOT 0101
     /// 03 : OpCode.LDARG0
     /// 04 : OpCode.STLOC0
     /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSHNULL
-    /// 07 : OpCode.EQUAL
-    /// 08 : OpCode.NOT
-    /// 09 : OpCode.JMPIF 04
-    /// 0B : OpCode.PUSHF
-    /// 0C : OpCode.RET
-    /// 0D : OpCode.LDARG0
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.PICKITEM
-    /// 10 : OpCode.STLOC0
-    /// 11 : OpCode.LDLOC0
-    /// 12 : OpCode.PUSHNULL
-    /// 13 : OpCode.EQUAL
-    /// 14 : OpCode.NOT
-    /// 15 : OpCode.RET
+    /// 06 : OpCode.ISNULL
+    /// 07 : OpCode.JMPIFNOT 04
+    /// 09 : OpCode.PUSHF
+    /// 0A : OpCode.RET
+    /// 0B : OpCode.LDARG0
+    /// 0C : OpCode.PUSH0
+    /// 0D : OpCode.PICKITEM
+    /// 0E : OpCode.STLOC0
+    /// 0F : OpCode.LDLOC0
+    /// 10 : OpCode.ISNULL
+    /// 11 : OpCode.NOT
+    /// 12 : OpCode.RET
     /// </remarks>
     [DisplayName("isValid")]
     public abstract bool? IsValid(object? person = null);
