@@ -22,6 +22,8 @@ namespace Neo.Optimizer
     public static class Peephole
     {
         public static HashSet<OpCode> RemoveDupDropOpCodes = new() { OpCode.REVERSEITEMS, OpCode.CLEARITEMS, OpCode.DUP, OpCode.DROP, OpCode.ABORTMSG };
+        public static HashSet<OpCode> JmpWithNotOpCodes = new() { OpCode.JMPIF, OpCode.JMPIFNOT, OpCode.JMPIF_L, OpCode.JMPIFNOT_L };
+        public static HashSet<OpCode> EqualOpCodes = new() { OpCode.EQUAL, OpCode.NOTEQUAL, OpCode.NUMEQUAL, OpCode.NUMNOTEQUAL };
 
         /// <summary>
         /// DUP SOMEOP DROP
@@ -86,6 +88,323 @@ namespace Neo.Optimizer
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
                 oldAddressToInstruction);
+        }
+
+        /// <summary>
+        /// PUSH0 NUMEQUAL -> NZ NOT
+        /// PUSH0 NUMNOTEQUAL -> NZ
+        /// Do not replace PUSH0 EQUAL with NOT, because it cannot handle null
+        /// Do not replace PUSH0 NOTEQUAL with NZ, because it cannot handle null
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 9)]
+        public static (NefFile, ContractManifest, JObject?) UseNz(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = new();
+            foreach ((int a, Instruction i) in oldContractCoverage.addressAndInstructions)
+                oldAddressToInstruction.Add(a, i);
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        if (OpCodeTypes.pushInt.Contains(current.OpCode)
+                         && new System.Numerics.BigInteger(current.Operand.Span) == 0
+                         || current.OpCode == OpCode.PUSH0)
+                        {
+                            if (next.OpCode == OpCode.NUMEQUAL)
+                            {
+                                Script script = new Script(new byte[] { (byte)OpCode.NZ, (byte)OpCode.NOT });
+                                Instruction nz = script.GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(nz, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                currentAddress += nz.Size;
+                                Instruction not_ = script.GetInstruction(nz.Size);
+                                simplifiedInstructionsToAddress.Add(not_, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += not_.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, nz,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                            if (next.OpCode == OpCode.NUMNOTEQUAL)
+                            {
+                                Instruction nz = new Script(new byte[] { (byte)OpCode.NZ }).GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(nz, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += nz.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, nz,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
+        /// PUSHNULL EQUAL -> ISNULL
+        /// PUSHNULL NOTEQUAL -> ISNULL NOT
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 9)]
+        public static (NefFile, ContractManifest, JObject?) UseIsNull(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        if (current.OpCode == OpCode.PUSHNULL)
+                        {
+                            if (next.OpCode == OpCode.EQUAL)
+                            {
+                                Instruction isNull = new Script(new byte[] { (byte)OpCode.ISNULL }).GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(isNull, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += isNull.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, isNull,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                            if (next.OpCode == OpCode.NOTEQUAL)
+                            {
+                                Script script = new Script(new byte[] { (byte)OpCode.ISNULL, (byte)OpCode.NOT });
+                                Instruction isNull = script.GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(isNull, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                currentAddress += isNull.Size;
+                                Instruction not_ = script.GetInstruction(isNull.Size);
+                                simplifiedInstructionsToAddress.Add(not_, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += not_.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, isNull,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
+        /// NUMEQUAL NOT -> NUMNOTEQUAL
+        /// NUMNOTEQUAL NOT -> NUMEQUAL
+        /// EQUAL NOT -> NOTEQUAL
+        /// NOTEQUAL NOT -> EQUAL
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 10)]
+        public static (NefFile, ContractManifest, JObject?) FoldNotInEqual(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        if (next.OpCode == OpCode.NOT)
+                        {
+                            if (EqualOpCodes.Contains(current.OpCode))
+                            {
+                                OpCode newOpCode = current.OpCode switch
+                                {
+                                    OpCode.EQUAL => OpCode.NOTEQUAL,
+                                    OpCode.NOTEQUAL => OpCode.EQUAL,
+                                    OpCode.NUMEQUAL => OpCode.NUMNOTEQUAL,
+                                    OpCode.NUMNOTEQUAL => OpCode.NUMEQUAL,
+                                    _ => throw new BadScriptException($"Bad definition in optimizer: {current.OpCode} in {nameof(EqualOpCodes)}. This is a bug from author.")
+                                };
+                                Instruction newInstruction = new Script(new byte[] { (byte)newOpCode }).GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(newInstruction, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += newInstruction.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, newInstruction,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
+        /// NZ JMPIF -> JMPIF  // not applied, because NZ for null throws exception
+        /// NOT JMPIFNOT -> JMPIF
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 8)]
+        public static (NefFile, ContractManifest, JObject?) FoldNotInJmp(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+            Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (oldContractCoverage.jumpInstructionSourceToTargets,
+                oldContractCoverage.tryInstructionSourceToTargets,
+                oldContractCoverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        if (JmpWithNotOpCodes.Contains(next.OpCode))
+                        {
+                            //if (current.OpCode == OpCode.NZ)
+                            //{// skip this NZ
+                            //    currentAddress += current.Size;
+                            //    oldAddr += current.Size;
+                            //    continue;
+                            //}
+                            if (current.OpCode == OpCode.NOT)
+                            {
+                                OpCode newJmpOpCode = next.OpCode switch
+                                {
+                                    OpCode.JMPIF => OpCode.JMPIFNOT,
+                                    OpCode.JMPIFNOT => OpCode.JMPIF,
+                                    OpCode.JMPIF_L => OpCode.JMPIFNOT_L,
+                                    OpCode.JMPIFNOT_L => OpCode.JMPIF_L,
+                                    _ => throw new BadScriptException($"Bad definition in optimizer: {next.OpCode} in {nameof(JmpWithNotOpCodes)}. This is a bug from author.")
+                                };
+                                IEnumerable<byte> newJmpInBytes = [(byte)newJmpOpCode];
+                                int operandSize = Optimizer.OperandSizeTable[(int)newJmpOpCode];
+                                newJmpInBytes = newJmpInBytes.Concat(Enumerable.Repeat<byte>(0x00, operandSize));
+                                // No need to handle offset. OptimizedScriptBuilder.RetargetJump handles it.
+                                Instruction newJmp = new Script(newJmpInBytes.ToArray()).GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(newJmp, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += newJmp.Size;
+                                index += 1;
+
+                                jumpSourceToTargets[newJmp] = jumpSourceToTargets[next];
+                                jumpTargetToSources[jumpSourceToTargets[newJmp]].Add(newJmp);
+                                OptimizedScriptBuilder.RetargetJump(current, newJmp,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
         }
 
         /// <summary>
