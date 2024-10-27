@@ -26,8 +26,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: NwEAQA==
-    /// 00 : OpCode.CALLT 0100
-    /// 03 : OpCode.RET
+    /// 00 : OpCode.CALLT 0100 [32768 datoshi]
+    /// 03 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("gASSymbol")]
     public abstract string? GASSymbol();
@@ -43,8 +43,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: NwMAQA==
-    /// 00 : OpCode.CALLT 0300
-    /// 03 : OpCode.RET
+    /// 00 : OpCode.CALLT 0300 [32768 datoshi]
+    /// 03 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("ledgerCurrentHash")]
     public abstract UInt256? LedgerCurrentHash();
@@ -54,8 +54,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: NwQAQA==
-    /// 00 : OpCode.CALLT 0400
-    /// 03 : OpCode.RET
+    /// 00 : OpCode.CALLT 0400 [32768 datoshi]
+    /// 03 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("ledgerCurrentIndex")]
     public abstract BigInteger? LedgerCurrentIndex();
@@ -65,8 +65,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: DL7yBDFANip3wVCZx+ZMEvcAtmXaQA==
-    /// 00 : OpCode.PUSHDATA1 BEF2043140362A77C15099C7E64C12F700B665DA
-    /// 16 : OpCode.RET
+    /// 00 : OpCode.PUSHDATA1 BEF2043140362A77C15099C7E64C12F700B665DA [8 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("ledgerHash")]
     public abstract UInt160? LedgerHash();
@@ -76,8 +76,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: DPVj6kC8KD1NDgXEjqMFs/Kgc0DvQA==
-    /// 00 : OpCode.PUSHDATA1 F563EA40BC283D4D0E05C48EA305B3F2A07340EF
-    /// 16 : OpCode.RET
+    /// 00 : OpCode.PUSHDATA1 F563EA40BC283D4D0E05C48EA305B3F2A07340EF [8 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("nEOHash")]
     public abstract UInt160? NEOHash();
@@ -87,8 +87,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: NwAAQA==
-    /// 00 : OpCode.CALLT 0000
-    /// 03 : OpCode.RET
+    /// 00 : OpCode.CALLT 0000 [32768 datoshi]
+    /// 03 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("nEOSymbol")]
     public abstract string? NEOSymbol();
@@ -98,8 +98,8 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: AoCWmABA
-    /// 00 : OpCode.PUSHINT32 80969800
-    /// 05 : OpCode.RET
+    /// 00 : OpCode.PUSHINT32 80969800 [1 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("oracleMinimumResponseFee")]
     public abstract BigInteger? OracleMinimumResponseFee();

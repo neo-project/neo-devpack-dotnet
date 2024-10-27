@@ -26,12 +26,12 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAxoZWxsb4vbKEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSHDATA1 68656C6C6F
-    /// 0B : OpCode.CAT
-    /// 0C : OpCode.CONVERT 28
-    /// 0E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSHDATA1 68656C6C6F [8 datoshi]
+    /// 0B : OpCode.CAT [2048 datoshi]
+    /// 0C : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 0E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd1")]
     public abstract string? TestStringAdd1(string? a);
@@ -41,15 +41,15 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmL2ygMaGVsbG+L2yhA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.CAT
-    /// 06 : OpCode.CONVERT 28
-    /// 08 : OpCode.PUSHDATA1 68656C6C6F
-    /// 0F : OpCode.CAT
-    /// 10 : OpCode.CONVERT 28
-    /// 12 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.CAT [2048 datoshi]
+    /// 06 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 08 : OpCode.PUSHDATA1 68656C6C6F [8 datoshi]
+    /// 0F : OpCode.CAT [2048 datoshi]
+    /// 10 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 12 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd2")]
     public abstract string? TestStringAdd2(string? a, string? b);
@@ -59,18 +59,18 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHmL2yh6i9soDGhlbGxvi9soQA==
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.CAT
-    /// 06 : OpCode.CONVERT 28
-    /// 08 : OpCode.LDARG2
-    /// 09 : OpCode.CAT
-    /// 0A : OpCode.CONVERT 28
-    /// 0C : OpCode.PUSHDATA1 68656C6C6F
-    /// 13 : OpCode.CAT
-    /// 14 : OpCode.CONVERT 28
-    /// 16 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.CAT [2048 datoshi]
+    /// 06 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 08 : OpCode.LDARG2 [2 datoshi]
+    /// 09 : OpCode.CAT [2048 datoshi]
+    /// 0A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 0C : OpCode.PUSHDATA1 68656C6C6F [8 datoshi]
+    /// 13 : OpCode.CAT [2048 datoshi]
+    /// 14 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd3")]
     public abstract string? TestStringAdd3(string? a, string? b, string? c);
@@ -80,21 +80,21 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwAEeHmL2yh6i9soe4vbKAxoZWxsb4vbKEA=
-    /// 00 : OpCode.INITSLOT 0004
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.CAT
-    /// 06 : OpCode.CONVERT 28
-    /// 08 : OpCode.LDARG2
-    /// 09 : OpCode.CAT
-    /// 0A : OpCode.CONVERT 28
-    /// 0C : OpCode.LDARG3
-    /// 0D : OpCode.CAT
-    /// 0E : OpCode.CONVERT 28
-    /// 10 : OpCode.PUSHDATA1 68656C6C6F
-    /// 17 : OpCode.CAT
-    /// 18 : OpCode.CONVERT 28
-    /// 1A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0004 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.CAT [2048 datoshi]
+    /// 06 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 08 : OpCode.LDARG2 [2 datoshi]
+    /// 09 : OpCode.CAT [2048 datoshi]
+    /// 0A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 0C : OpCode.LDARG3 [2 datoshi]
+    /// 0D : OpCode.CAT [2048 datoshi]
+    /// 0E : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 10 : OpCode.PUSHDATA1 68656C6C6F [8 datoshi]
+    /// 17 : OpCode.CAT [2048 datoshi]
+    /// 18 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 1A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd4")]
     public abstract string? TestStringAdd4(string? a, string? b, string? c, string? d);

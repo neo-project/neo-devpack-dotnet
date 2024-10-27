@@ -65,53 +65,53 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwEBeHBo2CYFCCINeErZKFDKABSzq6omJQxUaGUgYXJndW1lbnQgIm93bmVyIiBpcyBpbnZhbGlkLjpBm/ZnzhERiE4QUdBQEsBweGjBRVOLUEGSXegxStgmBEUQ2yFA
-    /// 00 : OpCode.INITSLOT 0101
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.ISNULL
-    /// 07 : OpCode.JMPIFNOT 05
-    /// 09 : OpCode.PUSHT
-    /// 0A : OpCode.JMP 0D
-    /// 0C : OpCode.LDARG0
-    /// 0D : OpCode.DUP
-    /// 0E : OpCode.ISTYPE 28
-    /// 10 : OpCode.SWAP
-    /// 11 : OpCode.SIZE
-    /// 12 : OpCode.PUSHINT8 14
-    /// 14 : OpCode.NUMEQUAL
-    /// 15 : OpCode.BOOLAND
-    /// 16 : OpCode.NOT
-    /// 17 : OpCode.JMPIFNOT 25
-    /// 19 : OpCode.PUSHDATA1 54686520617267756D656E7420226F776E65722220697320696E76616C69642E
-    /// 3B : OpCode.THROW
-    /// 3C : OpCode.SYSCALL 9BF667CE
-    /// 41 : OpCode.PUSH1
-    /// 42 : OpCode.PUSH1
-    /// 43 : OpCode.NEWBUFFER
-    /// 44 : OpCode.TUCK
-    /// 45 : OpCode.PUSH0
-    /// 46 : OpCode.ROT
-    /// 47 : OpCode.SETITEM
-    /// 48 : OpCode.SWAP
-    /// 49 : OpCode.PUSH2
-    /// 4A : OpCode.PACK
-    /// 4B : OpCode.STLOC0
-    /// 4C : OpCode.LDARG0
-    /// 4D : OpCode.LDLOC0
-    /// 4E : OpCode.UNPACK
-    /// 4F : OpCode.DROP
-    /// 50 : OpCode.REVERSE3
-    /// 51 : OpCode.CAT
-    /// 52 : OpCode.SWAP
-    /// 53 : OpCode.SYSCALL 925DE831
-    /// 58 : OpCode.DUP
-    /// 59 : OpCode.ISNULL
-    /// 5A : OpCode.JMPIFNOT 04
-    /// 5C : OpCode.DROP
-    /// 5D : OpCode.PUSH0
-    /// 5E : OpCode.CONVERT 21
-    /// 60 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.ISNULL [2 datoshi]
+    /// 07 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 09 : OpCode.PUSHT [1 datoshi]
+    /// 0A : OpCode.JMP 0D [2 datoshi]
+    /// 0C : OpCode.LDARG0 [2 datoshi]
+    /// 0D : OpCode.DUP [2 datoshi]
+    /// 0E : OpCode.ISTYPE 28 [2 datoshi]
+    /// 10 : OpCode.SWAP [2 datoshi]
+    /// 11 : OpCode.SIZE [4 datoshi]
+    /// 12 : OpCode.PUSHINT8 14 [1 datoshi]
+    /// 14 : OpCode.NUMEQUAL [8 datoshi]
+    /// 15 : OpCode.BOOLAND [8 datoshi]
+    /// 16 : OpCode.NOT [4 datoshi]
+    /// 17 : OpCode.JMPIFNOT 25 [2 datoshi]
+    /// 19 : OpCode.PUSHDATA1 54686520617267756D656E7420226F776E65722220697320696E76616C69642E [8 datoshi]
+    /// 3B : OpCode.THROW [512 datoshi]
+    /// 3C : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
+    /// 41 : OpCode.PUSH1 [1 datoshi]
+    /// 42 : OpCode.PUSH1 [1 datoshi]
+    /// 43 : OpCode.NEWBUFFER [256 datoshi]
+    /// 44 : OpCode.TUCK [2 datoshi]
+    /// 45 : OpCode.PUSH0 [1 datoshi]
+    /// 46 : OpCode.ROT [2 datoshi]
+    /// 47 : OpCode.SETITEM [8192 datoshi]
+    /// 48 : OpCode.SWAP [2 datoshi]
+    /// 49 : OpCode.PUSH2 [1 datoshi]
+    /// 4A : OpCode.PACK [2048 datoshi]
+    /// 4B : OpCode.STLOC0 [2 datoshi]
+    /// 4C : OpCode.LDARG0 [2 datoshi]
+    /// 4D : OpCode.LDLOC0 [2 datoshi]
+    /// 4E : OpCode.UNPACK [2048 datoshi]
+    /// 4F : OpCode.DROP [2 datoshi]
+    /// 50 : OpCode.REVERSE3 [2 datoshi]
+    /// 51 : OpCode.CAT [2048 datoshi]
+    /// 52 : OpCode.SWAP [2 datoshi]
+    /// 53 : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
+    /// 58 : OpCode.DUP [2 datoshi]
+    /// 59 : OpCode.ISNULL [2 datoshi]
+    /// 5A : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 5C : OpCode.DROP [2 datoshi]
+    /// 5D : OpCode.PUSH0 [1 datoshi]
+    /// 5E : OpCode.CONVERT 21 'Integer' [8192 datoshi]
+    /// 60 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("balanceOf")]
     public abstract BigInteger? BalanceOf(UInt160? owner);
@@ -125,17 +125,17 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACNIIJlyYWDE5vIEF1dGhvcml6YXRpb24hOnl4Nf/+//9A
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.CALL 82
-    /// 05 : OpCode.PUSHF
-    /// 06 : OpCode.EQUAL
-    /// 07 : OpCode.JMPIFNOT 16
-    /// 09 : OpCode.PUSHDATA1 4E6F20417574686F72697A6174696F6E21
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.LDARG1
-    /// 1E : OpCode.LDARG0
-    /// 1F : OpCode.CALL_L FFFEFFFF
-    /// 24 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.CALL 82 [512 datoshi]
+    /// 05 : OpCode.PUSHF [1 datoshi]
+    /// 06 : OpCode.EQUAL [32 datoshi]
+    /// 07 : OpCode.JMPIFNOT 16 [2 datoshi]
+    /// 09 : OpCode.PUSHDATA1 4E6F20417574686F72697A6174696F6E21 [8 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.LDARG1 [2 datoshi]
+    /// 1E : OpCode.LDARG0 [2 datoshi]
+    /// 1F : OpCode.CALL_L FFFEFFFF [512 datoshi]
+    /// 24 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("burn")]
     public abstract void Burn(UInt160? account, BigInteger? amount);
@@ -145,17 +145,17 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACNV3///8JlyYWDE5vIEF1dGhvcml6YXRpb24hOnl4NaP+//9A
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.CALL_L 5DFFFFFF
-    /// 08 : OpCode.PUSHF
-    /// 09 : OpCode.EQUAL
-    /// 0A : OpCode.JMPIFNOT 16
-    /// 0C : OpCode.PUSHDATA1 4E6F20417574686F72697A6174696F6E21
-    /// 1F : OpCode.THROW
-    /// 20 : OpCode.LDARG1
-    /// 21 : OpCode.LDARG0
-    /// 22 : OpCode.CALL_L A3FEFFFF
-    /// 27 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.CALL_L 5DFFFFFF [512 datoshi]
+    /// 08 : OpCode.PUSHF [1 datoshi]
+    /// 09 : OpCode.EQUAL [32 datoshi]
+    /// 0A : OpCode.JMPIFNOT 16 [2 datoshi]
+    /// 0C : OpCode.PUSHDATA1 4E6F20417574686F72697A6174696F6E21 [8 datoshi]
+    /// 1F : OpCode.THROW [512 datoshi]
+    /// 20 : OpCode.LDARG1 [2 datoshi]
+    /// 21 : OpCode.LDARG0 [2 datoshi]
+    /// 22 : OpCode.CALL_L A3FEFFFF [512 datoshi]
+    /// 27 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("mint")]
     public abstract void Mint(UInt160? to, BigInteger? amount);
@@ -165,10 +165,10 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
-    /// 00 : OpCode.PUSHDATA1 48656C6C6F
-    /// 07 : OpCode.SYSCALL 9BF667CE
-    /// 0C : OpCode.SYSCALL 925DE831
-    /// 11 : OpCode.RET
+    /// 00 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
+    /// 07 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
+    /// 0C : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
+    /// 11 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("myMethod")]
     public abstract string? MyMethod();
@@ -178,78 +178,78 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwEEeHBo2CYFCCINeErZKFDKABSzq6omJAxUaGUgYXJndW1lbnQgImZyb20iIGlzIGludmFsaWQuOnlwaNgmBQgiDXlK2ShQygAUs6uqJiIMVGhlIGFyZ3VtZW50ICJ0byIgaXMgaW52YWxpZC46ehC1JioMVGhlIGFtb3VudCBtdXN0IGJlIGEgcG9zaXRpdmUgbnVtYmVyLjp4Qfgn7IwkBAlAehCYJhZ6m3g1/P7//yQECUB6eTXx/v//RXt6eXg0BAhA
-    /// 00 : OpCode.INITSLOT 0104
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.ISNULL
-    /// 07 : OpCode.JMPIFNOT 05
-    /// 09 : OpCode.PUSHT
-    /// 0A : OpCode.JMP 0D
-    /// 0C : OpCode.LDARG0
-    /// 0D : OpCode.DUP
-    /// 0E : OpCode.ISTYPE 28
-    /// 10 : OpCode.SWAP
-    /// 11 : OpCode.SIZE
-    /// 12 : OpCode.PUSHINT8 14
-    /// 14 : OpCode.NUMEQUAL
-    /// 15 : OpCode.BOOLAND
-    /// 16 : OpCode.NOT
-    /// 17 : OpCode.JMPIFNOT 24
-    /// 19 : OpCode.PUSHDATA1 54686520617267756D656E74202266726F6D2220697320696E76616C69642E
-    /// 3A : OpCode.THROW
-    /// 3B : OpCode.LDARG1
-    /// 3C : OpCode.STLOC0
-    /// 3D : OpCode.LDLOC0
-    /// 3E : OpCode.ISNULL
-    /// 3F : OpCode.JMPIFNOT 05
-    /// 41 : OpCode.PUSHT
-    /// 42 : OpCode.JMP 0D
-    /// 44 : OpCode.LDARG1
-    /// 45 : OpCode.DUP
-    /// 46 : OpCode.ISTYPE 28
-    /// 48 : OpCode.SWAP
-    /// 49 : OpCode.SIZE
-    /// 4A : OpCode.PUSHINT8 14
-    /// 4C : OpCode.NUMEQUAL
-    /// 4D : OpCode.BOOLAND
-    /// 4E : OpCode.NOT
-    /// 4F : OpCode.JMPIFNOT 22
-    /// 51 : OpCode.PUSHDATA1 54686520617267756D656E742022746F2220697320696E76616C69642E
-    /// 70 : OpCode.THROW
-    /// 71 : OpCode.LDARG2
-    /// 72 : OpCode.PUSH0
-    /// 73 : OpCode.LT
-    /// 74 : OpCode.JMPIFNOT 2A
-    /// 76 : OpCode.PUSHDATA1 54686520616D6F756E74206D757374206265206120706F736974697665206E756D6265722E
-    /// 9D : OpCode.THROW
-    /// 9E : OpCode.LDARG0
-    /// 9F : OpCode.SYSCALL F827EC8C
-    /// A4 : OpCode.JMPIF 04
-    /// A6 : OpCode.PUSHF
-    /// A7 : OpCode.RET
-    /// A8 : OpCode.LDARG2
-    /// A9 : OpCode.PUSH0
-    /// AA : OpCode.NOTEQUAL
-    /// AB : OpCode.JMPIFNOT 16
-    /// AD : OpCode.LDARG2
-    /// AE : OpCode.NEGATE
-    /// AF : OpCode.LDARG0
-    /// B0 : OpCode.CALL_L FCFEFFFF
-    /// B5 : OpCode.JMPIF 04
-    /// B7 : OpCode.PUSHF
-    /// B8 : OpCode.RET
-    /// B9 : OpCode.LDARG2
-    /// BA : OpCode.LDARG1
-    /// BB : OpCode.CALL_L F1FEFFFF
-    /// C0 : OpCode.DROP
-    /// C1 : OpCode.LDARG3
-    /// C2 : OpCode.LDARG2
-    /// C3 : OpCode.LDARG1
-    /// C4 : OpCode.LDARG0
-    /// C5 : OpCode.CALL 04
-    /// C7 : OpCode.PUSHT
-    /// C8 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0104 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.ISNULL [2 datoshi]
+    /// 07 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 09 : OpCode.PUSHT [1 datoshi]
+    /// 0A : OpCode.JMP 0D [2 datoshi]
+    /// 0C : OpCode.LDARG0 [2 datoshi]
+    /// 0D : OpCode.DUP [2 datoshi]
+    /// 0E : OpCode.ISTYPE 28 [2 datoshi]
+    /// 10 : OpCode.SWAP [2 datoshi]
+    /// 11 : OpCode.SIZE [4 datoshi]
+    /// 12 : OpCode.PUSHINT8 14 [1 datoshi]
+    /// 14 : OpCode.NUMEQUAL [8 datoshi]
+    /// 15 : OpCode.BOOLAND [8 datoshi]
+    /// 16 : OpCode.NOT [4 datoshi]
+    /// 17 : OpCode.JMPIFNOT 24 [2 datoshi]
+    /// 19 : OpCode.PUSHDATA1 54686520617267756D656E74202266726F6D2220697320696E76616C69642E [8 datoshi]
+    /// 3A : OpCode.THROW [512 datoshi]
+    /// 3B : OpCode.LDARG1 [2 datoshi]
+    /// 3C : OpCode.STLOC0 [2 datoshi]
+    /// 3D : OpCode.LDLOC0 [2 datoshi]
+    /// 3E : OpCode.ISNULL [2 datoshi]
+    /// 3F : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 41 : OpCode.PUSHT [1 datoshi]
+    /// 42 : OpCode.JMP 0D [2 datoshi]
+    /// 44 : OpCode.LDARG1 [2 datoshi]
+    /// 45 : OpCode.DUP [2 datoshi]
+    /// 46 : OpCode.ISTYPE 28 [2 datoshi]
+    /// 48 : OpCode.SWAP [2 datoshi]
+    /// 49 : OpCode.SIZE [4 datoshi]
+    /// 4A : OpCode.PUSHINT8 14 [1 datoshi]
+    /// 4C : OpCode.NUMEQUAL [8 datoshi]
+    /// 4D : OpCode.BOOLAND [8 datoshi]
+    /// 4E : OpCode.NOT [4 datoshi]
+    /// 4F : OpCode.JMPIFNOT 22 [2 datoshi]
+    /// 51 : OpCode.PUSHDATA1 54686520617267756D656E742022746F2220697320696E76616C69642E [8 datoshi]
+    /// 70 : OpCode.THROW [512 datoshi]
+    /// 71 : OpCode.LDARG2 [2 datoshi]
+    /// 72 : OpCode.PUSH0 [1 datoshi]
+    /// 73 : OpCode.LT [8 datoshi]
+    /// 74 : OpCode.JMPIFNOT 2A [2 datoshi]
+    /// 76 : OpCode.PUSHDATA1 54686520616D6F756E74206D757374206265206120706F736974697665206E756D6265722E [8 datoshi]
+    /// 9D : OpCode.THROW [512 datoshi]
+    /// 9E : OpCode.LDARG0 [2 datoshi]
+    /// 9F : OpCode.SYSCALL F827EC8C 'System.Runtime.CheckWitness' [1024 datoshi]
+    /// A4 : OpCode.JMPIF 04 [2 datoshi]
+    /// A6 : OpCode.PUSHF [1 datoshi]
+    /// A7 : OpCode.RET [0 datoshi]
+    /// A8 : OpCode.LDARG2 [2 datoshi]
+    /// A9 : OpCode.PUSH0 [1 datoshi]
+    /// AA : OpCode.NOTEQUAL [32 datoshi]
+    /// AB : OpCode.JMPIFNOT 16 [2 datoshi]
+    /// AD : OpCode.LDARG2 [2 datoshi]
+    /// AE : OpCode.NEGATE [4 datoshi]
+    /// AF : OpCode.LDARG0 [2 datoshi]
+    /// B0 : OpCode.CALL_L FCFEFFFF [512 datoshi]
+    /// B5 : OpCode.JMPIF 04 [2 datoshi]
+    /// B7 : OpCode.PUSHF [1 datoshi]
+    /// B8 : OpCode.RET [0 datoshi]
+    /// B9 : OpCode.LDARG2 [2 datoshi]
+    /// BA : OpCode.LDARG1 [2 datoshi]
+    /// BB : OpCode.CALL_L F1FEFFFF [512 datoshi]
+    /// C0 : OpCode.DROP [2 datoshi]
+    /// C1 : OpCode.LDARG3 [2 datoshi]
+    /// C2 : OpCode.LDARG2 [2 datoshi]
+    /// C3 : OpCode.LDARG1 [2 datoshi]
+    /// C4 : OpCode.LDARG0 [2 datoshi]
+    /// C5 : OpCode.CALL 04 [512 datoshi]
+    /// C7 : OpCode.PUSHT [1 datoshi]
+    /// C8 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("transfer")]
     public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
@@ -259,18 +259,18 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwADNar+//8JlyYWDE5vIGF1dGhvcml6YXRpb24uOnp5eDcBAEA=
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.CALL_L AAFEFFFF
-    /// 08 : OpCode.PUSHF
-    /// 09 : OpCode.EQUAL
-    /// 0A : OpCode.JMPIFNOT 16
-    /// 0C : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E
-    /// 1F : OpCode.THROW
-    /// 20 : OpCode.LDARG2
-    /// 21 : OpCode.LDARG1
-    /// 22 : OpCode.LDARG0
-    /// 23 : OpCode.CALLT 0100
-    /// 26 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.CALL_L AAFEFFFF [512 datoshi]
+    /// 08 : OpCode.PUSHF [1 datoshi]
+    /// 09 : OpCode.EQUAL [32 datoshi]
+    /// 0A : OpCode.JMPIFNOT 16 [2 datoshi]
+    /// 0C : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E [8 datoshi]
+    /// 1F : OpCode.THROW [512 datoshi]
+    /// 20 : OpCode.LDARG2 [2 datoshi]
+    /// 21 : OpCode.LDARG1 [2 datoshi]
+    /// 22 : OpCode.LDARG0 [2 datoshi]
+    /// 23 : OpCode.CALLT 0100 [32768 datoshi]
+    /// 26 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nefFile, string? manifest, object? data = null);

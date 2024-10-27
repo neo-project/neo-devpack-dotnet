@@ -26,19 +26,19 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHAIORFwCTkAZHBoQA==
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.PUSHT
-    /// 06 : OpCode.ASSERT
-    /// 07 : OpCode.PUSH1
-    /// 08 : OpCode.STLOC0
-    /// 09 : OpCode.PUSHF
-    /// 0A : OpCode.ASSERT
-    /// 0B : OpCode.PUSHINT8 64
-    /// 0D : OpCode.STLOC0
-    /// 0E : OpCode.LDLOC0
-    /// 0F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.PUSHT [1 datoshi]
+    /// 06 : OpCode.ASSERT [1 datoshi]
+    /// 07 : OpCode.PUSH1 [1 datoshi]
+    /// 08 : OpCode.STLOC0 [2 datoshi]
+    /// 09 : OpCode.PUSHF [1 datoshi]
+    /// 0A : OpCode.ASSERT [1 datoshi]
+    /// 0B : OpCode.PUSHINT8 64 [1 datoshi]
+    /// 0D : OpCode.STLOC0 [2 datoshi]
+    /// 0E : OpCode.LDLOC0 [2 datoshi]
+    /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertFalse")]
     public abstract BigInteger? TestAssertFalse();
@@ -48,23 +48,23 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwIAEHA7ERcRcAxleGNlcHRpb246cTS2cD0FEnA/aEA=
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.TRY 1117
-    /// 08 : OpCode.PUSH1
-    /// 09 : OpCode.STLOC0
-    /// 0A : OpCode.PUSHDATA1 657863657074696F6E
-    /// 15 : OpCode.THROW
-    /// 16 : OpCode.STLOC1
-    /// 17 : OpCode.CALL B6
-    /// 19 : OpCode.STLOC0
-    /// 1A : OpCode.ENDTRY 05
-    /// 1C : OpCode.PUSH2
-    /// 1D : OpCode.STLOC0
-    /// 1E : OpCode.ENDFINALLY
-    /// 1F : OpCode.LDLOC0
-    /// 20 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.TRY 1117 [4 datoshi]
+    /// 08 : OpCode.PUSH1 [1 datoshi]
+    /// 09 : OpCode.STLOC0 [2 datoshi]
+    /// 0A : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 15 : OpCode.THROW [512 datoshi]
+    /// 16 : OpCode.STLOC1 [2 datoshi]
+    /// 17 : OpCode.CALL B6 [512 datoshi]
+    /// 19 : OpCode.STLOC0 [2 datoshi]
+    /// 1A : OpCode.ENDTRY 05 [4 datoshi]
+    /// 1C : OpCode.PUSH2 [1 datoshi]
+    /// 1D : OpCode.STLOC0 [2 datoshi]
+    /// 1E : OpCode.ENDFINALLY [4 datoshi]
+    /// 1F : OpCode.LDLOC0 [2 datoshi]
+    /// 20 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertInCatch")]
     public abstract BigInteger? TestAssertInCatch();
@@ -74,16 +74,16 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwIAEHA7BwwRcD0AcRJw
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.TRY 070C
-    /// 08 : OpCode.PUSH1
-    /// 09 : OpCode.STLOC0
-    /// 0A : OpCode.ENDTRY 00
-    /// 0C : OpCode.STLOC1
-    /// 0D : OpCode.PUSH2
-    /// 0E : OpCode.STLOC0
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.TRY 070C [4 datoshi]
+    /// 08 : OpCode.PUSH1 [1 datoshi]
+    /// 09 : OpCode.STLOC0 [2 datoshi]
+    /// 0A : OpCode.ENDTRY 00 [4 datoshi]
+    /// 0C : OpCode.STLOC1 [2 datoshi]
+    /// 0D : OpCode.PUSH2 [1 datoshi]
+    /// 0E : OpCode.STLOC0 [2 datoshi]
     /// </remarks>
     [DisplayName("testAssertInFinally")]
     public abstract BigInteger? TestAssertInFinally();
@@ -93,15 +93,15 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHA063ARcGhA
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.CALL EB
-    /// 07 : OpCode.STLOC0
-    /// 08 : OpCode.PUSH1
-    /// 09 : OpCode.STLOC0
-    /// 0A : OpCode.LDLOC0
-    /// 0B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.CALL EB [512 datoshi]
+    /// 07 : OpCode.STLOC0 [2 datoshi]
+    /// 08 : OpCode.PUSH1 [1 datoshi]
+    /// 09 : OpCode.STLOC0 [2 datoshi]
+    /// 0A : OpCode.LDLOC0 [2 datoshi]
+    /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertInFunction")]
     public abstract BigInteger? TestAssertInFunction();
@@ -111,22 +111,22 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwIAEHA7CA003HA9CnERcD0FEnA/aEA=
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.TRY 080D
-    /// 08 : OpCode.CALL DC
-    /// 0A : OpCode.STLOC0
-    /// 0B : OpCode.ENDTRY 0A
-    /// 0D : OpCode.STLOC1
-    /// 0E : OpCode.PUSH1
-    /// 0F : OpCode.STLOC0
-    /// 10 : OpCode.ENDTRY 05
-    /// 12 : OpCode.PUSH2
-    /// 13 : OpCode.STLOC0
-    /// 14 : OpCode.ENDFINALLY
-    /// 15 : OpCode.LDLOC0
-    /// 16 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.TRY 080D [4 datoshi]
+    /// 08 : OpCode.CALL DC [512 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.ENDTRY 0A [4 datoshi]
+    /// 0D : OpCode.STLOC1 [2 datoshi]
+    /// 0E : OpCode.PUSH1 [1 datoshi]
+    /// 0F : OpCode.STLOC0 [2 datoshi]
+    /// 10 : OpCode.ENDTRY 05 [4 datoshi]
+    /// 12 : OpCode.PUSH2 [1 datoshi]
+    /// 13 : OpCode.STLOC0 [2 datoshi]
+    /// 14 : OpCode.ENDFINALLY [4 datoshi]
+    /// 15 : OpCode.LDLOC0 [2 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssertInTry")]
     public abstract BigInteger? TestAssertInTry();
