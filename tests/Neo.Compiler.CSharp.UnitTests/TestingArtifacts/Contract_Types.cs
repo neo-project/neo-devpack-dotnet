@@ -229,7 +229,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// 03 : OpCode.PUSHNULL [1 datoshi]
     /// 04 : OpCode.LDARG1 [2 datoshi]
     /// 05 : OpCode.LDARG0 [2 datoshi]
-    /// 06 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 06 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 08 : OpCode.CALLT 0100 [32768 datoshi]
     /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -254,7 +254,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// 0C : OpCode.CAT [2048 datoshi]
     /// 0D : OpCode.STLOC0 [2 datoshi]
     /// 0E : OpCode.LDLOC0 [2 datoshi]
-    /// 0F : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 0F : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 11 : OpCode.CALLT 0000 [32768 datoshi]
     /// 14 : OpCode.RET [0 datoshi]
     /// </remarks>

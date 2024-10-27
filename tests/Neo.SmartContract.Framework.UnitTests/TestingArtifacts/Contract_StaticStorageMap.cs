@@ -40,7 +40,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// 11 : OpCode.JMPIFNOT 04 [2 datoshi]
     /// 13 : OpCode.DROP [2 datoshi]
     /// 14 : OpCode.PUSH0 [1 datoshi]
-    /// 15 : OpCode.CONVERT (Integer) [8192 datoshi]
+    /// 15 : OpCode.CONVERT 'Integer' [8192 datoshi]
     /// 17 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("get")]
@@ -70,7 +70,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// 1F : OpCode.JMPIFNOT 04 [2 datoshi]
     /// 21 : OpCode.DROP [2 datoshi]
     /// 22 : OpCode.PUSH0 [1 datoshi]
-    /// 23 : OpCode.CONVERT (Integer) [8192 datoshi]
+    /// 23 : OpCode.CONVERT 'Integer' [8192 datoshi]
     /// 25 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("get2")]
@@ -95,7 +95,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// 11 : OpCode.JMPIFNOT 04 [2 datoshi]
     /// 13 : OpCode.DROP [2 datoshi]
     /// 14 : OpCode.PUSH0 [1 datoshi]
-    /// 15 : OpCode.CONVERT (Integer) [8192 datoshi]
+    /// 15 : OpCode.CONVERT 'Integer' [8192 datoshi]
     /// 17 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("getReadonly")]

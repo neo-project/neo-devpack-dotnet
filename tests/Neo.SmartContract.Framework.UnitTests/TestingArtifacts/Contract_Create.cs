@@ -101,7 +101,7 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// 03 : OpCode.PUSHNULL [1 datoshi]
     /// 04 : OpCode.LDARG1 [2 datoshi]
     /// 05 : OpCode.LDARG0 [2 datoshi]
-    /// 06 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 06 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 08 : OpCode.CALLT 0300 [32768 datoshi]
     /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>

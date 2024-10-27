@@ -164,8 +164,8 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// 12 : OpCode.JMPIFNOT 0A [2 datoshi]
     /// 14 : OpCode.DROP [2 datoshi]
     /// 15 : OpCode.PUSHDATA1 7B [8 datoshi]
-    /// 18 : OpCode.CONVERT (Buffer) [8192 datoshi]
-    /// 1A : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 18 : OpCode.CONVERT 'Buffer' [8192 datoshi]
+    /// 1A : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 1C : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("nullCollationAndCollation")]
@@ -191,8 +191,8 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// 1E : OpCode.JMPIFNOT 0A [2 datoshi]
     /// 20 : OpCode.DROP [2 datoshi]
     /// 21 : OpCode.PUSHDATA1 7B [8 datoshi]
-    /// 24 : OpCode.CONVERT (Buffer) [8192 datoshi]
-    /// 26 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 24 : OpCode.CONVERT 'Buffer' [8192 datoshi]
+    /// 26 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 28 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("nullCollationAndCollation2")]

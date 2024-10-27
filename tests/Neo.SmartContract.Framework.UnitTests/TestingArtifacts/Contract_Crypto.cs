@@ -112,9 +112,9 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
     /// 03 : OpCode.LDARG1 [2 datoshi]
     /// 04 : OpCode.LDARG0 [2 datoshi]
-    /// 05 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 05 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 07 : OpCode.CALLT 0200 [32768 datoshi]
-    /// 0A : OpCode.CONVERT (Buffer) [8192 datoshi]
+    /// 0A : OpCode.CONVERT 'Buffer' [8192 datoshi]
     /// 0C : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("murmur32")]
@@ -127,9 +127,9 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Script: VwABeNsoNwEA2zBA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 04 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 06 : OpCode.CALLT 0100 [32768 datoshi]
-    /// 09 : OpCode.CONVERT (Buffer) [8192 datoshi]
+    /// 09 : OpCode.CONVERT 'Buffer' [8192 datoshi]
     /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     public abstract byte[]? RIPEMD160(byte[]? value);
@@ -142,10 +142,10 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
     /// 03 : OpCode.PUSHINT8 7A [1 datoshi]
     /// 05 : OpCode.LDARG2 [2 datoshi]
-    /// 06 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 06 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 08 : OpCode.LDARG1 [2 datoshi]
     /// 09 : OpCode.LDARG0 [2 datoshi]
-    /// 0A : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 0A : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 0C : OpCode.CALLT 0300 [32768 datoshi]
     /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -160,10 +160,10 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
     /// 03 : OpCode.PUSHINT8 16 [1 datoshi]
     /// 05 : OpCode.LDARG2 [2 datoshi]
-    /// 06 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 06 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 08 : OpCode.LDARG1 [2 datoshi]
     /// 09 : OpCode.LDARG0 [2 datoshi]
-    /// 0A : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 0A : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 0C : OpCode.CALLT 0300 [32768 datoshi]
     /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -178,10 +178,10 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
     /// 03 : OpCode.PUSHINT8 7B [1 datoshi]
     /// 05 : OpCode.LDARG2 [2 datoshi]
-    /// 06 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 06 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 08 : OpCode.LDARG1 [2 datoshi]
     /// 09 : OpCode.LDARG0 [2 datoshi]
-    /// 0A : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 0A : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 0C : OpCode.CALLT 0300 [32768 datoshi]
     /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -196,10 +196,10 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
     /// 03 : OpCode.PUSHINT8 17 [1 datoshi]
     /// 05 : OpCode.LDARG2 [2 datoshi]
-    /// 06 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 06 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 08 : OpCode.LDARG1 [2 datoshi]
     /// 09 : OpCode.LDARG0 [2 datoshi]
-    /// 0A : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 0A : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 0C : OpCode.CALLT 0300 [32768 datoshi]
     /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -213,9 +213,9 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// Script: VwABeNsoNwAA2zBA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CONVERT (ByteString) [8192 datoshi]
+    /// 04 : OpCode.CONVERT 'ByteString' [8192 datoshi]
     /// 06 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 09 : OpCode.CONVERT (Buffer) [8192 datoshi]
+    /// 09 : OpCode.CONVERT 'Buffer' [8192 datoshi]
     /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     public abstract byte[]? SHA256(byte[]? value);
