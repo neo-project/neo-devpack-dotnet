@@ -26,30 +26,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiYQeErYJgM6eUrYJgM6nkAQQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 10
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.RET
-    /// 1D : OpCode.PUSH0
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 10 [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.RET [0 datoshi]
+    /// 1D : OpCode.PUSH0 [1 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerAdd")]
     public abstract BigInteger? TestBigIntegerAdd(BigInteger? a, BigInteger? b);
@@ -59,11 +59,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerAddNonNullable")]
     public abstract BigInteger? TestBigIntegerAddNonNullable(BigInteger? a, BigInteger? b);
@@ -73,30 +73,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerCompare")]
     public abstract bool? TestBigIntegerCompare(BigInteger? a, BigInteger? b);
@@ -106,11 +106,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerCompareNonNullable")]
     public abstract bool? TestBigIntegerCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -120,14 +120,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerDefault")]
     public abstract BigInteger? TestBigIntegerDefault(BigInteger? a);
@@ -137,9 +137,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerDefaultNonNullable")]
     public abstract BigInteger? TestBigIntegerDefaultNonNullable(BigInteger? a);
@@ -149,32 +149,32 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzokBAlAeUrYJgM6QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.JMPIF 04
-    /// 19 : OpCode.PUSHF
-    /// 1A : OpCode.RET
-    /// 1B : OpCode.LDARG1
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.ISNULL
-    /// 1E : OpCode.JMPIFNOT 03
-    /// 20 : OpCode.THROW
-    /// 21 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.JMPIF 04 [2 datoshi]
+    /// 19 : OpCode.PUSHF [1 datoshi]
+    /// 1A : OpCode.RET [0 datoshi]
+    /// 1B : OpCode.LDARG1 [2 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.ISNULL [2 datoshi]
+    /// 1E : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 20 : OpCode.THROW [512 datoshi]
+    /// 21 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBoolAnd")]
     public abstract bool? TestBoolAnd(bool? a, bool? b);
@@ -184,13 +184,13 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeCQECUB5QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.JMPIF 04
-    /// 06 : OpCode.PUSHF
-    /// 07 : OpCode.RET
-    /// 08 : OpCode.LDARG1
-    /// 09 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.JMPIF 04 [2 datoshi]
+    /// 06 : OpCode.PUSHF [1 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
+    /// 08 : OpCode.LDARG1 [2 datoshi]
+    /// 09 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBoolAndNonNullable")]
     public abstract bool? TestBoolAndNonNullable(bool? a, bool? b);
@@ -200,14 +200,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFCUA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSHF
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSHF [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBoolDefault")]
     public abstract bool? TestBoolDefault(bool? a);
@@ -217,9 +217,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBoolDefaultNonNullable")]
     public abstract bool? TestBoolDefaultNonNullable(bool? a);
@@ -229,32 +229,32 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzomBAhAeUrYJgM6QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.JMPIFNOT 04
-    /// 19 : OpCode.PUSHT
-    /// 1A : OpCode.RET
-    /// 1B : OpCode.LDARG1
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.ISNULL
-    /// 1E : OpCode.JMPIFNOT 03
-    /// 20 : OpCode.THROW
-    /// 21 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 19 : OpCode.PUSHT [1 datoshi]
+    /// 1A : OpCode.RET [0 datoshi]
+    /// 1B : OpCode.LDARG1 [2 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.ISNULL [2 datoshi]
+    /// 1E : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 20 : OpCode.THROW [512 datoshi]
+    /// 21 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBoolOr")]
     public abstract bool? TestBoolOr(bool? a, bool? b);
@@ -264,13 +264,13 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeCYECEB5QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.JMPIFNOT 04
-    /// 06 : OpCode.PUSHT
-    /// 07 : OpCode.RET
-    /// 08 : OpCode.LDARG1
-    /// 09 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 06 : OpCode.PUSHT [1 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
+    /// 08 : OpCode.LDARG1 [2 datoshi]
+    /// 09 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBoolOrNonNullable")]
     public abstract bool? TestBoolOrNonNullable(bool? a, bool? b);
@@ -280,53 +280,53 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiZOeErYJgM6eUrYJgM6nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KEC4EIghKAf8AMgYB/wCRQBBA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 4E
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSHINT32 00000080
-    /// 22 : OpCode.JMPGE 04
-    /// 24 : OpCode.JMP 0A
-    /// 26 : OpCode.DUP
-    /// 27 : OpCode.PUSHINT32 FFFFFF7F
-    /// 2C : OpCode.JMPLE 1E
-    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 37 : OpCode.AND
-    /// 38 : OpCode.DUP
-    /// 39 : OpCode.PUSHINT32 FFFFFF7F
-    /// 3E : OpCode.JMPLE 0C
-    /// 40 : OpCode.PUSHINT64 0000000001000000
-    /// 49 : OpCode.SUB
-    /// 4A : OpCode.DUP
-    /// 4B : OpCode.PUSH0
-    /// 4C : OpCode.JMPGE 04
-    /// 4E : OpCode.JMP 08
-    /// 50 : OpCode.DUP
-    /// 51 : OpCode.PUSHINT16 FF00
-    /// 54 : OpCode.JMPLE 06
-    /// 56 : OpCode.PUSHINT16 FF00
-    /// 59 : OpCode.AND
-    /// 5A : OpCode.RET
-    /// 5B : OpCode.PUSH0
-    /// 5C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 4E [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 22 : OpCode.JMPGE 04 [2 datoshi]
+    /// 24 : OpCode.JMP 0A [2 datoshi]
+    /// 26 : OpCode.DUP [2 datoshi]
+    /// 27 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 2C : OpCode.JMPLE 1E [2 datoshi]
+    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 37 : OpCode.AND [8 datoshi]
+    /// 38 : OpCode.DUP [2 datoshi]
+    /// 39 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 3E : OpCode.JMPLE 0C [2 datoshi]
+    /// 40 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 49 : OpCode.SUB [8 datoshi]
+    /// 4A : OpCode.DUP [2 datoshi]
+    /// 4B : OpCode.PUSH0 [1 datoshi]
+    /// 4C : OpCode.JMPGE 04 [2 datoshi]
+    /// 4E : OpCode.JMP 08 [2 datoshi]
+    /// 50 : OpCode.DUP [2 datoshi]
+    /// 51 : OpCode.PUSHINT16 FF00 [1 datoshi]
+    /// 54 : OpCode.JMPLE 06 [2 datoshi]
+    /// 56 : OpCode.PUSHINT16 FF00 [1 datoshi]
+    /// 59 : OpCode.AND [8 datoshi]
+    /// 5A : OpCode.RET [0 datoshi]
+    /// 5B : OpCode.PUSH0 [1 datoshi]
+    /// 5C : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteAdd")]
     public abstract BigInteger? TestByteAdd(BigInteger? a, BigInteger? b);
@@ -336,34 +336,34 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0oQLgQiCEoB/wAyBgH/AJFA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSHINT32 00000080
-    /// 0C : OpCode.JMPGE 04
-    /// 0E : OpCode.JMP 0A
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F
-    /// 16 : OpCode.JMPLE 1E
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 21 : OpCode.AND
-    /// 22 : OpCode.DUP
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F
-    /// 28 : OpCode.JMPLE 0C
-    /// 2A : OpCode.PUSHINT64 0000000001000000
-    /// 33 : OpCode.SUB
-    /// 34 : OpCode.DUP
-    /// 35 : OpCode.PUSH0
-    /// 36 : OpCode.JMPGE 04
-    /// 38 : OpCode.JMP 08
-    /// 3A : OpCode.DUP
-    /// 3B : OpCode.PUSHINT16 FF00
-    /// 3E : OpCode.JMPLE 06
-    /// 40 : OpCode.PUSHINT16 FF00
-    /// 43 : OpCode.AND
-    /// 44 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.DUP [2 datoshi]
+    /// 35 : OpCode.PUSH0 [1 datoshi]
+    /// 36 : OpCode.JMPGE 04 [2 datoshi]
+    /// 38 : OpCode.JMP 08 [2 datoshi]
+    /// 3A : OpCode.DUP [2 datoshi]
+    /// 3B : OpCode.PUSHINT16 FF00 [1 datoshi]
+    /// 3E : OpCode.JMPLE 06 [2 datoshi]
+    /// 40 : OpCode.PUSHINT16 FF00 [1 datoshi]
+    /// 43 : OpCode.AND [8 datoshi]
+    /// 44 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteAddNonNullable")]
     public abstract BigInteger? TestByteAddNonNullable(BigInteger? a, BigInteger? b);
@@ -373,18 +373,18 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAPKStgmBEUQQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIF 03
-    /// 08 : OpCode.SIZE
-    /// 09 : OpCode.DUP
-    /// 0A : OpCode.ISNULL
-    /// 0B : OpCode.JMPIFNOT 04
-    /// 0D : OpCode.DROP
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIF 03 [2 datoshi]
+    /// 08 : OpCode.SIZE [4 datoshi]
+    /// 09 : OpCode.DUP [2 datoshi]
+    /// 0A : OpCode.ISNULL [2 datoshi]
+    /// 0B : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 0D : OpCode.DROP [2 datoshi]
+    /// 0E : OpCode.PUSH0 [1 datoshi]
+    /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteArrayLength")]
     public abstract BigInteger? TestByteArrayLength(IList<object>? a);
@@ -394,10 +394,10 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeMpA
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.SIZE
-    /// 05 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.SIZE [4 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteArrayLengthNonNullable")]
     public abstract BigInteger? TestByteArrayLengthNonNullable(byte[]? a);
@@ -407,30 +407,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteCompare")]
     public abstract bool? TestByteCompare(BigInteger? a, BigInteger? b);
@@ -440,11 +440,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteCompareNonNullable")]
     public abstract bool? TestByteCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -454,14 +454,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteDefault")]
     public abstract BigInteger? TestByteDefault(BigInteger? a);
@@ -471,9 +471,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteDefaultNonNullable")]
     public abstract BigInteger? TestByteDefaultNonNullable(BigInteger? a);
@@ -483,44 +483,44 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiY+eErYJgM6eUrYJgM6nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AEEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 3E
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSHINT32 00000080
-    /// 22 : OpCode.JMPGE 04
-    /// 24 : OpCode.JMP 0A
-    /// 26 : OpCode.DUP
-    /// 27 : OpCode.PUSHINT32 FFFFFF7F
-    /// 2C : OpCode.JMPLE 1E
-    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 37 : OpCode.AND
-    /// 38 : OpCode.DUP
-    /// 39 : OpCode.PUSHINT32 FFFFFF7F
-    /// 3E : OpCode.JMPLE 0C
-    /// 40 : OpCode.PUSHINT64 0000000001000000
-    /// 49 : OpCode.SUB
-    /// 4A : OpCode.RET
-    /// 4B : OpCode.PUSH0
-    /// 4C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 3E [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 22 : OpCode.JMPGE 04 [2 datoshi]
+    /// 24 : OpCode.JMP 0A [2 datoshi]
+    /// 26 : OpCode.DUP [2 datoshi]
+    /// 27 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 2C : OpCode.JMPLE 1E [2 datoshi]
+    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 37 : OpCode.AND [8 datoshi]
+    /// 38 : OpCode.DUP [2 datoshi]
+    /// 39 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 3E : OpCode.JMPLE 0C [2 datoshi]
+    /// 40 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 49 : OpCode.SUB [8 datoshi]
+    /// 4A : OpCode.RET [0 datoshi]
+    /// 4B : OpCode.PUSH0 [1 datoshi]
+    /// 4C : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIntAdd")]
     public abstract BigInteger? TestIntAdd(BigInteger? a, BigInteger? b);
@@ -530,25 +530,25 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSHINT32 00000080
-    /// 0C : OpCode.JMPGE 04
-    /// 0E : OpCode.JMP 0A
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F
-    /// 16 : OpCode.JMPLE 1E
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 21 : OpCode.AND
-    /// 22 : OpCode.DUP
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F
-    /// 28 : OpCode.JMPLE 0C
-    /// 2A : OpCode.PUSHINT64 0000000001000000
-    /// 33 : OpCode.SUB
-    /// 34 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIntAddNonNullable")]
     public abstract BigInteger? TestIntAddNonNullable(BigInteger? a, BigInteger? b);
@@ -558,30 +558,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIntCompare")]
     public abstract bool? TestIntCompare(BigInteger? a, BigInteger? b);
@@ -591,11 +591,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIntCompareNonNullable")]
     public abstract bool? TestIntCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -605,14 +605,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIntDefault")]
     public abstract BigInteger? TestIntDefault(BigInteger? a);
@@ -622,9 +622,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIntDefaultNonNullable")]
     public abstract BigInteger? TestIntDefaultNonNullable(BigInteger? a);
@@ -634,44 +634,44 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiZaeErYJgM6eUrYJgM6nkoDAAAAAAAAAIAuBCIOSgP/////////fzIyBP//////////AAAAAAAAAACRSgP/////////fzIUBAAAAAAAAAAAAQAAAAAAAACfQBBA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 5A
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSHINT64 0000000000000080
-    /// 26 : OpCode.JMPGE 04
-    /// 28 : OpCode.JMP 0E
-    /// 2A : OpCode.DUP
-    /// 2B : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F
-    /// 34 : OpCode.JMPLE 32
-    /// 36 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
-    /// 47 : OpCode.AND
-    /// 48 : OpCode.DUP
-    /// 49 : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F
-    /// 52 : OpCode.JMPLE 14
-    /// 54 : OpCode.PUSHINT128 00000000000000000100000000000000
-    /// 65 : OpCode.SUB
-    /// 66 : OpCode.RET
-    /// 67 : OpCode.PUSH0
-    /// 68 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 5A [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSHINT64 0000000000000080 [1 datoshi]
+    /// 26 : OpCode.JMPGE 04 [2 datoshi]
+    /// 28 : OpCode.JMP 0E [2 datoshi]
+    /// 2A : OpCode.DUP [2 datoshi]
+    /// 2B : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F [1 datoshi]
+    /// 34 : OpCode.JMPLE 32 [2 datoshi]
+    /// 36 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000 [4 datoshi]
+    /// 47 : OpCode.AND [8 datoshi]
+    /// 48 : OpCode.DUP [2 datoshi]
+    /// 49 : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F [1 datoshi]
+    /// 52 : OpCode.JMPLE 14 [2 datoshi]
+    /// 54 : OpCode.PUSHINT128 00000000000000000100000000000000 [4 datoshi]
+    /// 65 : OpCode.SUB [8 datoshi]
+    /// 66 : OpCode.RET [0 datoshi]
+    /// 67 : OpCode.PUSH0 [1 datoshi]
+    /// 68 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLongAdd")]
     public abstract BigInteger? TestLongAdd(BigInteger? a, BigInteger? b);
@@ -681,25 +681,25 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgMAAAAAAAAAgC4EIg5KA/////////9/MjIE//////////8AAAAAAAAAAJFKA/////////9/MhQEAAAAAAAAAAABAAAAAAAAAJ9A
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSHINT64 0000000000000080
-    /// 10 : OpCode.JMPGE 04
-    /// 12 : OpCode.JMP 0E
-    /// 14 : OpCode.DUP
-    /// 15 : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F
-    /// 1E : OpCode.JMPLE 32
-    /// 20 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
-    /// 31 : OpCode.AND
-    /// 32 : OpCode.DUP
-    /// 33 : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F
-    /// 3C : OpCode.JMPLE 14
-    /// 3E : OpCode.PUSHINT128 00000000000000000100000000000000
-    /// 4F : OpCode.SUB
-    /// 50 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT64 0000000000000080 [1 datoshi]
+    /// 10 : OpCode.JMPGE 04 [2 datoshi]
+    /// 12 : OpCode.JMP 0E [2 datoshi]
+    /// 14 : OpCode.DUP [2 datoshi]
+    /// 15 : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F [1 datoshi]
+    /// 1E : OpCode.JMPLE 32 [2 datoshi]
+    /// 20 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000 [4 datoshi]
+    /// 31 : OpCode.AND [8 datoshi]
+    /// 32 : OpCode.DUP [2 datoshi]
+    /// 33 : OpCode.PUSHINT64 FFFFFFFFFFFFFF7F [1 datoshi]
+    /// 3C : OpCode.JMPLE 14 [2 datoshi]
+    /// 3E : OpCode.PUSHINT128 00000000000000000100000000000000 [4 datoshi]
+    /// 4F : OpCode.SUB [8 datoshi]
+    /// 50 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLongAddNonNullable")]
     public abstract BigInteger? TestLongAddNonNullable(BigInteger? a, BigInteger? b);
@@ -709,30 +709,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLongCompare")]
     public abstract bool? TestLongCompare(BigInteger? a, BigInteger? b);
@@ -742,11 +742,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLongCompareNonNullable")]
     public abstract bool? TestLongCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -756,14 +756,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLongDefault")]
     public abstract BigInteger? TestLongDefault(BigInteger? a);
@@ -773,9 +773,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLongDefaultNonNullable")]
     public abstract BigInteger? TestLongDefaultNonNullable(BigInteger? a);
@@ -785,58 +785,58 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiZXeErYJgM6eUrYJgM6nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KAIAuBCIHSgB/Mg8B/wCRSgB/MgYBAAGfQBBA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 57
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSHINT32 00000080
-    /// 22 : OpCode.JMPGE 04
-    /// 24 : OpCode.JMP 0A
-    /// 26 : OpCode.DUP
-    /// 27 : OpCode.PUSHINT32 FFFFFF7F
-    /// 2C : OpCode.JMPLE 1E
-    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 37 : OpCode.AND
-    /// 38 : OpCode.DUP
-    /// 39 : OpCode.PUSHINT32 FFFFFF7F
-    /// 3E : OpCode.JMPLE 0C
-    /// 40 : OpCode.PUSHINT64 0000000001000000
-    /// 49 : OpCode.SUB
-    /// 4A : OpCode.DUP
-    /// 4B : OpCode.PUSHINT8 80
-    /// 4D : OpCode.JMPGE 04
-    /// 4F : OpCode.JMP 07
-    /// 51 : OpCode.DUP
-    /// 52 : OpCode.PUSHINT8 7F
-    /// 54 : OpCode.JMPLE 0F
-    /// 56 : OpCode.PUSHINT16 FF00
-    /// 59 : OpCode.AND
-    /// 5A : OpCode.DUP
-    /// 5B : OpCode.PUSHINT8 7F
-    /// 5D : OpCode.JMPLE 06
-    /// 5F : OpCode.PUSHINT16 0001
-    /// 62 : OpCode.SUB
-    /// 63 : OpCode.RET
-    /// 64 : OpCode.PUSH0
-    /// 65 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 57 [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 22 : OpCode.JMPGE 04 [2 datoshi]
+    /// 24 : OpCode.JMP 0A [2 datoshi]
+    /// 26 : OpCode.DUP [2 datoshi]
+    /// 27 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 2C : OpCode.JMPLE 1E [2 datoshi]
+    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 37 : OpCode.AND [8 datoshi]
+    /// 38 : OpCode.DUP [2 datoshi]
+    /// 39 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 3E : OpCode.JMPLE 0C [2 datoshi]
+    /// 40 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 49 : OpCode.SUB [8 datoshi]
+    /// 4A : OpCode.DUP [2 datoshi]
+    /// 4B : OpCode.PUSHINT8 80 [1 datoshi]
+    /// 4D : OpCode.JMPGE 04 [2 datoshi]
+    /// 4F : OpCode.JMP 07 [2 datoshi]
+    /// 51 : OpCode.DUP [2 datoshi]
+    /// 52 : OpCode.PUSHINT8 7F [1 datoshi]
+    /// 54 : OpCode.JMPLE 0F [2 datoshi]
+    /// 56 : OpCode.PUSHINT16 FF00 [1 datoshi]
+    /// 59 : OpCode.AND [8 datoshi]
+    /// 5A : OpCode.DUP [2 datoshi]
+    /// 5B : OpCode.PUSHINT8 7F [1 datoshi]
+    /// 5D : OpCode.JMPLE 06 [2 datoshi]
+    /// 5F : OpCode.PUSHINT16 0001 [1 datoshi]
+    /// 62 : OpCode.SUB [8 datoshi]
+    /// 63 : OpCode.RET [0 datoshi]
+    /// 64 : OpCode.PUSH0 [1 datoshi]
+    /// 65 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSByteAdd")]
     public abstract BigInteger? TestSByteAdd(BigInteger? a, BigInteger? b);
@@ -846,39 +846,39 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0oAgC4EIgdKAH8yDwH/AJFKAH8yBgEAAZ9A
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSHINT32 00000080
-    /// 0C : OpCode.JMPGE 04
-    /// 0E : OpCode.JMP 0A
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F
-    /// 16 : OpCode.JMPLE 1E
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 21 : OpCode.AND
-    /// 22 : OpCode.DUP
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F
-    /// 28 : OpCode.JMPLE 0C
-    /// 2A : OpCode.PUSHINT64 0000000001000000
-    /// 33 : OpCode.SUB
-    /// 34 : OpCode.DUP
-    /// 35 : OpCode.PUSHINT8 80
-    /// 37 : OpCode.JMPGE 04
-    /// 39 : OpCode.JMP 07
-    /// 3B : OpCode.DUP
-    /// 3C : OpCode.PUSHINT8 7F
-    /// 3E : OpCode.JMPLE 0F
-    /// 40 : OpCode.PUSHINT16 FF00
-    /// 43 : OpCode.AND
-    /// 44 : OpCode.DUP
-    /// 45 : OpCode.PUSHINT8 7F
-    /// 47 : OpCode.JMPLE 06
-    /// 49 : OpCode.PUSHINT16 0001
-    /// 4C : OpCode.SUB
-    /// 4D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.DUP [2 datoshi]
+    /// 35 : OpCode.PUSHINT8 80 [1 datoshi]
+    /// 37 : OpCode.JMPGE 04 [2 datoshi]
+    /// 39 : OpCode.JMP 07 [2 datoshi]
+    /// 3B : OpCode.DUP [2 datoshi]
+    /// 3C : OpCode.PUSHINT8 7F [1 datoshi]
+    /// 3E : OpCode.JMPLE 0F [2 datoshi]
+    /// 40 : OpCode.PUSHINT16 FF00 [1 datoshi]
+    /// 43 : OpCode.AND [8 datoshi]
+    /// 44 : OpCode.DUP [2 datoshi]
+    /// 45 : OpCode.PUSHINT8 7F [1 datoshi]
+    /// 47 : OpCode.JMPLE 06 [2 datoshi]
+    /// 49 : OpCode.PUSHINT16 0001 [1 datoshi]
+    /// 4C : OpCode.SUB [8 datoshi]
+    /// 4D : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSByteAddNonNullable")]
     public abstract BigInteger? TestSByteAddNonNullable(BigInteger? a, BigInteger? b);
@@ -888,30 +888,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSByteCompare")]
     public abstract bool? TestSByteCompare(BigInteger? a, BigInteger? b);
@@ -921,11 +921,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSByteCompareNonNullable")]
     public abstract bool? TestSByteCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -935,14 +935,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSByteDefault")]
     public abstract BigInteger? TestSByteDefault(BigInteger? a);
@@ -952,9 +952,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSByteDefaultNonNullable")]
     public abstract BigInteger? TestSByteDefaultNonNullable(BigInteger? a);
@@ -964,58 +964,58 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiZeeErYJgM6eUrYJgM6nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KAQCALgQiCEoB/38yFAL//wAAkUoB/38yCAIAAAEAn0AQQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 5E
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSHINT32 00000080
-    /// 22 : OpCode.JMPGE 04
-    /// 24 : OpCode.JMP 0A
-    /// 26 : OpCode.DUP
-    /// 27 : OpCode.PUSHINT32 FFFFFF7F
-    /// 2C : OpCode.JMPLE 1E
-    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 37 : OpCode.AND
-    /// 38 : OpCode.DUP
-    /// 39 : OpCode.PUSHINT32 FFFFFF7F
-    /// 3E : OpCode.JMPLE 0C
-    /// 40 : OpCode.PUSHINT64 0000000001000000
-    /// 49 : OpCode.SUB
-    /// 4A : OpCode.DUP
-    /// 4B : OpCode.PUSHINT16 0080
-    /// 4E : OpCode.JMPGE 04
-    /// 50 : OpCode.JMP 08
-    /// 52 : OpCode.DUP
-    /// 53 : OpCode.PUSHINT16 FF7F
-    /// 56 : OpCode.JMPLE 14
-    /// 58 : OpCode.PUSHINT32 FFFF0000
-    /// 5D : OpCode.AND
-    /// 5E : OpCode.DUP
-    /// 5F : OpCode.PUSHINT16 FF7F
-    /// 62 : OpCode.JMPLE 08
-    /// 64 : OpCode.PUSHINT32 00000100
-    /// 69 : OpCode.SUB
-    /// 6A : OpCode.RET
-    /// 6B : OpCode.PUSH0
-    /// 6C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 5E [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 22 : OpCode.JMPGE 04 [2 datoshi]
+    /// 24 : OpCode.JMP 0A [2 datoshi]
+    /// 26 : OpCode.DUP [2 datoshi]
+    /// 27 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 2C : OpCode.JMPLE 1E [2 datoshi]
+    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 37 : OpCode.AND [8 datoshi]
+    /// 38 : OpCode.DUP [2 datoshi]
+    /// 39 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 3E : OpCode.JMPLE 0C [2 datoshi]
+    /// 40 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 49 : OpCode.SUB [8 datoshi]
+    /// 4A : OpCode.DUP [2 datoshi]
+    /// 4B : OpCode.PUSHINT16 0080 [1 datoshi]
+    /// 4E : OpCode.JMPGE 04 [2 datoshi]
+    /// 50 : OpCode.JMP 08 [2 datoshi]
+    /// 52 : OpCode.DUP [2 datoshi]
+    /// 53 : OpCode.PUSHINT16 FF7F [1 datoshi]
+    /// 56 : OpCode.JMPLE 14 [2 datoshi]
+    /// 58 : OpCode.PUSHINT32 FFFF0000 [1 datoshi]
+    /// 5D : OpCode.AND [8 datoshi]
+    /// 5E : OpCode.DUP [2 datoshi]
+    /// 5F : OpCode.PUSHINT16 FF7F [1 datoshi]
+    /// 62 : OpCode.JMPLE 08 [2 datoshi]
+    /// 64 : OpCode.PUSHINT32 00000100 [1 datoshi]
+    /// 69 : OpCode.SUB [8 datoshi]
+    /// 6A : OpCode.RET [0 datoshi]
+    /// 6B : OpCode.PUSH0 [1 datoshi]
+    /// 6C : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShortAdd")]
     public abstract BigInteger? TestShortAdd(BigInteger? a, BigInteger? b);
@@ -1025,39 +1025,39 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0oBAIAuBCIISgH/fzIUAv//AACRSgH/fzIIAgAAAQCfQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSHINT32 00000080
-    /// 0C : OpCode.JMPGE 04
-    /// 0E : OpCode.JMP 0A
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F
-    /// 16 : OpCode.JMPLE 1E
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 21 : OpCode.AND
-    /// 22 : OpCode.DUP
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F
-    /// 28 : OpCode.JMPLE 0C
-    /// 2A : OpCode.PUSHINT64 0000000001000000
-    /// 33 : OpCode.SUB
-    /// 34 : OpCode.DUP
-    /// 35 : OpCode.PUSHINT16 0080
-    /// 38 : OpCode.JMPGE 04
-    /// 3A : OpCode.JMP 08
-    /// 3C : OpCode.DUP
-    /// 3D : OpCode.PUSHINT16 FF7F
-    /// 40 : OpCode.JMPLE 14
-    /// 42 : OpCode.PUSHINT32 FFFF0000
-    /// 47 : OpCode.AND
-    /// 48 : OpCode.DUP
-    /// 49 : OpCode.PUSHINT16 FF7F
-    /// 4C : OpCode.JMPLE 08
-    /// 4E : OpCode.PUSHINT32 00000100
-    /// 53 : OpCode.SUB
-    /// 54 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.DUP [2 datoshi]
+    /// 35 : OpCode.PUSHINT16 0080 [1 datoshi]
+    /// 38 : OpCode.JMPGE 04 [2 datoshi]
+    /// 3A : OpCode.JMP 08 [2 datoshi]
+    /// 3C : OpCode.DUP [2 datoshi]
+    /// 3D : OpCode.PUSHINT16 FF7F [1 datoshi]
+    /// 40 : OpCode.JMPLE 14 [2 datoshi]
+    /// 42 : OpCode.PUSHINT32 FFFF0000 [1 datoshi]
+    /// 47 : OpCode.AND [8 datoshi]
+    /// 48 : OpCode.DUP [2 datoshi]
+    /// 49 : OpCode.PUSHINT16 FF7F [1 datoshi]
+    /// 4C : OpCode.JMPLE 08 [2 datoshi]
+    /// 4E : OpCode.PUSHINT32 00000100 [1 datoshi]
+    /// 53 : OpCode.SUB [8 datoshi]
+    /// 54 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShortAddNonNullable")]
     public abstract BigInteger? TestShortAddNonNullable(BigInteger? a, BigInteger? b);
@@ -1067,30 +1067,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShortCompare")]
     public abstract bool? TestShortCompare(BigInteger? a, BigInteger? b);
@@ -1100,11 +1100,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShortCompareNonNullable")]
     public abstract bool? TestShortCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -1114,14 +1114,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShortDefault")]
     public abstract BigInteger? TestShortDefault(BigInteger? a);
@@ -1131,9 +1131,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShortDefaultNonNullable")]
     public abstract BigInteger? TestShortDefaultNonNullable(BigInteger? a);
@@ -1143,22 +1143,22 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeErYJgVFDHlK2CYFRQyL2yhA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 05
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSHDATA1
-    /// 0B : OpCode.LDARG1
-    /// 0C : OpCode.DUP
-    /// 0D : OpCode.ISNULL
-    /// 0E : OpCode.JMPIFNOT 05
-    /// 10 : OpCode.DROP
-    /// 11 : OpCode.PUSHDATA1
-    /// 13 : OpCode.CAT
-    /// 14 : OpCode.CONVERT 28
-    /// 16 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSHDATA1 [8 datoshi]
+    /// 0B : OpCode.LDARG1 [2 datoshi]
+    /// 0C : OpCode.DUP [2 datoshi]
+    /// 0D : OpCode.ISNULL [2 datoshi]
+    /// 0E : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 10 : OpCode.DROP [2 datoshi]
+    /// 11 : OpCode.PUSHDATA1 [8 datoshi]
+    /// 13 : OpCode.CAT [2048 datoshi]
+    /// 14 : OpCode.CONVERT 'ByteString' [8192 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringConcat")]
     public abstract string? TestStringConcat(string? a, string? b);
@@ -1168,12 +1168,12 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmL2yhA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.CAT
-    /// 06 : OpCode.CONVERT 28
-    /// 08 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.CAT [2048 datoshi]
+    /// 06 : OpCode.CONVERT 'ByteString' [8192 datoshi]
+    /// 08 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringConcatNonNullable")]
     public abstract string? TestStringConcatNonNullable(string? a, string? b);
@@ -1183,14 +1183,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgVFDEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 05
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSHDATA1
-    /// 0B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSHDATA1 [8 datoshi]
+    /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringDefault")]
     public abstract string? TestStringDefault(string? a);
@@ -1200,9 +1200,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringDefaultNonNullable")]
     public abstract string? TestStringDefaultNonNullable(string? a);
@@ -1212,18 +1212,18 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAPKStgmBEUQQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIF 03
-    /// 08 : OpCode.SIZE
-    /// 09 : OpCode.DUP
-    /// 0A : OpCode.ISNULL
-    /// 0B : OpCode.JMPIFNOT 04
-    /// 0D : OpCode.DROP
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIF 03 [2 datoshi]
+    /// 08 : OpCode.SIZE [4 datoshi]
+    /// 09 : OpCode.DUP [2 datoshi]
+    /// 0A : OpCode.ISNULL [2 datoshi]
+    /// 0B : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 0D : OpCode.DROP [2 datoshi]
+    /// 0E : OpCode.PUSH0 [1 datoshi]
+    /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringLength")]
     public abstract BigInteger? TestStringLength(string? a);
@@ -1233,10 +1233,10 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeMpA
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.SIZE
-    /// 05 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.SIZE [4 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringLengthNonNullable")]
     public abstract BigInteger? TestStringLengthNonNullable(string? a);
@@ -1246,18 +1246,18 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAPKStgmBEUQQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIF 03
-    /// 08 : OpCode.SIZE
-    /// 09 : OpCode.DUP
-    /// 0A : OpCode.ISNULL
-    /// 0B : OpCode.JMPIFNOT 04
-    /// 0D : OpCode.DROP
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIF 03 [2 datoshi]
+    /// 08 : OpCode.SIZE [4 datoshi]
+    /// 09 : OpCode.DUP [2 datoshi]
+    /// 0A : OpCode.ISNULL [2 datoshi]
+    /// 0B : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 0D : OpCode.DROP [2 datoshi]
+    /// 0E : OpCode.PUSH0 [1 datoshi]
+    /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt160ArrayLength")]
     public abstract BigInteger? TestUInt160ArrayLength(IList<object>? a);
@@ -1267,10 +1267,10 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeMpA
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.SIZE
-    /// 05 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.SIZE [4 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt160ArrayLengthNonNullable")]
     public abstract BigInteger? TestUInt160ArrayLengthNonNullable(IList<object>? a);
@@ -1280,14 +1280,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJhlFDAAAAAAAAAAAAAAAAAAAAAAAAAAAQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 19
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000
-    /// 1F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 19 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
+    /// 1F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt160Default")]
     public abstract UInt160? TestUInt160Default(UInt160? a);
@@ -1297,9 +1297,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt160DefaultNonNullable")]
     public abstract UInt160? TestUInt160DefaultNonNullable(UInt160? a);
@@ -1309,18 +1309,18 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJAPKStgmBEUQQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIF 03
-    /// 08 : OpCode.SIZE
-    /// 09 : OpCode.DUP
-    /// 0A : OpCode.ISNULL
-    /// 0B : OpCode.JMPIFNOT 04
-    /// 0D : OpCode.DROP
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIF 03 [2 datoshi]
+    /// 08 : OpCode.SIZE [4 datoshi]
+    /// 09 : OpCode.DUP [2 datoshi]
+    /// 0A : OpCode.ISNULL [2 datoshi]
+    /// 0B : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 0D : OpCode.DROP [2 datoshi]
+    /// 0E : OpCode.PUSH0 [1 datoshi]
+    /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt256ArrayLength")]
     public abstract BigInteger? TestUInt256ArrayLength(IList<object>? a);
@@ -1330,10 +1330,10 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeMpA
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.SIZE
-    /// 05 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.SIZE [4 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt256ArrayLengthNonNullable")]
     public abstract BigInteger? TestUInt256ArrayLengthNonNullable(IList<object>? a);
@@ -1343,14 +1343,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJiVFDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 25
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000000000000000000000000000
-    /// 2B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 25 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000000000000000000000000000 [8 datoshi]
+    /// 2B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt256Default")]
     public abstract UInt256? TestUInt256Default(UInt256? a);
@@ -1360,9 +1360,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUInt256DefaultNonNullable")]
     public abstract UInt256? TestUInt256DefaultNonNullable(UInt256? a);
@@ -1372,39 +1372,39 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiYseErYJgM6eUrYJgM6nkoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFAEEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 2C
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSH0
-    /// 1E : OpCode.JMPGE 04
-    /// 20 : OpCode.JMP 0E
-    /// 22 : OpCode.DUP
-    /// 23 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 2C : OpCode.JMPLE 0C
-    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 37 : OpCode.AND
-    /// 38 : OpCode.RET
-    /// 39 : OpCode.PUSH0
-    /// 3A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 2C [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSH0 [1 datoshi]
+    /// 1E : OpCode.JMPGE 04 [2 datoshi]
+    /// 20 : OpCode.JMP 0E [2 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 2C : OpCode.JMPLE 0C [2 datoshi]
+    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 37 : OpCode.AND [8 datoshi]
+    /// 38 : OpCode.RET [0 datoshi]
+    /// 39 : OpCode.PUSH0 [1 datoshi]
+    /// 3A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUIntAdd")]
     public abstract BigInteger? TestUIntAdd(BigInteger? a, BigInteger? b);
@@ -1414,20 +1414,20 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeShAuBCIOSgP/////AAAAADIMA/////8AAAAAkUA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSH0
-    /// 08 : OpCode.JMPGE 04
-    /// 0A : OpCode.JMP 0E
-    /// 0C : OpCode.DUP
-    /// 0D : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 16 : OpCode.JMPLE 0C
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 21 : OpCode.AND
-    /// 22 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSH0 [1 datoshi]
+    /// 08 : OpCode.JMPGE 04 [2 datoshi]
+    /// 0A : OpCode.JMP 0E [2 datoshi]
+    /// 0C : OpCode.DUP [2 datoshi]
+    /// 0D : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 16 : OpCode.JMPLE 0C [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUIntAddNonNullable")]
     public abstract BigInteger? TestUIntAddNonNullable(BigInteger? a, BigInteger? b);
@@ -1437,30 +1437,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUIntCompare")]
     public abstract bool? TestUIntCompare(BigInteger? a, BigInteger? b);
@@ -1470,11 +1470,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUIntCompareNonNullable")]
     public abstract bool? TestUIntCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -1484,14 +1484,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUIntDefault")]
     public abstract BigInteger? TestUIntDefault(BigInteger? a);
@@ -1501,9 +1501,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUIntDefaultNonNullable")]
     public abstract BigInteger? TestUIntDefaultNonNullable(BigInteger? a);
@@ -1513,39 +1513,39 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiY8eErYJgM6eUrYJgM6nkoQLgQiFkoE//////////8AAAAAAAAAADIUBP//////////AAAAAAAAAACRQBBA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 3C
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSH0
-    /// 1E : OpCode.JMPGE 04
-    /// 20 : OpCode.JMP 16
-    /// 22 : OpCode.DUP
-    /// 23 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
-    /// 34 : OpCode.JMPLE 14
-    /// 36 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
-    /// 47 : OpCode.AND
-    /// 48 : OpCode.RET
-    /// 49 : OpCode.PUSH0
-    /// 4A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 3C [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSH0 [1 datoshi]
+    /// 1E : OpCode.JMPGE 04 [2 datoshi]
+    /// 20 : OpCode.JMP 16 [2 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000 [4 datoshi]
+    /// 34 : OpCode.JMPLE 14 [2 datoshi]
+    /// 36 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000 [4 datoshi]
+    /// 47 : OpCode.AND [8 datoshi]
+    /// 48 : OpCode.RET [0 datoshi]
+    /// 49 : OpCode.PUSH0 [1 datoshi]
+    /// 4A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testULongAdd")]
     public abstract BigInteger? TestULongAdd(BigInteger? a, BigInteger? b);
@@ -1555,20 +1555,20 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeShAuBCIWSgT//////////wAAAAAAAAAAMhQE//////////8AAAAAAAAAAJFA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSH0
-    /// 08 : OpCode.JMPGE 04
-    /// 0A : OpCode.JMP 16
-    /// 0C : OpCode.DUP
-    /// 0D : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
-    /// 1E : OpCode.JMPLE 14
-    /// 20 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000
-    /// 31 : OpCode.AND
-    /// 32 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSH0 [1 datoshi]
+    /// 08 : OpCode.JMPGE 04 [2 datoshi]
+    /// 0A : OpCode.JMP 16 [2 datoshi]
+    /// 0C : OpCode.DUP [2 datoshi]
+    /// 0D : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000 [4 datoshi]
+    /// 1E : OpCode.JMPLE 14 [2 datoshi]
+    /// 20 : OpCode.PUSHINT128 FFFFFFFFFFFFFFFF0000000000000000 [4 datoshi]
+    /// 31 : OpCode.AND [8 datoshi]
+    /// 32 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testULongAddNonNullable")]
     public abstract BigInteger? TestULongAddNonNullable(BigInteger? a, BigInteger? b);
@@ -1578,30 +1578,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testULongCompare")]
     public abstract bool? TestULongCompare(BigInteger? a, BigInteger? b);
@@ -1611,11 +1611,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testULongCompareNonNullable")]
     public abstract bool? TestULongCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -1625,14 +1625,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testULongDefault")]
     public abstract BigInteger? TestULongDefault(BigInteger? a);
@@ -1642,9 +1642,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testULongDefaultNonNullable")]
     public abstract BigInteger? TestULongDefaultNonNullable(BigInteger? a);
@@ -1654,53 +1654,53 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiZSeErYJgM6eUrYJgM6nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9KEC4EIgpKAv//AAAyCAL//wAAkUAQQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIFNOT 52
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.ISNULL
-    /// 12 : OpCode.JMPIFNOT 03
-    /// 14 : OpCode.THROW
-    /// 15 : OpCode.LDARG1
-    /// 16 : OpCode.DUP
-    /// 17 : OpCode.ISNULL
-    /// 18 : OpCode.JMPIFNOT 03
-    /// 1A : OpCode.THROW
-    /// 1B : OpCode.ADD
-    /// 1C : OpCode.DUP
-    /// 1D : OpCode.PUSHINT32 00000080
-    /// 22 : OpCode.JMPGE 04
-    /// 24 : OpCode.JMP 0A
-    /// 26 : OpCode.DUP
-    /// 27 : OpCode.PUSHINT32 FFFFFF7F
-    /// 2C : OpCode.JMPLE 1E
-    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 37 : OpCode.AND
-    /// 38 : OpCode.DUP
-    /// 39 : OpCode.PUSHINT32 FFFFFF7F
-    /// 3E : OpCode.JMPLE 0C
-    /// 40 : OpCode.PUSHINT64 0000000001000000
-    /// 49 : OpCode.SUB
-    /// 4A : OpCode.DUP
-    /// 4B : OpCode.PUSH0
-    /// 4C : OpCode.JMPGE 04
-    /// 4E : OpCode.JMP 0A
-    /// 50 : OpCode.DUP
-    /// 51 : OpCode.PUSHINT32 FFFF0000
-    /// 56 : OpCode.JMPLE 08
-    /// 58 : OpCode.PUSHINT32 FFFF0000
-    /// 5D : OpCode.AND
-    /// 5E : OpCode.RET
-    /// 5F : OpCode.PUSH0
-    /// 60 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIFNOT 52 [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.ISNULL [2 datoshi]
+    /// 12 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 14 : OpCode.THROW [512 datoshi]
+    /// 15 : OpCode.LDARG1 [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.ISNULL [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1A : OpCode.THROW [512 datoshi]
+    /// 1B : OpCode.ADD [8 datoshi]
+    /// 1C : OpCode.DUP [2 datoshi]
+    /// 1D : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 22 : OpCode.JMPGE 04 [2 datoshi]
+    /// 24 : OpCode.JMP 0A [2 datoshi]
+    /// 26 : OpCode.DUP [2 datoshi]
+    /// 27 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 2C : OpCode.JMPLE 1E [2 datoshi]
+    /// 2E : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 37 : OpCode.AND [8 datoshi]
+    /// 38 : OpCode.DUP [2 datoshi]
+    /// 39 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 3E : OpCode.JMPLE 0C [2 datoshi]
+    /// 40 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 49 : OpCode.SUB [8 datoshi]
+    /// 4A : OpCode.DUP [2 datoshi]
+    /// 4B : OpCode.PUSH0 [1 datoshi]
+    /// 4C : OpCode.JMPGE 04 [2 datoshi]
+    /// 4E : OpCode.JMP 0A [2 datoshi]
+    /// 50 : OpCode.DUP [2 datoshi]
+    /// 51 : OpCode.PUSHINT32 FFFF0000 [1 datoshi]
+    /// 56 : OpCode.JMPLE 08 [2 datoshi]
+    /// 58 : OpCode.PUSHINT32 FFFF0000 [1 datoshi]
+    /// 5D : OpCode.AND [8 datoshi]
+    /// 5E : OpCode.RET [0 datoshi]
+    /// 5F : OpCode.PUSH0 [1 datoshi]
+    /// 60 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUShortAdd")]
     public abstract BigInteger? TestUShortAdd(BigInteger? a, BigInteger? b);
@@ -1710,34 +1710,34 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0oQLgQiCkoC//8AADIIAv//AACRQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.DUP
-    /// 07 : OpCode.PUSHINT32 00000080
-    /// 0C : OpCode.JMPGE 04
-    /// 0E : OpCode.JMP 0A
-    /// 10 : OpCode.DUP
-    /// 11 : OpCode.PUSHINT32 FFFFFF7F
-    /// 16 : OpCode.JMPLE 1E
-    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 21 : OpCode.AND
-    /// 22 : OpCode.DUP
-    /// 23 : OpCode.PUSHINT32 FFFFFF7F
-    /// 28 : OpCode.JMPLE 0C
-    /// 2A : OpCode.PUSHINT64 0000000001000000
-    /// 33 : OpCode.SUB
-    /// 34 : OpCode.DUP
-    /// 35 : OpCode.PUSH0
-    /// 36 : OpCode.JMPGE 04
-    /// 38 : OpCode.JMP 0A
-    /// 3A : OpCode.DUP
-    /// 3B : OpCode.PUSHINT32 FFFF0000
-    /// 40 : OpCode.JMPLE 08
-    /// 42 : OpCode.PUSHINT32 FFFF0000
-    /// 47 : OpCode.AND
-    /// 48 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.DUP [2 datoshi]
+    /// 35 : OpCode.PUSH0 [1 datoshi]
+    /// 36 : OpCode.JMPGE 04 [2 datoshi]
+    /// 38 : OpCode.JMP 0A [2 datoshi]
+    /// 3A : OpCode.DUP [2 datoshi]
+    /// 3B : OpCode.PUSHINT32 FFFF0000 [1 datoshi]
+    /// 40 : OpCode.JMPLE 08 [2 datoshi]
+    /// 42 : OpCode.PUSHINT32 FFFF0000 [1 datoshi]
+    /// 47 : OpCode.AND [8 datoshi]
+    /// 48 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUShortAddNonNullable")]
     public abstract BigInteger? TestUShortAddNonNullable(BigInteger? a, BigInteger? b);
@@ -1747,30 +1747,30 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeNgmBQkiBXnYqiQECUB4StgmAzp5StgmAzq3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.ISNULL
-    /// 05 : OpCode.JMPIFNOT 05
-    /// 07 : OpCode.PUSHF
-    /// 08 : OpCode.JMP 05
-    /// 0A : OpCode.LDARG1
-    /// 0B : OpCode.ISNULL
-    /// 0C : OpCode.NOT
-    /// 0D : OpCode.JMPIF 04
-    /// 0F : OpCode.PUSHF
-    /// 10 : OpCode.RET
-    /// 11 : OpCode.LDARG0
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.ISNULL
-    /// 14 : OpCode.JMPIFNOT 03
-    /// 16 : OpCode.THROW
-    /// 17 : OpCode.LDARG1
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.ISNULL
-    /// 1A : OpCode.JMPIFNOT 03
-    /// 1C : OpCode.THROW
-    /// 1D : OpCode.GT
-    /// 1E : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 07 : OpCode.PUSHF [1 datoshi]
+    /// 08 : OpCode.JMP 05 [2 datoshi]
+    /// 0A : OpCode.LDARG1 [2 datoshi]
+    /// 0B : OpCode.ISNULL [2 datoshi]
+    /// 0C : OpCode.NOT [4 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.ISNULL [2 datoshi]
+    /// 14 : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 16 : OpCode.THROW [512 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.ISNULL [2 datoshi]
+    /// 1A : OpCode.JMPIFNOT 03 [2 datoshi]
+    /// 1C : OpCode.THROW [512 datoshi]
+    /// 1D : OpCode.GT [8 datoshi]
+    /// 1E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUShortCompare")]
     public abstract bool? TestUShortCompare(BigInteger? a, BigInteger? b);
@@ -1780,11 +1780,11 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwACeHm3QA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUShortCompareNonNullable")]
     public abstract bool? TestUShortCompareNonNullable(BigInteger? a, BigInteger? b);
@@ -1794,14 +1794,14 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeErYJgRFEEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.DUP
-    /// 05 : OpCode.ISNULL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.DROP
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISNULL [2 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.DROP [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUShortDefault")]
     public abstract BigInteger? TestUShortDefault(BigInteger? a);
@@ -1811,9 +1811,9 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUShortDefaultNonNullable")]
     public abstract BigInteger? TestUShortDefaultNonNullable(BigInteger? a);
