@@ -69,7 +69,7 @@ public static class Disassembler
         var addprice = 0L;
         string ret;
 
-        if (operand.IsEmpty)
+        if (operand.IsEmpty || operand.Length == 0)
         {
             ret = $"OpCode.{opcode}";
         }
