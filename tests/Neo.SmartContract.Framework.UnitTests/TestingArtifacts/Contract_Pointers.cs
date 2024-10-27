@@ -45,7 +45,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// 03 : OpCode.PUSHA F6FFFFFF [4 datoshi]
     /// 08 : OpCode.STLOC0 [2 datoshi]
     /// 09 : OpCode.PUSHDATA1 0B1621 [8 datoshi]
-    /// 0E : OpCode.CONVERT 'Buffer' [8192 datoshi]
+    /// 0E : OpCode.CONVERT 48 'Buffer' [8192 datoshi]
     /// 10 : OpCode.LDLOC0 [2 datoshi]
     /// 11 : OpCode.CALLA [512 datoshi]
     /// 12 : OpCode.RET [0 datoshi]
@@ -93,7 +93,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Script: VwABeNshQA==
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CONVERT 'Integer' [8192 datoshi]
+    /// 04 : OpCode.CONVERT 33 'Integer' [8192 datoshi]
     /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("myMethodWithArg")]

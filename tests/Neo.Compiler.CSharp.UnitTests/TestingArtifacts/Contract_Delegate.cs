@@ -44,7 +44,7 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// 15 : OpCode.LDLOC1 [2 datoshi]
     /// 16 : OpCode.CALLT 0000 [32768 datoshi]
     /// 19 : OpCode.CAT [2048 datoshi]
-    /// 1A : OpCode.CONVERT 'ByteString' [8192 datoshi]
+    /// 1A : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
     /// 1C : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// 21 : OpCode.RET [0 datoshi]
     /// </remarks>

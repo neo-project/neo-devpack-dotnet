@@ -104,7 +104,7 @@ public abstract class Contract_SupportedStandard11Enum(Neo.SmartContract.Testing
     /// 5A : OpCode.JMPIFNOT 04 [2 datoshi]
     /// 5C : OpCode.DROP [2 datoshi]
     /// 5D : OpCode.PUSH0 [1 datoshi]
-    /// 5E : OpCode.CONVERT 'Integer' [8192 datoshi]
+    /// 5E : OpCode.CONVERT 33 'Integer' [8192 datoshi]
     /// 60 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("balanceOf")]

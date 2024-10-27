@@ -73,7 +73,7 @@ public static class Disassembler
 
         if (instruction.OpCode == OpCode.CONVERT)
         {
-            return $"OpCode.{opcode} '{(StackItemType)operand.Span[0]}'";
+            return $"OpCode.{opcode} {operand.Span[0]} '{(StackItemType)operand.Span[0]}'";
         }
 
         var operandString = BitConverter.ToString(operand.ToArray()).Replace("-", "");

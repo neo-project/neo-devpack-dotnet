@@ -90,13 +90,13 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Script: VwABeNsoStgmBEUQ2yFA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CONVERT 'ByteString' [8192 datoshi]
+    /// 04 : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
     /// 06 : OpCode.DUP [2 datoshi]
     /// 07 : OpCode.ISNULL [2 datoshi]
     /// 08 : OpCode.JMPIFNOT 04 [2 datoshi]
     /// 0A : OpCode.DROP [2 datoshi]
     /// 0B : OpCode.PUSH0 [1 datoshi]
-    /// 0C : OpCode.CONVERT 'Integer' [8192 datoshi]
+    /// 0C : OpCode.CONVERT 33 'Integer' [8192 datoshi]
     /// 0E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerCast")]
@@ -221,7 +221,7 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Script: VwABeNshQA==
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CONVERT 'Integer' [8192 datoshi]
+    /// 04 : OpCode.CONVERT 33 'Integer' [8192 datoshi]
     /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testToBigInteger")]

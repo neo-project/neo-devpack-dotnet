@@ -64,7 +64,7 @@ public abstract class Contract_Lambda(Neo.SmartContract.Testing.SmartContractIni
     /// 0B : OpCode.LDSFLD6 [2 datoshi]
     /// 0C : OpCode.PUSHDATA1 20212121 [8 datoshi]
     /// 12 : OpCode.CAT [2048 datoshi]
-    /// 13 : OpCode.CONVERT 'ByteString' [8192 datoshi]
+    /// 13 : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
     /// 15 : OpCode.STSFLD6 [2 datoshi]
     /// 16 : OpCode.LDLOC0 [2 datoshi]
     /// 17 : OpCode.CALLA [512 datoshi]
