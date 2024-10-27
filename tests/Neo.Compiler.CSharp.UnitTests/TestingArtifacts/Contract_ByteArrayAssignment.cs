@@ -26,26 +26,26 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// </summary>
     /// <remarks>
     /// Script: VwEADAACA9swcBFKaBBR0EUUSmgSUdBFaEA=
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSHDATA1 000203
-    /// 08 : OpCode.CONVERT 30
-    /// 0A : OpCode.STLOC0
-    /// 0B : OpCode.PUSH1
-    /// 0C : OpCode.DUP
-    /// 0D : OpCode.LDLOC0
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.ROT
-    /// 10 : OpCode.SETITEM
-    /// 11 : OpCode.DROP
-    /// 12 : OpCode.PUSH4
-    /// 13 : OpCode.DUP
-    /// 14 : OpCode.LDLOC0
-    /// 15 : OpCode.PUSH2
-    /// 16 : OpCode.ROT
-    /// 17 : OpCode.SETITEM
-    /// 18 : OpCode.DROP
-    /// 19 : OpCode.LDLOC0
-    /// 1A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 000203 [8 datoshi]
+    /// 08 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.PUSH1 [1 datoshi]
+    /// 0C : OpCode.DUP [2 datoshi]
+    /// 0D : OpCode.LDLOC0 [2 datoshi]
+    /// 0E : OpCode.PUSH0 [1 datoshi]
+    /// 0F : OpCode.ROT [2 datoshi]
+    /// 10 : OpCode.SETITEM [8192 datoshi]
+    /// 11 : OpCode.DROP [2 datoshi]
+    /// 12 : OpCode.PUSH4 [1 datoshi]
+    /// 13 : OpCode.DUP [2 datoshi]
+    /// 14 : OpCode.LDLOC0 [2 datoshi]
+    /// 15 : OpCode.PUSH2 [1 datoshi]
+    /// 16 : OpCode.ROT [2 datoshi]
+    /// 17 : OpCode.SETITEM [8192 datoshi]
+    /// 18 : OpCode.DROP [2 datoshi]
+    /// 19 : OpCode.LDLOC0 [2 datoshi]
+    /// 1A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssignment")]
     public abstract byte[]? TestAssignment();
