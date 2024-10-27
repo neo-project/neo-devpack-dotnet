@@ -26,10 +26,10 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHA4
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.ABORT
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.ABORT [0 datoshi]
     /// </remarks>
     [DisplayName("testAbort")]
     public abstract BigInteger? TestAbort();
@@ -39,22 +39,22 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwIBEHA7ERkRcAxleGNlcHRpb246cXgmBDSwNKgScD8=
-    /// 00 : OpCode.INITSLOT 0201
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.TRY 1119
-    /// 08 : OpCode.PUSH1
-    /// 09 : OpCode.STLOC0
-    /// 0A : OpCode.PUSHDATA1 657863657074696F6E
-    /// 15 : OpCode.THROW
-    /// 16 : OpCode.STLOC1
-    /// 17 : OpCode.LDARG0
-    /// 18 : OpCode.JMPIFNOT 04
-    /// 1A : OpCode.CALL B0
-    /// 1C : OpCode.CALL A8
-    /// 1E : OpCode.PUSH2
-    /// 1F : OpCode.STLOC0
-    /// 20 : OpCode.ENDFINALLY
+    /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.TRY 1119 [4 datoshi]
+    /// 08 : OpCode.PUSH1 [1 datoshi]
+    /// 09 : OpCode.STLOC0 [2 datoshi]
+    /// 0A : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 15 : OpCode.THROW [512 datoshi]
+    /// 16 : OpCode.STLOC1 [2 datoshi]
+    /// 17 : OpCode.LDARG0 [2 datoshi]
+    /// 18 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 1A : OpCode.CALL B0 [512 datoshi]
+    /// 1C : OpCode.CALL A8 [512 datoshi]
+    /// 1E : OpCode.PUSH2 [1 datoshi]
+    /// 1F : OpCode.STLOC0 [2 datoshi]
+    /// 20 : OpCode.ENDFINALLY [4 datoshi]
     /// </remarks>
     [DisplayName("testAbortInCatch")]
     public abstract BigInteger? TestAbortInCatch(bool? abortMsg);
@@ -64,18 +64,18 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwIBEHA7BwwRcD0AcRJwPQB4
-    /// 00 : OpCode.INITSLOT 0201
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.TRY 070C
-    /// 08 : OpCode.PUSH1
-    /// 09 : OpCode.STLOC0
-    /// 0A : OpCode.ENDTRY 00
-    /// 0C : OpCode.STLOC1
-    /// 0D : OpCode.PUSH2
-    /// 0E : OpCode.STLOC0
-    /// 0F : OpCode.ENDTRY 00
-    /// 11 : OpCode.LDARG0
+    /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.TRY 070C [4 datoshi]
+    /// 08 : OpCode.PUSH1 [1 datoshi]
+    /// 09 : OpCode.STLOC0 [2 datoshi]
+    /// 0A : OpCode.ENDTRY 00 [4 datoshi]
+    /// 0C : OpCode.STLOC1 [2 datoshi]
+    /// 0D : OpCode.PUSH2 [1 datoshi]
+    /// 0E : OpCode.STLOC0 [2 datoshi]
+    /// 0F : OpCode.ENDTRY 00 [4 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
     /// </remarks>
     [DisplayName("testAbortInFinally")]
     public abstract BigInteger? TestAbortInFinally(bool? abortMsg);
@@ -85,10 +85,10 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwEBEHB4
-    /// 00 : OpCode.INITSLOT 0101
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDARG0
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDARG0 [2 datoshi]
     /// </remarks>
     [DisplayName("testAbortInFunction")]
     public abstract BigInteger? TestAbortInFunction(bool? abortMsg);
@@ -98,23 +98,23 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwIBEHA7Cg94JgQ02DTQcRFwPQUScD9oQA==
-    /// 00 : OpCode.INITSLOT 0201
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.TRY 0A0F
-    /// 08 : OpCode.LDARG0
-    /// 09 : OpCode.JMPIFNOT 04
-    /// 0B : OpCode.CALL D8
-    /// 0D : OpCode.CALL D0
-    /// 0F : OpCode.STLOC1
-    /// 10 : OpCode.PUSH1
-    /// 11 : OpCode.STLOC0
-    /// 12 : OpCode.ENDTRY 05
-    /// 14 : OpCode.PUSH2
-    /// 15 : OpCode.STLOC0
-    /// 16 : OpCode.ENDFINALLY
-    /// 17 : OpCode.LDLOC0
-    /// 18 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.TRY 0A0F [4 datoshi]
+    /// 08 : OpCode.LDARG0 [2 datoshi]
+    /// 09 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 0B : OpCode.CALL D8 [512 datoshi]
+    /// 0D : OpCode.CALL D0 [512 datoshi]
+    /// 0F : OpCode.STLOC1 [2 datoshi]
+    /// 10 : OpCode.PUSH1 [1 datoshi]
+    /// 11 : OpCode.STLOC0 [2 datoshi]
+    /// 12 : OpCode.ENDTRY 05 [4 datoshi]
+    /// 14 : OpCode.PUSH2 [1 datoshi]
+    /// 15 : OpCode.STLOC0 [2 datoshi]
+    /// 16 : OpCode.ENDFINALLY [4 datoshi]
+    /// 17 : OpCode.LDLOC0 [2 datoshi]
+    /// 18 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAbortInTry")]
     public abstract BigInteger? TestAbortInTry(bool? abortMsg);
@@ -124,11 +124,11 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwEAEHAMQUJPUlQgTVNH4A==
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.PUSHDATA1 41424F5254204D5347
-    /// 10 : OpCode.ABORTMSG
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.PUSHDATA1 41424F5254204D5347 [8 datoshi]
+    /// 10 : OpCode.ABORTMSG [0 datoshi]
     /// </remarks>
     [DisplayName("testAbortMsg")]
     public abstract BigInteger? TestAbortMsg();

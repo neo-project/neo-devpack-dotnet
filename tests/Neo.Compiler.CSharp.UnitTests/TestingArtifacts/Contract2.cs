@@ -26,14 +26,14 @@ public abstract class Contract2(Neo.SmartContract.Testing.SmartContractInitializ
     /// </summary>
     /// <remarks>
     /// Script: VwECDAECAwTbMHBoEs5A
-    /// 00 : OpCode.INITSLOT 0102
-    /// 03 : OpCode.PUSHDATA1 01020304
-    /// 09 : OpCode.CONVERT 30
-    /// 0B : OpCode.STLOC0
-    /// 0C : OpCode.LDLOC0
-    /// 0D : OpCode.PUSH2
-    /// 0E : OpCode.PICKITEM
-    /// 0F : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0102 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 01020304 [8 datoshi]
+    /// 09 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0B : OpCode.STLOC0 [2 datoshi]
+    /// 0C : OpCode.LDLOC0 [2 datoshi]
+    /// 0D : OpCode.PUSH2 [1 datoshi]
+    /// 0E : OpCode.PICKITEM [64 datoshi]
+    /// 0F : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("unitTest_002")]
     public abstract BigInteger? UnitTest_002(object? arg1, object? arg2 = null);
