@@ -32,7 +32,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 05 : OpCode.LDARG0 [2 datoshi]
     /// 06 : OpCode.LDARG1 [2 datoshi]
     /// 07 : OpCode.CAT [2048 datoshi]
-    /// 08 : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
+    /// 08 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 0A : OpCode.STLOC1 [2 datoshi]
     /// 0B : OpCode.LDLOC1 [2 datoshi]
     /// 0C : OpCode.PUSHDATA1 68656C6C6F [8 datoshi]
@@ -63,7 +63,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 04 : OpCode.LDARG1 [2 datoshi]
     /// 05 : OpCode.CALLT 0000 [32768 datoshi]
     /// 08 : OpCode.CAT [2048 datoshi]
-    /// 09 : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
+    /// 09 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAddInt")]

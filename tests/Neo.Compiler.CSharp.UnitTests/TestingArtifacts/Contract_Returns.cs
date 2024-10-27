@@ -30,7 +30,7 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.LDARG1 [2 datoshi]
     /// 05 : OpCode.CAT [2048 datoshi]
-    /// 06 : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
+    /// 06 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 08 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("byteStringAdd")]

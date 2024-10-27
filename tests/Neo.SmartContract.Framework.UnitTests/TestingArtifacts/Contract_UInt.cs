@@ -93,7 +93,7 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// 0C : OpCode.CAT [2048 datoshi]
     /// 0D : OpCode.STLOC0 [2 datoshi]
     /// 0E : OpCode.LDLOC0 [2 datoshi]
-    /// 0F : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
+    /// 0F : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 11 : OpCode.CALLT 0000 [32768 datoshi]
     /// 14 : OpCode.RET [0 datoshi]
     /// </remarks>

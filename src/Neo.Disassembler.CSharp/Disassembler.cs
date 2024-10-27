@@ -61,22 +61,47 @@ public static class Disassembler
             yield return (address, Instruction.RET);
     }
 
-    public static string InstructionToString(this Instruction instruction)
+    public static string InstructionToString(this Instruction instruction, bool addPrice = true)
     {
         var opcode = instruction.OpCode.ToString();
         var operand = instruction.Operand;
 
+        var addprice = 0L;
+        string ret;
+
         if (operand.IsEmpty)
         {
-            return $"OpCode.{opcode}";
+            ret = $"OpCode.{opcode}";
         }
-
-        if (instruction.OpCode == OpCode.CONVERT)
+        else
         {
-            return $"OpCode.{opcode} {operand.Span[0]} '{(StackItemType)operand.Span[0]}'";
+            var operandString = BitConverter.ToString(operand.ToArray()).Replace("-", "");
+
+            switch (instruction.OpCode)
+            {
+                case OpCode.CONVERT:
+                    {
+                        ret = $"OpCode.{opcode} {operandString} '{(StackItemType)operand.Span[0]}'";
+                        break;
+                    }
+                case OpCode.SYSCALL:
+                    {
+                        var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
+                        addprice += descriptor.FixedPrice;
+                        ret = $"OpCode.{opcode} {operandString} '{descriptor.Name}'";
+                        break;
+                    }
+                default:
+                    {
+                        ret = $"OpCode.{opcode} {operandString}";
+                        break;
+                    }
+            }
         }
 
-        var operandString = BitConverter.ToString(operand.ToArray()).Replace("-", "");
-        return $"OpCode.{opcode} {operandString}";
+        if (!addPrice) return ret;
+
+        var fixedPrice = ApplicationEngine.OpCodePriceTable[(byte)instruction.OpCode] + addprice;
+        return $"{ret} [{fixedPrice} datoshi]";
     }
 }

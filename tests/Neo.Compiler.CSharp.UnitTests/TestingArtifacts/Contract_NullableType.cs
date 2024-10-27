@@ -1157,7 +1157,7 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// 10 : OpCode.DROP [2 datoshi]
     /// 11 : OpCode.PUSHDATA1 [8 datoshi]
     /// 13 : OpCode.CAT [2048 datoshi]
-    /// 14 : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
+    /// 14 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringConcat")]
@@ -1172,7 +1172,7 @@ public abstract class Contract_NullableType(Neo.SmartContract.Testing.SmartContr
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.LDARG1 [2 datoshi]
     /// 05 : OpCode.CAT [2048 datoshi]
-    /// 06 : OpCode.CONVERT 40 'ByteString' [8192 datoshi]
+    /// 06 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 08 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringConcatNonNullable")]
