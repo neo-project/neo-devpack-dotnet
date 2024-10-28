@@ -422,28 +422,43 @@ namespace Neo.Compiler
             {
                 switch (member)
                 {
+                    //case IEventSymbol @event when isSmartContract:
+                    //    ProcessEvent(@event);
+                    //    break;
+                    case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
+                        if (method.DeclaredAccessibility == Accessibility.Public)
+                            if (export.TryGetValue((method.Name, method.Parameters.Length), out IMethodSymbol? existingMethod))
+                            {
+                                INamedTypeSymbol containingType = method.ContainingType;
+                                INamedTypeSymbol existingType = existingMethod.ContainingType;
+                                if (InheritsFrom(containingType, existingType))
+                                    export[(method.Name, method.Parameters.Length)] = method;
+                                else if (!InheritsFrom(existingType, containingType))
+                                    // no inheritance relationship, but having 2 methods of same name and same count of args
+                                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
+                                // else existingType inherits from containingType; do nothing
+                            }
+                            else
+                                export.Add((method.Name, method.Parameters.Length), method);
+                        break;
+                }
+            }
+            HashSet<IMethodSymbol> exportMethods = [.. export.Values];
+            foreach (ISymbol member in symbol.GetAllMembers())
+            {
+                switch (member)
+                {
                     case IEventSymbol @event when isSmartContract:
                         ProcessEvent(@event);
                         break;
                     case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
-                        if (export.TryGetValue((method.Name, method.Parameters.Length), out IMethodSymbol? existingMethod))
-                        {
-                            INamedTypeSymbol containingType = method.ContainingType;
-                            INamedTypeSymbol existingType = existingMethod.ContainingType;
-                            if (InheritsFrom(containingType, existingType))
-                                export[(method.Name, method.Parameters.Length)] = method;
-                            else if (!InheritsFrom(existingType, containingType))
-                                // no inheritance relationship, but having 2 methods of same name and same count of args
-                                throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
-                            // else existingType inherits from containingType; do nothing
-                        }
-                        else
-                            export.Add((method.Name, method.Parameters.Length), method);
+                        if (method.DeclaredAccessibility != Accessibility.Public)
+                            ProcessMethod(model, method, isSmartContract);
+                        else if (exportMethods.Contains(method))
+                            ProcessMethod(model, method, isSmartContract);
                         break;
                 }
             }
-            foreach (IMethodSymbol method in export.Values)
-                ProcessMethod(model, method, isSmartContract);
             if (isSmartContract)
             {
                 IMethodSymbol initialize = symbol.StaticConstructors.Length == 0

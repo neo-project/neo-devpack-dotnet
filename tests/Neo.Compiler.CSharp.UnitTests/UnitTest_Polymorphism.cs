@@ -9,8 +9,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test()
         {
-            Assert.AreEqual(14 + 45, Contract.SumToBeOverriden(5, 9));
-            AssertGasConsumed(1208400);
+            Assert.AreEqual(14 + 45 - 4, Contract.SumToBeOverriden(5, 9));
+            AssertGasConsumed(1227660);
             Assert.AreEqual(14, Contract.Sum(5, 9));
             AssertGasConsumed(1233330);
             Assert.AreEqual(40, Contract.Mul(5, 8));

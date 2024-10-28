@@ -52,9 +52,14 @@ namespace Neo.Compiler.CSharp.TestContracts
 
     public class Contract_Polymorphism : C
     {
+        protected int sumToBeOverriden(sbyte a, sbyte b)
+        {
+            return a - b;
+        }
+
         public new int sumToBeOverriden(int a, int b)
         {
-            return base.sumToBeOverriden(a, b) + a * b;
+            return base.sumToBeOverriden(a, b) + a * b + sumToBeOverriden((sbyte)a, (sbyte)b);
         }
 
         public override string test()
