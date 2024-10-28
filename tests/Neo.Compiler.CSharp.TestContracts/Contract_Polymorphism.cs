@@ -12,6 +12,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return a + b;
         }
 
+        public int sumToBeOverriden(int a, int b)
+        {
+            return sum(a, b);
+        }
+
         public virtual string test() { return "base"; }
         public virtual string test2() { return "base2"; }
         public abstract string abstractTest();
@@ -47,6 +52,11 @@ namespace Neo.Compiler.CSharp.TestContracts
 
     public class Contract_Polymorphism : C
     {
+        public new int sumToBeOverriden(int a, int b)
+        {
+            return base.sumToBeOverriden(a, b) + a * b;
+        }
+
         public override string test()
         {
             return "testFinal";
