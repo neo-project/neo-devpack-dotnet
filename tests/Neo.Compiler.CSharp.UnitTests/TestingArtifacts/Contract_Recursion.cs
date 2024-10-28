@@ -26,26 +26,26 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: VwABeBCXJgQIQHgQtSYHeBGeIgV4EZ80A0A=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.EQUAL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.PUSHT
-    /// 09 : OpCode.RET
-    /// 0A : OpCode.LDARG0
-    /// 0B : OpCode.PUSH0
-    /// 0C : OpCode.LT
-    /// 0D : OpCode.JMPIFNOT 07
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.PUSH1
-    /// 11 : OpCode.ADD
-    /// 12 : OpCode.JMP 05
-    /// 14 : OpCode.LDARG0
-    /// 15 : OpCode.PUSH1
-    /// 16 : OpCode.SUB
-    /// 17 : OpCode.CALL 03
-    /// 19 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSH0 [1 datoshi]
+    /// 05 : OpCode.EQUAL [32 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.PUSHT [1 datoshi]
+    /// 09 : OpCode.RET [0 datoshi]
+    /// 0A : OpCode.LDARG0 [2 datoshi]
+    /// 0B : OpCode.PUSH0 [1 datoshi]
+    /// 0C : OpCode.LT [8 datoshi]
+    /// 0D : OpCode.JMPIFNOT 07 [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.PUSH1 [1 datoshi]
+    /// 11 : OpCode.ADD [8 datoshi]
+    /// 12 : OpCode.JMP 05 [2 datoshi]
+    /// 14 : OpCode.LDARG0 [2 datoshi]
+    /// 15 : OpCode.PUSH1 [1 datoshi]
+    /// 16 : OpCode.SUB [8 datoshi]
+    /// 17 : OpCode.CALL 03 [512 datoshi]
+    /// 19 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("even")]
     public abstract bool? Even(BigInteger? n);
@@ -55,25 +55,25 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: VwABeBC4DE1pbnVzIG51bWJlciBub3Qgc3VwcG9ydGVk4XgSuCYKeHgRnzTUoEARQA==
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.GE
-    /// 06 : OpCode.PUSHDATA1 4D696E7573206E756D626572206E6F7420737570706F72746564
-    /// 22 : OpCode.ASSERTMSG
-    /// 23 : OpCode.LDARG0
-    /// 24 : OpCode.PUSH2
-    /// 25 : OpCode.GE
-    /// 26 : OpCode.JMPIFNOT 0A
-    /// 28 : OpCode.LDARG0
-    /// 29 : OpCode.LDARG0
-    /// 2A : OpCode.PUSH1
-    /// 2B : OpCode.SUB
-    /// 2C : OpCode.CALL D4
-    /// 2E : OpCode.MUL
-    /// 2F : OpCode.RET
-    /// 30 : OpCode.PUSH1
-    /// 31 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSH0 [1 datoshi]
+    /// 05 : OpCode.GE [8 datoshi]
+    /// 06 : OpCode.PUSHDATA1 4D696E7573206E756D626572206E6F7420737570706F72746564 [8 datoshi]
+    /// 22 : OpCode.ASSERTMSG [1 datoshi]
+    /// 23 : OpCode.LDARG0 [2 datoshi]
+    /// 24 : OpCode.PUSH2 [1 datoshi]
+    /// 25 : OpCode.GE [8 datoshi]
+    /// 26 : OpCode.JMPIFNOT 0A [2 datoshi]
+    /// 28 : OpCode.LDARG0 [2 datoshi]
+    /// 29 : OpCode.LDARG0 [2 datoshi]
+    /// 2A : OpCode.PUSH1 [1 datoshi]
+    /// 2B : OpCode.SUB [8 datoshi]
+    /// 2C : OpCode.CALL D4 [512 datoshi]
+    /// 2E : OpCode.MUL [8 datoshi]
+    /// 2F : OpCode.RET [0 datoshi]
+    /// 30 : OpCode.PUSH1 [1 datoshi]
+    /// 31 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("factorial")]
     public abstract BigInteger? Factorial(BigInteger? a);
@@ -83,71 +83,71 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: VwUEeBC3DENvdW50IG9mIGRpc2tzIDw9IDDheBGXJg3CcGh7eRETv89oQHp7eXgRnzTOcGh7eXgTv897eXp4EZ80vkpxynIQcyIMaWvOdGhsz2ucc2tqMPRoQA==
-    /// 00 : OpCode.INITSLOT 0504
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.GT
-    /// 06 : OpCode.PUSHDATA1 436F756E74206F66206469736B73203C3D2030
-    /// 1B : OpCode.ASSERTMSG
-    /// 1C : OpCode.LDARG0
-    /// 1D : OpCode.PUSH1
-    /// 1E : OpCode.EQUAL
-    /// 1F : OpCode.JMPIFNOT 0D
-    /// 21 : OpCode.NEWARRAY0
-    /// 22 : OpCode.STLOC0
-    /// 23 : OpCode.LDLOC0
-    /// 24 : OpCode.LDARG3
-    /// 25 : OpCode.LDARG1
-    /// 26 : OpCode.PUSH1
-    /// 27 : OpCode.PUSH3
-    /// 28 : OpCode.PACKSTRUCT
-    /// 29 : OpCode.APPEND
-    /// 2A : OpCode.LDLOC0
-    /// 2B : OpCode.RET
-    /// 2C : OpCode.LDARG2
-    /// 2D : OpCode.LDARG3
-    /// 2E : OpCode.LDARG1
-    /// 2F : OpCode.LDARG0
-    /// 30 : OpCode.PUSH1
-    /// 31 : OpCode.SUB
-    /// 32 : OpCode.CALL CE
-    /// 34 : OpCode.STLOC0
-    /// 35 : OpCode.LDLOC0
-    /// 36 : OpCode.LDARG3
-    /// 37 : OpCode.LDARG1
-    /// 38 : OpCode.LDARG0
-    /// 39 : OpCode.PUSH3
-    /// 3A : OpCode.PACKSTRUCT
-    /// 3B : OpCode.APPEND
-    /// 3C : OpCode.LDARG3
-    /// 3D : OpCode.LDARG1
-    /// 3E : OpCode.LDARG2
-    /// 3F : OpCode.LDARG0
-    /// 40 : OpCode.PUSH1
-    /// 41 : OpCode.SUB
-    /// 42 : OpCode.CALL BE
-    /// 44 : OpCode.DUP
-    /// 45 : OpCode.STLOC1
-    /// 46 : OpCode.SIZE
-    /// 47 : OpCode.STLOC2
-    /// 48 : OpCode.PUSH0
-    /// 49 : OpCode.STLOC3
-    /// 4A : OpCode.JMP 0C
-    /// 4C : OpCode.LDLOC1
-    /// 4D : OpCode.LDLOC3
-    /// 4E : OpCode.PICKITEM
-    /// 4F : OpCode.STLOC4
-    /// 50 : OpCode.LDLOC0
-    /// 51 : OpCode.LDLOC4
-    /// 52 : OpCode.APPEND
-    /// 53 : OpCode.LDLOC3
-    /// 54 : OpCode.INC
-    /// 55 : OpCode.STLOC3
-    /// 56 : OpCode.LDLOC3
-    /// 57 : OpCode.LDLOC2
-    /// 58 : OpCode.JMPLT F4
-    /// 5A : OpCode.LDLOC0
-    /// 5B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0504 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSH0 [1 datoshi]
+    /// 05 : OpCode.GT [8 datoshi]
+    /// 06 : OpCode.PUSHDATA1 436F756E74206F66206469736B73203C3D2030 [8 datoshi]
+    /// 1B : OpCode.ASSERTMSG [1 datoshi]
+    /// 1C : OpCode.LDARG0 [2 datoshi]
+    /// 1D : OpCode.PUSH1 [1 datoshi]
+    /// 1E : OpCode.EQUAL [32 datoshi]
+    /// 1F : OpCode.JMPIFNOT 0D [2 datoshi]
+    /// 21 : OpCode.NEWARRAY0 [16 datoshi]
+    /// 22 : OpCode.STLOC0 [2 datoshi]
+    /// 23 : OpCode.LDLOC0 [2 datoshi]
+    /// 24 : OpCode.LDARG3 [2 datoshi]
+    /// 25 : OpCode.LDARG1 [2 datoshi]
+    /// 26 : OpCode.PUSH1 [1 datoshi]
+    /// 27 : OpCode.PUSH3 [1 datoshi]
+    /// 28 : OpCode.PACKSTRUCT [2048 datoshi]
+    /// 29 : OpCode.APPEND [8192 datoshi]
+    /// 2A : OpCode.LDLOC0 [2 datoshi]
+    /// 2B : OpCode.RET [0 datoshi]
+    /// 2C : OpCode.LDARG2 [2 datoshi]
+    /// 2D : OpCode.LDARG3 [2 datoshi]
+    /// 2E : OpCode.LDARG1 [2 datoshi]
+    /// 2F : OpCode.LDARG0 [2 datoshi]
+    /// 30 : OpCode.PUSH1 [1 datoshi]
+    /// 31 : OpCode.SUB [8 datoshi]
+    /// 32 : OpCode.CALL CE [512 datoshi]
+    /// 34 : OpCode.STLOC0 [2 datoshi]
+    /// 35 : OpCode.LDLOC0 [2 datoshi]
+    /// 36 : OpCode.LDARG3 [2 datoshi]
+    /// 37 : OpCode.LDARG1 [2 datoshi]
+    /// 38 : OpCode.LDARG0 [2 datoshi]
+    /// 39 : OpCode.PUSH3 [1 datoshi]
+    /// 3A : OpCode.PACKSTRUCT [2048 datoshi]
+    /// 3B : OpCode.APPEND [8192 datoshi]
+    /// 3C : OpCode.LDARG3 [2 datoshi]
+    /// 3D : OpCode.LDARG1 [2 datoshi]
+    /// 3E : OpCode.LDARG2 [2 datoshi]
+    /// 3F : OpCode.LDARG0 [2 datoshi]
+    /// 40 : OpCode.PUSH1 [1 datoshi]
+    /// 41 : OpCode.SUB [8 datoshi]
+    /// 42 : OpCode.CALL BE [512 datoshi]
+    /// 44 : OpCode.DUP [2 datoshi]
+    /// 45 : OpCode.STLOC1 [2 datoshi]
+    /// 46 : OpCode.SIZE [4 datoshi]
+    /// 47 : OpCode.STLOC2 [2 datoshi]
+    /// 48 : OpCode.PUSH0 [1 datoshi]
+    /// 49 : OpCode.STLOC3 [2 datoshi]
+    /// 4A : OpCode.JMP 0C [2 datoshi]
+    /// 4C : OpCode.LDLOC1 [2 datoshi]
+    /// 4D : OpCode.LDLOC3 [2 datoshi]
+    /// 4E : OpCode.PICKITEM [64 datoshi]
+    /// 4F : OpCode.STLOC4 [2 datoshi]
+    /// 50 : OpCode.LDLOC0 [2 datoshi]
+    /// 51 : OpCode.LDLOC4 [2 datoshi]
+    /// 52 : OpCode.APPEND [8192 datoshi]
+    /// 53 : OpCode.LDLOC3 [2 datoshi]
+    /// 54 : OpCode.INC [4 datoshi]
+    /// 55 : OpCode.STLOC3 [2 datoshi]
+    /// 56 : OpCode.LDLOC3 [2 datoshi]
+    /// 57 : OpCode.LDLOC2 [2 datoshi]
+    /// 58 : OpCode.JMPLT F4 [2 datoshi]
+    /// 5A : OpCode.LDLOC0 [2 datoshi]
+    /// 5B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("hanoiTower")]
     public abstract IList<object>? HanoiTower(BigInteger? n, BigInteger? src, BigInteger? aux, BigInteger? dst);
@@ -157,26 +157,26 @@ public abstract class Contract_Recursion(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: VwABeBCXJgQJQHgQtSYHeBGeIgV4EZ80z0A=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.EQUAL
-    /// 06 : OpCode.JMPIFNOT 04
-    /// 08 : OpCode.PUSHF
-    /// 09 : OpCode.RET
-    /// 0A : OpCode.LDARG0
-    /// 0B : OpCode.PUSH0
-    /// 0C : OpCode.LT
-    /// 0D : OpCode.JMPIFNOT 07
-    /// 0F : OpCode.LDARG0
-    /// 10 : OpCode.PUSH1
-    /// 11 : OpCode.ADD
-    /// 12 : OpCode.JMP 05
-    /// 14 : OpCode.LDARG0
-    /// 15 : OpCode.PUSH1
-    /// 16 : OpCode.SUB
-    /// 17 : OpCode.CALL CF
-    /// 19 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSH0 [1 datoshi]
+    /// 05 : OpCode.EQUAL [32 datoshi]
+    /// 06 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 08 : OpCode.PUSHF [1 datoshi]
+    /// 09 : OpCode.RET [0 datoshi]
+    /// 0A : OpCode.LDARG0 [2 datoshi]
+    /// 0B : OpCode.PUSH0 [1 datoshi]
+    /// 0C : OpCode.LT [8 datoshi]
+    /// 0D : OpCode.JMPIFNOT 07 [2 datoshi]
+    /// 0F : OpCode.LDARG0 [2 datoshi]
+    /// 10 : OpCode.PUSH1 [1 datoshi]
+    /// 11 : OpCode.ADD [8 datoshi]
+    /// 12 : OpCode.JMP 05 [2 datoshi]
+    /// 14 : OpCode.LDARG0 [2 datoshi]
+    /// 15 : OpCode.PUSH1 [1 datoshi]
+    /// 16 : OpCode.SUB [8 datoshi]
+    /// 17 : OpCode.CALL CF [512 datoshi]
+    /// 19 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("odd")]
     public abstract bool? Odd(BigInteger? n);

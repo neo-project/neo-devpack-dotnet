@@ -65,6 +65,10 @@ namespace Neo.Optimizer
             (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.RemoveDupDrop(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.FoldNotInEqual(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.UseNz(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.UseIsNull(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.FoldNotInJmp(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.InitStaticToConst(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.RemoveInitialize(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);

@@ -75,13 +75,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestIsNullOrEmpty()
         {
             Assert.IsTrue(Contract.TestIsNullOrEmpty(""));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047780);
 
             Assert.IsTrue(Contract.TestIsNullOrEmpty(null));
             AssertGasConsumed(1047300);
 
             Assert.IsFalse(Contract.TestIsNullOrEmpty("hello world"));
-            AssertGasConsumed(1047810);
+            AssertGasConsumed(1047780);
         }
 
         [TestMethod]

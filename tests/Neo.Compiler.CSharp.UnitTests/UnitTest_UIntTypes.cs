@@ -18,7 +18,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsTrue(Contract.ValidateAddress(address));
-            AssertGasConsumed(1048560);
+            AssertGasConsumed(1048290);
 
             // False
 
