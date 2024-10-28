@@ -196,7 +196,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -213,7 +213,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -230,7 +230,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -247,7 +247,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -264,7 +264,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -281,7 +281,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -298,7 +298,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -315,7 +315,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);
@@ -332,7 +332,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.Options.SimulateOverflow)
+        if (methodConvert._context.Options.AllowOverflow)
             return;
         JumpTarget endTarget = new();
         methodConvert.AddInstruction(OpCode.DUP);

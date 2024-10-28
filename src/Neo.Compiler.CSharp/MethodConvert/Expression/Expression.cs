@@ -264,7 +264,7 @@ internal partial class MethodConvert
     /// <param name="type">The integer type to be checked.</param>
     private void EnsureIntegerInRange(ITypeSymbol type)
     {
-        if (!_context.Options.SimulateOverflow)
+        if (_context.Options.AllowOverflow)
             return;
         if (type.Name == "BigInteger") return;
         var (minValue, maxValue, mask) = type.Name switch

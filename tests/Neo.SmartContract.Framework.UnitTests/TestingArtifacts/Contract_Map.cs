@@ -10,12 +10,12 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Map"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testCount"",""parameters"":[{""name"":""count"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testByteArray"",""parameters"":[{""name"":""key"",""type"":""ByteArray""}],""returntype"":""Any"",""offset"":29,""safe"":false},{""name"":""testClear"",""parameters"":[{""name"":""key"",""type"":""ByteArray""}],""returntype"":""Any"",""offset"":60,""safe"":false},{""name"":""testByteArray2"",""parameters"":[],""returntype"":""String"",""offset"":93,""safe"":false},{""name"":""testUnicode"",""parameters"":[{""name"":""key"",""type"":""String""}],""returntype"":""String"",""offset"":123,""safe"":false},{""name"":""testUnicodeValue"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""String"",""offset"":159,""safe"":false},{""name"":""testUnicodeKeyValue"",""parameters"":[{""name"":""key"",""type"":""String""},{""name"":""value"",""type"":""String""}],""returntype"":""String"",""offset"":179,""safe"":false},{""name"":""testInt"",""parameters"":[{""name"":""key"",""type"":""Integer""}],""returntype"":""String"",""offset"":196,""safe"":false},{""name"":""testBool"",""parameters"":[{""name"":""key"",""type"":""Boolean""}],""returntype"":""String"",""offset"":220,""safe"":false},{""name"":""testDeserialize"",""parameters"":[{""name"":""key"",""type"":""String""}],""returntype"":""Any"",""offset"":246,""safe"":false},{""name"":""testuint160Key"",""parameters"":[],""returntype"":""Any"",""offset"":284,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""jsonDeserialize"",""jsonSerialize""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Map"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testCount"",""parameters"":[{""name"":""count"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testByteArray"",""parameters"":[{""name"":""key"",""type"":""ByteArray""}],""returntype"":""Any"",""offset"":75,""safe"":false},{""name"":""testClear"",""parameters"":[{""name"":""key"",""type"":""ByteArray""}],""returntype"":""Any"",""offset"":106,""safe"":false},{""name"":""testByteArray2"",""parameters"":[],""returntype"":""String"",""offset"":139,""safe"":false},{""name"":""testUnicode"",""parameters"":[{""name"":""key"",""type"":""String""}],""returntype"":""String"",""offset"":169,""safe"":false},{""name"":""testUnicodeValue"",""parameters"":[{""name"":""value"",""type"":""String""}],""returntype"":""String"",""offset"":205,""safe"":false},{""name"":""testUnicodeKeyValue"",""parameters"":[{""name"":""key"",""type"":""String""},{""name"":""value"",""type"":""String""}],""returntype"":""String"",""offset"":225,""safe"":false},{""name"":""testInt"",""parameters"":[{""name"":""key"",""type"":""Integer""}],""returntype"":""String"",""offset"":242,""safe"":false},{""name"":""testBool"",""parameters"":[{""name"":""key"",""type"":""Boolean""}],""returntype"":""String"",""offset"":266,""safe"":false},{""name"":""testDeserialize"",""parameters"":[{""name"":""key"",""type"":""String""}],""returntype"":""Any"",""offset"":292,""safe"":false},{""name"":""testuint160Key"",""parameters"":[],""returntype"":""Any"",""offset"":330,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""jsonDeserialize"",""jsonSerialize""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrA1qc29uU2VyaWFsaXplAQABD8DvOc7g5OklxsKgannhRA3Yb86sD2pzb25EZXNlcmlhbGl6ZQEAAQ8AAP1JAVcCAchwEHEiDmlKaWhT0EVpSpxxRWl4tSTxaMpAVwEByHAMC3Rlc3RzdHJpbmcySnjbKGhT0EVoNwAAQFcBAchwDAt0ZXN0c3RyaW5nMkp42yhoU9BFaNNoNwAAQFcCAMhwDAIBAdsw2yhxDAA3AABKaWhT0EVoNwAAQFcBAchwDBIxMjk4NDB0ZXN0MTAwMjI5MzlKeGhT0EVoNwAAQFcBAchweEoMAmFiaFPQRWg3AABAVwECyHB5SnhoU9BFaDcAAEBXAQHIcAwGc3RyaW5nSnhoU9BFaDcAAEBXAQHIcAwIdGVzdGJvb2xKeGhT0EVoNwAAQFcCAchwDA90ZXN0ZGVzZXJpYWxpemVKeGhT0EVoNwAAcWk3AQBAVwMAyHAMFAAAAAAAAAAAAAAAAAAAAAAAAAAAcRFKaWhT0EVoNwAAcmo3AQBAEVDNyA=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrA1qc29uU2VyaWFsaXplAQABD8DvOc7g5OklxsKgannhRA3Yb86sD2pzb25EZXNlcmlhbGl6ZQEAAQ8AAP13AVcCAchwEHEiPGlKaWhT0EVpSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcUVpeLUkw2jKQFcBAchwDAt0ZXN0c3RyaW5nMkp42yhoU9BFaDcAAEBXAQHIcAwLdGVzdHN0cmluZzJKeNsoaFPQRWjTaDcAAEBXAgDIcAwCAQHbMNsocQwANwAASmloU9BFaDcAAEBXAQHIcAwSMTI5ODQwdGVzdDEwMDIyOTM5SnhoU9BFaDcAAEBXAQHIcHhKDAJhYmhT0EVoNwAAQFcBAshweUp4aFPQRWg3AABAVwEByHAMBnN0cmluZ0p4aFPQRWg3AABAVwEByHAMCHRlc3Rib29sSnhoU9BFaDcAAEBXAgHIcAwPdGVzdGRlc2VyaWFsaXplSnhoU9BFaDcAAHFpNwEAQFcDAMhwDBQAAAAAAAAAAAAAAAAAAAAAAAAAAHERSmloU9BFaDcAAHJqNwEAQNbF4Ps="));
 
     #endregion
 
@@ -122,13 +122,13 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIByHAQcSIOaUppaFPQRWlKnHFFaXi1JPFoykA=
+    /// Script: VwIByHAQcSI8aUppaFPQRWlKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWl4tSTDaMpA
     /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
     /// 03 : OpCode.NEWMAP [8 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
     /// 05 : OpCode.PUSH0 [1 datoshi]
     /// 06 : OpCode.STLOC1 [2 datoshi]
-    /// 07 : OpCode.JMP 0E [2 datoshi]
+    /// 07 : OpCode.JMP 3C [2 datoshi]
     /// 09 : OpCode.LDLOC1 [2 datoshi]
     /// 0A : OpCode.DUP [2 datoshi]
     /// 0B : OpCode.LDLOC1 [2 datoshi]
@@ -139,15 +139,29 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// 10 : OpCode.LDLOC1 [2 datoshi]
     /// 11 : OpCode.DUP [2 datoshi]
     /// 12 : OpCode.INC [4 datoshi]
-    /// 13 : OpCode.STLOC1 [2 datoshi]
-    /// 14 : OpCode.DROP [2 datoshi]
-    /// 15 : OpCode.LDLOC1 [2 datoshi]
-    /// 16 : OpCode.LDARG0 [2 datoshi]
-    /// 17 : OpCode.LT [8 datoshi]
-    /// 18 : OpCode.JMPIF F1 [2 datoshi]
-    /// 1A : OpCode.LDLOC0 [2 datoshi]
-    /// 1B : OpCode.SIZE [4 datoshi]
-    /// 1C : OpCode.RET [0 datoshi]
+    /// 13 : OpCode.DUP [2 datoshi]
+    /// 14 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 19 : OpCode.JMPGE 04 [2 datoshi]
+    /// 1B : OpCode.JMP 0A [2 datoshi]
+    /// 1D : OpCode.DUP [2 datoshi]
+    /// 1E : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 23 : OpCode.JMPLE 1E [2 datoshi]
+    /// 25 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 2E : OpCode.AND [8 datoshi]
+    /// 2F : OpCode.DUP [2 datoshi]
+    /// 30 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 35 : OpCode.JMPLE 0C [2 datoshi]
+    /// 37 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 40 : OpCode.SUB [8 datoshi]
+    /// 41 : OpCode.STLOC1 [2 datoshi]
+    /// 42 : OpCode.DROP [2 datoshi]
+    /// 43 : OpCode.LDLOC1 [2 datoshi]
+    /// 44 : OpCode.LDARG0 [2 datoshi]
+    /// 45 : OpCode.LT [8 datoshi]
+    /// 46 : OpCode.JMPIF C3 [2 datoshi]
+    /// 48 : OpCode.LDLOC0 [2 datoshi]
+    /// 49 : OpCode.SIZE [4 datoshi]
+    /// 4A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testCount")]
     public abstract BigInteger? TestCount(BigInteger? count);
