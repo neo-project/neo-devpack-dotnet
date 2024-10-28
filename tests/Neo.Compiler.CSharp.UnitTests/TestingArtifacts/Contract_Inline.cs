@@ -26,62 +26,62 @@ public abstract class Contract_Inline(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEBeHBoDGlubGluZZcmBBFAaAxpbmxpbmVfd2l0aF9vbmVfcGFyYW1ldGVyc5cmBBNAaAxpbmxpbmVfd2l0aF9tdWx0aV9wYXJhbWV0ZXJzlyYGExKeQGgMbm90X2lubGluZZcmBTR0QGgMbm90X2lubGluZV93aXRoX29uZV9wYXJhbWV0ZXJzlyYGEzROQGgMbm90X2lubGluZV93aXRoX211bHRpX3BhcmFtZXRlcnOXJgcTEjQoQGgMaW5saW5lX25lc3RlZJcmBTQZQAgmBQBjQGg6
-    /// 00 : OpCode.INITSLOT 0101
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSHDATA1 696E6C696E65
-    /// 0E : OpCode.EQUAL
-    /// 0F : OpCode.JMPIFNOT 04
-    /// 11 : OpCode.PUSH1
-    /// 12 : OpCode.RET
-    /// 13 : OpCode.LDLOC0
-    /// 14 : OpCode.PUSHDATA1 696E6C696E655F776974685F6F6E655F706172616D6574657273
-    /// 30 : OpCode.EQUAL
-    /// 31 : OpCode.JMPIFNOT 04
-    /// 33 : OpCode.PUSH3
-    /// 34 : OpCode.RET
-    /// 35 : OpCode.LDLOC0
-    /// 36 : OpCode.PUSHDATA1 696E6C696E655F776974685F6D756C74695F706172616D6574657273
-    /// 54 : OpCode.EQUAL
-    /// 55 : OpCode.JMPIFNOT 06
-    /// 57 : OpCode.PUSH3
-    /// 58 : OpCode.PUSH2
-    /// 59 : OpCode.ADD
-    /// 5A : OpCode.RET
-    /// 5B : OpCode.LDLOC0
-    /// 5C : OpCode.PUSHDATA1 6E6F745F696E6C696E65
-    /// 68 : OpCode.EQUAL
-    /// 69 : OpCode.JMPIFNOT 05
-    /// 6B : OpCode.CALL 74
-    /// 6D : OpCode.RET
-    /// 6E : OpCode.LDLOC0
-    /// 6F : OpCode.PUSHDATA1 6E6F745F696E6C696E655F776974685F6F6E655F706172616D6574657273
-    /// 8F : OpCode.EQUAL
-    /// 90 : OpCode.JMPIFNOT 06
-    /// 92 : OpCode.PUSH3
-    /// 93 : OpCode.CALL 4E
-    /// 95 : OpCode.RET
-    /// 96 : OpCode.LDLOC0
-    /// 97 : OpCode.PUSHDATA1 6E6F745F696E6C696E655F776974685F6D756C74695F706172616D6574657273
-    /// B9 : OpCode.EQUAL
-    /// BA : OpCode.JMPIFNOT 07
-    /// BC : OpCode.PUSH3
-    /// BD : OpCode.PUSH2
-    /// BE : OpCode.CALL 28
-    /// C0 : OpCode.RET
-    /// C1 : OpCode.LDLOC0
-    /// C2 : OpCode.PUSHDATA1 696E6C696E655F6E6573746564
-    /// D1 : OpCode.EQUAL
-    /// D2 : OpCode.JMPIFNOT 05
-    /// D4 : OpCode.CALL 19
-    /// D6 : OpCode.RET
-    /// D7 : OpCode.PUSHT
-    /// D8 : OpCode.JMPIFNOT 05
-    /// DA : OpCode.PUSHINT8 63
-    /// DC : OpCode.RET
-    /// DD : OpCode.LDLOC0
-    /// DE : OpCode.THROW
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSHDATA1 696E6C696E65 [8 datoshi]
+    /// 0E : OpCode.EQUAL [32 datoshi]
+    /// 0F : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 11 : OpCode.PUSH1 [1 datoshi]
+    /// 12 : OpCode.RET [0 datoshi]
+    /// 13 : OpCode.LDLOC0 [2 datoshi]
+    /// 14 : OpCode.PUSHDATA1 696E6C696E655F776974685F6F6E655F706172616D6574657273 [8 datoshi]
+    /// 30 : OpCode.EQUAL [32 datoshi]
+    /// 31 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 33 : OpCode.PUSH3 [1 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
+    /// 35 : OpCode.LDLOC0 [2 datoshi]
+    /// 36 : OpCode.PUSHDATA1 696E6C696E655F776974685F6D756C74695F706172616D6574657273 [8 datoshi]
+    /// 54 : OpCode.EQUAL [32 datoshi]
+    /// 55 : OpCode.JMPIFNOT 06 [2 datoshi]
+    /// 57 : OpCode.PUSH3 [1 datoshi]
+    /// 58 : OpCode.PUSH2 [1 datoshi]
+    /// 59 : OpCode.ADD [8 datoshi]
+    /// 5A : OpCode.RET [0 datoshi]
+    /// 5B : OpCode.LDLOC0 [2 datoshi]
+    /// 5C : OpCode.PUSHDATA1 6E6F745F696E6C696E65 [8 datoshi]
+    /// 68 : OpCode.EQUAL [32 datoshi]
+    /// 69 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 6B : OpCode.CALL 74 [512 datoshi]
+    /// 6D : OpCode.RET [0 datoshi]
+    /// 6E : OpCode.LDLOC0 [2 datoshi]
+    /// 6F : OpCode.PUSHDATA1 6E6F745F696E6C696E655F776974685F6F6E655F706172616D6574657273 [8 datoshi]
+    /// 8F : OpCode.EQUAL [32 datoshi]
+    /// 90 : OpCode.JMPIFNOT 06 [2 datoshi]
+    /// 92 : OpCode.PUSH3 [1 datoshi]
+    /// 93 : OpCode.CALL 4E [512 datoshi]
+    /// 95 : OpCode.RET [0 datoshi]
+    /// 96 : OpCode.LDLOC0 [2 datoshi]
+    /// 97 : OpCode.PUSHDATA1 6E6F745F696E6C696E655F776974685F6D756C74695F706172616D6574657273 [8 datoshi]
+    /// B9 : OpCode.EQUAL [32 datoshi]
+    /// BA : OpCode.JMPIFNOT 07 [2 datoshi]
+    /// BC : OpCode.PUSH3 [1 datoshi]
+    /// BD : OpCode.PUSH2 [1 datoshi]
+    /// BE : OpCode.CALL 28 [512 datoshi]
+    /// C0 : OpCode.RET [0 datoshi]
+    /// C1 : OpCode.LDLOC0 [2 datoshi]
+    /// C2 : OpCode.PUSHDATA1 696E6C696E655F6E6573746564 [8 datoshi]
+    /// D1 : OpCode.EQUAL [32 datoshi]
+    /// D2 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// D4 : OpCode.CALL 19 [512 datoshi]
+    /// D6 : OpCode.RET [0 datoshi]
+    /// D7 : OpCode.PUSHT [1 datoshi]
+    /// D8 : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// DA : OpCode.PUSHINT8 63 [1 datoshi]
+    /// DC : OpCode.RET [0 datoshi]
+    /// DD : OpCode.LDLOC0 [2 datoshi]
+    /// DE : OpCode.THROW [512 datoshi]
     /// </remarks>
     [DisplayName("testInline")]
     public abstract BigInteger? TestInline(string? method);

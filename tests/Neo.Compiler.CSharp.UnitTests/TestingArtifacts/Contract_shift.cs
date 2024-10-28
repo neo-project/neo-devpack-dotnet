@@ -26,22 +26,22 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwMAGHBoEahxaBGpcmppEsBA
-    /// 00 : OpCode.INITSLOT 0300
-    /// 03 : OpCode.PUSH8
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSH1
-    /// 07 : OpCode.SHL
-    /// 08 : OpCode.STLOC1
-    /// 09 : OpCode.LDLOC0
-    /// 0A : OpCode.PUSH1
-    /// 0B : OpCode.SHR
-    /// 0C : OpCode.STLOC2
-    /// 0D : OpCode.LDLOC2
-    /// 0E : OpCode.LDLOC1
-    /// 0F : OpCode.PUSH2
-    /// 10 : OpCode.PACK
-    /// 11 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0300 [64 datoshi]
+    /// 03 : OpCode.PUSH8 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH1 [1 datoshi]
+    /// 07 : OpCode.SHL [8 datoshi]
+    /// 08 : OpCode.STLOC1 [2 datoshi]
+    /// 09 : OpCode.LDLOC0 [2 datoshi]
+    /// 0A : OpCode.PUSH1 [1 datoshi]
+    /// 0B : OpCode.SHR [8 datoshi]
+    /// 0C : OpCode.STLOC2 [2 datoshi]
+    /// 0D : OpCode.LDLOC2 [2 datoshi]
+    /// 0E : OpCode.LDLOC1 [2 datoshi]
+    /// 0F : OpCode.PUSH2 [1 datoshi]
+    /// 10 : OpCode.PACK [2048 datoshi]
+    /// 11 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShift")]
     public abstract IList<object>? TestShift();
@@ -51,32 +51,32 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwUAGHBoEKhxaBGocmgRqXNoEql0bGtqaRTAQA==
-    /// 00 : OpCode.INITSLOT 0500
-    /// 03 : OpCode.PUSH8
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSH0
-    /// 07 : OpCode.SHL
-    /// 08 : OpCode.STLOC1
-    /// 09 : OpCode.LDLOC0
-    /// 0A : OpCode.PUSH1
-    /// 0B : OpCode.SHL
-    /// 0C : OpCode.STLOC2
-    /// 0D : OpCode.LDLOC0
-    /// 0E : OpCode.PUSH1
-    /// 0F : OpCode.SHR
-    /// 10 : OpCode.STLOC3
-    /// 11 : OpCode.LDLOC0
-    /// 12 : OpCode.PUSH2
-    /// 13 : OpCode.SHR
-    /// 14 : OpCode.STLOC4
-    /// 15 : OpCode.LDLOC4
-    /// 16 : OpCode.LDLOC3
-    /// 17 : OpCode.LDLOC2
-    /// 18 : OpCode.LDLOC1
-    /// 19 : OpCode.PUSH4
-    /// 1A : OpCode.PACK
-    /// 1B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0500 [64 datoshi]
+    /// 03 : OpCode.PUSH8 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH0 [1 datoshi]
+    /// 07 : OpCode.SHL [8 datoshi]
+    /// 08 : OpCode.STLOC1 [2 datoshi]
+    /// 09 : OpCode.LDLOC0 [2 datoshi]
+    /// 0A : OpCode.PUSH1 [1 datoshi]
+    /// 0B : OpCode.SHL [8 datoshi]
+    /// 0C : OpCode.STLOC2 [2 datoshi]
+    /// 0D : OpCode.LDLOC0 [2 datoshi]
+    /// 0E : OpCode.PUSH1 [1 datoshi]
+    /// 0F : OpCode.SHR [8 datoshi]
+    /// 10 : OpCode.STLOC3 [2 datoshi]
+    /// 11 : OpCode.LDLOC0 [2 datoshi]
+    /// 12 : OpCode.PUSH2 [1 datoshi]
+    /// 13 : OpCode.SHR [8 datoshi]
+    /// 14 : OpCode.STLOC4 [2 datoshi]
+    /// 15 : OpCode.LDLOC4 [2 datoshi]
+    /// 16 : OpCode.LDLOC3 [2 datoshi]
+    /// 17 : OpCode.LDLOC2 [2 datoshi]
+    /// 18 : OpCode.LDLOC1 [2 datoshi]
+    /// 19 : OpCode.PUSH4 [1 datoshi]
+    /// 1A : OpCode.PACK [2048 datoshi]
+    /// 1B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShiftBigInt")]
     public abstract IList<object>? TestShiftBigInt();

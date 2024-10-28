@@ -26,13 +26,13 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEAaGBYNNxYQA==
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.LDLOC0
-    /// 04 : OpCode.STSFLD0
-    /// 05 : OpCode.LDSFLD0
-    /// 06 : OpCode.CALL DC
-    /// 08 : OpCode.LDSFLD0
-    /// 09 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.LDLOC0 [2 datoshi]
+    /// 04 : OpCode.STSFLD0 [2 datoshi]
+    /// 05 : OpCode.LDSFLD0 [2 datoshi]
+    /// 06 : OpCode.CALL DC [512 datoshi]
+    /// 08 : OpCode.LDSFLD0 [2 datoshi]
+    /// 09 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testExistingVar")]
     public abstract BigInteger? TestExistingVar();
@@ -42,32 +42,32 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: EGMLYhBhW1pZNNZZNwAADCwgi1qLDCwgi1smCgxUcnVlIgkMRmFsc2WL2yhA
-    /// 00 : OpCode.PUSH0
-    /// 01 : OpCode.STSFLD3
-    /// 02 : OpCode.PUSHNULL
-    /// 03 : OpCode.STSFLD2
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.STSFLD1
-    /// 06 : OpCode.LDSFLD3
-    /// 07 : OpCode.LDSFLD2
-    /// 08 : OpCode.LDSFLD1
-    /// 09 : OpCode.CALL D6
-    /// 0B : OpCode.LDSFLD1
-    /// 0C : OpCode.CALLT 0000
-    /// 0F : OpCode.PUSHDATA1 2C20
-    /// 13 : OpCode.CAT
-    /// 14 : OpCode.LDSFLD2
-    /// 15 : OpCode.CAT
-    /// 16 : OpCode.PUSHDATA1 2C20
-    /// 1A : OpCode.CAT
-    /// 1B : OpCode.LDSFLD3
-    /// 1C : OpCode.JMPIFNOT 0A
-    /// 1E : OpCode.PUSHDATA1 54727565
-    /// 24 : OpCode.JMP 09
-    /// 26 : OpCode.PUSHDATA1 46616C7365
-    /// 2D : OpCode.CAT
-    /// 2E : OpCode.CONVERT 28
-    /// 30 : OpCode.RET
+    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// 01 : OpCode.STSFLD3 [2 datoshi]
+    /// 02 : OpCode.PUSHNULL [1 datoshi]
+    /// 03 : OpCode.STSFLD2 [2 datoshi]
+    /// 04 : OpCode.PUSH0 [1 datoshi]
+    /// 05 : OpCode.STSFLD1 [2 datoshi]
+    /// 06 : OpCode.LDSFLD3 [2 datoshi]
+    /// 07 : OpCode.LDSFLD2 [2 datoshi]
+    /// 08 : OpCode.LDSFLD1 [2 datoshi]
+    /// 09 : OpCode.CALL D6 [512 datoshi]
+    /// 0B : OpCode.LDSFLD1 [2 datoshi]
+    /// 0C : OpCode.CALLT 0000 [32768 datoshi]
+    /// 0F : OpCode.PUSHDATA1 2C20 [8 datoshi]
+    /// 13 : OpCode.CAT [2048 datoshi]
+    /// 14 : OpCode.LDSFLD2 [2 datoshi]
+    /// 15 : OpCode.CAT [2048 datoshi]
+    /// 16 : OpCode.PUSHDATA1 2C20 [8 datoshi]
+    /// 1A : OpCode.CAT [2048 datoshi]
+    /// 1B : OpCode.LDSFLD3 [2 datoshi]
+    /// 1C : OpCode.JMPIFNOT 0A [2 datoshi]
+    /// 1E : OpCode.PUSHDATA1 54727565 [8 datoshi]
+    /// 24 : OpCode.JMP 09 [2 datoshi]
+    /// 26 : OpCode.PUSHDATA1 46616C7365 [8 datoshi]
+    /// 2D : OpCode.CAT [2048 datoshi]
+    /// 2E : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 30 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMultipleOut")]
     public abstract string? TestMultipleOut();
@@ -77,17 +77,17 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEAEGRcNAhwXGgSv0A=
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STSFLD4
-    /// 05 : OpCode.LDSFLD4
-    /// 06 : OpCode.CALL 08
-    /// 08 : OpCode.STLOC0
-    /// 09 : OpCode.LDSFLD4
-    /// 0A : OpCode.LDLOC0
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACKSTRUCT
-    /// 0D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STSFLD4 [2 datoshi]
+    /// 05 : OpCode.LDSFLD4 [2 datoshi]
+    /// 06 : OpCode.CALL 08 [512 datoshi]
+    /// 08 : OpCode.STLOC0 [2 datoshi]
+    /// 09 : OpCode.LDSFLD4 [2 datoshi]
+    /// 0A : OpCode.LDLOC0 [2 datoshi]
+    /// 0B : OpCode.PUSH2 [1 datoshi]
+    /// 0C : OpCode.PACKSTRUCT [2048 datoshi]
+    /// 0D : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testNestedOut")]
     public abstract IList<object>? TestNestedOut();
@@ -97,28 +97,28 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwABeCYPEGBYNXT///9YNwAAQBBjC2IQYVtaWTVo////WkA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.JMPIFNOT 0F
-    /// 06 : OpCode.PUSH0
-    /// 07 : OpCode.STSFLD0
-    /// 08 : OpCode.LDSFLD0
-    /// 09 : OpCode.CALL_L 74FFFFFF
-    /// 0E : OpCode.LDSFLD0
-    /// 0F : OpCode.CALLT 0000
-    /// 12 : OpCode.RET
-    /// 13 : OpCode.PUSH0
-    /// 14 : OpCode.STSFLD3
-    /// 15 : OpCode.PUSHNULL
-    /// 16 : OpCode.STSFLD2
-    /// 17 : OpCode.PUSH0
-    /// 18 : OpCode.STSFLD1
-    /// 19 : OpCode.LDSFLD3
-    /// 1A : OpCode.LDSFLD2
-    /// 1B : OpCode.LDSFLD1
-    /// 1C : OpCode.CALL_L 68FFFFFF
-    /// 21 : OpCode.LDSFLD2
-    /// 22 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.JMPIFNOT 0F [2 datoshi]
+    /// 06 : OpCode.PUSH0 [1 datoshi]
+    /// 07 : OpCode.STSFLD0 [2 datoshi]
+    /// 08 : OpCode.LDSFLD0 [2 datoshi]
+    /// 09 : OpCode.CALL_L 74FFFFFF [512 datoshi]
+    /// 0E : OpCode.LDSFLD0 [2 datoshi]
+    /// 0F : OpCode.CALLT 0000 [32768 datoshi]
+    /// 12 : OpCode.RET [0 datoshi]
+    /// 13 : OpCode.PUSH0 [1 datoshi]
+    /// 14 : OpCode.STSFLD3 [2 datoshi]
+    /// 15 : OpCode.PUSHNULL [1 datoshi]
+    /// 16 : OpCode.STSFLD2 [2 datoshi]
+    /// 17 : OpCode.PUSH0 [1 datoshi]
+    /// 18 : OpCode.STSFLD1 [2 datoshi]
+    /// 19 : OpCode.LDSFLD3 [2 datoshi]
+    /// 1A : OpCode.LDSFLD2 [2 datoshi]
+    /// 1B : OpCode.LDSFLD1 [2 datoshi]
+    /// 1C : OpCode.CALL_L 68FFFFFF [512 datoshi]
+    /// 21 : OpCode.LDSFLD2 [2 datoshi]
+    /// 22 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testOutConditional")]
     public abstract string? TestOutConditional(bool? flag);
@@ -128,17 +128,17 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: EGMLYhBhW1pZNKVA
-    /// 00 : OpCode.PUSH0
-    /// 01 : OpCode.STSFLD3
-    /// 02 : OpCode.PUSHNULL
-    /// 03 : OpCode.STSFLD2
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.STSFLD1
-    /// 06 : OpCode.LDSFLD3
-    /// 07 : OpCode.LDSFLD2
-    /// 08 : OpCode.LDSFLD1
-    /// 09 : OpCode.CALL A5
-    /// 0B : OpCode.RET
+    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// 01 : OpCode.STSFLD3 [2 datoshi]
+    /// 02 : OpCode.PUSHNULL [1 datoshi]
+    /// 03 : OpCode.STSFLD2 [2 datoshi]
+    /// 04 : OpCode.PUSH0 [1 datoshi]
+    /// 05 : OpCode.STSFLD1 [2 datoshi]
+    /// 06 : OpCode.LDSFLD3 [2 datoshi]
+    /// 07 : OpCode.LDSFLD2 [2 datoshi]
+    /// 08 : OpCode.LDSFLD1 [2 datoshi]
+    /// 09 : OpCode.CALL A5 [512 datoshi]
+    /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testOutDiscard")]
     public abstract void TestOutDiscard();
@@ -148,31 +148,31 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwIAEHAQcSIQEGBYNI9oWJ5waUqccUVpFbUk72hA
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSH0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.PUSH0
-    /// 06 : OpCode.STLOC1
-    /// 07 : OpCode.JMP 10
-    /// 09 : OpCode.PUSH0
-    /// 0A : OpCode.STSFLD0
-    /// 0B : OpCode.LDSFLD0
-    /// 0C : OpCode.CALL 8F
-    /// 0E : OpCode.LDLOC0
-    /// 0F : OpCode.LDSFLD0
-    /// 10 : OpCode.ADD
-    /// 11 : OpCode.STLOC0
-    /// 12 : OpCode.LDLOC1
-    /// 13 : OpCode.DUP
-    /// 14 : OpCode.INC
-    /// 15 : OpCode.STLOC1
-    /// 16 : OpCode.DROP
-    /// 17 : OpCode.LDLOC1
-    /// 18 : OpCode.PUSH5
-    /// 19 : OpCode.LT
-    /// 1A : OpCode.JMPIF EF
-    /// 1C : OpCode.LDLOC0
-    /// 1D : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSH0 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.PUSH0 [1 datoshi]
+    /// 06 : OpCode.STLOC1 [2 datoshi]
+    /// 07 : OpCode.JMP 10 [2 datoshi]
+    /// 09 : OpCode.PUSH0 [1 datoshi]
+    /// 0A : OpCode.STSFLD0 [2 datoshi]
+    /// 0B : OpCode.LDSFLD0 [2 datoshi]
+    /// 0C : OpCode.CALL 8F [512 datoshi]
+    /// 0E : OpCode.LDLOC0 [2 datoshi]
+    /// 0F : OpCode.LDSFLD0 [2 datoshi]
+    /// 10 : OpCode.ADD [8 datoshi]
+    /// 11 : OpCode.STLOC0 [2 datoshi]
+    /// 12 : OpCode.LDLOC1 [2 datoshi]
+    /// 13 : OpCode.DUP [2 datoshi]
+    /// 14 : OpCode.INC [4 datoshi]
+    /// 15 : OpCode.STLOC1 [2 datoshi]
+    /// 16 : OpCode.DROP [2 datoshi]
+    /// 17 : OpCode.LDLOC1 [2 datoshi]
+    /// 18 : OpCode.PUSH5 [1 datoshi]
+    /// 19 : OpCode.LT [8 datoshi]
+    /// 1A : OpCode.JMPIF EF [2 datoshi]
+    /// 1C : OpCode.LDLOC0 [2 datoshi]
+    /// 1D : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testOutInLoop")]
     public abstract BigInteger? TestOutInLoop();
@@ -182,38 +182,38 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: VwEBeHBoEZckCWgSlyQOIhwQYFg1Rv///1hAEGMLYhBhW1pZNT3///9ZQA9A
-    /// 00 : OpCode.INITSLOT 0101
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSH1
-    /// 07 : OpCode.EQUAL
-    /// 08 : OpCode.JMPIF 09
-    /// 0A : OpCode.LDLOC0
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.EQUAL
-    /// 0D : OpCode.JMPIF 0E
-    /// 0F : OpCode.JMP 1C
-    /// 11 : OpCode.PUSH0
-    /// 12 : OpCode.STSFLD0
-    /// 13 : OpCode.LDSFLD0
-    /// 14 : OpCode.CALL_L 46FFFFFF
-    /// 19 : OpCode.LDSFLD0
-    /// 1A : OpCode.RET
-    /// 1B : OpCode.PUSH0
-    /// 1C : OpCode.STSFLD3
-    /// 1D : OpCode.PUSHNULL
-    /// 1E : OpCode.STSFLD2
-    /// 1F : OpCode.PUSH0
-    /// 20 : OpCode.STSFLD1
-    /// 21 : OpCode.LDSFLD3
-    /// 22 : OpCode.LDSFLD2
-    /// 23 : OpCode.LDSFLD1
-    /// 24 : OpCode.CALL_L 3DFFFFFF
-    /// 29 : OpCode.LDSFLD1
-    /// 2A : OpCode.RET
-    /// 2B : OpCode.PUSHM1
-    /// 2C : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH1 [1 datoshi]
+    /// 07 : OpCode.EQUAL [32 datoshi]
+    /// 08 : OpCode.JMPIF 09 [2 datoshi]
+    /// 0A : OpCode.LDLOC0 [2 datoshi]
+    /// 0B : OpCode.PUSH2 [1 datoshi]
+    /// 0C : OpCode.EQUAL [32 datoshi]
+    /// 0D : OpCode.JMPIF 0E [2 datoshi]
+    /// 0F : OpCode.JMP 1C [2 datoshi]
+    /// 11 : OpCode.PUSH0 [1 datoshi]
+    /// 12 : OpCode.STSFLD0 [2 datoshi]
+    /// 13 : OpCode.LDSFLD0 [2 datoshi]
+    /// 14 : OpCode.CALL_L 46FFFFFF [512 datoshi]
+    /// 19 : OpCode.LDSFLD0 [2 datoshi]
+    /// 1A : OpCode.RET [0 datoshi]
+    /// 1B : OpCode.PUSH0 [1 datoshi]
+    /// 1C : OpCode.STSFLD3 [2 datoshi]
+    /// 1D : OpCode.PUSHNULL [1 datoshi]
+    /// 1E : OpCode.STSFLD2 [2 datoshi]
+    /// 1F : OpCode.PUSH0 [1 datoshi]
+    /// 20 : OpCode.STSFLD1 [2 datoshi]
+    /// 21 : OpCode.LDSFLD3 [2 datoshi]
+    /// 22 : OpCode.LDSFLD2 [2 datoshi]
+    /// 23 : OpCode.LDSFLD1 [2 datoshi]
+    /// 24 : OpCode.CALL_L 3DFFFFFF [512 datoshi]
+    /// 29 : OpCode.LDSFLD1 [2 datoshi]
+    /// 2A : OpCode.RET [0 datoshi]
+    /// 2B : OpCode.PUSHM1 [1 datoshi]
+    /// 2C : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testOutSwitch")]
     public abstract BigInteger? TestOutSwitch(BigInteger? option);
@@ -223,12 +223,12 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </summary>
     /// <remarks>
     /// Script: EGBYNOZYQA==
-    /// 00 : OpCode.PUSH0
-    /// 01 : OpCode.STSFLD0
-    /// 02 : OpCode.LDSFLD0
-    /// 03 : OpCode.CALL E6
-    /// 05 : OpCode.LDSFLD0
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// 01 : OpCode.STSFLD0 [2 datoshi]
+    /// 02 : OpCode.LDSFLD0 [2 datoshi]
+    /// 03 : OpCode.CALL E6 [512 datoshi]
+    /// 05 : OpCode.LDSFLD0 [2 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testOutVar")]
     public abstract BigInteger? TestOutVar();

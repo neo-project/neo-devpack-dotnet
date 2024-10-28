@@ -26,12 +26,12 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmL2yhA
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.CAT
-    /// 06 : OpCode.CONVERT 28
-    /// 08 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.CAT [2048 datoshi]
+    /// 06 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 08 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("byteStringAdd")]
     public abstract byte[]? ByteStringAdd(byte[]? a, byte[]? b);
@@ -41,16 +41,16 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmieHmhEr9A
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.MOD
-    /// 06 : OpCode.LDARG0
-    /// 07 : OpCode.LDARG1
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.PUSH2
-    /// 0A : OpCode.PACKSTRUCT
-    /// 0B : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.MOD [8 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.LDARG1 [2 datoshi]
+    /// 08 : OpCode.DIV [8 datoshi]
+    /// 09 : OpCode.PUSH2 [1 datoshi]
+    /// 0A : OpCode.PACKSTRUCT [2048 datoshi]
+    /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("div")]
     public abstract IList<object>? Div(BigInteger? a, BigInteger? b);
@@ -60,20 +60,20 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwICeXg070rBRXBxRWloNN5A
-    /// 00 : OpCode.INITSLOT 0202
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.CALL EF
-    /// 07 : OpCode.DUP
-    /// 08 : OpCode.UNPACK
-    /// 09 : OpCode.DROP
-    /// 0A : OpCode.STLOC0
-    /// 0B : OpCode.STLOC1
-    /// 0C : OpCode.DROP
-    /// 0D : OpCode.LDLOC1
-    /// 0E : OpCode.LDLOC0
-    /// 0F : OpCode.CALL DE
-    /// 11 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.CALL EF [512 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.UNPACK [2048 datoshi]
+    /// 09 : OpCode.DROP [2 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.STLOC1 [2 datoshi]
+    /// 0C : OpCode.DROP [2 datoshi]
+    /// 0D : OpCode.LDLOC1 [2 datoshi]
+    /// 0E : OpCode.LDLOC0 [2 datoshi]
+    /// 0F : OpCode.CALL DE [512 datoshi]
+    /// 11 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("mix")]
     public abstract BigInteger? Mix(BigInteger? a, BigInteger? b);
@@ -83,11 +83,11 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmfQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.SUB
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.SUB [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("subtract")]
     public abstract BigInteger? Subtract(BigInteger? a, BigInteger? b);
@@ -97,11 +97,11 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmeQA==
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.ADD
-    /// 06 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.LDARG1 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);

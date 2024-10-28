@@ -26,26 +26,26 @@ public abstract class Contract_Params(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: wjTgERHANNueExISwDTUnhUUEsA0zZ5A
-    /// 00 : OpCode.NEWARRAY0
-    /// 01 : OpCode.CALL E0
-    /// 03 : OpCode.PUSH1
-    /// 04 : OpCode.PUSH1
-    /// 05 : OpCode.PACK
-    /// 06 : OpCode.CALL DB
-    /// 08 : OpCode.ADD
-    /// 09 : OpCode.PUSH3
-    /// 0A : OpCode.PUSH2
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.CALL D4
-    /// 0F : OpCode.ADD
-    /// 10 : OpCode.PUSH5
-    /// 11 : OpCode.PUSH4
-    /// 12 : OpCode.PUSH2
-    /// 13 : OpCode.PACK
-    /// 14 : OpCode.CALL CD
-    /// 16 : OpCode.ADD
-    /// 17 : OpCode.RET
+    /// 00 : OpCode.NEWARRAY0 [16 datoshi]
+    /// 01 : OpCode.CALL E0 [512 datoshi]
+    /// 03 : OpCode.PUSH1 [1 datoshi]
+    /// 04 : OpCode.PUSH1 [1 datoshi]
+    /// 05 : OpCode.PACK [2048 datoshi]
+    /// 06 : OpCode.CALL DB [512 datoshi]
+    /// 08 : OpCode.ADD [8 datoshi]
+    /// 09 : OpCode.PUSH3 [1 datoshi]
+    /// 0A : OpCode.PUSH2 [1 datoshi]
+    /// 0B : OpCode.PUSH2 [1 datoshi]
+    /// 0C : OpCode.PACK [2048 datoshi]
+    /// 0D : OpCode.CALL D4 [512 datoshi]
+    /// 0F : OpCode.ADD [8 datoshi]
+    /// 10 : OpCode.PUSH5 [1 datoshi]
+    /// 11 : OpCode.PUSH4 [1 datoshi]
+    /// 12 : OpCode.PUSH2 [1 datoshi]
+    /// 13 : OpCode.PACK [2048 datoshi]
+    /// 14 : OpCode.CALL CD [512 datoshi]
+    /// 16 : OpCode.ADD [8 datoshi]
+    /// 17 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]
     public abstract BigInteger? Test();

@@ -26,8 +26,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: BAAAAOTSDMjc0rdSAAAAAABA
-    /// 00 : OpCode.PUSHINT128 000000E4D20CC8DCD2B7520000000000
-    /// 11 : OpCode.RET
+    /// 00 : OpCode.PUSHINT128 000000E4D20CC8DCD2B7520000000000 [4 datoshi]
+    /// 11 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("attribute")]
     public abstract BigInteger? Attribute();
@@ -37,8 +37,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: AEFA
-    /// 00 : OpCode.PUSHINT8 41
-    /// 02 : OpCode.RET
+    /// 00 : OpCode.PUSHINT8 41 [1 datoshi]
+    /// 02 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("convertFromChar")]
     public abstract BigInteger? ConvertFromChar();
@@ -48,8 +48,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: D0A=
-    /// 00 : OpCode.PUSHM1
-    /// 01 : OpCode.RET
+    /// 00 : OpCode.PUSHM1 [1 datoshi]
+    /// 01 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("minusOne")]
     public abstract BigInteger? MinusOne();
@@ -59,8 +59,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: EUA=
-    /// 00 : OpCode.PUSH1
-    /// 01 : OpCode.RET
+    /// 00 : OpCode.PUSH1 [1 datoshi]
+    /// 01 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("one")]
     public abstract BigInteger? One();
@@ -70,10 +70,10 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEA=
-    /// 00 : OpCode.INITSLOT 0001
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.CALLT 0000
-    /// 07 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("parse")]
     public abstract BigInteger? Parse(string? value);
@@ -83,8 +83,8 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// </summary>
     /// <remarks>
     /// Script: EEA=
-    /// 00 : OpCode.PUSH0
-    /// 01 : OpCode.RET
+    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// 01 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("zero")]
     public abstract BigInteger? Zero();

@@ -10,12 +10,12 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteArrayAssignment"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testAssignment"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""testAssignmentOutOfBounds"",""parameters"":[],""returntype"":""ByteArray"",""offset"":27,""safe"":false},{""name"":""testAssignmentOverflow"",""parameters"":[],""returntype"":""ByteArray"",""offset"":54,""safe"":false},{""name"":""testAssignmentWrongCasting"",""parameters"":[],""returntype"":""ByteArray"",""offset"":96,""safe"":false},{""name"":""testAssignmentDynamic"",""parameters"":[{""name"":""x"",""type"":""Integer""}],""returntype"":""ByteArray"",""offset"":123,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0x5d46269ff23ec37de131e4791d5e5c964b140704"",""methods"":[""testArgs1"",""testVoid""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteArrayAssignment"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testAssignment"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""testAssignmentOutOfBounds"",""parameters"":[],""returntype"":""ByteArray"",""offset"":27,""safe"":false},{""name"":""testAssignmentOverflow"",""parameters"":[],""returntype"":""ByteArray"",""offset"":54,""safe"":false},{""name"":""testAssignmentWrongCasting"",""parameters"":[],""returntype"":""ByteArray"",""offset"":96,""safe"":false},{""name"":""testAssignmentDynamic"",""parameters"":[{""name"":""x"",""type"":""Integer""}],""returntype"":""ByteArray"",""offset"":123,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0x4e58396ad6de3b04dff8f898b97f872e38b84ece"",""methods"":[""testArgs1"",""testVoid""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIEBxRLllxeHXnkMeF9wz7ynyZGXQl0ZXN0QXJnczEBAAEPBAcUS5ZcXh155DHhfcM+8p8mRl0IdGVzdFZvaWQAAAAPAACLVwEADAMAAgPbMHARSmgQUdBFFEpoElHQRWhAVwEADAMAAgPbMHARSmgQUdBFFEpoE1HQRWhAVwIAAv///39wDAMAAgPbMHFoShAuBCIISgH/ADIGAf8AkUppEFHQRWlAVwIADAR0ZXN0cAwDAAID2zBxaEppEFHQRWlAVwEBEohKEBHQShF40HBoQDxtkps="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALOTrg4Lod/uZj4+N8EO97WajlYTgl0ZXN0QXJnczEBAAEPzk64OC6Hf7mY+PjfBDve1mo5WE4IdGVzdFZvaWQAAAAPAACLVwEADAMAAgPbMHARSmgQUdBFFEpoElHQRWhAVwEADAMAAgPbMHARSmgQUdBFFEpoE1HQRWhAVwIAAv///39wDAMAAgPbMHFoShAuBCIISgH/ADIGAf8AkUppEFHQRWlAVwIADAR0ZXN0cAwDAAID2zBxaEppEFHQRWlAVwEBEohKEBHQShF40HBoQFmNzKU="));
 
     #endregion
 
@@ -26,26 +26,26 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// </summary>
     /// <remarks>
     /// Script: VwEADAACA9swcBFKaBBR0EUUSmgSUdBFaEA=
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSHDATA1 000203
-    /// 08 : OpCode.CONVERT 30
-    /// 0A : OpCode.STLOC0
-    /// 0B : OpCode.PUSH1
-    /// 0C : OpCode.DUP
-    /// 0D : OpCode.LDLOC0
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.ROT
-    /// 10 : OpCode.SETITEM
-    /// 11 : OpCode.DROP
-    /// 12 : OpCode.PUSH4
-    /// 13 : OpCode.DUP
-    /// 14 : OpCode.LDLOC0
-    /// 15 : OpCode.PUSH2
-    /// 16 : OpCode.ROT
-    /// 17 : OpCode.SETITEM
-    /// 18 : OpCode.DROP
-    /// 19 : OpCode.LDLOC0
-    /// 1A : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 000203 [8 datoshi]
+    /// 08 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.PUSH1 [1 datoshi]
+    /// 0C : OpCode.DUP [2 datoshi]
+    /// 0D : OpCode.LDLOC0 [2 datoshi]
+    /// 0E : OpCode.PUSH0 [1 datoshi]
+    /// 0F : OpCode.ROT [2 datoshi]
+    /// 10 : OpCode.SETITEM [8192 datoshi]
+    /// 11 : OpCode.DROP [2 datoshi]
+    /// 12 : OpCode.PUSH4 [1 datoshi]
+    /// 13 : OpCode.DUP [2 datoshi]
+    /// 14 : OpCode.LDLOC0 [2 datoshi]
+    /// 15 : OpCode.PUSH2 [1 datoshi]
+    /// 16 : OpCode.ROT [2 datoshi]
+    /// 17 : OpCode.SETITEM [8192 datoshi]
+    /// 18 : OpCode.DROP [2 datoshi]
+    /// 19 : OpCode.LDLOC0 [2 datoshi]
+    /// 1A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssignment")]
     public abstract byte[]? TestAssignment();

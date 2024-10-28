@@ -15,7 +15,7 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGBXAQALEAsTwAwESm9obks0JXBoNDcmHWhKEc5OnBFQ0EVoEs4RS0vOSlRTnNBFaBDOQAtAVwACeBIAUAA8AFATwNB5SngQUdBFQFcBAXhwaAuXqiQECUB4EM5waAuXqkC6FsDO"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF1XAQALEAsTwAwESm9obks0JXBoNDcmHWhKEc5OnBFQ0EVoEs4RS0vOSlRTnNBFaBDOQAtAVwACeBIAUAA8AFATwNB5SngQUdBFQFcBAXhwaNgmBAlAeBDOcGjYqkDtxq/U"));
 
     #endregion
 
@@ -25,26 +25,23 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoC5eqJAQJQHgQznBoC5eqQA==
-    /// 00 : OpCode.INITSLOT 0101
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSHNULL
-    /// 07 : OpCode.EQUAL
-    /// 08 : OpCode.NOT
-    /// 09 : OpCode.JMPIF 04
-    /// 0B : OpCode.PUSHF
-    /// 0C : OpCode.RET
-    /// 0D : OpCode.LDARG0
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.PICKITEM
-    /// 10 : OpCode.STLOC0
-    /// 11 : OpCode.LDLOC0
-    /// 12 : OpCode.PUSHNULL
-    /// 13 : OpCode.EQUAL
-    /// 14 : OpCode.NOT
-    /// 15 : OpCode.RET
+    /// Script: VwEBeHBo2CYECUB4EM5waNiqQA==
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.ISNULL [2 datoshi]
+    /// 07 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 09 : OpCode.PUSHF [1 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
+    /// 0B : OpCode.LDARG0 [2 datoshi]
+    /// 0C : OpCode.PUSH0 [1 datoshi]
+    /// 0D : OpCode.PICKITEM [64 datoshi]
+    /// 0E : OpCode.STLOC0 [2 datoshi]
+    /// 0F : OpCode.LDLOC0 [2 datoshi]
+    /// 10 : OpCode.ISNULL [2 datoshi]
+    /// 11 : OpCode.NOT [4 datoshi]
+    /// 12 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("isValid")]
     public abstract bool? IsValid(object? person = null);
@@ -54,48 +51,48 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwEACxALE8AMSm9obks0JXBoNDcmHWhKEc5OnBFQ0EVoEs4RS0vOSlRTnNBFaBDOQAtA
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSHNULL
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.PUSHNULL
-    /// 06 : OpCode.PUSH3
-    /// 07 : OpCode.PACK
-    /// 08 : OpCode.PUSHDATA1 4A6F686E
-    /// 0E : OpCode.OVER
-    /// 0F : OpCode.CALL 25
-    /// 11 : OpCode.STLOC0
-    /// 12 : OpCode.LDLOC0
-    /// 13 : OpCode.CALL 37
-    /// 15 : OpCode.JMPIFNOT 1D
-    /// 17 : OpCode.LDLOC0
-    /// 18 : OpCode.DUP
-    /// 19 : OpCode.PUSH1
-    /// 1A : OpCode.PICKITEM
-    /// 1B : OpCode.TUCK
-    /// 1C : OpCode.INC
-    /// 1D : OpCode.PUSH1
-    /// 1E : OpCode.SWAP
-    /// 1F : OpCode.SETITEM
-    /// 20 : OpCode.DROP
-    /// 21 : OpCode.LDLOC0
-    /// 22 : OpCode.PUSH2
-    /// 23 : OpCode.PICKITEM
-    /// 24 : OpCode.PUSH1
-    /// 25 : OpCode.OVER
-    /// 26 : OpCode.OVER
-    /// 27 : OpCode.PICKITEM
-    /// 28 : OpCode.DUP
-    /// 29 : OpCode.REVERSE4
-    /// 2A : OpCode.REVERSE3
-    /// 2B : OpCode.INC
-    /// 2C : OpCode.SETITEM
-    /// 2D : OpCode.DROP
-    /// 2E : OpCode.LDLOC0
-    /// 2F : OpCode.PUSH0
-    /// 30 : OpCode.PICKITEM
-    /// 31 : OpCode.RET
-    /// 32 : OpCode.PUSHNULL
-    /// 33 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSHNULL [1 datoshi]
+    /// 04 : OpCode.PUSH0 [1 datoshi]
+    /// 05 : OpCode.PUSHNULL [1 datoshi]
+    /// 06 : OpCode.PUSH3 [1 datoshi]
+    /// 07 : OpCode.PACK [2048 datoshi]
+    /// 08 : OpCode.PUSHDATA1 4A6F686E [8 datoshi]
+    /// 0E : OpCode.OVER [2 datoshi]
+    /// 0F : OpCode.CALL 25 [512 datoshi]
+    /// 11 : OpCode.STLOC0 [2 datoshi]
+    /// 12 : OpCode.LDLOC0 [2 datoshi]
+    /// 13 : OpCode.CALL 37 [512 datoshi]
+    /// 15 : OpCode.JMPIFNOT 1D [2 datoshi]
+    /// 17 : OpCode.LDLOC0 [2 datoshi]
+    /// 18 : OpCode.DUP [2 datoshi]
+    /// 19 : OpCode.PUSH1 [1 datoshi]
+    /// 1A : OpCode.PICKITEM [64 datoshi]
+    /// 1B : OpCode.TUCK [2 datoshi]
+    /// 1C : OpCode.INC [4 datoshi]
+    /// 1D : OpCode.PUSH1 [1 datoshi]
+    /// 1E : OpCode.SWAP [2 datoshi]
+    /// 1F : OpCode.SETITEM [8192 datoshi]
+    /// 20 : OpCode.DROP [2 datoshi]
+    /// 21 : OpCode.LDLOC0 [2 datoshi]
+    /// 22 : OpCode.PUSH2 [1 datoshi]
+    /// 23 : OpCode.PICKITEM [64 datoshi]
+    /// 24 : OpCode.PUSH1 [1 datoshi]
+    /// 25 : OpCode.OVER [2 datoshi]
+    /// 26 : OpCode.OVER [2 datoshi]
+    /// 27 : OpCode.PICKITEM [64 datoshi]
+    /// 28 : OpCode.DUP [2 datoshi]
+    /// 29 : OpCode.REVERSE4 [2 datoshi]
+    /// 2A : OpCode.REVERSE3 [2 datoshi]
+    /// 2B : OpCode.INC [4 datoshi]
+    /// 2C : OpCode.SETITEM [8192 datoshi]
+    /// 2D : OpCode.DROP [2 datoshi]
+    /// 2E : OpCode.LDLOC0 [2 datoshi]
+    /// 2F : OpCode.PUSH0 [1 datoshi]
+    /// 30 : OpCode.PICKITEM [64 datoshi]
+    /// 31 : OpCode.RET [0 datoshi]
+    /// 32 : OpCode.PUSHNULL [1 datoshi]
+    /// 33 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]
     public abstract string? Test();

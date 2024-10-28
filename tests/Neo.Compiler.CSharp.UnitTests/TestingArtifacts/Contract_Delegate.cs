@@ -32,21 +32,21 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwIACvb///9wFhVoNnEMU3VtOiBpNwAAi9soQc/nR5ZA
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSHA F6FFFFFF
-    /// 08 : OpCode.STLOC0
-    /// 09 : OpCode.PUSH6
-    /// 0A : OpCode.PUSH5
-    /// 0B : OpCode.LDLOC0
-    /// 0C : OpCode.CALLA
-    /// 0D : OpCode.STLOC1
-    /// 0E : OpCode.PUSHDATA1 53756D3A20
-    /// 15 : OpCode.LDLOC1
-    /// 16 : OpCode.CALLT 0000
-    /// 19 : OpCode.CAT
-    /// 1A : OpCode.CONVERT 28
-    /// 1C : OpCode.SYSCALL CFE74796
-    /// 21 : OpCode.RET
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSHA F6FFFFFF [4 datoshi]
+    /// 08 : OpCode.STLOC0 [2 datoshi]
+    /// 09 : OpCode.PUSH6 [1 datoshi]
+    /// 0A : OpCode.PUSH5 [1 datoshi]
+    /// 0B : OpCode.LDLOC0 [2 datoshi]
+    /// 0C : OpCode.CALLA [512 datoshi]
+    /// 0D : OpCode.STLOC1 [2 datoshi]
+    /// 0E : OpCode.PUSHDATA1 53756D3A20 [8 datoshi]
+    /// 15 : OpCode.LDLOC1 [2 datoshi]
+    /// 16 : OpCode.CALLT 0000 [32768 datoshi]
+    /// 19 : OpCode.CAT [2048 datoshi]
+    /// 1A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 1C : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// 21 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testDelegate")]
     public abstract void TestDelegate();
