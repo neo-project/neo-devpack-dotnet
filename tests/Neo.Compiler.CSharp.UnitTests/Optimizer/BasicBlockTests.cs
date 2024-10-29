@@ -22,11 +22,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             List<BasicBlock> blocks = contract.sortedBasicBlocks;
             Assert.AreEqual(blocks[0].nextBlock, blocks[1]);
             Assert.AreEqual(blocks[0].jumpTargetBlocks.Count, 1);
-            Assert.AreEqual(blocks[0].jumpTargetBlocks.First(), blocks[3]);
-            Assert.AreEqual(blocks[0].instructions.Last().OpCode, VM.OpCode.JMPIFNOT);
-            Assert.AreEqual(blocks[1].instructions.Last().OpCode, VM.OpCode.CALL);
-            Assert.AreEqual(blocks[2].nextBlock, null);
-            Assert.AreEqual(blocks[2].instructions.Last().OpCode, VM.OpCode.RET);
+            Assert.AreEqual(blocks[0].jumpTargetBlocks.First(), blocks[2]);
+            Assert.AreEqual(blocks[0].instructions.Last().OpCode, VM.OpCode.JMPIF);
+            Assert.AreEqual(blocks[1].instructions.Last().OpCode, VM.OpCode.ABORTMSG);
+            Assert.AreEqual(blocks[1].nextBlock, null);
+            Assert.AreEqual(blocks[4].instructions.Last().OpCode, VM.OpCode.RET);
         }
     }
 }
