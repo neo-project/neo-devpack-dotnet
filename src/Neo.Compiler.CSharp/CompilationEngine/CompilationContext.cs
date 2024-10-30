@@ -431,9 +431,9 @@ namespace Neo.Compiler
                             {
                                 INamedTypeSymbol containingType = method.ContainingType;
                                 INamedTypeSymbol existingType = existingMethod.ContainingType;
-                                if (InheritsFrom(containingType, existingType))
+                                if (Helper.InheritsFrom(containingType, existingType))
                                     export[(method.Name, method.Parameters.Length)] = method;
-                                else if (!InheritsFrom(existingType, containingType))
+                                else if (!Helper.InheritsFrom(existingType, containingType))
                                     // no inheritance relationship, but having 2 methods of same name and same count of args
                                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
                                 // else existingType inherits from containingType; do nothing
@@ -466,25 +466,6 @@ namespace Neo.Compiler
                     : symbol.StaticConstructors[0];
                 ProcessMethod(model, initialize, true);
             }
-        }
-
-        private bool InheritsFrom(INamedTypeSymbol child, INamedTypeSymbol parent)
-        {
-            string? parentString = parent.ToString();
-            if (parentString == null)
-                return false;
-            while (true)
-            {
-                if (child.ToString() == parentString)
-                    return true;
-                if (child.BaseType != null)
-                {
-                    child = child.BaseType;
-                    continue;
-                }
-                break;
-            }
-            return false;
         }
 
         private void ProcessEvent(IEventSymbol symbol)
