@@ -238,7 +238,8 @@ namespace Neo.Optimizer
 
         /// <summary>
         /// Removes JMP and JMP_L that targets the next instruction after the JMP or JMP_L.
-        /// If the JMP or JMP_L itself is a jump target,
+        /// Replace JMPIF/JMPIFNOT with DROP if it jumps to the next instruction
+        /// If the removed JMP or JMP_L itself is a jump target,
         /// re-target to the instruction after the JMP or JMP_L
         /// </summary>
         /// <param name="nef"></param>
@@ -255,6 +256,7 @@ namespace Neo.Optimizer
                 Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
                 Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
                 FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
 
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
             int currentAddress = 0;
@@ -273,10 +275,27 @@ namespace Neo.Optimizer
                         // handle the reference of the deleted JMP
                         jumpSourceToTargets.Remove(i);
                         jumpTargetToSources[nextInstruction].Remove(i);
-                        if (jumpTargetToSources[nextInstruction].Count == 0)
-                            jumpTargetToSources.Remove(nextInstruction);
                         OptimizedScriptBuilder.RetargetJump(i, nextInstruction, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
                         continue;  // do not add this JMP into simplified instructions
+                    }
+                }
+                if (i.OpCode == OpCode.JMPIF || i.OpCode == OpCode.JMPIFNOT
+                 || i.OpCode == OpCode.JMPIF_L || i.OpCode == OpCode.JMPIFNOT_L)
+                {
+                    int target = ComputeJumpTarget(a, i);
+                    if (target - a == i.Size)
+                    {
+                        Instruction newDrop = new Script(new byte[] { (byte)OpCode.DROP }).GetInstruction(0);
+                        simplifiedInstructionsToAddress.Add(newDrop, currentAddress);
+                        oldSequencePointAddressToNew.Add(a, currentAddress);
+                        currentAddress += newDrop.Size;
+
+                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
+                        // handle the reference of the deleted JMP
+                        jumpSourceToTargets.Remove(i);
+                        jumpTargetToSources[nextInstruction].Remove(i);
+                        OptimizedScriptBuilder.RetargetJump(i, newDrop, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        continue;
                     }
                 }
                 simplifiedInstructionsToAddress.Add(i, currentAddress);
@@ -286,7 +305,7 @@ namespace Neo.Optimizer
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
                 jumpSourceToTargets, trySourceToTargets,
-                oldAddressToInstruction);
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
         }
 
         /// <summary>
@@ -323,8 +342,6 @@ namespace Neo.Optimizer
                         // handle the reference of the deleted JMP
                         jumpSourceToTargets.Remove(i);
                         jumpTargetToSources[dstRet].Remove(i);
-                        if (jumpTargetToSources[dstRet].Count == 0)
-                            jumpTargetToSources.Remove(dstRet);
                         // handle the reference of the added RET
                         Instruction newRet = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
                         // above is a workaround of new Instruction(OpCode.RET)
