@@ -61,8 +61,9 @@ namespace Neo.Optimizer
             manifest.Extra["nef"] = new JObject();
             manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
             // TODO in the future: optimize by StrategyAttribute in a loop
-            (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.FoldJump(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.RemoveDupDrop(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.FoldNotInEqual(nef, manifest, debugInfo);
@@ -71,8 +72,9 @@ namespace Neo.Optimizer
             (nef, manifest, debugInfo) = Peephole.FoldNotInJmp(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.InitStaticToConst(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.RemoveInitialize(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Reachability.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Reachability.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Reachability.RemoveMultiRet(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = JumpCompresser.CompressJump(nef, manifest, debugInfo);
             return (nef, manifest, debugInfo);
         }
