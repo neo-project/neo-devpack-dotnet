@@ -120,8 +120,8 @@ internal partial class MethodConvert
     /// If any char in the input is greater than byte.MaxValue == 255, encode in UTF8
     /// This ensures "a\xff\x80\x79\x00" accurately translated to 0x61 0xff 0x80 0x79 0x00
     /// </summary>
-    /// <param name="s"></param>
-    /// <returns></returns>
+    /// <param name="s">String value to push</param>
+    /// <returns>Instruction</returns>
     private Instruction Push(string s)
     {
         try
