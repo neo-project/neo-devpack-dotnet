@@ -84,7 +84,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYCeDWvAAAADHNlbGVjdG9yeTXF/f//EHAQcXhKcspzEHQicGpsznVoSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcEVpbXk2nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xbJx0bGswkGgQlyYUDHNvdXJjZSBpcyBlbXB0eTppaKFA
+    /// Script: VwYCeDWvAAAADAhzZWxlY3Rvcnk1xf3//xBwEHF4SnLKcxB0InBqbM51aEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFaW15Np5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcWycdGxrMJBoEJcmFAwPc291cmNlIGlzIGVtcHR5OmlooUA=
     /// 00 : OpCode.INITSLOT 0602 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL_L AF000000 [512 datoshi]
@@ -409,7 +409,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUCeDRjDHByZWRpY2F0ZXk1Sfz//xBweEpxynIQcyJBaWvOdGx5NiY1aEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFa5xza2owv2hA
+    /// Script: VwUCeDRjDAlwcmVkaWNhdGV5NUn8//8QcHhKccpyEHMiQWlrznRseTYmNWhKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRWucc2tqML9oQA==
     /// 00 : OpCode.INITSLOT 0502 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 63 [512 datoshi]
@@ -640,7 +640,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUCeDReDHNlbGVjdG9yeTVu+P//EHB4SnHKchBzIj1pa850aGx5Np5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGucc2tqMMNoQA==
+    /// Script: VwUCeDReDAhzZWxlY3Rvcnk1bvj//xBweEpxynIQcyI9aWvOdGhseTaeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BrnHNrajDDaEA=
     /// 00 : OpCode.INITSLOT 0502 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 5E [512 datoshi]
@@ -772,7 +772,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUDeDRPDGtleVNlbGVjdG9yeTUN9///DGVsZW1lbnRTZWxlY3Rvcno19vb//8hweEpxynIQcyIUaWvOdGx6NkpseTZoU9BFa5xza2ow7GhA
+    /// Script: VwUDeDRPDAtrZXlTZWxlY3Rvcnk1Dff//wwPZWxlbWVudFNlbGVjdG9yejX29v//yHB4SnHKchBzIhRpa850bHo2Smx5NmhT0EVrnHNrajDsaEA=
     /// 00 : OpCode.INITSLOT 0503 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 4F [512 datoshi]

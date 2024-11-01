@@ -131,7 +131,7 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeErYJgpFDGxpbnV4cGhA
+    /// Script: VwEBeErYJgpFDAVsaW51eHBoQA==
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -150,7 +150,7 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBQZv2Z85weGhBkl3oMUrYJgpFDHvbMNsoQA==
+    /// Script: VwEBQZv2Z85weGhBkl3oMUrYJgpFDAF72zDbKEA=
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 08 : OpCode.STLOC0 [2 datoshi]
@@ -173,7 +173,7 @@ public abstract class Contract_NULL(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBQZv2Z85wDDExMXhoQeY/GIR4aEGSXegxStgmCkUMe9sw2yhA
+    /// Script: VwEBQZv2Z85wDAMxMTF4aEHmPxiEeGhBkl3oMUrYJgpFDAF72zDbKEA=
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 08 : OpCode.STLOC0 [2 datoshi]

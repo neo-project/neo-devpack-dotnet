@@ -146,7 +146,7 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICEAsSv3l4Ek01e////3Bowb95EZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSzSyDDB4i9soSzQFcWlA
+    /// Script: VwICEAsSv3l4Ek01e////3Bowb95EZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfSzSyDAEweIvbKEs0BXFpQA==
     /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.PUSHNULL [1 datoshi]

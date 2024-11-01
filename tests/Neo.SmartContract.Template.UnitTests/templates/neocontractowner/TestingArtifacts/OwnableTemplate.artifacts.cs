@@ -41,7 +41,7 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: Ndj+//8kFgxObyBhdXRob3JpemF0aW9uLjo3AQBA
+    /// Script: Ndj+//8kFgwRTm8gYXV0aG9yaXphdGlvbi46NwEAQA==
     /// 00 : OpCode.CALL_L D8FEFFFF [512 datoshi]
     /// 05 : OpCode.JMPIF 16 [2 datoshi]
     /// 07 : OpCode.PUSHDATA1 4E6F20617574686F72697A6174696F6E2E [8 datoshi]
@@ -56,7 +56,7 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
+    /// Script: DAVIZWxsb0Gb9mfOQZJd6DFA
     /// 00 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
     /// 07 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 0C : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
@@ -69,7 +69,7 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwADNfz+//8JlyYWDE5vIGF1dGhvcml6YXRpb24uOnp5eDcAAEA=
+    /// Script: VwADNfz+//8JlyYWDBFObyBhdXRob3JpemF0aW9uLjp6eXg3AABA
     /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
     /// 03 : OpCode.CALL_L FCFEFFFF [512 datoshi]
     /// 08 : OpCode.PUSHF [1 datoshi]
