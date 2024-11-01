@@ -15,7 +15,7 @@ public class DebugAndTestBase<T> : TestBase<T>
     where T : SmartContract.Testing.SmartContract, IContractInfo
 {
     // allowing specific derived class to enable/disable Gas test
-    protected virtual bool TestGasConsume { set; get; } = false;
+    protected virtual bool TestGasConsume { set; get; } = true;
 
     public DebugAndTestBase(CompilationOptions? compilationOptions = null)
     {

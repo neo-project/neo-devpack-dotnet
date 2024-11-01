@@ -12,7 +12,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_OneReturn()
         {
             Assert.AreEqual(new BigInteger(-4), Contract.Subtract(5, 9));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047360);
         }
 
         [TestMethod]
@@ -30,14 +30,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_VoidReturn()
         {
             Assert.AreEqual(new BigInteger(14), Contract.Sum(9, 5));
-            AssertGasConsumed(1047660);
+            AssertGasConsumed(1047360);
         }
 
         [TestMethod]
         public void Test_DoubleReturnB()
         {
             Assert.AreEqual(new BigInteger(-3), Contract.Mix(9, 5));
-            AssertGasConsumed(1206390);
+            AssertGasConsumed(1206090);
         }
 
         [TestMethod]

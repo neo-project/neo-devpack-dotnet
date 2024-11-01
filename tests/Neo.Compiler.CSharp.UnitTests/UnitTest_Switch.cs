@@ -28,19 +28,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SwitchLongLong()
         {
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("a")!).GetInteger());
-            AssertGasConsumed(1049490);
+            AssertGasConsumed(1049190);
             Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchLongLong("b")!).GetInteger());
-            AssertGasConsumed(1052130);
+            AssertGasConsumed(1051830);
             Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("c")!).GetInteger());
-            AssertGasConsumed(1050840);
+            AssertGasConsumed(1050540);
             Assert.AreEqual(-1, ((VM.Types.Integer)Contract.SwitchLongLong("d")!).GetInteger());
-            AssertGasConsumed(1053480);
+            AssertGasConsumed(1053180);
             Assert.AreEqual(1, ((VM.Types.Integer)Contract.SwitchLongLong("e")!).GetInteger());
-            AssertGasConsumed(1054830);
+            AssertGasConsumed(1054530);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("f")!).GetInteger());
-            AssertGasConsumed(1056120);
+            AssertGasConsumed(1055820);
             Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("g")!).GetInteger());
-            AssertGasConsumed(1057440);
+            AssertGasConsumed(1057140);
         }
 
         [TestMethod]

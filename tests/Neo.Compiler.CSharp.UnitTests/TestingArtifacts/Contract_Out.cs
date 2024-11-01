@@ -15,7 +15,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA9VcAAQAqYEBXAAMaYQwFSGVsbG9iCGNAEGBYNOZYQFcBAGhgWDTcWEAQYwtiEGFbWlk01lk3AAAMAiwgi1qLDAIsIItbJgoMBFRydWUiCQwFRmFsc2WL2yhAEGMLYhBhW1pZNKVAVwIAEHAQcSIQEGBYNI9oWJ5waUqccUVpFbUk72hAVwABeCYPEGBYNXT///9YNwAAQBBjC2IQYVtaWTVo////WkBXAQF4cGgRlyQJaBKXJA4iHBBgWDVG////WEAQYwtiEGFbWlk1Pf///1lAD0BXAQAQZFw0CHBcaBK/QFcAAVxkWDUZ////WGRcEqBAVgVAlht2RQ=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA9VcAAQAqYEBXAAMaYQwFSGVsbG9iCGNAEGBYNOZYQFcBAGhgWDTcWEAJYwtiEGFbWlk01lk3AAAMAiwgi1qLDAIsIItbJgoMBFRydWUiCQwFRmFsc2WL2yhACWMLYhBhW1pZNKVAVwIAEHAQcSIQEGBYNI9oWJ5waUqccUVpFbUk72hAVwABeCYPEGBYNXT///9YNwAAQAljC2IQYVtaWTVo////WkBXAQF4cGgRlyQJaBKXJA4iHBBgWDVG////WEAJYwtiEGFbWlk1Pf///1lAD0BXAQAQZFw0CHBcaBK/QFcAAVxkWDUZ////WGRcEqBAVgVAsPQcHw=="));
 
     #endregion
 
@@ -41,8 +41,8 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EGMLYhBhW1pZNNZZNwAADCwgi1qLDCwgi1smCgxUcnVlIgkMRmFsc2WL2yhA
-    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// Script: CWMLYhBhW1pZNNZZNwAADCwgi1qLDCwgi1smCgxUcnVlIgkMRmFsc2WL2yhA
+    /// 00 : OpCode.PUSHF [1 datoshi]
     /// 01 : OpCode.STSFLD3 [2 datoshi]
     /// 02 : OpCode.PUSHNULL [1 datoshi]
     /// 03 : OpCode.STSFLD2 [2 datoshi]
@@ -96,7 +96,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeCYPEGBYNXT///9YNwAAQBBjC2IQYVtaWTVo////WkA=
+    /// Script: VwABeCYPEGBYNXT///9YNwAAQAljC2IQYVtaWTVo////WkA=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.JMPIFNOT 0F [2 datoshi]
@@ -107,7 +107,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// 0E : OpCode.LDSFLD0 [2 datoshi]
     /// 0F : OpCode.CALLT 0000 [32768 datoshi]
     /// 12 : OpCode.RET [0 datoshi]
-    /// 13 : OpCode.PUSH0 [1 datoshi]
+    /// 13 : OpCode.PUSHF [1 datoshi]
     /// 14 : OpCode.STSFLD3 [2 datoshi]
     /// 15 : OpCode.PUSHNULL [1 datoshi]
     /// 16 : OpCode.STSFLD2 [2 datoshi]
@@ -127,8 +127,8 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EGMLYhBhW1pZNKVA
-    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// Script: CWMLYhBhW1pZNKVA
+    /// 00 : OpCode.PUSHF [1 datoshi]
     /// 01 : OpCode.STSFLD3 [2 datoshi]
     /// 02 : OpCode.PUSHNULL [1 datoshi]
     /// 03 : OpCode.STSFLD2 [2 datoshi]
@@ -181,7 +181,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoEZckCWgSlyQOIhwQYFg1Rv///1hAEGMLYhBhW1pZNT3///9ZQA9A
+    /// Script: VwEBeHBoEZckCWgSlyQOIhwQYFg1Rv///1hACWMLYhBhW1pZNT3///9ZQA9A
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -200,7 +200,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// 14 : OpCode.CALL_L 46FFFFFF [512 datoshi]
     /// 19 : OpCode.LDSFLD0 [2 datoshi]
     /// 1A : OpCode.RET [0 datoshi]
-    /// 1B : OpCode.PUSH0 [1 datoshi]
+    /// 1B : OpCode.PUSHF [1 datoshi]
     /// 1C : OpCode.STSFLD3 [2 datoshi]
     /// 1D : OpCode.PUSHNULL [1 datoshi]
     /// 1E : OpCode.STSFLD2 [2 datoshi]
