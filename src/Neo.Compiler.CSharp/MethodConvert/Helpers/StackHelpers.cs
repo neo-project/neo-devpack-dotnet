@@ -231,8 +231,9 @@ internal partial class MethodConvert
     private Instruction PushDefault(ITypeSymbol type)
     {
         return AddInstruction(type.GetStackItemType() switch
-        {
-            VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
+        {// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values
+            VM.Types.StackItemType.Boolean => OpCode.PUSHF,
+            VM.Types.StackItemType.Integer => OpCode.PUSH0,
             _ => OpCode.PUSHNULL,
         });
     }

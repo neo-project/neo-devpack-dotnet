@@ -416,6 +416,34 @@ namespace Neo.Compiler
                 }
                 _className = symbol.Name;
             }
+            Dictionary<(string, int), IMethodSymbol> export = new();
+            // export methods `new`ed in child class, not those hidden in parent class
+            foreach (ISymbol member in symbol.GetAllMembers())
+            {
+                switch (member)
+                {
+                    //case IEventSymbol @event when isSmartContract:
+                    //    ProcessEvent(@event);
+                    //    break;
+                    case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
+                        if (method.DeclaredAccessibility == Accessibility.Public)
+                            if (export.TryGetValue((method.Name, method.Parameters.Length), out IMethodSymbol? existingMethod))
+                            {
+                                INamedTypeSymbol containingType = method.ContainingType;
+                                INamedTypeSymbol existingType = existingMethod.ContainingType;
+                                if (Helper.InheritsFrom(containingType, existingType))
+                                    export[(method.Name, method.Parameters.Length)] = method;
+                                else if (!Helper.InheritsFrom(existingType, containingType))
+                                    // no inheritance relationship, but having 2 methods of same name and same count of args
+                                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
+                                // else existingType inherits from containingType; do nothing
+                            }
+                            else
+                                export.Add((method.Name, method.Parameters.Length), method);
+                        break;
+                }
+            }
+            HashSet<IMethodSymbol> exportMethods = [.. export.Values];
             foreach (ISymbol member in symbol.GetAllMembers())
             {
                 switch (member)
@@ -424,7 +452,10 @@ namespace Neo.Compiler
                         ProcessEvent(@event);
                         break;
                     case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
-                        ProcessMethod(model, method, isSmartContract);
+                        if (method.DeclaredAccessibility != Accessibility.Public)
+                            ProcessMethod(model, method, isSmartContract);
+                        else if (exportMethods.Contains(method))
+                            ProcessMethod(model, method, isSmartContract);
                         break;
                 }
             }
