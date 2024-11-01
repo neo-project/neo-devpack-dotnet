@@ -14,7 +14,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Literal00ToFF()
         {
-            CollectionAssert.AreEqual(Contract.Literal00ToFF(), Encoding.UTF8.GetBytes(Literal00ToFF()));
+            byte[] result = Contract.Literal00ToFF()!;
+            Assert.AreEqual(result.Length, 256);
+            for (int i = 0; i <= 255; ++i)
+                Assert.AreEqual(i, result[i]);
         }
 
         [TestMethod]
