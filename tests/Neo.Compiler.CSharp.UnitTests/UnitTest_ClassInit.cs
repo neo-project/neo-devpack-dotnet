@@ -26,5 +26,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(cs.A, (BigInteger)result[0]);
             Assert.AreEqual(cs.B, (BigInteger)result[1]);
         }
+
+        [TestMethod]
+        public void Test_InitializationExpression()
+        {
+            Contract.TestInitializationExpression();
+            AssertGasConsumed(1275690);
+        }
     }
 }
