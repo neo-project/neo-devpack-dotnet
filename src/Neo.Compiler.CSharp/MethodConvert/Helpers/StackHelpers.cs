@@ -17,6 +17,7 @@ using System.Buffers.Binary;
 using System.Numerics;
 using scfx::Neo.SmartContract.Framework;
 using OpCode = Neo.VM.OpCode;
+using System.IO;
 
 namespace Neo.Compiler;
 
@@ -114,9 +115,29 @@ internal partial class MethodConvert
         return instruction;
     }
 
+    /// <summary>
+    /// If all char in the input is no greater than byte.MaxValue == 255, get the byte for each char
+    /// If any char in the input is greater than byte.MaxValue == 255, encode in UTF8
+    /// This ensures "a\xff\x80\x79\x00" accurately translated to 0x61 0xff 0x80 0x79 0x00
+    /// </summary>
+    /// <param name="s">String value to push</param>
+    /// <returns>Instruction</returns>
     private Instruction Push(string s)
     {
+        try
+        {// Handle byte-like "\xff\x80\x79\x00..."
+         // fails on non-ascii char (> byte.MaxValue == 255) like "悪い文字"
+         // fails on long \x, e.g. \x123, \x1234
+         // does not fail on ascii chars
+            MemoryStream pushed = new();
+            BinaryWriter writer = new(pushed);
+            foreach (char c in s)
+                writer.Write(System.Convert.ToByte(c));
+            return Push(pushed.ToArray());
+        }
+        catch { }
         return Push(Utility.StrictUTF8.GetBytes(s));
+        // \xff (and each byte >= \x80) will be decoded to 2 bytes (0xc3 0xbf for \xff) by UTF8 decoder
     }
 
     private Instruction Push(byte[] data)
