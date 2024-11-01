@@ -255,6 +255,24 @@ internal partial class MethodConvert
     /// <returns>True if system methods are successfully processed; otherwise, false.</returns>
     private bool TryProcessSystemMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        // if calling ExecutionEngine.Assert(bool, string), use JMPIF + ABORTMSG
+        // in order to save GAS and for safety.
+        // It is possible to have non UTF-8 string in the message, and ASSERTMSG fails
+        // no matter the asserted condition is true or not
+        if (symbol.Name == "Assert" && symbol.Parameters.Length == 2
+         && symbol.Parameters[0].Type.ToString() == "bool"
+         && symbol.Parameters[1].Type.ToString() == "string"
+         && symbol.ContainingNamespace.ToString() == "Neo.SmartContract.Framework")
+        {
+            JumpTarget continueExecution = new();
+            ConvertExpression(model, ExtractExpression(arguments![0]));
+            Jump(OpCode.JMPIF_L, continueExecution);
+            ConvertExpression(model, ExtractExpression(arguments[1]));
+            AddInstruction(OpCode.ABORTMSG);
+            continueExecution.Instruction = AddInstruction(OpCode.NOP);
+            return true;
+        }
+
         //If the method belongs to a delegate and the method name is "Invoke",
         //calls the PrepareArgumentsForMethod method with CallingConvention.Cdecl convention and changes the return type to integer.
         //Example: Func<int, int, int>(privateSum).Invoke(a, b);
