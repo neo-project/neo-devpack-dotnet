@@ -64,7 +64,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DL7yBDFANip3wVCZx+ZMEvcAtmXaQA==
+    /// Script: DBS+8gQxQDYqd8FQmcfmTBL3ALZl2kA=
     /// 00 : OpCode.PUSHDATA1 BEF2043140362A77C15099C7E64C12F700B665DA [8 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -75,7 +75,7 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DPVj6kC8KD1NDgXEjqMFs/Kgc0DvQA==
+    /// Script: DBT1Y+pAvCg9TQ4FxI6jBbPyoHNA70A=
     /// 00 : OpCode.PUSHDATA1 F563EA40BC283D4D0E05C48EA305B3F2A07340EF [8 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>

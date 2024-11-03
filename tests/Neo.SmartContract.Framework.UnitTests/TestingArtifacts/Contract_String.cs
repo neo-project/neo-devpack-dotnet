@@ -25,7 +25,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICE3B4eYvbKHFpDGhlbGxvlyYGFHAiD2kMd29ybGSXJgQVcGhA
+    /// Script: VwICE3B4eYvbKHFpDAVoZWxsb5cmBhRwIg9pDAV3b3JsZJcmBBVwaEA=
     /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
     /// 03 : OpCode.PUSH3 [1 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]

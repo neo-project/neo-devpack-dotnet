@@ -25,7 +25,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAO1wACxAMAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAUwB8MdHJhbnNmZXIM9WPqQLwoPU0OBcSOowWz8qBzQO9BYn1bUkU9FXARDAHbMEGb9mfOQeY/GIQ9AkA=
+    /// Script: VwEAO1wACxAMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABTAHwwIdHJhbnNmZXIMFPVj6kC8KD1NDgXEjqMFs/Kgc0DvQWJ9W1JFPRVwEQwBAdswQZv2Z85B5j8YhD0CQA==
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
     /// 03 : OpCode.TRY 5C00 [4 datoshi]
     /// 06 : OpCode.PUSHNULL [1 datoshi]
@@ -56,7 +56,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: CxAMAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAUwB8MdHJhbnNmZXIMz3bii9AGLEpHjuNVYQETGfPPpNJBYn1bUkU0A0A=
+    /// Script: CxAMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABTAHwwIdHJhbnNmZXIMFM924ovQBixKR47jVWEBExnzz6TSQWJ9W1JFNANA
     /// 00 : OpCode.PUSHNULL [1 datoshi]
     /// 01 : OpCode.PUSH0 [1 datoshi]
     /// 02 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
@@ -78,7 +78,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: CxAMAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAUwB8MdHJhbnNmZXIM9WPqQLwoPU0OBcSOowWz8qBzQO9BYn1bUkURDAHbMEGb9mfOQeY/GIRA
+    /// Script: CxAMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABTAHwwIdHJhbnNmZXIMFPVj6kC8KD1NDgXEjqMFs/Kgc0DvQWJ9W1JFEQwBAdswQZv2Z85B5j8YhEA=
     /// 00 : OpCode.PUSHNULL [1 datoshi]
     /// 01 : OpCode.PUSH0 [1 datoshi]
     /// 02 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
@@ -104,7 +104,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EQwB2zBBm/ZnzkHmPxiECxAMAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAUwB8MdHJhbnNmZXIM9WPqQLwoPU0OBcSOowWz8qBzQO9BYn1bUkVA
+    /// Script: EQwBAdswQZv2Z85B5j8YhAsQDBQAAAAAAAAAAAAAAAAAAAAAAAAAAAwUAAAAAAAAAAAAAAAAAAAAAAAAAAAUwB8MCHRyYW5zZmVyDBT1Y+pAvCg9TQ4FxI6jBbPyoHNA70FifVtSRUA=
     /// 00 : OpCode.PUSH1 [1 datoshi]
     /// 01 : OpCode.PUSHDATA1 01 [8 datoshi]
     /// 04 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -130,7 +130,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: WNgmGwsLEsAMbm9SZWVudHJhbnQB/wASTTQPYFg0KzU0/v//WDRfQA==
+    /// Script: WNgmGwsLEsAMC25vUmVlbnRyYW50Af8AEk00D2BYNCs1NP7//1g0X0A=
     /// 00 : OpCode.LDSFLD0 [2 datoshi]
     /// 01 : OpCode.ISNULL [2 datoshi]
     /// 02 : OpCode.JMPIFNOT 1B [2 datoshi]
@@ -158,7 +158,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EQwB2zBBm/ZnzkHmPxiENIhA
+    /// Script: EQwBAdswQZv2Z85B5j8YhDSIQA==
     /// 00 : OpCode.PUSH1 [1 datoshi]
     /// 01 : OpCode.PUSHDATA1 01 [8 datoshi]
     /// 04 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -174,7 +174,7 @@ public abstract class Contract_Reentrancy(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeCZaCxAMAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAUwB8MdHJhbnNmZXIMz3bii9AGLEpHjuNVYQETGfPPpNJBYn1bUkVAEQwB2zBBm/ZnzkHmPxiEQA==
+    /// Script: VwABeCZaCxAMFAAAAAAAAAAAAAAAAAAAAAAAAAAADBQAAAAAAAAAAAAAAAAAAAAAAAAAABTAHwwIdHJhbnNmZXIMFM924ovQBixKR47jVWEBExnzz6TSQWJ9W1JFQBEMAQHbMEGb9mfOQeY/GIRA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.JMPIFNOT 5A [2 datoshi]

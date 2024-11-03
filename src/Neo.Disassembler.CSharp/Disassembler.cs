@@ -30,7 +30,7 @@ public static class Disassembler
             ai => ai.address >= start && ai.address <= end).Select(ai => (ai.address - start, ai.instruction)).ToList();
     }
 
-    private static (int start, int end) GetMethodStartEndAddress(string name, JToken debugInfo)
+    public static (int start, int end) GetMethodStartEndAddress(string name, JToken debugInfo)
     {
         name = name.Length == 0 ? string.Empty : string.Concat(name[0].ToString().ToUpper(), name.AsSpan(1));  // first letter uppercase
         int start = -1, end = -1;

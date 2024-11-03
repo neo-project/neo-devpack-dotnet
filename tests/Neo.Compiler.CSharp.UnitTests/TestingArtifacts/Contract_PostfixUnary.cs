@@ -50,7 +50,7 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACxALE8AMSm9obks1hwAAAHBoNZYAAAAmeWhKEc5OnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8RUNBFaBLOEUtLzkpUU5xKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACf0EVoEM5AC0A=
+    /// Script: VwEACxALE8AMBEpvaG5LNYcAAABwaDWWAAAAJnloShHOTpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfEVDQRWgSzhFLS85KVFOcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn9BFaBDOQAtA
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
     /// 03 : OpCode.PUSHNULL [1 datoshi]
     /// 04 : OpCode.PUSH0 [1 datoshi]

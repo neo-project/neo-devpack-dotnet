@@ -25,7 +25,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUACwsLEBAJFsAQEBK/DHMQEAkWwHBoFc5oEsBKccpyEHMiG2lrznRsEM4JlzlsEc4QlzlsEs4QlzlrnHNrajDlaBPODHOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aEA=
+    /// Script: VwUACwsLEBAJFsAQEBK/DAFzEBAJFsBwaBXOaBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
     /// 00 : OpCode.INITSLOT 0500 [64 datoshi]
     /// 03 : OpCode.PUSHNULL [1 datoshi]
     /// 04 : OpCode.PUSHNULL [1 datoshi]

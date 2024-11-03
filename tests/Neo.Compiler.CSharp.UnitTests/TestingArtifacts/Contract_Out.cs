@@ -41,7 +41,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: CWMLYhBhW1pZNNZZNwAADCwgi1qLDCwgi1smCgxUcnVlIgkMRmFsc2WL2yhA
+    /// Script: CWMLYhBhW1pZNNZZNwAADAIsIItaiwwCLCCLWyYKDARUcnVlIgkMBUZhbHNli9soQA==
     /// 00 : OpCode.PUSHF [1 datoshi]
     /// 01 : OpCode.STSFLD3 [2 datoshi]
     /// 02 : OpCode.PUSHNULL [1 datoshi]

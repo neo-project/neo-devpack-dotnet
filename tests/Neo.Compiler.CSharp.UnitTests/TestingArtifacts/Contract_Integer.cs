@@ -1819,7 +1819,7 @@ public abstract class Contract_Integer(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeEoCAAAAgAMAAACAAAAAALsmDgP/////AAAAAJEiRwxWYWx1ZSBvdXQgb2YgcmFuZ2UsIG11c3QgYmUgYmV0d2VlbiBpbnQuTWluVmFsdWUgYW5kIGludC5NYXhWYWx1ZS46EFBKECgMShGRUZ5QEaki9EVA
+    /// Script: VwABeEoCAAAAgAMAAACAAAAAALsmDgP/////AAAAAJEiRwxCVmFsdWUgb3V0IG9mIHJhbmdlLCBtdXN0IGJlIGJldHdlZW4gaW50Lk1pblZhbHVlIGFuZCBpbnQuTWF4VmFsdWUuOhBQShAoDEoRkVGeUBGpIvRFQA==
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]

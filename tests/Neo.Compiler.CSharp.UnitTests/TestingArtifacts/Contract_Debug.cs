@@ -34,7 +34,7 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DERlYnVnIGNvbXBpbGF0aW9uEcAMRGVidWdBlQFvYRFA
+    /// Script: DBFEZWJ1ZyBjb21waWxhdGlvbhHADAVEZWJ1Z0GVAW9hEUA=
     /// 00 : OpCode.PUSHDATA1 446562756720636F6D70696C6174696F6E [8 datoshi]
     /// 13 : OpCode.PUSH1 [1 datoshi]
     /// 14 : OpCode.PACK [2048 datoshi]
