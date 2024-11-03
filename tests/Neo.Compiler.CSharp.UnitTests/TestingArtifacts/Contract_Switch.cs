@@ -25,7 +25,7 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoDDCXJCdoDDGXJCJoDDKXJB1oDDOXJBhoDDSXJBNoDDWXJA4iDhFAEkATQBRAFUAWQABjQA==
+    /// Script: VwEBeHBoDAEwlyQnaAwBMZckImgMATKXJB1oDAEzlyQYaAwBNJckE2gMATWXJA4iDhFAEkATQBRAFUAWQABjQA==
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -76,7 +76,7 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoDDCXJgQRQGgMMZcmBBJAaAwylyYEE0BoDDOXJgQUQGgMNJcmBBVAaAw1lyYEFkAIJgUAY0BoOg==
+    /// Script: VwEBeHBoDAEwlyYEEUBoDAExlyYEEkBoDAEylyYEE0BoDAEzlyYEFEBoDAE0lyYEFUBoDAE1lyYEFkAIJgUAY0BoOg==
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -170,7 +170,7 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoDDCXJa0AAABoDDGXJaUAAABoDDKXJZ0AAABoDDOXJZUAAABoDDSXJY0AAABoDDWXJYUAAABoDDaXJH1oDDeXJHhoDDiXJHNoDDmXJG5oDDEwlyRoaAwxMZckYmgMMTKXJFxoDDEzlyRWaAwxNJckUGgMMTWXJEpoDDE2lyREaAwxN5ckP2gMMTiXJDpoDDE5lyQ1aAwyMJckMCIxEUASQBNAFEAVQBZAF0AYQBlAGkAbQBxAHUAeQB9AIEAAEUAAEkAAE0AAFEAAFUAAY0A=
+    /// Script: VwEBeHBoDAEwlyWtAAAAaAwBMZclpQAAAGgMATKXJZ0AAABoDAEzlyWVAAAAaAwBNJcljQAAAGgMATWXJYUAAABoDAE2lyR9aAwBN5ckeGgMATiXJHNoDAE5lyRuaAwCMTCXJGhoDAIxMZckYmgMAjEylyRcaAwCMTOXJFZoDAIxNJckUGgMAjE1lyRKaAwCMTaXJERoDAIxN5ckP2gMAjE4lyQ6aAwCMTmXJDVoDAIyMJckMCIxEUASQBNAFEAVQBZAF0AYQBlAGkAbQBxAHUAeQB9AIEAAEUAAEkAAE0AAFEAAFUAAY0A=
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -311,7 +311,7 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBEXB4cWkMYZckLmkMY5ckLmkMYpckLWkMZJckLWkMZZckLGkMZpckK2kMZ5ckKiIuaEqccEUiK2gSoHAiJWhKnXBFIh5oD6BwIhhoaKBwIhJoE6BwIgxoEp5wIgZoEaFwaEA=
+    /// Script: VwIBEXB4cWkMAWGXJC5pDAFjlyQuaQwBYpckLWkMAWSXJC1pDAFllyQsaQwBZpckK2kMAWeXJCoiLmhKnHBFIitoEqBwIiVoSp1wRSIeaA+gcCIYaGigcCISaBOgcCIMaBKecCIGaBGhcGhA
     /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
     /// 03 : OpCode.PUSH1 [1 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]

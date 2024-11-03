@@ -31,7 +31,7 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACvb///9wFhVoNnEMU3VtOiBpNwAAi9soQc/nR5ZA
+    /// Script: VwIACvb///9wFhVoNnEMBVN1bTogaTcAAIvbKEHP50eWQA==
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
     /// 03 : OpCode.PUSHA F6FFFFFF [4 datoshi]
     /// 08 : OpCode.STLOC0 [2 datoshi]

@@ -25,7 +25,7 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeAiXJBEMVVQtRVJST1ItMTIz4BVA
+    /// Script: VwABeAiXJBEMDFVULUVSUk9SLTEyM+AVQA==
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.PUSHT [1 datoshi]
@@ -144,7 +144,7 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAoLDA0OD0A=
+    /// Script: DAYKCwwNDg9A
     /// 00 : OpCode.PUSHDATA1 0A0B0C0D0E0F [8 datoshi]
     /// 08 : OpCode.RET [0 datoshi]
     /// </remarks>

@@ -25,7 +25,7 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACxASwEo0KXBoEM43AABBz+dHlgxtc2dBz+dHlmgRzkHP50eWaDQWQc/nR5ZA
+    /// Script: VwEACxASwEo0KXBoEM43AABBz+dHlgwDbXNnQc/nR5ZoEc5Bz+dHlmg0FkHP50eWQA==
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
     /// 03 : OpCode.PUSHNULL [1 datoshi]
     /// 04 : OpCode.PUSH0 [1 datoshi]

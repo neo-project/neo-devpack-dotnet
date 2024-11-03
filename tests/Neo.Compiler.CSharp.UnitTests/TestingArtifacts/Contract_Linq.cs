@@ -84,7 +84,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwYCeDRQDHNlbGVjdG9yeTVV/v//EHAQcXhKcspzEHQiFGpsznVoSpxwRWlteTaecWycdGxrMOxoEJcmFAxzb3VyY2UgaXMgZW1wdHk6aWihQA==
+    /// Script: VwYCeDRQDAhzZWxlY3Rvcnk1Vf7//xBwEHF4SnLKcxB0IhRqbM51aEqccEVpbXk2nnFsnHRsazDsaBCXJhQMD3NvdXJjZSBpcyBlbXB0eTppaKFA
     /// 00 : OpCode.INITSLOT 0602 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 50 [512 datoshi]
@@ -381,7 +381,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUCeDQ1DHByZWRpY2F0ZXk1kf3//xBweEpxynIQcyITaWvOdGx5NiYHaEqccEVrnHNrajDtaEA=
+    /// Script: VwUCeDQ1DAlwcmVkaWNhdGV5NZH9//8QcHhKccpyEHMiE2lrznRseTYmB2hKnHBFa5xza2ow7WhA
     /// 00 : OpCode.INITSLOT 0502 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 35 [512 datoshi]
@@ -584,7 +584,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUCeDQwDHNlbGVjdG9yeTVu+v//EHB4SnHKchBzIg9pa850aGx5Np5wa5xza2ow8WhA
+    /// Script: VwUCeDQwDAhzZWxlY3Rvcnk1bvr//xBweEpxynIQcyIPaWvOdGhseTaecGucc2tqMPFoQA==
     /// 00 : OpCode.INITSLOT 0502 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 30 [512 datoshi]
@@ -688,7 +688,7 @@ public abstract class Contract_Linq(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUDeDRPDGtleVNlbGVjdG9yeTWX+f//DGVsZW1lbnRTZWxlY3Rvcno1gPn//8hweEpxynIQcyIUaWvOdGx6NkpseTZoU9BFa5xza2ow7GhA
+    /// Script: VwUDeDRPDAtrZXlTZWxlY3Rvcnk1l/n//wwPZWxlbWVudFNlbGVjdG9yejWA+f//yHB4SnHKchBzIhRpa850bHo2Smx5NmhT0EVrnHNrajDsaEA=
     /// 00 : OpCode.INITSLOT 0503 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 4F [512 datoshi]

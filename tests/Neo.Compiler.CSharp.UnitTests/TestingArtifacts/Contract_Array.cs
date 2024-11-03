@@ -69,7 +69,7 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwcAGBcWFRQTEhEYwHAMdGhyZWUMdHdvDG9uZRPAcRkYFxPAFhUUE8ATEhETwBPAchMSERPAcxYVFBPAdBkYFxPAdW1saxPAdm5qaWgUv0A=
+    /// Script: VwcAGBcWFRQTEhEYwHAMBXRocmVlDAN0d28MA29uZRPAcRkYFxPAFhUUE8ATEhETwBPAchMSERPAcxYVFBPAdBkYFxPAdW1saxPAdm5qaWgUv0A=
     /// 00 : OpCode.INITSLOT 0700 [64 datoshi]
     /// 03 : OpCode.PUSH8 [1 datoshi]
     /// 04 : OpCode.PUSH7 [1 datoshi]
@@ -408,7 +408,7 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwQADAECAwTbMHAMBQYHCNswcQwBAwIB2zByDAUEAwLbMHNramloFMBA
+    /// Script: VwQADAQBAgME2zBwDAQFBgcI2zBxDAQBAwIB2zByDAQFBAMC2zBza2ppaBTAQA==
     /// 00 : OpCode.INITSLOT 0400 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 01020304 [8 datoshi]
     /// 09 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]

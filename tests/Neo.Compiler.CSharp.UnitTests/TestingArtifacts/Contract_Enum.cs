@@ -25,7 +25,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeEoRlyYMRQxWYWx1ZTFAShKXJgxFDFZhbHVlMkBKE5cmDEUMVmFsdWUzQEULQA==
+    /// Script: VwABeEoRlyYMRQwGVmFsdWUxQEoSlyYMRQwGVmFsdWUyQEoTlyYMRQwGVmFsdWUzQEULQA==
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -60,7 +60,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DFRlc3RFbnVtDFZhbHVlMwxWYWx1ZTIMVmFsdWUxE8BA
+    /// Script: DAhUZXN0RW51bQwGVmFsdWUzDAZWYWx1ZTIMBlZhbHVlMRPAQA==
     /// 00 : OpCode.PUSHDATA1 54657374456E756D [8 datoshi]
     /// 0A : OpCode.PUSHDATA1 56616C756533 [8 datoshi]
     /// 12 : OpCode.PUSHDATA1 56616C756532 [8 datoshi]
@@ -76,7 +76,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDFRlc3RFbnVteEoRlyYNRUUMVmFsdWUxQEoSlyYNRUUMVmFsdWUyQEoTlyYNRUUMVmFsdWUzQEVFC0A=
+    /// Script: VwABDAhUZXN0RW51bXhKEZcmDUVFDAZWYWx1ZTFAShKXJg1FRQwGVmFsdWUyQEoTlyYNRUUMBlZhbHVlM0BFRQtA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 54657374456E756D [8 datoshi]
     /// 0D : OpCode.LDARG0 [2 datoshi]
@@ -116,7 +116,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DFRlc3RFbnVtExIRE8BA
+    /// Script: DAhUZXN0RW51bRMSERPAQA==
     /// 00 : OpCode.PUSHDATA1 54657374456E756D [8 datoshi]
     /// 0A : OpCode.PUSH3 [1 datoshi]
     /// 0B : OpCode.PUSH2 [1 datoshi]
@@ -132,7 +132,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDFRlc3RFbnVteEoRlyYGRUUIQEoSlyYGRUUIQEoTlyYGRUUIQEVFCUA=
+    /// Script: VwABDAhUZXN0RW51bXhKEZcmBkVFCEBKEpcmBkVFCEBKE5cmBkVFCEBFRQlA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 54657374456E756D [8 datoshi]
     /// 0D : OpCode.LDARG0 [2 datoshi]
@@ -172,7 +172,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDFRlc3RFbnVteEoMVmFsdWUxlyYGRUUIQEoMVmFsdWUylyYGRUUIQEoMVmFsdWUzlyYGRUUIQEVFCUA=
+    /// Script: VwABDAhUZXN0RW51bXhKDAZWYWx1ZTGXJgZFRQhASgwGVmFsdWUylyYGRUUIQEoMBlZhbHVlM5cmBkVFCEBFRQlA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 54657374456E756D [8 datoshi]
     /// 0D : OpCode.LDARG0 [2 datoshi]
@@ -212,7 +212,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDFRlc3RFbnVteEoMVmFsdWUxlyYHEVNFRUBKDFZhbHVlMpcmBxJTRUVASgxWYWx1ZTOXJgcTU0VFQEUMTm8gc3VjaCBlbnVtIHZhbHVlOg==
+    /// Script: VwABDAhUZXN0RW51bXhKDAZWYWx1ZTGXJgcRU0VFQEoMBlZhbHVlMpcmBxJTRUVASgwGVmFsdWUzlyYHE1NFRUBFDBJObyBzdWNoIGVudW0gdmFsdWU6
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 54657374456E756D [8 datoshi]
     /// 0D : OpCode.LDARG0 [2 datoshi]
@@ -254,7 +254,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACDFRlc3RFbnVteHkmLgwQSnjKtSYiSnhQzkoAYQB7uyQJUVCLUJwi6QBhnwBBnlFQi1CcItxF2yhKeSY0DFZBTFVFMZcmB0VFRRFASnkmIAxWQUxVRTKXJgdFRUUSQEp5JgwMVkFMVUUzIgoMVmFsdWUzlyYHRUVFE0BFRQxObyBzdWNoIGVudW0gdmFsdWU6
+    /// Script: VwACDAhUZXN0RW51bXh5Ji4MABBKeMq1JiJKeFDOSgBhAHu7JAlRUItQnCLpAGGfAEGeUVCLUJwi3EXbKEp5JjQMBlZBTFVFMZcmB0VFRRFASnkmIAwGVkFMVUUylyYHRUVFEkBKeSYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHRUVFE0BFRQwSTm8gc3VjaCBlbnVtIHZhbHVlOg==
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 54657374456E756D [8 datoshi]
     /// 0D : OpCode.LDARG0 [2 datoshi]
@@ -341,7 +341,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABC2AMVGVzdEVudW14WEVKDFZhbHVlMZcmCEVFEWAIQEoMVmFsdWUylyYIRUUSYAhASgxWYWx1ZTOXJghFRRNgCEBFRRBgCUA=
+    /// Script: VwABC2AMCFRlc3RFbnVteFhFSgwGVmFsdWUxlyYIRUURYAhASgwGVmFsdWUylyYIRUUSYAhASgwGVmFsdWUzlyYIRUUTYAhARUUQYAlA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.PUSHNULL [1 datoshi]
     /// 04 : OpCode.STSFLD0 [2 datoshi]
@@ -393,7 +393,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACC2EMVGVzdEVudW14eVlFJjBQRQwQSnjKtSYiSnhQzkoAYQB7uyQJUVCLUJwi6QBhnwBBnlFQi1CcItxF2yhKeSY2DFZBTFVFMZcmCEVFEWEIQEp5JiEMVkFMVUUylyYIRUUSYQhASnkmDAxWQUxVRTMiCgxWYWx1ZTOXJghFRRNhCEBFRRBhCUA=
+    /// Script: VwACC2EMCFRlc3RFbnVteHlZRSYwUEUMABBKeMq1JiJKeFDOSgBhAHu7JAlRUItQnCLpAGGfAEGeUVCLUJwi3EXbKEp5JjYMBlZBTFVFMZcmCEVFEWEIQEp5JiEMBlZBTFVFMpcmCEVFEmEIQEp5JgwMBlZBTFVFMyIKDAZWYWx1ZTOXJghFRRNhCEBFRRBhCUA=
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
     /// 03 : OpCode.PUSHNULL [1 datoshi]
     /// 04 : OpCode.STSFLD1 [2 datoshi]

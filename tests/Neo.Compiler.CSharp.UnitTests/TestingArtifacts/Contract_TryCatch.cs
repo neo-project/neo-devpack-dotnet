@@ -25,7 +25,7 @@ public abstract class Contract_TryCatch(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DGV4Y2VwdGlvbjo=
+    /// Script: DAlleGNlcHRpb246
     /// 00 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
     /// 0B : OpCode.THROW [512 datoshi]
     /// </remarks>

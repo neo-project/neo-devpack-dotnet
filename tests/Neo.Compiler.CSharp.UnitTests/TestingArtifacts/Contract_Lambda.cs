@@ -55,7 +55,7 @@ public abstract class Contract_Lambda(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeGYKFAAAAHBeDCAhISGL2yhmaDZA
+    /// Script: VwEBeGYKFAAAAHBeDAQgISEhi9soZmg2QA==
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STSFLD6 [2 datoshi]
