@@ -151,7 +151,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -296,7 +296,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJBMkCwxGYWxzZSIIDFRydWVK2CYFRQwMVHJ1ZZdA
+    /// Script: VwABeErYJBMkCwwFRmFsc2UiCAwEVHJ1ZUrYJgVFDAAMBFRydWWXQA==
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -448,7 +448,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -706,7 +706,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -855,7 +855,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -1004,7 +1004,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -1153,7 +1153,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -1302,7 +1302,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -1451,7 +1451,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]
@@ -1600,7 +1600,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErYJAU3AABK2CYFRQwMMZdA
+    /// Script: VwABeErYJAU3AABK2CYFRQwADAExl0A=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.DUP [2 datoshi]

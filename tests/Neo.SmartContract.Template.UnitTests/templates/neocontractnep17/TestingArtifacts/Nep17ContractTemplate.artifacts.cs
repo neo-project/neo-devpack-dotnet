@@ -64,7 +64,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Safe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBo2CYFCCINeErZKFDKABSzq6omJQxUaGUgYXJndW1lbnQgIm93bmVyIiBpcyBpbnZhbGlkLjpBm/ZnzhERiE4QUdBQEsBweGjBRVOLUEGSXegxStgmBEUQ2yFA
+    /// Script: VwEBeHBo2CYFCCINeErZKFDKABSzq6omJQwgVGhlIGFyZ3VtZW50ICJvd25lciIgaXMgaW52YWxpZC46QZv2Z84REYhOEFHQUBLAcHhowUVTi1BBkl3oMUrYJgRFENshQA==
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -124,7 +124,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACNIAJlyYWDE5vIEF1dGhvcml6YXRpb24hOnl4Nf3+//9A
+    /// Script: VwACNIAJlyYWDBFObyBBdXRob3JpemF0aW9uITp5eDX9/v//QA==
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
     /// 03 : OpCode.CALL 80 [512 datoshi]
     /// 05 : OpCode.PUSHF [1 datoshi]
@@ -144,7 +144,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACNVv///8JlyYWDE5vIEF1dGhvcml6YXRpb24hOnl4NaH+//9A
+    /// Script: VwACNVv///8JlyYWDBFObyBBdXRob3JpemF0aW9uITp5eDWh/v//QA==
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
     /// 03 : OpCode.CALL_L 5BFFFFFF [512 datoshi]
     /// 08 : OpCode.PUSHF [1 datoshi]
@@ -164,7 +164,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DEhlbGxvQZv2Z85Bkl3oMUA=
+    /// Script: DAVIZWxsb0Gb9mfOQZJd6DFA
     /// 00 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
     /// 07 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 0C : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
@@ -177,7 +177,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEEeHBo2CYFCCINeErZKFDKABSzq6omJAxUaGUgYXJndW1lbnQgImZyb20iIGlzIGludmFsaWQuOnlwaNgmBQgiDXlK2ShQygAUs6uqJiIMVGhlIGFyZ3VtZW50ICJ0byIgaXMgaW52YWxpZC46ehC1JioMVGhlIGFtb3VudCBtdXN0IGJlIGEgcG9zaXRpdmUgbnVtYmVyLjp4Qfgn7IwkBAlAehCYJhZ6m3g1/P7//yQECUB6eTXx/v//RXt6eXg0BAhA
+    /// Script: VwEEeHBo2CYFCCINeErZKFDKABSzq6omJAwfVGhlIGFyZ3VtZW50ICJmcm9tIiBpcyBpbnZhbGlkLjp5cGjYJgUIIg15StkoUMoAFLOrqiYiDB1UaGUgYXJndW1lbnQgInRvIiBpcyBpbnZhbGlkLjp6ELUmKgwlVGhlIGFtb3VudCBtdXN0IGJlIGEgcG9zaXRpdmUgbnVtYmVyLjp4Qfgn7IwkBAlAehCYJhZ6m3g1/P7//yQECUB6eTXx/v//RXt6eXg0BAhA
     /// 00 : OpCode.INITSLOT 0104 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -258,7 +258,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwADNab+//8JlyYWDE5vIGF1dGhvcml6YXRpb24uOnp5eDcBAEA=
+    /// Script: VwADNab+//8JlyYWDBFObyBhdXRob3JpemF0aW9uLjp6eXg3AQBA
     /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
     /// 03 : OpCode.CALL_L A6FEFFFF [512 datoshi]
     /// 08 : OpCode.PUSHF [1 datoshi]

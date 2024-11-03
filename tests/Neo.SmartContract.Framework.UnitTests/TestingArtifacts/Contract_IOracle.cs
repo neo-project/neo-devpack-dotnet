@@ -25,7 +25,7 @@ public abstract class Contract_IOracle(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwAEQTlTbjwMWIcXEX4KqBByr6tx0t2J/nxLkv6YJhIMVW5hdXRob3JpemVkIToMT3JhY2xlIGNhbGwhQc/nR5ZA
+    /// Script: VwAEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYSDA1VbmF1dGhvcml6ZWQhOgwMT3JhY2xlIGNhbGwhQc/nR5ZA
     /// 00 : OpCode.INITSLOT 0004 [64 datoshi]
     /// 03 : OpCode.SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
     /// 08 : OpCode.PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE [8 datoshi]
