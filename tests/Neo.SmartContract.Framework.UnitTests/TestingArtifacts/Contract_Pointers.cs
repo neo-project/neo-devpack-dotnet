@@ -40,7 +40,7 @@ public abstract class Contract_Pointers(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACvb///9wDAsWIdswaDZA
+    /// Script: VwEACvb///9wDAMLFiHbMGg2QA==
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
     /// 03 : OpCode.PUSHA F6FFFFFF [4 datoshi]
     /// 08 : OpCode.STLOC0 [2 datoshi]

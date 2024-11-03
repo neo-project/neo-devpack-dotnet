@@ -38,7 +38,7 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBEHA7ERkRcAxleGNlcHRpb246cXgmBDSwNKgScD8=
+    /// Script: VwIBEHA7ERkRcAwJZXhjZXB0aW9uOnF4JgQ0sDSoEnA/
     /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -129,7 +129,7 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEHAMQUJPUlQgTVNH4A==
+    /// Script: VwEAEHAMCUFCT1JUIE1TR+A=
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]

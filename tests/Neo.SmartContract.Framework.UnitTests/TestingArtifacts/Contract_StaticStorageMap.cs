@@ -50,7 +50,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBDGRhdGFBm/ZnzhLAcHhowUVTi1BBkl3oMUrYJgRFENshQA==
+    /// Script: VwEBDARkYXRhQZv2Z84SwHB4aMFFU4tQQZJd6DFK2CYERRDbIUA=
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 64617461 [8 datoshi]
     /// 09 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
@@ -125,7 +125,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBDGRhdGFBm/ZnzhLAcBN4aMFFU4tQQeY/GIRA
+    /// Script: VwEBDARkYXRhQZv2Z84SwHATeGjBRVOLUEHmPxiEQA==
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 64617461 [8 datoshi]
     /// 09 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]

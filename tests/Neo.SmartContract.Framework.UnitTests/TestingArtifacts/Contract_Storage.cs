@@ -25,7 +25,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwQCDAGq2zBwQZv2Z85xaGkSwHJ5EcBza3hqNAt4ajQbc2sQzkA=
+    /// Script: VwQCDAIBqtswcEGb9mfOcWhpEsByeRHAc2t4ajQLeGo0G3NrEM5A
     /// 00 : OpCode.INITSLOT 0402 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 01AA [8 datoshi]
     /// 07 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -93,7 +93,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBDAD/2zBwaEGb9mfOEsBxeNsoacFFU4tQQS9Yxe1A
+    /// Script: VwIBDAIA/9swcGhBm/ZnzhLAcXjbKGnBRVOLUEEvWMXtQA==
     /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 00FF [8 datoshi]
     /// 07 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -121,7 +121,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBDGFhcGhBm/ZnzhLAcXjbKGnBRVOLUEEvWMXtQA==
+    /// Script: VwIBDAJhYXBoQZv2Z84SwHF42yhpwUVTi1BBL1jF7UA=
     /// 00 : OpCode.INITSLOT 0201 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 6161 [8 datoshi]
     /// 07 : OpCode.STLOC0 [2 datoshi]
@@ -148,7 +148,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAQZv2Z85wDAHbMNsoDGtleTFoQeY/GIQMAtsw2ygMa2V5MmhB5j8YhBQMa2V5aEHfMLiacWlBnAjtnEVpQfNUvx1A
+    /// Script: VwIAQZv2Z85wDAEB2zDbKAwEa2V5MWhB5j8YhAwBAtsw2ygMBGtleTJoQeY/GIQUDANrZXloQd8wuJpxaUGcCO2cRWlB81S/HUA=
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
     /// 03 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 08 : OpCode.STLOC0 [2 datoshi]
@@ -220,7 +220,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwQBDAD/2zBwQZv2Z85Bdky/6XFoaRLAcnjbKGrBRVOLUEGSXegxc2vbMEA=
+    /// Script: VwQBDAIA/9swcEGb9mfOQXZMv+lxaGkSwHJ42yhqwUVTi1BBkl3oMXNr2zBA
     /// 00 : OpCode.INITSLOT 0401 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 00FF [8 datoshi]
     /// 07 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -254,7 +254,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwQBDGFhcEH2tGvicWhpEsByeNsoasFFU4tQQZJd6DFza9swQA==
+    /// Script: VwQBDAJhYXBB9rRr4nFoaRLAcnjbKGrBRVOLUEGSXegxc2vbMEA=
     /// 00 : OpCode.INITSLOT 0401 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 6161 [8 datoshi]
     /// 07 : OpCode.STLOC0 [2 datoshi]
@@ -286,7 +286,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwQBDGlpcEH2tGvicWhpEsByeNsoasFFU4tQQZJd6DFza9swQA==
+    /// Script: VwQBDAJpaXBB9rRr4nFoaRLAcnjbKGrBRVOLUEGSXegxc2vbMEA=
     /// 00 : OpCode.INITSLOT 0401 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 6969 [8 datoshi]
     /// 07 : OpCode.STLOC0 [2 datoshi]
@@ -318,7 +318,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICDGlpcGhBm/ZnzhLAcXnbKEp42yhpwUVTi1BB5j8YhEUIQA==
+    /// Script: VwICDAJpaXBoQZv2Z84SwHF52yhKeNsoacFFU4tQQeY/GIRFCEA=
     /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 6969 [8 datoshi]
     /// 07 : OpCode.STLOC0 [2 datoshi]
@@ -350,7 +350,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUADAD/2zBwQZv2Z85xaGkSwHIMAAHbMHNrDGJ5dGVBcnJheWrBRVOLUEHmPxiEDGJ5dGVBcnJheWrBRVOLUEGSXegx2zB0bEA=
+    /// Script: VwUADAIA/9swcEGb9mfOcWhpEsByDAIAAdswc2sMCWJ5dGVBcnJheWrBRVOLUEHmPxiEDAlieXRlQXJyYXlqwUVTi1BBkl3oMdswdGxA
     /// 00 : OpCode.INITSLOT 0500 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 00FF [8 datoshi]
     /// 07 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -394,7 +394,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: Vw8ADAD/2zBwQZv2Z85xaGkSwHIIcwB7dAxoZWxsbyB3b3JsZHUMAAECAwQFBgcICQABAgMEBQYHCAnbMNsoStgkCUrKABQoAzp2DAABAgMEBQYHCAkAAQIDBAUGBwgJAAECAwQFBgcICQAB2zDbKErYJAlKygAgKAM6dwcMAAECAwQFBgcICQABAgMEBQYHCAkAAQIDBAUGBwgJAAEC2zDbKErYJAlKygAhKAM6dwhrDGJvb2xqwUVTi1BB5j8YhGwMaW50asFFU4tQQeY/GIRtDHN0cmluZ2rBRVOLUEHmPxiEbgx1aW50MTYwasFFU4tQQeY/GIRvBwx1aW50MjU2asFFU4tQQeY/GIRvCAxlY3BvaW50asFFU4tQQeY/GIQMYm9vbGrBRVOLUEGSXegxqqp3CQxpbnRqwUVTi1BBkl3oMdshdwoMc3RyaW5nasFFU4tQQZJd6DF3Cwx1aW50MTYwasFFU4tQQZJd6DF3DAx1aW50MjU2asFFU4tQQZJd6DF3DQxlY3BvaW50asFFU4tQQZJd6DF3DmtvCZckBQkiBmxvCpckBQkiBm1vC5ckBQkiBm5vDJckBQkiB28Hbw2XJAQJQG8Ibw6XQA==
+    /// Script: Vw8ADAIA/9swcEGb9mfOcWhpEsByCHMAe3QMC2hlbGxvIHdvcmxkdQwUAAECAwQFBgcICQABAgMEBQYHCAnbMNsoStgkCUrKABQoAzp2DCAAAQIDBAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAkAAdsw2yhK2CQJSsoAICgDOncHDCEAAQIDBAUGBwgJAAECAwQFBgcICQABAgMEBQYHCAkAAQLbMNsoStgkCUrKACEoAzp3CGsMBGJvb2xqwUVTi1BB5j8YhGwMA2ludGrBRVOLUEHmPxiEbQwGc3RyaW5nasFFU4tQQeY/GIRuDAd1aW50MTYwasFFU4tQQeY/GIRvBwwHdWludDI1NmrBRVOLUEHmPxiEbwgMB2VjcG9pbnRqwUVTi1BB5j8YhAwEYm9vbGrBRVOLUEGSXegxqqp3CQwDaW50asFFU4tQQZJd6DHbIXcKDAZzdHJpbmdqwUVTi1BBkl3oMXcLDAd1aW50MTYwasFFU4tQQZJd6DF3DAwHdWludDI1NmrBRVOLUEGSXegxdw0MB2VjcG9pbnRqwUVTi1BBkl3oMXcOa28JlyQFCSIGbG8KlyQFCSIGbW8LlyQFCSIGbm8MlyQFCSIHbwdvDZckBAlAbwhvDpdA
     /// 0000 : OpCode.INITSLOT 0F00 [64 datoshi]
     /// 0003 : OpCode.PUSHDATA1 00FF [8 datoshi]
     /// 0007 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -601,7 +601,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIADDsAMgMjIyMjAiMjAiMjAiMjAiMjAiMjAtswcAx0ZXN0X21hcEGb9mfOEsBxaNsoDAHbMNsoacFFU4tQQeY/GIQMAdsw2yhpwUVTi1BBkl3oMdswQA==
+    /// Script: VwIADBg7ADIDIyMjIwIjIwIjIwIjIwIjIwIjIwLbMHAMCHRlc3RfbWFwQZv2Z84SwHFo2ygMAQHbMNsoacFFU4tQQeY/GIQMAQHbMNsoacFFU4tQQZJd6DHbMEA=
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 3B0032032323232302232302232302232302232302232302 [8 datoshi]
     /// 1D : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -678,7 +678,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICDAD/2zBwaEGb9mfOEsBxedsoeNsoacFFU4tQQeY/GIQIQA==
+    /// Script: VwICDAIA/9swcGhBm/ZnzhLAcXnbKHjbKGnBRVOLUEHmPxiECEA=
     /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 00FF [8 datoshi]
     /// 07 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -709,7 +709,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwMCDAD/2zBwQZv2Z85Bdky/6XFoaRLAcnnbKHjbKGrBRVOLUEHmPxiECEA=
+    /// Script: VwMCDAIA/9swcEGb9mfOQXZMv+lxaGkSwHJ52yh42yhqwUVTi1BB5j8YhAhA
     /// 00 : OpCode.INITSLOT 0302 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 00FF [8 datoshi]
     /// 07 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -743,7 +743,7 @@ public abstract class Contract_Storage(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICDGFhcGhBm/ZnzhLAcXnbKHjbKGnBRVOLUEHmPxiECEA=
+    /// Script: VwICDAJhYXBoQZv2Z84SwHF52yh42yhpwUVTi1BB5j8YhAhA
     /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 6161 [8 datoshi]
     /// 07 : OpCode.STLOC0 [2 datoshi]

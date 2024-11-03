@@ -47,7 +47,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAEHA7ERcRcAxleGNlcHRpb246cTS2cD0FEnA/aEA=
+    /// Script: VwIAEHA7ERcRcAwJZXhjZXB0aW9uOnE0tnA9BRJwP2hA
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]

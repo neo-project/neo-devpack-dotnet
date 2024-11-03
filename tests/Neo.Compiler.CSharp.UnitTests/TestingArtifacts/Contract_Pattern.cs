@@ -49,7 +49,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoANi1JgwMVG9vIGxvd0BoANi4JAUJIgVoELUmCAxMb3dAaBC4JAUJIgVoGrUmDwxBY2NlcHRhYmxlQGgauCQFCSIGaAAUtSYJDEhpZ2hAaAAUuCYNDFRvbyBoaWdoQGg6
+    /// Script: VwEBeHBoANi1JgwMB1RvbyBsb3dAaADYuCQFCSIFaBC1JggMA0xvd0BoELgkBQkiBWgatSYPDApBY2NlcHRhYmxlQGgauCQFCSIGaAAUtSYJDARIaWdoQGgAFLgmDQwIVG9vIGhpZ2hAaDo=
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -111,7 +111,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoE5cmBQgiBWgUlyYFCCIFaBWXJgsMc3ByaW5nQGgWlyYFCCIFaBeXJgUIIgVoGJcmCwxzdW1tZXJAaBmXJgUIIgVoGpcmBQgiBWgblyYLDGF1dHVtbkBoHJcmBQgiBWgRlyYFCCIFaBKXJgsMd2ludGVyQAgmIgxVbmV4cGVjdGVkIG1vbnRoOiB4NwAAiwwui9soOmg6
+    /// Script: VwEBeHBoE5cmBQgiBWgUlyYFCCIFaBWXJgsMBnNwcmluZ0BoFpcmBQgiBWgXlyYFCCIFaBiXJgsMBnN1bW1lckBoGZcmBQgiBWgalyYFCCIFaBuXJgsMBmF1dHVtbkBoHJcmBQgiBWgRlyYFCCIFaBKXJgsMBndpbnRlckAIJiIMElVuZXhwZWN0ZWQgbW9udGg6IHg3AACLDAEui9soOmg6
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -207,7 +207,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwQADEhlbGxvLCBXb3JsZCFwaHFp2ShpciYIakHP50eWDEhlbGxvLCBXb3JsZCFyanNr2SgmHAxncmVldGluZzIgaXMgc3RyaW5nQc/nR5ZA
+    /// Script: VwQADA1IZWxsbywgV29ybGQhcGhxadkoaXImCGpBz+dHlgwNSGVsbG8sIFdvcmxkIXJqc2vZKCYcDBNncmVldGluZzIgaXMgc3RyaW5nQc/nR5ZA
     /// 00 : OpCode.INITSLOT 0400 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 48656C6C6F2C20576F726C6421 [8 datoshi]
     /// 12 : OpCode.STLOC0 [2 datoshi]
