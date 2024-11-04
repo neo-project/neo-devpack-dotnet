@@ -20,6 +20,8 @@ namespace Neo.Optimizer
         [Strategy(Priority = int.MinValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveMethodToken(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
         {
+            if (nef.Tokens.Length == 0)
+                return (nef, manifest, debugInfo);
             List<bool> oldTokenNeeded = Enumerable.Repeat(false, nef.Tokens.Length).ToList();
             Script script = nef.Script;
             List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
