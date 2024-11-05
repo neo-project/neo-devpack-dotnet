@@ -76,6 +76,7 @@ namespace Neo.Optimizer
             (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Reachability.RemoveMultiRet(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Miscellaneous.RemoveMethodToken(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = JumpCompresser.CompressJump(nef, manifest, debugInfo);
             return (nef, manifest, debugInfo);
         }
