@@ -49,6 +49,24 @@ namespace Neo.Optimizer
                     .ToHashSet();
         }
 
+        public static OpCode ToLongVersion(OpCode opCode)
+        {
+            if (longInstructions.Contains(opCode))
+                return opCode;
+            if (!shortInstructions.Contains(opCode))
+                throw new BadScriptException($"No long version for OpCode {opCode}");
+            return opCode + 1;
+        }
+
+        public static OpCode ToShortVersion(OpCode opCode)
+        {
+            if (shortInstructions.Contains(opCode))
+                return opCode;
+            if (!longInstructions.Contains(opCode))
+                throw new BadScriptException($"No short version for OpCode {opCode}");
+            return opCode - 1;
+        }
+
         public static byte SlotIndex(Instruction i)
         {
             OpCode o = i.OpCode;
