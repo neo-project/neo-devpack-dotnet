@@ -7,39 +7,35 @@
 // 
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
-
-using Neo.SmartContract.Framework.Services;
 using System;
-
+using System.Runtime.CompilerServices;
+using Neo.SmartContract.Framework.Services;
 namespace Neo.SmartContract.Framework.Attributes
 {
     /// <summary>
-    /// Global no Reentrancy protection
+    /// Global no Reentrancy protection. This no reentrant attribute by default take as a key the method name
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class NoReentrantAttribute : ModifierAttribute
+    public class NoReentrantMethodAttribute : ModifierAttribute
     {
         private readonly StorageMap _context;
         private readonly string _key;
-
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="prefix">Storage prefix</param>
-        /// <param name="key">Storage key</param>
-        public NoReentrantAttribute(byte prefix = 0xFF, string key = "noReentrant")
+        /// <param name="key">Storage key (the method name as default)</param>
+        public NoReentrantMethodAttribute(byte prefix = 0xFF, [CallerMemberName] string key = "noReentrant")
         {
             _key = key;
-            _context = new StorageMap(Storage.CurrentContext, prefix);
+            _context = new(Storage.CurrentContext, prefix);
         }
-
         public override void Enter()
         {
             var data = _context.Get(_key);
             ExecutionEngine.Assert(data == null, "Already entered");
             _context.Put(_key, 1);
         }
-
         public override void Exit()
         {
             _context.Delete(_key);
