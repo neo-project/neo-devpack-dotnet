@@ -235,5 +235,199 @@ namespace Neo.Optimizer
             while (modified);
             return (nef, manifest, debugInfo);
         }
+
+        /// <summary>
+        /// Removes JMP and JMP_L that targets the next instruction after the JMP or JMP_L.
+        /// Replace JMPIF/JMPIFNOT with DROP if it jumps to the next instruction
+        /// If the removed JMP or JMP_L itself is a jump target,
+        /// re-target to the instruction after the JMP or JMP_L
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = int.MaxValue)]
+        public static (NefFile, ContractManifest, JObject?) RemoveUnnecessaryJumps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            Script script = nef.Script;
+            List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
+            Dictionary<int, Instruction> oldAddressToInstruction = oldAddressAndInstructionsList.ToDictionary(e => e.a, e => e.i);
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+            {
+                if (unconditionalJump.Contains(i.OpCode))
+                {
+                    int target = ComputeJumpTarget(a, i);
+                    if (target - a == i.Size)
+                    {
+                        // Just jumping to the instruction after the jump itself
+                        // This is unnecessary jump. The jump should be deleted.
+                        // And, if this JMP is the target of other jump instructions,
+                        // re-target to the next instruction after this JMP.
+                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
+                        // handle the reference of the deleted JMP
+                        jumpSourceToTargets.Remove(i);
+                        jumpTargetToSources[nextInstruction].Remove(i);
+                        OptimizedScriptBuilder.RetargetJump(i, nextInstruction, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        continue;  // do not add this JMP into simplified instructions
+                    }
+                }
+                if (i.OpCode == OpCode.JMPIF || i.OpCode == OpCode.JMPIFNOT
+                 || i.OpCode == OpCode.JMPIF_L || i.OpCode == OpCode.JMPIFNOT_L)
+                {
+                    int target = ComputeJumpTarget(a, i);
+                    if (target - a == i.Size)
+                    {
+                        Instruction newDrop = new Script(new byte[] { (byte)OpCode.DROP }).GetInstruction(0);
+                        simplifiedInstructionsToAddress.Add(newDrop, currentAddress);
+                        oldSequencePointAddressToNew.Add(a, currentAddress);
+                        currentAddress += newDrop.Size;
+
+                        Instruction nextInstruction = oldAddressToInstruction[a + i.Size];
+                        // handle the reference of the deleted JMP
+                        jumpSourceToTargets.Remove(i);
+                        jumpTargetToSources[nextInstruction].Remove(i);
+                        OptimizedScriptBuilder.RetargetJump(i, newDrop, jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        continue;
+                    }
+                }
+                simplifiedInstructionsToAddress.Add(i, currentAddress);
+                currentAddress += i.Size;
+            }
+
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
+        /// If a JMP or JMP_L jumps to a RET, replace the JMP with RET
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = int.MaxValue - 4)]
+        public static (NefFile, ContractManifest, JObject?) ReplaceJumpWithRet(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            Script script = nef.Script;
+            List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
+            Dictionary<int, Instruction> oldAddressToInstruction = oldAddressAndInstructionsList.ToDictionary(e => e.a, e => e.i);
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+            {
+                if (unconditionalJump.Contains(i.OpCode))
+                {
+                    int target = ComputeJumpTarget(a, i);
+                    if (!oldAddressToInstruction.TryGetValue(target, out Instruction? dstRet))
+                        throw new BadScriptException($"Bad {nameof(oldAddressToInstruction)}. No target found for {i} jumping from {a} to {target}");
+                    if (dstRet.OpCode == OpCode.RET)
+                    {
+                        oldSequencePointAddressToNew[a] = currentAddress;
+                        // handle the reference of the deleted JMP
+                        jumpSourceToTargets.Remove(i);
+                        jumpTargetToSources[dstRet].Remove(i);
+                        // handle the reference of the added RET
+                        Instruction newRet = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
+                        // above is a workaround of new Instruction(OpCode.RET)
+                        OptimizedScriptBuilder.RetargetJump(i, newRet,
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        simplifiedInstructionsToAddress.Add(newRet, currentAddress);
+                        currentAddress += newRet.Size;
+                        continue;
+                    }
+                }
+                simplifiedInstructionsToAddress.Add(i, currentAddress);
+                currentAddress += i.Size;
+            }
+
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction,
+                oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
+        /// If an unconditional jump targets an unconditional jump, re-target the first unconditional jump to its final destination
+        /// If a conditional jump targets an unconditional jump, re-target the conditional jump to its final destination
+        /// If an unconditional jump targets a conditional jump, DO NOT replace the unconditional jump with a conditional jump to its final destination. THIS IS WRONG.
+        /// This should be executed very early, before <see cref="Reachability.RemoveUncoveredInstructions"/>
+        /// </summary>
+        /// <param name="nef"></param>
+        /// <param name="manifest"></param>
+        /// <param name="debugInfo"></param>
+        /// <returns></returns>
+        [Strategy(Priority = int.MaxValue - 8)]
+        public static (NefFile, ContractManifest, JObject?) FoldJump(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            (nef, manifest, debugInfo) = JumpCompresser.UncompressJump(nef, manifest, debugInfo);
+            bool modified;
+            do
+            {
+                modified = false;
+                Script script = nef.Script;
+                List<(int a, Instruction i)> oldAddressAndInstructionsList = script.EnumerateInstructions().ToList();
+                Dictionary<int, Instruction> oldAddressToInstruction = oldAddressAndInstructionsList.ToDictionary(e => e.a, e => e.i);
+                Dictionary<Instruction, int> oldInstructionToAddress = oldAddressAndInstructionsList.ToDictionary(e => e.i, e => e.a);
+                (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                    Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                    Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                    FindAllJumpAndTrySourceToTargets(oldAddressAndInstructionsList);
+                Dictionary<int, int> oldSequencePointAddressToNew = new();
+
+                System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+                int newAddr = 0;
+                foreach ((int a, Instruction i) in oldAddressAndInstructionsList)
+                {
+                    if (shortInstructions.Contains(i.OpCode))
+                        throw new BadScriptException($"Long version of OpCodes are required in {nameof(FoldJump)} optimization");
+                    if (unconditionalJump.Contains(i.OpCode) || conditionalJump_L.Contains(i.OpCode))
+                    {
+                        Instruction target = jumpSourceToTargets[i];
+                        if (unconditionalJump.Contains(target.OpCode) || unconditionalJump.Contains(target.OpCode))
+                        {
+                            modified = true;
+                            Instruction finalTarget = jumpSourceToTargets[target];
+                            // No need to change opcode. Use the old instruction without a new one.
+                            // No need to reset operand. BuildOptimizedAssets does it.
+                            simplifiedInstructionsToAddress.Add(i, newAddr);
+                            oldSequencePointAddressToNew.Add(a, newAddr);
+                            newAddr += i.Size;
+
+                            jumpSourceToTargets[i] = finalTarget;
+                            jumpTargetToSources[target].Remove(i);
+                            jumpTargetToSources[finalTarget].Add(i);
+                            continue;
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(i, newAddr);
+                    newAddr += i.Size;
+                }
+
+                (nef, manifest, debugInfo) = AssetBuilder.BuildOptimizedAssets(
+                    nef, manifest, debugInfo,
+                    simplifiedInstructionsToAddress,
+                    jumpSourceToTargets, trySourceToTargets,
+                    oldAddressToInstruction, oldSequencePointAddressToNew);
+            }
+            while (modified);
+            return JumpCompresser.CompressJump(nef, manifest, debugInfo);
+        }
     }
 }
