@@ -40,12 +40,16 @@ namespace Neo.Optimizer
                 }
                 // The instruction at the end of the method may have been deleted.
                 // We need to find the last instruction that is not deleted.
-                //int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
-                int oldMethodEndNotDeleted = oldAddressToInstruction.Where(kv =>
-                kv.Key >= oldMethodStart && kv.Key <= oldMethodEnd &&
-                simplifiedInstructionsToAddress.Contains(kv.Value)
-                ).Max(kv => kv.Key);
-                int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEndNotDeleted]]!;
+                int methodEnd;
+                if (oldSequencePointAddressToNew?.TryGetValue(oldMethodEnd, out methodEnd) != true)
+                {
+                    //int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
+                    int oldMethodEndNotDeleted = oldAddressToInstruction.Where(kv =>
+                    kv.Key >= oldMethodStart && kv.Key <= oldMethodEnd &&
+                    simplifiedInstructionsToAddress.Contains(kv.Value)
+                    ).Max(kv => kv.Key);
+                    methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEndNotDeleted]]!;
+                }
                 method["range"] = $"{methodStart}-{methodEnd}";
 
                 int previousSequencePoint = methodStart;

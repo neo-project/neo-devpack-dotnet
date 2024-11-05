@@ -73,7 +73,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAEHA7BwwRcD0AcRJw
+    /// Script: VwIAEHA7BwwRcD0AcRJwPQA0mw==
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -84,6 +84,8 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// 0C : OpCode.STLOC1 [2 datoshi]
     /// 0D : OpCode.PUSH2 [1 datoshi]
     /// 0E : OpCode.STLOC0 [2 datoshi]
+    /// 0F : OpCode.ENDTRY 00 [4 datoshi]
+    /// 11 : OpCode.CALL 9B [512 datoshi]
     /// </remarks>
     [DisplayName("testAssertInFinally")]
     public abstract BigInteger? TestAssertInFinally();

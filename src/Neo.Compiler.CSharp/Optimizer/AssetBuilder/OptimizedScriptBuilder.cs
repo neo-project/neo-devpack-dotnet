@@ -94,7 +94,7 @@ namespace Neo.Optimizer
             Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
             Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources)
         {
-            if (jumpTargetToSources.Remove(oldTarget, out HashSet<Instruction>? sources))
+            if (jumpTargetToSources.Remove(oldTarget, out HashSet<Instruction>? sources) && sources.Count > 0)
             {
                 foreach (Instruction s in sources)
                 {
@@ -108,9 +108,8 @@ namespace Neo.Optimizer
                     }
                 }
                 if (jumpTargetToSources.TryGetValue(newTarget, out HashSet<Instruction>? newTargetSources))
-                    newTargetSources.Union(sources);
-                else
-                    jumpTargetToSources[newTarget] = sources;
+                    sources = newTargetSources.Union(sources).ToHashSet();
+                jumpTargetToSources[newTarget] = sources;
             }
         }
     }
