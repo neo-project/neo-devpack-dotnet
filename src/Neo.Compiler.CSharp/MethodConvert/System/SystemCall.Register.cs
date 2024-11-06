@@ -469,6 +469,8 @@ internal partial class MethodConvert
         RegisterHandler((long x, long y) => x.Equals(y), HandleBigIntegerEquals);
         RegisterHandler((ulong x, ulong y) => x.Equals(y), HandleBigIntegerEquals);
         RegisterHandler((BigInteger x, BigInteger y) => x.Equals(y), HandleBigIntegerEquals);
+        RegisterHandler((BigInteger x, long y) => x.Equals(y), HandleBigIntegerEquals);
+        RegisterHandler((BigInteger x, ulong y) => x.Equals(y), HandleBigIntegerEquals);
         #endregion Equals
 
         // Numeric Parse() methods
