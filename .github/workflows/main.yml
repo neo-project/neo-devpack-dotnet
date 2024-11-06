@@ -2,7 +2,7 @@ name: .NET Core Test and Publish
 
 on:
   push:
-    branches: [master]
+    branches: [v3.7.4.1]
   pull_request:
 
 env:
@@ -94,7 +94,7 @@ jobs:
         file: ${{ github.workspace }}/coverage/lcov.info
 
   PublishPackage:
-    if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
+    if: github.ref == 'refs/heads/v3.7.4.1' && startsWith(github.repository, 'neo-project/')
     needs: Test
     runs-on: ubuntu-latest
     steps:
@@ -154,7 +154,7 @@ jobs:
             --no-service-endpoint;
 
   Release:
-    if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
+    if: github.ref == 'refs/heads/v3.7.4.1' && startsWith(github.repository, 'neo-project/')
     needs: Test
     runs-on: ubuntu-latest
     steps:
