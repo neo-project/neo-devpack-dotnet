@@ -123,8 +123,7 @@ internal static partial class ContractManifestExtensions
         if (transferEvent == null)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event is not found in the ABI"));
-
-        if (transferEvent != null)
+        else
         {
             if (transferEvent.Parameters.Length != 3)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
