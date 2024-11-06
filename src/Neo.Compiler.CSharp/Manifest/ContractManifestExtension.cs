@@ -24,25 +24,6 @@ namespace Neo.Compiler
     {
 
         private static System.Collections.Generic.List<CompilationException>
-            CheckNep24Compliant(this ContractManifest manifest)
-        {
-            var royaltyInfoMethod = manifest.Abi.GetMethod("royaltyInfo", 0);
-
-            var royaltyInfoValid = royaltyInfoMethod != null && royaltyInfoMethod.Safe &&
-                                royaltyInfoMethod.ReturnType == ContractParameterType.Array &&
-                                royaltyInfoMethod.Parameters.Length == 3 &&
-                                royaltyInfoMethod.Parameters[0].Type == ContractParameterType.ByteArray &&
-                                royaltyInfoMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
-                                royaltyInfoMethod.Parameters[2].Type == ContractParameterType.Integer;
-
-            System.Collections.Generic.List<CompilationException> errors = [];
-            if (!royaltyInfoValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep24.ToStandard()} implementation: royaltyInfo"));
-            return errors;
-        }
-
-
-        private static System.Collections.Generic.List<CompilationException>
             CheckNep29Compliant(this ContractManifest manifest)
         {
             var deployMethod = manifest.Abi.GetMethod("_deploy", 2);
@@ -68,55 +49,6 @@ namespace Neo.Compiler
             System.Collections.Generic.List<CompilationException> errors = [];
             if (!verifyValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep30.ToStandard()} implementation: verify"));
-            return errors;
-        }
-
-        private static System.Collections.Generic.List<CompilationException>
-            CheckNep17Compliant(this ContractManifest manifest)
-        {
-            var symbolMethod = manifest.Abi.GetMethod("symbol", 0);
-            var decimalsMethod = manifest.Abi.GetMethod("decimals", 0);
-            var totalSupplyMethod = manifest.Abi.GetMethod("totalSupply", 0);
-            var balanceOfMethod = manifest.Abi.GetMethod("balanceOf", 1);
-            var transferMethod = manifest.Abi.GetMethod("transfer", 4);
-
-            var symbolValid = symbolMethod != null && symbolMethod.Safe &&
-                                symbolMethod.ReturnType == ContractParameterType.String;
-            var decimalsValid = decimalsMethod != null && decimalsMethod.Safe &&
-                                decimalsMethod.ReturnType == ContractParameterType.Integer;
-            var totalSupplyValid = totalSupplyMethod != null && totalSupplyMethod.Safe &&
-                                    totalSupplyMethod.ReturnType == ContractParameterType.Integer;
-            var balanceOfValid = balanceOfMethod != null && balanceOfMethod.Safe &&
-                                    balanceOfMethod.ReturnType == ContractParameterType.Integer &&
-                                    balanceOfMethod.Parameters.Length == 1 &&
-                                    balanceOfMethod.Parameters[0].Type == ContractParameterType.Hash160;
-            var transferValid = transferMethod != null && transferMethod.Safe == false &&
-                                transferMethod.ReturnType == ContractParameterType.Boolean &&
-                                transferMethod.Parameters.Length == 4 &&
-                                transferMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
-                                transferMethod.Parameters[1].Type == ContractParameterType.Hash160 &&
-                                transferMethod.Parameters[2].Type == ContractParameterType.Integer &&
-                                transferMethod.Parameters[3].Type == ContractParameterType.Any;
-            var transferEvent = manifest.Abi.Events.Any(s =>
-                s.Name == "Transfer" &&
-                s.Parameters.Length == 3 &&
-                s.Parameters[0].Type == ContractParameterType.Hash160 &&
-                s.Parameters[1].Type == ContractParameterType.Hash160 &&
-                s.Parameters[2].Type == ContractParameterType.Integer);
-
-            System.Collections.Generic.List<CompilationException> errors = new();
-
-            if (!symbolValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: symbol"));
-            if (!decimalsValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: decimals"));
-            if (!totalSupplyValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: totalSupply"));
-            if (!balanceOfValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: balanceOf"));
-            if (!transferValid) errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: transfer"));
-
             return errors;
         }
 
