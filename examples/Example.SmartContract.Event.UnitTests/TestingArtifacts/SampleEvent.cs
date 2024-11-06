@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing;
 
-public abstract class SampleEvent : Neo.SmartContract.Testing.SmartContract, IContractInfo
+public abstract class SampleEvent(Neo.SmartContract.Testing.SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize), IContractInfo
 {
     #region Compiled data
 
@@ -15,7 +15,7 @@ public abstract class SampleEvent : Neo.SmartContract.Testing.SmartContract, ICo
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERXAQAMAwECA9swcMJKaM9KDAJvac9KGs8MDm5ld19ldmVudF9uYW1lQZUBb2HCSmjPSgAyzwwGZXZlbnQyQZUBb2EJQAYoij8="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADxXAQAMAwECA9swcBoMAm9paBPADA5uZXdfZXZlbnRfbmFtZUGVAW9hADJoEsAMBmV2ZW50MkGVAW9hCUDlVbC3"));
 
     #endregion
 
@@ -40,12 +40,6 @@ public abstract class SampleEvent : Neo.SmartContract.Testing.SmartContract, ICo
     /// </summary>
     [DisplayName("main")]
     public abstract bool? Main();
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected SampleEvent(Neo.SmartContract.Testing.SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }
