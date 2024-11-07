@@ -127,10 +127,10 @@ internal partial class MethodConvert
             JumpTarget endTarget = new();
             if (Symbol.IsStatic)
             {
-                // AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.DUP);
                 AddInstruction(OpCode.ISNULL);
-                // Ensure that no object was sent
                 Jump(OpCode.JMPIFNOT_L, endTarget);
+                AddInstruction(OpCode.DROP);
             }
             else if (NeedInstanceConstructor(Symbol))
             {
