@@ -7,7 +7,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_Storage : DebugAndTestBase<Contract_Storage>
     {
         [TestMethod]
-        public void Test_StaticClass()
+        public void Test_Storage()
         {
             var a = Contract;
             Engine.SetTransactionSigners(Bob);
