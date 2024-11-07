@@ -21,12 +21,13 @@ using static Neo.Optimizer.OpCodeTypes;
 
 namespace Neo.Optimizer
 {
+    [Flags]
     public enum TryType
     {
-        NONE,
-        TRY,
-        CATCH,
-        FINALLY,
+        NONE = 1 << 0,
+        TRY = 1 << 1,
+        CATCH = 1 << 2,
+        FINALLY = 1 << 3,
     }
 
     [DebuggerDisplay("{catchAddr}, {finallyAddr}, {tryStateType}, {continueAfterFinally}")]
@@ -81,6 +82,11 @@ namespace Neo.Optimizer
         // key: starting address of basic block
         // value: starting address of basic blocks that is jumped to, from this basic block
         public Dictionary<int, HashSet<int>> basicBlockJump { get; protected set; } = new();
+        public Dictionary<int, TryType> basicBlockTryType { get; protected set; } = new();
+        // keys are starting addrs of basic blocks in try; values are starting addr of corresponding catch
+        public Dictionary<int, HashSet<int>> catchBlock { get; protected set; } = new();
+        public Dictionary<int, HashSet<int>> finallyBlock { get; protected set; } = new();
+        public Dictionary<int, HashSet<int>> endFinallyBlock { get; protected set; } = new();
         public List<(int a, Instruction i)> addressAndInstructions { get; init; }
         public Dictionary<int, Instruction> addressToInstructions { get; init; }
         public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
@@ -184,6 +190,43 @@ namespace Neo.Optimizer
             return BranchType.ABORT;
         }
 
+        public void HandleBasicBlockTryCatchFinallyRef(int addr,
+            int catchAddr, int finallyAddr, TryType stackType, bool continueAfterFinally)
+        {
+            if (!basicBlockTryType.TryAdd(addr, stackType))
+                basicBlockTryType[addr] |= stackType;
+            if (catchAddr != -1 && (stackType | TryType.TRY) > 0)
+            {
+                if (!catchBlock.TryGetValue(addr, out HashSet<int>? catchAddrs))
+                {
+                    catchAddrs = new();
+                    catchBlock[addr] = catchAddrs;
+                }
+                catchAddrs.Add(catchAddr);
+            }
+            if (finallyAddr != -1)
+            {
+                if (((stackType | TryType.TRY) > 0) || ((stackType | TryType.CATCH) > 0))
+                {
+                    if (!finallyBlock.TryGetValue(addr, out HashSet<int>? finallyAddrs))
+                    {
+                        finallyAddrs = new();
+                        finallyBlock[addr] = finallyAddrs;
+                    }
+                    finallyAddrs.Add(finallyAddr);
+                }
+                if ((stackType | TryType.FINALLY) > 0 && continueAfterFinally)
+                {
+                    if (!endFinallyBlock.TryGetValue(addr, out HashSet<int>? endFinallyAddrs))
+                    {
+                        endFinallyAddrs = new();
+                        finallyBlock[addr] = endFinallyAddrs;
+                    }
+                    endFinallyAddrs.Add(finallyAddr);
+                }
+            }
+        }
+
         /// <summary>
         /// Cover a basic block, and recursively cover all branches
         /// </summary>
@@ -219,6 +262,7 @@ namespace Neo.Optimizer
                 tryStack = CopyStack(tryStack);
 
             (int catchAddr, int finallyAddr, TryType stackType, bool continueAfterFinally) = tryStack.Peek();
+            HandleBasicBlockTryCatchFinallyRef(addr, catchAddr, finallyAddr, stackType, continueAfterFinally);
 
             while (true)
             {
@@ -244,10 +288,7 @@ namespace Neo.Optimizer
                     // No THROW or ABORT in try, catch or finally
                     // visit codes after ENDFINALLY
                     if (continueAfterFinally)
-                    {
-                        int endPointer = finallyAddr;
-                        return coveredMap[entranceAddr] = CoverInstruction(endPointer, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
-                    }
+                        return coveredMap[entranceAddr] = CoverInstruction(finallyAddr, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
                     // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
                     return BranchType.THROW;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                 }

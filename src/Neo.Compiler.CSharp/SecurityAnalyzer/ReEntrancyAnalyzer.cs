@@ -5,6 +5,7 @@ using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Neo.Compiler.SecurityAnalyzer
 {
@@ -40,19 +41,20 @@ namespace Neo.Compiler.SecurityAnalyzer
 
             public string GetWarningInfo(bool print = false)
             {
-                string result = "";
-                if (vulnerabilityPairs.Count <= 0) return result;
+                if (vulnerabilityPairs.Count <= 0) return "";
+                StringBuilder result = new();
                 foreach ((BasicBlock callBlock, HashSet<BasicBlock> writeBlocks) in vulnerabilityPairs)
                 {
-                    string additional = $"[SEC] Potential Re-entrancy: Calling contracts at instruction address: " +
-                        $"{string.Join(", ", callOtherContractInstructions[callBlock])} before writing storage at\n";
+                    StringBuilder additional = new();
+                    additional.AppendLine($"[SEC] Potential Re-entrancy: Calling contracts at instruction address: " +
+                        $"{string.Join(", ", callOtherContractInstructions[callBlock])} before writing storage at");
                     foreach (BasicBlock writeBlock in writeBlocks)
-                        additional += $"\t{string.Join(", ", writeStorageInstructions[writeBlock])}\n";
+                        additional.AppendLine($"\t{string.Join(", ", writeStorageInstructions[writeBlock])}");
                     if (print)
-                        Console.Write(additional);
-                    result += additional;
+                        Console.Write(additional.ToString());
+                    result.Append(additional);
                 }
-                return result;
+                return result.ToString();
             }
         }
 
@@ -103,29 +105,19 @@ namespace Neo.Compiler.SecurityAnalyzer
                 }
             }
 
-            // key block is the jump target of value blocks
-            Dictionary<BasicBlock, HashSet<BasicBlock>> reverseRef = basicBlocks.ToDictionary(
-                b => b, b => new HashSet<BasicBlock>());
-            foreach (BasicBlock b in basicBlocks)
-            {
-                if (b.nextBlock != null) reverseRef[b.nextBlock].Add(b);
-                foreach (BasicBlock target in b.jumpTargetBlocks)
-                    reverseRef[target].Add(b);
-            }
-
             // For each basic block that writes to storage,
             // find upstream blocks that call another contract and may go into this block
             foreach (BasicBlock block in basicBlocks.Where(b => writeStorageInstructions[b].Count > 0))
             {
                 HashSet<BasicBlock> visited = new();
-                Queue<BasicBlock> q = new(reverseRef[block]);
+                Queue<BasicBlock> q = new(block.jumpSourceBlocks);
                 while (q.Count > 0)
                 {
                     BasicBlock current = q.Dequeue();
                     visited.Add(current);
                     if (callOtherContractInstructions[current].Count > 0)
                         vulnerabilityPairs[current].Add(block);
-                    foreach (BasicBlock referringBlock in reverseRef[current])
+                    foreach (BasicBlock referringBlock in current.jumpSourceBlocks)
                         if (!visited.Contains(referringBlock))
                             q.Enqueue(referringBlock);
                 }
