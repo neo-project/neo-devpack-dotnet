@@ -58,13 +58,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         [Safe]
         public BigInteger getNonStaticPrivateGetterPublicSetter() => NonStaticPrivateGetterPublicSetter;
 
-
         [Stored("testStaticMulti")]
         public static BigInteger MultiWithStringStstic { [Safe] get; protected set; }
 
         [Stored("testMulti")]
         public BigInteger MultiWithString { [Safe] get; protected set; }
-
 
         public static BigInteger TestStaticMultiSet()
         {
