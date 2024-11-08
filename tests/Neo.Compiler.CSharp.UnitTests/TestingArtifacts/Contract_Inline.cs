@@ -25,7 +25,7 @@ public abstract class Contract_Inline(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoDGlubGluZZcmBBFAaAxpbmxpbmVfd2l0aF9vbmVfcGFyYW1ldGVyc5cmBBNAaAxpbmxpbmVfd2l0aF9tdWx0aV9wYXJhbWV0ZXJzlyY0ExKeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BoDG5vdF9pbmxpbmWXJgU0dEBoDG5vdF9pbmxpbmVfd2l0aF9vbmVfcGFyYW1ldGVyc5cmBhM0TkBoDG5vdF9pbmxpbmVfd2l0aF9tdWx0aV9wYXJhbWV0ZXJzlyYHExI0KEBoDGlubGluZV9uZXN0ZWSXJgU0R0AIJgUAY0BoOg==
+    /// Script: VwEBeHBoDAZpbmxpbmWXJgQRQGgMGmlubGluZV93aXRoX29uZV9wYXJhbWV0ZXJzlyYEE0BoDBxpbmxpbmVfd2l0aF9tdWx0aV9wYXJhbWV0ZXJzlyY0ExKeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BoDApub3RfaW5saW5llyYFNHRAaAwebm90X2lubGluZV93aXRoX29uZV9wYXJhbWV0ZXJzlyYGEzROQGgMIG5vdF9pbmxpbmVfd2l0aF9tdWx0aV9wYXJhbWV0ZXJzlyYHExI0KEBoDA1pbmxpbmVfbmVzdGVklyYFNEdACCYFAGNAaDo=
     /// 0000 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 0003 : OpCode.LDARG0 [2 datoshi]
     /// 0004 : OpCode.STLOC0 [2 datoshi]

@@ -202,7 +202,7 @@ public abstract class Contract_List(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICeXi4JhwMSW52YWxpZCB0ZXN0IHBhcmFtZXRlcnM6wnAQcSI4aGnPaUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JMdoedJoNwAAQA==
+    /// Script: VwICeXi4JhwMF0ludmFsaWQgdGVzdCBwYXJhbWV0ZXJzOsJwEHEiOGhpz2lKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWl4tSTHaHnSaDcAAEA=
     /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
     /// 03 : OpCode.LDARG1 [2 datoshi]
     /// 04 : OpCode.LDARG0 [2 datoshi]

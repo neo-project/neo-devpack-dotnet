@@ -15,7 +15,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/X8BVwABACpgQFcAAxphDAVIZWxsb2IIY0AQYFg05lhAVwEAaGBYNNxYQBBjC2IQYVtaWTTWWTcAAAwCLCCLWosMAiwgi1smCgwEVHJ1ZSIJDAVGYWxzZYvbKEAQYwtiEGFbWlk0pUBXAgAQcBBxImwQYFg0j2hYnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaRW1JJNoQFcAAXgmDxBgWDUY////WDcAAEAQYwtiEGFbWlk1DP///1pAVwEBeHBoEZckCWgSlyQOIhwQYFg16v7//1hAEGMLYhBhW1pZNeH+//9ZQA9AVwEAEGRcNAhwXGgSv0BXAAFcZFg1vf7//1hkXBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BWBUBHGrIq"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/X8BVwABACpgQFcAAxphDAVIZWxsb2IIY0AQYFg05lhAVwEAaGBYNNxYQAljC2IQYVtaWTTWWTcAAAwCLCCLWosMAiwgi1smCgwEVHJ1ZSIJDAVGYWxzZYvbKEAJYwtiEGFbWlk0pUBXAgAQcBBxImwQYFg0j2hYnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaRW1JJNoQFcAAXgmDxBgWDUY////WDcAAEAJYwtiEGFbWlk1DP///1pAVwEBeHBoEZckCWgSlyQOIhwQYFg16v7//1hACWMLYhBhW1pZNeH+//9ZQA9AVwEAEGRcNAhwXGgSv0BXAAFcZFg1vf7//1hkXBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BWBUAa2QfK"));
 
     #endregion
 
@@ -41,8 +41,8 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EGMLYhBhW1pZNNZZNwAADCwgi1qLDCwgi1smCgxUcnVlIgkMRmFsc2WL2yhA
-    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// Script: CWMLYhBhW1pZNNZZNwAADAIsIItaiwwCLCCLWyYKDARUcnVlIgkMBUZhbHNli9soQA==
+    /// 00 : OpCode.PUSHF [1 datoshi]
     /// 01 : OpCode.STSFLD3 [2 datoshi]
     /// 02 : OpCode.PUSHNULL [1 datoshi]
     /// 03 : OpCode.STSFLD2 [2 datoshi]
@@ -96,7 +96,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeCYPEGBYNRj///9YNwAAQBBjC2IQYVtaWTUM////WkA=
+    /// Script: VwABeCYPEGBYNRj///9YNwAAQAljC2IQYVtaWTUM////WkA=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.JMPIFNOT 0F [2 datoshi]
@@ -107,7 +107,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// 0E : OpCode.LDSFLD0 [2 datoshi]
     /// 0F : OpCode.CALLT 0000 [32768 datoshi]
     /// 12 : OpCode.RET [0 datoshi]
-    /// 13 : OpCode.PUSH0 [1 datoshi]
+    /// 13 : OpCode.PUSHF [1 datoshi]
     /// 14 : OpCode.STSFLD3 [2 datoshi]
     /// 15 : OpCode.PUSHNULL [1 datoshi]
     /// 16 : OpCode.STSFLD2 [2 datoshi]
@@ -127,8 +127,8 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EGMLYhBhW1pZNKVA
-    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// Script: CWMLYhBhW1pZNKVA
+    /// 00 : OpCode.PUSHF [1 datoshi]
     /// 01 : OpCode.STSFLD3 [2 datoshi]
     /// 02 : OpCode.PUSHNULL [1 datoshi]
     /// 03 : OpCode.STSFLD2 [2 datoshi]
@@ -209,7 +209,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoEZckCWgSlyQOIhwQYFg16v7//1hAEGMLYhBhW1pZNeH+//9ZQA9A
+    /// Script: VwEBeHBoEZckCWgSlyQOIhwQYFg16v7//1hACWMLYhBhW1pZNeH+//9ZQA9A
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.STLOC0 [2 datoshi]
@@ -228,7 +228,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// 14 : OpCode.CALL_L EAFEFFFF [512 datoshi]
     /// 19 : OpCode.LDSFLD0 [2 datoshi]
     /// 1A : OpCode.RET [0 datoshi]
-    /// 1B : OpCode.PUSH0 [1 datoshi]
+    /// 1B : OpCode.PUSHF [1 datoshi]
     /// 1C : OpCode.STSFLD3 [2 datoshi]
     /// 1D : OpCode.PUSHNULL [1 datoshi]
     /// 1E : OpCode.STSFLD2 [2 datoshi]

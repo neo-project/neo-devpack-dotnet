@@ -3,6 +3,7 @@ using Neo.IO;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.TestingStandards;
+using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -417,12 +418,10 @@ namespace Neo.SmartContract.Testing.Extensions
                 var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, debugInfo, method.Name);
                 if (instructions is not null && instructions.Count > 0)
                 {
-                    var scripts = instructions.Select(i =>
-                    {
-                        var instruction = i.Item2;
-                        var opCode = new[] { (byte)instruction.OpCode };
-                        return instruction.Operand.Length == 0 ? opCode : opCode.Concat(instruction.Operand.ToArray());
-                    }).SelectMany(p => p).ToArray();
+                    Script script = nefFile.Script;
+                    (int start, int end) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(method.Name, debugInfo);
+                    int actualEnd = end + script.GetInstruction(end).Size;
+                    var scripts = nefFile.Script[start..actualEnd].ToArray();
 
                     var maxAddressLength = instructions.Max(instruction => instruction.address.ToString("X").Length);
                     var addressFormat = $"X{(maxAddressLength + 1) / 2 * 2}";

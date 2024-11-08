@@ -25,7 +25,7 @@ public abstract class Contract_Update(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DFlFU0A=
+    /// Script: DANZRVNA
     /// 00 : OpCode.PUSHDATA1 594553 [8 datoshi]
     /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
