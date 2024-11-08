@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator TokensOf(UInt160 owner)
         {
-            if (!owner.IsValid)
+            if (owner is null || !owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid");
             var accountMap = new StorageMap(Prefix_AccountToken);
             return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
@@ -76,7 +76,7 @@ namespace Neo.SmartContract.Framework
 
         public static bool Transfer(UInt160 to, ByteString tokenId, object data)
         {
-            if (!to.IsValid)
+            if (to is null || !to.IsValid)
                 throw new Exception("The argument \"to\" is invalid.");
             var tokenMap = new StorageMap(Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
