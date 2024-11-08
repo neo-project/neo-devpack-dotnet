@@ -12,5 +12,19 @@ namespace Neo.Compiler.CSharp.UnitTests
             var property = Contract_Property.Manifest.Abi.Methods[0];
             Assert.AreEqual("symbol", property.Name);
         }
+
+        [TestMethod]
+        public void TestStaticPropertyInc()
+        {
+            var res = Contract.TestStaticPropertyInc();
+            Assert.AreEqual(3, res);
+        }
+
+        [TestMethod]
+        public void TestPropertyInc()
+        {
+            var res = Contract.TestPropertyInc();
+            Assert.AreEqual(3, res);
+        }
     }
 }
