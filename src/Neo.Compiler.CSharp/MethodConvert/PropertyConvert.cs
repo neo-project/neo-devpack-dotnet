@@ -42,7 +42,7 @@ internal partial class MethodConvert
     private void ConvertFieldBackedProperty(IPropertySymbol property)
     {
         IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
-        if (Symbol.IsStatic)
+        if (!NeedInstanceConstructor(Symbol))
         {
             IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
             byte backingFieldIndex = _context.AddStaticField(backingField);
@@ -61,8 +61,6 @@ internal partial class MethodConvert
         }
         else
         {
-            if (!NeedInstanceConstructor(Symbol))
-                return;
             fields = fields.Where(p => !p.IsStatic).ToArray();
             int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
             switch (Symbol.MethodKind)
