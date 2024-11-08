@@ -9,7 +9,6 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
-using Neo.Extensions;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
@@ -20,6 +19,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
+using Neo.Extensions;
 
 namespace Neo.Compiler
 {
@@ -34,7 +34,7 @@ namespace Neo.Compiler
         public JumpTarget? Target;
         public JumpTarget? Target2;
         public int Offset;
-        public LocationInformation? Location;
+        public Location? SourceLocation;
 
         public int Size
         {
@@ -67,7 +67,7 @@ namespace Neo.Compiler
             {
                 OpCode = OpCode,
                 Operand = Operand,
-                Location = Location
+                SourceLocation = SourceLocation
             };
         }
 
