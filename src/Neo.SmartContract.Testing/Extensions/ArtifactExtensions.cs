@@ -415,12 +415,12 @@ namespace Neo.SmartContract.Testing.Extensions
             // Add the opcodes
             if (debugInfo != null && nefFile != null)
             {
-                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, debugInfo, method.Name);
+                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, debugInfo, method.Name, method.Parameters.Length);
                 if (instructions is not null && instructions.Count > 0)
                 {
                     Script script = nefFile.Script;
-                    (int start, int end) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(method.Name, debugInfo);
-                    int actualEnd = end + script.GetInstruction(end).Size;
+                    (var start, var end, _) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(method.Name, method.Parameters.Length, debugInfo);
+                    var actualEnd = end + script.GetInstruction(end).Size;
                     var scripts = nefFile.Script[start..actualEnd].ToArray();
 
                     var maxAddressLength = instructions.Max(instruction => instruction.address.ToString("X").Length);
