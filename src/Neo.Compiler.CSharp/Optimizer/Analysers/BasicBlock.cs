@@ -100,28 +100,25 @@ namespace Neo.Optimizer
             foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
             {
                 BasicBlock thisBlock = new(startAddr, block);
-                int firstNotNopAddr = startAddr;
-                foreach (Instruction i in block)
-                    if (i.OpCode == OpCode.NOP)
-                        firstNotNopAddr += i.Size;
-                thisBlock.branchType = coverage.coveredMap[firstNotNopAddr];
+                thisBlock.branchType = coverage.coveredMap[startAddr];
                 sortedBasicBlocks.Add(thisBlock);
                 basicBlocksByStartInstruction.Add(block.First(), thisBlock);
                 basicBlocksByStartAddr.Add(startAddr, thisBlock);
             }
             // handle jumps and continuations between blocks
-            foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
+            foreach (BasicBlock block in sortedBasicBlocks)
             {
+                int startAddr = block.startAddr;
                 if (coverage.basicBlockContinuation.TryGetValue(startAddr, out int continuationTarget))
                 {
-                    basicBlocksByStartAddr[startAddr].nextBlock = basicBlocksByStartAddr[continuationTarget];
-                    basicBlocksByStartAddr[continuationTarget].prevBlock = basicBlocksByStartAddr[startAddr];
+                    block.nextBlock = basicBlocksByStartAddr[continuationTarget];
+                    basicBlocksByStartAddr[continuationTarget].prevBlock = block;
                 }
                 if (coverage.basicBlockJump.TryGetValue(startAddr, out HashSet<int>? jumpTargets))
                     foreach (int target in jumpTargets)
                     {
-                        basicBlocksByStartAddr[startAddr].jumpTargetBlocks.Add(basicBlocksByStartAddr[target]);
-                        basicBlocksByStartAddr[target].jumpSourceBlocks.Add(basicBlocksByStartAddr[startAddr]);
+                        block.jumpTargetBlocks.Add(basicBlocksByStartAddr[target]);
+                        basicBlocksByStartAddr[target].jumpSourceBlocks.Add(block);
                     }
             }
         }
