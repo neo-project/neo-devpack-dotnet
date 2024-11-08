@@ -277,7 +277,7 @@ namespace Neo.Compiler
             foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
             {
                 System.Collections.Generic.List<JString> sequencePoints = [];
-                JObject compilerInfo = new();
+                JObject sequencePointsV2 = new();
 
                 foreach (var ins in m.Instructions.Where(i => i.Location?.SourceLocation?.SourceTree is not null))
                 {
@@ -295,13 +295,22 @@ namespace Neo.Compiler
                     }
 
                     var span = ins.Location!.SourceLocation!.GetLineSpan();
-                    var str = $"{ins.Offset}[{index}]{ToRangeString(span.StartLinePosition)}-{ToRangeString(span.EndLinePosition)}";
+                    var range = ToRangeString(span.StartLinePosition) + "-" + ToRangeString(span.EndLinePosition);
+                    var str = $"{ins.Offset}[{index}]{range}";
+
                     sequencePoints.Add(new JString(str));
+
+                    var v2 = new JObject();
+
+                    v2["document"] = index;
+                    v2["range"] = range;
 
                     if (!string.IsNullOrEmpty(ins.Location.CompilerLocation))
                     {
-                        compilerInfo[ins.Offset.ToString()] = ins.Location.CompilerLocation;
+                        v2["compiler-source"] = ins.Location.CompilerLocation;
                     }
+
+                    sequencePointsV2[ins.Offset.ToString()] = v2;
                 }
 
                 methods.Add(new JObject
@@ -309,14 +318,14 @@ namespace Neo.Compiler
                     ["id"] = m.Symbol.ToString(),
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
-                    ["params"] = (m.Symbol.IsStatic ? Array.Empty<string>() : new string[] { "this,Any" })
+                    ["params"] = (m.Symbol.IsStatic ? Array.Empty<string>() : ["this,Any"])
                         .Concat(m.Symbol.Parameters.Select(p => $"{p.Name},{p.Type.GetContractParameterType()}"))
                         .Select((p, i) => ((JString)$"{p},{i}")!)
                         .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Variables.Select(p => ((JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}")!).ToArray(),
                     ["sequence-points"] = sequencePoints.ToArray(),
-                    ["compiler-info"] = compilerInfo,
+                    ["sequence-points-v2"] = sequencePointsV2,
                 });
             }
 
