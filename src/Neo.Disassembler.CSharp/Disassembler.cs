@@ -21,9 +21,8 @@ public static class Disassembler
         return res.Select(x => x.instruction).ToList();
     }
 
-    public static List<(int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, JToken DebugInfo, string method, int argCount)
+    public static List<(int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, int start, int end)
     {
-        var (start, end, jsonMethod) = GetMethodStartEndAddress(method, argCount, DebugInfo);
         var instructions = EnumerateInstructions(nef.Script).ToList();
         return instructions
             .Where(ai => ai.address >= start && ai.address <= end)
@@ -31,7 +30,7 @@ public static class Disassembler
             .ToList();
     }
 
-    public static (int start, int end, JObject? method) GetMethodStartEndAddress(string name, int argCount, JToken debugInfo)
+    public static JObject? GetMethod(string name, int argCount, JToken debugInfo)
     {
         name = name.Length == 0 ? string.Empty : string.Concat(name[0].ToString().ToUpper(), name.AsSpan(1));  // first letter uppercase
 
@@ -50,11 +49,17 @@ public static class Disassembler
                 var count = jparams.FirstOrDefault()?.AsString() == "this,Any,0" ? jparams.Count - 1 : jparams.Count;
                 if (count != argCount) continue;
 
-                var rangeGroups = RangeRegex.Match(method["range"]!.AsString()).Groups;
-                return (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()), method as JObject);
+                return method as JObject;
             }
         }
-        return (-1, -1, null);
+        return null;
+    }
+
+    public static (int start, int end) GetMethodStartEndAddress(JToken debugInfoMethod)
+    {
+        if (debugInfoMethod["range"] is not JString range) return (-1, -1);
+        var rangeGroups = RangeRegex.Match(range.AsString()).Groups;
+        return (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
     }
 
     private static IEnumerable<(int address, Instruction instruction)> EnumerateInstructions(this Script script)
