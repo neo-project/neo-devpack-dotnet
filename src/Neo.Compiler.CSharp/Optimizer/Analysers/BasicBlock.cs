@@ -30,6 +30,20 @@ namespace Neo.Optimizer
     public class BasicBlock
     {
         public readonly int startAddr;
+        private int lastAddrCache = -1;
+        public int lastAddr
+        {
+            get
+            {
+                if (lastAddrCache >= 0)
+                    return lastAddrCache;
+                lastAddrCache = startAddr;
+                foreach (Instruction i in instructions[..^1])
+                    lastAddrCache += i.Size;
+                return lastAddrCache;
+            }
+        }
+        public int nextAddr { get => lastAddr + instructions.Last().Size; }
         public List<Instruction> instructions { get; set; }  // instructions in this basic block
         public BasicBlock? prevBlock = null;  // the previous basic block (with subseqent address)
         public BasicBlock? nextBlock = null;  // the following basic block (with subseqent address)
