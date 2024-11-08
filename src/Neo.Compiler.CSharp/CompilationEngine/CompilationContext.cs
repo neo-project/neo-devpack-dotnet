@@ -17,7 +17,6 @@ using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
-using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using scfx::Neo.SmartContract.Framework;
@@ -269,16 +268,20 @@ namespace Neo.Compiler
             return ContractManifest.Parse(json.ToString(false)).CheckStandards();
         }
 
+        static string ToRangeString(LinePosition pos) => $"{pos.Line + 1}:{pos.Character + 1}";
+
         public JObject CreateDebugInformation(string folder = "")
         {
-            System.Collections.Generic.List<string> documents = new();
-            System.Collections.Generic.List<JObject> methods = new();
+            System.Collections.Generic.List<string> documents = [];
+            System.Collections.Generic.List<JObject> methods = [];
             foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
             {
-                System.Collections.Generic.List<JString> sequencePoints = new();
-                foreach (var ins in m.Instructions.Where(i => i.SourceLocation?.SourceTree is not null))
+                System.Collections.Generic.List<JString> sequencePoints = [];
+                JObject compilerInfo = new();
+
+                foreach (var ins in m.Instructions.Where(i => i.Location?.SourceLocation?.SourceTree is not null))
                 {
-                    var doc = ins.SourceLocation!.SourceTree!.FilePath;
+                    var doc = ins.Location!.SourceLocation!.SourceTree!.FilePath;
                     if (!string.IsNullOrEmpty(folder))
                     {
                         doc = Path.GetRelativePath(folder, doc);
@@ -291,11 +294,14 @@ namespace Neo.Compiler
                         documents.Add(doc);
                     }
 
-                    FileLinePositionSpan span = ins.SourceLocation!.GetLineSpan();
+                    var span = ins.Location!.SourceLocation!.GetLineSpan();
                     var str = $"{ins.Offset}[{index}]{ToRangeString(span.StartLinePosition)}-{ToRangeString(span.EndLinePosition)}";
                     sequencePoints.Add(new JString(str));
 
-                    static string ToRangeString(LinePosition pos) => $"{pos.Line + 1}:{pos.Character + 1}";
+                    if (!string.IsNullOrEmpty(ins.Location.CompilerLocation))
+                    {
+                        compilerInfo[ins.Offset.ToString()] = ins.Location.CompilerLocation;
+                    }
                 }
 
                 methods.Add(new JObject
@@ -310,6 +316,7 @@ namespace Neo.Compiler
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Variables.Select(p => ((JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}")!).ToArray(),
                     ["sequence-points"] = sequencePoints.ToArray(),
+                    ["compiler-info"] = compilerInfo,
                 });
             }
 

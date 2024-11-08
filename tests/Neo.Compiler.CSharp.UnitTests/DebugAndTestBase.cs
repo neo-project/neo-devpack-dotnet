@@ -5,7 +5,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
