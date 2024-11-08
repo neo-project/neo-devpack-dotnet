@@ -279,9 +279,9 @@ namespace Neo.Compiler
                 System.Collections.Generic.List<JString> sequencePoints = [];
                 JObject sequencePointsV2 = new();
 
-                foreach (var ins in m.Instructions.Where(i => i.Location?.SourceLocation?.SourceTree is not null))
+                foreach (var ins in m.Instructions.Where(i => i.Location?.Source?.SourceTree is not null))
                 {
-                    var doc = ins.Location!.SourceLocation!.SourceTree!.FilePath;
+                    var doc = ins.Location!.Source!.SourceTree!.FilePath;
                     if (!string.IsNullOrEmpty(folder))
                     {
                         doc = Path.GetRelativePath(folder, doc);
@@ -294,20 +294,27 @@ namespace Neo.Compiler
                         documents.Add(doc);
                     }
 
-                    var span = ins.Location!.SourceLocation!.GetLineSpan();
+                    var span = ins.Location!.Source!.GetLineSpan();
                     var range = ToRangeString(span.StartLinePosition) + "-" + ToRangeString(span.EndLinePosition);
                     var str = $"{ins.Offset}[{index}]{range}";
 
                     sequencePoints.Add(new JString(str));
 
+                    var source = new JObject();
+                    source["document"] = index;
+                    source["location"] = range;
+
                     var v2 = new JObject();
+                    v2["source"] = source;
 
-                    v2["document"] = index;
-                    v2["range"] = range;
-
-                    if (!string.IsNullOrEmpty(ins.Location.CompilerLocation))
+                    if (ins.Location.Compiler != null)
                     {
-                        v2["compiler-source"] = ins.Location.CompilerLocation;
+                        var compiler = new JObject();
+                        compiler["file"] = ins.Location.Compiler.File;
+                        compiler["line"] = ins.Location.Compiler.Line;
+                        compiler["method"] = ins.Location.Compiler.Method;
+
+                        v2["compiler"] = compiler;
                     }
 
                     sequencePointsV2[ins.Offset.ToString()] = v2;
