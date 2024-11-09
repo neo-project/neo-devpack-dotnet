@@ -169,12 +169,69 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBQZv2Z854EYhOEFHQUBLAcAwFdGVzdDFowUVTi1BBkl3oMUrYJgRFENshQA==
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
+    /// 08 : OpCode.LDARG0 [2 datoshi]
+    /// 09 : OpCode.PUSH1 [1 datoshi]
+    /// 0A : OpCode.NEWBUFFER [256 datoshi]
+    /// 0B : OpCode.TUCK [2 datoshi]
+    /// 0C : OpCode.PUSH0 [1 datoshi]
+    /// 0D : OpCode.ROT [2 datoshi]
+    /// 0E : OpCode.SETITEM [8192 datoshi]
+    /// 0F : OpCode.SWAP [2 datoshi]
+    /// 10 : OpCode.PUSH2 [1 datoshi]
+    /// 11 : OpCode.PACK [2048 datoshi]
+    /// 12 : OpCode.STLOC0 [2 datoshi]
+    /// 13 : OpCode.PUSHDATA1 7465737431 [8 datoshi]
+    /// 1A : OpCode.LDLOC0 [2 datoshi]
+    /// 1B : OpCode.UNPACK [2048 datoshi]
+    /// 1C : OpCode.DROP [2 datoshi]
+    /// 1D : OpCode.REVERSE3 [2 datoshi]
+    /// 1E : OpCode.CAT [2048 datoshi]
+    /// 1F : OpCode.SWAP [2 datoshi]
+    /// 20 : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
+    /// 25 : OpCode.DUP [2 datoshi]
+    /// 26 : OpCode.ISNULL [2 datoshi]
+    /// 27 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 29 : OpCode.DROP [2 datoshi]
+    /// 2A : OpCode.PUSH0 [1 datoshi]
+    /// 2B : OpCode.CONVERT 21 'Integer' [8192 datoshi]
+    /// 2D : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("teststoragemap_Getbyteprefix")]
     public abstract BigInteger? Teststoragemap_Getbyteprefix(BigInteger? x);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBQZv2Z854EYhOEFHQUBLAcAB7DAV0ZXN0MWjBRVOLUEHmPxiEQA==
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
+    /// 08 : OpCode.LDARG0 [2 datoshi]
+    /// 09 : OpCode.PUSH1 [1 datoshi]
+    /// 0A : OpCode.NEWBUFFER [256 datoshi]
+    /// 0B : OpCode.TUCK [2 datoshi]
+    /// 0C : OpCode.PUSH0 [1 datoshi]
+    /// 0D : OpCode.ROT [2 datoshi]
+    /// 0E : OpCode.SETITEM [8192 datoshi]
+    /// 0F : OpCode.SWAP [2 datoshi]
+    /// 10 : OpCode.PUSH2 [1 datoshi]
+    /// 11 : OpCode.PACK [2048 datoshi]
+    /// 12 : OpCode.STLOC0 [2 datoshi]
+    /// 13 : OpCode.PUSHINT8 7B [1 datoshi]
+    /// 15 : OpCode.PUSHDATA1 7465737431 [8 datoshi]
+    /// 1C : OpCode.LDLOC0 [2 datoshi]
+    /// 1D : OpCode.UNPACK [2048 datoshi]
+    /// 1E : OpCode.DROP [2 datoshi]
+    /// 1F : OpCode.REVERSE3 [2 datoshi]
+    /// 20 : OpCode.CAT [2048 datoshi]
+    /// 21 : OpCode.SWAP [2 datoshi]
+    /// 22 : OpCode.SYSCALL E63F1884 'System.Storage.Put' [32768 datoshi]
+    /// 27 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("teststoragemap_Putbyteprefix")]
     public abstract void Teststoragemap_Putbyteprefix(BigInteger? x);
 

@@ -216,6 +216,27 @@ public abstract class Contract_Map(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwMAyHAMFAAAAAAAAAAAAAAAAAAAAAAAAAAAcRFKaWhT0EVoNwAAcmo3AQBA
+    /// 00 : OpCode.INITSLOT 0300 [64 datoshi]
+    /// 03 : OpCode.NEWMAP [8 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
+    /// 1B : OpCode.STLOC1 [2 datoshi]
+    /// 1C : OpCode.PUSH1 [1 datoshi]
+    /// 1D : OpCode.DUP [2 datoshi]
+    /// 1E : OpCode.LDLOC1 [2 datoshi]
+    /// 1F : OpCode.LDLOC0 [2 datoshi]
+    /// 20 : OpCode.REVERSE3 [2 datoshi]
+    /// 21 : OpCode.SETITEM [8192 datoshi]
+    /// 22 : OpCode.DROP [2 datoshi]
+    /// 23 : OpCode.LDLOC0 [2 datoshi]
+    /// 24 : OpCode.CALLT 0000 [32768 datoshi]
+    /// 27 : OpCode.STLOC2 [2 datoshi]
+    /// 28 : OpCode.LDLOC2 [2 datoshi]
+    /// 29 : OpCode.CALLT 0100 [32768 datoshi]
+    /// 2C : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testuint160Key")]
     public abstract object? Testuint160Key();
 

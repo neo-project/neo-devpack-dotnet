@@ -415,24 +415,29 @@ namespace Neo.SmartContract.Testing.Extensions
             // Add the opcodes
             if (debugInfo != null && nefFile != null)
             {
-                var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, debugInfo, method.Name, method.Parameters.Length);
-                if (instructions is not null && instructions.Count > 0)
+                var debugMethod = Disassembler.CSharp.Disassembler.GetMethod(method.Name, method.Parameters.Length, debugInfo);
+                if (debugMethod != null)
                 {
-                    Script script = nefFile.Script;
-                    (var start, var end, var sequencePoint) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(method.Name, method.Parameters.Length, debugInfo);
-                    var actualEnd = end + script.GetInstruction(end).Size;
-                    var scripts = nefFile.Script[start..actualEnd].ToArray();
+                    var (start, end) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(debugMethod);
+                    var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, start, end);
 
-                    var maxAddressLength = instructions.Max(instruction => instruction.address.ToString("X").Length);
-                    var addressFormat = $"X{(maxAddressLength + 1) / 2 * 2}";
-
-                    sourceCode.WriteLine("    /// <remarks>");
-                    sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
-                    foreach (var instruction in instructions)
+                    if (instructions is not null && instructions.Count > 0)
                     {
-                        sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString(true)}");
+                        Script script = nefFile.Script;
+                        var actualEnd = end + script.GetInstruction(end).Size;
+                        var scripts = nefFile.Script[start..actualEnd].ToArray();
+
+                        var maxAddressLength = instructions.Max(instruction => instruction.address.ToString("X").Length);
+                        var addressFormat = $"X{(maxAddressLength + 1) / 2 * 2}";
+
+                        sourceCode.WriteLine("    /// <remarks>");
+                        sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
+                        foreach (var instruction in instructions)
+                        {
+                            sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString(true)}");
+                        }
+                        sourceCode.WriteLine("    /// </remarks>");
                     }
-                    sourceCode.WriteLine("    /// </remarks>");
                 }
             }
 
