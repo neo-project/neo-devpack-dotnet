@@ -245,14 +245,7 @@ namespace Neo.Compiler
                 ["supportedstandards"] = _supportedStandards.OrderBy(p => p).Select(p => (JString)p!).ToArray(),
                 ["abi"] = new JObject
                 {
-                    ["methods"] = _methodsExported.Select(p => new JObject
-                    {
-                        ["name"] = p.Name,
-                        ["offset"] = GetAbiOffset(p.Symbol),
-                        ["safe"] = p.Safe,
-                        ["returntype"] = p.ReturnType,
-                        ["parameters"] = p.Parameters.Select(p => p.ToJson()).ToArray()
-                    }).ToArray(),
+                    ["methods"] = _methodsExported.Select(CreateAbiMethod).ToArray(),
                     ["events"] = _eventsExported.Select(p => new JObject
                     {
                         ["name"] = p.Name,
@@ -266,6 +259,18 @@ namespace Neo.Compiler
 
             // Ensure that is serializable
             return ContractManifest.Parse(json.ToString(false)).CheckStandards();
+        }
+
+        private JObject CreateAbiMethod(AbiMethod method)
+        {
+            return new JObject
+            {
+                ["name"] = method.Name,
+                ["offset"] = GetAbiOffset(method.Symbol),
+                ["safe"] = method.Safe,
+                ["returntype"] = method.ReturnType,
+                ["parameters"] = method.Parameters.Select(p => p.ToJson()).ToArray()
+            };
         }
 
         static string ToRangeString(LinePosition pos) => $"{pos.Line + 1}:{pos.Character + 1}";
@@ -300,11 +305,14 @@ namespace Neo.Compiler
 
                     sequencePoints.Add(new JString(str));
 
+                    // Create sequence-points-v2
+
                     var source = new JObject();
                     source["document"] = index;
                     source["location"] = range;
 
                     var v2 = new JObject();
+                    v2["optimized"] = false;
                     v2["source"] = source;
 
                     if (ins.Location.Compiler != null)
@@ -320,7 +328,7 @@ namespace Neo.Compiler
                     sequencePointsV2[ins.Offset.ToString()] = v2;
                 }
 
-                methods.Add(new JObject
+                var jsonMethod = new JObject
                 {
                     ["id"] = m.Symbol.ToString(),
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
@@ -332,8 +340,18 @@ namespace Neo.Compiler
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Variables.Select(p => ((JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}")!).ToArray(),
                     ["sequence-points"] = sequencePoints.ToArray(),
+                    // Add extra information for sequencePoints
                     ["sequence-points-v2"] = sequencePointsV2,
-                });
+                };
+
+                var exported = _methodsExported.FirstOrDefault(u => SymbolEqualityComparer.Default.Equals(u.Symbol, m.Symbol));
+                if (exported != null)
+                {
+                    // Add abi information if the method is exported
+                    jsonMethod["abi"] = CreateAbiMethod(exported);
+                }
+
+                methods.Add(jsonMethod);
             }
 
             return new JObject

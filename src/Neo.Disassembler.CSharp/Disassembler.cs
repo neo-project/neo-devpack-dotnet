@@ -1,5 +1,6 @@
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -30,13 +31,30 @@ public static class Disassembler
             .ToList();
     }
 
-    public static JObject? GetMethod(string name, int argCount, JToken debugInfo)
+    public static JObject? GetMethod(ContractMethodDescriptor abiMethod, JToken debugInfo)
     {
-        name = name.Length == 0 ? string.Empty : string.Concat(name[0].ToString().ToUpper(), name.AsSpan(1));  // first letter uppercase
+        // first letter uppercase - required for v1
+        var name = abiMethod.Name.Length == 0 ? string.Empty : string.Concat(abiMethod.Name[0].ToString().ToUpper(), abiMethod.Name.AsSpan(1));
+        var argCount = abiMethod.Parameters.Length;
 
         foreach (var method in (JArray)debugInfo["methods"]!)
         {
-            var methodName = method!["name"]!.AsString().Split(",")[1];
+            if (method == null) continue;
+
+            // V2
+
+            if (method["abi"] is JObject abi)
+            {
+                var parsedMethod = ContractMethodDescriptor.FromJson(abi);
+                parsedMethod.Offset = abiMethod.Offset; // It can be optimized, we avoid to check the offset
+                if (!parsedMethod.Equals(abiMethod)) continue;
+
+                return method as JObject;
+            }
+
+            // V1
+
+            var methodName = method["name"]!.AsString().Split(",")[1];
             methodName = methodName.Length == 0 ? string.Empty : string.Concat(methodName[0].ToString().ToUpper(), methodName.AsSpan(1));  // first letter uppercase
 
             if (methodName == name)
