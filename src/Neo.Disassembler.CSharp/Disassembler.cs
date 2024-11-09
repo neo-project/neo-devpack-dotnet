@@ -35,7 +35,6 @@ public static class Disassembler
     {
         // first letter uppercase - required for v1
         var name = abiMethod.Name.Length == 0 ? string.Empty : string.Concat(abiMethod.Name[0].ToString().ToUpper(), abiMethod.Name.AsSpan(1));
-        var argCount = abiMethod.Parameters.Length;
 
         foreach (var method in (JArray)debugInfo["methods"]!)
         {
@@ -66,7 +65,7 @@ public static class Disassembler
 
                 // excluding `this` of an object
                 var count = jparams.FirstOrDefault()?.AsString() == "this,Any,0" ? jparams.Count - 1 : jparams.Count;
-                if (count != argCount) continue;
+                if (count != abiMethod.Parameters.Length) continue;
 
                 return method as JObject;
             }
