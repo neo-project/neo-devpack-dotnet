@@ -46,6 +46,7 @@ public static class Disassembler
                     continue;
                 }
 
+                // excluding `this` of an object
                 var count = jparams.FirstOrDefault()?.AsString() == "this,Any,0" ? jparams.Count - 1 : jparams.Count;
                 if (count != argCount) continue;
 
