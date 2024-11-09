@@ -24,24 +24,73 @@ public abstract class Contract_UIntTypes(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeAwU9mRDSY04eNMrmU5OEoPGk0Qh2v6XQA==
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSHDATA1 F66443498D3878D32B994E4E1283C6934421DAFE [8 datoshi]
+    /// 1A : OpCode.EQUAL [32 datoshi]
+    /// 1B : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkOwner")]
     public abstract bool? CheckOwner(UInt160? owner);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeAwUAAAAAAAAAAAAAAAAAAAAAAAAAACXQA==
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
+    /// 1A : OpCode.EQUAL [32 datoshi]
+    /// 1B : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkZeroStatic")]
     public abstract bool? CheckZeroStatic(UInt160? owner);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeNsoStgkCUrKABQoAzpA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.ISNULL [2 datoshi]
+    /// 08 : OpCode.JMPIF 09 [2 datoshi]
+    /// 0A : OpCode.DUP [2 datoshi]
+    /// 0B : OpCode.SIZE [4 datoshi]
+    /// 0C : OpCode.PUSHINT8 14 [1 datoshi]
+    /// 0E : OpCode.JMPEQ 03 [2 datoshi]
+    /// 10 : OpCode.THROW [512 datoshi]
+    /// 11 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("constructUInt160")]
     public abstract UInt160? ConstructUInt160(byte[]? bytes);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeErZKFDKABSzqyQECUB4sUA=
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.ISTYPE 28 [2 datoshi]
+    /// 07 : OpCode.SWAP [2 datoshi]
+    /// 08 : OpCode.SIZE [4 datoshi]
+    /// 09 : OpCode.PUSHINT8 14 [1 datoshi]
+    /// 0B : OpCode.NUMEQUAL [8 datoshi]
+    /// 0C : OpCode.BOOLAND [8 datoshi]
+    /// 0D : OpCode.JMPIF 04 [2 datoshi]
+    /// 0F : OpCode.PUSHF [1 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// 11 : OpCode.LDARG0 [2 datoshi]
+    /// 12 : OpCode.NZ [4 datoshi]
+    /// 13 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("validateAddress")]
     public abstract bool? ValidateAddress(UInt160? address);
 

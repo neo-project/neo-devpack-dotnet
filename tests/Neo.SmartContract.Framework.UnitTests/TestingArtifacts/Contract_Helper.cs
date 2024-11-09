@@ -43,12 +43,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeA95pkA=
+    /// Script: VwACeXg0A0A=
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.PUSHM1 [1 datoshi]
-    /// 05 : OpCode.LDARG1 [2 datoshi]
-    /// 06 : OpCode.MODPOW [2048 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.CALL 03 [512 datoshi]
     /// 07 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("modInverse")]
@@ -137,6 +136,22 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwMADAMBAgPbMHAMAwQFBtswcWhpi3JqQA==
+    /// 00 : OpCode.INITSLOT 0300 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 010203 [8 datoshi]
+    /// 08 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.PUSHDATA1 040506 [8 datoshi]
+    /// 10 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 12 : OpCode.STLOC1 [2 datoshi]
+    /// 13 : OpCode.LDLOC0 [2 datoshi]
+    /// 14 : OpCode.LDLOC1 [2 datoshi]
+    /// 15 : OpCode.CAT [2048 datoshi]
+    /// 16 : OpCode.STLOC2 [2 datoshi]
+    /// 17 : OpCode.LDLOC2 [2 datoshi]
+    /// 18 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testConcat")]
     public abstract byte[]? TestConcat();
 
@@ -154,6 +169,19 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIADAMBAgPbMHBoEo5xaUA=
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 010203 [8 datoshi]
+    /// 08 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.LDLOC0 [2 datoshi]
+    /// 0C : OpCode.PUSH2 [1 datoshi]
+    /// 0D : OpCode.RIGHT [2048 datoshi]
+    /// 0E : OpCode.STLOC1 [2 datoshi]
+    /// 0F : OpCode.LDLOC1 [2 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testLast")]
     public abstract byte[]? TestLast();
 
@@ -188,30 +216,90 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIADAMBAgPbMHBoERGMcWlA
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 010203 [8 datoshi]
+    /// 08 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.LDLOC0 [2 datoshi]
+    /// 0C : OpCode.PUSH1 [1 datoshi]
+    /// 0D : OpCode.PUSH1 [1 datoshi]
+    /// 0E : OpCode.SUBSTR [2048 datoshi]
+    /// 0F : OpCode.STLOC1 [2 datoshi]
+    /// 10 : OpCode.LDLOC1 [2 datoshi]
+    /// 11 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testRange")]
     public abstract byte[]? TestRange();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEADAMBAgPbMErRcGhA
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 010203 [8 datoshi]
+    /// 08 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0A : OpCode.DUP [2 datoshi]
+    /// 0B : OpCode.REVERSEITEMS [8192 datoshi]
+    /// 0C : OpCode.STLOC0 [2 datoshi]
+    /// 0D : OpCode.LDLOC0 [2 datoshi]
+    /// 0E : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testReverse")]
     public abstract byte[]? TestReverse();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIAD3Bo2zBxaUA=
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSHM1 [1 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 08 : OpCode.STLOC1 [2 datoshi]
+    /// 09 : OpCode.LDLOC1 [2 datoshi]
+    /// 0A : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testSbyteToByteArray")]
     public abstract byte[]? TestSbyteToByteArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIADAtoZWxsbyB3b3JsZHBo2zBxaUA=
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// 10 : OpCode.STLOC0 [2 datoshi]
+    /// 11 : OpCode.LDLOC0 [2 datoshi]
+    /// 12 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 14 : OpCode.STLOC1 [2 datoshi]
+    /// 15 : OpCode.LDLOC1 [2 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testStringToByteArray")]
     public abstract byte[]? TestStringToByteArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIADAMBAgPbMHBoEo1xaUA=
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 010203 [8 datoshi]
+    /// 08 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
+    /// 0A : OpCode.STLOC0 [2 datoshi]
+    /// 0B : OpCode.LDLOC0 [2 datoshi]
+    /// 0C : OpCode.PUSH2 [1 datoshi]
+    /// 0D : OpCode.LEFT [2048 datoshi]
+    /// 0E : OpCode.STLOC1 [2 datoshi]
+    /// 0F : OpCode.LDLOC1 [2 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testTake")]
     public abstract byte[]? TestTake();
 
@@ -231,6 +319,11 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DBQBAgMEBQYHCAkKCwwNDg+qu8zd7kA=
+    /// 00 : OpCode.PUSHDATA1 0102030405060708090A0B0C0D0E0FAABBCCDDEE [8 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testToScriptHash")]
     public abstract byte[]? TestToScriptHash();
 

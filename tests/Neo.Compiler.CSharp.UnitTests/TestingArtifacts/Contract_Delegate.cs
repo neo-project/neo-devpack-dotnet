@@ -24,6 +24,15 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXgKBwAAADZA
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.PUSHA 07000000 [4 datoshi]
+    /// 0A : OpCode.CALLA [512 datoshi]
+    /// 0B : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sumFunc")]
     public abstract BigInteger? SumFunc(BigInteger? a, BigInteger? b);
 
