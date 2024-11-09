@@ -31,7 +31,7 @@ public abstract class Contract_IOracle(Neo.SmartContract.Testing.SmartContractIn
     /// 08 : OpCode.PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE [8 datoshi]
     /// 1E : OpCode.NOTEQUAL [32 datoshi]
     /// 1F : OpCode.JMPIFNOT 12 [2 datoshi]
-    /// 21 : OpCode.PUSHDATA1 556E617574686F72697A656421 [8 datoshi]
+    /// 21 : OpCode.PUSHDATA1 556E617574686F72697A656421 'Unauthorized!' [8 datoshi]
     /// 30 : OpCode.THROW [512 datoshi]
     /// 31 : OpCode.PUSHDATA1 4F7261636C652063616C6C21 [8 datoshi]
     /// 3F : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]

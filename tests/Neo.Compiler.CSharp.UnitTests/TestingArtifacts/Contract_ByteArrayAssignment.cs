@@ -141,7 +141,7 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// <remarks>
     /// Script: VwIADAR0ZXN0cAwDAAID2zBxaEppEFHQRWlA
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 74657374 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 74657374 'test' [8 datoshi]
     /// 09 : OpCode.STLOC0 [2 datoshi]
     /// 0A : OpCode.PUSHDATA1 000203 [8 datoshi]
     /// 0F : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
