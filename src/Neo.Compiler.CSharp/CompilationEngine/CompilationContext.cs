@@ -312,7 +312,7 @@ namespace Neo.Compiler
                     source["location"] = range;
 
                     var v2 = new JObject();
-                    v2["optimized"] = false;
+                    v2["optimized"] = CompilationOptions.OptimizationType.None.ToString().ToLowerInvariant();
                     v2["source"] = source;
 
                     if (ins.Location.Compiler != null)
