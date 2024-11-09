@@ -24,24 +24,44 @@ public abstract class Contract_DirectInit(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DCECRwDbLpDZ8CxPn8hiq6ypJyX5W0/dzI1/+lOGk+z0Y6lA
+    /// 00 : OpCode.PUSHDATA1 024700DB2E90D9F02C4F9FC862ABACA92725F95B4FDDCC8D7FFA538693ECF463A9 [8 datoshi]
+    /// 23 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testGetECPoint")]
     public abstract ECPoint? TestGetECPoint();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DAtoZWxsbyB3b3JsZEA=
+    /// 00 : OpCode.PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// 0D : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testGetString")]
     public abstract string? TestGetString();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DBR+7hqr62ftHXkdROT1/POukXGocUA=
+    /// 00 : OpCode.PUSHDATA1 7EEE1AABEB67ED1D791D44E4F5FCF3AE9171A871 [8 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testGetUInt160")]
     public abstract UInt160? TestGetUInt160();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DCDtz4Z5EE7CkRpP4prX2yMqST5bmQ+x2nrwx7mJlIyJJUA=
+    /// 00 : OpCode.PUSHDATA1 EDCF8679104EC2911A4FE29AD7DB232A493E5B990FB1DA7AF0C7B989948C8925 [8 datoshi]
+    /// 22 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testGetUInt256")]
     public abstract UInt256? TestGetUInt256();
 

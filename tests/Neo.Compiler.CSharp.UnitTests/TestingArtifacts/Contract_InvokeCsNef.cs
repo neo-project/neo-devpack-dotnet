@@ -24,12 +24,22 @@ public abstract class Contract_InvokeCsNef(Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: ACpA
+    /// 00 : OpCode.PUSHINT8 2A [1 datoshi]
+    /// 02 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("returnInteger")]
     public abstract BigInteger? ReturnInteger();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DAtoZWxsbyB3b3JsZEA=
+    /// 00 : OpCode.PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// 0D : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("returnString")]
     public abstract string? ReturnString();
 

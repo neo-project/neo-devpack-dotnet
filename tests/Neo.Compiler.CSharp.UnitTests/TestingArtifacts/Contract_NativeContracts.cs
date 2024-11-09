@@ -35,6 +35,13 @@ public abstract class Contract_NativeContracts(Neo.SmartContract.Testing.SmartCo
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EBg3AgBA
+    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// 01 : OpCode.PUSH8 [1 datoshi]
+    /// 02 : OpCode.CALLT 0200 [32768 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("getOracleNodes")]
     public abstract IList<object>? GetOracleNodes();
 

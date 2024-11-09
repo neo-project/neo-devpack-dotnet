@@ -24,15 +24,24 @@ public abstract class Contract_Partial(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EUA=
+    /// 00 : OpCode.PUSH1 [1 datoshi]
+    /// 01 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test1")]
     public abstract BigInteger? Test1();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EkA=
+    /// 00 : OpCode.PUSH2 [1 datoshi]
+    /// 01 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test2")]
     public abstract BigInteger? Test2();
 
     #endregion
-
 }

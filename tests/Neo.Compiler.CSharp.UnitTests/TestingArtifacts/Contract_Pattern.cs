@@ -24,24 +24,102 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBeHBoEbckBAlAaABktUA=
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH1 [1 datoshi]
+    /// 07 : OpCode.GT [8 datoshi]
+    /// 08 : OpCode.JMPIF 04 [2 datoshi]
+    /// 0A : OpCode.PUSHF [1 datoshi]
+    /// 0B : OpCode.RET [0 datoshi]
+    /// 0C : OpCode.LDLOC0 [2 datoshi]
+    /// 0D : OpCode.PUSHINT8 64 [1 datoshi]
+    /// 0F : OpCode.LT [8 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("between")]
     public abstract bool? Between(BigInteger? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBeHBoEbckBAlAaABktUA=
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH1 [1 datoshi]
+    /// 07 : OpCode.GT [8 datoshi]
+    /// 08 : OpCode.JMPIF 04 [2 datoshi]
+    /// 0A : OpCode.PUSHF [1 datoshi]
+    /// 0B : OpCode.RET [0 datoshi]
+    /// 0C : OpCode.LDLOC0 [2 datoshi]
+    /// 0D : OpCode.PUSHINT8 64 [1 datoshi]
+    /// 0F : OpCode.LT [8 datoshi]
+    /// 10 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("between2")]
     public abstract bool? Between2(BigInteger? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBeHBoEbckBQkiBmgAMrUmBAhAaAAyuCQFCSIGaABktSYECEAIJgQJQGg6
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH1 [1 datoshi]
+    /// 07 : OpCode.GT [8 datoshi]
+    /// 08 : OpCode.JMPIF 05 [2 datoshi]
+    /// 0A : OpCode.PUSHF [1 datoshi]
+    /// 0B : OpCode.JMP 06 [2 datoshi]
+    /// 0D : OpCode.LDLOC0 [2 datoshi]
+    /// 0E : OpCode.PUSHINT8 32 [1 datoshi]
+    /// 10 : OpCode.LT [8 datoshi]
+    /// 11 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 13 : OpCode.PUSHT [1 datoshi]
+    /// 14 : OpCode.RET [0 datoshi]
+    /// 15 : OpCode.LDLOC0 [2 datoshi]
+    /// 16 : OpCode.PUSHINT8 32 [1 datoshi]
+    /// 18 : OpCode.GE [8 datoshi]
+    /// 19 : OpCode.JMPIF 05 [2 datoshi]
+    /// 1B : OpCode.PUSHF [1 datoshi]
+    /// 1C : OpCode.JMP 06 [2 datoshi]
+    /// 1E : OpCode.LDLOC0 [2 datoshi]
+    /// 1F : OpCode.PUSHINT8 64 [1 datoshi]
+    /// 21 : OpCode.LT [8 datoshi]
+    /// 22 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 24 : OpCode.PUSHT [1 datoshi]
+    /// 25 : OpCode.RET [0 datoshi]
+    /// 26 : OpCode.PUSHT [1 datoshi]
+    /// 27 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 29 : OpCode.PUSHF [1 datoshi]
+    /// 2A : OpCode.RET [0 datoshi]
+    /// 2B : OpCode.LDLOC0 [2 datoshi]
+    /// 2C : OpCode.THROW [512 datoshi]
+    /// </remarks>
     [DisplayName("between3")]
     public abstract bool? Between3(BigInteger? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBeHBoELZA
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.STLOC0 [2 datoshi]
+    /// 05 : OpCode.LDLOC0 [2 datoshi]
+    /// 06 : OpCode.PUSH0 [1 datoshi]
+    /// 07 : OpCode.LE [8 datoshi]
+    /// 08 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("between4")]
     public abstract bool? Between4(BigInteger? value);
 
@@ -253,6 +331,37 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIADBQAAAAAAAAAAAAAAAAAAAAAAAAAAHBocWlK2ShQygAUs6sIl7GqCZcmBAhACCYECUBpOg==
+    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
+    /// 19 : OpCode.STLOC0 [2 datoshi]
+    /// 1A : OpCode.LDLOC0 [2 datoshi]
+    /// 1B : OpCode.STLOC1 [2 datoshi]
+    /// 1C : OpCode.LDLOC1 [2 datoshi]
+    /// 1D : OpCode.DUP [2 datoshi]
+    /// 1E : OpCode.ISTYPE 28 [2 datoshi]
+    /// 20 : OpCode.SWAP [2 datoshi]
+    /// 21 : OpCode.SIZE [4 datoshi]
+    /// 22 : OpCode.PUSHINT8 14 [1 datoshi]
+    /// 24 : OpCode.NUMEQUAL [8 datoshi]
+    /// 25 : OpCode.BOOLAND [8 datoshi]
+    /// 26 : OpCode.PUSHT [1 datoshi]
+    /// 27 : OpCode.EQUAL [32 datoshi]
+    /// 28 : OpCode.NZ [4 datoshi]
+    /// 29 : OpCode.NOT [4 datoshi]
+    /// 2A : OpCode.PUSHF [1 datoshi]
+    /// 2B : OpCode.EQUAL [32 datoshi]
+    /// 2C : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 2E : OpCode.PUSHT [1 datoshi]
+    /// 2F : OpCode.RET [0 datoshi]
+    /// 30 : OpCode.PUSHT [1 datoshi]
+    /// 31 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 33 : OpCode.PUSHF [1 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
+    /// 35 : OpCode.LDLOC1 [2 datoshi]
+    /// 36 : OpCode.THROW [512 datoshi]
+    /// </remarks>
     [DisplayName("testRecursivePattern")]
     public abstract bool? TestRecursivePattern();
 

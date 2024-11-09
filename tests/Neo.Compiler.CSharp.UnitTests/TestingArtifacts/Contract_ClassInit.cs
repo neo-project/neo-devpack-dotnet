@@ -125,6 +125,14 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EBASv0A=
+    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// 01 : OpCode.PUSH0 [1 datoshi]
+    /// 02 : OpCode.PUSH2 [1 datoshi]
+    /// 03 : OpCode.PACKSTRUCT [2048 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testInitInt")]
     public abstract IList<object>? TestInitInt();
 
