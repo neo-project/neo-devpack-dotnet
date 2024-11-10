@@ -131,7 +131,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// 05 : OpCode.PUSH0 [1 datoshi]
     /// 06 : OpCode.LT [8 datoshi]
     /// 07 : OpCode.JMPIFNOT 0B [2 datoshi]
-    /// 09 : OpCode.PUSHDATA1 616D6F756E74 [8 datoshi]
+    /// 09 : OpCode.PUSHDATA1 616D6F756E74 'amount' [8 datoshi]
     /// 11 : OpCode.THROW [512 datoshi]
     /// 12 : OpCode.LDARG1 [2 datoshi]
     /// 13 : OpCode.NZ [4 datoshi]
@@ -142,7 +142,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// 19 : OpCode.LDARG0 [2 datoshi]
     /// 1A : OpCode.CALL_L 4DFEFFFF [512 datoshi]
     /// 1F : OpCode.JMPIF 0E [2 datoshi]
-    /// 21 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 21 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 2C : OpCode.THROW [512 datoshi]
     /// 2D : OpCode.CALL_L ABFDFFFF [512 datoshi]
     /// 32 : OpCode.LDARG1 [2 datoshi]
@@ -171,7 +171,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// 05 : OpCode.PUSH0 [1 datoshi]
     /// 06 : OpCode.LT [8 datoshi]
     /// 07 : OpCode.JMPIFNOT 0B [2 datoshi]
-    /// 09 : OpCode.PUSHDATA1 616D6F756E74 [8 datoshi]
+    /// 09 : OpCode.PUSHDATA1 616D6F756E74 'amount' [8 datoshi]
     /// 11 : OpCode.THROW [512 datoshi]
     /// 12 : OpCode.LDARG1 [2 datoshi]
     /// 13 : OpCode.NZ [4 datoshi]
@@ -202,7 +202,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: DAVIZWxsb0Gb9mfOQZJd6DFA
-    /// 00 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
+    /// 00 : OpCode.PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
     /// 07 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 0C : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
     /// 11 : OpCode.RET [0 datoshi]

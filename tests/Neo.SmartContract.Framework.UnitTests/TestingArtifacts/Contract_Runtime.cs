@@ -40,7 +40,7 @@ public abstract class Contract_Runtime(Neo.SmartContract.Testing.SmartContractIn
     /// <remarks>
     /// Script: VwECDAGe2zDbKHB5eBLAH2hBswyAj0A=
     /// 00 : OpCode.INITSLOT 0102 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 9E [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 9E '?' [8 datoshi]
     /// 06 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
     /// 08 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 0A : OpCode.STLOC0 [2 datoshi]

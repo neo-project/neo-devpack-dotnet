@@ -36,11 +36,11 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// <remarks>
     /// Script: VwEADDVodHRwczovL2FwaS5qc29uYmluLmlvL3YzL3FzLzY1MjBhZDNjMTJhNWQzNzY1OTg4NTQyYXACgJaYAAsMEG9uT3JhY2xlUmVzcG9uc2UMFSQucmVjb3JkLnByb3BlcnR5TmFtZWg3AABA
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 68747470733A2F2F6170692E6A736F6E62696E2E696F2F76332F71732F363532306164336331326135643337363539383835343261 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 68747470733A2F2F6170692E6A736F6E62696E2E696F2F76332F71732F363532306164336331326135643337363539383835343261 'https://api.jsonbin.io/v3/qs/6520ad3c12a5d3765988542a' [8 datoshi]
     /// 3A : OpCode.STLOC0 [2 datoshi]
     /// 3B : OpCode.PUSHINT32 80969800 [1 datoshi]
     /// 40 : OpCode.PUSHNULL [1 datoshi]
-    /// 41 : OpCode.PUSHDATA1 6F6E4F7261636C65526573706F6E7365 [8 datoshi]
+    /// 41 : OpCode.PUSHDATA1 6F6E4F7261636C65526573706F6E7365 'onOracleResponse' [8 datoshi]
     /// 53 : OpCode.PUSHDATA1 242E7265636F72642E70726F70657274794E616D65 [8 datoshi]
     /// 6A : OpCode.LDLOC0 [2 datoshi]
     /// 6B : OpCode.CALLT 0000 [32768 datoshi]
@@ -79,7 +79,7 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// 6D : OpCode.PICKITEM [64 datoshi]
     /// 6E : OpCode.STLOC1 [2 datoshi]
     /// 6F : OpCode.LDLOC1 [2 datoshi]
-    /// 70 : OpCode.PUSHDATA1 526573706F6E7365 [8 datoshi]
+    /// 70 : OpCode.PUSHDATA1 526573706F6E7365 'Response' [8 datoshi]
     /// 7A : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 7F : OpCode.SYSCALL E63F1884 'System.Storage.Put' [32768 datoshi]
     /// 84 : OpCode.RET [0 datoshi]
