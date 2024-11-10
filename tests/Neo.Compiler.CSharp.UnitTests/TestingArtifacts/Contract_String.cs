@@ -52,7 +52,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <remarks>
     /// Script: VwABDAV3b3JsZHg3AwAQuEA=
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 776F726C64 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 776F726C64 'world' [8 datoshi]
     /// 0A : OpCode.LDARG0 [2 datoshi]
     /// 0B : OpCode.CALLT 0300 [32768 datoshi]
     /// 0E : OpCode.PUSH0 [1 datoshi]
@@ -79,7 +79,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <remarks>
     /// Script: VwABDAV3b3JsZHhKylFKykoTUlCfShAsCEVFRUUJQBNSU4zbKJdA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 776F726C64 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 776F726C64 'world' [8 datoshi]
     /// 0A : OpCode.LDARG0 [2 datoshi]
     /// 0B : OpCode.DUP [2 datoshi]
     /// 0C : OpCode.SIZE [4 datoshi]
@@ -117,17 +117,17 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <remarks>
     /// Script: VwIADAVoZWxsb3AMBWhlbGxvcWhplyQLDAVGYWxzZSIIDARUcnVlQc/nR5ZA
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 68656C6C6F [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
     /// 0A : OpCode.STLOC0 [2 datoshi]
-    /// 0B : OpCode.PUSHDATA1 68656C6C6F [8 datoshi]
+    /// 0B : OpCode.PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
     /// 12 : OpCode.STLOC1 [2 datoshi]
     /// 13 : OpCode.LDLOC0 [2 datoshi]
     /// 14 : OpCode.LDLOC1 [2 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.JMPIF 0B [2 datoshi]
-    /// 18 : OpCode.PUSHDATA1 46616C7365 [8 datoshi]
+    /// 18 : OpCode.PUSHDATA1 46616C7365 'False' [8 datoshi]
     /// 1F : OpCode.JMP 08 [2 datoshi]
-    /// 21 : OpCode.PUSHDATA1 54727565 [8 datoshi]
+    /// 21 : OpCode.PUSHDATA1 54727565 'True' [8 datoshi]
     /// 27 : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// 2C : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -140,7 +140,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <remarks>
     /// Script: VwABDAV3b3JsZHg3AwBA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 776F726C64 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 776F726C64 'world' [8 datoshi]
     /// 0A : OpCode.LDARG0 [2 datoshi]
     /// 0B : OpCode.CALLT 0300 [32768 datoshi]
     /// 0E : OpCode.RET [0 datoshi]
@@ -170,7 +170,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 0000 : OpCode.INITSLOT 0400 [64 datoshi]
     /// 0003 : OpCode.PUSHINT128 0000A0DEC5ADC9353600000000000000 [4 datoshi]
     /// 0014 : OpCode.STLOC0 [2 datoshi]
-    /// 0015 : OpCode.PUSHDATA1 4E5856375A684869794D3161485877705673525A433642774E4650326A6768584171 [8 datoshi]
+    /// 0015 : OpCode.PUSHDATA1 4E5856375A684869794D3161485877705673525A433642774E4650326A6768584171 'NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq' [8 datoshi]
     /// 0039 : OpCode.STLOC1 [2 datoshi]
     /// 003A : OpCode.PUSHDATA1 010203 [8 datoshi]
     /// 003F : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
@@ -217,7 +217,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 00D3 : OpCode.CAT [2048 datoshi]
     /// 00D4 : OpCode.PUSHDATA1 2C20537472696E673A20 [8 datoshi]
     /// 00E0 : OpCode.CAT [2048 datoshi]
-    /// 00E1 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
+    /// 00E1 : OpCode.PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
     /// 00E8 : OpCode.CAT [2048 datoshi]
     /// 00E9 : OpCode.PUSHDATA1 2C20 [8 datoshi]
     /// 00ED : OpCode.CAT [2048 datoshi]
@@ -229,15 +229,15 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 00FF : OpCode.CAT [2048 datoshi]
     /// 0100 : OpCode.PUSHDATA1 2C2042797465537472696E673A20 [8 datoshi]
     /// 0110 : OpCode.CAT [2048 datoshi]
-    /// 0111 : OpCode.PUSHDATA1 53797374656D2E427974655B5D [8 datoshi]
+    /// 0111 : OpCode.PUSHDATA1 53797374656D2E427974655B5D 'System.Byte[]' [8 datoshi]
     /// 0120 : OpCode.CAT [2048 datoshi]
     /// 0121 : OpCode.PUSHDATA1 2C20426F6F6C3A20 [8 datoshi]
     /// 012B : OpCode.CAT [2048 datoshi]
     /// 012C : OpCode.PUSHT [1 datoshi]
     /// 012D : OpCode.JMPIFNOT 0A [2 datoshi]
-    /// 012F : OpCode.PUSHDATA1 54727565 [8 datoshi]
+    /// 012F : OpCode.PUSHDATA1 54727565 'True' [8 datoshi]
     /// 0135 : OpCode.JMP 09 [2 datoshi]
-    /// 0137 : OpCode.PUSHDATA1 46616C7365 [8 datoshi]
+    /// 0137 : OpCode.PUSHDATA1 46616C7365 'False' [8 datoshi]
     /// 013E : OpCode.CAT [2048 datoshi]
     /// 013F : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 0141 : OpCode.CAT [2048 datoshi]
@@ -289,7 +289,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <remarks>
     /// Script: VwMADARNYXJrcAwAcTcBADcAABTOcgwHSGVsbG8sIGiLDAEgi2mLDBchIEN1cnJlbnQgdGltZXN0YW1wIGlzIItqNwIAiwwBLovbKEHP50eWQA==
     /// 00 : OpCode.INITSLOT 0300 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 4D61726B [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 4D61726B 'Mark' [8 datoshi]
     /// 09 : OpCode.STLOC0 [2 datoshi]
     /// 0A : OpCode.PUSHDATA1 [8 datoshi]
     /// 0C : OpCode.STLOC1 [2 datoshi]
@@ -310,7 +310,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// 41 : OpCode.LDLOC2 [2 datoshi]
     /// 42 : OpCode.CALLT 0200 [32768 datoshi]
     /// 45 : OpCode.CAT [2048 datoshi]
-    /// 46 : OpCode.PUSHDATA1 2E [8 datoshi]
+    /// 46 : OpCode.PUSHDATA1 2E '.' [8 datoshi]
     /// 49 : OpCode.CAT [2048 datoshi]
     /// 4A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 4C : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
@@ -339,7 +339,7 @@ public abstract class Contract_String(Neo.SmartContract.Testing.SmartContractIni
     /// <remarks>
     /// Script: VwEADAgwMTIzNDU2N3BoEUvKS5+MQc/nR5ZoERSMQc/nR5ZA
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 3031323334353637 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 3031323334353637 '01234567' [8 datoshi]
     /// 0D : OpCode.STLOC0 [2 datoshi]
     /// 0E : OpCode.LDLOC0 [2 datoshi]
     /// 0F : OpCode.PUSH1 [1 datoshi]

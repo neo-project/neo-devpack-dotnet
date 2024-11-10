@@ -31,7 +31,7 @@ public abstract class Contract_Helper(Neo.SmartContract.Testing.SmartContractIni
     /// 04 : OpCode.PUSHT [1 datoshi]
     /// 05 : OpCode.EQUAL [32 datoshi]
     /// 06 : OpCode.JMPIF 11 [2 datoshi]
-    /// 08 : OpCode.PUSHDATA1 55542D4552524F522D313233 [8 datoshi]
+    /// 08 : OpCode.PUSHDATA1 55542D4552524F522D313233 'UT-ERROR-123' [8 datoshi]
     /// 16 : OpCode.ABORTMSG [0 datoshi]
     /// 17 : OpCode.PUSH5 [1 datoshi]
     /// 18 : OpCode.RET [0 datoshi]
