@@ -364,12 +364,64 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAExIRE8BwFEpoEVHQRRVKaBJR0EVoQA==
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSH3 [1 datoshi]
+    /// 04 : OpCode.PUSH2 [1 datoshi]
+    /// 05 : OpCode.PUSH1 [1 datoshi]
+    /// 06 : OpCode.PUSH3 [1 datoshi]
+    /// 07 : OpCode.PACK [2048 datoshi]
+    /// 08 : OpCode.STLOC0 [2 datoshi]
+    /// 09 : OpCode.PUSH4 [1 datoshi]
+    /// 0A : OpCode.DUP [2 datoshi]
+    /// 0B : OpCode.LDLOC0 [2 datoshi]
+    /// 0C : OpCode.PUSH1 [1 datoshi]
+    /// 0D : OpCode.ROT [2 datoshi]
+    /// 0E : OpCode.SETITEM [8192 datoshi]
+    /// 0F : OpCode.DROP [2 datoshi]
+    /// 10 : OpCode.PUSH5 [1 datoshi]
+    /// 11 : OpCode.DUP [2 datoshi]
+    /// 12 : OpCode.LDLOC0 [2 datoshi]
+    /// 13 : OpCode.PUSH2 [1 datoshi]
+    /// 14 : OpCode.ROT [2 datoshi]
+    /// 15 : OpCode.SETITEM [8192 datoshi]
+    /// 16 : OpCode.DROP [2 datoshi]
+    /// 17 : OpCode.LDLOC0 [2 datoshi]
+    /// 18 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testIntArrayInit2")]
     public abstract IList<object>? TestIntArrayInit2();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEAExIRE8BwFEpoEVHQRRVKaBJR0EVoQA==
+    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
+    /// 03 : OpCode.PUSH3 [1 datoshi]
+    /// 04 : OpCode.PUSH2 [1 datoshi]
+    /// 05 : OpCode.PUSH1 [1 datoshi]
+    /// 06 : OpCode.PUSH3 [1 datoshi]
+    /// 07 : OpCode.PACK [2048 datoshi]
+    /// 08 : OpCode.STLOC0 [2 datoshi]
+    /// 09 : OpCode.PUSH4 [1 datoshi]
+    /// 0A : OpCode.DUP [2 datoshi]
+    /// 0B : OpCode.LDLOC0 [2 datoshi]
+    /// 0C : OpCode.PUSH1 [1 datoshi]
+    /// 0D : OpCode.ROT [2 datoshi]
+    /// 0E : OpCode.SETITEM [8192 datoshi]
+    /// 0F : OpCode.DROP [2 datoshi]
+    /// 10 : OpCode.PUSH5 [1 datoshi]
+    /// 11 : OpCode.DUP [2 datoshi]
+    /// 12 : OpCode.LDLOC0 [2 datoshi]
+    /// 13 : OpCode.PUSH2 [1 datoshi]
+    /// 14 : OpCode.ROT [2 datoshi]
+    /// 15 : OpCode.SETITEM [8192 datoshi]
+    /// 16 : OpCode.DROP [2 datoshi]
+    /// 17 : OpCode.LDLOC0 [2 datoshi]
+    /// 18 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testIntArrayInit3")]
     public abstract IList<object>? TestIntArrayInit3();
 

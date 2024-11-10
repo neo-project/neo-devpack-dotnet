@@ -24,6 +24,39 @@ public abstract class Contract_ManifestAttribute(Neo.SmartContract.Testing.Smart
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABWNgmGwsLEsAMC25vUmVlbnRyYW50Af8AEk00GmBYNDZ4EJcmBCILeAB7lyYFEDTPWDRfQA==
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDSFLD0 [2 datoshi]
+    /// 04 : OpCode.ISNULL [2 datoshi]
+    /// 05 : OpCode.JMPIFNOT 1B [2 datoshi]
+    /// 07 : OpCode.PUSHNULL [1 datoshi]
+    /// 08 : OpCode.PUSHNULL [1 datoshi]
+    /// 09 : OpCode.PUSH2 [1 datoshi]
+    /// 0A : OpCode.PACK [2048 datoshi]
+    /// 0B : OpCode.PUSHDATA1 6E6F5265656E7472616E74 [8 datoshi]
+    /// 18 : OpCode.PUSHINT16 FF00 [1 datoshi]
+    /// 1B : OpCode.PUSH2 [1 datoshi]
+    /// 1C : OpCode.PICK [2 datoshi]
+    /// 1D : OpCode.CALL 1A [512 datoshi]
+    /// 1F : OpCode.STSFLD0 [2 datoshi]
+    /// 20 : OpCode.LDSFLD0 [2 datoshi]
+    /// 21 : OpCode.CALL 36 [512 datoshi]
+    /// 23 : OpCode.LDARG0 [2 datoshi]
+    /// 24 : OpCode.PUSH0 [1 datoshi]
+    /// 25 : OpCode.EQUAL [32 datoshi]
+    /// 26 : OpCode.JMPIFNOT 04 [2 datoshi]
+    /// 28 : OpCode.JMP 0B [2 datoshi]
+    /// 2A : OpCode.LDARG0 [2 datoshi]
+    /// 2B : OpCode.PUSHINT8 7B [1 datoshi]
+    /// 2D : OpCode.EQUAL [32 datoshi]
+    /// 2E : OpCode.JMPIFNOT 05 [2 datoshi]
+    /// 30 : OpCode.PUSH0 [1 datoshi]
+    /// 31 : OpCode.CALL CF [512 datoshi]
+    /// 33 : OpCode.LDSFLD0 [2 datoshi]
+    /// 34 : OpCode.CALL 5F [512 datoshi]
+    /// 36 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("reentrantTest")]
     public abstract void ReentrantTest(BigInteger? value);
 
