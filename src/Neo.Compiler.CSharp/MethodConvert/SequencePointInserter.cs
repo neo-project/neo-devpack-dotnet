@@ -20,15 +20,15 @@ namespace Neo.Compiler
         private readonly LocationInformation? _location;
         private readonly int _position;
 
-        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxNodeOrToken? syntax = null, LocationInformation.CompilerLocation? compilerOrigin = null) :
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxNodeOrToken? syntax = null, CompilerLocation? compilerOrigin = null) :
             this(instructions, new LocationInformation(syntax?.GetLocation(), compilerOrigin))
         { }
 
-        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxReference? syntax = null, LocationInformation.CompilerLocation? compilerOrigin = null) :
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxReference? syntax = null, CompilerLocation? compilerOrigin = null) :
            this(instructions, new LocationInformation(syntax?.SyntaxTree.GetLocation(syntax.Span), compilerOrigin))
         { }
 
-        public SequencePointInserter(IReadOnlyList<Instruction> instructions, Location? location = null, LocationInformation.CompilerLocation? compilerOrigin = null) :
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, Location? location = null, CompilerLocation? compilerOrigin = null) :
            this(instructions, new LocationInformation(location, compilerOrigin))
         { }
 
@@ -40,7 +40,7 @@ namespace Neo.Compiler
 
             // No location must be removed
 
-            if (_location?.Source?.SourceTree is null)
+            if (_location?.Source?.Location.SourceTree is null)
                 _location = null;
         }
 

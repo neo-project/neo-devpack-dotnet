@@ -12,7 +12,6 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
@@ -273,8 +272,6 @@ namespace Neo.Compiler
             };
         }
 
-        static string ToRangeString(LinePosition pos) => $"{pos.Line + 1}:{pos.Character + 1}";
-
         public JObject CreateDebugInformation(string folder = "")
         {
             System.Collections.Generic.List<string> documents = [];
@@ -284,9 +281,9 @@ namespace Neo.Compiler
                 System.Collections.Generic.List<JString> sequencePoints = [];
                 JObject sequencePointsV2 = new();
 
-                foreach (var ins in m.Instructions.Where(i => i.Location?.Source?.SourceTree is not null))
+                foreach (var ins in m.Instructions.Where(i => i.Location?.Source?.Location.SourceTree is not null))
                 {
-                    var doc = ins.Location!.Source!.SourceTree!.FilePath;
+                    var doc = ins.Location!.Source!.Location.SourceTree!.FilePath;
                     if (!string.IsNullOrEmpty(folder))
                     {
                         doc = Path.GetRelativePath(folder, doc);
@@ -299,30 +296,20 @@ namespace Neo.Compiler
                         documents.Add(doc);
                     }
 
-                    var span = ins.Location!.Source!.GetLineSpan();
-                    var range = ToRangeString(span.StartLinePosition) + "-" + ToRangeString(span.EndLinePosition);
+                    var range = ins.Location.Source.GetRange();
                     var str = $"{ins.Offset}[{index}]{range}";
 
                     sequencePoints.Add(new JString(str));
 
                     // Create sequence-points-v2
 
-                    var source = new JObject();
-                    source["document"] = index;
-                    source["location"] = range;
-
                     var v2 = new JObject();
                     v2["optimized"] = CompilationOptions.OptimizationType.None.ToString().ToLowerInvariant();
-                    v2["source"] = source;
+                    v2["source"] = ins.Location.Source.ToJson(index);
 
                     if (ins.Location.Compiler != null)
                     {
-                        var compiler = new JObject();
-                        compiler["file"] = ins.Location.Compiler.File;
-                        compiler["line"] = ins.Location.Compiler.Line;
-                        compiler["method"] = ins.Location.Compiler.Method;
-
-                        v2["compiler"] = compiler;
+                        v2["compiler"] = ins.Location.Compiler.ToJson();
                     }
 
                     sequencePointsV2[ins.Offset.ToString()] = v2;
@@ -339,22 +326,29 @@ namespace Neo.Compiler
                         .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Variables.Select(p => ((JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}")!).ToArray(),
-                    ["sequence-points"] = sequencePoints.ToArray(),
-                    // Add extra information for sequencePoints
-                    ["sequence-points-v2"] = sequencePointsV2,
+                    ["sequence-points"] = sequencePoints.ToArray()
                 };
 
-                var exported = _methodsExported.FirstOrDefault(u => SymbolEqualityComparer.Default.Equals(u.Symbol, m.Symbol));
-                if (exported != null)
+                if (Options.Debug == CompilationOptions.DebugType.Extended)
                 {
-                    // Add abi information if the method is exported
-                    jsonMethod["abi"] = CreateAbiMethod(exported);
+                    // Add extra information for sequencePoints
+
+                    jsonMethod["sequence-points-v2"] = sequencePointsV2;
+
+                    // Add abi
+
+                    var exported = _methodsExported.FirstOrDefault(u => SymbolEqualityComparer.Default.Equals(u.Symbol, m.Symbol));
+                    if (exported != null)
+                    {
+                        // Add abi information if the method is exported
+                        jsonMethod["abi"] = CreateAbiMethod(exported);
+                    }
                 }
 
                 methods.Add(jsonMethod);
             }
 
-            return new JObject
+            var ret = new JObject
             {
                 ["hash"] = Script.ToScriptHash().ToString(),
                 ["documents"] = documents.Select(p => (JString)p!).ToArray(),
@@ -368,6 +362,13 @@ namespace Neo.Compiler
                     ["params"] = e.Parameters.Select((p, i) => ((JString)$"{p.Name},{p.Type},{i}")!).ToArray()
                 }).ToArray()
             };
+
+            if (Options.Debug == CompilationOptions.DebugType.Extended)
+            {
+                ret["compiler"] = Options.CompilerVersion;
+            }
+
+            return ret;
         }
 
         private void ProcessCompilationUnit(HashSet<INamedTypeSymbol> processed, SemanticModel model, CompilationUnitSyntax syntax)

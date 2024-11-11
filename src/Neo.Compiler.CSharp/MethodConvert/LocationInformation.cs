@@ -5,17 +5,10 @@ namespace Neo.Compiler
 {
     public class LocationInformation
     {
-        public class CompilerLocation
-        {
-            public int Line { get; set; }
-            public required string Method { get; set; }
-            public required string File { get; set; }
-        }
-
         /// <summary>
         /// Source Location
         /// </summary>
-        public Location? Source { get; set; }
+        public SourceLocation? Source { get; set; }
 
         /// <summary>
         /// Compiler Origin
@@ -29,7 +22,7 @@ namespace Neo.Compiler
         /// <param name="compilerLocation">Compiler Location</param>
         public LocationInformation(Location? sourceLocation, CompilerLocation? compilerLocation)
         {
-            Source = sourceLocation;
+            Source = sourceLocation is not null ? new SourceLocation(sourceLocation) : null;
             Compiler = compilerLocation;
         }
 
