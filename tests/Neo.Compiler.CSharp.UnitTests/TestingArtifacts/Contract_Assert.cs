@@ -54,7 +54,7 @@ public abstract class Contract_Assert(Neo.SmartContract.Testing.SmartContractIni
     /// 05 : OpCode.TRY 1117 [4 datoshi]
     /// 08 : OpCode.PUSH1 [1 datoshi]
     /// 09 : OpCode.STLOC0 [2 datoshi]
-    /// 0A : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 0A : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 15 : OpCode.THROW [512 datoshi]
     /// 16 : OpCode.STLOC1 [2 datoshi]
     /// 17 : OpCode.CALL B6 [512 datoshi]

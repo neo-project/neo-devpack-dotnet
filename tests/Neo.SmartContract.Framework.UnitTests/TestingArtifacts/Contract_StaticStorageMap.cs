@@ -52,7 +52,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// <remarks>
     /// Script: VwEBDARkYXRhQZv2Z84SwHB4aMFFU4tQQZJd6DFK2CYERRDbIUA=
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 64617461 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 64617461 'data' [8 datoshi]
     /// 09 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 0E : OpCode.PUSH2 [1 datoshi]
     /// 0F : OpCode.PACK [2048 datoshi]
@@ -127,7 +127,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// <remarks>
     /// Script: VwEBDARkYXRhQZv2Z84SwHATeGjBRVOLUEHmPxiEQA==
     /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 64617461 [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 64617461 'data' [8 datoshi]
     /// 09 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 0E : OpCode.PUSH2 [1 datoshi]
     /// 0F : OpCode.PACK [2048 datoshi]
@@ -184,7 +184,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// 10 : OpCode.PUSH2 [1 datoshi]
     /// 11 : OpCode.PACK [2048 datoshi]
     /// 12 : OpCode.STLOC0 [2 datoshi]
-    /// 13 : OpCode.PUSHDATA1 7465737431 [8 datoshi]
+    /// 13 : OpCode.PUSHDATA1 7465737431 'test1' [8 datoshi]
     /// 1A : OpCode.LDLOC0 [2 datoshi]
     /// 1B : OpCode.UNPACK [2048 datoshi]
     /// 1C : OpCode.DROP [2 datoshi]
@@ -222,7 +222,7 @@ public abstract class Contract_StaticStorageMap(Neo.SmartContract.Testing.SmartC
     /// 11 : OpCode.PACK [2048 datoshi]
     /// 12 : OpCode.STLOC0 [2 datoshi]
     /// 13 : OpCode.PUSHINT8 7B [1 datoshi]
-    /// 15 : OpCode.PUSHDATA1 7465737431 [8 datoshi]
+    /// 15 : OpCode.PUSHDATA1 7465737431 'test1' [8 datoshi]
     /// 1C : OpCode.LDLOC0 [2 datoshi]
     /// 1D : OpCode.UNPACK [2048 datoshi]
     /// 1E : OpCode.DROP [2 datoshi]

@@ -39,7 +39,7 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// 0D : OpCode.PICKITEM [64 datoshi]
     /// 0E : OpCode.CALLT 0000 [32768 datoshi]
     /// 11 : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 16 : OpCode.PUSHDATA1 6D7367 [8 datoshi]
+    /// 16 : OpCode.PUSHDATA1 6D7367 'msg' [8 datoshi]
     /// 1B : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// 20 : OpCode.LDLOC0 [2 datoshi]
     /// 21 : OpCode.PUSH1 [1 datoshi]

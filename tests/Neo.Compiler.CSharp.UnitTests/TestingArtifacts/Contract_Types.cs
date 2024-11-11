@@ -51,7 +51,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DANuZW8RwEA=
-    /// 00 : OpCode.PUSHDATA1 6E656F [8 datoshi]
+    /// 00 : OpCode.PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// 05 : OpCode.PUSH1 [1 datoshi]
     /// 06 : OpCode.PACK [2048 datoshi]
     /// 07 : OpCode.RET [0 datoshi]
@@ -89,9 +89,9 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.JMPIF 0A [2 datoshi]
-    /// 06 : OpCode.PUSHDATA1 46616C7365 [8 datoshi]
+    /// 06 : OpCode.PUSHDATA1 46616C7365 'False' [8 datoshi]
     /// 0D : OpCode.RET [0 datoshi]
-    /// 0E : OpCode.PUSHDATA1 54727565 [8 datoshi]
+    /// 0E : OpCode.PUSHDATA1 54727565 'True' [8 datoshi]
     /// 14 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("checkBoolString")]
@@ -154,7 +154,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// 06 : OpCode.DUP [2 datoshi]
     /// 07 : OpCode.CALL 10 [512 datoshi]
     /// 09 : OpCode.STLOC0 [2 datoshi]
-    /// 0A : OpCode.PUSHDATA1 6E656F [8 datoshi]
+    /// 0A : OpCode.PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// 0F : OpCode.DUP [2 datoshi]
     /// 10 : OpCode.LDLOC0 [2 datoshi]
     /// 11 : OpCode.PUSH0 [1 datoshi]
@@ -205,10 +205,10 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DANuZW8RwAwKRHVtbXlFdmVudEGVAW9hQA==
-    /// 00 : OpCode.PUSHDATA1 6E656F [8 datoshi]
+    /// 00 : OpCode.PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// 05 : OpCode.PUSH1 [1 datoshi]
     /// 06 : OpCode.PACK [2048 datoshi]
-    /// 07 : OpCode.PUSHDATA1 44756D6D794576656E74 [8 datoshi]
+    /// 07 : OpCode.PUSHDATA1 44756D6D794576656E74 'DummyEvent' [8 datoshi]
     /// 13 : OpCode.SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
     /// 18 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -253,7 +253,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DAljaGVja051bGxA
-    /// 00 : OpCode.PUSHDATA1 636865636B4E756C6C [8 datoshi]
+    /// 00 : OpCode.PUSHDATA1 636865636B4E756C6C 'checkNull' [8 datoshi]
     /// 0B : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("checkNameof")]
@@ -297,7 +297,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DANuZW9A
-    /// 00 : OpCode.PUSHDATA1 6E656F [8 datoshi]
+    /// 00 : OpCode.PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("checkString")]
@@ -327,7 +327,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// 04 : OpCode.PUSH1 [1 datoshi]
     /// 05 : OpCode.PACKSTRUCT [2048 datoshi]
     /// 06 : OpCode.STLOC0 [2 datoshi]
-    /// 07 : OpCode.PUSHDATA1 6E656F [8 datoshi]
+    /// 07 : OpCode.PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// 0C : OpCode.DUP [2 datoshi]
     /// 0D : OpCode.LDLOC0 [2 datoshi]
     /// 0E : OpCode.PUSH0 [1 datoshi]
@@ -346,7 +346,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// <remarks>
     /// Script: DA1zbWFydCBlY29ub215DANuZW8Sv0A=
     /// 00 : OpCode.PUSHDATA1 736D6172742065636F6E6F6D79 [8 datoshi]
-    /// 0F : OpCode.PUSHDATA1 6E656F [8 datoshi]
+    /// 0F : OpCode.PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// 14 : OpCode.PUSH2 [1 datoshi]
     /// 15 : OpCode.PACKSTRUCT [2048 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
@@ -361,7 +361,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Script: VwEADA1zbWFydCBlY29ub215DANuZW8Sv3BoQA==
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
     /// 03 : OpCode.PUSHDATA1 736D6172742065636F6E6F6D79 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 6E656F [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 6E656F 'neo' [8 datoshi]
     /// 17 : OpCode.PUSH2 [1 datoshi]
     /// 18 : OpCode.PACKSTRUCT [2048 datoshi]
     /// 19 : OpCode.STLOC0 [2 datoshi]

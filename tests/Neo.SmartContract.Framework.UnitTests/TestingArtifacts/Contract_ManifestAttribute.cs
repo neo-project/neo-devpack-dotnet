@@ -34,7 +34,7 @@ public abstract class Contract_ManifestAttribute(Neo.SmartContract.Testing.Smart
     /// 08 : OpCode.PUSHNULL [1 datoshi]
     /// 09 : OpCode.PUSH2 [1 datoshi]
     /// 0A : OpCode.PACK [2048 datoshi]
-    /// 0B : OpCode.PUSHDATA1 6E6F5265656E7472616E74 [8 datoshi]
+    /// 0B : OpCode.PUSHDATA1 6E6F5265656E7472616E74 'noReentrant' [8 datoshi]
     /// 18 : OpCode.PUSHINT16 FF00 [1 datoshi]
     /// 1B : OpCode.PUSH2 [1 datoshi]
     /// 1C : OpCode.PICK [2 datoshi]

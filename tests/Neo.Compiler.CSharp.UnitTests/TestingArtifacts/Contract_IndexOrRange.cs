@@ -159,7 +159,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// 00C5 : OpCode.LDLOC 09 [2 datoshi]
     /// 00C7 : OpCode.CALLT 0000 [32768 datoshi]
     /// 00CA : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 00CF : OpCode.PUSHDATA1 313233343536373839 [8 datoshi]
+    /// 00CF : OpCode.PUSHDATA1 313233343536373839 '123456789' [8 datoshi]
     /// 00DA : OpCode.STLOC 0A [2 datoshi]
     /// 00DC : OpCode.LDLOC 0A [2 datoshi]
     /// 00DE : OpCode.DUP [2 datoshi]
