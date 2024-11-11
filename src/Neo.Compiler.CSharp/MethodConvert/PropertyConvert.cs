@@ -33,18 +33,28 @@ internal partial class MethodConvert
         using (InsertSequencePoint(syntax))
         {
             _inline = attribute is null;
-            ConvertFieldBackedProperty(property);
+            // Here we handle them separately, if store backed, its store backed.
+            // we need to load value from store directly.
             if (attribute is not null)
+            {
                 ConvertStorageBackedProperty(property, attribute);
+            }
+            else
+            {
+                ConvertFieldBackedProperty(property);
+            }
         }
     }
 
     private void ConvertFieldBackedProperty(IPropertySymbol property)
     {
         IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
-        if (!NeedInstanceConstructor(Symbol))
+        var backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+        // We need to take care of contract fields as non-static.
+        if (Symbol.IsStatic || !NeedInstanceConstructor(Symbol) || _context.ContractFields.Any(f =>
+                SymbolEqualityComparer.Default.Equals(f.Field, backingField)))
         {
-            IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+            // IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
             byte backingFieldIndex = _context.AddStaticField(backingField);
             switch (Symbol.MethodKind)
             {
@@ -120,24 +130,18 @@ internal partial class MethodConvert
     {
         IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
         byte[] key = GetStorageBackedKey(property, attribute);
+
+        IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+
         if (Symbol.MethodKind == MethodKind.PropertyGet)
         {
-            JumpTarget endTarget = new();
-            if (Symbol.IsStatic)
-            {
-                // AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.ISNULL);
-                // Ensure that no object was sent
-                Jump(OpCode.JMPIFNOT_L, endTarget);
-            }
-            else if (NeedInstanceConstructor(Symbol))
-            {
-                // Check class
-                Jump(OpCode.JMPIF_L, endTarget);
-            }
+            // Step 1. Load the value from the store.
             Push(key);
             CallInteropMethod(ApplicationEngine.System_Storage_GetReadOnlyContext);
             CallInteropMethod(ApplicationEngine.System_Storage_Get);
+
+            // Step 2. Check if the value is initialized.
+            // If not, load the default/assigned value to the backing field.
             switch (property.Type.Name)
             {
                 case "byte":
@@ -160,14 +164,28 @@ internal partial class MethodConvert
                 case "Int64":
                 case "UInt64":
                 case "BigInteger":
-                    // Replace NULL with 0
+                case "bool":
+                    /// TODO: Default value for string
+                    // Check Null
                     AddInstruction(OpCode.DUP);
-                    AddInstruction(OpCode.ISNULL);
+                    AddInstruction(OpCode.ISNULL); // null means these value are not initialized, then we should load them from backing field
                     JumpTarget ifFalse = new();
                     Jump(OpCode.JMPIFNOT_L, ifFalse);
+                    AddInstruction(OpCode.DROP); // Drop the DUPed value
+                    if (Symbol.IsStatic || !NeedInstanceConstructor(Symbol) || _context.ContractFields.Any(f =>
+                            SymbolEqualityComparer.Default.Equals(f.Field, backingField)))
                     {
-                        AddInstruction(OpCode.DROP);
-                        AddInstruction(OpCode.PUSH0);
+                        byte backingFieldIndex = _context.AddStaticField(backingField);
+                        AccessSlot(OpCode.LDSFLD, backingFieldIndex);
+                    }
+                    else if (NeedInstanceConstructor(Symbol))
+                    {
+                        AddInstruction(OpCode.DUP);
+                        fields = fields.Where(p => !p.IsStatic).ToArray();
+                        int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                        if (!_inline) AccessSlot(OpCode.LDARG, 0);
+                        Push(backingFieldIndex);
+                        AddInstruction(OpCode.PICKITEM);
                     }
                     ifFalse.Instruction = AddInstruction(OpCode.NOP);
                     break;
@@ -176,33 +194,19 @@ internal partial class MethodConvert
                 case "UInt160":
                 case "UInt256":
                 case "ECPoint":
+                    // but for those whose default value is null, it is impossible to know if
+                    // the value has being initialized or not.
+                    // TODO: figure out a way to initialize storebacked fields when deploy.
                     break;
                 default:
                     CallContractMethod(NativeContract.StdLib.Hash, "deserialize", 1, true);
                     break;
             }
-            if (Symbol.IsStatic)
-            {
-                AddInstruction(OpCode.DUP);
-                IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-                byte backingFieldIndex = _context.AddStaticField(backingField);
-                AccessSlot(OpCode.STSFLD, backingFieldIndex);
-            }
-            else if (NeedInstanceConstructor(Symbol))
-            {
-                AddInstruction(OpCode.DUP);
-                fields = fields.Where(p => !p.IsStatic).ToArray();
-                int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                AccessSlot(OpCode.LDARG, 0);
-                Push(backingFieldIndex);
-                AddInstruction(OpCode.ROT);
-                AddInstruction(OpCode.SETITEM);
-            }
-            endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
-        else
+        else if (Symbol.MethodKind == MethodKind.PropertySet) // explicitly use `else if` instead of `if` to improve readability.
         {
-            if (Symbol.IsStatic || !NeedInstanceConstructor(Symbol))
+            if (Symbol.IsStatic || !NeedInstanceConstructor(Symbol) || _context.ContractFields.Any(f =>
+                    SymbolEqualityComparer.Default.Equals(f.Field, backingField)))
                 AccessSlot(OpCode.LDARG, 0);
             else
                 AccessSlot(OpCode.LDARG, 1);

@@ -15,7 +15,7 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEtZNAZaNDlAVwABWBGeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2BAVwABWEBWAxFgwmHCYkBDH0c0"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEtYNAZZNDlAVwABWhGeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2JAVwABWkBWA8JgwmERYkCllEoe"));
 
     #endregion
 
@@ -25,10 +25,10 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: WTQGWjQ5QA==
-    /// 00 : OpCode.LDSFLD1 [2 datoshi]
+    /// Script: WDQGWTQ5QA==
+    /// 00 : OpCode.LDSFLD0 [2 datoshi]
     /// 01 : OpCode.CALL 06 [512 datoshi]
-    /// 03 : OpCode.LDSFLD2 [2 datoshi]
+    /// 03 : OpCode.LDSFLD1 [2 datoshi]
     /// 04 : OpCode.CALL 39 [512 datoshi]
     /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>

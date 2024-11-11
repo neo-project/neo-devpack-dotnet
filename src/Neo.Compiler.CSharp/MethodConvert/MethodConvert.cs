@@ -25,6 +25,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Neo.VM.Types;
+using Array = System.Array;
 
 namespace Neo.Compiler
 {
@@ -243,12 +245,43 @@ namespace Neo.Compiler
                     syntaxNode = syntax;
                     initializer = syntax.Initializer;
                 }
-                if (initializer is null) return;
-                model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+
+                if (initializer is null)
+                {
+                    if(_context.ContractFields.Any(f =>
+                           SymbolEqualityComparer.Default.Equals(f.Field, field)) &&
+                       (field.Type.GetStackItemType() == StackItemType.Integer || field.Type.GetStackItemType() == StackItemType.Integer))
+                    {
+                        var index = _context.AddStaticField(field);
+                        PushDefault(field.Type);
+                        AccessSlot(OpCode.STSFLD, index);
+                    }
+                    return;
+                }
+
                 using (InsertSequencePoint(syntaxNode))
                 {
                     preInitialize?.Invoke();
-                    ConvertExpression(model, initializer.Value, syntaxNode);
+                    // We must process contract fields separately, they may not belong to the current semantic model
+                    // And they may also not belong to the semantic model of the contract, but the parent class semantic model
+                    if (_context.ContractFields.Any(f =>
+                            SymbolEqualityComparer.Default.Equals(f.Field, field)))
+                    {
+                        // Try to get the syntax reference for the field
+                        var syntaxRef = field.DeclaringSyntaxReferences.FirstOrDefault();
+                        // If the field has a syntax reference, get its semantic model
+                        // Otherwise, use the current model (for metadata fields)
+                        var fieldModel = syntaxRef != null
+                            ? ((ISourceAssemblySymbol)field.ContainingAssembly).Compilation.GetSemanticModel(syntaxRef.SyntaxTree)
+                            : _context.ContractSemanticModel;
+
+                        ConvertExpression( fieldModel.Compilation.GetSemanticModel(syntaxNode.SyntaxTree), initializer.Value, syntaxNode);
+                    }
+                    else
+                    {
+                        model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+                        ConvertExpression(model, initializer.Value, syntaxNode);
+                    }
                     postInitialize?.Invoke();
                 }
             }

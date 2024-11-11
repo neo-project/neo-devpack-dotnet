@@ -15,7 +15,7 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABDwAA1QwLaGVsbG8gd29ybGRANAY0N1lAWRWeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2FAWRegSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2FAAHgTnkBXAAF4NwAAQAwUfu4aq+tn7R15HUTk9fzzrpFxqHFADCECRwDbLpDZ8CxPn8hiq6ypJyX5W0/dzI1/+lOGk+z0Y6lADAtoZWxsbyB3b3JsZEBWBhFhQNxf6hU="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABDwAA1QwLaGVsbG8gd29ybGRANAY0N1hAWBWeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2BAWBegSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2BAAHgTnkBXAAF4NwAAQAwUfu4aq+tn7R15HUTk9fzzrpFxqHFADCECRwDbLpDZ8CxPn8hiq6ypJyX5W0/dzI1/+lOGk+z0Y6lADAtoZWxsbyB3b3JsZEBWBhFgQCyGUes="));
 
     #endregion
 
@@ -95,10 +95,10 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: NAY0N1lA
+    /// Script: NAY0N1hA
     /// 00 : OpCode.CALL 06 [512 datoshi]
     /// 02 : OpCode.CALL 37 [512 datoshi]
-    /// 04 : OpCode.LDSFLD1 [2 datoshi]
+    /// 04 : OpCode.LDSFLD0 [2 datoshi]
     /// 05 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]

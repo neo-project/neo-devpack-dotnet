@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Akka.Util.Internal;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 using ECPoint = Neo.Cryptography.ECC.ECPoint;
 
@@ -72,6 +73,9 @@ namespace Neo.Compiler
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
         private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
+        // Define a tuple array to store both field symbols and their semantic models
+        internal (IFieldSymbol Field, SemanticModel Model)[] ContractFields = [];
+        internal SemanticModel ContractSemanticModel { get; set; }
 
         /// <summary>
         /// Specify the contract to be compiled.
@@ -372,6 +376,8 @@ namespace Neo.Compiler
                     return;
                 }
 
+                ContractSemanticModel = model;
+
                 foreach (var attribute in symbol.GetAttributesWithInherited())
                 {
                     if (attribute.AttributeClass!.IsSubclassOf(nameof(ManifestExtraAttribute)))
@@ -416,6 +422,25 @@ namespace Neo.Compiler
                 }
                 _className = symbol.Name;
             }
+            // Get all fields and their corresponding semantic models
+            ContractFields = symbol.GetAllMembers()
+                .OfType<IFieldSymbol>()
+                .Select(field =>
+                {
+                    // Try to get the syntax reference for the field
+                    var syntaxRef = field.DeclaringSyntaxReferences.FirstOrDefault();
+                    // If the field has a syntax reference, get its semantic model
+                    // Otherwise, use the current model (for metadata fields)
+                    var fieldModel = syntaxRef != null
+                        ? ((ISourceAssemblySymbol)field.ContainingAssembly).Compilation.GetSemanticModel(syntaxRef.SyntaxTree)
+                        : model;
+                    return (Field: field, Model: fieldModel);
+                })
+                .ToArray();
+
+            // Process each field using its symbol
+            ContractFields.ForEach(f => AddStaticField(f.Field));
+
             Dictionary<(string, int), IMethodSymbol> export = new();
             // export methods `new`ed in child class, not those hidden in parent class
             foreach (ISymbol member in symbol.GetAllMembers())
@@ -514,7 +539,6 @@ namespace Neo.Compiler
                     throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: Can not set contract interface {symbol.Name} as inline.");
                 return;
             }
-
             MethodConvert convert = ConvertMethod(model, symbol);
             if (export && MethodConvert.NeedInstanceConstructor(symbol))
             {

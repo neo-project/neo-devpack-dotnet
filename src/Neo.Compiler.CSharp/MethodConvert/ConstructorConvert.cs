@@ -61,9 +61,23 @@ internal partial class MethodConvert
 
     private void ProcessStaticFields(SemanticModel model)
     {
-        foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
+
+        foreach (var contractField in _context.ContractFields)
         {
-            foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
+            ProcessFieldInitializer(model, contractField.Field, null, () =>
+            {
+                byte index = _context.AddStaticField(contractField.Field);
+                AccessSlot(OpCode.STSFLD, index);
+            });
+        }
+
+        foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols
+                     .Select(p => p.ContainingType)
+                     .Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default)
+                     .ToArray())
+        {
+            foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>().Where(p => !_context.ContractFields.Any(f =>
+                         SymbolEqualityComparer.Default.Equals(f.Field, p))))
             {
                 if (field.IsConst || !field.IsStatic) continue;
                 ProcessFieldInitializer(model, field, null, () =>
@@ -75,7 +89,11 @@ internal partial class MethodConvert
         }
         foreach (var (fieldIndex, type) in _context.VTables)
         {
-            IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+            IMethodSymbol[] virtualMethods = type
+                .GetAllMembers()
+                .OfType<IMethodSymbol>()
+                .Where(p => p.IsVirtualMethod())
+                .ToArray();
             for (int i = virtualMethods.Length - 1; i >= 0; i--)
             {
                 IMethodSymbol method = virtualMethods[i];
