@@ -27,7 +27,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// <remarks>
     /// Script: VwIADAVIZWxsbwBsEsBwaDQoQc/nR5YRDAVncmFwZRLAFAwFYXBwbGUSwBLAcWkQzjQHQc/nR5ZA
     /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
     /// 0A : OpCode.PUSHINT8 6C [1 datoshi]
     /// 0C : OpCode.PUSH2 [1 datoshi]
     /// 0D : OpCode.PACK [2048 datoshi]
@@ -36,11 +36,11 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// 10 : OpCode.CALL 28 [512 datoshi]
     /// 12 : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// 17 : OpCode.PUSH1 [1 datoshi]
-    /// 18 : OpCode.PUSHDATA1 6772617065 [8 datoshi]
+    /// 18 : OpCode.PUSHDATA1 6772617065 'grape' [8 datoshi]
     /// 1F : OpCode.PUSH2 [1 datoshi]
     /// 20 : OpCode.PACK [2048 datoshi]
     /// 21 : OpCode.PUSH4 [1 datoshi]
-    /// 22 : OpCode.PUSHDATA1 6170706C65 [8 datoshi]
+    /// 22 : OpCode.PUSHDATA1 6170706C65 'apple' [8 datoshi]
     /// 29 : OpCode.PUSH2 [1 datoshi]
     /// 2A : OpCode.PACK [2048 datoshi]
     /// 2B : OpCode.PUSH2 [1 datoshi]

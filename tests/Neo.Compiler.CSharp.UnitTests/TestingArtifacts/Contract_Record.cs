@@ -180,7 +180,7 @@ public abstract class Contract_Record(Neo.SmartContract.Testing.SmartContractIni
     /// 44 : OpCode.SUB [8 datoshi]
     /// 45 : OpCode.OVER [2 datoshi]
     /// 46 : OpCode.CALL B2 [512 datoshi]
-    /// 48 : OpCode.PUSHDATA1 30 [8 datoshi]
+    /// 48 : OpCode.PUSHDATA1 30 '0' [8 datoshi]
     /// 4B : OpCode.LDARG0 [2 datoshi]
     /// 4C : OpCode.CAT [2048 datoshi]
     /// 4D : OpCode.CONVERT 28 'ByteString' [8192 datoshi]

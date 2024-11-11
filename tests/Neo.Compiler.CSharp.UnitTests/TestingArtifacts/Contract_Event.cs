@@ -46,7 +46,7 @@ public abstract class Contract_Event(Neo.SmartContract.Testing.SmartContractInit
     /// 11 : OpCode.CONVERT 30 'Buffer' [8192 datoshi]
     /// 13 : OpCode.PUSH3 [1 datoshi]
     /// 14 : OpCode.PACK [2048 datoshi]
-    /// 15 : OpCode.PUSHDATA1 7472616E73666572 [8 datoshi]
+    /// 15 : OpCode.PUSHDATA1 7472616E73666572 'transfer' [8 datoshi]
     /// 1F : OpCode.SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
     /// 24 : OpCode.RET [0 datoshi]
     /// </remarks>

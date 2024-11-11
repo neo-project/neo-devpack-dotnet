@@ -6,9 +6,9 @@ namespace Neo.Compiler.CSharp.TestContracts
     {
         public static string Symbol => "TokenSymbol";
 
-        private static BigInteger TestStaticProperty { get; set; }
+        private static BigInteger TestStaticProperty { get; set; } = 0;
 
-        private BigInteger TestProperty { get; set; }
+        private BigInteger TestProperty { get; set; } = 0;
 
         public static BigInteger TestStaticPropertyInc()
         {

@@ -29,7 +29,7 @@ public abstract class Contract_Polymorphism(Neo.SmartContract.Testing.SmartContr
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.CALL 19 [512 datoshi]
-    /// 06 : OpCode.PUSHDATA1 6F766572726964656E4162737472616374 [8 datoshi]
+    /// 06 : OpCode.PUSHDATA1 6F766572726964656E4162737472616374 'overridenAbstract' [8 datoshi]
     /// 19 : OpCode.CAT [2048 datoshi]
     /// 1A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 1C : OpCode.RET [0 datoshi]
@@ -127,7 +127,7 @@ public abstract class Contract_Polymorphism(Neo.SmartContract.Testing.SmartContr
     /// <remarks>
     /// Script: VwABDAl0ZXN0RmluYWxA
     /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.PUSHDATA1 7465737446696E616C [8 datoshi]
+    /// 03 : OpCode.PUSHDATA1 7465737446696E616C 'testFinal' [8 datoshi]
     /// 0E : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]
@@ -145,7 +145,7 @@ public abstract class Contract_Polymorphism(Neo.SmartContract.Testing.SmartContr
     /// 07 : OpCode.CALL 1A [512 datoshi]
     /// 09 : OpCode.CAT [2048 datoshi]
     /// 0A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0C : OpCode.PUSHDATA1 2E74657374 [8 datoshi]
+    /// 0C : OpCode.PUSHDATA1 2E74657374 '.test' [8 datoshi]
     /// 13 : OpCode.CAT [2048 datoshi]
     /// 14 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
