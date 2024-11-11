@@ -33,39 +33,17 @@ public static class Disassembler
 
     public static JObject? GetMethod(ContractMethodDescriptor abiMethod, JToken debugInfo)
     {
-        // first letter uppercase - required for v1
-        var name = abiMethod.Name.Length == 0 ? string.Empty : string.Concat(abiMethod.Name[0].ToString().ToUpper(), abiMethod.Name.AsSpan(1));
-
         foreach (var method in (JArray)debugInfo["methods"]!)
         {
             if (method == null) continue;
 
-            // V2
+            // Note: Require Debug extended type, we can't relate the abi to the NEP19 and without it, name is compiler dependant
 
             if (method["abi"] is JObject abi)
             {
                 var parsedMethod = ContractMethodDescriptor.FromJson(abi);
                 parsedMethod.Offset = abiMethod.Offset; // It can be optimized, we avoid to check the offset
                 if (!parsedMethod.Equals(abiMethod)) continue;
-
-                return method as JObject;
-            }
-
-            // V1
-
-            var methodName = method["name"]!.AsString().Split(",")[1];
-            methodName = methodName.Length == 0 ? string.Empty : string.Concat(methodName[0].ToString().ToUpper(), methodName.AsSpan(1));  // first letter uppercase
-
-            if (methodName == name)
-            {
-                if (method["params"] is not JArray jparams)
-                {
-                    continue;
-                }
-
-                // excluding `this` of an object
-                var count = jparams.FirstOrDefault()?.AsString() == "this,Any,0" ? jparams.Count - 1 : jparams.Count;
-                if (count != abiMethod.Parameters.Length) continue;
 
                 return method as JObject;
             }
