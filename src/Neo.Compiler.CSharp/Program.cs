@@ -63,17 +63,15 @@ namespace Neo.Compiler
 
         private static CompilationOptions.DebugType ParseDebug(ArgumentResult result)
         {
-            var debugValue = result.Tokens.FirstOrDefault()?.Value.ToLowerInvariant();
+            var debugValue = result.Tokens.FirstOrDefault()?.Value;
             if (string.IsNullOrEmpty(debugValue)) return CompilationOptions.DebugType.Extended;
 
-            return debugValue.ToLower() switch
+            if (!Enum.TryParse<CompilationOptions.DebugType>(debugValue, true, out var ret))
             {
-                "none" => CompilationOptions.DebugType.None,
-                "extended" => CompilationOptions.DebugType.Extended,
-                "strict" => CompilationOptions.DebugType.Strict,
+                throw new ArgumentException($"Invalid debug type: {debugValue}");
+            }
 
-                _ => throw new ArgumentException($"Invalid debug type: {debugValue}")
-            };
+            return ret;
         }
 
         private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)
