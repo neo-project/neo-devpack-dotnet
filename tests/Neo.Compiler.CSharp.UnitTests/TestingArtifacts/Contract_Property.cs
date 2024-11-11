@@ -26,7 +26,7 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: DAtUb2tlblN5bWJvbEA=
-    /// 00 : OpCode.PUSHDATA1 546F6B656E53796D626F6C [8 datoshi]
+    /// 00 : OpCode.PUSHDATA1 546F6B656E53796D626F6C 'TokenSymbol' [8 datoshi]
     /// 0D : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("symbol")]
