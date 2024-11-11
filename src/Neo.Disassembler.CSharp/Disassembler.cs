@@ -6,6 +6,7 @@ using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using OpCode = Neo.VM.OpCode;
 
@@ -73,6 +74,11 @@ public static class Disassembler
             yield return (address, Instruction.RET);
     }
 
+    private static bool IsAsciiAlphanumericSymbol(string text)
+    {
+        return text.All(c => c <= 127 && (char.IsLetterOrDigit(c) || char.IsPunctuation(c)));
+    }
+
     public static string InstructionToString(this Instruction instruction, bool addPrice = true)
     {
         var opcode = instruction.OpCode.ToString();
@@ -91,6 +97,27 @@ public static class Disassembler
 
             switch (instruction.OpCode)
             {
+                case OpCode.PUSHDATA1:
+                    {
+                        ret = $"OpCode.{opcode} {operandString}";
+
+                        try
+                        {
+                            // Try ascii
+                            var ascii = Encoding.ASCII.GetString(instruction.Operand.Span);
+                            ascii = ascii.Replace("\n", "\\n");
+                            ascii = ascii.Replace("\r", "\\r");
+                            ascii = ascii.Replace("\t", "\\t");
+
+                            if (IsAsciiAlphanumericSymbol(ascii))
+                            {
+                                ret += $" '{ascii}'";
+                            }
+                        }
+                        catch { }
+
+                        break;
+                    }
                 case OpCode.CONVERT:
                     {
                         ret = $"OpCode.{opcode} {operandString} '{(StackItemType)operand.Span[0]}'";

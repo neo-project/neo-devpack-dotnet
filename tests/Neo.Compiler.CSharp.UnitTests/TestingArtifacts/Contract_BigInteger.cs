@@ -64,7 +64,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 11 : OpCode.LDLOC0 [2 datoshi]
     /// 12 : OpCode.ENDTRY 0F [4 datoshi]
     /// 14 : OpCode.STLOC0 [2 datoshi]
-    /// 15 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 15 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 20 : OpCode.THROW [512 datoshi]
     /// 21 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -89,7 +89,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 13 : OpCode.LDLOC0 [2 datoshi]
     /// 14 : OpCode.ENDTRY 0F [4 datoshi]
     /// 16 : OpCode.STLOC0 [2 datoshi]
-    /// 17 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 17 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 22 : OpCode.THROW [512 datoshi]
     /// 23 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -200,7 +200,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 1B : OpCode.LDLOC0 [2 datoshi]
     /// 1C : OpCode.ENDTRY 0F [4 datoshi]
     /// 1E : OpCode.STLOC0 [2 datoshi]
-    /// 1F : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 1F : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 2A : OpCode.THROW [512 datoshi]
     /// 2B : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -268,7 +268,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 27 : OpCode.LDLOC0 [2 datoshi]
     /// 28 : OpCode.ENDTRY 0F [4 datoshi]
     /// 2A : OpCode.STLOC0 [2 datoshi]
-    /// 2B : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 2B : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 36 : OpCode.THROW [512 datoshi]
     /// 37 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -369,7 +369,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 12 : OpCode.LDLOC0 [2 datoshi]
     /// 13 : OpCode.ENDTRY 0F [4 datoshi]
     /// 15 : OpCode.STLOC0 [2 datoshi]
-    /// 16 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 16 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 21 : OpCode.THROW [512 datoshi]
     /// 22 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -394,7 +394,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 15 : OpCode.LDLOC0 [2 datoshi]
     /// 16 : OpCode.ENDTRY 0F [4 datoshi]
     /// 18 : OpCode.STLOC0 [2 datoshi]
-    /// 19 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 19 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 24 : OpCode.THROW [512 datoshi]
     /// 25 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -459,7 +459,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 17 : OpCode.LDLOC0 [2 datoshi]
     /// 18 : OpCode.ENDTRY 0F [4 datoshi]
     /// 1A : OpCode.STLOC0 [2 datoshi]
-    /// 1B : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 1B : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 26 : OpCode.THROW [512 datoshi]
     /// 27 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -484,7 +484,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 1F : OpCode.LDLOC0 [2 datoshi]
     /// 20 : OpCode.ENDTRY 0F [4 datoshi]
     /// 22 : OpCode.STLOC0 [2 datoshi]
-    /// 23 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 23 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 2E : OpCode.THROW [512 datoshi]
     /// 2F : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -509,7 +509,7 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// 13 : OpCode.LDLOC0 [2 datoshi]
     /// 14 : OpCode.ENDTRY 0F [4 datoshi]
     /// 16 : OpCode.STLOC0 [2 datoshi]
-    /// 17 : OpCode.PUSHDATA1 657863657074696F6E [8 datoshi]
+    /// 17 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// 22 : OpCode.THROW [512 datoshi]
     /// 23 : OpCode.RET [0 datoshi]
     /// </remarks>
