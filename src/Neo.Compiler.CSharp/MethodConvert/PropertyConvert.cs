@@ -126,9 +126,6 @@ internal partial class MethodConvert
         // Load the store first, check if its initialized, if not, load the backing field value.
         if (Symbol.MethodKind == MethodKind.PropertyGet)
         {
-            Push("PropertyGet");
-            AddInstruction(OpCode.DROP);
-
             Push(key);
             CallInteropMethod(ApplicationEngine.System_Storage_GetReadOnlyContext);
             CallInteropMethod(ApplicationEngine.System_Storage_Get);
