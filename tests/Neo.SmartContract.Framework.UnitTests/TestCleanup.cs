@@ -76,12 +76,12 @@ namespace Neo.SmartContract.Framework.UnitTests
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)));
             else
             {
-                // Console.Error.WriteLine("Coverage not found for:");
-                //
-                // foreach (var line in list)
-                // {
-                //     Console.Error.WriteLine($"- {line}");
-                // }
+                Console.Error.WriteLine("Coverage not found for:");
+
+                foreach (var line in list)
+                {
+                    Console.Error.WriteLine($"- {line}");
+                }
             }
         }
 

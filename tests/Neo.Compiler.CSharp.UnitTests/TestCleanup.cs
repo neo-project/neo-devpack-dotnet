@@ -88,12 +88,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.76M);
             else
             {
-                // Console.Error.WriteLine("Coverage not found for:");
-                //
-                // foreach (var line in list)
-                // {
-                //     Console.Error.WriteLine($"- {line}");
-                // }
+                Console.Error.WriteLine("Coverage not found for:");
+
+                foreach (var line in list)
+                {
+                    Console.Error.WriteLine($"- {line}");
+                }
             }
         }
 
