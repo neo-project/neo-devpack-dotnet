@@ -72,8 +72,6 @@ namespace Neo.Compiler
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
         private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
-        internal SemanticModel ContractSemanticModel;
-
         /// <summary>
         /// Specify the contract to be compiled.
         /// </summary>
@@ -416,7 +414,6 @@ namespace Neo.Compiler
                     }
                 }
                 _className = symbol.Name;
-                ContractSemanticModel = model;
             }
             Dictionary<(string, int), IMethodSymbol> export = new();
             // export methods `new`ed in child class, not those hidden in parent class
