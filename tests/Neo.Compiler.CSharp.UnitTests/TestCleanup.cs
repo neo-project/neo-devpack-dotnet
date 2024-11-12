@@ -50,25 +50,25 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         public static CompilationContext? TestInitialize(Type contract)
         {
-            try
+            // try
+            // {
+            if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(contract))
             {
-                if (!typeof(SmartContract.Testing.SmartContract).IsAssignableFrom(contract))
-                {
-                    throw new InvalidOperationException(
-                        $"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
-                }
-                if (CachedContracts.TryGetValue(contract, out var data))
-                {
-                    return data.Context;
-                }
+                throw new InvalidOperationException(
+                    $"The type {contract.Name} does not inherit from SmartContract.Testing.SmartContract");
+            }
+            if (CachedContracts.TryGetValue(contract, out var data))
+            {
+                return data.Context;
+            }
 
-                return EnsureArtifactUpToDateInternal(contract.Name);
-            }
-            catch (Exception e)
-            {
-                Assert.Fail($"Error compiling contract {contract.Name}: {e.Message}");
-                return null;
-            }
+            return EnsureArtifactUpToDateInternal(contract.Name);
+            // }
+            // catch (Exception e)
+            // {
+            //     Assert.Fail($"Error compiling contract {contract.Name}: {e.Message}");
+            //     return null;
+            // }
         }
 
         [AssemblyCleanup]
@@ -88,12 +88,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                 EnsureCoverageInternal(Assembly.GetExecutingAssembly(), CachedContracts.Select(u => (u.Key, u.Value.DbgInfo)), 0.76M);
             else
             {
-                Console.Error.WriteLine("Coverage not found for:");
-
-                foreach (var line in list)
-                {
-                    Console.Error.WriteLine($"- {line}");
-                }
+                // Console.Error.WriteLine("Coverage not found for:");
+                //
+                // foreach (var line in list)
+                // {
+                //     Console.Error.WriteLine($"- {line}");
+                // }
             }
         }
 

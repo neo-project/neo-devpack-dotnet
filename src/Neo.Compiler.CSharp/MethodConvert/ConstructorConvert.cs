@@ -61,6 +61,15 @@ internal partial class MethodConvert
 
     private void ProcessStaticFields(SemanticModel model)
     {
+        foreach (var property in _context.ContractProperties)
+        {
+            ProcessFieldInitializer(model, property.Key, null, () =>
+            {
+                byte index = _context.AddStaticField(property.Key);
+                AccessSlot(OpCode.STSFLD, index);
+            });
+        }
+
         foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
         {
             foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
