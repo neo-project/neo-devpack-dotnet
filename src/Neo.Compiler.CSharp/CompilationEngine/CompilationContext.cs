@@ -72,13 +72,6 @@ namespace Neo.Compiler
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
         private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
-        // Non-static property of contract are considered as static
-        internal Dictionary<IFieldSymbol, IPropertySymbol> ContractProperties { get; } = new(SymbolEqualityComparer.Default);
-
-        internal bool hasContractInstance = false;
-
-        internal INamedTypeSymbol contractClass;
-
         internal SemanticModel ContractSemanticModel;
 
         /// <summary>
@@ -423,28 +416,7 @@ namespace Neo.Compiler
                     }
                 }
                 _className = symbol.Name;
-
-                foreach (var member in symbol.GetAllMembers())
-                {
-                    if (member is IPropertySymbol property)
-                    {
-                        var backingField = property.ContainingType.GetMembers()
-                            .OfType<IFieldSymbol>()
-                            .Where(p => !p.IsStatic)
-                            .FirstOrDefault(f => SymbolEqualityComparer.Default.Equals(f.AssociatedSymbol, property));
-
-                        if (backingField != null)
-                        {
-                            AddStaticField(backingField);
-                            ContractProperties[backingField] = property;
-                        }
-                    }
-                }
-
-                hasContractInstance = symbol.GetAllMembers().OfType<IFieldSymbol>().Where(p => !p.IsStatic)
-                    .Any(p => !ContractProperties.ContainsKey(p));
                 ContractSemanticModel = model;
-                contractClass = symbol;
             }
             Dictionary<(string, int), IMethodSymbol> export = new();
             // export methods `new`ed in child class, not those hidden in parent class

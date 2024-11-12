@@ -45,7 +45,7 @@ internal partial class MethodConvert
     {
         IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
         IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-        if (_context.ContractProperties.ContainsKey(backingField) || !NeedInstanceConstructor(Symbol))
+        if (!NeedInstanceConstructor(Symbol))
         {
             byte backingFieldIndex = _context.AddStaticField(backingField);
             switch (Symbol.MethodKind)
@@ -63,7 +63,7 @@ internal partial class MethodConvert
         }
         else
         {
-            fields = fields.Where(p => !p.IsStatic && !_context.ContractProperties.ContainsKey(p)).ToArray();
+            fields = fields.Where(p => !p.IsStatic).ToArray();
             int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
             switch (Symbol.MethodKind)
             {
@@ -163,18 +163,17 @@ internal partial class MethodConvert
                     Jump(OpCode.JMPIFNOT_L, ifFalse);
 
                     AddInstruction(OpCode.DROP);
-                    if (!NeedInstanceConstructor(Symbol) || _context.ContractProperties.ContainsKey(backingField))
+                    if (!NeedInstanceConstructor(Symbol))
                     {
                         AccessSlot(OpCode.LDSFLD, _context.AddStaticField(backingField));
                     }
                     else
                     {
                         // Check class
-                        fields = fields.Where(p => !p.IsStatic && !_context.ContractProperties.ContainsKey(p)).ToArray();
+                        fields = fields.Where(p => !p.IsStatic).ToArray();
                         int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
                         AccessSlot(OpCode.LDARG, 0);
                         Push(backingFieldIndex);
-                        AddInstruction(OpCode.ROT);
                         AddInstruction(OpCode.PICKITEM);
                     }
 
