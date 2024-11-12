@@ -119,6 +119,15 @@ namespace Neo.Optimizer
                     }
                     method["sequence-points-v2"] = newSequencePointsV2;
                 }
+                if (method["abi"] is JObject abi && abi["offset"] != null)
+                {
+                    int offset = int.Parse(abi["offset"]!.ToString());
+                    if (simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[offset]))
+                        offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[offset]]!;
+                    else
+                        oldSequencePointAddressToNew?.TryGetValue(offset, out offset);
+                    abi["offset"] = offset;
+                }
             }
             JArray methods = (JArray)debugInfo["methods"]!;
             foreach (JToken method in methodsToRemove)
