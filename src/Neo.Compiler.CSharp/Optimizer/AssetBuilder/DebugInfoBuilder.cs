@@ -69,12 +69,56 @@ namespace Neo.Optimizer
                         && oldSequencePointAddressToNew.TryGetValue(startInstructionAddress, out int newStartInstructionAddress))
                     {
                         newSequencePoints.Add(new JString($"{newStartInstructionAddress}{sequencePointGroups[2]}"));
-                        previousSequencePoint = startInstructionAddress;
+                        previousSequencePoint = newStartInstructionAddress;
                     }
                     else
                         newSequencePoints.Add(new JString($"{previousSequencePoint}{sequencePointGroups[2]}"));
                 }
                 method["sequence-points"] = newSequencePoints;
+
+                if (method["sequence-points-v2"] is JObject sequencePointsV2)
+                {
+                    JObject newSequencePointsV2 = new();
+                    previousSequencePoint = methodStart;
+                    foreach ((string addr, JToken? content) in sequencePointsV2.Properties)
+                    {// content may be JArray or JObject, but we unify it to JArray
+                        JArray oldContentArray;
+                        switch (content)
+                        {
+                            case JObject:
+                                oldContentArray = new JArray() { content };
+                                break;
+                            case JArray oldContent:
+                                oldContentArray = oldContent;
+                                break;
+                            default:
+                                throw new BadScriptException($"Invalid sequence-points-v2 in debug info: key {addr}, value {content}");
+                        }
+                        int startInstructionAddress = int.Parse(addr);
+                        Instruction oldInstruction = oldAddressToInstruction[startInstructionAddress];
+                        string writeAddr;
+                        if (simplifiedInstructionsToAddress.Contains(oldInstruction))
+                        {
+                            startInstructionAddress = (int)simplifiedInstructionsToAddress[oldInstruction]!;
+                            writeAddr = startInstructionAddress.ToString();
+                            previousSequencePoint = startInstructionAddress;
+                        }
+                        else if (oldSequencePointAddressToNew != null
+                            && oldSequencePointAddressToNew.TryGetValue(startInstructionAddress, out int newStartInstructionAddress))
+                        {
+                            writeAddr = newStartInstructionAddress.ToString();
+                            previousSequencePoint = newStartInstructionAddress;
+                        }
+                        else
+                            // previousSequencePoint unchanged
+                            writeAddr = previousSequencePoint.ToString();
+                        if (newSequencePointsV2[writeAddr] == null)
+                            newSequencePointsV2[writeAddr] = oldContentArray;
+                        else
+                            newSequencePointsV2[writeAddr] = ((JArray)newSequencePointsV2[writeAddr]!).Concat(oldContentArray).ToArray();
+                    }
+                    method["sequence-points-v2"] = newSequencePointsV2;
+                }
             }
             JArray methods = (JArray)debugInfo["methods"]!;
             foreach (JToken method in methodsToRemove)
