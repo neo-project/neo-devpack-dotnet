@@ -28,10 +28,6 @@ namespace Neo.SmartContract.Framework
             [OpCode(OpCode.DUP)]
             [OpCode(OpCode.ISTYPE, "0x28")] //ByteString
             [OpCode(OpCode.SWAP)]
-            //[OpCode(OpCode.JMPIF, "06")]  // to SIZE
-            //[OpCode(OpCode.DROP)]
-            //[OpCode(OpCode.PUSHF)]
-            //[OpCode(OpCode.JMP, "06")]    // to the end
             [OpCode(OpCode.SIZE)]
             [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
             [OpCode(OpCode.NUMEQUAL)]
