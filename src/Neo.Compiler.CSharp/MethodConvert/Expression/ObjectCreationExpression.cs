@@ -17,6 +17,7 @@ using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
@@ -99,7 +100,19 @@ internal partial class MethodConvert
             if (indexToValue.TryGetValue(i, out ExpressionSyntax? right))
                 ConvertExpression(model, right);
             else
-                PushDefault(fields[i].Type);
+            {
+                // The default BigInteger is null.
+                // But object creation will assign BigInteger a default value
+                if (fields[i].Type.Name == nameof(BigInteger))
+                {
+                    AddInstruction(OpCode.PUSH0);
+                }
+                else
+                {
+                    PushDefault(fields[i].Type);
+                }
+            }
+
         Push(fields.Length + needVirtualMethodTable);
         AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
         return true;

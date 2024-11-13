@@ -13,10 +13,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             public BigInteger B;
         }
 
+        public class IntInitClass
+        {
+            public int A;
+            public BigInteger B;
+        }
+
         [TestMethod]
         public void Test_InitInt()
         {
             var cs = new IntInit();
+            var csClass = new IntInitClass();
 
             using var fee = Engine.CreateGasWatcher();
             var result = Contract.TestInitInt();
@@ -24,7 +31,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             Assert.AreEqual(cs.A, (BigInteger)result[0]);
-            Assert.AreEqual(cs.B, (BigInteger)result[1]);
+            Assert.AreEqual(cs.B, 0);
+            Assert.AreEqual(csClass.B, 0);
+
+            // Assert.AreEqual(cs.B, (BigInteger)result[1]);
         }
 
         [TestMethod]

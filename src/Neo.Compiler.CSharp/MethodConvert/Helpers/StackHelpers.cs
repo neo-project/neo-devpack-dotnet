@@ -230,6 +230,13 @@ internal partial class MethodConvert
 
     private Instruction PushDefault(ITypeSymbol type)
     {
+        // Among all integer types, BigInteger has no default value.
+        // To manage this, we will enforce all BigInteger be initialized while defined in Analyzer.
+        if (type.Name == nameof(BigInteger))
+        {
+            return AddInstruction(OpCode.PUSHNULL);
+        }
+
         return AddInstruction(type.GetStackItemType() switch
         {// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values
             VM.Types.StackItemType.Boolean => OpCode.PUSHF,
