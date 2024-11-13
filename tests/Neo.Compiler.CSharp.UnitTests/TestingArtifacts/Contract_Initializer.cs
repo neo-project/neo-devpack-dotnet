@@ -60,14 +60,14 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEBASwEo0OXBoEM5oEc6eSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// Script: VwEAEBASwEo0C3BoEM5oEc6eQA==
     /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.PUSH0 [1 datoshi]
     /// 05 : OpCode.PUSH2 [1 datoshi]
     /// 06 : OpCode.PACK [2048 datoshi]
     /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.CALL 39 [512 datoshi]
+    /// 08 : OpCode.CALL 0B [512 datoshi]
     /// 0A : OpCode.STLOC0 [2 datoshi]
     /// 0B : OpCode.LDLOC0 [2 datoshi]
     /// 0C : OpCode.PUSH0 [1 datoshi]
@@ -76,21 +76,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// 0F : OpCode.PUSH1 [1 datoshi]
     /// 10 : OpCode.PICKITEM [64 datoshi]
     /// 11 : OpCode.ADD [8 datoshi]
-    /// 12 : OpCode.DUP [2 datoshi]
-    /// 13 : OpCode.PUSHINT32 00000080 [1 datoshi]
-    /// 18 : OpCode.JMPGE 04 [2 datoshi]
-    /// 1A : OpCode.JMP 0A [2 datoshi]
-    /// 1C : OpCode.DUP [2 datoshi]
-    /// 1D : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
-    /// 22 : OpCode.JMPLE 1E [2 datoshi]
-    /// 24 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
-    /// 2D : OpCode.AND [8 datoshi]
-    /// 2E : OpCode.DUP [2 datoshi]
-    /// 2F : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
-    /// 34 : OpCode.JMPLE 0C [2 datoshi]
-    /// 36 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
-    /// 3F : OpCode.SUB [8 datoshi]
-    /// 40 : OpCode.RET [0 datoshi]
+    /// 12 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum();
@@ -99,7 +85,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECEBASwEo07EoQeNBKEXnQcGgQzmgRzp5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQA==
+    /// Script: VwECEBASwEo07EoQeNBKEXnQcGgQzmgRzp5A
     /// 00 : OpCode.INITSLOT 0102 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.PUSH0 [1 datoshi]
@@ -123,21 +109,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// 17 : OpCode.PUSH1 [1 datoshi]
     /// 18 : OpCode.PICKITEM [64 datoshi]
     /// 19 : OpCode.ADD [8 datoshi]
-    /// 1A : OpCode.DUP [2 datoshi]
-    /// 1B : OpCode.PUSHINT32 00000080 [1 datoshi]
-    /// 20 : OpCode.JMPGE 04 [2 datoshi]
-    /// 22 : OpCode.JMP 0A [2 datoshi]
-    /// 24 : OpCode.DUP [2 datoshi]
-    /// 25 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
-    /// 2A : OpCode.JMPLE 1E [2 datoshi]
-    /// 2C : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
-    /// 35 : OpCode.AND [8 datoshi]
-    /// 36 : OpCode.DUP [2 datoshi]
-    /// 37 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
-    /// 3C : OpCode.JMPLE 0C [2 datoshi]
-    /// 3E : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
-    /// 47 : OpCode.SUB [8 datoshi]
-    /// 48 : OpCode.RET [0 datoshi]
+    /// 1A : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum1")]
     public abstract BigInteger? Sum1(BigInteger? a, BigInteger? b);
@@ -146,14 +118,14 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECEBASwEo0o3B4SmgQUdBFeUpoEVHQRWgQzmgRzp5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQA==
+    /// Script: VwECEBASwEo00XB4SmgQUdBFeUpoEVHQRWgQzmgRzp5A
     /// 00 : OpCode.INITSLOT 0102 [64 datoshi]
     /// 03 : OpCode.PUSH0 [1 datoshi]
     /// 04 : OpCode.PUSH0 [1 datoshi]
     /// 05 : OpCode.PUSH2 [1 datoshi]
     /// 06 : OpCode.PACK [2048 datoshi]
     /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.CALL A3 [512 datoshi]
+    /// 08 : OpCode.CALL D1 [512 datoshi]
     /// 0A : OpCode.STLOC0 [2 datoshi]
     /// 0B : OpCode.LDARG0 [2 datoshi]
     /// 0C : OpCode.DUP [2 datoshi]
@@ -176,21 +148,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// 1D : OpCode.PUSH1 [1 datoshi]
     /// 1E : OpCode.PICKITEM [64 datoshi]
     /// 1F : OpCode.ADD [8 datoshi]
-    /// 20 : OpCode.DUP [2 datoshi]
-    /// 21 : OpCode.PUSHINT32 00000080 [1 datoshi]
-    /// 26 : OpCode.JMPGE 04 [2 datoshi]
-    /// 28 : OpCode.JMP 0A [2 datoshi]
-    /// 2A : OpCode.DUP [2 datoshi]
-    /// 2B : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
-    /// 30 : OpCode.JMPLE 1E [2 datoshi]
-    /// 32 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
-    /// 3B : OpCode.AND [8 datoshi]
-    /// 3C : OpCode.DUP [2 datoshi]
-    /// 3D : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
-    /// 42 : OpCode.JMPLE 0C [2 datoshi]
-    /// 44 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
-    /// 4D : OpCode.SUB [8 datoshi]
-    /// 4E : OpCode.RET [0 datoshi]
+    /// 20 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum2")]
     public abstract BigInteger? Sum2(BigInteger? a, BigInteger? b);

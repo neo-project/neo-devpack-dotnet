@@ -25,11 +25,11 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: WTQGWjQ5QA==
+    /// Script: WTQGWjQLQA==
     /// 00 : OpCode.LDSFLD1 [2 datoshi]
     /// 01 : OpCode.CALL 06 [512 datoshi]
     /// 03 : OpCode.LDSFLD2 [2 datoshi]
-    /// 04 : OpCode.CALL 39 [512 datoshi]
+    /// 04 : OpCode.CALL 0B [512 datoshi]
     /// 06 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStaticClass")]
