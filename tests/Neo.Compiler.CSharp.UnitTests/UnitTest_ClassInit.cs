@@ -31,10 +31,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(result);
 
             Assert.AreEqual(cs.A, (BigInteger)result[0]);
+            Assert.AreEqual(cs.B, (BigInteger)result[1]);
             Assert.AreEqual(cs.B, 0);
             Assert.AreEqual(csClass.B, 0);
 
-            // Assert.AreEqual(cs.B, (BigInteger)result[1]);
         }
 
         [TestMethod]
