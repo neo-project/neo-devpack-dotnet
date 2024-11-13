@@ -57,7 +57,7 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// 05 : OpCode.PUSHNULL [1 datoshi]
     /// 06 : OpCode.PUSH3 [1 datoshi]
     /// 07 : OpCode.PACK [2048 datoshi]
-    /// 08 : OpCode.PUSHDATA1 4A6F686E [8 datoshi]
+    /// 08 : OpCode.PUSHDATA1 4A6F686E 'John' [8 datoshi]
     /// 0E : OpCode.OVER [2 datoshi]
     /// 0F : OpCode.CALL 25 [512 datoshi]
     /// 11 : OpCode.STLOC0 [2 datoshi]

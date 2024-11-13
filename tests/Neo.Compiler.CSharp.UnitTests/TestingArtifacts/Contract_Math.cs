@@ -24,12 +24,33 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeJpA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.ABS [4 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("abs")]
     public abstract BigInteger? Abs(BigInteger? a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXigSgMAAAAAAAAAgAQAAAAAAAAAgAAAAAAAAAAAuyQDOkA=
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.MUL [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT64 0000000000000080 [1 datoshi]
+    /// 10 : OpCode.PUSHINT128 00000000000000800000000000000000 [4 datoshi]
+    /// 21 : OpCode.WITHIN [8 datoshi]
+    /// 22 : OpCode.JMPIF 03 [2 datoshi]
+    /// 24 : OpCode.THROW [512 datoshi]
+    /// 25 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("bigMul")]
     public abstract BigInteger? BigMul(BigInteger? a, BigInteger? b);
 
@@ -372,18 +393,41 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXi6QA==
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.MAX [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("max")]
     public abstract BigInteger? Max(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXi5QA==
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.MIN [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("min")]
     public abstract BigInteger? Min(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeJlA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.SIGN [4 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sign")]
     public abstract BigInteger? Sign(BigInteger? a);
 

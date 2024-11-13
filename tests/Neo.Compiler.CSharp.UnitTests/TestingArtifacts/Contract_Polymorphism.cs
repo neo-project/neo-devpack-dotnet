@@ -24,36 +24,132 @@ public abstract class Contract_Polymorphism(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDQZDBFvdmVycmlkZW5BYnN0cmFjdIvbKEA=
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.CALL 19 [512 datoshi]
+    /// 06 : OpCode.PUSHDATA1 6F766572726964656E4162737472616374 'overridenAbstract' [8 datoshi]
+    /// 19 : OpCode.CAT [2048 datoshi]
+    /// 1A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 1C : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("abstractTest")]
     public abstract string? AbstractTest();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeXqgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG2 [2 datoshi]
+    /// 05 : OpCode.MUL [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("mul")]
     public abstract BigInteger? Mul(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeXqeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG2 [2 datoshi]
+    /// 05 : OpCode.ADD [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADeXqfSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// 00 : OpCode.INITSLOT 0003 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG2 [2 datoshi]
+    /// 05 : OpCode.SUB [8 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sumToBeOverriden")]
     public abstract BigInteger? SumToBeOverriden(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABDAl0ZXN0RmluYWxA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.PUSHDATA1 7465737446696E616C 'testFinal' [8 datoshi]
+    /// 0E : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test")]
     public abstract string? Test();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDQTeDQai9soDAUudGVzdIvbKEA=
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.CALL 13 [512 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.CALL 1A [512 datoshi]
+    /// 09 : OpCode.CAT [2048 datoshi]
+    /// 0A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 0C : OpCode.PUSHDATA1 2E74657374 '.test' [8 datoshi]
+    /// 13 : OpCode.CAT [2048 datoshi]
+    /// 14 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test2")]
     public abstract string? Test2();
 

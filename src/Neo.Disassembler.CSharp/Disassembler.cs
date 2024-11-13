@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text.RegularExpressions;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Disassembler.CSharp;
@@ -22,28 +22,46 @@ public static class Disassembler
         return res.Select(x => x.instruction).ToList();
     }
 
-    public static List<(int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, JToken DebugInfo, string method)
+    public static List<(int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, int start, int end)
     {
-        var (start, end) = GetMethodStartEndAddress(method, DebugInfo);
         var instructions = EnumerateInstructions(nef.Script).ToList();
-        return instructions.Where(
-            ai => ai.address >= start && ai.address <= end).Select(ai => (ai.address - start, ai.instruction)).ToList();
+        return instructions
+            .Where(ai => ai.address >= start && ai.address <= end)
+            .Select(ai => (ai.address - start, ai.instruction))
+            .ToList();
     }
 
-    public static (int start, int end) GetMethodStartEndAddress(string name, JToken debugInfo)
+    public static JObject? GetMethod(string name, int argCount, JToken debugInfo)
     {
         name = name.Length == 0 ? string.Empty : string.Concat(name[0].ToString().ToUpper(), name.AsSpan(1));  // first letter uppercase
-        int start = -1, end = -1;
+
         foreach (var method in (JArray)debugInfo["methods"]!)
         {
             var methodName = method!["name"]!.AsString().Split(",")[1];
+            methodName = methodName.Length == 0 ? string.Empty : string.Concat(methodName[0].ToString().ToUpper(), methodName.AsSpan(1));  // first letter uppercase
+
             if (methodName == name)
             {
-                var rangeGroups = RangeRegex.Match(method["range"]!.AsString()).Groups;
-                (start, end) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
+                if (method["params"] is not JArray jparams)
+                {
+                    continue;
+                }
+
+                // excluding `this` of an object
+                var count = jparams.FirstOrDefault()?.AsString() == "this,Any,0" ? jparams.Count - 1 : jparams.Count;
+                if (count != argCount) continue;
+
+                return method as JObject;
             }
         }
-        return (start, end);
+        return null;
+    }
+
+    public static (int start, int end) GetMethodStartEndAddress(JToken debugInfoMethod)
+    {
+        if (debugInfoMethod["range"] is not JString range) return (-1, -1);
+        var rangeGroups = RangeRegex.Match(range.AsString()).Groups;
+        return (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
     }
 
     private static IEnumerable<(int address, Instruction instruction)> EnumerateInstructions(this Script script)
@@ -59,6 +77,11 @@ public static class Disassembler
         }
         if (opcode != OpCode.RET)
             yield return (address, Instruction.RET);
+    }
+
+    private static bool IsAsciiAlphanumericSymbol(string text)
+    {
+        return text.All(c => c <= 127 && (char.IsLetterOrDigit(c) || char.IsPunctuation(c)));
     }
 
     public static string InstructionToString(this Instruction instruction, bool addPrice = true)
@@ -79,6 +102,27 @@ public static class Disassembler
 
             switch (instruction.OpCode)
             {
+                case OpCode.PUSHDATA1:
+                    {
+                        ret = $"OpCode.{opcode} {operandString}";
+
+                        try
+                        {
+                            // Try ascii
+                            var ascii = Encoding.ASCII.GetString(instruction.Operand.Span);
+                            ascii = ascii.Replace("\n", "\\n");
+                            ascii = ascii.Replace("\r", "\\r");
+                            ascii = ascii.Replace("\t", "\\t");
+
+                            if (IsAsciiAlphanumericSymbol(ascii))
+                            {
+                                ret += $" '{ascii}'";
+                            }
+                        }
+                        catch { }
+
+                        break;
+                    }
                 case OpCode.CONVERT:
                     {
                         ret = $"OpCode.{opcode} {operandString} '{(StackItemType)operand.Span[0]}'";

@@ -24,12 +24,62 @@ public abstract class Contract_Instance(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXgQzp5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQA==
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.PUSH0 [1 datoshi]
+    /// 06 : OpCode.PICKITEM [64 datoshi]
+    /// 07 : OpCode.ADD [8 datoshi]
+    /// 08 : OpCode.DUP [2 datoshi]
+    /// 09 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0E : OpCode.JMPGE 04 [2 datoshi]
+    /// 10 : OpCode.JMP 0A [2 datoshi]
+    /// 12 : OpCode.DUP [2 datoshi]
+    /// 13 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 18 : OpCode.JMPLE 1E [2 datoshi]
+    /// 1A : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 23 : OpCode.AND [8 datoshi]
+    /// 24 : OpCode.DUP [2 datoshi]
+    /// 25 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 2A : OpCode.JMPLE 0C [2 datoshi]
+    /// 2C : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 35 : OpCode.SUB [8 datoshi]
+    /// 36 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXg0hHl4NICeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
+    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.LDARG0 [2 datoshi]
+    /// 05 : OpCode.CALL 84 [512 datoshi]
+    /// 07 : OpCode.LDARG1 [2 datoshi]
+    /// 08 : OpCode.LDARG0 [2 datoshi]
+    /// 09 : OpCode.CALL 80 [512 datoshi]
+    /// 0B : OpCode.ADD [8 datoshi]
+    /// 0C : OpCode.DUP [2 datoshi]
+    /// 0D : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 12 : OpCode.JMPGE 04 [2 datoshi]
+    /// 14 : OpCode.JMP 0A [2 datoshi]
+    /// 16 : OpCode.DUP [2 datoshi]
+    /// 17 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 1C : OpCode.JMPLE 1E [2 datoshi]
+    /// 1E : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 27 : OpCode.AND [8 datoshi]
+    /// 28 : OpCode.DUP [2 datoshi]
+    /// 29 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 2E : OpCode.JMPLE 0C [2 datoshi]
+    /// 30 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 39 : OpCode.SUB [8 datoshi]
+    /// 3A : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sum2")]
     public abstract BigInteger? Sum2(BigInteger? a);
 

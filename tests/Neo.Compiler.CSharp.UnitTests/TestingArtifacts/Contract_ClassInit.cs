@@ -39,7 +39,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// 0C : OpCode.PUSH0 [1 datoshi]
     /// 0D : OpCode.PUSH2 [1 datoshi]
     /// 0E : OpCode.PACKSTRUCT [2048 datoshi]
-    /// 0F : OpCode.PUSHDATA1 73 [8 datoshi]
+    /// 0F : OpCode.PUSHDATA1 73 's' [8 datoshi]
     /// 12 : OpCode.PUSH0 [1 datoshi]
     /// 13 : OpCode.PUSH0 [1 datoshi]
     /// 14 : OpCode.PUSHF [1 datoshi]
@@ -90,7 +90,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// 43 : OpCode.LDLOC0 [2 datoshi]
     /// 44 : OpCode.PUSH3 [1 datoshi]
     /// 45 : OpCode.PICKITEM [64 datoshi]
-    /// 46 : OpCode.PUSHDATA1 73 [8 datoshi]
+    /// 46 : OpCode.PUSHDATA1 73 's' [8 datoshi]
     /// 49 : OpCode.EQUAL [32 datoshi]
     /// 4A : OpCode.ASSERT [1 datoshi]
     /// 4B : OpCode.LDLOC0 [2 datoshi]
@@ -125,6 +125,14 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EBASv0A=
+    /// 00 : OpCode.PUSH0 [1 datoshi]
+    /// 01 : OpCode.PUSH0 [1 datoshi]
+    /// 02 : OpCode.PUSH2 [1 datoshi]
+    /// 03 : OpCode.PACKSTRUCT [2048 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testInitInt")]
     public abstract IList<object>? TestInitInt();
 

@@ -129,7 +129,7 @@ namespace Neo.Compiler
                         File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.nefdbgnfo"), DumpNef.ZipDebugInfo(debugInfo.ToByteArray(true), filename + ".optimized.debug.json"));
                     Console.WriteLine($"Optimization finished.");
                     if (options.SecurityAnalysis)
-                        ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
+                        SecurityAnalyzer.SecurityAnalyzer.AnalyzeWithPrint(nef, manifest, debugInfo);
                     return;
                 }
                 else if (extension != ".cs")
@@ -358,7 +358,7 @@ namespace Neo.Compiler
                     Console.WriteLine("Performing security analysis...");
                     try
                     {
-                        ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
+                        SecurityAnalyzer.SecurityAnalyzer.AnalyzeWithPrint(nef, manifest, debugInfo);
                     }
                     catch (Exception e) { Console.WriteLine(e); }
                     Console.WriteLine("Finished security analysis.");
