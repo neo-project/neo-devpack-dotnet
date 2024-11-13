@@ -163,7 +163,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -303,15 +303,15 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 05 : OpCode.ISNULL [2 datoshi]
     /// 06 : OpCode.JMPIF 13 [2 datoshi]
     /// 08 : OpCode.JMPIF 0B [2 datoshi]
-    /// 0A : OpCode.PUSHDATA1 46616C7365 [8 datoshi]
+    /// 0A : OpCode.PUSHDATA1 46616C7365 'False' [8 datoshi]
     /// 11 : OpCode.JMP 08 [2 datoshi]
-    /// 13 : OpCode.PUSHDATA1 54727565 [8 datoshi]
+    /// 13 : OpCode.PUSHDATA1 54727565 'True' [8 datoshi]
     /// 19 : OpCode.DUP [2 datoshi]
     /// 1A : OpCode.ISNULL [2 datoshi]
     /// 1B : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 1D : OpCode.DROP [2 datoshi]
     /// 1E : OpCode.PUSHDATA1 [8 datoshi]
-    /// 20 : OpCode.PUSHDATA1 54727565 [8 datoshi]
+    /// 20 : OpCode.PUSHDATA1 54727565 'True' [8 datoshi]
     /// 26 : OpCode.EQUAL [32 datoshi]
     /// 27 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -460,7 +460,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -718,7 +718,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -867,7 +867,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -1016,7 +1016,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -1165,7 +1165,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -1314,7 +1314,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -1463,7 +1463,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>
@@ -1612,7 +1612,7 @@ public abstract class Contract_Nullable(Neo.SmartContract.Testing.SmartContractI
     /// 0D : OpCode.JMPIFNOT 05 [2 datoshi]
     /// 0F : OpCode.DROP [2 datoshi]
     /// 10 : OpCode.PUSHDATA1 [8 datoshi]
-    /// 12 : OpCode.PUSHDATA1 31 [8 datoshi]
+    /// 12 : OpCode.PUSHDATA1 31 '1' [8 datoshi]
     /// 15 : OpCode.EQUAL [32 datoshi]
     /// 16 : OpCode.RET [0 datoshi]
     /// </remarks>

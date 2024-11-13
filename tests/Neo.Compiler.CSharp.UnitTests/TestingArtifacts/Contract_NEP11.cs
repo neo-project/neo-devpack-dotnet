@@ -176,7 +176,7 @@ public abstract class Contract_NEP11(Neo.SmartContract.Testing.SmartContractInit
     /// 21 : OpCode.STLOC1 [2 datoshi]
     /// 22 : OpCode.NEWMAP [8 datoshi]
     /// 23 : OpCode.DUP [2 datoshi]
-    /// 24 : OpCode.PUSHDATA1 6E616D65 [8 datoshi]
+    /// 24 : OpCode.PUSHDATA1 6E616D65 'name' [8 datoshi]
     /// 2A : OpCode.LDLOC1 [2 datoshi]
     /// 2B : OpCode.PUSH1 [1 datoshi]
     /// 2C : OpCode.PICKITEM [64 datoshi]

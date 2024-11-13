@@ -111,16 +111,38 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACNIIkFgwRTm8gQXV0aG9yaXphdGlvbiE6eXg1Af///0A=
+    /// Script: VwACeZkQtSYLDAZhbW91bnQ6ebEkA0B5m3g1XP7//yQODAlleGNlcHRpb246Nb39//95n0o11/3//0ULeQt4NUX///9A
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.CALL 82 [512 datoshi]
-    /// 05 : OpCode.JMPIF 16 [2 datoshi]
-    /// 07 : OpCode.PUSHDATA1 4E6F20417574686F72697A6174696F6E21 [8 datoshi]
-    /// 1A : OpCode.THROW [512 datoshi]
-    /// 1B : OpCode.LDARG1 [2 datoshi]
-    /// 1C : OpCode.LDARG0 [2 datoshi]
-    /// 1D : OpCode.CALL_L 01FFFFFF [512 datoshi]
-    /// 22 : OpCode.RET [0 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.SIGN [4 datoshi]
+    /// 05 : OpCode.PUSH0 [1 datoshi]
+    /// 06 : OpCode.LT [8 datoshi]
+    /// 07 : OpCode.JMPIFNOT 0B [2 datoshi]
+    /// 09 : OpCode.PUSHDATA1 616D6F756E74 'amount' [8 datoshi]
+    /// 11 : OpCode.THROW [512 datoshi]
+    /// 12 : OpCode.LDARG1 [2 datoshi]
+    /// 13 : OpCode.NZ [4 datoshi]
+    /// 14 : OpCode.JMPIF 03 [2 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.NEGATE [4 datoshi]
+    /// 19 : OpCode.LDARG0 [2 datoshi]
+    /// 1A : OpCode.CALL_L 5CFEFFFF [512 datoshi]
+    /// 1F : OpCode.JMPIF 0E [2 datoshi]
+    /// 21 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 2C : OpCode.THROW [512 datoshi]
+    /// 2D : OpCode.CALL_L BDFDFFFF [512 datoshi]
+    /// 32 : OpCode.LDARG1 [2 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.DUP [2 datoshi]
+    /// 35 : OpCode.CALL_L D7FDFFFF [512 datoshi]
+    /// 3A : OpCode.DROP [2 datoshi]
+    /// 3B : OpCode.PUSHNULL [1 datoshi]
+    /// 3C : OpCode.LDARG1 [2 datoshi]
+    /// 3D : OpCode.PUSHNULL [1 datoshi]
+    /// 3E : OpCode.LDARG0 [2 datoshi]
+    /// 3F : OpCode.CALL_L 45FFFFFF [512 datoshi]
+    /// 44 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("burn")]
     public abstract void Burn(UInt160? account, BigInteger? amount);
@@ -129,16 +151,35 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACNV////8kFgwRTm8gQXV0aG9yaXphdGlvbiE6eXg1p/7//0A=
+    /// Script: VwACeZkQtSYLDAZhbW91bnQ6ebEkA0B5eDWR/v//RTX//f//eZ5KNRn+//9FC3l4CzSHQA==
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.CALL_L 5FFFFFFF [512 datoshi]
-    /// 08 : OpCode.JMPIF 16 [2 datoshi]
-    /// 0A : OpCode.PUSHDATA1 4E6F20417574686F72697A6174696F6E21 [8 datoshi]
-    /// 1D : OpCode.THROW [512 datoshi]
-    /// 1E : OpCode.LDARG1 [2 datoshi]
-    /// 1F : OpCode.LDARG0 [2 datoshi]
-    /// 20 : OpCode.CALL_L A7FEFFFF [512 datoshi]
-    /// 25 : OpCode.RET [0 datoshi]
+    /// 03 : OpCode.LDARG1 [2 datoshi]
+    /// 04 : OpCode.SIGN [4 datoshi]
+    /// 05 : OpCode.PUSH0 [1 datoshi]
+    /// 06 : OpCode.LT [8 datoshi]
+    /// 07 : OpCode.JMPIFNOT 0B [2 datoshi]
+    /// 09 : OpCode.PUSHDATA1 616D6F756E74 'amount' [8 datoshi]
+    /// 11 : OpCode.THROW [512 datoshi]
+    /// 12 : OpCode.LDARG1 [2 datoshi]
+    /// 13 : OpCode.NZ [4 datoshi]
+    /// 14 : OpCode.JMPIF 03 [2 datoshi]
+    /// 16 : OpCode.RET [0 datoshi]
+    /// 17 : OpCode.LDARG1 [2 datoshi]
+    /// 18 : OpCode.LDARG0 [2 datoshi]
+    /// 19 : OpCode.CALL_L 91FEFFFF [512 datoshi]
+    /// 1E : OpCode.DROP [2 datoshi]
+    /// 1F : OpCode.CALL_L FFFDFFFF [512 datoshi]
+    /// 24 : OpCode.LDARG1 [2 datoshi]
+    /// 25 : OpCode.ADD [8 datoshi]
+    /// 26 : OpCode.DUP [2 datoshi]
+    /// 27 : OpCode.CALL_L 19FEFFFF [512 datoshi]
+    /// 2C : OpCode.DROP [2 datoshi]
+    /// 2D : OpCode.PUSHNULL [1 datoshi]
+    /// 2E : OpCode.LDARG1 [2 datoshi]
+    /// 2F : OpCode.LDARG0 [2 datoshi]
+    /// 30 : OpCode.PUSHNULL [1 datoshi]
+    /// 31 : OpCode.CALL 87 [512 datoshi]
+    /// 33 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("mint")]
     public abstract void Mint(UInt160? to, BigInteger? amount);
@@ -148,7 +189,7 @@ public abstract class Nep17ContractTemplate(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: DAVIZWxsb0Gb9mfOQZJd6DFA
-    /// 00 : OpCode.PUSHDATA1 48656C6C6F [8 datoshi]
+    /// 00 : OpCode.PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
     /// 07 : OpCode.SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
     /// 0C : OpCode.SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
     /// 11 : OpCode.RET [0 datoshi]

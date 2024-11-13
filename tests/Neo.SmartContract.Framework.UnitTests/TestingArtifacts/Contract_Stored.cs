@@ -53,18 +53,33 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// Script: NMlA
+    /// 00 : OpCode.CALL C9 [512 datoshi]
+    /// 02 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("getWithKey")]
     public abstract BigInteger? GetWithKey();
 
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// Script: NK9A
+    /// 00 : OpCode.CALL AF [512 datoshi]
+    /// 02 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("getWithoutConstructor")]
     public abstract BigInteger? GetWithoutConstructor();
 
     /// <summary>
     /// Safe method
     /// </summary>
+    /// <remarks>
+    /// Script: NL9A
+    /// 00 : OpCode.CALL BF [512 datoshi]
+    /// 02 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("getWithString")]
     public abstract BigInteger? GetWithString();
 
@@ -75,18 +90,45 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeEo050VA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.CALL E7 [512 datoshi]
+    /// 07 : OpCode.DROP [2 datoshi]
+    /// 08 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("putWithKey")]
     public abstract void PutWithKey(BigInteger? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeEo02EVA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.CALL D8 [512 datoshi]
+    /// 07 : OpCode.DROP [2 datoshi]
+    /// 08 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("putWithoutConstructor")]
     public abstract void PutWithoutConstructor(BigInteger? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeEo04kVA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.CALL E2 [512 datoshi]
+    /// 07 : OpCode.DROP [2 datoshi]
+    /// 08 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("putWithString")]
     public abstract void PutWithString(BigInteger? value);
 

@@ -24,15 +24,25 @@ public abstract class Contract_ContractCall(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FDcAAEA=
+    /// 00 : OpCode.PUSH4 [1 datoshi]
+    /// 01 : OpCode.CALLT 0000 [32768 datoshi]
+    /// 04 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testContractCall")]
     public abstract byte[]? TestContractCall();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: NwEAQA==
+    /// 00 : OpCode.CALLT 0100 [32768 datoshi]
+    /// 03 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testContractCallVoid")]
     public abstract void TestContractCallVoid();
 
     #endregion
-
 }

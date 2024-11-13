@@ -49,18 +49,71 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOxEAeEoQAQABuyQDOnBoPQ9wDAlleGNlcHRpb246QA==
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1100 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSH0 [1 datoshi]
+    /// 09 : OpCode.PUSHINT16 0001 [1 datoshi]
+    /// 0C : OpCode.WITHIN [8 datoshi]
+    /// 0D : OpCode.JMPIF 03 [2 datoshi]
+    /// 0F : OpCode.THROW [512 datoshi]
+    /// 10 : OpCode.STLOC0 [2 datoshi]
+    /// 11 : OpCode.LDLOC0 [2 datoshi]
+    /// 12 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 14 : OpCode.STLOC0 [2 datoshi]
+    /// 15 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 20 : OpCode.THROW [512 datoshi]
+    /// 21 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testbyte")]
     public abstract BigInteger? Testbyte(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOxMAeEoQAgAAAQC7JAM6cGg9D3AMCWV4Y2VwdGlvbjpA
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1300 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSH0 [1 datoshi]
+    /// 09 : OpCode.PUSHINT32 00000100 [1 datoshi]
+    /// 0E : OpCode.WITHIN [8 datoshi]
+    /// 0F : OpCode.JMPIF 03 [2 datoshi]
+    /// 11 : OpCode.THROW [512 datoshi]
+    /// 12 : OpCode.STLOC0 [2 datoshi]
+    /// 13 : OpCode.LDLOC0 [2 datoshi]
+    /// 14 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 16 : OpCode.STLOC0 [2 datoshi]
+    /// 17 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 22 : OpCode.THROW [512 datoshi]
+    /// 23 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testchar")]
     public abstract BigInteger? Testchar(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBeEoQAgAAAQC7JAM6cGjbKEA=
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.DUP [2 datoshi]
+    /// 05 : OpCode.PUSH0 [1 datoshi]
+    /// 06 : OpCode.PUSHINT32 00000100 [1 datoshi]
+    /// 0B : OpCode.WITHIN [8 datoshi]
+    /// 0C : OpCode.JMPIF 03 [2 datoshi]
+    /// 0E : OpCode.THROW [512 datoshi]
+    /// 0F : OpCode.STLOC0 [2 datoshi]
+    /// 10 : OpCode.LDLOC0 [2 datoshi]
+    /// 11 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
+    /// 13 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testchartostring")]
     public abstract string? Testchartostring(BigInteger? input);
 
@@ -132,30 +185,93 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOxsAeEoCAAAAgAMAAACAAAAAALskAzpwaD0PcAwJZXhjZXB0aW9uOkA=
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1B00 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0D : OpCode.PUSHINT64 0000008000000000 [1 datoshi]
+    /// 16 : OpCode.WITHIN [8 datoshi]
+    /// 17 : OpCode.JMPIF 03 [2 datoshi]
+    /// 19 : OpCode.THROW [512 datoshi]
+    /// 1A : OpCode.STLOC0 [2 datoshi]
+    /// 1B : OpCode.LDLOC0 [2 datoshi]
+    /// 1C : OpCode.ENDTRY 0F [4 datoshi]
+    /// 1E : OpCode.STLOC0 [2 datoshi]
+    /// 1F : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 2A : OpCode.THROW [512 datoshi]
+    /// 2B : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testint")]
     public abstract BigInteger? Testint(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeBKiqkA=
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSH2 [1 datoshi]
+    /// 05 : OpCode.MOD [8 datoshi]
+    /// 06 : OpCode.NOT [4 datoshi]
+    /// 07 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testIsEven")]
     public abstract bool? TestIsEven(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeBGzQA==
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.PUSH1 [1 datoshi]
+    /// 05 : OpCode.NUMEQUAL [8 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testIsOne")]
     public abstract bool? TestIsOne(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeLGqQA==
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.NZ [4 datoshi]
+    /// 05 : OpCode.NOT [4 datoshi]
+    /// 06 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testIsZero")]
     public abstract bool? TestIsZero(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOycAeEoDAAAAAAAAAIAEAAAAAAAAAIAAAAAAAAAAALskAzpwaD0PcAwJZXhjZXB0aW9uOkA=
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 2700 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSHINT64 0000000000000080 [1 datoshi]
+    /// 11 : OpCode.PUSHINT128 00000000000000800000000000000000 [4 datoshi]
+    /// 22 : OpCode.WITHIN [8 datoshi]
+    /// 23 : OpCode.JMPIF 03 [2 datoshi]
+    /// 25 : OpCode.THROW [512 datoshi]
+    /// 26 : OpCode.STLOC0 [2 datoshi]
+    /// 27 : OpCode.LDLOC0 [2 datoshi]
+    /// 28 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 2A : OpCode.STLOC0 [2 datoshi]
+    /// 2B : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 36 : OpCode.THROW [512 datoshi]
+    /// 37 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testlong")]
     public abstract BigInteger? Testlong(BigInteger? input);
 
@@ -238,18 +354,63 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOxIAeEoAgAGAALskAzpwaD0PcAwJZXhjZXB0aW9uOkA=
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1200 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSHINT8 80 [1 datoshi]
+    /// 0A : OpCode.PUSHINT16 8000 [1 datoshi]
+    /// 0D : OpCode.WITHIN [8 datoshi]
+    /// 0E : OpCode.JMPIF 03 [2 datoshi]
+    /// 10 : OpCode.THROW [512 datoshi]
+    /// 11 : OpCode.STLOC0 [2 datoshi]
+    /// 12 : OpCode.LDLOC0 [2 datoshi]
+    /// 13 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 15 : OpCode.STLOC0 [2 datoshi]
+    /// 16 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 21 : OpCode.THROW [512 datoshi]
+    /// 22 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testsbyte")]
     public abstract BigInteger? Testsbyte(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOxUAeEoBAIACAIAAALskAzpwaD0PcAwJZXhjZXB0aW9uOkA=
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1500 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSHINT16 0080 [1 datoshi]
+    /// 0B : OpCode.PUSHINT32 00800000 [1 datoshi]
+    /// 10 : OpCode.WITHIN [8 datoshi]
+    /// 11 : OpCode.JMPIF 03 [2 datoshi]
+    /// 13 : OpCode.THROW [512 datoshi]
+    /// 14 : OpCode.STLOC0 [2 datoshi]
+    /// 15 : OpCode.LDLOC0 [2 datoshi]
+    /// 16 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 18 : OpCode.STLOC0 [2 datoshi]
+    /// 19 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 24 : OpCode.THROW [512 datoshi]
+    /// 25 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testshort")]
     public abstract BigInteger? Testshort(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeJlA
+    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
+    /// 03 : OpCode.LDARG0 [2 datoshi]
+    /// 04 : OpCode.SIGN [4 datoshi]
+    /// 05 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testSign")]
     public abstract BigInteger? TestSign(BigInteger? input);
 
@@ -283,18 +444,75 @@ public abstract class Contract_BigInteger(Neo.SmartContract.Testing.SmartContrac
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOxcAeEoQAwAAAAABAAAAuyQDOnBoPQ9wDAlleGNlcHRpb246QA==
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1700 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSH0 [1 datoshi]
+    /// 09 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 12 : OpCode.WITHIN [8 datoshi]
+    /// 13 : OpCode.JMPIF 03 [2 datoshi]
+    /// 15 : OpCode.THROW [512 datoshi]
+    /// 16 : OpCode.STLOC0 [2 datoshi]
+    /// 17 : OpCode.LDLOC0 [2 datoshi]
+    /// 18 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 1A : OpCode.STLOC0 [2 datoshi]
+    /// 1B : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 26 : OpCode.THROW [512 datoshi]
+    /// 27 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testuint")]
     public abstract BigInteger? Testuint(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOx8AeEoQBAAAAAAAAAAAAQAAAAAAAAC7JAM6cGg9D3AMCWV4Y2VwdGlvbjpA
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1F00 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSH0 [1 datoshi]
+    /// 09 : OpCode.PUSHINT128 00000000000000000100000000000000 [4 datoshi]
+    /// 1A : OpCode.WITHIN [8 datoshi]
+    /// 1B : OpCode.JMPIF 03 [2 datoshi]
+    /// 1D : OpCode.THROW [512 datoshi]
+    /// 1E : OpCode.STLOC0 [2 datoshi]
+    /// 1F : OpCode.LDLOC0 [2 datoshi]
+    /// 20 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 22 : OpCode.STLOC0 [2 datoshi]
+    /// 23 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 2E : OpCode.THROW [512 datoshi]
+    /// 2F : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testulong")]
     public abstract BigInteger? Testulong(BigInteger? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBOxMAeEoQAgAAAQC7JAM6cGg9D3AMCWV4Y2VwdGlvbjpA
+    /// 00 : OpCode.INITSLOT 0101 [64 datoshi]
+    /// 03 : OpCode.TRY 1300 [4 datoshi]
+    /// 06 : OpCode.LDARG0 [2 datoshi]
+    /// 07 : OpCode.DUP [2 datoshi]
+    /// 08 : OpCode.PUSH0 [1 datoshi]
+    /// 09 : OpCode.PUSHINT32 00000100 [1 datoshi]
+    /// 0E : OpCode.WITHIN [8 datoshi]
+    /// 0F : OpCode.JMPIF 03 [2 datoshi]
+    /// 11 : OpCode.THROW [512 datoshi]
+    /// 12 : OpCode.STLOC0 [2 datoshi]
+    /// 13 : OpCode.LDLOC0 [2 datoshi]
+    /// 14 : OpCode.ENDTRY 0F [4 datoshi]
+    /// 16 : OpCode.STLOC0 [2 datoshi]
+    /// 17 : OpCode.PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
+    /// 22 : OpCode.THROW [512 datoshi]
+    /// 23 : OpCode.RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testushort")]
     public abstract BigInteger? Testushort(BigInteger? input);
 
