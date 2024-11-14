@@ -94,7 +94,7 @@ public static class Disassembler
 
         if (operand.IsEmpty || operand.Length == 0)
         {
-            ret = $"OpCode.{opcode}";
+            ret = $"{opcode}";
         }
         else
         {
@@ -104,7 +104,7 @@ public static class Disassembler
             {
                 case OpCode.PUSHDATA1:
                     {
-                        ret = $"OpCode.{opcode} {operandString}";
+                        ret = $"{opcode} {operandString}";
 
                         try
                         {
@@ -123,21 +123,23 @@ public static class Disassembler
 
                         break;
                     }
+                case OpCode.ISTYPE:
+                case OpCode.NEWARRAY_T:
                 case OpCode.CONVERT:
                     {
-                        ret = $"OpCode.{opcode} {operandString} '{(StackItemType)operand.Span[0]}'";
+                        ret = $"{opcode} {operandString} '{(StackItemType)instruction.TokenU8}'";
                         break;
                     }
                 case OpCode.SYSCALL:
                     {
                         var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
                         addprice += descriptor.FixedPrice;
-                        ret = $"OpCode.{opcode} {operandString} '{descriptor.Name}'";
+                        ret = $"{opcode} {operandString} '{descriptor.Name}'";
                         break;
                     }
                 default:
                     {
-                        ret = $"OpCode.{opcode} {operandString}";
+                        ret = $"{opcode} {operandString}";
                         break;
                     }
             }

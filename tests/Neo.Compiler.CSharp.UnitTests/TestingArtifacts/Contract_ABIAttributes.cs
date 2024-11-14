@@ -26,8 +26,8 @@ public abstract class Contract_ABIAttributes(Neo.SmartContract.Testing.SmartCont
     /// </summary>
     /// <remarks>
     /// Script: EEA=
-    /// 00 : OpCode.PUSH0 [1 datoshi]
-    /// 01 : OpCode.RET [0 datoshi]
+    /// 00 : PUSH0 [1 datoshi]
+    /// 01 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]
     public abstract BigInteger? Test();
