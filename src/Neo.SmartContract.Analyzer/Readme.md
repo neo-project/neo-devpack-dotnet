@@ -28,7 +28,7 @@ This repository contains a set of Roslyn analyzers and code fix providers for Ne
 - [StaticFieldInitializationAnalyzer.cs](NeoContractAnalyzer/StaticFieldInitializationAnalyzer.cs): This analyzer checks for proper initialization of static fields in smart contracts.
 - [MultipleCatchBlockAnalyzer.cs](NeoContractAnalyzer/MultipleCatchBlockAnalyzer.cs): This analyzer checks for multiple catch blocks in try statements.
 - [SystemDiagnosticsUsageAnalyzer.cs](NeoContractAnalyzer/SystemDiagnosticsUsageAnalyzer.cs): This analyzer detects and reports usage of System.Diagnostics namespace, which is not supported in Neo smart contracts.
-
+- [StoredPropertyAnalyzer.cs](NeoContractAnalyzer/StoredPropertyAnalyzer.cs): This analyzer checks for correct usage of StoredAttribute.
 ## How to Use
 
 To use these analyzers in your Neo smart contract project:

@@ -132,10 +132,10 @@ internal partial class MethodConvert
                 // Ensure that no object was sent
                 Jump(OpCode.JMPIFNOT_L, endTarget);
             }
-            else if (NeedInstanceConstructor(Symbol))
+            else
             {
-                // Check class
-                Jump(OpCode.JMPIF_L, endTarget);
+                throw new CompilationException(property, DiagnosticId.SyntaxNotSupported,
+                    $"Store backed property must be static: {property.Name}");
             }
             Push(key);
             CallInteropMethod(ApplicationEngine.System_Storage_GetReadOnlyContext);
@@ -190,24 +190,22 @@ internal partial class MethodConvert
                 byte backingFieldIndex = _context.AddStaticField(backingField);
                 AccessSlot(OpCode.STSFLD, backingFieldIndex);
             }
-            else if (NeedInstanceConstructor(Symbol))
+            else
             {
-                AddInstruction(OpCode.DUP);
-                fields = fields.Where(p => !p.IsStatic).ToArray();
-                int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                AccessSlot(OpCode.LDARG, 0);
-                Push(backingFieldIndex);
-                AddInstruction(OpCode.ROT);
-                AddInstruction(OpCode.SETITEM);
+                throw new CompilationException(property, DiagnosticId.SyntaxNotSupported,
+                    $"Store backed property must be static: {property.Name}");
             }
             endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
         else
         {
-            if (Symbol.IsStatic || !NeedInstanceConstructor(Symbol))
+            if (Symbol.IsStatic)
                 AccessSlot(OpCode.LDARG, 0);
             else
-                AccessSlot(OpCode.LDARG, 1);
+            {
+                throw new CompilationException(property, DiagnosticId.SyntaxNotSupported,
+                    $"Store backed property must be static: {property.Name}");
+            }
             switch (property.Type.Name)
             {
                 case "byte":

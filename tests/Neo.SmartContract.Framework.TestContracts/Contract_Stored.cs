@@ -8,15 +8,15 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         // Test non-static
 
         [Stored]
-        public BigInteger WithoutConstructor { [Safe] get; protected set; }
+        public static BigInteger WithoutConstructor { [Safe] get; protected set; }
 
-        public void putWithoutConstructor(BigInteger value)
+        public static void putWithoutConstructor(BigInteger value)
         {
             WithoutConstructor = value;
         }
 
         [Safe]
-        public BigInteger getWithoutConstructor() => WithoutConstructor;
+        public static BigInteger getWithoutConstructor() => WithoutConstructor;
 
         // ---
 
@@ -53,9 +53,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
 
         [Stored]
-        public BigInteger NonStaticPrivateGetterPublicSetter { [Safe] private get; set; }
+        public static BigInteger NonStaticPrivateGetterPublicSetter { [Safe] private get; set; }
 
         [Safe]
-        public BigInteger getNonStaticPrivateGetterPublicSetter() => NonStaticPrivateGetterPublicSetter;
+        public static BigInteger getNonStaticPrivateGetterPublicSetter() => NonStaticPrivateGetterPublicSetter;
     }
 }
