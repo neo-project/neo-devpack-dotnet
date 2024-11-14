@@ -17,49 +17,36 @@ namespace Neo.SmartContract.Framework
 {
     public abstract class TokenContract : SmartContract
     {
-        protected static readonly ByteString Prefix_TotalSupply = "\x00";
-        protected static readonly ByteString Prefix_Balance = "\x01";
+        protected const byte Prefix_TotalSupply = 0x00;
+        protected const byte Prefix_Balance = 0x01;
 
         public abstract string Symbol { [Safe] get; }
 
         public abstract byte Decimals { [Safe] get; }
 
-        public static BigInteger TotalSupply
-        {
-            [Safe]
-            get
-            {
-                ByteString? stored = Storage.Get(Prefix_TotalSupply);
-                return (BigInteger)stored!;
-            }
-            protected set
-            {
-                Storage.Put(Prefix_TotalSupply, value);
-            }
-        }
+        [Stored(Prefix_TotalSupply)]
+        public static BigInteger TotalSupply { [Safe] get; protected set; }
 
         [Safe]
         public static BigInteger BalanceOf(UInt160 owner)
         {
             if (owner is null || !owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid.");
-            ByteString? balanceStored = Storage.Get(Prefix_Balance + owner);
-            return (BigInteger)balanceStored!;
+            StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
+            return (BigInteger)balanceMap[owner];
         }
 
         protected static bool UpdateBalance(UInt160 owner, BigInteger increment)
         {
-            StorageContext currentContext = Storage.CurrentContext;
-            ByteString ownerKey = Prefix_Balance + owner;
-            ByteString? balanceStored = Storage.Get(currentContext, ownerKey);
-            BigInteger balance = (BigInteger)balanceStored!;
+            StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
+            BigInteger balance = (BigInteger)balanceMap[owner];
             balance += increment;
             if (balance < 0)
                 return false;
             if (Helper.NumEqual(balance, 0))
-                Storage.Delete(currentContext, ownerKey);
+                balanceMap.Delete(owner);
             else
-                Storage.Put(currentContext, ownerKey, balance);
+                balanceMap.Put(owner, balance);
             return true;
         }
     }
