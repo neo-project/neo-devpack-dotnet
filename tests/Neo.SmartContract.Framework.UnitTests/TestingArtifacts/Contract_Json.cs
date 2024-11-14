@@ -26,10 +26,10 @@ public abstract class Contract_Json(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcBAEA=
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0100 [32768 datoshi]
-    /// 07 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0100 [32768 datoshi]
+    /// 07 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("deserialize")]
     public abstract object? Deserialize(string? json);
@@ -39,10 +39,10 @@ public abstract class Contract_Json(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEA=
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("serialize")]
     public abstract string? Serialize(object? obj = null);
