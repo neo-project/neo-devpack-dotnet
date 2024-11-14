@@ -64,8 +64,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// Safe method
     /// </summary>
     /// <remarks>
-    /// Script: NMlA
-    /// 00 : CALL C9 [512 datoshi]
+    /// Script: NMdA
+    /// 00 : CALL C7 [512 datoshi]
     /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("getWithKey")]
@@ -86,8 +86,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// Safe method
     /// </summary>
     /// <remarks>
-    /// Script: NL9A
-    /// 00 : CALL BF [512 datoshi]
+    /// Script: NL1A
+    /// 00 : CALL BD [512 datoshi]
     /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("getWithString")]
@@ -147,8 +147,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NIJA
-    /// 00 : OpCode.CALL 82 [512 datoshi]
-    /// 02 : OpCode.RET [0 datoshi]
+    /// 00 : CALL 82 [512 datoshi]
+    /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMultiGet")]
     public abstract BigInteger? TestMultiGet();
@@ -158,29 +158,29 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: eEo0nk6cNLZFeEo0lU6cNK1FeEo0jE6cNKRFNIVA
-    /// 00 : OpCode.LDARG0 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.CALL 9E [512 datoshi]
-    /// 04 : OpCode.TUCK [2 datoshi]
-    /// 05 : OpCode.INC [4 datoshi]
-    /// 06 : OpCode.CALL B6 [512 datoshi]
-    /// 08 : OpCode.DROP [2 datoshi]
-    /// 09 : OpCode.LDARG0 [2 datoshi]
-    /// 0A : OpCode.DUP [2 datoshi]
-    /// 0B : OpCode.CALL 95 [512 datoshi]
-    /// 0D : OpCode.TUCK [2 datoshi]
-    /// 0E : OpCode.INC [4 datoshi]
-    /// 0F : OpCode.CALL AD [512 datoshi]
-    /// 11 : OpCode.DROP [2 datoshi]
-    /// 12 : OpCode.LDARG0 [2 datoshi]
-    /// 13 : OpCode.DUP [2 datoshi]
-    /// 14 : OpCode.CALL 8C [512 datoshi]
-    /// 16 : OpCode.TUCK [2 datoshi]
-    /// 17 : OpCode.INC [4 datoshi]
-    /// 18 : OpCode.CALL A4 [512 datoshi]
-    /// 1A : OpCode.DROP [2 datoshi]
-    /// 1B : OpCode.CALL 85 [512 datoshi]
-    /// 1D : OpCode.RET [0 datoshi]
+    /// 00 : LDARG0 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : CALL 9E [512 datoshi]
+    /// 04 : TUCK [2 datoshi]
+    /// 05 : INC [4 datoshi]
+    /// 06 : CALL B6 [512 datoshi]
+    /// 08 : DROP [2 datoshi]
+    /// 09 : LDARG0 [2 datoshi]
+    /// 0A : DUP [2 datoshi]
+    /// 0B : CALL 95 [512 datoshi]
+    /// 0D : TUCK [2 datoshi]
+    /// 0E : INC [4 datoshi]
+    /// 0F : CALL AD [512 datoshi]
+    /// 11 : DROP [2 datoshi]
+    /// 12 : LDARG0 [2 datoshi]
+    /// 13 : DUP [2 datoshi]
+    /// 14 : CALL 8C [512 datoshi]
+    /// 16 : TUCK [2 datoshi]
+    /// 17 : INC [4 datoshi]
+    /// 18 : CALL A4 [512 datoshi]
+    /// 1A : DROP [2 datoshi]
+    /// 1B : CALL 85 [512 datoshi]
+    /// 1D : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMultiSet")]
     public abstract BigInteger? TestMultiSet();
@@ -190,8 +190,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NVr///9A
-    /// 00 : OpCode.CALL_L 5AFFFFFF [512 datoshi]
-    /// 05 : OpCode.RET [0 datoshi]
+    /// 00 : CALL_L 5AFFFFFF [512 datoshi]
+    /// 05 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStaticMultiGet")]
     public abstract BigInteger? TestStaticMultiGet();
@@ -201,23 +201,23 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NX7///9KnDShRTV0////Spw0l0U1av///0qcNI1FNWD///9A
-    /// 00 : OpCode.CALL_L 7EFFFFFF [512 datoshi]
-    /// 05 : OpCode.DUP [2 datoshi]
-    /// 06 : OpCode.INC [4 datoshi]
-    /// 07 : OpCode.CALL A1 [512 datoshi]
-    /// 09 : OpCode.DROP [2 datoshi]
-    /// 0A : OpCode.CALL_L 74FFFFFF [512 datoshi]
-    /// 0F : OpCode.DUP [2 datoshi]
-    /// 10 : OpCode.INC [4 datoshi]
-    /// 11 : OpCode.CALL 97 [512 datoshi]
-    /// 13 : OpCode.DROP [2 datoshi]
-    /// 14 : OpCode.CALL_L 6AFFFFFF [512 datoshi]
-    /// 19 : OpCode.DUP [2 datoshi]
-    /// 1A : OpCode.INC [4 datoshi]
-    /// 1B : OpCode.CALL 8D [512 datoshi]
-    /// 1D : OpCode.DROP [2 datoshi]
-    /// 1E : OpCode.CALL_L 60FFFFFF [512 datoshi]
-    /// 23 : OpCode.RET [0 datoshi]
+    /// 00 : CALL_L 7EFFFFFF [512 datoshi]
+    /// 05 : DUP [2 datoshi]
+    /// 06 : INC [4 datoshi]
+    /// 07 : CALL A1 [512 datoshi]
+    /// 09 : DROP [2 datoshi]
+    /// 0A : CALL_L 74FFFFFF [512 datoshi]
+    /// 0F : DUP [2 datoshi]
+    /// 10 : INC [4 datoshi]
+    /// 11 : CALL 97 [512 datoshi]
+    /// 13 : DROP [2 datoshi]
+    /// 14 : CALL_L 6AFFFFFF [512 datoshi]
+    /// 19 : DUP [2 datoshi]
+    /// 1A : INC [4 datoshi]
+    /// 1B : CALL 8D [512 datoshi]
+    /// 1D : DROP [2 datoshi]
+    /// 1E : CALL_L 60FFFFFF [512 datoshi]
+    /// 23 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStaticMultiSet")]
     public abstract BigInteger? TestStaticMultiSet();
