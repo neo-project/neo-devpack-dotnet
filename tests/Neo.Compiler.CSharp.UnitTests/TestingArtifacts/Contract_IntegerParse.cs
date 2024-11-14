@@ -26,16 +26,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoQAQABuyQDOkA=
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSH0 [1 datoshi]
-    /// 09 : OpCode.PUSHINT16 0001 [1 datoshi]
-    /// 0C : OpCode.WITHIN [8 datoshi]
-    /// 0D : OpCode.JMPIF 03 [2 datoshi]
-    /// 0F : OpCode.THROW [512 datoshi]
-    /// 10 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSH0 [1 datoshi]
+    /// 09 : PUSHINT16 0001 [1 datoshi]
+    /// 0C : WITHIN [8 datoshi]
+    /// 0D : JMPIF 03 [2 datoshi]
+    /// 0F : THROW [512 datoshi]
+    /// 10 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testByteparse")]
     public abstract BigInteger? TestByteparse(string? s);
@@ -45,16 +45,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoCAAAAgAMAAACAAAAAALskAzpA
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSHINT32 00000080 [1 datoshi]
-    /// 0D : OpCode.PUSHINT64 0000008000000000 [1 datoshi]
-    /// 16 : OpCode.WITHIN [8 datoshi]
-    /// 17 : OpCode.JMPIF 03 [2 datoshi]
-    /// 19 : OpCode.THROW [512 datoshi]
-    /// 1A : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSHINT32 00000080 [1 datoshi]
+    /// 0D : PUSHINT64 0000008000000000 [1 datoshi]
+    /// 16 : WITHIN [8 datoshi]
+    /// 17 : JMPIF 03 [2 datoshi]
+    /// 19 : THROW [512 datoshi]
+    /// 1A : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIntparse")]
     public abstract BigInteger? TestIntparse(string? s);
@@ -64,16 +64,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoDAAAAAAAAAIAEAAAAAAAAAIAAAAAAAAAAALskAzpA
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSHINT64 0000000000000080 [1 datoshi]
-    /// 11 : OpCode.PUSHINT128 00000000000000800000000000000000 [4 datoshi]
-    /// 22 : OpCode.WITHIN [8 datoshi]
-    /// 23 : OpCode.JMPIF 03 [2 datoshi]
-    /// 25 : OpCode.THROW [512 datoshi]
-    /// 26 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSHINT64 0000000000000080 [1 datoshi]
+    /// 11 : PUSHINT128 00000000000000800000000000000000 [4 datoshi]
+    /// 22 : WITHIN [8 datoshi]
+    /// 23 : JMPIF 03 [2 datoshi]
+    /// 25 : THROW [512 datoshi]
+    /// 26 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLongparse")]
     public abstract BigInteger? TestLongparse(string? s);
@@ -83,16 +83,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoAgAGAALskAzpA
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSHINT8 80 [1 datoshi]
-    /// 0A : OpCode.PUSHINT16 8000 [1 datoshi]
-    /// 0D : OpCode.WITHIN [8 datoshi]
-    /// 0E : OpCode.JMPIF 03 [2 datoshi]
-    /// 10 : OpCode.THROW [512 datoshi]
-    /// 11 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSHINT8 80 [1 datoshi]
+    /// 0A : PUSHINT16 8000 [1 datoshi]
+    /// 0D : WITHIN [8 datoshi]
+    /// 0E : JMPIF 03 [2 datoshi]
+    /// 10 : THROW [512 datoshi]
+    /// 11 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSbyteparse")]
     public abstract BigInteger? TestSbyteparse(string? s);
@@ -102,16 +102,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoBAIACAIAAALskAzpA
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSHINT16 0080 [1 datoshi]
-    /// 0B : OpCode.PUSHINT32 00800000 [1 datoshi]
-    /// 10 : OpCode.WITHIN [8 datoshi]
-    /// 11 : OpCode.JMPIF 03 [2 datoshi]
-    /// 13 : OpCode.THROW [512 datoshi]
-    /// 14 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSHINT16 0080 [1 datoshi]
+    /// 0B : PUSHINT32 00800000 [1 datoshi]
+    /// 10 : WITHIN [8 datoshi]
+    /// 11 : JMPIF 03 [2 datoshi]
+    /// 13 : THROW [512 datoshi]
+    /// 14 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShortparse")]
     public abstract BigInteger? TestShortparse(string? s);
@@ -121,16 +121,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoQAwAAAAABAAAAuyQDOkA=
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSH0 [1 datoshi]
-    /// 09 : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
-    /// 12 : OpCode.WITHIN [8 datoshi]
-    /// 13 : OpCode.JMPIF 03 [2 datoshi]
-    /// 15 : OpCode.THROW [512 datoshi]
-    /// 16 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSH0 [1 datoshi]
+    /// 09 : PUSHINT64 0000000001000000 [1 datoshi]
+    /// 12 : WITHIN [8 datoshi]
+    /// 13 : JMPIF 03 [2 datoshi]
+    /// 15 : THROW [512 datoshi]
+    /// 16 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUintparse")]
     public abstract BigInteger? TestUintparse(string? s);
@@ -140,16 +140,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoQBAAAAAAAAAAAAQAAAAAAAAC7JAM6QA==
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSH0 [1 datoshi]
-    /// 09 : OpCode.PUSHINT128 00000000000000000100000000000000 [4 datoshi]
-    /// 1A : OpCode.WITHIN [8 datoshi]
-    /// 1B : OpCode.JMPIF 03 [2 datoshi]
-    /// 1D : OpCode.THROW [512 datoshi]
-    /// 1E : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSH0 [1 datoshi]
+    /// 09 : PUSHINT128 00000000000000000100000000000000 [4 datoshi]
+    /// 1A : WITHIN [8 datoshi]
+    /// 1B : JMPIF 03 [2 datoshi]
+    /// 1D : THROW [512 datoshi]
+    /// 1E : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUlongparse")]
     public abstract BigInteger? TestUlongparse(string? s);
@@ -159,16 +159,16 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEoQAgAAAQC7JAM6QA==
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.PUSH0 [1 datoshi]
-    /// 09 : OpCode.PUSHINT32 00000100 [1 datoshi]
-    /// 0E : OpCode.WITHIN [8 datoshi]
-    /// 0F : OpCode.JMPIF 03 [2 datoshi]
-    /// 11 : OpCode.THROW [512 datoshi]
-    /// 12 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : PUSH0 [1 datoshi]
+    /// 09 : PUSHINT32 00000100 [1 datoshi]
+    /// 0E : WITHIN [8 datoshi]
+    /// 0F : JMPIF 03 [2 datoshi]
+    /// 11 : THROW [512 datoshi]
+    /// 12 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUshortparse")]
     public abstract BigInteger? TestUshortparse(string? s);
