@@ -73,6 +73,5 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             Assert.AreEqual(123, publicGetter());
         }
-        }
     }
 }
