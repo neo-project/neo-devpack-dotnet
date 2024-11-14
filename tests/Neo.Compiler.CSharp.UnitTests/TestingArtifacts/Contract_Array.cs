@@ -148,7 +148,7 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// Script: VwEAE8QhcGgQzhCXJgQIQAlA
     /// 00 : INITSLOT 0100 [64 datoshi]
     /// 03 : PUSH3 [1 datoshi]
-    /// 04 : NEWARRAY_T 21 [512 datoshi]
+    /// 04 : NEWARRAY_T 21 'Integer' [512 datoshi]
     /// 06 : STLOC0 [2 datoshi]
     /// 07 : LDLOC0 [2 datoshi]
     /// 08 : PUSH0 [1 datoshi]
@@ -191,7 +191,7 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// Script: VwIBeMQhcBBxIjxpSmhpUdBFaUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JMNoQA==
     /// 00 : INITSLOT 0201 [64 datoshi]
     /// 03 : LDARG0 [2 datoshi]
-    /// 04 : NEWARRAY_T 21 [512 datoshi]
+    /// 04 : NEWARRAY_T 21 'Integer' [512 datoshi]
     /// 06 : STLOC0 [2 datoshi]
     /// 07 : PUSH0 [1 datoshi]
     /// 08 : STLOC1 [2 datoshi]
@@ -300,7 +300,7 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// Script: VwEAE8QhcBBKaBBR0EURSmgRUdBFEkpoElHQRWhA
     /// 00 : INITSLOT 0100 [64 datoshi]
     /// 03 : PUSH3 [1 datoshi]
-    /// 04 : NEWARRAY_T 21 [512 datoshi]
+    /// 04 : NEWARRAY_T 21 'Integer' [512 datoshi]
     /// 06 : STLOC0 [2 datoshi]
     /// 07 : PUSH0 [1 datoshi]
     /// 08 : DUP [2 datoshi]
@@ -514,7 +514,7 @@ public abstract class Contract_Array(Neo.SmartContract.Testing.SmartContractInit
     /// 09 : CALL 12 [512 datoshi]
     /// 0B : STLOC0 [2 datoshi]
     /// 0C : PUSH3 [1 datoshi]
-    /// 0D : NEWARRAY_T 00 [512 datoshi]
+    /// 0D : NEWARRAY_T 00 'Any' [512 datoshi]
     /// 0F : STLOC1 [2 datoshi]
     /// 10 : LDLOC0 [2 datoshi]
     /// 11 : DUP [2 datoshi]

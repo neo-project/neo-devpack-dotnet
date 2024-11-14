@@ -50,7 +50,7 @@ public abstract class Contract_TypeConvert(Neo.SmartContract.Testing.SmartContra
     /// 1D : CONVERT 21 'Integer' [8192 datoshi]
     /// 1F : STLOC 07 [2 datoshi]
     /// 21 : PUSH8 [1 datoshi]
-    /// 22 : NEWARRAY_T 00 [512 datoshi]
+    /// 22 : NEWARRAY_T 00 'Any' [512 datoshi]
     /// 24 : STLOC 08 [2 datoshi]
     /// 26 : LDLOC0 [2 datoshi]
     /// 27 : DUP [2 datoshi]

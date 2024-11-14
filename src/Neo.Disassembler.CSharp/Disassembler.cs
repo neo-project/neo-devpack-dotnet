@@ -124,6 +124,7 @@ public static class Disassembler
                         break;
                     }
                 case OpCode.ISTYPE:
+                case OpCode.NEWARRAY_T:
                 case OpCode.CONVERT:
                     {
                         ret = $"{opcode} {operandString} '{(StackItemType)instruction.TokenU8}'";
