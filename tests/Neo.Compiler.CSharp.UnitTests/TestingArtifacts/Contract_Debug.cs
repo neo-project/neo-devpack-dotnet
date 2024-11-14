@@ -35,13 +35,13 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DBFEZWJ1ZyBjb21waWxhdGlvbhHADAVEZWJ1Z0GVAW9hEUA=
-    /// 00 : OpCode.PUSHDATA1 446562756720636F6D70696C6174696F6E [8 datoshi]
-    /// 13 : OpCode.PUSH1 [1 datoshi]
-    /// 14 : OpCode.PACK [2048 datoshi]
-    /// 15 : OpCode.PUSHDATA1 4465627567 'Debug' [8 datoshi]
-    /// 1C : OpCode.SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
-    /// 21 : OpCode.PUSH1 [1 datoshi]
-    /// 22 : OpCode.RET [0 datoshi]
+    /// 00 : PUSHDATA1 446562756720636F6D70696C6174696F6E [8 datoshi]
+    /// 13 : PUSH1 [1 datoshi]
+    /// 14 : PACK [2048 datoshi]
+    /// 15 : PUSHDATA1 4465627567 'Debug' [8 datoshi]
+    /// 1C : SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
+    /// 21 : PUSH1 [1 datoshi]
+    /// 22 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testElse")]
     public abstract BigInteger? TestElse();
@@ -51,13 +51,13 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwEAEnARcGhA
-    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
-    /// 03 : OpCode.PUSH2 [1 datoshi]
-    /// 04 : OpCode.STLOC0 [2 datoshi]
-    /// 05 : OpCode.PUSH1 [1 datoshi]
-    /// 06 : OpCode.STLOC0 [2 datoshi]
-    /// 07 : OpCode.LDLOC0 [2 datoshi]
-    /// 08 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0100 [64 datoshi]
+    /// 03 : PUSH2 [1 datoshi]
+    /// 04 : STLOC0 [2 datoshi]
+    /// 05 : PUSH1 [1 datoshi]
+    /// 06 : STLOC0 [2 datoshi]
+    /// 07 : LDLOC0 [2 datoshi]
+    /// 08 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIf")]
     public abstract BigInteger? TestIf();

@@ -26,13 +26,13 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeCQECUB5QA==
-    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.JMPIF 04 [2 datoshi]
-    /// 06 : OpCode.PUSHF [1 datoshi]
-    /// 07 : OpCode.RET [0 datoshi]
-    /// 08 : OpCode.LDARG1 [2 datoshi]
-    /// 09 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : JMPIF 04 [2 datoshi]
+    /// 06 : PUSHF [1 datoshi]
+    /// 07 : RET [0 datoshi]
+    /// 08 : LDARG1 [2 datoshi]
+    /// 09 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testConditionalLogicalAnd")]
     public abstract bool? TestConditionalLogicalAnd(bool? x, bool? y);
@@ -42,13 +42,13 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeCYECEB5QA==
-    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.JMPIFNOT 04 [2 datoshi]
-    /// 06 : OpCode.PUSHT [1 datoshi]
-    /// 07 : OpCode.RET [0 datoshi]
-    /// 08 : OpCode.LDARG1 [2 datoshi]
-    /// 09 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : JMPIFNOT 04 [2 datoshi]
+    /// 06 : PUSHT [1 datoshi]
+    /// 07 : RET [0 datoshi]
+    /// 08 : LDARG1 [2 datoshi]
+    /// 09 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testConditionalLogicalOr")]
     public abstract bool? TestConditionalLogicalOr(bool? x, bool? y);
@@ -58,11 +58,11 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmRQA==
-    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.LDARG1 [2 datoshi]
-    /// 05 : OpCode.AND [8 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : LDARG1 [2 datoshi]
+    /// 05 : AND [8 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLogicalAnd")]
     public abstract BigInteger? TestLogicalAnd(BigInteger? x, BigInteger? y);
@@ -72,11 +72,11 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmTQA==
-    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.LDARG1 [2 datoshi]
-    /// 05 : OpCode.XOR [8 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : LDARG1 [2 datoshi]
+    /// 05 : XOR [8 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLogicalExclusiveOr")]
     public abstract bool? TestLogicalExclusiveOr(bool? x, bool? y);
@@ -86,10 +86,10 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwABeKpA
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.NOT [4 datoshi]
-    /// 05 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : NOT [4 datoshi]
+    /// 05 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLogicalNegation")]
     public abstract bool? TestLogicalNegation(bool? x);
@@ -99,11 +99,11 @@ public abstract class Contract_Logical(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmSQA==
-    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.LDARG1 [2 datoshi]
-    /// 05 : OpCode.OR [8 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : LDARG1 [2 datoshi]
+    /// 05 : OR [8 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLogicalOr")]
     public abstract BigInteger? TestLogicalOr(BigInteger? x, BigInteger? y);
