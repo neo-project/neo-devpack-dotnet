@@ -55,8 +55,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NNFA
-    /// 00 : OpCode.CALL D1 [512 datoshi]
-    /// 02 : OpCode.RET [0 datoshi]
+    /// 00 : CALL D1 [512 datoshi]
+    /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("getWithKey")]
     public abstract BigInteger? GetWithKey();
@@ -66,10 +66,10 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDSZQA==
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALL 99 [512 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALL 99 [512 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("getWithoutConstructor")]
     public abstract BigInteger? GetWithoutConstructor();
@@ -79,8 +79,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NMdA
-    /// 00 : OpCode.CALL C7 [512 datoshi]
-    /// 02 : OpCode.RET [0 datoshi]
+    /// 00 : CALL C7 [512 datoshi]
+    /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("getWithString")]
     public abstract BigInteger? GetWithString();
@@ -94,12 +94,12 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeEo06UVA
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.DUP [2 datoshi]
-    /// 05 : OpCode.CALL E9 [512 datoshi]
-    /// 07 : OpCode.DROP [2 datoshi]
-    /// 08 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : DUP [2 datoshi]
+    /// 05 : CALL E9 [512 datoshi]
+    /// 07 : DROP [2 datoshi]
+    /// 08 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("putWithKey")]
     public abstract void PutWithKey(BigInteger? value);
@@ -109,13 +109,13 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeUp4NNdFQA==
-    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.LDARG1 [2 datoshi]
-    /// 04 : OpCode.DUP [2 datoshi]
-    /// 05 : OpCode.LDARG0 [2 datoshi]
-    /// 06 : OpCode.CALL D7 [512 datoshi]
-    /// 08 : OpCode.DROP [2 datoshi]
-    /// 09 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG1 [2 datoshi]
+    /// 04 : DUP [2 datoshi]
+    /// 05 : LDARG0 [2 datoshi]
+    /// 06 : CALL D7 [512 datoshi]
+    /// 08 : DROP [2 datoshi]
+    /// 09 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("putWithoutConstructor")]
     public abstract void PutWithoutConstructor(BigInteger? value);
@@ -125,12 +125,12 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeEo05EVA
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.DUP [2 datoshi]
-    /// 05 : OpCode.CALL E4 [512 datoshi]
-    /// 07 : OpCode.DROP [2 datoshi]
-    /// 08 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : DUP [2 datoshi]
+    /// 05 : CALL E4 [512 datoshi]
+    /// 07 : DROP [2 datoshi]
+    /// 08 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("putWithString")]
     public abstract void PutWithString(BigInteger? value);

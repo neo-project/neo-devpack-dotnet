@@ -26,13 +26,13 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: XkqcZkVeQA==
-    /// 00 : OpCode.LDSFLD6 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.INC [4 datoshi]
-    /// 03 : OpCode.STSFLD6 [2 datoshi]
-    /// 04 : OpCode.DROP [2 datoshi]
-    /// 05 : OpCode.LDSFLD6 [2 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : LDSFLD6 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : INC [4 datoshi]
+    /// 03 : STSFLD6 [2 datoshi]
+    /// 04 : DROP [2 datoshi]
+    /// 05 : LDSFLD6 [2 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("incTestFieldDefault")]
     public abstract BigInteger? IncTestFieldDefault();
@@ -42,10 +42,10 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: EmcHXwdA
-    /// 00 : OpCode.PUSH2 [1 datoshi]
-    /// 01 : OpCode.STSFLD 07 [2 datoshi]
-    /// 03 : OpCode.LDSFLD 07 [2 datoshi]
-    /// 05 : OpCode.RET [0 datoshi]
+    /// 00 : PUSH2 [1 datoshi]
+    /// 01 : STSFLD 07 [2 datoshi]
+    /// 03 : LDSFLD 07 [2 datoshi]
+    /// 05 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("incTestFieldValue")]
     public abstract BigInteger? IncTestFieldValue();
@@ -55,13 +55,13 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: XEqcZEVcQA==
-    /// 00 : OpCode.LDSFLD4 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.INC [4 datoshi]
-    /// 03 : OpCode.STSFLD4 [2 datoshi]
-    /// 04 : OpCode.DROP [2 datoshi]
-    /// 05 : OpCode.LDSFLD4 [2 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : LDSFLD4 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : INC [4 datoshi]
+    /// 03 : STSFLD4 [2 datoshi]
+    /// 04 : DROP [2 datoshi]
+    /// 05 : LDSFLD4 [2 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("incTestStaticFieldDefault")]
     public abstract BigInteger? IncTestStaticFieldDefault();
@@ -71,13 +71,13 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: XUqcZUVdQA==
-    /// 00 : OpCode.LDSFLD5 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.INC [4 datoshi]
-    /// 03 : OpCode.STSFLD5 [2 datoshi]
-    /// 04 : OpCode.DROP [2 datoshi]
-    /// 05 : OpCode.LDSFLD5 [2 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : LDSFLD5 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : INC [4 datoshi]
+    /// 03 : STSFLD5 [2 datoshi]
+    /// 04 : DROP [2 datoshi]
+    /// 05 : LDSFLD5 [2 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("incTestStaticFieldValue")]
     public abstract BigInteger? IncTestStaticFieldValue();
@@ -85,6 +85,11 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DAtUb2tlblN5bWJvbEA=
+    /// 00 : PUSHDATA1 546F6B656E53796D626F6C 'TokenSymbol' [8 datoshi]
+    /// 0D : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("symbol")]
     public abstract string? Symbol();
 
@@ -93,18 +98,18 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: WkqcYkVaSpxiRVpA
-    /// 00 : OpCode.LDSFLD2 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.INC [4 datoshi]
-    /// 03 : OpCode.STSFLD2 [2 datoshi]
-    /// 04 : OpCode.DROP [2 datoshi]
-    /// 05 : OpCode.LDSFLD2 [2 datoshi]
-    /// 06 : OpCode.DUP [2 datoshi]
-    /// 07 : OpCode.INC [4 datoshi]
-    /// 08 : OpCode.STSFLD2 [2 datoshi]
-    /// 09 : OpCode.DROP [2 datoshi]
-    /// 0A : OpCode.LDSFLD2 [2 datoshi]
-    /// 0B : OpCode.RET [0 datoshi]
+    /// 00 : LDSFLD2 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : INC [4 datoshi]
+    /// 03 : STSFLD2 [2 datoshi]
+    /// 04 : DROP [2 datoshi]
+    /// 05 : LDSFLD2 [2 datoshi]
+    /// 06 : DUP [2 datoshi]
+    /// 07 : INC [4 datoshi]
+    /// 08 : STSFLD2 [2 datoshi]
+    /// 09 : DROP [2 datoshi]
+    /// 0A : LDSFLD2 [2 datoshi]
+    /// 0B : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testPropertyDefaultInc")]
     public abstract BigInteger? TestPropertyDefaultInc();
@@ -114,18 +119,18 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: W0qcY0VbSpxjRVtA
-    /// 00 : OpCode.LDSFLD3 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.INC [4 datoshi]
-    /// 03 : OpCode.STSFLD3 [2 datoshi]
-    /// 04 : OpCode.DROP [2 datoshi]
-    /// 05 : OpCode.LDSFLD3 [2 datoshi]
-    /// 06 : OpCode.DUP [2 datoshi]
-    /// 07 : OpCode.INC [4 datoshi]
-    /// 08 : OpCode.STSFLD3 [2 datoshi]
-    /// 09 : OpCode.DROP [2 datoshi]
-    /// 0A : OpCode.LDSFLD3 [2 datoshi]
-    /// 0B : OpCode.RET [0 datoshi]
+    /// 00 : LDSFLD3 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : INC [4 datoshi]
+    /// 03 : STSFLD3 [2 datoshi]
+    /// 04 : DROP [2 datoshi]
+    /// 05 : LDSFLD3 [2 datoshi]
+    /// 06 : DUP [2 datoshi]
+    /// 07 : INC [4 datoshi]
+    /// 08 : STSFLD3 [2 datoshi]
+    /// 09 : DROP [2 datoshi]
+    /// 0A : LDSFLD3 [2 datoshi]
+    /// 0B : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testPropertyValueInc")]
     public abstract BigInteger? TestPropertyValueInc();
@@ -135,18 +140,18 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: WEqcYEVZSpxhRVhA
-    /// 00 : OpCode.LDSFLD0 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.INC [4 datoshi]
-    /// 03 : OpCode.STSFLD0 [2 datoshi]
-    /// 04 : OpCode.DROP [2 datoshi]
-    /// 05 : OpCode.LDSFLD1 [2 datoshi]
-    /// 06 : OpCode.DUP [2 datoshi]
-    /// 07 : OpCode.INC [4 datoshi]
-    /// 08 : OpCode.STSFLD1 [2 datoshi]
-    /// 09 : OpCode.DROP [2 datoshi]
-    /// 0A : OpCode.LDSFLD0 [2 datoshi]
-    /// 0B : OpCode.RET [0 datoshi]
+    /// 00 : LDSFLD0 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : INC [4 datoshi]
+    /// 03 : STSFLD0 [2 datoshi]
+    /// 04 : DROP [2 datoshi]
+    /// 05 : LDSFLD1 [2 datoshi]
+    /// 06 : DUP [2 datoshi]
+    /// 07 : INC [4 datoshi]
+    /// 08 : STSFLD1 [2 datoshi]
+    /// 09 : DROP [2 datoshi]
+    /// 0A : LDSFLD0 [2 datoshi]
+    /// 0B : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStaticPropertyDefaultInc")]
     public abstract BigInteger? TestStaticPropertyDefaultInc();
@@ -156,13 +161,13 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: WUqcYUVZQA==
-    /// 00 : OpCode.LDSFLD1 [2 datoshi]
-    /// 01 : OpCode.DUP [2 datoshi]
-    /// 02 : OpCode.INC [4 datoshi]
-    /// 03 : OpCode.STSFLD1 [2 datoshi]
-    /// 04 : OpCode.DROP [2 datoshi]
-    /// 05 : OpCode.LDSFLD1 [2 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : LDSFLD1 [2 datoshi]
+    /// 01 : DUP [2 datoshi]
+    /// 02 : INC [4 datoshi]
+    /// 03 : STSFLD1 [2 datoshi]
+    /// 04 : DROP [2 datoshi]
+    /// 05 : LDSFLD1 [2 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStaticPropertyValueInc")]
     public abstract BigInteger? TestStaticPropertyValueInc();

@@ -26,8 +26,8 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// </summary>
     /// <remarks>
     /// Script: Qdv+qHRA
-    /// 00 : OpCode.SYSCALL DBFEA874 'System.Runtime.GetExecutingScriptHash' [16 datoshi]
-    /// 05 : OpCode.RET [0 datoshi]
+    /// 00 : SYSCALL DBFEA874 'System.Runtime.GetExecutingScriptHash' [16 datoshi]
+    /// 05 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("directGet")]
     public abstract UInt160? DirectGet();
@@ -37,8 +37,8 @@ public abstract class Contract_StaticVarInit(Neo.SmartContract.Testing.SmartCont
     /// </summary>
     /// <remarks>
     /// Script: NANA
-    /// 00 : OpCode.CALL 03 [512 datoshi]
-    /// 02 : OpCode.RET [0 datoshi]
+    /// 00 : CALL 03 [512 datoshi]
+    /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("staticInit")]
     public abstract UInt160? StaticInit();

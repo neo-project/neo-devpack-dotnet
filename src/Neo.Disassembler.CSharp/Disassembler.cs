@@ -1,5 +1,6 @@
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -31,25 +32,18 @@ public static class Disassembler
             .ToList();
     }
 
-    public static JObject? GetMethod(string name, int argCount, JToken debugInfo)
+    public static JObject? GetMethod(ContractMethodDescriptor abiMethod, JToken debugInfo)
     {
-        name = name.Length == 0 ? string.Empty : string.Concat(name[0].ToString().ToUpper(), name.AsSpan(1));  // first letter uppercase
-
         foreach (var method in (JArray)debugInfo["methods"]!)
         {
-            var methodName = method!["name"]!.AsString().Split(",")[1];
-            methodName = methodName.Length == 0 ? string.Empty : string.Concat(methodName[0].ToString().ToUpper(), methodName.AsSpan(1));  // first letter uppercase
+            if (method == null) continue;
 
-            if (methodName == name)
+            // Note: Require Debug extended type, we can't relate the abi to the NEP19 and without it, name is compiler dependant
+
+            if (method["abi"] is JObject abi)
             {
-                if (method["params"] is not JArray jparams)
-                {
-                    continue;
-                }
-
-                // excluding `this` of an object
-                var count = jparams.FirstOrDefault()?.AsString() == "this,Any,0" ? jparams.Count - 1 : jparams.Count;
-                if (count != argCount) continue;
+                var parsedMethod = ContractMethodDescriptor.FromJson(abi);
+                if (!parsedMethod.Equals(abiMethod)) continue;
 
                 return method as JObject;
             }
@@ -94,7 +88,7 @@ public static class Disassembler
 
         if (operand.IsEmpty || operand.Length == 0)
         {
-            ret = $"OpCode.{opcode}";
+            ret = $"{opcode}";
         }
         else
         {
@@ -104,7 +98,7 @@ public static class Disassembler
             {
                 case OpCode.PUSHDATA1:
                     {
-                        ret = $"OpCode.{opcode} {operandString}";
+                        ret = $"{opcode} {operandString}";
 
                         try
                         {
@@ -123,21 +117,23 @@ public static class Disassembler
 
                         break;
                     }
+                case OpCode.ISTYPE:
+                case OpCode.NEWARRAY_T:
                 case OpCode.CONVERT:
                     {
-                        ret = $"OpCode.{opcode} {operandString} '{(StackItemType)operand.Span[0]}'";
+                        ret = $"{opcode} {operandString} '{(StackItemType)instruction.TokenU8}'";
                         break;
                     }
                 case OpCode.SYSCALL:
                     {
                         var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
                         addprice += descriptor.FixedPrice;
-                        ret = $"OpCode.{opcode} {operandString} '{descriptor.Name}'";
+                        ret = $"{opcode} {operandString} '{descriptor.Name}'";
                         break;
                     }
                 default:
                     {
-                        ret = $"OpCode.{opcode} {operandString}";
+                        ret = $"{opcode} {operandString}";
                         break;
                     }
             }
