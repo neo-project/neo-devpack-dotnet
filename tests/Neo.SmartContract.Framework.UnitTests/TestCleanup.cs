@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
         private static readonly Lazy<CompilationEngine> _compilationEngine = new(() => new CompilationEngine(new CompilationOptions
         {
-            Debug = true,
+            Debug = CompilationOptions.DebugType.Extended,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = NullableContextOptions.Enable

@@ -24,6 +24,15 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXgKBwAAADZA
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG1 [2 datoshi]
+    /// 04 : LDARG0 [2 datoshi]
+    /// 05 : PUSHA 07000000 [4 datoshi]
+    /// 0A : CALLA [512 datoshi]
+    /// 0B : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sumFunc")]
     public abstract BigInteger? SumFunc(BigInteger? a, BigInteger? b);
 
@@ -32,21 +41,21 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwIACsj///9wFhVoNnEMBVN1bTogaTcAAIvbKEHP50eWQA==
-    /// 00 : OpCode.INITSLOT 0200 [64 datoshi]
-    /// 03 : OpCode.PUSHA C8FFFFFF [4 datoshi]
-    /// 08 : OpCode.STLOC0 [2 datoshi]
-    /// 09 : OpCode.PUSH6 [1 datoshi]
-    /// 0A : OpCode.PUSH5 [1 datoshi]
-    /// 0B : OpCode.LDLOC0 [2 datoshi]
-    /// 0C : OpCode.CALLA [512 datoshi]
-    /// 0D : OpCode.STLOC1 [2 datoshi]
-    /// 0E : OpCode.PUSHDATA1 53756D3A20 [8 datoshi]
-    /// 15 : OpCode.LDLOC1 [2 datoshi]
-    /// 16 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 19 : OpCode.CAT [2048 datoshi]
-    /// 1A : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
-    /// 1C : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 21 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0200 [64 datoshi]
+    /// 03 : PUSHA C8FFFFFF [4 datoshi]
+    /// 08 : STLOC0 [2 datoshi]
+    /// 09 : PUSH6 [1 datoshi]
+    /// 0A : PUSH5 [1 datoshi]
+    /// 0B : LDLOC0 [2 datoshi]
+    /// 0C : CALLA [512 datoshi]
+    /// 0D : STLOC1 [2 datoshi]
+    /// 0E : PUSHDATA1 53756D3A20 [8 datoshi]
+    /// 15 : LDLOC1 [2 datoshi]
+    /// 16 : CALLT 0000 [32768 datoshi]
+    /// 19 : CAT [2048 datoshi]
+    /// 1A : CONVERT 28 'ByteString' [8192 datoshi]
+    /// 1C : SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// 21 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testDelegate")]
     public abstract void TestDelegate();

@@ -35,13 +35,13 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwAEe3p5eEFifVtSQA==
-    /// 00 : OpCode.INITSLOT 0004 [64 datoshi]
-    /// 03 : OpCode.LDARG3 [2 datoshi]
-    /// 04 : OpCode.LDARG2 [2 datoshi]
-    /// 05 : OpCode.LDARG1 [2 datoshi]
-    /// 06 : OpCode.LDARG0 [2 datoshi]
-    /// 07 : OpCode.SYSCALL 627D5B52 'System.Contract.Call' [32768 datoshi]
-    /// 0C : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0004 [64 datoshi]
+    /// 03 : LDARG3 [2 datoshi]
+    /// 04 : LDARG2 [2 datoshi]
+    /// 05 : LDARG1 [2 datoshi]
+    /// 06 : LDARG0 [2 datoshi]
+    /// 07 : SYSCALL 627D5B52 'System.Contract.Call' [32768 datoshi]
+    /// 0C : RET [0 datoshi]
     /// </remarks>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
@@ -49,174 +49,379 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DANuZW8RwEA=
+    /// 00 : PUSHDATA1 6E656F 'neo' [8 datoshi]
+    /// 05 : PUSH1 [1 datoshi]
+    /// 06 : PACK [2048 datoshi]
+    /// 07 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkArrayObj")]
     public abstract IList<object>? CheckArrayObj();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkBigInteger")]
     public abstract BigInteger? CheckBigInteger();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CUA=
+    /// 00 : PUSHF [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkBoolFalse")]
     public abstract bool? CheckBoolFalse();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeCQKDAVGYWxzZUAMBFRydWVA
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : JMPIF 0A [2 datoshi]
+    /// 06 : PUSHDATA1 46616C7365 'False' [8 datoshi]
+    /// 0D : RET [0 datoshi]
+    /// 0E : PUSHDATA1 54727565 'True' [8 datoshi]
+    /// 14 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkBoolString")]
     public abstract string? CheckBoolString(bool? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CEA=
+    /// 00 : PUSHT [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkBoolTrue")]
     public abstract bool? CheckBoolTrue();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkByte")]
     public abstract BigInteger? CheckByte();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DAMBAgPbMEA=
+    /// 00 : PUSHDATA1 010203 [8 datoshi]
+    /// 05 : CONVERT 30 'Buffer' [8192 datoshi]
+    /// 07 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkByteArray")]
     public abstract byte[]? CheckByteArray();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: AG5A
+    /// 00 : PUSHINT8 6E [1 datoshi]
+    /// 02 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkChar")]
     public abstract BigInteger? CheckChar();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEACxHASjQQcAwDbmVvSmgQUdBFaEA=
+    /// 00 : INITSLOT 0100 [64 datoshi]
+    /// 03 : PUSHNULL [1 datoshi]
+    /// 04 : PUSH1 [1 datoshi]
+    /// 05 : PACK [2048 datoshi]
+    /// 06 : DUP [2 datoshi]
+    /// 07 : CALL 10 [512 datoshi]
+    /// 09 : STLOC0 [2 datoshi]
+    /// 0A : PUSHDATA1 6E656F 'neo' [8 datoshi]
+    /// 0F : DUP [2 datoshi]
+    /// 10 : LDLOC0 [2 datoshi]
+    /// 11 : PUSH0 [1 datoshi]
+    /// 12 : ROT [2 datoshi]
+    /// 13 : SETITEM [8192 datoshi]
+    /// 14 : DROP [2 datoshi]
+    /// 15 : LDLOC0 [2 datoshi]
+    /// 16 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkClass")]
     public abstract object? CheckClass();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CgAAAABA
+    /// 00 : PUSHA 00000000 [4 datoshi]
+    /// 05 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkDelegate")]
     public abstract object? CheckDelegate();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkEnum")]
     public abstract object? CheckEnum();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABQA==
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkEnumArg")]
     public abstract void CheckEnumArg(BigInteger? arg);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DANuZW8RwAwKRHVtbXlFdmVudEGVAW9hQA==
+    /// 00 : PUSHDATA1 6E656F 'neo' [8 datoshi]
+    /// 05 : PUSH1 [1 datoshi]
+    /// 06 : PACK [2048 datoshi]
+    /// 07 : PUSHDATA1 44756D6D794576656E74 'DummyEvent' [8 datoshi]
+    /// 13 : SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
+    /// 18 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkEvent")]
     public abstract void CheckEvent();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkInt")]
     public abstract BigInteger? CheckInt();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CgAAAABA
+    /// 00 : PUSHA 00000000 [4 datoshi]
+    /// 05 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkLambda")]
     public abstract object? CheckLambda();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkLong")]
     public abstract BigInteger? CheckLong();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DAljaGVja051bGxA
+    /// 00 : PUSHDATA1 636865636B4E756C6C 'checkNull' [8 datoshi]
+    /// 0B : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkNameof")]
     public abstract string? CheckNameof();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: C0A=
+    /// 00 : PUSHNULL [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkNull")]
     public abstract object? CheckNull();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkSbyte")]
     public abstract BigInteger? CheckSbyte();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkShort")]
     public abstract BigInteger? CheckShort();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DANuZW9A
+    /// 00 : PUSHDATA1 6E656F 'neo' [8 datoshi]
+    /// 05 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkString")]
     public abstract string? CheckString();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeHnOQA==
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : LDARG1 [2 datoshi]
+    /// 05 : PICKITEM [64 datoshi]
+    /// 06 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkStringIndex")]
     public abstract BigInteger? CheckStringIndex(string? input, BigInteger? index);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEACxG/cAwDbmVvSmgQUdBFaEA=
+    /// 00 : INITSLOT 0100 [64 datoshi]
+    /// 03 : PUSHNULL [1 datoshi]
+    /// 04 : PUSH1 [1 datoshi]
+    /// 05 : PACKSTRUCT [2048 datoshi]
+    /// 06 : STLOC0 [2 datoshi]
+    /// 07 : PUSHDATA1 6E656F 'neo' [8 datoshi]
+    /// 0C : DUP [2 datoshi]
+    /// 0D : LDLOC0 [2 datoshi]
+    /// 0E : PUSH0 [1 datoshi]
+    /// 0F : ROT [2 datoshi]
+    /// 10 : SETITEM [8192 datoshi]
+    /// 11 : DROP [2 datoshi]
+    /// 12 : LDLOC0 [2 datoshi]
+    /// 13 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkStruct")]
     public abstract object? CheckStruct();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DA1zbWFydCBlY29ub215DANuZW8Sv0A=
+    /// 00 : PUSHDATA1 736D6172742065636F6E6F6D79 [8 datoshi]
+    /// 0F : PUSHDATA1 6E656F 'neo' [8 datoshi]
+    /// 14 : PUSH2 [1 datoshi]
+    /// 15 : PACKSTRUCT [2048 datoshi]
+    /// 16 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkTuple")]
     public abstract IList<object>? CheckTuple();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEADA1zbWFydCBlY29ub215DANuZW8Sv3BoQA==
+    /// 00 : INITSLOT 0100 [64 datoshi]
+    /// 03 : PUSHDATA1 736D6172742065636F6E6F6D79 [8 datoshi]
+    /// 12 : PUSHDATA1 6E656F 'neo' [8 datoshi]
+    /// 17 : PUSH2 [1 datoshi]
+    /// 18 : PACKSTRUCT [2048 datoshi]
+    /// 19 : STLOC0 [2 datoshi]
+    /// 1A : LDLOC0 [2 datoshi]
+    /// 1B : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkTuple2")]
     public abstract IList<object>? CheckTuple2();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkUint")]
     public abstract BigInteger? CheckUint();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkUlong")]
     public abstract BigInteger? CheckUlong();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: FUA=
+    /// 00 : PUSH5 [1 datoshi]
+    /// 01 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkUshort")]
     public abstract BigInteger? CheckUshort();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeHmL2yh4eYvbKIvbKEA=
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : LDARG1 [2 datoshi]
+    /// 05 : CAT [2048 datoshi]
+    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
+    /// 08 : LDARG0 [2 datoshi]
+    /// 09 : LDARG1 [2 datoshi]
+    /// 0A : CAT [2048 datoshi]
+    /// 0B : CONVERT 28 'ByteString' [8192 datoshi]
+    /// 0D : CAT [2048 datoshi]
+    /// 0E : CONVERT 28 'ByteString' [8192 datoshi]
+    /// 10 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("concatByteString")]
     public abstract string? ConcatByteString(byte[]? a, byte[]? b);
 
@@ -225,13 +430,13 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwACC3l42yg3AQBA
-    /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
-    /// 03 : OpCode.PUSHNULL [1 datoshi]
-    /// 04 : OpCode.LDARG1 [2 datoshi]
-    /// 05 : OpCode.LDARG0 [2 datoshi]
-    /// 06 : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : OpCode.CALLT 0100 [32768 datoshi]
-    /// 0B : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : PUSHNULL [1 datoshi]
+    /// 04 : LDARG1 [2 datoshi]
+    /// 05 : LDARG0 [2 datoshi]
+    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
+    /// 08 : CALLT 0100 [32768 datoshi]
+    /// 0B : RET [0 datoshi]
     /// </remarks>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
@@ -240,23 +445,12 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECEYhKEHnQcGh4i3Bo2yg3AABA
-    /// 00 : OpCode.INITSLOT 0102 [64 datoshi]
-    /// 03 : OpCode.PUSH1 [1 datoshi]
-    /// 04 : OpCode.NEWBUFFER [256 datoshi]
-    /// 05 : OpCode.DUP [2 datoshi]
-    /// 06 : OpCode.PUSH0 [1 datoshi]
-    /// 07 : OpCode.LDARG1 [2 datoshi]
-    /// 08 : OpCode.SETITEM [8192 datoshi]
-    /// 09 : OpCode.STLOC0 [2 datoshi]
-    /// 0A : OpCode.LDLOC0 [2 datoshi]
-    /// 0B : OpCode.LDARG0 [2 datoshi]
-    /// 0C : OpCode.CAT [2048 datoshi]
-    /// 0D : OpCode.STLOC0 [2 datoshi]
-    /// 0E : OpCode.LDLOC0 [2 datoshi]
-    /// 0F : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
-    /// 11 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 14 : OpCode.RET [0 datoshi]
+    /// Script: VwACeXg0A0A=
+    /// 00 : INITSLOT 0002 [64 datoshi]
+    /// 03 : LDARG1 [2 datoshi]
+    /// 04 : LDARG0 [2 datoshi]
+    /// 05 : CALL 03 [512 datoshi]
+    /// 07 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? address, BigInteger? version);
