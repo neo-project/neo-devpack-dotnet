@@ -16,39 +16,43 @@ namespace Neo.Compiler
 {
     class SequencePointInserter : IDisposable
     {
-        private readonly IReadOnlyList<Instruction> instructions;
-        private readonly Location? location;
-        private readonly int position;
+        private readonly IReadOnlyList<Instruction> _instructions;
+        private readonly LocationInformation? _location;
+        private readonly int _position;
 
-        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxNodeOrToken? syntax) :
-            this(instructions, syntax?.GetLocation())
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxNodeOrToken? syntax = null, CompilerLocation? compilerOrigin = null) :
+            this(instructions, new LocationInformation(syntax?.GetLocation(), compilerOrigin))
         { }
 
-        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxReference? syntax) :
-           this(instructions, syntax?.SyntaxTree.GetLocation(syntax.Span))
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, SyntaxReference? syntax = null, CompilerLocation? compilerOrigin = null) :
+           this(instructions, new LocationInformation(syntax?.SyntaxTree.GetLocation(syntax.Span), compilerOrigin))
         { }
 
-        public SequencePointInserter(IReadOnlyList<Instruction> instructions, Location? location)
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, Location? location = null, CompilerLocation? compilerOrigin = null) :
+           this(instructions, new LocationInformation(location, compilerOrigin))
+        { }
+
+        public SequencePointInserter(IReadOnlyList<Instruction> instructions, LocationInformation? location = null)
         {
-            this.instructions = instructions;
-            this.location = location;
-            this.position = instructions.Count;
+            _instructions = instructions;
+            _location = location;
+            _position = instructions.Count;
 
             // No location must be removed
 
-            if (this.location?.SourceTree is null)
-                this.location = null;
+            if (_location?.Source?.Location.SourceTree is null)
+                _location = null;
         }
 
         void IDisposable.Dispose()
         {
-            if (location == null) return;
+            if (_location == null) return;
 
-            for (int x = position; x < instructions.Count; x++)
+            for (int x = _position; x < _instructions.Count; x++)
             {
-                if (instructions[x].SourceLocation is null)
+                if (_instructions[x].Location is null)
                 {
-                    instructions[x].SourceLocation = location;
+                    _instructions[x].Location = _location;
                 }
             }
         }

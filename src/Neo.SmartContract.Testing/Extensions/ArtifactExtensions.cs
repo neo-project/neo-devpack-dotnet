@@ -210,7 +210,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // This method can't be called, so avoid them
 
-                    if (method.Name.StartsWith("_")) continue;
+                    if (method.Name.StartsWith('_')) continue;
 
                     sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo));
                     sourceCode.WriteLine();
@@ -229,7 +229,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // This method can't be called, so avoid them
 
-                    if (method.Name.StartsWith("_")) continue;
+                    if (method.Name.StartsWith('_')) continue;
 
                     sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo));
                     sourceCode.WriteLine();
@@ -415,7 +415,7 @@ namespace Neo.SmartContract.Testing.Extensions
             // Add the opcodes
             if (debugInfo != null && nefFile != null)
             {
-                var debugMethod = Disassembler.CSharp.Disassembler.GetMethod(method.Name, method.Parameters.Length, debugInfo);
+                var debugMethod = Disassembler.CSharp.Disassembler.GetMethod(method, debugInfo);
                 if (debugMethod != null)
                 {
                     var (start, end) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(debugMethod);
