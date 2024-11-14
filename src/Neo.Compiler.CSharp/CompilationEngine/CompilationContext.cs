@@ -304,7 +304,7 @@ namespace Neo.Compiler
                     // Create sequence-points-v2
 
                     var v2 = new JObject();
-                    v2["optimization"] = this.Options.Optimize.ToString().ToLowerInvariant();
+                    v2["optimization"] = CompilationOptions.OptimizationType.None.ToString().ToLowerInvariant();
                     v2["source"] = ins.Location.Source.ToJson(index);
 
                     if (ins.Location.Compiler != null)

@@ -40,8 +40,13 @@ public static class Disassembler
 
             // Note: Require Debug extended type, we can't relate the abi to the NEP19 and without it, name is compiler dependant
 
-            if (method["abi"] is JObject && int.Parse(method["abi"]!["offset"]!.AsString()) == abiMethod.Offset)
+            if (method["abi"] is JObject abi)
+            {
+                var parsedMethod = ContractMethodDescriptor.FromJson(abi);
+                if (!parsedMethod.Equals(abiMethod)) continue;
+
                 return method as JObject;
+            }
         }
         return null;
     }

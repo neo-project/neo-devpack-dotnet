@@ -81,19 +81,7 @@ namespace Neo.Optimizer
                     JObject newSequencePointsV2 = new();
                     previousSequencePoint = methodStart;
                     foreach ((string addr, JToken? content) in sequencePointsV2.Properties)
-                    {// content may be JArray or JObject, but we unify it to JArray
-                        JArray oldContentArray;
-                        switch (content)
-                        {
-                            case JObject:
-                                oldContentArray = new JArray() { content };
-                                break;
-                            case JArray oldContent:
-                                oldContentArray = oldContent;
-                                break;
-                            default:
-                                throw new BadScriptException($"Invalid sequence-points-v2 in debug info: key {addr}, value {content}");
-                        }
+                    {
                         int startInstructionAddress = int.Parse(addr);
                         Instruction oldInstruction = oldAddressToInstruction[startInstructionAddress];
                         string writeAddr;
@@ -108,14 +96,33 @@ namespace Neo.Optimizer
                         {
                             writeAddr = newStartInstructionAddress.ToString();
                             previousSequencePoint = newStartInstructionAddress;
+                            if (content is JArray oldContentArray)
+                                foreach (JToken? i in oldContentArray)
+                                    ((JObject)i!)["optimization"] = Neo.Compiler.CompilationOptions.OptimizationType.Experimental.ToString().ToLowerInvariant();
+                            if (content is JObject oldContentObject)
+                                content["optimization"] = Neo.Compiler.CompilationOptions.OptimizationType.Experimental.ToString().ToLowerInvariant();
                         }
                         else
                             // previousSequencePoint unchanged
                             writeAddr = previousSequencePoint.ToString();
-                        if (newSequencePointsV2[writeAddr] == null)
-                            newSequencePointsV2[writeAddr] = oldContentArray;
-                        else
-                            newSequencePointsV2[writeAddr] = ((JArray)newSequencePointsV2[writeAddr]!).Concat(oldContentArray).ToArray();
+                        switch (newSequencePointsV2[writeAddr])
+                        // TODO: compress newSequencePointsV2 array to non-duplicating array
+                        {
+                            case null:
+                                newSequencePointsV2[writeAddr] = content;
+                                break;
+                            case JObject existingObject:
+                                newSequencePointsV2[writeAddr] = new JArray() { existingObject, content };
+                                break;
+                            case JArray existingArray:
+                                if (content is JArray contentArray)
+                                    newSequencePointsV2[writeAddr] = existingArray.Concat(contentArray).ToArray();
+                                if (content is JObject contentObject)
+                                    existingArray.Add(contentObject);
+                                break;
+                            default:
+                                throw new BadScriptException($"Invalid sequence-points-v2 in debug info: key {addr}, value {content}");
+                        }
                     }
                     method["sequence-points-v2"] = newSequencePointsV2;
                 }
