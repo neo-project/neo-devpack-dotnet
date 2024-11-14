@@ -11,7 +11,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using Neo.Compiler.SecurityAnalyzer;
 using Neo.IO;
 using Neo.Json;
 using Neo.Optimizer;
@@ -23,6 +22,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
@@ -38,11 +38,10 @@ namespace Neo.Compiler
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
                 new Argument<string[]>("paths", "The path of the project file, project directory or source files."),
-                new Option<string>(new[] { "-o", "--output" }, "Specifies the output directory."),
+                new Option<string>(["-o", "--output"], "Specifies the output directory."),
                 new Option<string>("--base-name", "Specifies the base name of the output files."),
                 new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."),
                 new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."),
-                new Option<bool>(new[] { "-d", "--debug" }, "Indicates whether to generate debugging information."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),
                 new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"),
@@ -50,8 +49,29 @@ namespace Neo.Compiler
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
             };
+
+            var debugOption = new Option<CompilationOptions.DebugType>(["-d", "--debug"],
+                new ParseArgument<CompilationOptions.DebugType>(ParseDebug), description: "Indicates the debug level.")
+            {
+                Arity = ArgumentArity.ZeroOrOne
+            };
+            rootCommand.AddOption(debugOption);
+
             rootCommand.Handler = CommandHandler.Create<RootCommand, Options, string[], InvocationContext>(Handle);
             return rootCommand.Invoke(args);
+        }
+
+        private static CompilationOptions.DebugType ParseDebug(ArgumentResult result)
+        {
+            var debugValue = result.Tokens.FirstOrDefault()?.Value;
+            if (string.IsNullOrEmpty(debugValue)) return CompilationOptions.DebugType.Extended;
+
+            if (!Enum.TryParse<CompilationOptions.DebugType>(debugValue, true, out var ret))
+            {
+                throw new ArgumentException($"Invalid debug type: {debugValue}");
+            }
+
+            return ret;
         }
 
         private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)
@@ -325,7 +345,7 @@ namespace Neo.Compiler
                         }
                     }
                 }
-                if (options.Debug)
+                if (options.Debug != CompilationOptions.DebugType.None)
                 {
                     path = Path.Combine(outputFolder, $"{baseName}.nefdbgnfo");
                     using FileStream fs = new(path, FileMode.Create, FileAccess.Write);

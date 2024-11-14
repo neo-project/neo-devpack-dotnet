@@ -24,9 +24,13 @@ public abstract class Contract_Property(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DAtUb2tlblN5bWJvbEA=
+    /// 00 : PUSHDATA1 546F6B656E53796D626F6C 'TokenSymbol' [8 datoshi]
+    /// 0D : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("symbol")]
     public abstract string? Symbol();
 
     #endregion
-
 }
