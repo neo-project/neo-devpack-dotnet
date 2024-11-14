@@ -23,12 +23,12 @@ public static class Disassembler
         return res.Select(x => x.instruction).ToList();
     }
 
-    public static List<(int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, int start, int end)
+    public static List<(int offset, int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, int start, int end)
     {
         var instructions = EnumerateInstructions(nef.Script).ToList();
         return instructions
             .Where(ai => ai.address >= start && ai.address <= end)
-            .Select(ai => (ai.address - start, ai.instruction))
+            .Select(ai => (ai.address, ai.address - start, ai.instruction))
             .ToList();
     }
 
