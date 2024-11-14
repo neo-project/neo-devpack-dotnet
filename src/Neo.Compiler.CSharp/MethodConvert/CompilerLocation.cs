@@ -2,6 +2,9 @@ using Neo.Json;
 
 namespace Neo.Compiler
 {
+    /// <summary>
+    /// Which file and method in the compiler generates the OpCode
+    /// </summary>
     public class CompilerLocation
     {
         public int Line { get; set; }

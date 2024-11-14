@@ -43,7 +43,6 @@ public static class Disassembler
             if (method["abi"] is JObject abi)
             {
                 var parsedMethod = ContractMethodDescriptor.FromJson(abi);
-                parsedMethod.Offset = abiMethod.Offset; // It can be optimized, we avoid to check the offset
                 if (!parsedMethod.Equals(abiMethod)) continue;
 
                 return method as JObject;
