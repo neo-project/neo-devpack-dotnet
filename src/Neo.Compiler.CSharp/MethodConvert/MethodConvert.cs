@@ -25,6 +25,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Neo.VM.Types;
+using Array = System.Array;
 
 namespace Neo.Compiler
 {
@@ -243,11 +245,22 @@ namespace Neo.Compiler
                     syntaxNode = syntax;
                     initializer = syntax.Initializer;
                 }
-                if (initializer is null) return;
-                model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+
+                if (initializer is null)
+                {
+                    if (field.Type.GetStackItemType() == StackItemType.Boolean ||
+                        field.Type.GetStackItemType() == StackItemType.Integer)
+                    {
+                        preInitialize?.Invoke();
+                        PushDefault(field.Type);
+                        postInitialize?.Invoke();
+                    }
+                    return;
+                }
                 using (InsertSequencePoint(syntaxNode))
                 {
                     preInitialize?.Invoke();
+                    model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
                     ConvertExpression(model, initializer.Value, syntaxNode);
                     postInitialize?.Invoke();
                 }
