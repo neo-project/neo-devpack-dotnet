@@ -144,7 +144,7 @@ internal partial class MethodConvert
         return false;
     }
 
-    internal static Dictionary<IMethodSymbol, bool> _cacheNeedInstanceConstructor = new();
+    internal static Dictionary<IMethodSymbol, bool> _cacheNeedInstanceConstructor = new Dictionary<IMethodSymbol, bool>(SymbolEqualityComparer.Default);
 
     /// <summary>
     /// non-static methods needs constructors to be executed
