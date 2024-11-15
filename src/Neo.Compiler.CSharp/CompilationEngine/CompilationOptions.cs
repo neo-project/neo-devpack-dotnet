@@ -28,8 +28,26 @@ namespace Neo.Compiler
             All = Basic | Experimental
         }
 
+        public enum DebugType : byte
+        {
+            /// <summary>
+            /// No debug
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// Strict NEP-19 standard
+            /// </summary>
+            Strict = 1,
+
+            /// <summary>
+            /// It will include Abi and compiler location information
+            /// </summary>
+            Extended = 2,
+        }
+
         public NullableContextOptions Nullable { get; set; }
-        public bool Debug { get; set; }
+        public DebugType Debug { get; set; } = DebugType.None;
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
         public bool Checked { get; set; }
         public bool NoInline { get; set; }
@@ -37,12 +55,13 @@ namespace Neo.Compiler
         public string? BaseName { get; set; }
         public string CompilerVersion { get; set; }
         private CSharpParseOptions? parseOptions = null;
+
         public CSharpParseOptions GetParseOptions()
         {
             if (parseOptions is null)
             {
                 List<string> preprocessorSymbols = new();
-                if (Debug) preprocessorSymbols.Add("DEBUG");
+                if (Debug != DebugType.None) preprocessorSymbols.Add("DEBUG");
                 parseOptions = new CSharpParseOptions(preprocessorSymbols: preprocessorSymbols);
             }
             return parseOptions;
