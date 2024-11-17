@@ -327,10 +327,12 @@ internal partial class MethodConvert
             return;
 
         bool isConstructor = symbol.MethodKind == MethodKind.Constructor;
+
         switch (symbol.Parameters.Length)
         {
             case 0:
-                if (isConstructor) AddInstruction(OpCode.DUP);
+                if (isConstructor && NeedInstanceConstructor(symbol))
+                    AddInstruction(OpCode.DUP);
                 break;
             case 1:
                 AddInstruction(isConstructor ? OpCode.OVER : OpCode.SWAP);

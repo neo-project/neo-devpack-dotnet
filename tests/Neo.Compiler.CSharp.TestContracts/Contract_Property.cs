@@ -7,6 +7,76 @@ namespace Neo.Compiler.CSharp.TestContracts
         // Read-only property
         public static string Symbol => "TokenSymbol";
 
+        // Property
+        private static BigInteger TestStaticPropertyDefault { get; set; }
+
+        private static BigInteger TestStaticPropertyValue { get; set; } = 10;
+
+        private static BigInteger TestPropertyDefault { get; set; }
+
+        private static BigInteger TestPropertyValue { get; set; } = 11;
+
+        public static BigInteger TestStaticPropertyDefaultInc()
+        {
+            TestStaticPropertyDefault++;
+            TestStaticPropertyValue++;
+            return TestStaticPropertyDefault;
+        }
+
+        public static BigInteger TestStaticPropertyValueInc()
+        {
+            TestStaticPropertyValue++;
+            return TestStaticPropertyValue;
+        }
+
+        public static BigInteger TestPropertyDefaultInc()
+        {
+            TestPropertyDefault++;
+            TestPropertyDefault++;
+            return TestPropertyDefault;
+        }
+
+        public static BigInteger TestPropertyValueInc()
+        {
+            TestPropertyValue++;
+            TestPropertyValue++;
+            return TestPropertyValue;
+        }
+
+        // Field
+        private static BigInteger TestStaticFieldDefault;
+
+        private static BigInteger TestStaticFieldValue = 1;
+
+        private static BigInteger TestFieldDefault;
+
+        private static BigInteger TestFieldValue = 2;
+
+        // Generate methods for fields
+        public static BigInteger IncTestStaticFieldDefault()
+        {
+            TestStaticFieldDefault++;
+            return TestStaticFieldDefault;
+        }
+
+        public static BigInteger IncTestStaticFieldValue()
+        {
+            TestStaticFieldValue++;
+            return TestStaticFieldValue;
+        }
+
+        public static BigInteger IncTestFieldDefault()
+        {
+            TestFieldDefault++;
+            return TestFieldDefault;
+        }
+
+        public static BigInteger IncTestFieldValue()
+        {
+            TestFieldValue = 2;
+            return TestFieldValue;
+        }
+
         // Static properties with different access modifiers
         private static BigInteger TestStaticProperty { get; set; } = 0;
         public static string PublicStaticProperty { get; set; } = "Initial";
@@ -130,10 +200,10 @@ namespace Neo.Compiler.CSharp.TestContracts
             UninitializedStaticProperty++;
             UninitializedStaticProperty++;
 
-            ++UninitializedProperty;
-            ++UninitializedProperty;
-            ++UninitializedProperty;
-            return UninitializedProperty;
+            ++UninitializedStaticProperty;
+            ++UninitializedStaticProperty;
+            ++UninitializedStaticProperty;
+            return UninitializedStaticProperty;
         }
 
         public BigInteger UninitializedStaticPropertyDec()

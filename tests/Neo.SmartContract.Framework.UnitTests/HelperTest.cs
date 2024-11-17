@@ -74,11 +74,11 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             // With extension
             Assert.AreEqual(5, Contract.AssertCall(true));
-            AssertGasConsumed(1048320);
+            AssertGasConsumed(1048110);
             AssertNoLogs();
 
             var ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
-            AssertGasConsumed(1048290);
+            AssertGasConsumed(1048320);
             AssertNoLogs();
             Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));
 
@@ -86,7 +86,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             Engine.CallFlags &= ~CallFlags.AllowNotify;
             ex = Assert.ThrowsException<TestException>(() => Contract.AssertCall(false));
-            AssertGasConsumed(1048290);
+            AssertGasConsumed(1048320);
             Engine.CallFlags = CallFlags.All;
             AssertNoLogs();
             Assert.IsTrue(ex.Message.Contains("UT-ERROR-123"));

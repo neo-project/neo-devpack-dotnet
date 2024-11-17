@@ -10,12 +10,12 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Stored"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""withoutConstructor"",""parameters"":[],""returntype"":""Integer"",""offset"":460,""safe"":true},{""name"":""putWithoutConstructor"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":469,""safe"":false},{""name"":""getWithoutConstructor"",""parameters"":[],""returntype"":""Integer"",""offset"":478,""safe"":true},{""name"":""withKey"",""parameters"":[],""returntype"":""Integer"",""offset"":106,""safe"":true},{""name"":""putWithKey"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":152,""safe"":false},{""name"":""getWithKey"",""parameters"":[],""returntype"":""Integer"",""offset"":161,""safe"":true},{""name"":""withString"",""parameters"":[],""returntype"":""Integer"",""offset"":164,""safe"":true},{""name"":""putWithString"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":220,""safe"":false},{""name"":""getWithString"",""parameters"":[],""returntype"":""Integer"",""offset"":229,""safe"":true},{""name"":""setPrivateGetterPublicSetter"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":282,""safe"":false},{""name"":""getPrivateGetterPublicSetter"",""parameters"":[],""returntype"":""Integer"",""offset"":326,""safe"":true},{""name"":""setNonStaticPrivateGetterPublicSetter"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":487,""safe"":false},{""name"":""getNonStaticPrivateGetterPublicSetter"",""parameters"":[],""returntype"":""Integer"",""offset"":493,""safe"":true},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":457,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Stored"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""withoutConstructor"",""parameters"":[],""returntype"":""Integer"",""offset"":421,""safe"":true},{""name"":""putWithoutConstructor"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":436,""safe"":false},{""name"":""getWithoutConstructor"",""parameters"":[],""returntype"":""Integer"",""offset"":451,""safe"":true},{""name"":""withKey"",""parameters"":[],""returntype"":""Integer"",""offset"":106,""safe"":true},{""name"":""putWithKey"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":144,""safe"":false},{""name"":""getWithKey"",""parameters"":[],""returntype"":""Integer"",""offset"":153,""safe"":true},{""name"":""withString"",""parameters"":[],""returntype"":""Integer"",""offset"":156,""safe"":true},{""name"":""putWithString"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":204,""safe"":false},{""name"":""getWithString"",""parameters"":[],""returntype"":""Integer"",""offset"":213,""safe"":true},{""name"":""setPrivateGetterPublicSetter"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":260,""safe"":false},{""name"":""getPrivateGetterPublicSetter"",""parameters"":[],""returntype"":""Integer"",""offset"":302,""safe"":true},{""name"":""setNonStaticPrivateGetterPublicSetter"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":466,""safe"":false},{""name"":""getNonStaticPrivateGetterPublicSetter"",""parameters"":[],""returntype"":""Integer"",""offset"":478,""safe"":true}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP30AVcAAXgQziQrDBJXaXRob3V0Q29uc3RydWN0b3JB9rRr4kGSXegxStgmBEUQSngQUdBAVwACeBB50HkMEldpdGhvdXRDb25zdHJ1Y3RvckGb9mfOQeY/GIRAVwACeUp4NNNFQFcAAXg0mUBY2CYXDAEBQfa0a+JBkl3oMUrYJgRFEEpgQFcAAXhgeAwBAUGb9mfOQeY/GIRAVwABeEo050VANMlAWdgmHAwGdGVzdE1lQfa0a+JBkl3oMUrYJgRFEEphQFcAAXhheAwGdGVzdE1lQZv2Z85B5j8YhEBXAAF4SjTiRUA0v0Ba2CYvDBlQcml2YXRlR2V0dGVyUHVibGljU2V0dGVyQfa0a+JBkl3oMUrYJgRFEEpiQFcAAXhieAwZUHJpdmF0ZUdldHRlclB1YmxpY1NldHRlckGb9mfOQeY/GIRANKJAVwABeBHOJDsMIk5vblN0YXRpY1ByaXZhdGVHZXR0ZXJQdWJsaWNTZXR0ZXJB9rRr4kGSXegxStgmBEUQSngRUdBAVwACeBF50HkMIk5vblN0YXRpY1ByaXZhdGVHZXR0ZXJQdWJsaWNTZXR0ZXJBm/ZnzkHmPxiEQFcAAXg0g0BWA0AQEBLAIzD+//8QEBLAI4D+//8QEBLAI4H+//8QEBLAIqAQEBLAItFA4AfmFA=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP3rAVcAAQwSV2l0aG91dENvbnN0cnVjdG9yQfa0a+JBkl3oMUrYJgZFeBDOQFcAAXgQENB4ERDQQFcAAnkMEldpdGhvdXRDb25zdHJ1Y3RvckGb9mfOQeY/GIRAVwACeUp4NNdFQFcAAXg0mUAMAQFB9rRr4kGSXegxStgmBEUQQFcAAXgMAQFBm/ZnzkHmPxiEQFcAAXhKNOlFQDTRQAwGdGVzdE1lQfa0a+JBkl3oMUrYJgRFEEBXAAF4DAZ0ZXN0TWVBm/ZnzkHmPxiEQFcAAXhKNORFQDTHQAwZUHJpdmF0ZUdldHRlclB1YmxpY1NldHRlckH2tGviQZJd6DFK2CYERRBAVwABeAwZUHJpdmF0ZUdldHRlclB1YmxpY1NldHRlckGb9mfOQeY/GIRANKpAVwABDCJOb25TdGF0aWNQcml2YXRlR2V0dGVyUHVibGljU2V0dGVyQfa0a+JBkl3oMUrYJgZFeBHOQFcAAnkMIk5vblN0YXRpY1ByaXZhdGVHZXR0ZXJQdWJsaWNTZXR0ZXJBm/ZnzkHmPxiEQFcAAXg0j0AQEBLASjWA/v//I1H+//8QEBLASjVx/v//I5v+//8QEBLASjVi/v//I5b+//8QEBLASjVT/v//Io8QEBLASjVH/v//IrZAV0tYnA=="));
 
     #endregion
 
@@ -54,8 +54,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// Safe method
     /// </summary>
     /// <remarks>
-    /// Script: NMlA
-    /// 00 : CALL C9 [512 datoshi]
+    /// Script: NNFA
+    /// 00 : CALL D1 [512 datoshi]
     /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("getWithKey")]
@@ -78,8 +78,8 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// Safe method
     /// </summary>
     /// <remarks>
-    /// Script: NL9A
-    /// 00 : CALL BF [512 datoshi]
+    /// Script: NMdA
+    /// 00 : CALL C7 [512 datoshi]
     /// 02 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("getWithString")]
@@ -93,11 +93,11 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeEo050VA
+    /// Script: VwABeEo06UVA
     /// 00 : INITSLOT 0001 [64 datoshi]
     /// 03 : LDARG0 [2 datoshi]
     /// 04 : DUP [2 datoshi]
-    /// 05 : CALL E7 [512 datoshi]
+    /// 05 : CALL E9 [512 datoshi]
     /// 07 : DROP [2 datoshi]
     /// 08 : RET [0 datoshi]
     /// </remarks>
@@ -108,12 +108,12 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeUp4NNNFQA==
+    /// Script: VwACeUp4NNdFQA==
     /// 00 : INITSLOT 0002 [64 datoshi]
     /// 03 : LDARG1 [2 datoshi]
     /// 04 : DUP [2 datoshi]
     /// 05 : LDARG0 [2 datoshi]
-    /// 06 : CALL D3 [512 datoshi]
+    /// 06 : CALL D7 [512 datoshi]
     /// 08 : DROP [2 datoshi]
     /// 09 : RET [0 datoshi]
     /// </remarks>
@@ -124,11 +124,11 @@ public abstract class Contract_Stored(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeEo04kVA
+    /// Script: VwABeEo05EVA
     /// 00 : INITSLOT 0001 [64 datoshi]
     /// 03 : LDARG0 [2 datoshi]
     /// 04 : DUP [2 datoshi]
-    /// 05 : CALL E2 [512 datoshi]
+    /// 05 : CALL E4 [512 datoshi]
     /// 07 : DROP [2 datoshi]
     /// 08 : RET [0 datoshi]
     /// </remarks>

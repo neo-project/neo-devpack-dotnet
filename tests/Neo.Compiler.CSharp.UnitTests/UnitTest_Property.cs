@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 
@@ -68,7 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var res = Contract.ToggleProtectedProperty();
             Assert.IsTrue(res);
             res = Contract.ToggleProtectedProperty();
-            Assert.IsFalse(res);
+            Assert.IsTrue(res);  // this is static field initialized with false
         }
 
         [TestMethod]
@@ -91,9 +92,9 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual("Test", Contract.PublicProperty());
             Assert.AreEqual("Initial", Contract.PublicStaticProperty());
-            Assert.AreEqual(0, Contract.TestPropertyInc());
+            Assert.AreEqual(6, Contract.TestPropertyInc());
             Assert.AreEqual(6, Contract.TestStaticPropertyInc());
-            Assert.IsFalse(Contract.ToggleProtectedProperty());
+            Assert.IsTrue(Contract.ToggleProtectedProperty());
         }
 
         [TestMethod]
@@ -136,6 +137,61 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var res = Contract.UninitializedStaticPropertyMul();
             Assert.AreEqual(0, res);
+        }
+
+        public void TestStaticPropertyDefaultInc()
+        {
+            var res = Contract.TestStaticPropertyDefaultInc();
+            Assert.AreEqual(1, res);
+        }
+
+        [TestMethod]
+        public void TestStaticPropertyValueInc()
+        {
+            var res = Contract.TestStaticPropertyValueInc();
+            Assert.AreEqual(11, res);
+        }
+
+        [TestMethod]
+        public void TestPropertyDefaultInc()
+        {
+            var res = Contract.TestPropertyDefaultInc();
+            Assert.AreEqual(2, res);
+        }
+
+        [TestMethod]
+        public void TestPropertyValueInc()
+        {
+            var res = Contract.TestPropertyValueInc();
+            Assert.AreEqual(13, res);
+        }
+
+        [TestMethod]
+        public void TestStaticFieldDefaultInc()
+        {
+            var res = Contract.IncTestStaticFieldDefault();
+            Assert.AreEqual(1, res);
+        }
+
+        [TestMethod]
+        public void TestStaticFieldValueInc()
+        {
+            var res = Contract.IncTestStaticFieldValue();
+            Assert.AreEqual(2, res);  // Initial value 1 + increment
+        }
+
+        [TestMethod]
+        public void TestFieldDefaultInc()
+        {
+            var res = Contract.IncTestFieldDefault();
+            Assert.AreEqual(1, res);
+        }
+
+        [TestMethod]
+        public void TestFieldValueInc()
+        {
+            var res = Contract.IncTestFieldValue();
+            Assert.AreEqual(2, res);  // Initial value 2 + increment
         }
     }
 }
