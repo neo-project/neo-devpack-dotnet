@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Contract1.cs").FullName;
             var results = new CompilationEngine(new CompilationOptions()
             {
-                Debug = true,
+                Debug = CompilationOptions.DebugType.Extended,
                 CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.None,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable

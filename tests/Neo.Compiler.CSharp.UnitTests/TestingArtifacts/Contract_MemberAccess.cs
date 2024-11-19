@@ -15,7 +15,7 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAARVcBAAsQEsBKNClwaBDONwAAQc/nR5YMA21zZ0HP50eWaBHOQc/nR5ZoNBZBz+dHlkBXAAF4EQwFaGVsbG/QQFcAAQwAQLz6/NA="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAASVcBAAsQEsBKNClwaBDONwAAQc/nR5YMA21zZ0HP50eWaBHOQc/nR5ZoNBpBz+dHlkBXAAF4EBDQeBEMBWhlbGxv0EBXAAEMAEChO7M3"));
 
     #endregion
 
@@ -25,30 +25,30 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACxASwEo0KXBoEM43AABBz+dHlgwDbXNnQc/nR5ZoEc5Bz+dHlmg0FkHP50eWQA==
-    /// 00 : OpCode.INITSLOT 0100 [64 datoshi]
-    /// 03 : OpCode.PUSHNULL [1 datoshi]
-    /// 04 : OpCode.PUSH0 [1 datoshi]
-    /// 05 : OpCode.PUSH2 [1 datoshi]
-    /// 06 : OpCode.PACK [2048 datoshi]
-    /// 07 : OpCode.DUP [2 datoshi]
-    /// 08 : OpCode.CALL 29 [512 datoshi]
-    /// 0A : OpCode.STLOC0 [2 datoshi]
-    /// 0B : OpCode.LDLOC0 [2 datoshi]
-    /// 0C : OpCode.PUSH0 [1 datoshi]
-    /// 0D : OpCode.PICKITEM [64 datoshi]
-    /// 0E : OpCode.CALLT 0000 [32768 datoshi]
-    /// 11 : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 16 : OpCode.PUSHDATA1 6D7367 'msg' [8 datoshi]
-    /// 1B : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 20 : OpCode.LDLOC0 [2 datoshi]
-    /// 21 : OpCode.PUSH1 [1 datoshi]
-    /// 22 : OpCode.PICKITEM [64 datoshi]
-    /// 23 : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 28 : OpCode.LDLOC0 [2 datoshi]
-    /// 29 : OpCode.CALL 16 [512 datoshi]
-    /// 2B : OpCode.SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 30 : OpCode.RET [0 datoshi]
+    /// Script: VwEACxASwEo0KXBoEM43AABBz+dHlgwDbXNnQc/nR5ZoEc5Bz+dHlmg0GkHP50eWQA==
+    /// 00 : INITSLOT 0100 [64 datoshi]
+    /// 03 : PUSHNULL [1 datoshi]
+    /// 04 : PUSH0 [1 datoshi]
+    /// 05 : PUSH2 [1 datoshi]
+    /// 06 : PACK [2048 datoshi]
+    /// 07 : DUP [2 datoshi]
+    /// 08 : CALL 29 [512 datoshi]
+    /// 0A : STLOC0 [2 datoshi]
+    /// 0B : LDLOC0 [2 datoshi]
+    /// 0C : PUSH0 [1 datoshi]
+    /// 0D : PICKITEM [64 datoshi]
+    /// 0E : CALLT 0000 [32768 datoshi]
+    /// 11 : SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// 16 : PUSHDATA1 6D7367 'msg' [8 datoshi]
+    /// 1B : SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// 20 : LDLOC0 [2 datoshi]
+    /// 21 : PUSH1 [1 datoshi]
+    /// 22 : PICKITEM [64 datoshi]
+    /// 23 : SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// 28 : LDLOC0 [2 datoshi]
+    /// 29 : CALL 1A [512 datoshi]
+    /// 2B : SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// 30 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]
     public abstract void TestMain();

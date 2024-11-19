@@ -26,15 +26,15 @@ public abstract class Contract_SequencePointInserter(Neo.SmartContract.Testing.S
     /// </summary>
     /// <remarks>
     /// Script: VwABeBGXJgUAF0AALUA=
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.PUSH1 [1 datoshi]
-    /// 05 : OpCode.EQUAL [32 datoshi]
-    /// 06 : OpCode.JMPIFNOT 05 [2 datoshi]
-    /// 08 : OpCode.PUSHINT8 17 [1 datoshi]
-    /// 0A : OpCode.RET [0 datoshi]
-    /// 0B : OpCode.PUSHINT8 2D [1 datoshi]
-    /// 0D : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : PUSH1 [1 datoshi]
+    /// 05 : EQUAL [32 datoshi]
+    /// 06 : JMPIFNOT 05 [2 datoshi]
+    /// 08 : PUSHINT8 17 [1 datoshi]
+    /// 0A : RET [0 datoshi]
+    /// 0B : PUSHINT8 2D [1 datoshi]
+    /// 0D : RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]
     public abstract BigInteger? Test(BigInteger? a);
