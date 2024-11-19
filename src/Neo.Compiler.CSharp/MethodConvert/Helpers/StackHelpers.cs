@@ -12,18 +12,20 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using scfx::Neo.SmartContract.Framework;
 using System;
 using System.Buffers.Binary;
-using System.Numerics;
-using scfx::Neo.SmartContract.Framework;
-using OpCode = Neo.VM.OpCode;
 using System.IO;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
     #region Instructions
+
     private Instruction AddInstruction(Instruction instruction)
     {
         _instructions.Add(instruction);
@@ -38,19 +40,19 @@ internal partial class MethodConvert
         });
     }
 
-    private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
+    private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string? callerPath = null, [CallerMemberName] string? caller = null)
     {
-        return new SequencePointInserter(_instructions, syntax);
+        return new SequencePointInserter(_instructions, syntax, LocationInformation.BuildCompilerLocation(lineNumber, callerPath, caller));
     }
 
-    private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
+    private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string? callerPath = null, [CallerMemberName] string? caller = null)
     {
-        return new SequencePointInserter(_instructions, syntax);
+        return new SequencePointInserter(_instructions, syntax, LocationInformation.BuildCompilerLocation(lineNumber, callerPath, caller));
     }
 
-    private SequencePointInserter InsertSequencePoint(Location? location)
+    private SequencePointInserter InsertSequencePoint(Location? location, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string? callerPath = null, [CallerMemberName] string? caller = null)
     {
-        return new SequencePointInserter(_instructions, location);
+        return new SequencePointInserter(_instructions, location, LocationInformation.BuildCompilerLocation(lineNumber, callerPath, caller));
     }
 
     #endregion

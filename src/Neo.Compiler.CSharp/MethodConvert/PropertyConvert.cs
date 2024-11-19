@@ -33,16 +33,18 @@ internal partial class MethodConvert
         using (InsertSequencePoint(syntax))
         {
             _inline = attribute is null;
-            ConvertFieldBackedProperty(property);
+
             if (attribute is not null)
                 ConvertStorageBackedProperty(property, attribute);
+            else
+                ConvertFieldBackedProperty(property);
         }
     }
 
     private void ConvertFieldBackedProperty(IPropertySymbol property)
     {
         IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
-        if (Symbol.IsStatic)
+        if (!NeedInstanceConstructor(Symbol))
         {
             IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
             byte backingFieldIndex = _context.AddStaticField(backingField);
@@ -61,8 +63,6 @@ internal partial class MethodConvert
         }
         else
         {
-            if (!NeedInstanceConstructor(Symbol))
-                return;
             fields = fields.Where(p => !p.IsStatic).ToArray();
             int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
             switch (Symbol.MethodKind)
@@ -122,21 +122,10 @@ internal partial class MethodConvert
     {
         IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
         byte[] key = GetStorageBackedKey(property, attribute);
+        IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
+        // Load the store first, check if its initialized, if not, load the backing field value.
         if (Symbol.MethodKind == MethodKind.PropertyGet)
         {
-            JumpTarget endTarget = new();
-            if (Symbol.IsStatic)
-            {
-                // AddInstruction(OpCode.DUP);
-                AddInstruction(OpCode.ISNULL);
-                // Ensure that no object was sent
-                Jump(OpCode.JMPIFNOT_L, endTarget);
-            }
-            else if (NeedInstanceConstructor(Symbol))
-            {
-                // Check class
-                Jump(OpCode.JMPIF_L, endTarget);
-            }
             Push(key);
             CallInteropMethod(ApplicationEngine.System_Storage_GetReadOnlyContext);
             CallInteropMethod(ApplicationEngine.System_Storage_Get);
@@ -162,15 +151,29 @@ internal partial class MethodConvert
                 case "Int64":
                 case "UInt64":
                 case "BigInteger":
-                    // Replace NULL with 0
+                case "bool":
+                    // check if its initialized
                     AddInstruction(OpCode.DUP);
                     AddInstruction(OpCode.ISNULL);
                     JumpTarget ifFalse = new();
+
                     Jump(OpCode.JMPIFNOT_L, ifFalse);
+
+                    AddInstruction(OpCode.DROP);
+                    if (!NeedInstanceConstructor(Symbol))
                     {
-                        AddInstruction(OpCode.DROP);
-                        AddInstruction(OpCode.PUSH0);
+                        AccessSlot(OpCode.LDSFLD, _context.AddStaticField(backingField));
                     }
+                    else
+                    {
+                        // Check class
+                        fields = fields.Where(p => !p.IsStatic).ToArray();
+                        int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                        AccessSlot(OpCode.LDARG, 0);
+                        Push(backingFieldIndex);
+                        AddInstruction(OpCode.PICKITEM);
+                    }
+
                     ifFalse.Instruction = AddInstruction(OpCode.NOP);
                     break;
                 case "String":
@@ -183,24 +186,6 @@ internal partial class MethodConvert
                     CallContractMethod(NativeContract.StdLib.Hash, "deserialize", 1, true);
                     break;
             }
-            if (Symbol.IsStatic)
-            {
-                AddInstruction(OpCode.DUP);
-                IFieldSymbol backingField = Array.Find(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property))!;
-                byte backingFieldIndex = _context.AddStaticField(backingField);
-                AccessSlot(OpCode.STSFLD, backingFieldIndex);
-            }
-            else if (NeedInstanceConstructor(Symbol))
-            {
-                AddInstruction(OpCode.DUP);
-                fields = fields.Where(p => !p.IsStatic).ToArray();
-                int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
-                AccessSlot(OpCode.LDARG, 0);
-                Push(backingFieldIndex);
-                AddInstruction(OpCode.ROT);
-                AddInstruction(OpCode.SETITEM);
-            }
-            endTarget.Instruction = AddInstruction(OpCode.NOP);
         }
         else
         {

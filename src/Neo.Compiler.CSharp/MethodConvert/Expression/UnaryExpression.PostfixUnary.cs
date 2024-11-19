@@ -169,7 +169,7 @@ internal partial class MethodConvert
 
     private void ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IPropertySymbol symbol)
     {
-        if (symbol.IsStatic)
+        if (!NeedInstanceConstructor(symbol.GetMethod!))
         {
             CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.DUP);

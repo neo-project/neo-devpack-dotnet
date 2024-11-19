@@ -102,8 +102,10 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="name">Class name, by default is manifest.Name</param>
         /// <param name="nef">Nef file</param>
         /// <param name="generateProperties">Generate properties</param>
+        /// <param name="debugInfo">NEP-19 debug information</param>
+        /// <param name="traceRemarks">Trace remarks</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, JToken? debugInfo = null)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, JToken? debugInfo = null, bool traceRemarks = false)
         {
             name ??= manifest.Name;
             var builder = new StringBuilder();
@@ -210,9 +212,9 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // This method can't be called, so avoid them
 
-                    if (method.Name.StartsWith("_")) continue;
+                    if (method.Name.StartsWith('_')) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo, traceRemarks));
                     sourceCode.WriteLine();
                 }
 
@@ -229,9 +231,9 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // This method can't be called, so avoid them
 
-                    if (method.Name.StartsWith("_")) continue;
+                    if (method.Name.StartsWith('_')) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo, traceRemarks));
                     sourceCode.WriteLine();
                 }
                 sourceCode.WriteLine("    #endregion");
@@ -397,8 +399,9 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="method">Contract method</param>
         /// <param name="nefFile">Nef File</param>
         /// <param name="debugInfo">Debug info</param>
+        /// <param name="traceRemarks">Trace remarks</param>
         /// <returns>Source</returns>
-        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method, NefFile? nefFile = null, JToken? debugInfo = null)
+        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method, NefFile? nefFile = null, JToken? debugInfo = null, bool traceRemarks = false)
         {
             var methodName = TongleLowercase(EscapeName(method.Name));
 
@@ -415,7 +418,7 @@ namespace Neo.SmartContract.Testing.Extensions
             // Add the opcodes
             if (debugInfo != null && nefFile != null)
             {
-                var debugMethod = Disassembler.CSharp.Disassembler.GetMethod(method.Name, method.Parameters.Length, debugInfo);
+                var debugMethod = Disassembler.CSharp.Disassembler.GetMethod(method, debugInfo);
                 if (debugMethod != null)
                 {
                     var (start, end) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(debugMethod);
@@ -432,9 +435,31 @@ namespace Neo.SmartContract.Testing.Extensions
 
                         sourceCode.WriteLine("    /// <remarks>");
                         sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
+
+                        var lastExtraComments = string.Empty;
                         foreach (var instruction in instructions)
                         {
-                            sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString(true)}");
+                            var extraComments = string.Empty;
+
+                            if (traceRemarks)
+                            {
+                                if (debugMethod["sequence-points-v2"] is JObject sequencePointsV2 &&
+                                    sequencePointsV2[instruction.offset.ToString()] is JObject sequenceV2)
+                                {
+                                    extraComments = BuildExtraInformation(sequenceV2);
+                                }
+
+                                if (lastExtraComments != extraComments)
+                                {
+                                    lastExtraComments = extraComments;
+                                }
+                                else
+                                {
+                                    extraComments = string.Empty;
+                                }
+                            }
+
+                            sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString(true)}" + extraComments);
                         }
                         sourceCode.WriteLine("    /// </remarks>");
                     }
@@ -469,6 +494,38 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             sourceCode.WriteLine(");");
+
+            return builder.ToString();
+        }
+
+        private static string BuildExtraInformation(JObject sequenceV2)
+        {
+            var builder = new StringBuilder();
+            using var sourceCode = new StringWriter(builder)
+            {
+                NewLine = "\n"
+            };
+
+            builder.Append($" [optimization={sequenceV2["optimization"]?.AsString()},compiler=");
+
+            if (sequenceV2["compiler"] is JObject compilerObj)
+            {
+                builder.Append($"{compilerObj["file"]?.AsString()}:{compilerObj["line"]}({compilerObj["method"]?.AsString()})");
+            }
+            else if (sequenceV2["compiler"] is JArray compilerArray)
+            {
+                var first = true;
+
+                foreach (var entry in compilerArray)
+                {
+                    if (entry == null) continue;
+                    if (first) first = false;
+                    else builder.Append(',');
+                    builder.Append($"{entry["file"]?.AsString()}:{entry["line"]}({entry["method"]?.AsString()})");
+                }
+            }
+
+            builder.Append(']');
 
             return builder.ToString();
         }

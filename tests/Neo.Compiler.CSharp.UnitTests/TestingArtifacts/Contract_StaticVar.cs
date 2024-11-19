@@ -26,10 +26,10 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: AHgTnkA=
-    /// 00 : OpCode.PUSHINT8 78 [1 datoshi]
-    /// 02 : OpCode.PUSH3 [1 datoshi]
-    /// 03 : OpCode.ADD [8 datoshi]
-    /// 04 : OpCode.RET [0 datoshi]
+    /// 00 : PUSHINT8 78 [1 datoshi]
+    /// 02 : PUSH3 [1 datoshi]
+    /// 03 : ADD [8 datoshi]
+    /// 04 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerParse")]
     public abstract BigInteger? TestBigIntegerParse();
@@ -39,10 +39,10 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcAAEA=
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 07 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALLT 0000 [32768 datoshi]
+    /// 07 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBigIntegerParse2")]
     public abstract BigInteger? TestBigIntegerParse2(string? text);
@@ -52,8 +52,8 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: DCECRwDbLpDZ8CxPn8hiq6ypJyX5W0/dzI1/+lOGk+z0Y6lA
-    /// 00 : OpCode.PUSHDATA1 024700DB2E90D9F02C4F9FC862ABACA92725F95B4FDDCC8D7FFA538693ECF463A9 [8 datoshi]
-    /// 23 : OpCode.RET [0 datoshi]
+    /// 00 : PUSHDATA1 024700DB2E90D9F02C4F9FC862ABACA92725F95B4FDDCC8D7FFA538693ECF463A9 [8 datoshi]
+    /// 23 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testGetECPoint")]
     public abstract ECPoint? TestGetECPoint();
@@ -63,8 +63,8 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: DAtoZWxsbyB3b3JsZEA=
-    /// 00 : OpCode.PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
-    /// 0D : OpCode.RET [0 datoshi]
+    /// 00 : PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// 0D : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testGetString")]
     public abstract string? TestGetString();
@@ -74,8 +74,8 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: DBR+7hqr62ftHXkdROT1/POukXGocUA=
-    /// 00 : OpCode.PUSHDATA1 7EEE1AABEB67ED1D791D44E4F5FCF3AE9171A871 [8 datoshi]
-    /// 16 : OpCode.RET [0 datoshi]
+    /// 00 : PUSHDATA1 7EEE1AABEB67ED1D791D44E4F5FCF3AE9171A871 [8 datoshi]
+    /// 16 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testGetUInt160")]
     public abstract UInt160? TestGetUInt160();
@@ -85,8 +85,8 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: DAtoZWxsbyB3b3JsZEA=
-    /// 00 : OpCode.PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
-    /// 0D : OpCode.RET [0 datoshi]
+    /// 00 : PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// 0D : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testinitalvalue")]
     public abstract string? Testinitalvalue();
@@ -96,10 +96,10 @@ public abstract class Contract_StaticVar(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: NAY0N1lA
-    /// 00 : OpCode.CALL 06 [512 datoshi]
-    /// 02 : OpCode.CALL 37 [512 datoshi]
-    /// 04 : OpCode.LDSFLD1 [2 datoshi]
-    /// 05 : OpCode.RET [0 datoshi]
+    /// 00 : CALL 06 [512 datoshi]
+    /// 02 : CALL 37 [512 datoshi]
+    /// 04 : LDSFLD1 [2 datoshi]
+    /// 05 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();

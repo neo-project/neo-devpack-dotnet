@@ -123,7 +123,7 @@ internal partial class MethodConvert
     {
         if (_returnTarget.Instruction is null)
         {
-            if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].SourceLocation is not null)
+            if (_instructions.Count > 0 && _instructions[^1].OpCode == OpCode.NOP && _instructions[^1].Location?.Source is not null)
             {
                 _instructions[^1].OpCode = OpCode.RET;
                 _returnTarget.Instruction = _instructions[^1];
