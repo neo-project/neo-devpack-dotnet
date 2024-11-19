@@ -184,7 +184,7 @@ internal partial class MethodConvert
                 // class itself is not directly inheriting smart contract; can have more base classes
                 return true;
             // is non-static method, directly inheriting smart contract
-            if (containingClass!.GetFields().Any(f => !f.IsStatic))
+            if (containingClass!.GetFields().Any((IFieldSymbol f) => !f.IsStatic))
                 // has non-static fields
                 return true;
             return false;
