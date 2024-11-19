@@ -130,7 +130,7 @@ namespace Neo.SmartContract.Framework.Linq
                 count++;
                 sum += item;
             }
-            if (count == 0) throw new Exception("source is empty");
+            if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
             return sum / count;
         }
 
@@ -153,7 +153,7 @@ namespace Neo.SmartContract.Framework.Linq
                 count++;
                 sum += selector(item);
             }
-            if (count == 0) throw new Exception("source is empty");
+            if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
             return sum / count;
         }
 
@@ -173,7 +173,7 @@ namespace Neo.SmartContract.Framework.Linq
                 count++;
                 sum += item;
             }
-            if (count == 0) throw new Exception("source is empty");
+            if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
             return sum / count;
         }
 
@@ -196,7 +196,7 @@ namespace Neo.SmartContract.Framework.Linq
                 count++;
                 sum += selector(item);
             }
-            if (count == 0) throw new Exception("source is empty");
+            if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
             return sum / count;
         }
 
@@ -216,7 +216,7 @@ namespace Neo.SmartContract.Framework.Linq
                 count++;
                 sum += item;
             }
-            if (count == 0) throw new Exception("source is empty");
+            if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
             return sum / count;
         }
 
@@ -239,7 +239,7 @@ namespace Neo.SmartContract.Framework.Linq
                 count++;
                 sum += selector(item);
             }
-            if (count == 0) throw new Exception("source is empty");
+            if (Helper.NumEqual(count, 0)) throw new Exception("source is empty");
             return sum / count;
         }
 
