@@ -70,7 +70,6 @@ namespace Neo.Compiler
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
         private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
 
-
         /// <summary>
         /// Specify the contract to be compiled.
         /// </summary>

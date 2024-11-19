@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             using var fee = Engine.CreateGasWatcher();
             var result = Contract.TestInitInt();
-            AssertGasConsumed(1045560);
+            AssertGasConsumed(1554660);
             Assert.IsNotNull(result);
 
             Assert.AreEqual(cs.A, (BigInteger)result[0]);
@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_InitializationExpression()
         {
             Contract.TestInitializationExpression();
-            AssertGasConsumed(1275690);
+            AssertGasConsumed(4032390);
         }
     }
 }
