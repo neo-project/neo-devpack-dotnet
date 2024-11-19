@@ -103,7 +103,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var array = new List<object>();
 
             var exception = Assert.ThrowsException<TestException>(() => Contract.Average(array));
-            AssertGasConsumed(1100340);
+            AssertGasConsumed(1099470);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
             array.Add(0);
@@ -111,10 +111,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(2);
 
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1157880);
+            AssertGasConsumed(1157010);
             array.Add(3);
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1161810);
+            AssertGasConsumed(1160940);
         }
 
         [TestMethod]
@@ -123,17 +123,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             var array = new List<object>();
 
             var exception = Assert.ThrowsException<TestException>(() => Contract.AverageTwice(array));
-            AssertGasConsumed(1118220);
+            AssertGasConsumed(1117350);
             Assert.AreEqual("An unhandled exception was thrown. source is empty", exception.InnerException?.Message);
 
             array.Add(0);
             array.Add(1);
             array.Add(2);
             Assert.AreEqual(2, Contract.AverageTwice(array));
-            AssertGasConsumed(1229670);
+            AssertGasConsumed(1228800);
             array.Add(3);
             Assert.AreEqual(3, Contract.AverageTwice(array));
-            AssertGasConsumed(1251570);
+            AssertGasConsumed(1250700);
         }
 
         [TestMethod]
