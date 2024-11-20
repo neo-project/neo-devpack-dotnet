@@ -21,12 +21,13 @@ using static Neo.Optimizer.OpCodeTypes;
 
 namespace Neo.Optimizer
 {
+    [Flags]
     public enum TryType
     {
-        NONE,
-        TRY,
-        CATCH,
-        FINALLY,
+        NONE = 1 << 0,
+        TRY = 1 << 1,
+        CATCH = 1 << 2,
+        FINALLY = 1 << 3,
     }
 
     [DebuggerDisplay("{catchAddr}, {finallyAddr}, {tryStateType}, {continueAfterFinally}")]
@@ -124,7 +125,7 @@ namespace Neo.Optimizer
                     coveredMap[addr] = BranchType.UNCOVERED;
         }
 
-        public static Stack<TryState> CopyStack(Stack<TryState> stack) => new(stack.Reverse());
+        public static Stack<T> CopyStack<T>(Stack<T> stack) => new(stack.Reverse());
 
         public BranchType HandleThrow(int entranceAddr, int throwFromAddr, Stack<TryState> stack)
         {
@@ -244,10 +245,7 @@ namespace Neo.Optimizer
                     // No THROW or ABORT in try, catch or finally
                     // visit codes after ENDFINALLY
                     if (continueAfterFinally)
-                    {
-                        int endPointer = finallyAddr;
-                        return coveredMap[entranceAddr] = CoverInstruction(endPointer, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
-                    }
+                        return coveredMap[entranceAddr] = CoverInstruction(finallyAddr, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
                     // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
                     return BranchType.THROW;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                 }
