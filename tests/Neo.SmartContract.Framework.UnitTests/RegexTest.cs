@@ -10,7 +10,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestStartWith()
         {
             Assert.IsTrue(Contract.TestStartWith());
-            AssertGasConsumed(1987890);
+            AssertGasConsumed(1987140);
         }
 
         [TestMethod]
@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith());
-            AssertGasConsumed(1988760);
+            AssertGasConsumed(1988040);
         }
 
         [TestMethod]

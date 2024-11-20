@@ -93,7 +93,7 @@ public static class ByteStringExtension
     /// <returns>True if start with</returns>
     public static bool StartWith(this ByteString byteString, ByteString byteToFind)
     {
-        return StdLib.MemorySearch(byteString, byteToFind) == 0;
+        return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind), 0);
     }
 
     /// <summary>
@@ -104,7 +104,7 @@ public static class ByteStringExtension
     /// <returns>True if ends with</returns>
     public static bool EndsWith(this ByteString byteString, ByteString byteToFind)
     {
-        return StdLib.MemorySearch(byteString, byteToFind) + byteToFind.Length == byteString.Length;
+        return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind) + byteToFind.Length, byteString.Length);
     }
 
     /// <summary>
