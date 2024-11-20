@@ -9,6 +9,7 @@ namespace Neo.Compiler.SecurityAnalyzer
         public static void AnalyzeWithPrint(NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
             ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
+            WriteInTryAnalzyer.AnalyzeWriteInTry(nef, manifest, debugInfo).GetWarningInfo(print: true);
         }
     }
 }
