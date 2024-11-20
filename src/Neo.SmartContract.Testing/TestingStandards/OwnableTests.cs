@@ -120,7 +120,8 @@ public class OwnableTests<T> : TestBase<T>
         Engine.SetTransactionSigners(Alice);
         Assert.ThrowsException<TestException>(() => Contract.Owner = UInt160.Zero);
         var exception = Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.Null);
-        Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
+        // not InvalidOperationExcpetion, because no SIZE operation on null
+        Assert.IsInstanceOfType<Exception>(exception.InnerException);
         Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidLength);
         Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidType);
 
