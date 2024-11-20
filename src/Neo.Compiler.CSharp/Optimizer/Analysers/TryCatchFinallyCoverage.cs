@@ -125,7 +125,9 @@ namespace Neo.Optimizer
                         CoverSingleTry(calledBlock, tryStack);
                     }
                     if (currentBlock.branchType == BranchType.OK)
-                        return CoverSingleTry(currentBlock.nextBlock!, tryStack);
+                        if (currentBlock.nextBlock != null)
+                            // nextBlock can still be null, when we call a method in try that ABORTs
+                            return CoverSingleTry(currentBlock.nextBlock!, tryStack);
                     return currentBlock.branchType;
                 }
                 if (instruction.OpCode == OpCode.RET)
