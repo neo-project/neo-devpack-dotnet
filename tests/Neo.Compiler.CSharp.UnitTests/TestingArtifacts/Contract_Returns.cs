@@ -10,12 +10,12 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Returns"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""subtract"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":7,""safe"":false},{""name"":""div"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Array"",""offset"":14,""safe"":false},{""name"":""mix"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":26,""safe"":false},{""name"":""byteStringAdd"",""parameters"":[{""name"":""a"",""type"":""ByteArray""},{""name"":""b"",""type"":""ByteArray""}],""returntype"":""ByteArray"",""offset"":44,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Returns"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""subtract"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":53,""safe"":false},{""name"":""div"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Array"",""offset"":106,""safe"":false},{""name"":""mix"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":118,""safe"":false},{""name"":""byteStringAdd"",""parameters"":[{""name"":""a"",""type"":""ByteArray""},{""name"":""b"",""type"":""ByteArray""}],""returntype"":""ByteArray"",""offset"":136,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADVXAAJ4eZ5AVwACeHmfQFcAAnh5onh5oRK/QFcCAnl4NO9KwUVwcUVpaDTeQFcAAnh5i9soQGLQVyI="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJFXAAJ4eZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAAnh5n0oCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwACeHmieHmhEr9AVwICeXg070rBRXBxRWloNLBAVwACeHmL2yhAbONrzw=="));
 
     #endregion
 
@@ -59,7 +59,7 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICeXg070rBRXBxRWloNN5A
+    /// Script: VwICeXg070rBRXBxRWloNLBA
     /// 00 : OpCode.INITSLOT 0202 [64 datoshi]
     /// 03 : OpCode.LDARG1 [2 datoshi]
     /// 04 : OpCode.LDARG0 [2 datoshi]
@@ -72,7 +72,7 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// 0C : OpCode.DROP [2 datoshi]
     /// 0D : OpCode.LDLOC1 [2 datoshi]
     /// 0E : OpCode.LDLOC0 [2 datoshi]
-    /// 0F : OpCode.CALL DE [512 datoshi]
+    /// 0F : OpCode.CALL B0 [512 datoshi]
     /// 11 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("mix")]
@@ -82,12 +82,26 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeHmfQA==
+    /// Script: VwACeHmfSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.LDARG1 [2 datoshi]
     /// 05 : OpCode.SUB [8 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("subtract")]
     public abstract BigInteger? Subtract(BigInteger? a, BigInteger? b);
@@ -96,12 +110,26 @@ public abstract class Contract_Returns(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACeHmeQA==
+    /// Script: VwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
     /// 00 : OpCode.INITSLOT 0002 [64 datoshi]
     /// 03 : OpCode.LDARG0 [2 datoshi]
     /// 04 : OpCode.LDARG1 [2 datoshi]
     /// 05 : OpCode.ADD [8 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 06 : OpCode.DUP [2 datoshi]
+    /// 07 : OpCode.PUSHINT32 00000080 [1 datoshi]
+    /// 0C : OpCode.JMPGE 04 [2 datoshi]
+    /// 0E : OpCode.JMP 0A [2 datoshi]
+    /// 10 : OpCode.DUP [2 datoshi]
+    /// 11 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 16 : OpCode.JMPLE 1E [2 datoshi]
+    /// 18 : OpCode.PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// 21 : OpCode.AND [8 datoshi]
+    /// 22 : OpCode.DUP [2 datoshi]
+    /// 23 : OpCode.PUSHINT32 FFFFFF7F [1 datoshi]
+    /// 28 : OpCode.JMPLE 0C [2 datoshi]
+    /// 2A : OpCode.PUSHINT64 0000000001000000 [1 datoshi]
+    /// 33 : OpCode.SUB [8 datoshi]
+    /// 34 : OpCode.RET [0 datoshi]
     /// </remarks>
     [DisplayName("sum")]
     public abstract BigInteger? Sum(BigInteger? a, BigInteger? b);

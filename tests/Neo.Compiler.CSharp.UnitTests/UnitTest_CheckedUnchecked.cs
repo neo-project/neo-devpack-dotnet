@@ -7,8 +7,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_CheckedUnchecked : DebugAndTestBase<Contract_CheckedUnchecked>
     {
-        public UnitTest_CheckedUnchecked() : base(compilationOptions: TestCleanup.TestCompilationOptionsSimOverFlow) { }
-
         [TestMethod]
         public void TestAddChecked()
         {

@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_CompoundAssignments : DebugAndTestBase<Contract_ComplexAssign>
     {
-        public UnitTest_CompoundAssignments() : base(compilationOptions: TestCleanup.TestCompilationOptionsSimOverFlow) { }
-
         [TestMethod]
         public void Test_AddAssign_Checked()
         {

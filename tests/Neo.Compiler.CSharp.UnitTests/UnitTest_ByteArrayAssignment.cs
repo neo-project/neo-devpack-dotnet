@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_ByteArrayAssignment : DebugAndTestBase<Contract_ByteArrayAssignment>
     {
-        public UnitTest_ByteArrayAssignment() : base(compilationOptions: TestCleanup.TestCompilationOptionsSimOverFlow) { }
-
         [TestMethod]
         public void Test_ByteArrayAssignment()
         {

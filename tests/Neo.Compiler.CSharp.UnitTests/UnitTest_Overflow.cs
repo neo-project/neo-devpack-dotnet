@@ -8,8 +8,6 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_Overflow : DebugAndTestBase<Contract_Overflow>
     {
-        public UnitTest_Overflow() : base(compilationOptions: TestCleanup.TestCompilationOptionsSimOverFlow) { }
-
         [TestMethod]
         public void Test_AddInt()
         {
