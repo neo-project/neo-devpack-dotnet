@@ -8,6 +8,10 @@ namespace Neo.Compiler.CSharp.TestContracts
         [Integer("100000000000000000000000000")]
         private static readonly BigInteger publicBigInteger = default!;
 
+        public static BigInteger SumOne()
+        {
+            return 1 + 1;
+        }
         public static BigInteger Attribute() { return publicBigInteger; }
         public static BigInteger Zero() { return BigInteger.Zero; }
         public static BigInteger One() { return BigInteger.One; }
