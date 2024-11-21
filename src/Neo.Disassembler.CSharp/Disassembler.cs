@@ -1,12 +1,13 @@
+using Neo.Json;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
+using Neo.VM;
+using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
+using System.Text;
 using System.Text.RegularExpressions;
-using Neo.Json;
-using Neo.SmartContract;
-using Neo.VM;
-using Neo.VM.Types;
 using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Disassembler.CSharp;
@@ -22,28 +23,39 @@ public static class Disassembler
         return res.Select(x => x.instruction).ToList();
     }
 
-    public static List<(int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, JToken DebugInfo, string method)
+    public static List<(int offset, int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, int start, int end)
     {
-        var (start, end) = GetMethodStartEndAddress(method, DebugInfo);
         var instructions = EnumerateInstructions(nef.Script).ToList();
-        return instructions.Where(
-            ai => ai.address >= start && ai.address <= end).Select(ai => (ai.address - start, ai.instruction)).ToList();
+        return instructions
+            .Where(ai => ai.address >= start && ai.address <= end)
+            .Select(ai => (ai.address, ai.address - start, ai.instruction))
+            .ToList();
     }
 
-    public static (int start, int end) GetMethodStartEndAddress(string name, JToken debugInfo)
+    public static JObject? GetMethod(ContractMethodDescriptor abiMethod, JToken debugInfo)
     {
-        name = name.Length == 0 ? string.Empty : string.Concat(name[0].ToString().ToUpper(), name.AsSpan(1));  // first letter uppercase
-        int start = -1, end = -1;
         foreach (var method in (JArray)debugInfo["methods"]!)
         {
-            var methodName = method!["name"]!.AsString().Split(",")[1];
-            if (methodName == name)
+            if (method == null) continue;
+
+            // Note: Require Debug extended type, we can't relate the abi to the NEP19 and without it, name is compiler dependant
+
+            if (method["abi"] is JObject abi)
             {
-                var rangeGroups = RangeRegex.Match(method["range"]!.AsString()).Groups;
-                (start, end) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
+                var parsedMethod = ContractMethodDescriptor.FromJson(abi);
+                if (!parsedMethod.Equals(abiMethod)) continue;
+
+                return method as JObject;
             }
         }
-        return (start, end);
+        return null;
+    }
+
+    public static (int start, int end) GetMethodStartEndAddress(JToken debugInfoMethod)
+    {
+        if (debugInfoMethod["range"] is not JString range) return (-1, -1);
+        var rangeGroups = RangeRegex.Match(range.AsString()).Groups;
+        return (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
     }
 
     private static IEnumerable<(int address, Instruction instruction)> EnumerateInstructions(this Script script)
@@ -61,6 +73,11 @@ public static class Disassembler
             yield return (address, Instruction.RET);
     }
 
+    private static bool IsAsciiAlphanumericSymbol(string text)
+    {
+        return text.All(c => c <= 127 && (char.IsLetterOrDigit(c) || char.IsPunctuation(c)));
+    }
+
     public static string InstructionToString(this Instruction instruction, bool addPrice = true)
     {
         var opcode = instruction.OpCode.ToString();
@@ -71,7 +88,7 @@ public static class Disassembler
 
         if (operand.IsEmpty || operand.Length == 0)
         {
-            ret = $"OpCode.{opcode}";
+            ret = $"{opcode}";
         }
         else
         {
@@ -79,21 +96,44 @@ public static class Disassembler
 
             switch (instruction.OpCode)
             {
+                case OpCode.PUSHDATA1:
+                    {
+                        ret = $"{opcode} {operandString}";
+
+                        try
+                        {
+                            // Try ascii
+                            var ascii = Encoding.ASCII.GetString(instruction.Operand.Span);
+                            ascii = ascii.Replace("\n", "\\n");
+                            ascii = ascii.Replace("\r", "\\r");
+                            ascii = ascii.Replace("\t", "\\t");
+
+                            if (IsAsciiAlphanumericSymbol(ascii))
+                            {
+                                ret += $" '{ascii}'";
+                            }
+                        }
+                        catch { }
+
+                        break;
+                    }
+                case OpCode.ISTYPE:
+                case OpCode.NEWARRAY_T:
                 case OpCode.CONVERT:
                     {
-                        ret = $"OpCode.{opcode} {operandString} '{(StackItemType)operand.Span[0]}'";
+                        ret = $"{opcode} {operandString} '{(StackItemType)instruction.TokenU8}'";
                         break;
                     }
                 case OpCode.SYSCALL:
                     {
                         var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
                         addprice += descriptor.FixedPrice;
-                        ret = $"OpCode.{opcode} {operandString} '{descriptor.Name}'";
+                        ret = $"{opcode} {operandString} '{descriptor.Name}'";
                         break;
                     }
                 default:
                     {
-                        ret = $"OpCode.{opcode} {operandString}";
+                        ret = $"{opcode} {operandString}";
                         break;
                     }
             }

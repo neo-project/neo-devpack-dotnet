@@ -24,24 +24,73 @@ public abstract class Contract_UIntTypes(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeAwU9mRDSY04eNMrmU5OEoPGk0Qh2v6XQA==
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : PUSHDATA1 F66443498D3878D32B994E4E1283C6934421DAFE [8 datoshi]
+    /// 1A : EQUAL [32 datoshi]
+    /// 1B : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkOwner")]
     public abstract bool? CheckOwner(UInt160? owner);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeAwUAAAAAAAAAAAAAAAAAAAAAAAAAACXQA==
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
+    /// 1A : EQUAL [32 datoshi]
+    /// 1B : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("checkZeroStatic")]
     public abstract bool? CheckZeroStatic(UInt160? owner);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeNsoStgkCUrKABQoAzpA
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CONVERT 28 'ByteString' [8192 datoshi]
+    /// 06 : DUP [2 datoshi]
+    /// 07 : ISNULL [2 datoshi]
+    /// 08 : JMPIF 09 [2 datoshi]
+    /// 0A : DUP [2 datoshi]
+    /// 0B : SIZE [4 datoshi]
+    /// 0C : PUSHINT8 14 [1 datoshi]
+    /// 0E : JMPEQ 03 [2 datoshi]
+    /// 10 : THROW [512 datoshi]
+    /// 11 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("constructUInt160")]
     public abstract UInt160? ConstructUInt160(byte[]? bytes);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeErZKFDKABSzqyQECUB4sUA=
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : DUP [2 datoshi]
+    /// 05 : ISTYPE 28 'ByteString' [2 datoshi]
+    /// 07 : SWAP [2 datoshi]
+    /// 08 : SIZE [4 datoshi]
+    /// 09 : PUSHINT8 14 [1 datoshi]
+    /// 0B : NUMEQUAL [8 datoshi]
+    /// 0C : BOOLAND [8 datoshi]
+    /// 0D : JMPIF 04 [2 datoshi]
+    /// 0F : PUSHF [1 datoshi]
+    /// 10 : RET [0 datoshi]
+    /// 11 : LDARG0 [2 datoshi]
+    /// 12 : NZ [4 datoshi]
+    /// 13 : RET [0 datoshi]
+    /// </remarks>
     [DisplayName("validateAddress")]
     public abstract bool? ValidateAddress(UInt160? address);
 

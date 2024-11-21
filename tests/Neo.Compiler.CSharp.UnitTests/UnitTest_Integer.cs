@@ -12,6 +12,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void divRemByte_test()
         {
             var result = Contract.DivRemByte((byte)10, (byte)4);
+            Assert.IsNotNull(result);
+
             var expected = byte.DivRem(10, 4);
             Assert.AreEqual(expected.Remainder, (byte)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (byte)(BigInteger)result[1]);
@@ -22,6 +24,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void divRemShort_test()
         {
             var result = Contract.DivRemShort((short)10, (short)3);
+            Assert.IsNotNull(result);
+
             var expected = short.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, checked((short)(BigInteger)result[0]));
             Assert.AreEqual(expected.Quotient, checked((short)(BigInteger)result[1]));
@@ -51,6 +55,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void divRemLong_test()
         {
             var result = Contract.DivRemLong(10L, 3L);
+            Assert.IsNotNull(result);
+
             var expected = long.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (long)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (long)(BigInteger)result[1]);
@@ -61,6 +67,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void divRemSByte_test()
         {
             var result = Contract.DivRemSbyte((sbyte)10, (sbyte)3);
+            Assert.IsNotNull(result);
+
             var expected = sbyte.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (sbyte)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (sbyte)(BigInteger)result[1]);
@@ -71,6 +79,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void divRemUShort_test()
         {
             var result = Contract.DivRemUshort((ushort)10, (ushort)3);
+            Assert.IsNotNull(result);
+
             var expected = ushort.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (ushort)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ushort)(BigInteger)result[1]);
@@ -81,6 +91,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void divRemUInt_test()
         {
             var result = Contract.DivRemUint((uint)10, (uint)3);
+            Assert.IsNotNull(result);
+
             var expected = uint.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (uint)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (uint)(BigInteger)result[1]);
@@ -91,6 +103,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void divRemULong_test()
         {
             var result = Contract.DivRemUlong((ulong)10, (ulong)3);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -108,6 +122,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_Normal()
         {
             var result = Contract.DivRemUlong((ulong)10, (ulong)3);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(10, 3);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -118,6 +134,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_MaxValue()
         {
             var result = Contract.DivRemUlong(ulong.MaxValue, (ulong)2);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(ulong.MaxValue, 2);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -128,6 +146,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_DivideByOne()
         {
             var result = Contract.DivRemUlong(ulong.MaxValue, (ulong)1);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(ulong.MaxValue, 1);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -138,6 +158,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_DividendSmallerThanDivisor()
         {
             var result = Contract.DivRemUlong((ulong)3, (ulong)10);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(3, 10);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -148,6 +170,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_DivideByMaxValue()
         {
             var result = Contract.DivRemUlong((ulong)10, ulong.MaxValue);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(10, ulong.MaxValue);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -172,6 +196,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_MaxValueDividedByMaxValue()
         {
             var result = Contract.DivRemUlong(ulong.MaxValue, ulong.MaxValue);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(ulong.MaxValue, ulong.MaxValue);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -182,6 +208,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_MaxValueMinusOneDividedByMaxValue()
         {
             var result = Contract.DivRemUlong(ulong.MaxValue - 1, ulong.MaxValue);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(ulong.MaxValue - 1, ulong.MaxValue);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -192,6 +220,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestDivRemUlong_MaxValueDividedByTwo()
         {
             var result = Contract.DivRemUlong(ulong.MaxValue, 2UL);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(ulong.MaxValue, 2UL);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -204,6 +234,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             ulong large1 = ulong.MaxValue / 2;
             ulong large2 = 2;
             var result = Contract.DivRemUlong(large1, large2);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(large1, large2);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -216,6 +248,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             ulong large1 = ulong.MaxValue - 1;
             ulong large2 = ulong.MaxValue;
             var result = Contract.DivRemUlong(large1, large2);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(large1, large2);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -228,6 +262,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             ulong dividend = (1UL << 63) - 1; // 2^63 - 1
             ulong divisor = 1UL << 63; // 2^63
             var result = Contract.DivRemUlong(dividend, divisor);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(dividend, divisor);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -240,6 +276,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             ulong dividend = (1UL << 63) + 1; // 2^63 + 1
             ulong divisor = 1UL << 63; // 2^63
             var result = Contract.DivRemUlong(dividend, divisor);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(dividend, divisor);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -252,6 +290,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             ulong largePrime1 = 18446744073709551557; // Largest prime number smaller than 2^64
             ulong largePrime2 = 18446744073709551533; // Second largest prime number smaller than 2^64
             var result = Contract.DivRemUlong(largePrime1, largePrime2);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(largePrime1, largePrime2);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -266,6 +306,8 @@ namespace Neo.Compiler.CSharp.UnitTests
                 ulong dividend = 1UL << i;
                 ulong divisor = 1UL << (i - 1);
                 var result = Contract.DivRemUlong(dividend, divisor);
+                Assert.IsNotNull(result);
+
                 var expected = ulong.DivRem(dividend, divisor);
                 Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
                 Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);
@@ -277,6 +319,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             ulong alternatingBits = 0xAAAAAAAAAAAAAAAA; // 1010...1010
             var result = Contract.DivRemUlong(alternatingBits, 3);
+            Assert.IsNotNull(result);
+
             var expected = ulong.DivRem(alternatingBits, 3);
             Assert.AreEqual(expected.Remainder, (ulong)(BigInteger)result[0]);
             Assert.AreEqual(expected.Quotient, (ulong)(BigInteger)result[1]);

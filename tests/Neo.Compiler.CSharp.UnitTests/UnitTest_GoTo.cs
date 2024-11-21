@@ -10,9 +10,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test()
         {
             Assert.AreEqual(3, Contract.Test());
-            AssertGasConsumed(989040);
+            AssertGasConsumed(989640);
             Assert.AreEqual(3, Contract.TestTry());
-            AssertGasConsumed(989580);
+            AssertGasConsumed(990180);
         }
     }
 }

@@ -10,7 +10,7 @@ internal static class Helper
     {
         var result = new CompilationEngine(new CompilationOptions()
         {
-            Debug = true,
+            Debug = CompilationOptions.DebugType.Extended,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable

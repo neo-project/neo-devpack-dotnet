@@ -10,7 +10,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StaticConsturct()
         {
             var var1 = Contract.TestStatic();
-            AssertGasConsumed(986970);
+            AssertGasConsumed(987270);
             // static byte[] callscript = ExecutionEngine.EntryScriptHash;
             // ...
             // return callscript

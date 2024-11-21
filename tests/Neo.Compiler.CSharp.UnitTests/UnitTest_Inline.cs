@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(3), Contract.TestInline("inline_with_one_parameters"));
             AssertGasConsumed(1049970);
             Assert.AreEqual(new BigInteger(5), Contract.TestInline("inline_with_multi_parameters"));
-            AssertGasConsumed(1051560);
+            AssertGasConsumed(1051860);
         }
 
         [TestMethod]
@@ -26,7 +26,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(3), Contract.TestInline("not_inline_with_one_parameters"));
             AssertGasConsumed(1071270);
             Assert.AreEqual(new BigInteger(5), Contract.TestInline("not_inline_with_multi_parameters"));
-            AssertGasConsumed(1072920);
+            AssertGasConsumed(1073220);
         }
 
         [TestMethod]

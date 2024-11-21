@@ -41,8 +41,9 @@ namespace Neo.SmartContract.Framework
             StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
             BigInteger balance = (BigInteger)balanceMap[owner];
             balance += increment;
-            if (balance < 0) return false;
-            if (balance.IsZero)
+            if (balance < 0)
+                return false;
+            if (Helper.NumEqual(balance, 0))
                 balanceMap.Delete(owner);
             else
                 balanceMap.Put(owner, balance);

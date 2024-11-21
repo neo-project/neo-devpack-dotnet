@@ -26,10 +26,10 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDQDQA==
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALL 03 [512 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALL 03 [512 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("isValidAndNotZeroUInt160")]
     public abstract bool? IsValidAndNotZeroUInt160(UInt160? value);
@@ -39,10 +39,10 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDQDQA==
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.CALL 03 [512 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALL 03 [512 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("isValidAndNotZeroUInt256")]
     public abstract bool? IsValidAndNotZeroUInt256(UInt256? value);
@@ -52,11 +52,11 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeLGqQA==
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.NZ [4 datoshi]
-    /// 05 : OpCode.NOT [4 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : NZ [4 datoshi]
+    /// 05 : NOT [4 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("isZeroUInt160")]
     public abstract bool? IsZeroUInt160(UInt160? value);
@@ -66,11 +66,11 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeLGqQA==
-    /// 00 : OpCode.INITSLOT 0001 [64 datoshi]
-    /// 03 : OpCode.LDARG0 [2 datoshi]
-    /// 04 : OpCode.NZ [4 datoshi]
-    /// 05 : OpCode.NOT [4 datoshi]
-    /// 06 : OpCode.RET [0 datoshi]
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : NZ [4 datoshi]
+    /// 05 : NOT [4 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("isZeroUInt256")]
     public abstract bool? IsZeroUInt256(UInt256? value);
@@ -79,23 +79,11 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECEYhKEHnQcGh4i3Bo2yg3AABA
-    /// 00 : OpCode.INITSLOT 0102 [64 datoshi]
-    /// 03 : OpCode.PUSH1 [1 datoshi]
-    /// 04 : OpCode.NEWBUFFER [256 datoshi]
-    /// 05 : OpCode.DUP [2 datoshi]
-    /// 06 : OpCode.PUSH0 [1 datoshi]
-    /// 07 : OpCode.LDARG1 [2 datoshi]
-    /// 08 : OpCode.SETITEM [8192 datoshi]
-    /// 09 : OpCode.STLOC0 [2 datoshi]
-    /// 0A : OpCode.LDLOC0 [2 datoshi]
-    /// 0B : OpCode.LDARG0 [2 datoshi]
-    /// 0C : OpCode.CAT [2048 datoshi]
-    /// 0D : OpCode.STLOC0 [2 datoshi]
-    /// 0E : OpCode.LDLOC0 [2 datoshi]
-    /// 0F : OpCode.CONVERT 28 'ByteString' [8192 datoshi]
-    /// 11 : OpCode.CALLT 0000 [32768 datoshi]
-    /// 14 : OpCode.RET [0 datoshi]
+    /// Script: VwABeDQDQA==
+    /// 00 : INITSLOT 0001 [64 datoshi]
+    /// 03 : LDARG0 [2 datoshi]
+    /// 04 : CALL 03 [512 datoshi]
+    /// 06 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? value);

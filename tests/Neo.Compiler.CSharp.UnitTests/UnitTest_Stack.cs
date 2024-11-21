@@ -74,6 +74,7 @@ public class UnitTest_Stack : DebugAndTestBase<Contract_Stack>
     public void Test_Push_Internal()
     {
         var result = Contract.Test_Push_Integer_Internal();
+        Assert.IsNotNull(result);
         Assert.AreEqual(new BigInteger(byte.MinValue), result[0]);
         Assert.AreEqual(new BigInteger(byte.MaxValue), result[1]);
         Assert.AreEqual(new BigInteger(sbyte.MinValue), result[2]);
@@ -93,6 +94,7 @@ public class UnitTest_Stack : DebugAndTestBase<Contract_Stack>
     public void Test_External()
     {
         var result = Contract.Test_External();
+        Assert.IsNotNull(result);
         Assert.AreEqual(BigInteger.MinusOne, result[0]);
         Assert.AreEqual(new BigInteger(-1000000), result[1]); // Previous error value 15777216
         Assert.AreEqual(new BigInteger(-1000000000000), result[2]); // previous error value 280474976710656

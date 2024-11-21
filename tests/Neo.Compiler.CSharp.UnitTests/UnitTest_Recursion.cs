@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             int src = 100, aux = 200, dst = 300;
             var result = Contract.HanoiTower(1, src, aux, dst)!;
-            AssertGasConsumed(1356600);
+            AssertGasConsumed(2849220);
             Assert.AreEqual(result.Count, 1);
             List<(BigInteger rodId, BigInteger src, BigInteger dst)> expectedResult = [(1, src, dst)];
             for (int i = 0; i < expectedResult.Count; ++i)

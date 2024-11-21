@@ -28,7 +28,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             AllowOverflow = false,
             Checked = false,
-            Debug = true,
+            Debug = CompilationOptions.DebugType.Extended,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = NullableContextOptions.Enable
@@ -36,7 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public static readonly CompilationOptions TestCompilationOptionsSimOverFlow = new CompilationOptions
         {
             AllowOverflow = true,
-            Debug = true,
+            Debug = CompilationOptions.DebugType.Extended,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = NullableContextOptions.Enable
