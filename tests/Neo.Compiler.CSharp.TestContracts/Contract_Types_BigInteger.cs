@@ -12,6 +12,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return 1 + 1;
         }
+        public static BigInteger SumOverflow()
+        {
+            var i = int.MaxValue;
+            return i + 1;
+        }
         public static BigInteger Attribute() { return publicBigInteger; }
         public static BigInteger Zero() { return BigInteger.Zero; }
         public static BigInteger One() { return BigInteger.One; }
