@@ -12,6 +12,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -144,7 +145,7 @@ internal partial class MethodConvert
         return false;
     }
 
-    internal static Dictionary<IMethodSymbol, bool> _cacheNeedInstanceConstructor = new Dictionary<IMethodSymbol, bool>(SymbolEqualityComparer.Default);
+    internal static ConcurrentDictionary<IMethodSymbol, bool> _cacheNeedInstanceConstructor = new ConcurrentDictionary<IMethodSymbol, bool>(SymbolEqualityComparer.Default);
 
     /// <summary>
     /// non-static methods needs constructors to be executed
