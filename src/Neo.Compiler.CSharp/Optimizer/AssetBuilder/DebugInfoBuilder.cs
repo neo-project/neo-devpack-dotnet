@@ -112,7 +112,10 @@ namespace Neo.Optimizer
                                 newSequencePointsV2[writeAddr] = content;
                                 break;
                             case JObject existingObject:
-                                newSequencePointsV2[writeAddr] = new JArray() { existingObject, content };
+                                if (content is JArray contentArr)
+                                    newSequencePointsV2[writeAddr] = new JArray() { existingObject }.Concat(contentArr).ToArray();
+                                if (content is JObject contentObj)
+                                    newSequencePointsV2[writeAddr] = new JArray() { existingObject, content };
                                 break;
                             case JArray existingArray:
                                 if (content is JArray contentArray)
