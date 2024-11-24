@@ -14,13 +14,21 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.SmartContract.Native;
 using Neo.VM;
 
 namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+
+    private static IModuleSymbol GetSymbolMetadataModule(ISymbol symbol, string symbolInfo)
+    {
+        var metadata = symbol.Locations.FirstOrDefault()?.MetadataModule;
+        if (metadata is null)
+            throw new CompilationException(symbol, DiagnosticId.InvalidArgument, $"Unexpected symbol location metadata module for {symbolInfo}");
+        return metadata;
+    }
+
     private static void HandleEnumParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -33,7 +41,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -45,7 +53,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.Parse requires at least two arguments");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.Parse"), DiagnosticId.InvalidArgument, "Enum.Parse requires at least two arguments");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -100,7 +108,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -112,7 +120,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.Parse requires at least two arguments");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.Parse"), DiagnosticId.InvalidArgument, "Enum.Parse requires at least two arguments");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -178,7 +186,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 2 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -190,7 +198,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.TryParse requires at least three arguments");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.TryParse"), DiagnosticId.InvalidArgument, "Enum.TryParse requires at least three arguments");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -269,7 +277,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -281,7 +289,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.IsDefined requires at least two arguments");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.IsDefined"), DiagnosticId.InvalidArgument, "Enum.IsDefined requires at least two arguments");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -327,7 +335,7 @@ internal partial class MethodConvert
 
         if (enumType is not INamedTypeSymbol enumTypeSymbol)
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidType, "Unable to determine enum type");
+            throw new CompilationException(symbol.Locations.FirstOrDefault()!.MetadataModule!, DiagnosticId.InvalidType, "Unable to determine enum type");
         }
 
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
@@ -367,7 +375,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -379,7 +387,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.GetName requires at least two arguments");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.GetName"), DiagnosticId.InvalidArgument, "Enum.GetName requires at least two arguments");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -427,7 +435,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -439,7 +447,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.TryParse requires at least three arguments");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.TryParse"), DiagnosticId.InvalidArgument, "Enum.TryParse requires at least three arguments");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -494,7 +502,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -506,7 +514,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.GetNames requires one argument");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.GetNames"), DiagnosticId.InvalidArgument, "Enum.GetNames requires one argument");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -538,7 +546,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -550,7 +558,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.GetValues requires one argument");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.GetValues"), DiagnosticId.InvalidArgument, "Enum.GetValues requires one argument");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -582,7 +590,7 @@ internal partial class MethodConvert
         ITypeSymbol? enumTypeSymbol = null;
         if (arguments is { Count: > 0 })
         {
-            if ((arguments[0] as ArgumentSyntax).Expression is TypeOfExpressionSyntax typeOfExpression)
+            if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
                 var typeInfo = model.GetTypeInfo(typeOfExpression.Type);
                 enumTypeSymbol = typeInfo.Type;
@@ -594,7 +602,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(symbol.Locations.FirstOrDefault().MetadataModule, DiagnosticId.InvalidArgument, "Enum.IsDefined requires at least two arguments");
+            throw new CompilationException(GetSymbolMetadataModule(symbol, "Enum.IsDefined"), DiagnosticId.InvalidArgument, "Enum.IsDefined requires at least two arguments");
         }
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
@@ -605,7 +613,11 @@ internal partial class MethodConvert
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
-        var valueType = model.GetTypeInfo((arguments[1] as ArgumentSyntax)?.Expression).Type;
+        var argument = arguments[1] as ArgumentSyntax;
+        if (argument is null) // unexpected case
+            throw new CompilationException(arguments[1], DiagnosticId.InvalidArgument, "Invalid second argument");
+
+        var valueType = model.GetTypeInfo(argument.Expression).Type;
 
         // We need to compare the input value against the enum values
         var endLabel = new JumpTarget();
