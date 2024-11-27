@@ -20,7 +20,6 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-
     private static IModuleSymbol GetSymbolMetadataModule(ISymbol symbol, string symbolInfo)
     {
         var metadata = symbol.Locations.FirstOrDefault()?.MetadataModule;
@@ -613,8 +612,7 @@ internal partial class MethodConvert
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
-        var argument = arguments[1] as ArgumentSyntax;
-        if (argument is null) // unexpected case
+        if (arguments[1] is not ArgumentSyntax argument) // unexpected case
             throw new CompilationException(arguments[1], DiagnosticId.InvalidArgument, "Invalid second argument");
 
         var valueType = model.GetTypeInfo(argument.Expression).Type;
