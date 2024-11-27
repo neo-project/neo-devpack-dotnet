@@ -40,8 +40,7 @@ namespace Neo.Optimizer
                 }
                 // The instruction at the end of the method may have been deleted.
                 // We need to find the last instruction that is not deleted.
-                int methodEnd;
-                if (oldSequencePointAddressToNew?.TryGetValue(oldMethodEnd, out methodEnd) != true)
+                if (oldSequencePointAddressToNew?.TryGetValue(oldMethodEnd, out var methodEnd) != true)
                 {
                     //int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
                     int oldMethodEndNotDeleted = oldAddressToInstruction.Where(kv =>
@@ -53,7 +52,7 @@ namespace Neo.Optimizer
                 method["range"] = $"{methodStart}-{methodEnd}";
 
                 int previousSequencePoint = methodStart;
-                JArray newSequencePoints = new();
+                JArray newSequencePoints = [];
                 foreach (JToken? sequencePoint in (JArray)method!["sequence-points"]!)
                 {
                     GroupCollection sequencePointGroups = SequencePointRegex.Match(sequencePoint!.AsString()).Groups;
@@ -99,7 +98,7 @@ namespace Neo.Optimizer
                             if (content is JArray oldContentArray)
                                 foreach (JToken? i in oldContentArray)
                                     ((JObject)i!)["optimization"] = Neo.Compiler.CompilationOptions.OptimizationType.Experimental.ToString().ToLowerInvariant();
-                            if (content is JObject oldContentObject)
+                            else if (content is JObject oldContentObject)
                                 content["optimization"] = Neo.Compiler.CompilationOptions.OptimizationType.Experimental.ToString().ToLowerInvariant();
                         }
                         else
@@ -114,13 +113,13 @@ namespace Neo.Optimizer
                             case JObject existingObject:
                                 if (content is JArray contentArr)
                                     newSequencePointsV2[writeAddr] = new JArray() { existingObject }.Concat(contentArr).ToArray();
-                                if (content is JObject contentObj)
+                                else if (content is JObject contentObj)
                                     newSequencePointsV2[writeAddr] = new JArray() { existingObject, content };
                                 break;
                             case JArray existingArray:
                                 if (content is JArray contentArray)
                                     newSequencePointsV2[writeAddr] = existingArray.Concat(contentArray).ToArray();
-                                if (content is JObject contentObject)
+                                else if (content is JObject contentObject)
                                     existingArray.Add(contentObject);
                                 break;
                             default:
