@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Framework
             balance += increment;
             if (balance < 0)
                 return false;
-            if (Helper.NumEqual(balance, 0))
+            if (balance.IsZero)
                 balanceMap.Delete(owner);
             else
                 balanceMap.Put(owner, balance);
