@@ -1,6 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// The Neo.Compiler.CSharp is free software distributed under the MIT
+// software license, see the accompanying file LICENSE in the main directory
+// of the project or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Numerics;
 
 namespace Neo.Compiler;
@@ -600,7 +608,9 @@ internal partial class MethodConvert
     private static void RegisterObjectHandlers()
     {
         // Existing object handlers
+#pragma warning disable CS8602
         RegisterHandler((object? x, object? y) => x.Equals(y), HandleObjectEquals);
+#pragma warning restore CS8602
     }
 
     private static void RegisterCharHandlers()
@@ -663,6 +673,7 @@ internal partial class MethodConvert
         #endregion GetValueOrDefault
 
         // Nullable Value methods
+#pragma warning disable CS8629
         #region Value
         RegisterHandler((byte? x) => x.Value, HandleNullableByteValue);
         RegisterHandler((sbyte? x) => x.Value, HandleNullableSByteValue);
@@ -676,6 +687,7 @@ internal partial class MethodConvert
         RegisterHandler((long? x) => x.Value, HandleNullableLongValue);
         RegisterHandler((bool? x) => x.Value, HandleNullableBoolValue);
         #endregion Value
+#pragma warning restore CS8629
 
         // Nullable ToString() methods
         #region ToString()
@@ -755,8 +767,12 @@ internal partial class MethodConvert
     {
         RegisterHandler((Type enumType, string value) => Enum.Parse(enumType, value), HandleEnumParse);
         RegisterHandler((Type enumType, string value, bool ignoreCase) => Enum.Parse(enumType, value, ignoreCase), HandleEnumParseIgnoreCase);
+
+#pragma warning disable CS8600
         RegisterHandler((Type enumType, string value, object result) => Enum.TryParse(enumType, value, out result), HandleEnumTryParse);
         RegisterHandler((Type enumType, string value, bool ignoreCase, object result) => Enum.TryParse(enumType, value, ignoreCase, out result), HandleEnumTryParseIgnoreCase);
+#pragma warning restore CS8600
+
         RegisterHandler((Type enumType) => Enum.GetNames(enumType), HandleEnumGetNames);
         RegisterHandler((Type enumType) => Enum.GetValues(enumType), HandleEnumGetValues);
         RegisterHandler((Type enumType, object value) => Enum.IsDefined(enumType, value), HandleEnumIsDefined);
