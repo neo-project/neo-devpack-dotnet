@@ -12,7 +12,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             catch
             {
                 try { Delete(); }
-                finally { throw new Exception("throw in nested finally"); }
+                finally
+                {
+                    try { throw new Exception("throw in nested finally"); }
+                    catch { throw; }
+                }
             }
             finally
             {

@@ -10,12 +10,12 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_WriteInTry"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""baseTry"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""tryWrite"",""parameters"":[],""returntype"":""Void"",""offset"":102,""safe"":false},{""name"":""tryWriteWithVulnerability"",""parameters"":[],""returntype"":""Void"",""offset"":167,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_WriteInTry"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""baseTry"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""tryWrite"",""parameters"":[],""returntype"":""Void"",""offset"":108,""safe"":false},{""name"":""tryWriteWithVulnerability"",""parameters"":[],""returntype"":""Void"",""offset"":173,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALVXAQA7Byk0ND0xcDsABzRDPQAMF3Rocm93IGluIG5lc3RlZCBmaW5hbGx5OjsKAAwBADQlPQRwOD9AEAwBADQDQFcAAnl4QZv2Z85B5j8YhEAMAQA0A0BXAAF4QZv2Z85BL1jF7UBXAQA7HQA0zgwVdGhyb3cgaW4gVHJ5V3JpdGUgdHJ5OnA7AB80xwwXdGhyb3cgaW4gVHJ5V3JpdGUgY2F0Y2g6P1cBADsHADSkPQVwPQJAQC9ZHQ=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALtXAgA7By80Oj03cDsABzRJPQA7HQAMF3Rocm93IGluIG5lc3RlZCBmaW5hbGx5OnFpOjsKAAwBADQlPQRwOD9AEAwBADQDQFcAAnl4QZv2Z85B5j8YhEAMAQA0A0BXAAF4QZv2Z85BL1jF7UBXAQA7HQA0zgwVdGhyb3cgaW4gVHJ5V3JpdGUgdHJ5OnA7AB80xwwXdGhyb3cgaW4gVHJ5V3JpdGUgY2F0Y2g6P1cBADsHADSkPQVwPQJAfWMiSw=="));
 
     #endregion
 
@@ -25,25 +25,29 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAOwcpNDQ9MXA7AAc0Qz0ADBd0aHJvdyBpbiBuZXN0ZWQgZmluYWxseTo7CgAMAQA0JT0EcDg/QA==
-    /// 00 : INITSLOT 0100 [64 datoshi]
-    /// 03 : TRY 0729 [4 datoshi]
-    /// 06 : CALL 34 [512 datoshi]
-    /// 08 : ENDTRY 31 [4 datoshi]
+    /// Script: VwIAOwcvNDo9N3A7AAc0ST0AOx0ADBd0aHJvdyBpbiBuZXN0ZWQgZmluYWxseTpxaTo7CgAMAQA0JT0EcDg/QA==
+    /// 00 : INITSLOT 0200 [64 datoshi]
+    /// 03 : TRY 072F [4 datoshi]
+    /// 06 : CALL 3A [512 datoshi]
+    /// 08 : ENDTRY 37 [4 datoshi]
     /// 0A : STLOC0 [2 datoshi]
     /// 0B : TRY 0007 [4 datoshi]
-    /// 0E : CALL 43 [512 datoshi]
+    /// 0E : CALL 49 [512 datoshi]
     /// 10 : ENDTRY 00 [4 datoshi]
-    /// 12 : PUSHDATA1 7468726F7720696E206E65737465642066696E616C6C79 [8 datoshi]
-    /// 2B : THROW [512 datoshi]
-    /// 2C : TRY 0A00 [4 datoshi]
-    /// 2F : PUSHDATA1 00 [8 datoshi]
-    /// 32 : CALL 25 [512 datoshi]
-    /// 34 : ENDTRY 04 [4 datoshi]
-    /// 36 : STLOC0 [2 datoshi]
-    /// 37 : ABORT [0 datoshi]
-    /// 38 : ENDFINALLY [4 datoshi]
-    /// 39 : RET [0 datoshi]
+    /// 12 : TRY 1D00 [4 datoshi]
+    /// 15 : PUSHDATA1 7468726F7720696E206E65737465642066696E616C6C79 [8 datoshi]
+    /// 2E : THROW [512 datoshi]
+    /// 2F : STLOC1 [2 datoshi]
+    /// 30 : LDLOC1 [2 datoshi]
+    /// 31 : THROW [512 datoshi]
+    /// 32 : TRY 0A00 [4 datoshi]
+    /// 35 : PUSHDATA1 00 [8 datoshi]
+    /// 38 : CALL 25 [512 datoshi]
+    /// 3A : ENDTRY 04 [4 datoshi]
+    /// 3C : STLOC0 [2 datoshi]
+    /// 3D : ABORT [0 datoshi]
+    /// 3E : ENDFINALLY [4 datoshi]
+    /// 3F : RET [0 datoshi]
     /// </remarks>
     [DisplayName("baseTry")]
     public abstract void BaseTry();
