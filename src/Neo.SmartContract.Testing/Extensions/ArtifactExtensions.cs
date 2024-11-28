@@ -1,5 +1,5 @@
 using Neo.Disassembler.CSharp;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.TestingStandards;

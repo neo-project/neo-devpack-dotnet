@@ -12,7 +12,7 @@ extern alias scfx;
 
 using Microsoft.CodeAnalysis;
 using Neo.Cryptography;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.SmartContract;
 using Neo.VM;
 using scfx::Neo.SmartContract.Framework.Attributes;
