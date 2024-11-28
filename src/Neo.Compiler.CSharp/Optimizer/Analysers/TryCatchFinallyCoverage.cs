@@ -177,7 +177,8 @@ namespace Neo.Optimizer
                         if (tryType == TryType.TRY && allTry[tryBlock].catchBlock != null)
                         {
                             tryStack.Push((tryBlock, null, TryType.CATCH, true));
-                            CoverSingleTry(allTry[tryBlock].catchBlock!, tryStack);
+                            if (CoverSingleTry(allTry[tryBlock].catchBlock!, tryStack) == BranchType.ABORT)
+                                return BranchType.ABORT;
                         }
                         int endPointer = ComputeJumpTarget(currentBlock.lastAddr, instruction);
                         endFinallyBlock = contractInBasicBlocks.basicBlocksByStartAddr[endPointer];
