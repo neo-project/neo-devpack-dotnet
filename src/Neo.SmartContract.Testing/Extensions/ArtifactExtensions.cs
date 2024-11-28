@@ -123,7 +123,7 @@ namespace Neo.SmartContract.Testing.Extensions
             if (manifest.IsOwnable()) inheritance.Add(typeof(IOwnable));
             if (manifest.IsVerificable()) inheritance.Add(typeof(IVerificable));
 
-            sourceCode.WriteLine("using Neo.Cryptography.ECC;");
+            sourceCode.WriteLine("using Neo.Extensions;");
             sourceCode.WriteLine("using System;");
             sourceCode.WriteLine("using System.Collections.Generic;");
             sourceCode.WriteLine("using System.ComponentModel;");
@@ -155,7 +155,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine($"    /// Optimization: {optimization}");
                     sourceCode.WriteLine($"    /// </summary>");
                 }
-                sourceCode.WriteLine($"    public static {typeof(NefFile).FullName} Nef => Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine($"    public static {typeof(NefFile).FullName} Nef => Convert.FromBase64String(@\"{value}\").AsSerializable<{typeof(NefFile).FullName}>();");
                 sourceCode.WriteLine();
             }
 
