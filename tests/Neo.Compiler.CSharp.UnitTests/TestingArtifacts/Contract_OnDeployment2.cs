@@ -1,3 +1,4 @@
+using Neo.Cryptography.ECC;
 using Neo.Extensions;
 using System;
 using System.Collections.Generic;
@@ -22,5 +23,4 @@ public abstract class Contract_OnDeployment2(Neo.SmartContract.Testing.SmartCont
     #region Unsafe methods
 
     #endregion
-
 }
