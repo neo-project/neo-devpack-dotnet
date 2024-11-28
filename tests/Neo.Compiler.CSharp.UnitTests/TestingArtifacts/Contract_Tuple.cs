@@ -1,4 +1,4 @@
-using Neo.Cryptography.ECC;
+using Neo.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +15,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMUExIRFL9AVwIACxAQCwsVv0o0LXAQCxK/SjQxSmgUUdBFEHE03ErBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEBXAAF4EhDQeBMQ0EBXAAF4ERDQQHaQFSs="));
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMUExIRFL9AVwIACxAQCwsVv0o0LXAQCxK/SjQxSmgUUdBFEHE03ErBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEBXAAF4EhDQeBMQ0EBXAAF4ERDQQHaQFSs=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
