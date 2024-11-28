@@ -1,7 +1,8 @@
 using Neo.Cryptography.ECC;
+using Neo.Extensions;
 using System;
 using System.Collections.Generic;
-using Neo.Extensions;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing;

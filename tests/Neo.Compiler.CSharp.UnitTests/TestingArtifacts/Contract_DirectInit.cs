@@ -1,6 +1,7 @@
 using Neo.Cryptography.ECC;
-using System;
 using Neo.Extensions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Numerics;
 

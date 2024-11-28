@@ -1,9 +1,9 @@
 using Neo.Cryptography.ECC;
+using Neo.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Numerics;
-using Neo.Extensions;
 
 namespace Neo.SmartContract.Testing;
 
