@@ -12,6 +12,7 @@ extern alias scfx;
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -199,8 +200,19 @@ internal partial class MethodConvert
                 }
             }
         }
+
         if (expression is null)
-            PushDefault(field.Type);
+        {
+            // Object creation will assign BigInteger a default value.
+            if (field.Type.Name == nameof(BigInteger))
+            {
+                AddInstruction(OpCode.PUSH0);
+            }
+            else
+            {
+                PushDefault(field.Type);
+            }
+        }
         else
             ConvertExpression(model, expression);
     }
