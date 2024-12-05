@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;

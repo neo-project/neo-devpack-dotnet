@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography.ECC;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native.Models;
 using Neo.VM;

@@ -1,4 +1,4 @@
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Persistence;
 using System;
 using System.Buffers.Binary;

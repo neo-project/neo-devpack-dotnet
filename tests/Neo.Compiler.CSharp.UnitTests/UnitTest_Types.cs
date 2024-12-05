@@ -1,5 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Testing;

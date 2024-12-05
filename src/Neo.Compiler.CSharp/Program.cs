@@ -11,7 +11,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
