@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static BigInteger BalanceOf(UInt160 owner)
         {
-            if (owner is null || !owner.IsValid)
+            if (!owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid.");
             StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
             return (BigInteger)balanceMap[owner];
