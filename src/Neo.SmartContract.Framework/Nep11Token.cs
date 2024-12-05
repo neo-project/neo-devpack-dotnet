@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator TokensOf(UInt160 owner)
         {
-            if (owner is null || !owner.IsValid)
+            if (!owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid");
             var accountMap = new StorageMap(Prefix_AccountToken);
             return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
