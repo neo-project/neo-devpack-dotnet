@@ -49,7 +49,8 @@ namespace Neo.Compiler
         public NullableContextOptions Nullable { get; set; }
         public DebugType Debug { get; set; } = DebugType.None;
         public OptimizationType Optimize { get; set; } = OptimizationType.Basic;
-        public bool Checked { get; set; }
+        public bool AllowOverflow { get; set; } = false;
+        public bool Checked { get; set; } = false;
         public bool NoInline { get; set; }
         public byte AddressVersion { get; set; } = 0x35;
         public string? BaseName { get; set; }

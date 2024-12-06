@@ -41,6 +41,7 @@ namespace Neo.Compiler
                 new Option<string>(["-o", "--output"], "Specifies the output directory."),
                 new Option<string>("--base-name", "Specifies the base name of the output files."),
                 new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."),
+                new Option<bool>("--allow-overflow", "If true, all integer types (byte, sbyte, short, ...) are handled as BigInteger. If false and not --checked, simulates overflow. If false and --checked, throw on overflow."),
                 new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."),
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),

@@ -16,9 +16,9 @@ public class DebugAndTestBase<T> : TestBase<T>
     // allowing specific derived class to enable/disable Gas test
     protected virtual bool TestGasConsume { set; get; } = true;
 
-    static DebugAndTestBase()
+    public DebugAndTestBase(CompilationOptions? compilationOptions = null)
     {
-        var context = TestCleanup.TestInitialize(typeof(T));
+        var context = TestCleanup.TestInitialize(typeof(T), compilationOptions: compilationOptions);
         TestSingleContractBasicBlockStartEnd(context!);
     }
 
