@@ -46,6 +46,8 @@ internal partial class MethodConvert
         ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
         if (initializer is null)
         {
+            if (baseType.ContainingNamespace.ToString() == "Neo.SmartContract.Framework" && baseType.Name == "SmartContract")
+                return;
             IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
             if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
                 return;
