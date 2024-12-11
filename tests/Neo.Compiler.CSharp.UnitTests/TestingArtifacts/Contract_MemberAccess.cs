@@ -15,7 +15,7 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAASVcBAAsQEsBKNClwaBDONwAAQc/nR5YMA21zZ0HP50eWaBHOQc/nR5ZoNBpBz+dHlkBXAAF4EBDQeBEMBWhlbGxv0EBXAAEMAEChO7M3"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAAOlcBAAwFaGVsbG8QEsBwaBDONwAAQc/nR5YMA21zZ0HP50eWaBHOQc/nR5ZoNAhBz+dHlkBXAAEMAEA44zQf"));
 
     #endregion
 
@@ -25,14 +25,12 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACxASwEo0KXBoEM43AABBz+dHlgwDbXNnQc/nR5ZoEc5Bz+dHlmg0GkHP50eWQA==
+    /// Script: VwEADAVoZWxsbxASwHBoEM43AABBz+dHlgwDbXNnQc/nR5ZoEc5Bz+dHlmg0CEHP50eWQA==
     /// INITSLOT 0100 [64 datoshi]
-    /// PUSHNULL [1 datoshi]
+    /// PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACK [2048 datoshi]
-    /// DUP [2 datoshi]
-    /// CALL 29 [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
@@ -46,7 +44,7 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// PICKITEM [64 datoshi]
     /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// CALL 1A [512 datoshi]
+    /// CALL 08 [512 datoshi]
     /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
