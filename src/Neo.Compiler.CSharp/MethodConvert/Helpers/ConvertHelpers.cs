@@ -65,7 +65,6 @@ internal partial class MethodConvert
         switch (Symbol.MethodKind)
         {
             case MethodKind.Constructor:
-                //ProcessFields(model);
                 ProcessConstructorInitializer(model);
                 break;
             case MethodKind.StaticConstructor:

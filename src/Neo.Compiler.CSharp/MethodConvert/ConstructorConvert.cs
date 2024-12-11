@@ -20,23 +20,6 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-    private void ProcessFields(SemanticModel model)
-    {
-        _initSlot = true;
-        IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
-        for (int i = 0; i < fields.Length; i++)
-        {
-            ProcessFieldInitializer(model, fields[i], () =>
-            {
-                AddInstruction(OpCode.LDARG0);
-                Push(i);
-            }, () =>
-            {
-                AddInstruction(OpCode.SETITEM);
-            });
-        }
-    }
-
     private void ProcessConstructorInitializer(SemanticModel model)
     {
         INamedTypeSymbol type = Symbol.ContainingType;
