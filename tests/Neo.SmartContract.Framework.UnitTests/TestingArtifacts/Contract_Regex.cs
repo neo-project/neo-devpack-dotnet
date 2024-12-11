@@ -26,9 +26,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DDRBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWmFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6NANA
-    /// 00 : PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A6162636465666768696A6B6C6D6E6F707172737475767778797A 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' [8 datoshi]
-    /// 36 : CALL 03 [512 datoshi]
-    /// 38 : RET [0 datoshi]
+    /// PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A6162636465666768696A6B6C6D6E6F707172737475767778797A 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' [8 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAlphabetOnly")]
     public abstract bool? TestAlphabetOnly();
@@ -38,10 +38,10 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DAJsbAwLSGVsbG8gV29ybGQ0A0A=
-    /// 00 : PUSHDATA1 6C6C 'll' [8 datoshi]
-    /// 04 : PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
-    /// 11 : CALL 03 [512 datoshi]
-    /// 13 : RET [0 datoshi]
+    /// PUSHDATA1 6C6C 'll' [8 datoshi]
+    /// PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testContains")]
     public abstract bool? TestContains();
@@ -51,10 +51,10 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DAVXb3JsZAwLSGVsbG8gV29ybGQ0A0A=
-    /// 00 : PUSHDATA1 576F726C64 'World' [8 datoshi]
-    /// 07 : PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
-    /// 14 : CALL 03 [512 datoshi]
-    /// 16 : RET [0 datoshi]
+    /// PUSHDATA1 576F726C64 'World' [8 datoshi]
+    /// PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testEndWith")]
     public abstract bool? TestEndWith();
@@ -64,10 +64,10 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DAFvDAtIZWxsbyBXb3JsZDQDQA==
-    /// 00 : PUSHDATA1 6F 'o' [8 datoshi]
-    /// 03 : PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
-    /// 10 : CALL 03 [512 datoshi]
-    /// 12 : RET [0 datoshi]
+    /// PUSHDATA1 6F 'o' [8 datoshi]
+    /// PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIndexOf")]
     public abstract BigInteger? TestIndexOf();
@@ -77,9 +77,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DBphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejSoQA==
-    /// 00 : PUSHDATA1 6162636465666768696A6B6C6D6E6F707172737475767778797A 'abcdefghijklmnopqrstuvwxyz' [8 datoshi]
-    /// 1C : CALL A8 [512 datoshi]
-    /// 1E : RET [0 datoshi]
+    /// PUSHDATA1 6162636465666768696A6B6C6D6E6F707172737475767778797A 'abcdefghijklmnopqrstuvwxyz' [8 datoshi]
+    /// CALL A8 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLowerAlphabetOnly")]
     public abstract bool? TestLowerAlphabetOnly();
@@ -89,9 +89,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DAowMTIzNDU2Nzg5NANA
-    /// 00 : PUSHDATA1 30313233343536373839 '0123456789' [8 datoshi]
-    /// 0C : CALL 03 [512 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// PUSHDATA1 30313233343536373839 '0123456789' [8 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testNumberOnly")]
     public abstract bool? TestNumberOnly();
@@ -101,10 +101,10 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DAVIZWxsbwwLSGVsbG8gV29ybGQ0A0A=
-    /// 00 : PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
-    /// 07 : PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
-    /// 14 : CALL 03 [512 datoshi]
-    /// 16 : RET [0 datoshi]
+    /// PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
+    /// PUSHDATA1 48656C6C6F20576F726C64 [8 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStartWith")]
     public abstract bool? TestStartWith();
@@ -114,9 +114,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DBpBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWjSJQA==
-    /// 00 : PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' [8 datoshi]
-    /// 1C : CALL 89 [512 datoshi]
-    /// 1E : RET [0 datoshi]
+    /// PUSHDATA1 4142434445464748494A4B4C4D4E4F505152535455565758595A 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' [8 datoshi]
+    /// CALL 89 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUpperAlphabetOnly")]
     public abstract bool? TestUpperAlphabetOnly();

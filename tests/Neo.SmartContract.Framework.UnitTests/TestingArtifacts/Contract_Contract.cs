@@ -26,13 +26,13 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwAEe3p5eEFifVtSQA==
-    /// 00 : INITSLOT 0004 [64 datoshi]
-    /// 03 : LDARG3 [2 datoshi]
-    /// 04 : LDARG2 [2 datoshi]
-    /// 05 : LDARG1 [2 datoshi]
-    /// 06 : LDARG0 [2 datoshi]
-    /// 07 : SYSCALL 627D5B52 'System.Contract.Call' [32768 datoshi]
-    /// 0C : RET [0 datoshi]
+    /// INITSLOT 0004 [64 datoshi]
+    /// LDARG3 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SYSCALL 627D5B52 'System.Contract.Call' [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("call")]
     public abstract object? Call(UInt160? scriptHash, string? method, BigInteger? flag, IList<object>? args);
@@ -42,13 +42,13 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACC3l42yg3AABA
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : PUSHNULL [1 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG0 [2 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : CALLT 0000 [32768 datoshi]
-    /// 0B : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("create")]
     public abstract object? Create(byte[]? nef, string? manifest);
@@ -58,10 +58,10 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeEHPmYcCQA==
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : SYSCALL CF998702 'System.Contract.CreateStandardAccount' [0 datoshi]
-    /// 09 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SYSCALL CF998702 'System.Contract.CreateStandardAccount' [0 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("createStandardAccount")]
     public abstract UInt160? CreateStandardAccount(ECPoint? pubKey);
@@ -71,8 +71,8 @@ public abstract class Contract_Contract(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: QZXaOoFA
-    /// 00 : SYSCALL 95DA3A81 'System.Contract.GetCallFlags' [1024 datoshi]
-    /// 05 : RET [0 datoshi]
+    /// SYSCALL 95DA3A81 'System.Contract.GetCallFlags' [1024 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();

@@ -26,8 +26,8 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: NwQAQA==
-    /// 00 : CALLT 0400 [32768 datoshi]
-    /// 03 : RET [0 datoshi]
+    /// CALLT 0400 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("destroy")]
     public abstract void Destroy();
@@ -37,8 +37,8 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QZXaOoFA
-    /// 00 : SYSCALL 95DA3A81 'System.Contract.GetCallFlags' [1024 datoshi]
-    /// 05 : RET [0 datoshi]
+    /// SYSCALL 95DA3A81 'System.Contract.GetCallFlags' [1024 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getCallFlags")]
     public abstract BigInteger? GetCallFlags();
@@ -48,10 +48,10 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcBAEA=
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0100 [32768 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0100 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getContractById")]
     public abstract object? GetContractById(BigInteger? id);
@@ -61,17 +61,17 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwEANwIAcGhBnAjtnEVoQfNUvx0RzkA=
-    /// 00 : INITSLOT 0100 [64 datoshi]
-    /// 03 : CALLT 0200 [32768 datoshi]
-    /// 06 : STLOC0 [2 datoshi]
-    /// 07 : LDLOC0 [2 datoshi]
-    /// 08 : SYSCALL 9C08ED9C 'System.Iterator.Next' [32768 datoshi]
-    /// 0D : DROP [2 datoshi]
-    /// 0E : LDLOC0 [2 datoshi]
-    /// 0F : SYSCALL F354BF1D 'System.Iterator.Value' [16 datoshi]
-    /// 14 : PUSH1 [1 datoshi]
-    /// 15 : PICKITEM [64 datoshi]
-    /// 16 : RET [0 datoshi]
+    /// INITSLOT 0100 [64 datoshi]
+    /// CALLT 0200 [32768 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// SYSCALL 9C08ED9C 'System.Iterator.Next' [32768 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// SYSCALL F354BF1D 'System.Iterator.Value' [16 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getContractHashes")]
     public abstract object? GetContractHashes();
@@ -81,13 +81,13 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjw3AAAUzhDOQA==
-    /// 00 : SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
-    /// 05 : CALLT 0000 [32768 datoshi]
-    /// 08 : PUSH4 [1 datoshi]
-    /// 09 : PICKITEM [64 datoshi]
-    /// 0A : PUSH0 [1 datoshi]
-    /// 0B : PICKITEM [64 datoshi]
-    /// 0C : RET [0 datoshi]
+    /// SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("oldContract")]
     public abstract string? OldContract();
@@ -97,13 +97,13 @@ public abstract class Contract_Create(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACC3l42yg3AwBA
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : PUSHNULL [1 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG0 [2 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : CALLT 0300 [32768 datoshi]
-    /// 0B : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0300 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("update")]
     public abstract void Update(byte[]? nef, string? manifest);

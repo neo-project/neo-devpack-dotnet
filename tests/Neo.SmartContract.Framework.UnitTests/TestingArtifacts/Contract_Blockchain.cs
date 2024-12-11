@@ -26,14 +26,14 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwECeDcCAHB5aDQDQA==
-    /// 00 : INITSLOT 0102 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0200 [32768 datoshi]
-    /// 07 : STLOC0 [2 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDLOC0 [2 datoshi]
-    /// 0A : CALL 03 [512 datoshi]
-    /// 0C : RET [0 datoshi]
+    /// INITSLOT 0102 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0200 [32768 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getBlockByHash")]
     public abstract object? GetBlockByHash(UInt256? hash, string? whatReturn);
@@ -43,14 +43,14 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwECeDcCAHB5aDUx////QA==
-    /// 00 : INITSLOT 0102 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0200 [32768 datoshi]
-    /// 07 : STLOC0 [2 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDLOC0 [2 datoshi]
-    /// 0A : CALL_L 31FFFFFF [512 datoshi]
-    /// 0F : RET [0 datoshi]
+    /// INITSLOT 0102 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0200 [32768 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL_L 31FFFFFF [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getBlockByIndex")]
     public abstract object? GetBlockByIndex(BigInteger? index, string? whatReturn);
@@ -60,14 +60,14 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwECeDcGAHB5aDQDQA==
-    /// 00 : INITSLOT 0102 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0600 [32768 datoshi]
-    /// 07 : STLOC0 [2 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDLOC0 [2 datoshi]
-    /// 0A : CALL 03 [512 datoshi]
-    /// 0C : RET [0 datoshi]
+    /// INITSLOT 0102 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0600 [32768 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getContract")]
     public abstract object? GetContract(UInt160? hash, string? whatReturn);
@@ -77,8 +77,8 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: NwAAQA==
-    /// 00 : CALLT 0000 [32768 datoshi]
-    /// 03 : RET [0 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getHeight")]
     public abstract BigInteger? GetHeight();
@@ -88,10 +88,10 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcBAEA=
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0100 [32768 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0100 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getTransactionHeight")]
     public abstract BigInteger? GetTransactionHeight(UInt256? hash);
@@ -101,15 +101,15 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwEDeXg3BQBwemg1D////0A=
-    /// 00 : INITSLOT 0103 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : CALLT 0500 [32768 datoshi]
-    /// 08 : STLOC0 [2 datoshi]
-    /// 09 : LDARG2 [2 datoshi]
-    /// 0A : LDLOC0 [2 datoshi]
-    /// 0B : CALL_L 0FFFFFFF [512 datoshi]
-    /// 10 : RET [0 datoshi]
+    /// INITSLOT 0103 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0500 [32768 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL_L 0FFFFFFF [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getTxByBlockHash")]
     public abstract object? GetTxByBlockHash(UInt256? blockHash, BigInteger? txIndex, string? whatReturn);
@@ -119,15 +119,15 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwEDeXg3BQBwemg1/v7//0A=
-    /// 00 : INITSLOT 0103 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : CALLT 0500 [32768 datoshi]
-    /// 08 : STLOC0 [2 datoshi]
-    /// 09 : LDARG2 [2 datoshi]
-    /// 0A : LDLOC0 [2 datoshi]
-    /// 0B : CALL_L FEFEFFFF [512 datoshi]
-    /// 10 : RET [0 datoshi]
+    /// INITSLOT 0103 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0500 [32768 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL_L FEFEFFFF [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getTxByBlockIndex")]
     public abstract object? GetTxByBlockIndex(BigInteger? blockIndex, BigInteger? txIndex, string? whatReturn);
@@ -137,14 +137,14 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwECeDcDAHB5aDQDQA==
-    /// 00 : INITSLOT 0102 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0300 [32768 datoshi]
-    /// 07 : STLOC0 [2 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDLOC0 [2 datoshi]
-    /// 0A : CALL 03 [512 datoshi]
-    /// 0C : RET [0 datoshi]
+    /// INITSLOT 0102 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0300 [32768 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getTxByHash")]
     public abstract object? GetTxByHash(UInt256? hash, string? whatReturn);
@@ -154,10 +154,10 @@ public abstract class Contract_Blockchain(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcHAEA=
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0700 [32768 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0700 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getTxVMState")]
     public abstract BigInteger? GetTxVMState(UInt256? hash);

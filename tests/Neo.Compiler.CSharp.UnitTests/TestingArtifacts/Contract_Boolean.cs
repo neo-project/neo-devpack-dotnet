@@ -26,8 +26,8 @@ public abstract class Contract_Boolean(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: CEA=
-    /// 00 : PUSHT [1 datoshi]
-    /// 01 : RET [0 datoshi]
+    /// PUSHT [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testBooleanOr")]
     public abstract bool? TestBooleanOr();
