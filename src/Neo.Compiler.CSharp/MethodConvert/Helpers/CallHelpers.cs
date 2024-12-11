@@ -73,6 +73,8 @@ internal partial class MethodConvert
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
 
+        if (convert != null && convert.Instructions.Count == 1 && convert.Instructions[0].OpCode == OpCode.RET && !symbol.IsExtern)
+            return;  // Do not call meaningless contructors
         if (NeedInstanceConstructor(symbol) && convert != null && convert.Instructions.Count >= 2)
         {
             Instruction initslot = convert.Instructions[0];
@@ -107,6 +109,8 @@ internal partial class MethodConvert
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol, instanceExpression);
 
+        if (convert != null && convert.Instructions.Count == 1 && convert.Instructions[0].OpCode == OpCode.RET && !symbol.IsExtern)
+            return;  // Do not call meaningless contructors
         if (NeedInstanceConstructor(symbol) && convert != null && convert.Instructions.Count >= 2)
         {
             Instruction initslot = convert.Instructions[0];

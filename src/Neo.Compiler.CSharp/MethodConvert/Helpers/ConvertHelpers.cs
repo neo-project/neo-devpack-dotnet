@@ -65,7 +65,6 @@ internal partial class MethodConvert
         switch (Symbol.MethodKind)
         {
             case MethodKind.Constructor:
-                ProcessFields(model);
                 ProcessConstructorInitializer(model);
                 break;
             case MethodKind.StaticConstructor:
@@ -153,7 +152,7 @@ internal partial class MethodConvert
             Jump(OpCode.JMPIFNOT_L, notNullTarget);
 
             MethodConvert constructor = _context.ConvertMethod(model, attribute.AttributeConstructor!);
-            CreateObject(model, attribute.AttributeClass, null);
+            CreateObject(model, attribute.AttributeClass);
             foreach (var arg in attribute.ConstructorArguments.Reverse())
                 Push(arg.Value);
             Push(attribute.ConstructorArguments.Length);
@@ -183,29 +182,7 @@ internal partial class MethodConvert
         return instruction;
     }
 
-    private void InitializeFieldForObject(SemanticModel model, IFieldSymbol field, InitializerExpressionSyntax? initializer)
-    {
-        ExpressionSyntax? expression = null;
-        if (initializer is not null)
-        {
-            foreach (var e in initializer.Expressions)
-            {
-                if (e is not AssignmentExpressionSyntax ae)
-                    throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
-                if (SymbolEqualityComparer.Default.Equals(field, model.GetSymbolInfo(ae.Left).Symbol))
-                {
-                    expression = ae.Right;
-                    break;
-                }
-            }
-        }
-        if (expression is null)
-            PushDefault(field.Type);
-        else
-            ConvertExpression(model, expression);
-    }
-
-    private void CreateObject(SemanticModel model, ITypeSymbol type, InitializerExpressionSyntax? initializer)
+    private void CreateObject(SemanticModel model, ITypeSymbol type)
     {
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
         var fields = members.OfType<IFieldSymbol>().ToArray();
@@ -226,7 +203,7 @@ internal partial class MethodConvert
         }
 
         foreach (var field in fields.Reverse())  // PACK and PACKSTRUCT works in a reversed way
-            InitializeFieldForObject(model, field, initializer);
+            ProcessFieldInitializer(model, field, null, null);
         Push(fields.Length + needVirtualMethodTable);
         AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
     }
