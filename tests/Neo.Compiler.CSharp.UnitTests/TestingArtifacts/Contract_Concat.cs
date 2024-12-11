@@ -26,12 +26,12 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeAwFaGVsbG+L2yhA
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
-    /// 0B : CAT [2048 datoshi]
-    /// 0C : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd1")]
     public abstract string? TestStringAdd1(string? a);
@@ -41,15 +41,15 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeHmL2ygMBWhlbGxvi9soQA==
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : CAT [2048 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
-    /// 0F : CAT [2048 datoshi]
-    /// 10 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 12 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd2")]
     public abstract string? TestStringAdd2(string? a, string? b);
@@ -59,18 +59,18 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADeHmL2yh6i9soDAVoZWxsb4vbKEA=
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : CAT [2048 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : LDARG2 [2 datoshi]
-    /// 09 : CAT [2048 datoshi]
-    /// 0A : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0C : PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
-    /// 13 : CAT [2048 datoshi]
-    /// 14 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 16 : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd3")]
     public abstract string? TestStringAdd3(string? a, string? b, string? c);
@@ -80,21 +80,21 @@ public abstract class Contract_Concat(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwAEeHmL2yh6i9soe4vbKAwFaGVsbG+L2yhA
-    /// 00 : INITSLOT 0004 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : CAT [2048 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : LDARG2 [2 datoshi]
-    /// 09 : CAT [2048 datoshi]
-    /// 0A : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0C : LDARG3 [2 datoshi]
-    /// 0D : CAT [2048 datoshi]
-    /// 0E : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 10 : PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
-    /// 17 : CAT [2048 datoshi]
-    /// 18 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 1A : RET [0 datoshi]
+    /// INITSLOT 0004 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// LDARG3 [2 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStringAdd4")]
     public abstract string? TestStringAdd4(string? a, string? b, string? c, string? d);
