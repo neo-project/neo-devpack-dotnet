@@ -26,11 +26,11 @@ public abstract class Contract_StaticClass(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: WTQGWjQ5QA==
-    /// 00 : LDSFLD1 [2 datoshi]
-    /// 01 : CALL 06 [512 datoshi]
-    /// 03 : LDSFLD2 [2 datoshi]
-    /// 04 : CALL 39 [512 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// CALL 06 [512 datoshi]
+    /// LDSFLD2 [2 datoshi]
+    /// CALL 39 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testStaticClass")]
     public abstract BigInteger? TestStaticClass();
