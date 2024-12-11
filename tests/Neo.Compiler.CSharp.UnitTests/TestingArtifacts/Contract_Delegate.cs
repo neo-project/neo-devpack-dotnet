@@ -26,12 +26,12 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwACeXgKBwAAADZA
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : PUSHA 07000000 [4 datoshi]
-    /// 0A : CALLA [512 datoshi]
-    /// 0B : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSHA 07000000 [4 datoshi]
+    /// CALLA [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("sumFunc")]
     public abstract BigInteger? SumFunc(BigInteger? a, BigInteger? b);
@@ -41,21 +41,21 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwIACsj///9wFhVoNnEMBVN1bTogaTcAAIvbKEHP50eWQA==
-    /// 00 : INITSLOT 0200 [64 datoshi]
-    /// 03 : PUSHA C8FFFFFF [4 datoshi]
-    /// 08 : STLOC0 [2 datoshi]
-    /// 09 : PUSH6 [1 datoshi]
-    /// 0A : PUSH5 [1 datoshi]
-    /// 0B : LDLOC0 [2 datoshi]
-    /// 0C : CALLA [512 datoshi]
-    /// 0D : STLOC1 [2 datoshi]
-    /// 0E : PUSHDATA1 53756D3A20 [8 datoshi]
-    /// 15 : LDLOC1 [2 datoshi]
-    /// 16 : CALLT 0000 [32768 datoshi]
-    /// 19 : CAT [2048 datoshi]
-    /// 1A : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 1C : SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
-    /// 21 : RET [0 datoshi]
+    /// INITSLOT 0200 [64 datoshi]
+    /// PUSHA C8FFFFFF [4 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// PUSH5 [1 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALLA [512 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// PUSHDATA1 53756D3A20 [8 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testDelegate")]
     public abstract void TestDelegate();

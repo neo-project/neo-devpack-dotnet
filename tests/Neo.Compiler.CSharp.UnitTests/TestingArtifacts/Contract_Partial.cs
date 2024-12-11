@@ -26,8 +26,8 @@ public abstract class Contract_Partial(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: EUA=
-    /// 00 : PUSH1 [1 datoshi]
-    /// 01 : RET [0 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test1")]
     public abstract BigInteger? Test1();
@@ -37,8 +37,8 @@ public abstract class Contract_Partial(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: EkA=
-    /// 00 : PUSH2 [1 datoshi]
-    /// 01 : RET [0 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test2")]
     public abstract BigInteger? Test2();
