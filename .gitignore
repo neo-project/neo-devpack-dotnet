@@ -251,3 +251,9 @@ paket-files/
 .idea/
 *.sln.iml
 /src/Neo.Compiler.MSIL/Properties/launchSettings.json
+
+# VSCode
+.vscode/
+
+# MacOS
+**/.DS_Store
