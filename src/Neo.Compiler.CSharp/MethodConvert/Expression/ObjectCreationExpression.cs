@@ -41,13 +41,12 @@ internal partial class MethodConvert
             // an optimization to avoid PACK + billions of SETITEM
             if (TryOptimizedObjectCreation(model, expression, type, constructor))
                 return;
-            CreateObject(model, type, null);
+            CreateObject(model, type);
         }
-        CallInstanceMethod(model, constructor, needCreateObject, arguments);
+        if (!constructor.DeclaringSyntaxReferences.IsEmpty)
+            CallInstanceMethod(model, constructor, needCreateObject, arguments);
         if (expression.Initializer is not null)
-        {
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
-        }
     }
 
     /// <summary>

@@ -15,7 +15,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFMUExIRFL9AVwIACxAQCwsVv0o0LXAQCxK/SjQxSmgUUdBFEHE03ErBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEBXAAF4EhDQeBMQ0EBXAAF4ERDQQHaQFSs="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkUExIRFL9AVwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaECoZ8J4"));
 
     #endregion
 
@@ -41,7 +41,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACxAQCwsVv0o0LXAQCxK/SjQxSmgUUdBFEHE03ErBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
+    /// Script: VwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -50,15 +50,11 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// PUSHNULL [1 datoshi]
     /// PUSH5 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
-    /// DUP [2 datoshi]
-    /// CALL 2D [512 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
-    /// DUP [2 datoshi]
-    /// CALL 31 [512 datoshi]
     /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH4 [1 datoshi]
@@ -67,7 +63,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// DROP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC1 [2 datoshi]
-    /// CALL DC [512 datoshi]
+    /// CALL E2 [512 datoshi]
     /// DUP [2 datoshi]
     /// UNPACK [2048 datoshi]
     /// DROP [2 datoshi]

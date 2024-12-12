@@ -10,12 +10,12 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ClassInit"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testInitInt"",""parameters"":[],""returntype"":""Array"",""offset"":0,""safe"":false},{""name"":""testInitializationExpression"",""parameters"":[],""returntype"":""Any"",""offset"":20,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ClassInit"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testInitInt"",""parameters"":[],""returntype"":""Array"",""offset"":0,""safe"":false},{""name"":""testInitializationExpression"",""parameters"":[],""returntype"":""Any"",""offset"":5,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ0QEBK/SjQDQFcAAXgQENB4ERDQQFcFAAsLCxAQCRbASjRtShMMAXPQShQQEBK/SjTZ0EoVCwsLEBAJFsBKNFDQcGgVzmgSwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aEBXAAF4EAnQeBEQ0HgSENBAGg4wkQ=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHUQEBK/QFcFAAsLCxAQCRbAShMMAXPQShQQEBK/0EoVCwsLEBAJFsDQcGgVzmgSwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aED14mC7"));
 
     #endregion
 
@@ -25,7 +25,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUACwsLEBAJFsBKNG1KEwwBc9BKFBAQEr9KNNnQShULCwsQEAkWwEo0UNBwaBXOaBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
+    /// Script: VwUACwsLEBAJFsBKEwwBc9BKFBAQEr/QShULCwsQEAkWwNBwaBXOaBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
     /// INITSLOT 0500 [64 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSHNULL [1 datoshi]
@@ -36,8 +36,6 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// PUSH6 [1 datoshi]
     /// PACK [2048 datoshi]
     /// DUP [2 datoshi]
-    /// CALL 6D [512 datoshi]
-    /// DUP [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// PUSHDATA1 73 's' [8 datoshi]
     /// SETITEM [8192 datoshi]
@@ -47,8 +45,6 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// PUSH0 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
-    /// DUP [2 datoshi]
-    /// CALL D9 [512 datoshi]
     /// SETITEM [8192 datoshi]
     /// DUP [2 datoshi]
     /// PUSH5 [1 datoshi]
@@ -60,8 +56,6 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// PUSHF [1 datoshi]
     /// PUSH6 [1 datoshi]
     /// PACK [2048 datoshi]
-    /// DUP [2 datoshi]
-    /// CALL 50 [512 datoshi]
     /// SETITEM [8192 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
@@ -144,13 +138,11 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: EBASv0o0A0A=
+    /// Script: EBASv0A=
     /// PUSH0 [1 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
-    /// DUP [2 datoshi]
-    /// CALL 03 [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testInitInt")]
