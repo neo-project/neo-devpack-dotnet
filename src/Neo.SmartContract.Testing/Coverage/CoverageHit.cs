@@ -27,6 +27,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// The instruction description
         /// </summary>
         private string _description { get; } = description;
+
         public string Description
         {
             get
