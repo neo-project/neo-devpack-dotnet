@@ -36,5 +36,31 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             try { Delete(); } catch { }
         }
+
+        public static void RecursiveTry(int i)
+        {
+            try
+            {
+                Write();
+                if (i > 0)
+                    RecursiveTry(i - 1);
+            }
+            finally
+            {
+                MutualRecursiveTry(i - 1);
+            }
+        }
+
+        public static void MutualRecursiveTry(int i)
+        {
+            try
+            {
+                if (i > 0)
+                    RecursiveTry(i - 1);
+                TryWriteWithVulnerability();
+                Delete();
+            }
+            finally { }
+        }
     }
 }

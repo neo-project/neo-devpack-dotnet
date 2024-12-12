@@ -459,7 +459,7 @@ namespace Neo.SmartContract.Testing.Extensions
                                 }
                             }
 
-                            sourceCode.WriteLine($"    /// {instruction.address.ToString(addressFormat)} : {instruction.instruction.InstructionToString(true)}" + extraComments);
+                            sourceCode.WriteLine($"    /// {instruction.instruction.InstructionToString()}" + extraComments);
                         }
                         sourceCode.WriteLine("    /// </remarks>");
                     }
