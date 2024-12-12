@@ -16,6 +16,11 @@ namespace Neo.SmartContract.Testing.Coverage
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
     public class CoverageHit(int offset, string description, Instruction instruction, bool outOfScript = false)
     {
+        private string _description { get; } = description;
+
+        /// <summary>
+        /// The covered instruction
+        /// </summary>
         public Instruction Instruction { get; } = instruction;
 
         /// <summary>
@@ -26,8 +31,6 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// The instruction description
         /// </summary>
-        private string _description { get; } = description;
-
         public string Description
         {
             get
