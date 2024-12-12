@@ -14,8 +14,10 @@ namespace Neo.SmartContract.Testing.Coverage
     /// <param name="description">Decription</param>
     /// <param name="outOfScript">Out of script</param>
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
-    public class CoverageHit(int offset, string description, bool outOfScript = false)
+    public class CoverageHit(int offset, string description, Instruction instruction, bool outOfScript = false)
     {
+        public Instruction Instruction { get; } = instruction;
+
         /// <summary>
         /// The instruction offset
         /// </summary>
@@ -24,7 +26,16 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// The instruction description
         /// </summary>
-        public string Description { get; } = description;
+        private string _description { get; } = description;
+        public string Description
+        {
+            get
+            {
+                if (Instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
+                    return _description + $" '{str}'";
+                return _description;
+            }
+        }
 
         /// <summary>
         /// The instruction is out of the script
@@ -108,7 +119,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoverageData</returns>
         public CoverageHit Clone()
         {
-            return new CoverageHit(Offset, Description, OutOfScript)
+            return new CoverageHit(Offset, _description, Instruction, OutOfScript)
             {
                 FeeMax = FeeMax,
                 FeeMin = FeeMin,
@@ -169,11 +180,6 @@ namespace Neo.SmartContract.Testing.Coverage
 
                             return ret;
                         }
-                }
-
-                if (instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
-                {
-                    return ret + $" '{str}'";
                 }
 
                 return ret;
