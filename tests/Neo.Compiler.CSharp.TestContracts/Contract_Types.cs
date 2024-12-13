@@ -98,9 +98,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return Contract.Call(scriptHash, method, flag, args);
         }
 
+#pragma warning disable CS8625
         public static object Create(byte[] nef, string manifest)
         {
             return ContractManagement.Deploy((ByteString)nef, manifest, null);
         }
+#pragma warning restore CS8625
     }
 }
