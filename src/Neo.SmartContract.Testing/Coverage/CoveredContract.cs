@@ -86,7 +86,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
                 if (!_lines.ContainsKey(ip))
                 {
-                    AddLine(instruction, new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state.Nef.Tokens), instruction, false));
+                    AddLine(instruction, new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, tryDecodeOperand: false, state.Nef.Tokens), instruction, false));
                 }
 
                 if (mechanism == MethodDetectionMechanism.NextMethod)
@@ -315,7 +315,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 {
                     // Note: This call is unusual, out of the expected
 
-                    coverage = new(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction), instruction, true);
+                    coverage = new(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction, tryDecodeOperand: false), instruction, true);
                     AddLine(instruction, coverage);
                 }
 

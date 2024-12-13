@@ -137,7 +137,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="instruction">Instruction</param>
         /// <returns>Description</returns>
-        public static string DescriptionFromInstruction(Instruction instruction, params MethodToken[]? tokens)
+        public static string DescriptionFromInstruction(Instruction instruction, bool tryDecodeOperand = true, params MethodToken[]? tokens)
         {
             if (instruction.Operand.Length > 0)
             {
@@ -184,6 +184,11 @@ namespace Neo.SmartContract.Testing.Coverage
 
                             return ret;
                         }
+                }
+
+                if (tryDecodeOperand && instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
+                {
+                    return ret + $" '{str}'";
                 }
 
                 return ret;
