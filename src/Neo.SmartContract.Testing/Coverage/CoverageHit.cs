@@ -16,8 +16,6 @@ namespace Neo.SmartContract.Testing.Coverage
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
     public class CoverageHit(int offset, string description, Instruction instruction, bool outOfScript = false)
     {
-        private string _description { get; } = description;
-
         /// <summary>
         /// The covered instruction
         /// </summary>
@@ -31,15 +29,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// The instruction description
         /// </summary>
-        public string Description
-        {
-            get
-            {
-                if (Instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
-                    return _description + $" '{str}'";
-                return _description;
-            }
-        }
+        public string Description { get; } = description;
 
         /// <summary>
         /// The instruction is out of the script
@@ -123,7 +113,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoverageData</returns>
         public CoverageHit Clone()
         {
-            return new CoverageHit(Offset, _description, Instruction, OutOfScript)
+            return new CoverageHit(Offset, Description, Instruction, OutOfScript)
             {
                 FeeMax = FeeMax,
                 FeeMin = FeeMin,
