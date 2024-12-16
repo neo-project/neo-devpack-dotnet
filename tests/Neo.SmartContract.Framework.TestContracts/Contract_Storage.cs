@@ -67,7 +67,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return (byte[])value;
         }
 
-
         #endregion
 
         #region ByteArray
