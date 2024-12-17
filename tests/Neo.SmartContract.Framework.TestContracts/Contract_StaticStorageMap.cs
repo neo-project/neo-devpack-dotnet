@@ -13,6 +13,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             Data.Put(message, 1);
         }
 
+#pragma warning disable CS8604
         public static BigInteger Get(string msg)
         {
             return (BigInteger)Data.Get(msg);
@@ -51,5 +52,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var store = new StorageMap(Storage.CurrentContext, x);
             return (BigInteger)store.Get("test1");
         }
+#pragma warning restore CS8604
     }
 }

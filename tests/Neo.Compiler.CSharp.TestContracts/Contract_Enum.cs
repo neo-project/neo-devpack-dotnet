@@ -23,6 +23,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return System.Enum.Parse(typeof(TestEnum), value, ignoreCase);
         }
 
+#pragma warning disable CS8600
         public static bool TestEnumTryParse(string value)
         {
             return System.Enum.TryParse(typeof(TestEnum), value, out object result);
@@ -32,6 +33,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return System.Enum.TryParse(typeof(TestEnum), value, ignoreCase, out object result);
         }
+#pragma warning restore CS8600
 
         public static string[] TestEnumGetNames()
         {
@@ -53,6 +55,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return System.Enum.IsDefined(typeof(TestEnum), name);
         }
 
+#pragma warning disable CS8603
         public static string TestEnumGetName(TestEnum value)
         {
             return System.Enum.GetName(value);
@@ -62,5 +65,6 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return System.Enum.GetName(typeof(TestEnum), value);
         }
+#pragma warning restore CS8603
     }
 }

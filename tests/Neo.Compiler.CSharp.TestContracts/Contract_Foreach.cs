@@ -190,7 +190,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             var tokens = new StorageMap(Storage.CurrentContext, 3).Find(FindOptions.KeysOnly | FindOptions.RemovePrefix);
             foreach (var item in tokens)
             {
-                Runtime.Log(item.ToString());
+                Runtime.Log(item.ToString()!);
             }
         }
 

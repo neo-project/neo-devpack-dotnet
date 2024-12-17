@@ -2,6 +2,8 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
+
+#pragma warning disable CS8604
     public class Contract_Storage : SmartContract
     {
         // There is no main here, it can be auto generation.
@@ -177,7 +179,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var storage = new StorageMap(context, prefix);
             var val = new Value() { Val = value };
             storage.PutObject(key, val);
-            val = (Value)storage.GetObject(key);
+            val = (Value)storage.GetObject(key)!;
             return val.Val;
         }
 
@@ -218,4 +220,5 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         #endregion
     }
+#pragma warning restore CS8604
 }

@@ -21,6 +21,7 @@ namespace Neo.SmartContract.Framework.TestContracts
             return a == null && !a.HasValue;
         }
 
+#pragma warning disable CS8602
         public static bool H160NullableNotEqual(UInt160 a, UInt160? b)
         {
             return a != b && !a.Equals(b) && !b.Equals(a) && b != a;
@@ -35,6 +36,7 @@ namespace Neo.SmartContract.Framework.TestContracts
         {
             return a != b && !a.Equals(b) && !b.Equals(a) && b != a;
         }
+#pragma warning restore CS8602
 
         public static bool H256NullableEqual(UInt256 a, UInt256? b)
         {
