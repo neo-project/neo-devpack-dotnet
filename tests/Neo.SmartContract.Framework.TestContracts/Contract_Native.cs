@@ -12,11 +12,13 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return NEO.Decimals;
         }
 
+#pragma warning disable CS8625
         [DisplayName("NEO_Transfer")]
         public static bool NEO_Transfer(UInt160 from, UInt160 to, BigInteger amount)
         {
             return NEO.Transfer(from, to, amount, null);
         }
+#pragma warning restore CS8625
 
         [DisplayName("NEO_BalanceOf")]
         public static BigInteger NEO_BalanceOf(UInt160 account)

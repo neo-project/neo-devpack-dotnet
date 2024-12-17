@@ -8,7 +8,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     internal struct State
     {
-        public byte[] from = default;
+        public byte[]? from = default;
         public byte[] to = null!;
         public BigInteger amount = default;
         public State()
@@ -159,7 +159,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             var a = Ledger.GetBlock(0);
             var array = new[] { a };
             var firstItem = array?[0];
-            Runtime.Log(firstItem?.Timestamp.ToString());
+            Runtime.Log(firstItem?.Timestamp.ToString()!);
         }
 
         // This is new language feature introduced in C# 12
