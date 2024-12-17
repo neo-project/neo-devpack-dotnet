@@ -5,6 +5,7 @@ using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
+#pragma warning disable CS8625
     public class Contract_Reentrancy : SmartContract.Framework.SmartContract
     {
         public static void HasReentrancy()
@@ -50,5 +51,6 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             HasReentrancyFromSingleBasicBlock();
         }
+#pragma warning restore CS8625
     }
 }
