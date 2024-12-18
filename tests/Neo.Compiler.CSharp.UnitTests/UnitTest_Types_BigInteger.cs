@@ -8,6 +8,16 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_Types_BigInteger : DebugAndTestBase<Contract_Types_BigInteger>
     {
         [TestMethod]
+        public void BigInteger_SumOne()
+        {
+            Assert.AreEqual(2, Contract.SumOne());
+            AssertGasConsumed(984060);
+
+            Assert.AreEqual(-2147483648, Contract.SumOverflow());
+            AssertGasConsumed(987360);
+        }
+
+        [TestMethod]
         public void BigInteger_Test()
         {
             // Init
