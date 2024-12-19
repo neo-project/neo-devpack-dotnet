@@ -34,6 +34,8 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         public CoveredMethod[] Methods { get; private set; }
 
+        public ContractState? ContractState { get; private set; }
+
         /// <summary>
         /// Coverage Lines
         /// </summary>
@@ -54,6 +56,7 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             Hash = hash;
             Methods = Array.Empty<CoveredMethod>();
+            ContractState = state;
 
             if (state is not null)
             {
@@ -86,7 +89,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
                 if (!_lines.ContainsKey(ip))
                 {
-                    AddLine(instruction, new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state.Nef.Tokens), false));
+                    AddLine(instruction, new CoverageHit(ip, instruction, false, instruction.OpCode == OpCode.CALLT ? state.Nef.Tokens : null));
                 }
 
                 if (mechanism == MethodDetectionMechanism.NextMethod)
@@ -315,7 +318,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 {
                     // Note: This call is unusual, out of the expected
 
-                    coverage = new(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction), true);
+                    coverage = new(instructionPointer, instruction, true, instruction.OpCode == OpCode.CALLT ? this.ContractState?.Nef.Tokens : null);
                     AddLine(instruction, coverage);
                 }
 
