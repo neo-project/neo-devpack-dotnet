@@ -14,9 +14,9 @@ namespace Neo.Compiler.SecurityAnalyzer
         /// <summary>
         /// This method checks whether it is possible to update the contract.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug infromation</param>
         /// <returns>whether it is possible to update the contract. May be wrong.</returns>
         public static bool AnalyzeUpdate
             (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
