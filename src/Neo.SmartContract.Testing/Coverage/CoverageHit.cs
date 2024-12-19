@@ -11,8 +11,9 @@ namespace Neo.SmartContract.Testing.Coverage
     /// Constructor
     /// </summary>
     /// <param name="offset">Offset</param>
-    /// <param name="description">Decription</param>
+    /// <param name="instruction">Instruction</param>
     /// <param name="outOfScript">Out of script</param>
+    /// <param name="methodTokens">Method tokens</param>
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
     public class CoverageHit(int offset, Instruction instruction, bool outOfScript = false, MethodToken[]? methodTokens = null)
     {
@@ -31,6 +32,9 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         public string Description { get => DescriptionFromInstruction(Instruction, MethodTokens); }
 
+        /// <summary>
+        /// Method tokens
+        /// </summary>
         public MethodToken[]? MethodTokens { get; } = methodTokens;
 
         /// <summary>
