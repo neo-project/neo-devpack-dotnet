@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Testing.Coverage
     /// <param name="description">Decription</param>
     /// <param name="outOfScript">Out of script</param>
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
-    public class CoverageHit(int offset, string description, Instruction instruction, bool outOfScript = false)
+    public class CoverageHit(int offset, Instruction instruction, bool outOfScript = false, MethodToken[]? methodTokens = null)
     {
         /// <summary>
         /// The covered instruction
@@ -29,7 +29,9 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// The instruction description
         /// </summary>
-        public string Description { get; } = description;
+        public string Description { get => DescriptionFromInstruction(Instruction, MethodTokens); }
+
+        public MethodToken[]? MethodTokens { get; } = methodTokens;
 
         /// <summary>
         /// The instruction is out of the script
@@ -113,7 +115,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoverageData</returns>
         public CoverageHit Clone()
         {
-            return new CoverageHit(Offset, Description, Instruction, OutOfScript)
+            return new CoverageHit(Offset, Instruction, OutOfScript, MethodTokens)
             {
                 FeeMax = FeeMax,
                 FeeMin = FeeMin,
@@ -127,7 +129,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="instruction">Instruction</param>
         /// <returns>Description</returns>
-        public static string DescriptionFromInstruction(Instruction instruction, bool tryDecodeOperand = true, params MethodToken[]? tokens)
+        public static string DescriptionFromInstruction(Instruction instruction, params MethodToken[]? tokens)
         {
             if (instruction.Operand.Length > 0)
             {
@@ -176,7 +178,7 @@ namespace Neo.SmartContract.Testing.Coverage
                         }
                 }
 
-                if (tryDecodeOperand && instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
+                if (instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
                 {
                     return ret + $" '{str}'";
                 }
