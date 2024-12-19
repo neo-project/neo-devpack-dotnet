@@ -50,6 +50,34 @@ internal partial class MethodConvert
     }
 
     /// <summary>
+    /// Check whether necessary to include the constructor instructions in the compiled contract
+    /// </summary>
+    /// <param name="convert">var (convert, _) = GetMethodConvertAndCallingConvention(model, constructor);</param>
+    /// <returns></returns>
+    public static bool CanSkipConstructor(MethodConvert? convert)
+    {
+        if (convert == null)
+            return false;  // special complex cases like virtual methods
+        if (convert.Instructions.Count >= 1)
+        {
+            Instruction ret = convert.Instructions[0];
+            if (ret.OpCode == OpCode.RET)
+                return true;
+        }
+        if (convert.Instructions.Count >= 2)
+        {
+            // INITSLOT 0 locals, 1 args
+            // RET
+            Instruction initslot = convert.Instructions[0];
+            Instruction ret = convert.Instructions[1];
+            if (initslot.OpCode == OpCode.INITSLOT && initslot.Operand?[0] == 0 && initslot.Operand[1] == 1
+                && ret.OpCode == OpCode.RET)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Handles new MyClass() { PropertyA = "A", Property2 = 2, } in a GAS-efficient way
     /// Do not initialize MyClass() by PACKing default values and then SETITEM for { PropertyA = "A", Property2 = 2, }
     /// Just PACK the final values when constructor of MyClass is not needed
@@ -65,12 +93,7 @@ internal partial class MethodConvert
         if (expression.Initializer == null || expression.Initializer.IsKind(SyntaxKind.CollectionInitializerExpression))
             return false;
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, constructor);
-        if (convert == null || convert.Instructions.Count < 2)
-            return false;
-        Instruction initslot = convert.Instructions[0];
-        Instruction ret = convert.Instructions[1];
-        if (initslot.OpCode != OpCode.INITSLOT || initslot.Operand?[0] != 0 || initslot.Operand[1] != 1
-            || ret.OpCode != OpCode.RET)
+        if (!CanSkipConstructor(convert))
             return false;
         // no constructor needed
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
