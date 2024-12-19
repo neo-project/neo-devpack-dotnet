@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// The instruction description
         /// </summary>
-        public string Description { get => DescriptionFromInstruction(Instruction, MethodTokens); }
+        public string Description => DescriptionFromInstruction(Instruction, MethodTokens);
 
         /// <summary>
         /// Method tokens
