@@ -15,7 +15,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHUQEBK/QFcFAAsLCxAQCRbAShMMAXPQShQQEBK/0EoVCwsLEBAJFsDQcGgVzmgSwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aED14mC7"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGkQEBK/QFcFAAsLCxAQCRbAEBASvwwBcxAQCRbAcGgVzmgSwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aECYKH3y"));
 
     #endregion
 
@@ -25,7 +25,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUACwsLEBAJFsBKEwwBc9BKFBAQEr/QShULCwsQEAkWwNBwaBXOaBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
+    /// Script: VwUACwsLEBAJFsAQEBK/DAFzEBAJFsBwaBXOaBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
     /// INITSLOT 0500 [64 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSHNULL [1 datoshi]
@@ -35,28 +35,16 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// PUSHF [1 datoshi]
     /// PUSH6 [1 datoshi]
     /// PACK [2048 datoshi]
-    /// DUP [2 datoshi]
-    /// PUSH3 [1 datoshi]
-    /// PUSHDATA1 73 's' [8 datoshi]
-    /// SETITEM [8192 datoshi]
-    /// DUP [2 datoshi]
-    /// PUSH4 [1 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
-    /// SETITEM [8192 datoshi]
-    /// DUP [2 datoshi]
-    /// PUSH5 [1 datoshi]
-    /// PUSHNULL [1 datoshi]
-    /// PUSHNULL [1 datoshi]
-    /// PUSHNULL [1 datoshi]
+    /// PUSHDATA1 73 's' [8 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSH0 [1 datoshi]
     /// PUSHF [1 datoshi]
     /// PUSH6 [1 datoshi]
     /// PACK [2048 datoshi]
-    /// SETITEM [8192 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH5 [1 datoshi]
