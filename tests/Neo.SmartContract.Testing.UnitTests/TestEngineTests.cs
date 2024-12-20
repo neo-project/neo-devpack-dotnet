@@ -40,6 +40,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
             engine.PersistingBlock.Skip(1, TimeSpan.Zero);
+            engine.PersistingBlock.Persist();
             Assert.AreEqual(1L, engine.Native.Ledger.CurrentIndex);
         }
 

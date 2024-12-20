@@ -89,6 +89,15 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Persist block
         /// </summary>
+        /// <returns>Persisted block</returns>
+        public Block Persist()
+        {
+            return Persist([], []);
+        }
+
+        /// <summary>
+        /// Persist block
+        /// </summary>
         /// <param name="tx">Transaction</param>
         /// <param name="state">State</param>
         /// <returns>Persisted block</returns>
