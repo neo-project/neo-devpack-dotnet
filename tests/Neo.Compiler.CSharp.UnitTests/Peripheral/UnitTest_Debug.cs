@@ -3,7 +3,7 @@ using Neo.SmartContract.Testing;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
     [TestClass]
     public class UnitTest_Debug : DebugAndTestBase<Contract_Debug>
