@@ -34,7 +34,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(cs.B, (BigInteger)result[1]);
             Assert.AreEqual(cs.B, 0);
             Assert.AreEqual(csClass.B, 0);
-
         }
 
         [TestMethod]
