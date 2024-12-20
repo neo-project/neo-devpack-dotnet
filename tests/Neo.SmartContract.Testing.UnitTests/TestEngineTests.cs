@@ -39,7 +39,17 @@ namespace Neo.SmartContract.Testing.UnitTests
             TestEngine engine = new(true);
 
             Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
-            engine.PersistingBlock.Skip(1, TimeSpan.Zero);
+            engine.PersistingBlock.Skip(10, TimeSpan.Zero);
+            engine.PersistingBlock.Persist();
+            Assert.AreEqual(11L, engine.Native.Ledger.CurrentIndex);
+        }
+
+        [TestMethod]
+        public void TestNextBlock()
+        {
+            TestEngine engine = new(true);
+
+            Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
             engine.PersistingBlock.Persist();
             Assert.AreEqual(1L, engine.Native.Ledger.CurrentIndex);
         }
