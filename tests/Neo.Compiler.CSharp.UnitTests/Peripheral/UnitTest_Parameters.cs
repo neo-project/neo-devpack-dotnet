@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
     [TestClass]
     public class UnitTest_Parameters

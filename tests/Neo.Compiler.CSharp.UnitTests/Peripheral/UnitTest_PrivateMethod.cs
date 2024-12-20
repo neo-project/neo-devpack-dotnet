@@ -1,19 +1,23 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.IO;
-using System.Linq;
+using System.Numerics;
+using System.Text;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
     [TestClass]
-    public class UnitTest_Optimize : DebugAndTestBase<Contract_Optimize>
+    public class UnitTest_PrivateMethod : DebugAndTestBase<Contract1>
     {
         [TestMethod]
-        public void Test_Optimize()
+        public void Test_PrivateMethod()
         {
+            // Optimizer will remove this method
+            Assert.IsFalse(Encoding.ASCII.GetString(Contract1.Nef.Script.Span).Contains("NEO3"));
+
             // Compile without optimizations
 
-            var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Contract_Optimize.cs").FullName;
+            var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Contract1.cs").FullName;
             var results = new CompilationEngine(new CompilationOptions()
             {
                 Debug = CompilationOptions.DebugType.Extended,
@@ -26,18 +30,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1, results.Count);
             Assert.IsTrue(results[0].Success);
 
-            // deploy non optimized
-
             var nef = results[0].CreateExecutable();
-            var manifest = results[0].CreateManifest();
-            Assert.AreNotEqual(Contract_Optimize.Manifest.ToJson(), manifest.ToJson());
-
-            var contract = Engine.Deploy<Contract_Optimize>(nef, manifest);
-
-            var result = Contract.UnitTest_001();
-            var result2 = contract.UnitTest_001();
-
-            Assert.IsTrue(result?.SequenceEqual(result2!));
+            Assert.IsTrue(Encoding.ASCII.GetString(nef.Script.Span).Contains("NEO3"));
         }
     }
 }

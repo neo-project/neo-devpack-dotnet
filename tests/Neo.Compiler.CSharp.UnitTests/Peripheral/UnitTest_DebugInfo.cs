@@ -4,7 +4,7 @@ using Neo.SmartContract;
 using System.IO;
 using System.Linq;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
     [TestClass]
     public class UnitTest_DebugInfo
