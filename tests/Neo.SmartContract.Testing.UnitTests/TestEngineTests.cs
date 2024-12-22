@@ -4,6 +4,7 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -30,6 +31,27 @@ namespace Neo.SmartContract.Testing.UnitTests
 
                 File.WriteAllText(fullPath, source);
             }
+        }
+
+        [TestMethod]
+        public void TestSkip()
+        {
+            TestEngine engine = new(true);
+
+            Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
+            engine.PersistingBlock.Skip(10, TimeSpan.Zero);
+            engine.PersistingBlock.Persist();
+            Assert.AreEqual(11L, engine.Native.Ledger.CurrentIndex);
+        }
+
+        [TestMethod]
+        public void TestNextBlock()
+        {
+            TestEngine engine = new(true);
+
+            Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
+            engine.PersistingBlock.Persist();
+            Assert.AreEqual(1L, engine.Native.Ledger.CurrentIndex);
         }
 
         [TestMethod]
