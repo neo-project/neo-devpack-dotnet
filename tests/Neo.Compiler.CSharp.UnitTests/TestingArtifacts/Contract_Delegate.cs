@@ -24,6 +24,15 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXgKBwAAADZA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSHA 07000000 [4 datoshi]
+    /// CALLA [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sumFunc")]
     public abstract BigInteger? SumFunc(BigInteger? a, BigInteger? b);
 
@@ -31,22 +40,22 @@ public abstract class Contract_Delegate(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACsj///9wFhVoNnEMU3VtOiBpNwAAi9soQc/nR5ZA
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSHA C8FFFFFF
-    /// 08 : OpCode.STLOC0
-    /// 09 : OpCode.PUSH6
-    /// 0A : OpCode.PUSH5
-    /// 0B : OpCode.LDLOC0
-    /// 0C : OpCode.CALLA
-    /// 0D : OpCode.STLOC1
-    /// 0E : OpCode.PUSHDATA1 53756D3A20
-    /// 15 : OpCode.LDLOC1
-    /// 16 : OpCode.CALLT 0000
-    /// 19 : OpCode.CAT
-    /// 1A : OpCode.CONVERT 28
-    /// 1C : OpCode.SYSCALL CFE74796
-    /// 21 : OpCode.RET
+    /// Script: VwIACsj///9wFhVoNnEMBVN1bTogaTcAAIvbKEHP50eWQA==
+    /// INITSLOT 0200 [64 datoshi]
+    /// PUSHA C8FFFFFF [4 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// PUSH5 [1 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALLA [512 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// PUSHDATA1 53756D3A20 [8 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testDelegate")]
     public abstract void TestDelegate();

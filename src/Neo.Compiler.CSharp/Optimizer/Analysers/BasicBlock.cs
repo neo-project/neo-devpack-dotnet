@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,6 +30,20 @@ namespace Neo.Optimizer
     public class BasicBlock
     {
         public readonly int startAddr;
+        private int lastAddrCache = -1;
+        public int lastAddr
+        {
+            get
+            {
+                if (lastAddrCache >= 0)
+                    return lastAddrCache;
+                lastAddrCache = startAddr;
+                foreach (Instruction i in instructions[..^1])
+                    lastAddrCache += i.Size;
+                return lastAddrCache;
+            }
+        }
+        public int nextAddr { get => lastAddr + instructions.Last().Size; }
         public List<Instruction> instructions { get; set; }  // instructions in this basic block
         public BasicBlock? prevBlock = null;  // the previous basic block (with subseqent address)
         public BasicBlock? nextBlock = null;  // the following basic block (with subseqent address)
@@ -53,9 +68,16 @@ namespace Neo.Optimizer
             this.instructions = addrToInstructions.Select(kv => kv.i).ToList();
         }
 
-        //public void SetNextBasicBlock(BasicBlock block) => this.nextBlock = block;
-        //public void SetJumpTargetBlock1(BasicBlock block) => this.jumpTargetBlock1 = block;
-        //public void SetJumpTargetBlock2(BasicBlock block) => this.jumpTargetBlock2 = block;
+        public int FindFirstOpCode(OpCode opCode, ReadOnlyMemory<byte>? operand = null)
+        {
+            int addr = this.startAddr;
+            foreach (Instruction i in this.instructions)
+                if (i.OpCode == opCode && (operand == null || operand.Equals(i.Operand)))
+                    return addr;
+                else
+                    addr += i.Size;
+            return -1;
+        }
     }
 
     /// <summary>
@@ -92,30 +114,74 @@ namespace Neo.Optimizer
             foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
             {
                 BasicBlock thisBlock = new(startAddr, block);
-                int firstNotNopAddr = startAddr;
-                foreach (Instruction i in block)
-                    if (i.OpCode == OpCode.NOP)
-                        firstNotNopAddr += i.Size;
-                thisBlock.branchType = coverage.coveredMap[firstNotNopAddr];
+                thisBlock.branchType = coverage.coveredMap[startAddr];
                 sortedBasicBlocks.Add(thisBlock);
                 basicBlocksByStartInstruction.Add(block.First(), thisBlock);
                 basicBlocksByStartAddr.Add(startAddr, thisBlock);
             }
             // handle jumps and continuations between blocks
-            foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
+            foreach (BasicBlock block in sortedBasicBlocks)
             {
+                int startAddr = block.startAddr;
                 if (coverage.basicBlockContinuation.TryGetValue(startAddr, out int continuationTarget))
                 {
-                    basicBlocksByStartAddr[startAddr].nextBlock = basicBlocksByStartAddr[continuationTarget];
-                    basicBlocksByStartAddr[continuationTarget].prevBlock = basicBlocksByStartAddr[startAddr];
+                    block.nextBlock = basicBlocksByStartAddr[continuationTarget];
+                    basicBlocksByStartAddr[continuationTarget].prevBlock = block;
                 }
                 if (coverage.basicBlockJump.TryGetValue(startAddr, out HashSet<int>? jumpTargets))
                     foreach (int target in jumpTargets)
                     {
-                        basicBlocksByStartAddr[startAddr].jumpTargetBlocks.Add(basicBlocksByStartAddr[target]);
-                        basicBlocksByStartAddr[target].jumpSourceBlocks.Add(basicBlocksByStartAddr[startAddr]);
+                        block.jumpTargetBlocks.Add(basicBlocksByStartAddr[target]);
+                        basicBlocksByStartAddr[target].jumpSourceBlocks.Add(block);
                     }
             }
+        }
+
+        /// <summary>
+        /// Get the tree of basic blocks covered from the entryAddr.
+        /// </summary>
+        /// <param name="entryAddr">Entry address of a basic block</param>
+        /// <param name="includeCall">If true, calls to other basic blocks are included</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public HashSet<BasicBlock> BlocksCoveredFromAddr(int entryAddr, bool includeCall = true)
+        {
+            if (!basicBlocksByStartAddr.TryGetValue(entryAddr, out BasicBlock? entryBlock))
+                throw new ArgumentException($"{nameof(entryAddr)} must be starting address of a basic block");
+            BasicBlock currentBlock = entryBlock;
+            HashSet<BasicBlock> returned = new() { currentBlock };
+            Queue<BasicBlock> queue = new Queue<BasicBlock>(returned);
+            while (queue.Count > 0)
+            {
+                currentBlock = queue.Dequeue();
+                if (currentBlock.nextBlock != null && returned.Add(currentBlock.nextBlock))
+                    queue.Enqueue(currentBlock.nextBlock);
+                if (includeCall || !OpCodeTypes.callWithJump.Contains(currentBlock.instructions.Last().OpCode))
+                    foreach (BasicBlock target in currentBlock.jumpTargetBlocks)
+                        if (returned.Add(target))
+                            queue.Enqueue(target);
+            }
+            return returned;
+        }
+
+        /// <summary>
+        /// Get the set of addresses covered by the input set of BasicBlocks
+        /// </summary>
+        /// <param name="blocks"></param>
+        /// <returns></returns>
+        public static HashSet<int> AddrCoveredByBlocks(IEnumerable<BasicBlock> blocks)
+        {
+            HashSet<int> result = new();
+            foreach (BasicBlock currentBlock in blocks)
+            {
+                int addr = currentBlock.startAddr;
+                foreach (Instruction i in currentBlock.instructions)
+                {
+                    result.Add(addr);
+                    addr += i.Size;
+                }
+            }
+            return result;
         }
 
         public IEnumerable<Instruction> GetScriptInstructions()

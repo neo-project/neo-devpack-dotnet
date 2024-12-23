@@ -15,7 +15,7 @@ public abstract class Contract_Event(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgXYAhhWAwDBAUG2zAMAwECA9swE8AMCHRyYW5zZmVyQZUBb2FAVgJAAt3JvQ=="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwXYAhhWAwDBAUG2zAMAwECA9swE8AMCHRyYW5zZmVyQZUBb2FAVgIQYAlhQIsCNj0="));
 
     #endregion
 
@@ -33,6 +33,23 @@ public abstract class Contract_Event(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: F2AIYVgMAwQFBtswDAMBAgPbMBPADAh0cmFuc2ZlckGVAW9hQA==
+    /// PUSH7 [1 datoshi]
+    /// STSFLD0 [2 datoshi]
+    /// PUSHT [1 datoshi]
+    /// STSFLD1 [2 datoshi]
+    /// LDSFLD0 [2 datoshi]
+    /// PUSHDATA1 040506 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSHDATA1 010203 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// PUSHDATA1 7472616E73666572 'transfer' [8 datoshi]
+    /// SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test")]
     public abstract void Test();
 

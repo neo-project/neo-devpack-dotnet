@@ -24,87 +24,201 @@ public abstract class Contract_StdLib(Neo.SmartContract.Testing.SmartContractIni
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXg3BgBA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0600 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("atoi")]
     public abstract BigInteger? Atoi(string? value, BigInteger? @base);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcBANswQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0100 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("base58CheckDecode")]
     public abstract byte[]? Base58CheckDecode(string? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEA=
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("base58CheckEncode")]
     public abstract string? Base58CheckEncode(byte[]? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcEANswQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0400 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("base58Decode")]
     public abstract byte[]? Base58Decode(string? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeNsoNwUAQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0500 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("base58Encode")]
     public abstract string? Base58Encode(byte[]? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcCANswQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0200 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("base64Decode")]
     public abstract byte[]? Base64Decode(string? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeNsoNwMAQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0300 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("base64Encode")]
     public abstract string? Base64Encode(byte[]? input);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXg3BwBA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0700 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("itoa")]
     public abstract string? Itoa(BigInteger? value, BigInteger? @base);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXg3CABA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0800 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("memoryCompare")]
     public abstract BigInteger? MemoryCompare(byte[]? str1, byte[]? str2);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXg3CQBA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0900 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("memorySearch1")]
     public abstract BigInteger? MemorySearch1(byte[]? mem, byte[]? value);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADenl4NwoAQA==
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0A00 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("memorySearch2")]
     public abstract BigInteger? MemorySearch2(byte[]? mem, byte[]? value, BigInteger? start);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwAEe3p5eDcLAEA=
+    /// INITSLOT 0004 [64 datoshi]
+    /// LDARG3 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0B00 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("memorySearch3")]
     public abstract BigInteger? MemorySearch3(byte[]? mem, byte[]? value, BigInteger? start, bool? backward);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXg3DABA
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0C00 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("stringSplit1")]
     public abstract IList<object>? StringSplit1(string? str, string? separator);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwADenl4Nw0AQA==
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0D00 [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("stringSplit2")]
     public abstract IList<object>? StringSplit2(string? str, string? separator, bool? removeEmptyEntries);
 
     #endregion
-
 }

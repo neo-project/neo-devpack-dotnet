@@ -25,17 +25,17 @@ public abstract class Contract_IOracle(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwAEQTlTbjwMWIcXEX4KqBByr6tx0t2J/nxLkv6YJhIMVW5hdXRob3JpemVkIToMT3JhY2xlIGNhbGwhQc/nR5ZA
-    /// 00 : OpCode.INITSLOT 0004
-    /// 03 : OpCode.SYSCALL 39536E3C
-    /// 08 : OpCode.PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE
-    /// 1E : OpCode.NOTEQUAL
-    /// 1F : OpCode.JMPIFNOT 12
-    /// 21 : OpCode.PUSHDATA1 556E617574686F72697A656421
-    /// 30 : OpCode.THROW
-    /// 31 : OpCode.PUSHDATA1 4F7261636C652063616C6C21
-    /// 3F : OpCode.SYSCALL CFE74796
-    /// 44 : OpCode.RET
+    /// Script: VwAEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYSDA1VbmF1dGhvcml6ZWQhOgwMT3JhY2xlIGNhbGwhQc/nR5ZA
+    /// INITSLOT 0004 [64 datoshi]
+    /// SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
+    /// PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE [8 datoshi]
+    /// NOTEQUAL [32 datoshi]
+    /// JMPIFNOT 12 [2 datoshi]
+    /// PUSHDATA1 556E617574686F72697A656421 'Unauthorized!' [8 datoshi]
+    /// THROW [512 datoshi]
+    /// PUSHDATA1 4F7261636C652063616C6C21 [8 datoshi]
+    /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("onOracleResponse")]
     public abstract void OnOracleResponse(string? url, object? userData, BigInteger? code, string? result);

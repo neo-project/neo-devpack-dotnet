@@ -24,9 +24,13 @@ public abstract class Contract_MultipleB(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CUA=
+    /// PUSHF [1 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test")]
     public abstract bool? Test();
 
     #endregion
-
 }

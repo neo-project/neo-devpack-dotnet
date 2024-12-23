@@ -4,7 +4,7 @@ using Neo.SmartContract;
 using System.IO;
 using System.Linq;
 
-namespace Neo.Compiler.CSharp.UnitTests
+namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
     [TestClass]
     public class UnitTest_DebugInfo
@@ -15,7 +15,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Contract_Event.cs").FullName;
             var results = new CompilationEngine(new CompilationOptions()
             {
-                Debug = true,
+                Debug = CompilationOptions.DebugType.Extended,
                 CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.Basic,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable

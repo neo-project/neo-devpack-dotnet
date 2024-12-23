@@ -25,27 +25,27 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEADAACA9swcBFKaBBR0EUUSmgSUdBFaEA=
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSHDATA1 000203
-    /// 08 : OpCode.CONVERT 30
-    /// 0A : OpCode.STLOC0
-    /// 0B : OpCode.PUSH1
-    /// 0C : OpCode.DUP
-    /// 0D : OpCode.LDLOC0
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.ROT
-    /// 10 : OpCode.SETITEM
-    /// 11 : OpCode.DROP
-    /// 12 : OpCode.PUSH4
-    /// 13 : OpCode.DUP
-    /// 14 : OpCode.LDLOC0
-    /// 15 : OpCode.PUSH2
-    /// 16 : OpCode.ROT
-    /// 17 : OpCode.SETITEM
-    /// 18 : OpCode.DROP
-    /// 19 : OpCode.LDLOC0
-    /// 1A : OpCode.RET
+    /// Script: VwEADAMAAgPbMHARSmgQUdBFFEpoElHQRWhA
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHDATA1 000203 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAssignment")]
     public abstract byte[]? TestAssignment();
@@ -53,24 +53,109 @@ public abstract class Contract_ByteArrayAssignment(Neo.SmartContract.Testing.Sma
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEBEohKEBHQShF40HBoQA==
+    /// INITSLOT 0101 [64 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// NEWBUFFER [256 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testAssignmentDynamic")]
     public abstract byte[]? TestAssignmentDynamic(BigInteger? x);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwEADAMAAgPbMHARSmgQUdBFFEpoE1HQRWhA
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHDATA1 000203 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testAssignmentOutOfBounds")]
     public abstract byte[]? TestAssignmentOutOfBounds();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIAAv///39wDAMAAgPbMHFoShAuBCIISgH/ADIGAf8AkUppEFHQRWlA
+    /// INITSLOT 0200 [64 datoshi]
+    /// PUSHINT32 FFFFFF7F [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSHDATA1 000203 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// JMPGE 04 [2 datoshi]
+    /// JMP 08 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT16 FF00 [1 datoshi]
+    /// JMPLE 06 [2 datoshi]
+    /// PUSHINT16 FF00 [1 datoshi]
+    /// AND [8 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testAssignmentOverflow")]
     public abstract byte[]? TestAssignmentOverflow();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwIADAR0ZXN0cAwDAAID2zBxaEppEFHQRWlA
+    /// INITSLOT 0200 [64 datoshi]
+    /// PUSHDATA1 74657374 'test' [8 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSHDATA1 000203 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testAssignmentWrongCasting")]
     public abstract byte[]? TestAssignmentWrongCasting();
 

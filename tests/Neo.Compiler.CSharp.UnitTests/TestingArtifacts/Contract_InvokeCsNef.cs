@@ -24,12 +24,22 @@ public abstract class Contract_InvokeCsNef(Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: ACpA
+    /// PUSHINT8 2A [1 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("returnInteger")]
     public abstract BigInteger? ReturnInteger();
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: DAtoZWxsbyB3b3JsZEA=
+    /// PUSHDATA1 68656C6C6F20776F726C64 [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("returnString")]
     public abstract string? ReturnString();
 
@@ -38,8 +48,8 @@ public abstract class Contract_InvokeCsNef(Neo.SmartContract.Testing.SmartContra
     /// </summary>
     /// <remarks>
     /// Script: ABZA
-    /// 00 : OpCode.PUSHINT8 16
-    /// 02 : OpCode.RET
+    /// PUSHINT8 16 [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]
     public abstract BigInteger? TestMain();

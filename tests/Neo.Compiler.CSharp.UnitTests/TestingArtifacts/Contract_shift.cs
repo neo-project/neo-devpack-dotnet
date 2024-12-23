@@ -26,36 +26,36 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwMAGHBoEahKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcWgRqXJqaRLAQA==
-    /// 00 : OpCode.INITSLOT 0300
-    /// 03 : OpCode.PUSH8
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSH1
-    /// 07 : OpCode.SHL
-    /// 08 : OpCode.DUP
-    /// 09 : OpCode.PUSHINT32 00000080
-    /// 0E : OpCode.JMPGE 04
-    /// 10 : OpCode.JMP 0A
-    /// 12 : OpCode.DUP
-    /// 13 : OpCode.PUSHINT32 FFFFFF7F
-    /// 18 : OpCode.JMPLE 1E
-    /// 1A : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 23 : OpCode.AND
-    /// 24 : OpCode.DUP
-    /// 25 : OpCode.PUSHINT32 FFFFFF7F
-    /// 2A : OpCode.JMPLE 0C
-    /// 2C : OpCode.PUSHINT64 0000000001000000
-    /// 35 : OpCode.SUB
-    /// 36 : OpCode.STLOC1
-    /// 37 : OpCode.LDLOC0
-    /// 38 : OpCode.PUSH1
-    /// 39 : OpCode.SHR
-    /// 3A : OpCode.STLOC2
-    /// 3B : OpCode.LDLOC2
-    /// 3C : OpCode.LDLOC1
-    /// 3D : OpCode.PUSH2
-    /// 3E : OpCode.PACK
-    /// 3F : OpCode.RET
+    /// INITSLOT 0300 [64 datoshi]
+    /// PUSH8 [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// SHL [8 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 00000080 [1 datoshi]
+    /// JMPGE 04 [2 datoshi]
+    /// JMP 0A [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 FFFFFF7F [1 datoshi]
+    /// JMPLE 1E [2 datoshi]
+    /// PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// AND [8 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 FFFFFF7F [1 datoshi]
+    /// JMPLE 0C [2 datoshi]
+    /// PUSHINT64 0000000001000000 [1 datoshi]
+    /// SUB [8 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// SHR [8 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShift")]
     public abstract IList<object>? TestShift();
@@ -65,32 +65,32 @@ public abstract class Contract_shift(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwUAGHBoEKhxaBGocmgRqXNoEql0bGtqaRTAQA==
-    /// 00 : OpCode.INITSLOT 0500
-    /// 03 : OpCode.PUSH8
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSH0
-    /// 07 : OpCode.SHL
-    /// 08 : OpCode.STLOC1
-    /// 09 : OpCode.LDLOC0
-    /// 0A : OpCode.PUSH1
-    /// 0B : OpCode.SHL
-    /// 0C : OpCode.STLOC2
-    /// 0D : OpCode.LDLOC0
-    /// 0E : OpCode.PUSH1
-    /// 0F : OpCode.SHR
-    /// 10 : OpCode.STLOC3
-    /// 11 : OpCode.LDLOC0
-    /// 12 : OpCode.PUSH2
-    /// 13 : OpCode.SHR
-    /// 14 : OpCode.STLOC4
-    /// 15 : OpCode.LDLOC4
-    /// 16 : OpCode.LDLOC3
-    /// 17 : OpCode.LDLOC2
-    /// 18 : OpCode.LDLOC1
-    /// 19 : OpCode.PUSH4
-    /// 1A : OpCode.PACK
-    /// 1B : OpCode.RET
+    /// INITSLOT 0500 [64 datoshi]
+    /// PUSH8 [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// SHL [8 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// SHL [8 datoshi]
+    /// STLOC2 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// SHR [8 datoshi]
+    /// STLOC3 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// SHR [8 datoshi]
+    /// STLOC4 [2 datoshi]
+    /// LDLOC4 [2 datoshi]
+    /// LDLOC3 [2 datoshi]
+    /// LDLOC2 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testShiftBigInt")]
     public abstract IList<object>? TestShiftBigInt();

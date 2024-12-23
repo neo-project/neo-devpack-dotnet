@@ -25,21 +25,21 @@ public abstract class Contract_Throw(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeMoRuCYHeBDOIikMUGxlYXNlIHN1cHBseSBhdCBsZWFzdCBvbmUgYXJndW1lbnQuOnBA
-    /// 00 : OpCode.INITSLOT 0101
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.SIZE
-    /// 05 : OpCode.PUSH1
-    /// 06 : OpCode.GE
-    /// 07 : OpCode.JMPIFNOT 07
-    /// 09 : OpCode.LDARG0
-    /// 0A : OpCode.PUSH0
-    /// 0B : OpCode.PICKITEM
-    /// 0C : OpCode.JMP 29
-    /// 0E : OpCode.PUSHDATA1 506C6561736520737570706C79206174206C65617374206F6E6520617267756D656E742E
-    /// 34 : OpCode.THROW
-    /// 35 : OpCode.STLOC0
-    /// 36 : OpCode.RET
+    /// Script: VwEBeMoRuCYHeBDOIikMJFBsZWFzZSBzdXBwbHkgYXQgbGVhc3Qgb25lIGFyZ3VtZW50LjpwQA==
+    /// INITSLOT 0101 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SIZE [4 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// GE [8 datoshi]
+    /// JMPIFNOT 07 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// JMP 29 [2 datoshi]
+    /// PUSHDATA1 506C6561736520737570706C79206174206C65617374206F6E6520617267756D656E742E [8 datoshi]
+    /// THROW [512 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testMain")]
     public abstract void TestMain(IList<object>? args);

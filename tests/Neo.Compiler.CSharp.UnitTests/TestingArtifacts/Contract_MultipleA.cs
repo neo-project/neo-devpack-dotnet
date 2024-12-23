@@ -24,9 +24,13 @@ public abstract class Contract_MultipleA(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CEA=
+    /// PUSHT [1 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test")]
     public abstract bool? Test();
 
     #endregion
-
 }

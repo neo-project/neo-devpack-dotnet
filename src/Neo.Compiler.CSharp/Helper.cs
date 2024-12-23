@@ -48,7 +48,7 @@ namespace Neo.Compiler
 
         public static bool IsVirtualMethod(this IMethodSymbol method)
         {
-            return method.IsAbstract || method.IsVirtual || method.IsOverride;
+            return method.IsAbstract || method.IsVirtual;
         }
 
         public static bool IsInternalCoreMethod(this IMethodSymbol method)
@@ -200,6 +200,25 @@ namespace Neo.Compiler
                 }
                 overriddenMethod = overriddenMethod.OverriddenMethod;
             }
+        }
+
+        public static bool InheritsFrom(INamedTypeSymbol child, INamedTypeSymbol parent)
+        {
+            string? parentString = parent.ToString();
+            if (parentString == null)
+                return false;
+            while (true)
+            {
+                if (child.ToString() == parentString)
+                    return true;
+                if (child.BaseType != null)
+                {
+                    child = child.BaseType;
+                    continue;
+                }
+                break;
+            }
+            return false;
         }
 
         public static IEnumerable<AttributeData> GetAttributesWithInherited(this IPropertySymbol symbol)

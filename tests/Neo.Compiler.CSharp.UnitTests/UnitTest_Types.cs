@@ -172,7 +172,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Class_Test()
         {
             var item = Contract.CheckClass();
-            AssertGasConsumed(1557060);
+            AssertGasConsumed(1293840);
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString)?.GetString());

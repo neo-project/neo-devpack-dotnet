@@ -24,9 +24,13 @@ public abstract class Contract_AttributeChanged(Neo.SmartContract.Testing.SmartC
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: CEA=
+    /// PUSHT [1 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test")]
     public abstract bool? Test();
 
     #endregion
-
 }

@@ -24,51 +24,154 @@ public abstract class Contract_IntegerParse(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoQAQABuyQDOkA=
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHINT16 0001 [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testByteparse")]
     public abstract BigInteger? TestByteparse(string? s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoCAAAAgAMAAACAAAAAALskAzpA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 00000080 [1 datoshi]
+    /// PUSHINT64 0000008000000000 [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testIntparse")]
     public abstract BigInteger? TestIntparse(string? s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoDAAAAAAAAAIAEAAAAAAAAAIAAAAAAAAAAALskAzpA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT64 0000000000000080 [1 datoshi]
+    /// PUSHINT128 00000000000000800000000000000000 [4 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testLongparse")]
     public abstract BigInteger? TestLongparse(string? s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoAgAGAALskAzpA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT8 80 [1 datoshi]
+    /// PUSHINT16 8000 [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testSbyteparse")]
     public abstract BigInteger? TestSbyteparse(string? s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoBAIACAIAAALskAzpA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT16 0080 [1 datoshi]
+    /// PUSHINT32 00800000 [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testShortparse")]
     public abstract BigInteger? TestShortparse(string? s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoQAwAAAAABAAAAuyQDOkA=
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHINT64 0000000001000000 [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testUintparse")]
     public abstract BigInteger? TestUintparse(string? s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoQBAAAAAAAAAAAAQAAAAAAAAC7JAM6QA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHINT128 00000000000000000100000000000000 [4 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testUlongparse")]
     public abstract BigInteger? TestUlongparse(string? s);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeDcAAEoQAgAAAQC7JAM6QA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHINT32 00000100 [1 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("testUshortparse")]
     public abstract BigInteger? TestUshortparse(string? s);
 
     #endregion
-
 }

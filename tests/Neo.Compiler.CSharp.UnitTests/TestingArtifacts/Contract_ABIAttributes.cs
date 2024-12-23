@@ -24,9 +24,13 @@ public abstract class Contract_ABIAttributes(Neo.SmartContract.Testing.SmartCont
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: EEA=
+    /// PUSH0 [1 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("test")]
     public abstract BigInteger? Test();
 
     #endregion
-
 }

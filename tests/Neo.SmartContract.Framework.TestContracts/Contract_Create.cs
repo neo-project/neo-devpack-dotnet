@@ -24,10 +24,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return iter.Value.Item2;
         }
 
+#pragma warning disable CS8625
         public static void Update(byte[] nef, string manifest)
         {
             ContractManagement.Update((ByteString)nef, manifest, null);
         }
+#pragma warning restore CS8625
 
         public static void Destroy()
         {

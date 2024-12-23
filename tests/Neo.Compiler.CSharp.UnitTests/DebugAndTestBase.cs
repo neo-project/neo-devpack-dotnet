@@ -5,7 +5,6 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.TestingStandards;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +14,7 @@ public class DebugAndTestBase<T> : TestBase<T>
     where T : SmartContract.Testing.SmartContract, IContractInfo
 {
     // allowing specific derived class to enable/disable Gas test
-    protected virtual bool TestGasConsume { set; get; } = false;
+    protected virtual bool TestGasConsume { set; get; } = true;
 
     static DebugAndTestBase()
     {

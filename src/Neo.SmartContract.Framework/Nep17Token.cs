@@ -21,14 +21,14 @@ namespace Neo.SmartContract.Framework
     [ContractPermission(Permission.Any, Method.OnNEP17Payment)]
     public abstract class Nep17Token : TokenContract
     {
-        public delegate void OnTransferDelegate(UInt160 from, UInt160 to, BigInteger amount);
+        public delegate void OnTransferDelegate(UInt160? from, UInt160? to, BigInteger amount);
 
         [DisplayName("Transfer")]
         public static event OnTransferDelegate OnTransfer;
 
         public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data)
         {
-            if (from is null || !from.IsValid)
+            if (!from.IsValid)
                 throw new Exception("The argument \"from\" is invalid.");
             if (to is null || !to.IsValid)
                 throw new Exception("The argument \"to\" is invalid.");
@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Framework
             PostTransfer(account, null, amount, null);
         }
 
-        protected static void PostTransfer(UInt160 from, UInt160 to, BigInteger amount, object data)
+        protected static void PostTransfer(UInt160? from, UInt160? to, BigInteger amount, object? data)
         {
             OnTransfer(from, to, amount);
             if (to is not null && ContractManagement.GetContract(to) is not null)

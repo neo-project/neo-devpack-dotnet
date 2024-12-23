@@ -12,10 +12,12 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using scfx::Neo.SmartContract.Framework;
 using System;
 using System.Buffers.Binary;
+using System.IO;
 using System.Numerics;
-using scfx::Neo.SmartContract.Framework;
+using System.Runtime.CompilerServices;
 using OpCode = Neo.VM.OpCode;
 
 namespace Neo.Compiler;
@@ -23,6 +25,7 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     #region Instructions
+
     private Instruction AddInstruction(Instruction instruction)
     {
         _instructions.Add(instruction);
@@ -37,19 +40,19 @@ internal partial class MethodConvert
         });
     }
 
-    private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax)
+    private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string? callerPath = null, [CallerMemberName] string? caller = null)
     {
-        return new SequencePointInserter(_instructions, syntax);
+        return new SequencePointInserter(_instructions, syntax, LocationInformation.BuildCompilerLocation(lineNumber, callerPath, caller));
     }
 
-    private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax)
+    private SequencePointInserter InsertSequencePoint(SyntaxReference? syntax, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string? callerPath = null, [CallerMemberName] string? caller = null)
     {
-        return new SequencePointInserter(_instructions, syntax);
+        return new SequencePointInserter(_instructions, syntax, LocationInformation.BuildCompilerLocation(lineNumber, callerPath, caller));
     }
 
-    private SequencePointInserter InsertSequencePoint(Location? location)
+    private SequencePointInserter InsertSequencePoint(Location? location, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string? callerPath = null, [CallerMemberName] string? caller = null)
     {
-        return new SequencePointInserter(_instructions, location);
+        return new SequencePointInserter(_instructions, location, LocationInformation.BuildCompilerLocation(lineNumber, callerPath, caller));
     }
 
     #endregion
@@ -114,9 +117,29 @@ internal partial class MethodConvert
         return instruction;
     }
 
+    /// <summary>
+    /// If all char in the input is no greater than byte.MaxValue == 255, get the byte for each char
+    /// If any char in the input is greater than byte.MaxValue == 255, encode in UTF8
+    /// This ensures "a\xff\x80\x79\x00" accurately translated to 0x61 0xff 0x80 0x79 0x00
+    /// </summary>
+    /// <param name="s">String value to push</param>
+    /// <returns>Instruction</returns>
     private Instruction Push(string s)
     {
+        try
+        {// Handle byte-like "\xff\x80\x79\x00..."
+         // fails on non-ascii char (> byte.MaxValue == 255) like "悪い文字"
+         // fails on long \x, e.g. \x123, \x1234
+         // does not fail on ascii chars
+            MemoryStream pushed = new();
+            BinaryWriter writer = new(pushed);
+            foreach (char c in s)
+                writer.Write(System.Convert.ToByte(c));
+            return Push(pushed.ToArray());
+        }
+        catch { }
         return Push(Utility.StrictUTF8.GetBytes(s));
+        // \xff (and each byte >= \x80) will be decoded to 2 bytes (0xc3 0xbf for \xff) by UTF8 decoder
     }
 
     private Instruction Push(byte[] data)
@@ -210,8 +233,9 @@ internal partial class MethodConvert
     private Instruction PushDefault(ITypeSymbol type)
     {
         return AddInstruction(type.GetStackItemType() switch
-        {
-            VM.Types.StackItemType.Boolean or VM.Types.StackItemType.Integer => OpCode.PUSH0,
+        {// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values
+            VM.Types.StackItemType.Boolean => OpCode.PUSHF,
+            VM.Types.StackItemType.Integer => OpCode.PUSH0,
             _ => OpCode.PUSHNULL,
         });
     }

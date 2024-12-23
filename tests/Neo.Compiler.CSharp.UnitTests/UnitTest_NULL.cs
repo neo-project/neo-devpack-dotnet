@@ -13,12 +13,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsTrue(Contract.IsNull(null));
-            AssertGasConsumed(1048140);
+            AssertGasConsumed(1047210);
 
             // False
 
             Assert.IsFalse(Contract.IsNull(1));
-            AssertGasConsumed(1048140);
+            AssertGasConsumed(1047210);
         }
 
         [TestMethod]
@@ -151,12 +151,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsTrue(Contract.EqualNullB(null));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047090);
 
             // False
 
             Assert.IsFalse(Contract.EqualNullB(1));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047090);
         }
 
         [TestMethod]
@@ -175,12 +175,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsFalse(Contract.EqualNotNullB(null));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047210);
 
             // False
 
             Assert.IsTrue(Contract.EqualNotNullB(1));
-            AssertGasConsumed(1048020);
+            AssertGasConsumed(1047210);
         }
 
         [TestMethod]

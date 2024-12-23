@@ -40,7 +40,7 @@ namespace Neo.SmartContract.Framework.Services
         public readonly ContractManifest Manifest;
 
         [Syscall("System.Contract.Call")]
-        public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object[] args);
+        public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object[]? args);
 
         [Syscall("System.Contract.GetCallFlags")]
         public static extern CallFlags GetCallFlags();

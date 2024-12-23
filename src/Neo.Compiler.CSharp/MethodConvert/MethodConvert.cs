@@ -25,6 +25,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Neo.VM.Types;
+using Array = System.Array;
 
 namespace Neo.Compiler
 {
@@ -203,7 +205,7 @@ namespace Neo.Compiler
         public void ConvertForward(SemanticModel model, MethodConvert target)
         {
             INamedTypeSymbol type = Symbol.ContainingType;
-            CreateObject(model, type, null);
+            CreateObject(model, type);
             IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0)
                 ?? throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
             CallInstanceMethod(model, constructor, true, Array.Empty<ArgumentSyntax>());
@@ -243,12 +245,17 @@ namespace Neo.Compiler
                     syntaxNode = syntax;
                     initializer = syntax.Initializer;
                 }
-                if (initializer is null) return;
-                model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+
                 using (InsertSequencePoint(syntaxNode))
                 {
                     preInitialize?.Invoke();
-                    ConvertExpression(model, initializer.Value, syntaxNode);
+                    if (initializer is null)
+                        PushDefault(field.Type);
+                    else
+                    {
+                        model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+                        ConvertExpression(model, initializer.Value, syntaxNode);
+                    }
                     postInitialize?.Invoke();
                 }
             }

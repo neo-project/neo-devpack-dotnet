@@ -18,18 +18,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsTrue(Contract.ValidateAddress(address));
-            AssertGasConsumed(1049340);
+            AssertGasConsumed(1048050);
 
             // False
 
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
-            AssertGasConsumed(1048710);
-            Assert.ThrowsException<TestException>(() => Contract.ValidateAddress(InvalidUInt160.Null));
-            AssertGasConsumed(1048110);
+            AssertGasConsumed(1047450);
+            Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.Null));
+            AssertGasConsumed(1047450);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
-            AssertGasConsumed(1048710);
+            AssertGasConsumed(1047450);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidLength));
-            AssertGasConsumed(1048920);
+            AssertGasConsumed(1047900);
         }
 
         [TestMethod]
@@ -39,9 +39,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckOwner(owner));
-            AssertGasConsumed(1049040);
+            AssertGasConsumed(1048440);
             Assert.IsFalse(Contract.CheckOwner(notOwner));
-            AssertGasConsumed(1049040);
+            AssertGasConsumed(1048440);
         }
 
         [TestMethod]
@@ -51,9 +51,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.IsTrue(Contract.CheckZeroStatic(zero));
-            AssertGasConsumed(1049220);
+            AssertGasConsumed(1048440);
             Assert.IsFalse(Contract.CheckZeroStatic(notZero));
-            AssertGasConsumed(1049220);
+            AssertGasConsumed(1048440);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
 
             Assert.AreEqual(notZero, Contract.ConstructUInt160(notZero.ToArray()));
-            AssertGasConsumed(1294230);
+            AssertGasConsumed(1293450);
         }
     }
 }

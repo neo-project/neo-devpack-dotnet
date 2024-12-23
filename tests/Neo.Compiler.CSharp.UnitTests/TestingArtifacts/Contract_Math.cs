@@ -24,12 +24,33 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeJpA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// ABS [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("abs")]
     public abstract BigInteger? Abs(BigInteger? a);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXigSgMAAAAAAAAAgAQAAAAAAAAAgAAAAAAAAAAAuyQDOkA=
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// MUL [8 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT64 0000000000000080 [1 datoshi]
+    /// PUSHINT128 00000000000000800000000000000000 [4 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("bigMul")]
     public abstract BigInteger? BigMul(BigInteger? a, BigInteger? b);
 
@@ -38,18 +59,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampByte")]
     public abstract BigInteger? ClampByte(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -59,18 +80,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampInt")]
     public abstract BigInteger? ClampInt(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -80,18 +101,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampLong")]
     public abstract BigInteger? ClampLong(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -101,18 +122,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampSByte")]
     public abstract BigInteger? ClampSByte(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -122,18 +143,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampShort")]
     public abstract BigInteger? ClampShort(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -143,18 +164,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampUInt")]
     public abstract BigInteger? ClampUInt(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -164,18 +185,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampULong")]
     public abstract BigInteger? ClampULong(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -185,18 +206,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : OpCode.INITSLOT 0003
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.LDARG1
-    /// 05 : OpCode.LDARG2
-    /// 06 : OpCode.OVER
-    /// 07 : OpCode.OVER
-    /// 08 : OpCode.JMPLE 03
-    /// 0A : OpCode.THROW
-    /// 0B : OpCode.REVERSE3
-    /// 0C : OpCode.MAX
-    /// 0D : OpCode.MIN
-    /// 0E : OpCode.RET
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampUShort")]
     public abstract BigInteger? ClampUShort(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -206,18 +227,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemByte")]
     public abstract IList<object>? DivRemByte(BigInteger? left, BigInteger? right);
@@ -227,18 +248,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemInt")]
     public abstract IList<object>? DivRemInt(BigInteger? left, BigInteger? right);
@@ -248,18 +269,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemLong")]
     public abstract IList<object>? DivRemLong(BigInteger? left, BigInteger? right);
@@ -269,18 +290,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemSbyte")]
     public abstract IList<object>? DivRemSbyte(BigInteger? left, BigInteger? right);
@@ -290,18 +311,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemShort")]
     public abstract IList<object>? DivRemShort(BigInteger? left, BigInteger? right);
@@ -311,18 +332,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemUint")]
     public abstract IList<object>? DivRemUint(BigInteger? left, BigInteger? right);
@@ -332,18 +353,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemUlong")]
     public abstract IList<object>? DivRemUlong(BigInteger? left, BigInteger? right);
@@ -353,18 +374,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : OpCode.INITSLOT 0002
-    /// 03 : OpCode.LDARG1
-    /// 04 : OpCode.LDARG0
-    /// 05 : OpCode.DUP
-    /// 06 : OpCode.PUSH2
-    /// 07 : OpCode.PICK
-    /// 08 : OpCode.DIV
-    /// 09 : OpCode.REVERSE3
-    /// 0A : OpCode.MOD
-    /// 0B : OpCode.PUSH2
-    /// 0C : OpCode.PACK
-    /// 0D : OpCode.RET
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemUshort")]
     public abstract IList<object>? DivRemUshort(BigInteger? left, BigInteger? right);
@@ -372,18 +393,41 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXi6QA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("max")]
     public abstract BigInteger? Max(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwACeXi5QA==
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("min")]
     public abstract BigInteger? Min(BigInteger? a, BigInteger? b);
 
     /// <summary>
     /// Unsafe method
     /// </summary>
+    /// <remarks>
+    /// Script: VwABeJlA
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SIGN [4 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
     [DisplayName("sign")]
     public abstract BigInteger? Sign(BigInteger? a);
 

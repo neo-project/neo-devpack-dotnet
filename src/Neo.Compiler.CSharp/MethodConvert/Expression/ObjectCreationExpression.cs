@@ -17,7 +17,6 @@ using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
@@ -39,13 +38,93 @@ internal partial class MethodConvert
         bool needCreateObject = !type.DeclaringSyntaxReferences.IsEmpty && !constructor.IsExtern;
         if (needCreateObject)
         {
-            CreateObject(model, type, null);
+            // an optimization to avoid PACK + billions of SETITEM
+            if (TryOptimizedObjectCreation(model, expression, type, constructor))
+                return;
+            CreateObject(model, type);
         }
-        CallInstanceMethod(model, constructor, needCreateObject, arguments);
+        if (!constructor.DeclaringSyntaxReferences.IsEmpty)
+            CallInstanceMethod(model, constructor, needCreateObject, arguments);
         if (expression.Initializer is not null)
-        {
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
+    }
+
+    /// <summary>
+    /// Check whether necessary to include the constructor instructions in the compiled contract
+    /// </summary>
+    /// <param name="convert">var (convert, _) = GetMethodConvertAndCallingConvention(model, constructor);</param>
+    /// <returns></returns>
+    public static bool CanSkipConstructor(MethodConvert? convert)
+    {
+        if (convert == null)
+            return false;  // special complex cases like virtual methods
+        if (convert.Instructions.Count >= 1)
+        {
+            Instruction ret = convert.Instructions[0];
+            if (ret.OpCode == OpCode.RET)
+                return true;
         }
+        if (convert.Instructions.Count >= 2)
+        {
+            // INITSLOT 0 locals, 1 args
+            // RET
+            Instruction initslot = convert.Instructions[0];
+            Instruction ret = convert.Instructions[1];
+            if (initslot.OpCode == OpCode.INITSLOT && initslot.Operand?[0] == 0 && initslot.Operand[1] == 1
+                && ret.OpCode == OpCode.RET)
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Handles new MyClass() { PropertyA = "A", Property2 = 2, } in a GAS-efficient way
+    /// Do not initialize MyClass() by PACKing default values and then SETITEM for { PropertyA = "A", Property2 = 2, }
+    /// Just PACK the final values when constructor of MyClass is not needed
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="expression"></param>
+    /// <param name="type"></param>
+    /// <param name="constructor"></param>
+    /// <returns></returns>
+    private bool TryOptimizedObjectCreation(SemanticModel model, BaseObjectCreationExpressionSyntax expression,
+        ITypeSymbol type, IMethodSymbol constructor)
+    {
+        if (expression.Initializer == null || expression.Initializer.IsKind(SyntaxKind.CollectionInitializerExpression))
+            return false;
+        var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, constructor);
+        if (!CanSkipConstructor(convert))
+            return false;
+        // no constructor needed
+        var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
+        var fields = members.OfType<IFieldSymbol>().ToArray();
+        Dictionary<int, ExpressionSyntax> indexToValue = new();
+        foreach (ExpressionSyntax e in expression.Initializer.Expressions)
+        {
+            if (e is not AssignmentExpressionSyntax ae)
+                throw new CompilationException(expression.Initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {expression.Initializer}");
+            ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
+            if (symbol is not IFieldSymbol field)
+                return false;
+            int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+            indexToValue.Add(index, ae.Right);
+        }
+        var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+        int needVirtualMethodTable = 0;
+        if (!type.IsRecord && virtualMethods.Length > 0)
+        {
+            needVirtualMethodTable += 1;
+            byte vTableIndex = _context.AddVTable(type);
+            AccessSlot(OpCode.LDSFLD, vTableIndex);
+        }
+        for (int i = fields.Length - 1; i >= 0; --i)
+            if (indexToValue.TryGetValue(i, out ExpressionSyntax? right))
+                ConvertExpression(model, right);
+            else
+                PushDefault(fields[i].Type);
+        Push(fields.Length + needVirtualMethodTable);
+        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+        return true;
     }
 
     private void ConvertObjectCreationExpressionInitializer(SemanticModel model, InitializerExpressionSyntax initializer)

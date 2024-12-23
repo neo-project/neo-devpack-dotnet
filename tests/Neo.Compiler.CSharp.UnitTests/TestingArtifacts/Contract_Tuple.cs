@@ -26,13 +26,13 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: FBMSERS/QA==
-    /// 00 : OpCode.PUSH4
-    /// 01 : OpCode.PUSH3
-    /// 02 : OpCode.PUSH2
-    /// 03 : OpCode.PUSH1
-    /// 04 : OpCode.PUSH4
-    /// 05 : OpCode.PACKSTRUCT
-    /// 06 : OpCode.RET
+    /// PUSH4 [1 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("getResult")]
     public abstract IList<object>? GetResult();
@@ -42,53 +42,53 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
-    /// 00 : OpCode.INITSLOT 0200
-    /// 03 : OpCode.PUSHNULL
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.PUSH0
-    /// 06 : OpCode.PUSHNULL
-    /// 07 : OpCode.PUSHNULL
-    /// 08 : OpCode.PUSH5
-    /// 09 : OpCode.PACKSTRUCT
-    /// 0A : OpCode.STLOC0
-    /// 0B : OpCode.PUSH0
-    /// 0C : OpCode.PUSHNULL
-    /// 0D : OpCode.PUSH2
-    /// 0E : OpCode.PACKSTRUCT
-    /// 0F : OpCode.DUP
-    /// 10 : OpCode.LDLOC0
-    /// 11 : OpCode.PUSH4
-    /// 12 : OpCode.ROT
-    /// 13 : OpCode.SETITEM
-    /// 14 : OpCode.DROP
-    /// 15 : OpCode.PUSH0
-    /// 16 : OpCode.STLOC1
-    /// 17 : OpCode.CALL E2
-    /// 19 : OpCode.DUP
-    /// 1A : OpCode.UNPACK
-    /// 1B : OpCode.DROP
-    /// 1C : OpCode.LDLOC0
-    /// 1D : OpCode.PUSH2
-    /// 1E : OpCode.ROT
-    /// 1F : OpCode.SETITEM
-    /// 20 : OpCode.LDLOC0
-    /// 21 : OpCode.PUSH4
-    /// 22 : OpCode.PICKITEM
-    /// 23 : OpCode.PUSH1
-    /// 24 : OpCode.ROT
-    /// 25 : OpCode.SETITEM
-    /// 26 : OpCode.DROP
-    /// 27 : OpCode.STLOC1
-    /// 28 : OpCode.DROP
-    /// 29 : OpCode.LDLOC1
-    /// 2A : OpCode.DUP
-    /// 2B : OpCode.LDLOC0
-    /// 2C : OpCode.PUSH3
-    /// 2D : OpCode.ROT
-    /// 2E : OpCode.SETITEM
-    /// 2F : OpCode.DROP
-    /// 30 : OpCode.LDLOC0
-    /// 31 : OpCode.RET
+    /// INITSLOT 0200 [64 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// PUSH5 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// CALL E2 [512 datoshi]
+    /// DUP [2 datoshi]
+    /// UNPACK [2048 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("t1")]
     public abstract object? T1();

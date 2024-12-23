@@ -51,6 +51,26 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(123, Contract.NonStaticPrivateGetterPublicSetter);
         }
 
+        [TestMethod]
+        public void Test_StaticMultiSet()
+        {
+            var res = Contract.TestStaticMultiGet();
+            Assert.AreEqual(0, res);
+            res = Contract.TestStaticMultiSet();
+            Assert.AreEqual(3, res);
+            res = Contract.TestStaticMultiGet();
+            Assert.AreEqual(3, res);
+        }
+
+        [TestMethod]
+        public void Test_MultiSet()
+        {
+            var res = Contract.TestMultiGet();
+            res = Contract.TestMultiSet();
+            res = Contract.TestMultiGet();
+            Assert.AreEqual(3, res);
+        }
+
         public void Test_Kind(Func<BigInteger?> getter, Func<BigInteger?> publicGetter, Action<BigInteger> put)
         {
             // Read initial value

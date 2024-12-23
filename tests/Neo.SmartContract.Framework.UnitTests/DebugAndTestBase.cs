@@ -9,7 +9,7 @@ public class DebugAndTestBase<T> : TestBase<T>
 {
 
     // allowing specific derived class to enable/disable Gas test
-    protected virtual bool TestGasConsume { set; get; } = false;
+    protected virtual bool TestGasConsume { set; get; } = true;
 
     static DebugAndTestBase()
     {

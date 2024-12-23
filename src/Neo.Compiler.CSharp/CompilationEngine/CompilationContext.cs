@@ -12,12 +12,10 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.IO;
 using Neo.Json;
-using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using scfx::Neo.SmartContract.Framework;
@@ -71,7 +69,6 @@ namespace Neo.Compiler
         internal IEnumerable<(byte, ITypeSymbol)> VTables => _vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
         private byte[] Script => _script ??= GetInstructions().Select(p => p.ToArray()).SelectMany(p => p).ToArray();
-
 
         /// <summary>
         /// Specify the contract to be compiled.
@@ -246,14 +243,7 @@ namespace Neo.Compiler
                 ["supportedstandards"] = _supportedStandards.OrderBy(p => p).Select(p => (JString)p!).ToArray(),
                 ["abi"] = new JObject
                 {
-                    ["methods"] = _methodsExported.Select(p => new JObject
-                    {
-                        ["name"] = p.Name,
-                        ["offset"] = GetAbiOffset(p.Symbol),
-                        ["safe"] = p.Safe,
-                        ["returntype"] = p.ReturnType,
-                        ["parameters"] = p.Parameters.Select(p => p.ToJson()).ToArray()
-                    }).ToArray(),
+                    ["methods"] = _methodsExported.Select(CreateAbiMethod).ToArray(),
                     ["events"] = _eventsExported.Select(p => new JObject
                     {
                         ["name"] = p.Name,
@@ -269,16 +259,30 @@ namespace Neo.Compiler
             return ContractManifest.Parse(json.ToString(false)).CheckStandards();
         }
 
+        private JObject CreateAbiMethod(AbiMethod method)
+        {
+            return new JObject
+            {
+                ["name"] = method.Name,
+                ["offset"] = GetAbiOffset(method.Symbol),
+                ["safe"] = method.Safe,
+                ["returntype"] = method.ReturnType,
+                ["parameters"] = method.Parameters.Select(p => p.ToJson()).ToArray()
+            };
+        }
+
         public JObject CreateDebugInformation(string folder = "")
         {
-            System.Collections.Generic.List<string> documents = new();
-            System.Collections.Generic.List<JObject> methods = new();
+            System.Collections.Generic.List<string> documents = [];
+            System.Collections.Generic.List<JObject> methods = [];
             foreach (var m in _methodsConverted.Where(p => p.SyntaxNode is not null))
             {
-                System.Collections.Generic.List<JString> sequencePoints = new();
-                foreach (var ins in m.Instructions.Where(i => i.SourceLocation?.SourceTree is not null))
+                System.Collections.Generic.List<JString> sequencePoints = [];
+                JObject sequencePointsV2 = new();
+
+                foreach (var ins in m.Instructions.Where(i => i.Location?.Source?.Location.SourceTree is not null))
                 {
-                    var doc = ins.SourceLocation!.SourceTree!.FilePath;
+                    var doc = ins.Location!.Source!.Location.SourceTree!.FilePath;
                     if (!string.IsNullOrEmpty(folder))
                     {
                         doc = Path.GetRelativePath(folder, doc);
@@ -291,29 +295,59 @@ namespace Neo.Compiler
                         documents.Add(doc);
                     }
 
-                    FileLinePositionSpan span = ins.SourceLocation!.GetLineSpan();
-                    var str = $"{ins.Offset}[{index}]{ToRangeString(span.StartLinePosition)}-{ToRangeString(span.EndLinePosition)}";
+                    var range = ins.Location.Source.GetRange();
+                    var str = $"{ins.Offset}[{index}]{range}";
+
                     sequencePoints.Add(new JString(str));
 
-                    static string ToRangeString(LinePosition pos) => $"{pos.Line + 1}:{pos.Character + 1}";
+                    // Create sequence-points-v2
+
+                    var v2 = new JObject();
+                    v2["optimization"] = CompilationOptions.OptimizationType.None.ToString().ToLowerInvariant();
+                    v2["source"] = ins.Location.Source.ToJson(index);
+
+                    if (ins.Location.Compiler != null)
+                    {
+                        v2["compiler"] = ins.Location.Compiler.ToJson();
+                    }
+
+                    sequencePointsV2[ins.Offset.ToString()] = v2;
                 }
 
-                methods.Add(new JObject
+                var jsonMethod = new JObject
                 {
                     ["id"] = m.Symbol.ToString(),
                     ["name"] = $"{m.Symbol.ContainingType},{m.Symbol.Name}",
                     ["range"] = $"{m.Instructions[0].Offset}-{m.Instructions[^1].Offset}",
-                    ["params"] = (m.Symbol.IsStatic ? Array.Empty<string>() : new string[] { "this,Any" })
+                    ["params"] = (m.Symbol.IsStatic ? Array.Empty<string>() : ["this,Any"])
                         .Concat(m.Symbol.Parameters.Select(p => $"{p.Name},{p.Type.GetContractParameterType()}"))
                         .Select((p, i) => ((JString)$"{p},{i}")!)
                         .ToArray(),
                     ["return"] = m.Symbol.ReturnType.GetContractParameterType().ToString(),
                     ["variables"] = m.Variables.Select(p => ((JString)$"{p.Symbol.Name},{p.Symbol.Type.GetContractParameterType()},{p.SlotIndex}")!).ToArray(),
-                    ["sequence-points"] = sequencePoints.ToArray(),
-                });
+                    ["sequence-points"] = sequencePoints.ToArray()
+                };
+
+                if (Options.Debug == CompilationOptions.DebugType.Extended)
+                {
+                    // Add extra information for sequencePoints
+
+                    jsonMethod["sequence-points-v2"] = sequencePointsV2;
+
+                    // Add abi
+
+                    var exported = _methodsExported.FirstOrDefault(u => SymbolEqualityComparer.Default.Equals(u.Symbol, m.Symbol));
+                    if (exported != null)
+                    {
+                        // Add abi information if the method is exported
+                        jsonMethod["abi"] = CreateAbiMethod(exported);
+                    }
+                }
+
+                methods.Add(jsonMethod);
             }
 
-            return new JObject
+            var ret = new JObject
             {
                 ["hash"] = Script.ToScriptHash().ToString(),
                 ["documents"] = documents.Select(p => (JString)p!).ToArray(),
@@ -327,6 +361,13 @@ namespace Neo.Compiler
                     ["params"] = e.Parameters.Select((p, i) => ((JString)$"{p.Name},{p.Type},{i}")!).ToArray()
                 }).ToArray()
             };
+
+            if (Options.Debug == CompilationOptions.DebugType.Extended)
+            {
+                ret["compiler"] = Options.CompilerVersion;
+            }
+
+            return ret;
         }
 
         private void ProcessCompilationUnit(HashSet<INamedTypeSymbol> processed, SemanticModel model, CompilationUnitSyntax syntax)
@@ -416,6 +457,34 @@ namespace Neo.Compiler
                 }
                 _className = symbol.Name;
             }
+            Dictionary<(string, int), IMethodSymbol> export = new();
+            // export methods `new`ed in child class, not those hidden in parent class
+            foreach (ISymbol member in symbol.GetAllMembers())
+            {
+                switch (member)
+                {
+                    //case IEventSymbol @event when isSmartContract:
+                    //    ProcessEvent(@event);
+                    //    break;
+                    case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
+                        if (method.DeclaredAccessibility == Accessibility.Public)
+                            if (export.TryGetValue((method.Name, method.Parameters.Length), out IMethodSymbol? existingMethod))
+                            {
+                                INamedTypeSymbol containingType = method.ContainingType;
+                                INamedTypeSymbol existingType = existingMethod.ContainingType;
+                                if (Helper.InheritsFrom(containingType, existingType))
+                                    export[(method.Name, method.Parameters.Length)] = method;
+                                else if (!Helper.InheritsFrom(existingType, containingType))
+                                    // no inheritance relationship, but having 2 methods of same name and same count of args
+                                    throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
+                                // else existingType inherits from containingType; do nothing
+                            }
+                            else
+                                export.Add((method.Name, method.Parameters.Length), method);
+                        break;
+                }
+            }
+            HashSet<IMethodSymbol> exportMethods = [.. export.Values];
             foreach (ISymbol member in symbol.GetAllMembers())
             {
                 switch (member)
@@ -424,7 +493,10 @@ namespace Neo.Compiler
                         ProcessEvent(@event);
                         break;
                     case IMethodSymbol method when method.Name != "_initialize" && method.MethodKind != MethodKind.StaticConstructor:
-                        ProcessMethod(model, method, isSmartContract);
+                        if (method.DeclaredAccessibility != Accessibility.Public)
+                            ProcessMethod(model, method, isSmartContract);
+                        else if (exportMethods.Contains(method))
+                            ProcessMethod(model, method, isSmartContract);
                         break;
                 }
             }

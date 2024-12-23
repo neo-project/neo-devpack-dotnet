@@ -48,7 +48,11 @@ namespace Neo.Optimizer
                         throw new BadScriptException($"Target instruction of {i.OpCode} at new address {a} is deleted");
                     }
                     if (i.OpCode == OpCode.JMP || conditionalJump.Contains(i.OpCode) || i.OpCode == OpCode.CALL || i.OpCode == OpCode.ENDTRY)
-                        simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
+                        if (sbyte.MinValue <= delta && delta <= sbyte.MaxValue)
+                            simplifiedScript.Add(BitConverter.GetBytes(delta)[0]);
+                        else
+                            // TODO: build with _L version
+                            throw new NotImplementedException($"Need {i.OpCode}_L for delta={delta}");
                     if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
                         simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(delta)).ToList();
                     continue;
@@ -90,7 +94,7 @@ namespace Neo.Optimizer
             Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
             Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources)
         {
-            if (jumpTargetToSources.Remove(oldTarget, out HashSet<Instruction>? sources))
+            if (jumpTargetToSources.Remove(oldTarget, out HashSet<Instruction>? sources) && sources.Count > 0)
             {
                 foreach (Instruction s in sources)
                 {
@@ -104,9 +108,8 @@ namespace Neo.Optimizer
                     }
                 }
                 if (jumpTargetToSources.TryGetValue(newTarget, out HashSet<Instruction>? newTargetSources))
-                    newTargetSources.Union(sources);
-                else
-                    jumpTargetToSources[newTarget] = sources;
+                    sources = newTargetSources.Union(sources).ToHashSet();
+                jumpTargetToSources[newTarget] = sources;
             }
         }
     }

@@ -10,12 +10,12 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_PostfixUnary"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""isValid"",""parameters"":[{""name"":""person"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":172,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_PostfixUnary"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":false},{""name"":""isValid"",""parameters"":[{""name"":""person"",""type"":""Any""}],""returntype"":""Boolean"",""offset"":168,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMJXAQALEAsTwAwESm9obks1hwAAAHBoNZYAAAAmeWhKEc5OnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8RUNBFaBLOEUtLzkpUU5xKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACf0EVoEM5AC0BXAAJ4EgBQADwAUBPA0HlKeBBR0EVAVwEBeHBoC5eqJAQJQHgQznBoC5eqQFsFvBY="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALtXAQAAUAA8AFATwBALE8AMBEpvaG5LNYcAAABwaDWLAAAAJnloShHOTpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfEVDQRWgSzhFLS85KVFOcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn9BFaBDOQAtAVwACeUp4EFHQRUBXAQF4cGjYJgQJQHgQznBo2KpAad6x8A=="));
 
     #endregion
 
@@ -25,26 +25,23 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoC5eqJAQJQHgQznBoC5eqQA==
-    /// 00 : OpCode.INITSLOT 0101
-    /// 03 : OpCode.LDARG0
-    /// 04 : OpCode.STLOC0
-    /// 05 : OpCode.LDLOC0
-    /// 06 : OpCode.PUSHNULL
-    /// 07 : OpCode.EQUAL
-    /// 08 : OpCode.NOT
-    /// 09 : OpCode.JMPIF 04
-    /// 0B : OpCode.PUSHF
-    /// 0C : OpCode.RET
-    /// 0D : OpCode.LDARG0
-    /// 0E : OpCode.PUSH0
-    /// 0F : OpCode.PICKITEM
-    /// 10 : OpCode.STLOC0
-    /// 11 : OpCode.LDLOC0
-    /// 12 : OpCode.PUSHNULL
-    /// 13 : OpCode.EQUAL
-    /// 14 : OpCode.NOT
-    /// 15 : OpCode.RET
+    /// Script: VwEBeHBo2CYECUB4EM5waNiqQA==
+    /// INITSLOT 0101 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// JMPIFNOT 04 [2 datoshi]
+    /// PUSHF [1 datoshi]
+    /// RET [0 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// ISNULL [2 datoshi]
+    /// NOT [4 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("isValid")]
     public abstract bool? IsValid(object? person = null);
@@ -53,77 +50,81 @@ public abstract class Contract_PostfixUnary(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEACxALE8AMSm9obks1hwAAAHBoNZYAAAAmeWhKEc5OnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ8RUNBFaBLOEUtLzkpUU5xKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACf0EVoEM5AC0A=
-    /// 00 : OpCode.INITSLOT 0100
-    /// 03 : OpCode.PUSHNULL
-    /// 04 : OpCode.PUSH0
-    /// 05 : OpCode.PUSHNULL
-    /// 06 : OpCode.PUSH3
-    /// 07 : OpCode.PACK
-    /// 08 : OpCode.PUSHDATA1 4A6F686E
-    /// 0E : OpCode.OVER
-    /// 0F : OpCode.CALL_L 87000000
-    /// 14 : OpCode.STLOC0
-    /// 15 : OpCode.LDLOC0
-    /// 16 : OpCode.CALL_L 96000000
-    /// 1B : OpCode.JMPIFNOT 79
-    /// 1D : OpCode.LDLOC0
-    /// 1E : OpCode.DUP
-    /// 1F : OpCode.PUSH1
-    /// 20 : OpCode.PICKITEM
-    /// 21 : OpCode.TUCK
-    /// 22 : OpCode.INC
-    /// 23 : OpCode.DUP
-    /// 24 : OpCode.PUSHINT32 00000080
-    /// 29 : OpCode.JMPGE 04
-    /// 2B : OpCode.JMP 0A
-    /// 2D : OpCode.DUP
-    /// 2E : OpCode.PUSHINT32 FFFFFF7F
-    /// 33 : OpCode.JMPLE 1E
-    /// 35 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 3E : OpCode.AND
-    /// 3F : OpCode.DUP
-    /// 40 : OpCode.PUSHINT32 FFFFFF7F
-    /// 45 : OpCode.JMPLE 0C
-    /// 47 : OpCode.PUSHINT64 0000000001000000
-    /// 50 : OpCode.SUB
-    /// 51 : OpCode.PUSH1
-    /// 52 : OpCode.SWAP
-    /// 53 : OpCode.SETITEM
-    /// 54 : OpCode.DROP
-    /// 55 : OpCode.LDLOC0
-    /// 56 : OpCode.PUSH2
-    /// 57 : OpCode.PICKITEM
-    /// 58 : OpCode.PUSH1
-    /// 59 : OpCode.OVER
-    /// 5A : OpCode.OVER
-    /// 5B : OpCode.PICKITEM
-    /// 5C : OpCode.DUP
-    /// 5D : OpCode.REVERSE4
-    /// 5E : OpCode.REVERSE3
-    /// 5F : OpCode.INC
-    /// 60 : OpCode.DUP
-    /// 61 : OpCode.PUSHINT32 00000080
-    /// 66 : OpCode.JMPGE 04
-    /// 68 : OpCode.JMP 0A
-    /// 6A : OpCode.DUP
-    /// 6B : OpCode.PUSHINT32 FFFFFF7F
-    /// 70 : OpCode.JMPLE 1E
-    /// 72 : OpCode.PUSHINT64 FFFFFFFF00000000
-    /// 7B : OpCode.AND
-    /// 7C : OpCode.DUP
-    /// 7D : OpCode.PUSHINT32 FFFFFF7F
-    /// 82 : OpCode.JMPLE 0C
-    /// 84 : OpCode.PUSHINT64 0000000001000000
-    /// 8D : OpCode.SUB
-    /// 8E : OpCode.SETITEM
-    /// 8F : OpCode.DROP
-    /// 90 : OpCode.LDLOC0
-    /// 91 : OpCode.PUSH0
-    /// 92 : OpCode.PICKITEM
-    /// 93 : OpCode.RET
-    /// 94 : OpCode.PUSHNULL
-    /// 95 : OpCode.RET
+    /// Script: VwEAAFAAPABQE8AQCxPADARKb2huSzWHAAAAcGg1iwAAACZ5aEoRzk6cSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAnxFQ0EVoEs4RS0vOSlRTnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ/QRWgQzkALQA==
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHINT8 50 [1 datoshi]
+    /// PUSHINT8 3C [1 datoshi]
+    /// PUSHINT8 50 [1 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// PUSHDATA1 4A6F686E 'John' [8 datoshi]
+    /// OVER [2 datoshi]
+    /// CALL_L 87000000 [512 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL_L 8B000000 [512 datoshi]
+    /// JMPIFNOT 79 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// TUCK [2 datoshi]
+    /// INC [4 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 00000080 [1 datoshi]
+    /// JMPGE 04 [2 datoshi]
+    /// JMP 0A [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 FFFFFF7F [1 datoshi]
+    /// JMPLE 1E [2 datoshi]
+    /// PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// AND [8 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 FFFFFF7F [1 datoshi]
+    /// JMPLE 0C [2 datoshi]
+    /// PUSHINT64 0000000001000000 [1 datoshi]
+    /// SUB [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// SWAP [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// DUP [2 datoshi]
+    /// REVERSE4 [2 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// INC [4 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 00000080 [1 datoshi]
+    /// JMPGE 04 [2 datoshi]
+    /// JMP 0A [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 FFFFFF7F [1 datoshi]
+    /// JMPLE 1E [2 datoshi]
+    /// PUSHINT64 FFFFFFFF00000000 [1 datoshi]
+    /// AND [8 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT32 FFFFFF7F [1 datoshi]
+    /// JMPLE 0C [2 datoshi]
+    /// PUSHINT64 0000000001000000 [1 datoshi]
+    /// SUB [8 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]
     public abstract string? Test();
