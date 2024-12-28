@@ -51,6 +51,20 @@ internal partial class MethodConvert
                 ConvertExpression(model, syntax.ExpressionBody.Expression);
             }
         }
+
+        // If the method has no return value,
+        // but the expression body has a return value, example: a+=1;
+        // drop the return value
+        // Problem:
+        //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //   public void Test() => a+=1; // this will push an int value to the stack
+        //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //   public void Test() { a+=1; } // this will not push value to the stack
+        if (syntax is MethodDeclarationSyntax methodSyntax
+            && methodSyntax.ReturnType.ToString() == "void"
+            && IsExpressionReturningValue(model, methodSyntax))
+            AddInstruction(OpCode.DROP);
+
         return true;
     }
 

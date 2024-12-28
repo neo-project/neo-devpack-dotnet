@@ -41,5 +41,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(new BigInteger(3), Contract.ArrowMethod());
         }
+
+        [TestMethod]
+        public void Test_ArrowMethodNoReturn()
+        {
+            Contract.ArrowMethodNoRerurn();
+        }
     }
 }
