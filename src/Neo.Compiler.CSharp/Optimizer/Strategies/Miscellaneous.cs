@@ -13,9 +13,9 @@ namespace Neo.Optimizer
         /// <summary>
         /// If any method token in nef is not utilized by CALLT, remove the method token.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = int.MinValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveMethodToken(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)

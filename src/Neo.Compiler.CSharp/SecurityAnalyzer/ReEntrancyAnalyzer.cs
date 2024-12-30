@@ -67,9 +67,9 @@ namespace Neo.Compiler.SecurityAnalyzer
         /// then B calls another contract C, changing the storage of C,
         /// finally you call C.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         public static ReEntrancyVulnerabilityPair AnalyzeSingleContractReEntrancy
             (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {

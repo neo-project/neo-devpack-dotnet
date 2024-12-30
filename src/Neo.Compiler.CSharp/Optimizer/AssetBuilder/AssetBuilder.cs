@@ -13,9 +13,9 @@ namespace Neo.Optimizer
         /// That means you should get the Instructions from the same initial source.
         /// Do not script.EnumerateInstructions for many times.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <param name="simplifiedInstructionsToAddress">new Instruction => int address</param>
         /// <param name="jumpSourceToTargets"></param>
         /// <param name="trySourceToTargets"></param>
