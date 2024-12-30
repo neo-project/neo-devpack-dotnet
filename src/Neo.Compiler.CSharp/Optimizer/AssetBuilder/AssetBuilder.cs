@@ -17,9 +17,10 @@ namespace Neo.Optimizer
         /// <param name="manifest">Manifest</param>
         /// <param name="debugInfo">Debug information</param>
         /// <param name="simplifiedInstructionsToAddress">new Instruction => int address</param>
-        /// <param name="jumpSourceToTargets"></param>
-        /// <param name="trySourceToTargets"></param>
-        /// <param name="oldAddressToInstruction"></param>
+        /// <param name="jumpSourceToTargets">All jumping instructions source => target</param>
+        /// <param name="trySourceToTargets">All try instructions source => target</param>
+        /// <param name="oldAddressToInstruction">old int address => Instruction</param>
+        /// <param name="oldSequencePointAddressToNew">old int address => new int address</param>
         /// <returns></returns>
         public static (NefFile, ContractManifest, JObject?) BuildOptimizedAssets(
             NefFile nef, ContractManifest manifest, JObject? debugInfo,

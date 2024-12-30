@@ -96,7 +96,7 @@ namespace Neo.Optimizer
         public static (
             Dictionary<Instruction, Instruction>,  // jump source to target
             Dictionary<Instruction, (Instruction, Instruction)>,  // try source to targets
-            Dictionary<Instruction, HashSet<Instruction>>  // target to source
+            Dictionary<Instruction, HashSet<Instruction>>  // all jump and try targets to sources
             )
             FindAllJumpAndTrySourceToTargets(List<(int, Instruction)> addressAndInstructionsList, bool includePUSHA = true)
         {
