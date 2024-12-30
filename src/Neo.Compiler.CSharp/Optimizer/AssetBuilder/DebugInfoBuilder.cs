@@ -14,9 +14,10 @@ namespace Neo.Optimizer
         /// <summary>
         /// Modify debug info to fit simplified instructions
         /// </summary>
-        /// <param name="debugInfo"></param>
+        /// <param name="debugInfo">Debug information</param>
         /// <param name="simplifiedInstructionsToAddress">new Instruction => int address</param>
-        /// <param name="oldAddressToInstruction"></param>
+        /// <param name="oldAddressToInstruction">old int address => Instruction</param>
+        /// <param name="oldSequencePointAddressToNew">old int address => new int address</param>
         /// <returns></returns>
         public static JObject? ModifyDebugInfo(JObject? debugInfo,
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress,
