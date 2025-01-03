@@ -96,12 +96,31 @@ namespace Neo.Compiler.CSharp.TestContracts
             {
             }
             public int IntProperty => 42;
+            public byte? NullableProperty;
+            public byte?[]? NullableArray { get; set; }
         }
 
         public static void NullType()
         {
             TestClass? obj1 = null;
             obj1?.VoidMethod();
+        }
+
+        public static void NullCoalescingAssignment()
+        {
+            TestClass t = new() { NullableProperty = 1 };
+            ExecutionEngine.Assert(t.NullableProperty == 1);
+            t.NullableProperty = null;
+            ExecutionEngine.Assert(t.NullableArray == null);
+            t.NullableArray ??= [0, null, 2, 3, t.NullableProperty];
+            t.NullableProperty ??= t.NullableArray[0];
+            ExecutionEngine.Assert(t.NullableProperty == 0);
+            t.NullableProperty ??= t.NullableArray[1];
+            ExecutionEngine.Assert(t.NullableProperty == 0);
+            t.NullableArray[1] ??= 1;
+            ExecutionEngine.Assert(t.NullableArray[1] == 1);
+            t.NullableArray[1] ??= 2;
+            ExecutionEngine.Assert(t.NullableArray[1] == 1);
         }
     }
 }

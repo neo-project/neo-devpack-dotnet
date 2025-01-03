@@ -15,7 +15,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkUExIRFL9AVwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaECoZ8J4"));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwUExIRFL9AVwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUU00EVpSmgTUdBFaEBi7byw"));
 
     #endregion
 
@@ -41,7 +41,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUVpSmgTUdBFaEA=
+    /// Script: VwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUU00EVpSmgTUdBFaEA=
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -79,6 +79,8 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// SETITEM [8192 datoshi]
     /// DROP [2 datoshi]
     /// STLOC1 [2 datoshi]
+    /// DROP [2 datoshi]
+    /// CALL D0 [512 datoshi]
     /// DROP [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// DUP [2 datoshi]

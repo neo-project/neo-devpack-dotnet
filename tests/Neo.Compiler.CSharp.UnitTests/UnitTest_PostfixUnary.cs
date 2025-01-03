@@ -11,5 +11,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual("John", Contract.Test());
         }
+
+        [TestMethod]
+        public void TestUndefinedCase()
+        {
+            Contract.TestUndefinedCase();
+        }
+
+        [TestMethod]
+        public void TestInvert()
+        {
+            Contract.TestInvert();
+        }
     }
 }

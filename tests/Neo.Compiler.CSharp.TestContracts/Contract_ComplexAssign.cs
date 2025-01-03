@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework;
 using System;
 using System.ComponentModel;
 
@@ -123,6 +124,21 @@ namespace Neo.Compiler.CSharp.TestContracts
                 value2 >>= 1;
             }
             return (value1, value2);
+        }
+
+        public class TestClass
+        {
+            public byte Property = 7;
+            public byte[] ArrayProperty = [0, 1, 2, 3];
+        }
+
+        public static void UnitTest_Member_Element_Complex_Assign()
+        {
+            TestClass t = new();
+            t.Property %= 3;
+            ExecutionEngine.Assert(t.Property == 1);
+            t.ArrayProperty[3] &= 4;
+            ExecutionEngine.Assert(t.ArrayProperty[0] == 0);
         }
     }
 }
