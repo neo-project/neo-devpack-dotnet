@@ -34,6 +34,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             state.data = new StructB();
             BigInteger index = 0;
             (state.amount, state.data.height, _, index) = GetResult();
+            _ = GetResult();
             state.index = index;
             return state;
         }
