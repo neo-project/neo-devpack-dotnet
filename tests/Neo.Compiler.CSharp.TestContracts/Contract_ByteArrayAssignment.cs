@@ -36,7 +36,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static byte[] testAssignmentDynamic(byte x)
         {
-            byte[] result = new byte[] { 0x01, x };
+            byte[] result = [0x01, x];
             return result;
         }
     }
