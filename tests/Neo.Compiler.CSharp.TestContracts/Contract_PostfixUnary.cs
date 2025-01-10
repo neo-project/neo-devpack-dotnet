@@ -17,6 +17,15 @@ namespace Neo.Compiler.CSharp.TestContracts
 
             public int[] BWH { get; set; } = { 80, 60, 80 };
 
+            public static int Height = 170;
+            public static int Weight { get; set; } = 50;
+
+            public static void Invert()
+            {
+                ExecutionEngine.Assert(~(Height++) == -171);
+                ExecutionEngine.Assert(~(--Weight) == -50);
+            }
+
             public Person(string name) { Name = name; }
         }
 
@@ -54,7 +63,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static void TestInvert()
         {
-            ExecutionEngine.Assert(~1 == -2);
+            Person.Invert();
         }
     }
 }
