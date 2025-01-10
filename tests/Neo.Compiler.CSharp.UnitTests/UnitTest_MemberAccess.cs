@@ -13,7 +13,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var logs = new Queue<string>();
             Contract.OnRuntimeLog += (sender, log) => logs.Enqueue(log);
             Contract.TestMain();
-            AssertGasConsumed(6108600);
+            AssertGasConsumed(6108390);
 
             // Check logs
             Assert.AreEqual(4, logs.Count);
@@ -24,17 +24,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_StaticComplexAssignment()
+        public void Test_ComplexAssignment()
         {
-            Contract.TestStaticComplexAssignment();
-            AssertGasConsumed(1297980);
+            Contract.TestComplexAssignment();
+            AssertGasConsumed(2964570);
         }
 
         [TestMethod]
-        public void Test_FieldComplexAssignment()
+        public void Test_StaticComplexAssignment()
         {
-            Contract.TestFieldComplexAssignment();
-            AssertGasConsumed(2446200);
+            Contract.TestStaticComplexAssignment();
+            AssertGasConsumed(1237410);
         }
     }
 }

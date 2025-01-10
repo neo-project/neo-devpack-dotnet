@@ -15,6 +15,16 @@ namespace Neo.Compiler.CSharp.TestContracts
             Runtime.Log(my.Method());
         }
 
+        public static void TestComplexAssignment()
+        {
+            var my = new MyClass();
+            ExecutionEngine.Assert(my.PropertyComplexAssignment() == -1);
+            ExecutionEngine.Assert((my.Data1 /= -1) == 1);
+            ExecutionEngine.Assert(my.FieldComplexAssignment() == 0);
+            ExecutionEngine.Assert(my.FieldComplexAssignmentString() == "hello2");
+            ExecutionEngine.Assert((my.Data4 += "33") == "hello233");
+        }
+
         public static void TestStaticComplexAssignment()
         {
             MyClass.Data3 = 0;
@@ -22,17 +32,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             MyClass.Data3 += 1;
             ExecutionEngine.Assert(MyClass.Data3 == 1);
 
-            ExecutionEngine.Assert(MyClass.Data6 == "6");
-            MyClass.Data6 += "233";
-            ExecutionEngine.Assert(MyClass.Data6 == "6233");
-        }
-
-        public static void TestFieldComplexAssignment()
-        {
-            var my = new MyClass();
-            ExecutionEngine.Assert(my.FieldComplexAssignment() == 6);
-            ExecutionEngine.Assert(my.FieldComplexAssignmentString() == "hello2");
-            ExecutionEngine.Assert((my.Data4 += "33") == "hello233");
+            ExecutionEngine.Assert(MyClass.Data6 == false);
+            MyClass.Data6 |= true;
+            ExecutionEngine.Assert(MyClass.Data6 == true);
+            MyClass.Data6 ^= true;
+            ExecutionEngine.Assert(MyClass.Data6 == false);
         }
 
         public class MyClass
@@ -47,11 +51,12 @@ namespace Neo.Compiler.CSharp.TestContracts
 
             public int Data5 = 5;  // non-static IFieldSymbol
 
-            public static string Data6 { get; set; } = "6";  // static IPropertySymbol
+            public static bool Data6 { get; set; } = false;  // static IPropertySymbol
 
             public string Method() => "";
 
-            public int FieldComplexAssignment() => Data5 += 1;
+            public int PropertyComplexAssignment() => Data1 -= 1;
+            public int FieldComplexAssignment() => Data5 ^= Data5;
             public string FieldComplexAssignmentString() => Data4 += "2";
         }
     }

@@ -270,12 +270,15 @@ internal partial class MethodConvert
             "%=" => (OpCode.MOD, true),
             "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, true),
             "^=" when !isBoolean => (OpCode.XOR, true),
+            "^=" when isBoolean => (OpCode.XOR, false),
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
             "<<=" => (OpCode.SHL, true),
             ">>=" => (OpCode.SHR, true),
             _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
         };
         AddInstruction(opcode);
+        if (opcode == OpCode.XOR && isBoolean)
+            ChangeType(VM.Types.StackItemType.Boolean);
         if (isString) ChangeType(VM.Types.StackItemType.ByteString);
         if (checkResult) EnsureIntegerInRange(type);
     }
