@@ -147,6 +147,8 @@ namespace Neo.Compiler.CSharp.TestContracts
             ExecutionEngine.Assert((TestClass.StaticNullableProperty ??= 1) == 1);
             TestClass.StaticNullableProperty++;
             ExecutionEngine.Assert(TestClass.StaticNullableProperty == 2);
+            --TestClass.StaticNullableProperty;
+            ExecutionEngine.Assert(TestClass.StaticNullableProperty == 1);
         }
     }
 }
