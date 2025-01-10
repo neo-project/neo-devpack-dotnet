@@ -27,7 +27,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                 ExecutionEngine.Assert(~(--Weight) == -50);
             }
 
-            public Person(string name) { Name = name; Age--; }
+            public Person(string name) { Name = name; Age--; ++Age; --Age; }
         }
 
         public static string? Test()
@@ -68,6 +68,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             Person.Invert();
             ExecutionEngine.Assert(~(Person.Height--) == -172);
+            ExecutionEngine.Assert(~(++Person.Height) == -172);
         }
     }
 }
