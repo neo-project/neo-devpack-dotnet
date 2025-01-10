@@ -99,7 +99,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             public byte? NullableField;
             public byte?[]? NullableArray { get; set; }
             public static bool? StaticNullableField = true;
-            public static string? StaticNullableProperty { get; set; } = "nullable";
+            public static int? StaticNullableProperty { get; set; } = 0;
 
             public byte? FieldCoalesce(byte? f) => NullableField ??= f;
             public byte?[]? PropertyCoalesce(byte?[]? p) => NullableArray ??= p;
@@ -128,6 +128,8 @@ namespace Neo.Compiler.CSharp.TestContracts
             ExecutionEngine.Assert(t.NullableArray[1] == 1);
             t.NullableArray[1] ??= 2;
             ExecutionEngine.Assert(t.NullableArray[1] == 1);
+            t.NullableArray[1]++;
+            ExecutionEngine.Assert(t.NullableArray[1] == 2);
             t.NullableArray = [null];
             ExecutionEngine.Assert(t.NullableArray[0] == null);
         }
@@ -140,9 +142,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             ExecutionEngine.Assert((TestClass.StaticNullableField ??= false) == false);
 
             TestClass.StaticNullableProperty ??= null;
-            ExecutionEngine.Assert(TestClass.StaticNullableProperty == "nullable");
+            ExecutionEngine.Assert(TestClass.StaticNullableProperty == 0);
             TestClass.StaticNullableProperty = null;
-            ExecutionEngine.Assert((TestClass.StaticNullableProperty ??= "false") == "false");
+            ExecutionEngine.Assert((TestClass.StaticNullableProperty ??= 1) == 1);
+            TestClass.StaticNullableProperty++;
+            ExecutionEngine.Assert(TestClass.StaticNullableProperty == 2);
         }
     }
 }

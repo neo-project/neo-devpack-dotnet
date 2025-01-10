@@ -265,6 +265,9 @@ internal partial class MethodConvert
     private void EnsureIntegerInRange(ITypeSymbol type)
     {
         if (type.Name == "BigInteger") return;
+        while (type.NullableAnnotation == NullableAnnotation.Annotated)
+            // Supporting nullable integer like `byte?`
+            type = ((INamedTypeSymbol)type).TypeArguments.First();
         var (minValue, maxValue, mask) = type.Name switch
         {
             "SByte" => ((BigInteger)sbyte.MinValue, (BigInteger)sbyte.MaxValue, (BigInteger)0xff),
