@@ -1,3 +1,4 @@
+using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.TestContracts
@@ -12,6 +13,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             //Runtime.Log(MyClass.Data3.ToString());
             Runtime.Log(my.Data4);
             Runtime.Log(my.Method());
+
+            MyClass.Data3 = 0;
+            ExecutionEngine.Assert(MyClass.Data3 == 0);
+            MyClass.Data3 += 1;
+            ExecutionEngine.Assert(MyClass.Data3 == 1);
         }
 
         public class MyClass

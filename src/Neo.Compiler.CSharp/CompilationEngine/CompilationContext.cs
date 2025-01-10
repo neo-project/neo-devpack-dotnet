@@ -571,8 +571,11 @@ namespace Neo.Compiler
             {
                 method = new MethodConvert(this, symbol);
                 _methodsConverted.Add(method);
-                if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+                if (!symbol.DeclaringSyntaxReferences.IsEmpty
+                  && symbol.ToString() != "Neo.SmartContract.Framework.SmartContract._initialize()")
                 {
+                    // The following codes typically switch the code context from user's contract to devpack framework codes.
+                    // Be aware that, the context of the _initialize method should be remained in the user's contract
                     ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
                     model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
                 }
