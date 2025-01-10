@@ -10,12 +10,12 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_MemberAccess"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":118,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_MemberAccess"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testMain"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""testStaticComplexAssignment"",""parameters"":[],""returntype"":""Void"",""offset"":59,""safe"":false},{""name"":""testFieldComplexAssignment"",""parameters"":[],""returntype"":""Void"",""offset"":145,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":285,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAAe1cBAAwFaGVsbG8QEsBwaBDONwAAQc/nR5YMA21zZ0HP50eWaBHOQc/nR5ZoNERBz+dHlhBgWBCXOVgRnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9gWBGXOUBXAAEMAEBWARNgQLlKFjs="));
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/SYBVwEAFQwFaGVsbG8QE8BwaBDONwAAQc/nR5YMA21zZ0HP50eWaBHOQc/nR5ZoNAhBz+dHlkBXAAEMAEAQYFgQlzlYEZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfYFgRlzlZDAE2lzlZDAMyMzOL2yhhWQwENjIzM5c5QFcBABUMBWhlbGxvEBPAcGg0LhaXOWg0ZAwGaGVsbG8ylzloShHODAIzM4vbKE4RUNAMCGhlbGxvMjMzlzlAVwABeEoSzhGeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn04SUNBAVwABeEoRzgwBMovbKE4RUNBAVgITYAwBNmFAhxMI8A=="));
 
     #endregion
 
@@ -25,11 +25,53 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEADAVoZWxsbxASwHBoEM43AABBz+dHlgwDbXNnQc/nR5ZoEc5Bz+dHlmg0REHP50eWEGBYEJc5WBGeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2BYEZc5QA==
+    /// Script: VwEAFQwFaGVsbG8QE8BwaDQuFpc5aDRkDAZoZWxsbzKXOWhKEc4MAjMzi9soThFQ0AwIaGVsbG8yMzOXOUA=
     /// INITSLOT 0100 [64 datoshi]
+    /// PUSH5 [1 datoshi]
     /// PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
     /// PUSH0 [1 datoshi]
-    /// PUSH2 [1 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 2E [512 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// EQUAL [32 datoshi]
+    /// ASSERT [1 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 64 [512 datoshi]
+    /// PUSHDATA1 68656C6C6F32 'hello2' [8 datoshi]
+    /// EQUAL [32 datoshi]
+    /// ASSERT [1 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSHDATA1 3333 '33' [8 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// TUCK [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// SWAP [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// PUSHDATA1 68656C6C6F323333 'hello233' [8 datoshi]
+    /// EQUAL [32 datoshi]
+    /// ASSERT [1 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testFieldComplexAssignment")]
+    public abstract void TestFieldComplexAssignment();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEAFQwFaGVsbG8QE8BwaBDONwAAQc/nR5YMA21zZ0HP50eWaBHOQc/nR5ZoNAhBz+dHlkA=
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSH5 [1 datoshi]
+    /// PUSHDATA1 68656C6C6F 'hello' [8 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH3 [1 datoshi]
     /// PACK [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
@@ -44,8 +86,18 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// PICKITEM [64 datoshi]
     /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// CALL 44 [512 datoshi]
+    /// CALL 08 [512 datoshi]
     /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testMain")]
+    public abstract void TestMain();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: EGBYEJc5WBGeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn2BYEZc5WQwBNpc5WQwDMjMzi9soYVkMBDYyMzOXOUA=
     /// PUSH0 [1 datoshi]
     /// STSFLD0 [2 datoshi]
     /// LDSFLD0 [2 datoshi]
@@ -74,10 +126,23 @@ public abstract class Contract_MemberAccess(Neo.SmartContract.Testing.SmartContr
     /// PUSH1 [1 datoshi]
     /// EQUAL [32 datoshi]
     /// ASSERT [1 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// PUSHDATA1 36 '6' [8 datoshi]
+    /// EQUAL [32 datoshi]
+    /// ASSERT [1 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// PUSHDATA1 323333 '233' [8 datoshi]
+    /// CAT [2048 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// STSFLD1 [2 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// PUSHDATA1 36323333 '6233' [8 datoshi]
+    /// EQUAL [32 datoshi]
+    /// ASSERT [1 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
-    [DisplayName("testMain")]
-    public abstract void TestMain();
+    [DisplayName("testStaticComplexAssignment")]
+    public abstract void TestStaticComplexAssignment();
 
     #endregion
 }
