@@ -13,11 +13,21 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             public string Name { get; set; }
 
-            public int Age;
+            public int Age = 1;
+            public int Gender { get; set; } = 0;
 
             public int[] BWH { get; set; } = { 80, 60, 80 };
 
-            public Person(string name) { Name = name; }
+            public static int Height = 170;
+            public static int Weight { get; set; } = 50;
+
+            public static void Invert()
+            {
+                ExecutionEngine.Assert(~(Height++) == -171);
+                ExecutionEngine.Assert(~(--Weight) == -50);
+            }
+
+            public Person(string name) { Name = name; Age--; ++Age; --Age; }
         }
 
         public static string? Test()
@@ -50,11 +60,15 @@ namespace Neo.Compiler.CSharp.TestContracts
             ExecutionEngine.Assert(p.BWH[0] == 80);
             p.BWH[0] = ++p.BWH[0];
             ExecutionEngine.Assert(p.BWH[0] == 81);
+
+            ExecutionEngine.Assert(p.Gender++ == 0);
         }
 
         public static void TestInvert()
         {
-            ExecutionEngine.Assert(~1 == -2);
+            Person.Invert();
+            ExecutionEngine.Assert(~(Person.Height--) == -172);
+            ExecutionEngine.Assert(~(++Person.Height) == -172);
         }
     }
 }
