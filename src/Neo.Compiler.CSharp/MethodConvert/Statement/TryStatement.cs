@@ -53,6 +53,8 @@ namespace Neo.Compiler
             JumpTarget catchTarget = new();
             JumpTarget finallyTarget = new();
             JumpTarget endTarget = new();
+            StatementContext sc = new(syntax, catchTarget: catchTarget, finallyTarget: finallyTarget, endFinallyTarget: endTarget, tryState: ExceptionHandlingState.Try);
+            _generalStatementStack.Push(sc);
             AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget });
             _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
             ConvertStatement(model, syntax.Block);
@@ -65,6 +67,7 @@ namespace Neo.Compiler
                 if (catchClause.Filter is not null)
                     throw new CompilationException(catchClause.Filter, DiagnosticId.CatchFilter, $"Unsupported syntax: {catchClause.Filter}");
                 _tryStack.Peek().State = ExceptionHandlingState.Catch;
+                sc.TryState = ExceptionHandlingState.Catch;
                 ILocalSymbol? exceptionSymbol = null;
                 byte exceptionIndex;
                 if (catchClause.Declaration is null)
@@ -92,12 +95,15 @@ namespace Neo.Compiler
             if (syntax.Finally is not null)
             {
                 _tryStack.Peek().State = ExceptionHandlingState.Finally;
+                sc.TryState = ExceptionHandlingState.Finally;
                 finallyTarget.Instruction = AddInstruction(OpCode.NOP);
                 ConvertStatement(model, syntax.Finally.Block);
                 AddInstruction(OpCode.ENDFINALLY);
             }
             endTarget.Instruction = AddInstruction(OpCode.NOP);
             _tryStack.Pop();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside.");
         }
     }
 }

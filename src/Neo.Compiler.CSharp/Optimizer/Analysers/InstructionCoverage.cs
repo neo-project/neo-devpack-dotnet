@@ -30,7 +30,7 @@ namespace Neo.Optimizer
         FINALLY = 1 << 3,
     }
 
-    [DebuggerDisplay("{catchAddr}, {finallyAddr}, {tryStateType}, {continueAfterFinally}")]
+    [DebuggerDisplay("{catchAddr}, {finallyAddr}, {tryType}, {continueAfterFinally}")]
     public struct TryState
     {
         public int catchAddr { get; init; }
@@ -248,7 +248,7 @@ namespace Neo.Optimizer
                     if (continueAfterFinally)
                         return coveredMap[entranceAddr] = CoverInstruction(finallyAddr, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
                     // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
-                    return BranchType.THROW;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
+                    return value;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                 }
                 //if (instruction.OpCode != OpCode.NOP)
                 {
@@ -274,7 +274,8 @@ namespace Neo.Optimizer
                         returnedType = BranchType.ABORT;
                         foreach (int callaTarget in pushaTargets.Keys)
                         {
-                            BranchType singleCallaResult = CoverInstruction(callaTarget, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
+                            // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                            BranchType singleCallaResult = CoverInstruction(callaTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr);
                             if (singleCallaResult < returnedType)
                                 returnedType = singleCallaResult;
                             // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
@@ -283,7 +284,8 @@ namespace Neo.Optimizer
                     else
                     {
                         int callTarget = ComputeJumpTarget(addr, instruction);
-                        returnedType = CoverInstruction(callTarget, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
+                        // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                        returnedType = CoverInstruction(callTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr);
                     }
                     if (returnedType == BranchType.OK)
                         return coveredMap[entranceAddr] = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr);

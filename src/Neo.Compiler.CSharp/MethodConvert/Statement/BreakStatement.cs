@@ -44,10 +44,33 @@ namespace Neo.Compiler
         private void ConvertBreakStatement(BreakStatementSyntax syntax)
         {
             using (InsertSequencePoint(syntax))
-                if (_tryStack.TryPeek(out ExceptionHandling? result) && result.BreakTargetCount == 0)
-                    Jump(OpCode.ENDTRY_L, _breakTargets.Peek());
-                else
-                    Jump(OpCode.JMP_L, _breakTargets.Peek());
+            {
+                int nestedTryWithFinally = 0;
+                foreach (StatementContext sc in _generalStatementStack)
+                {
+                    if (sc.BreakTarget != null)
+                    {
+                        if (nestedTryWithFinally == 0)
+                            Jump(OpCode.JMP_L, sc.BreakTarget);
+                        else
+                            Jump(OpCode.ENDTRY_L, sc.BreakTarget);
+                        return;
+                    }
+                    if (sc.StatementSyntax is TryStatementSyntax && sc.FinallyTarget != null)
+                    {
+                        if (nestedTryWithFinally > 0)
+                            throw new CompilationException(sc.StatementSyntax, DiagnosticId.SyntaxNotSupported, "Neo VM does not support `break` from multi-layered nested try-catch with finally.");
+                        if (sc.TryState != ExceptionHandlingState.Finally)
+                            nestedTryWithFinally++;
+                        else  // Not likely to happen. C# syntax analyzer should forbid break in finally
+                            throw new CompilationException(sc.StatementSyntax, DiagnosticId.SyntaxNotSupported, "Cannot break in finally.");
+                    }
+                }
+                // break is not handled
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Cannot find what to break. " +
+                    $"If not syntax error, this is probably a compiler bug. " +
+                    $"Check whether the compiler is leaving out a push into {nameof(_generalStatementStack)}.");
+            }
         }
     }
 }

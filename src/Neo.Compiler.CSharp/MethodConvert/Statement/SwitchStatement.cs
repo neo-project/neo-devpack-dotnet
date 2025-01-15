@@ -57,6 +57,8 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             byte anonymousIndex = AddAnonymousVariable();
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, switchLabels: labels.ToDictionary());
+            _generalStatementStack.Push(sc);
             using (InsertSequencePoint(syntax.Expression))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -111,6 +113,8 @@ namespace Neo.Compiler
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             PopSwitchLabels();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside.");
         }
     }
 }

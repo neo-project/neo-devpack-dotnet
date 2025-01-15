@@ -10,11 +10,56 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.VM;
+using System.Collections.Generic;
 
 namespace Neo.Compiler
 {
     internal partial class MethodConvert
     {
+        /// <summary>
+        /// Store the contexts of goto, break, continue targets
+        /// </summary>
+        internal class StatementContext(StatementSyntax statementSyntax,
+            JumpTarget? breakTarget = null, JumpTarget? continueTarget = null,
+            ExceptionHandlingState? tryState = null,
+            JumpTarget? catchTarget = null, JumpTarget? finallyTarget = null, JumpTarget? endFinallyTarget = null,
+            Dictionary<ILabelSymbol, JumpTarget>? gotoLabels = null,
+            Dictionary<SwitchLabelSyntax, JumpTarget>? switchLabels = null
+            //StatementSyntax? parentStatement = null,
+            //HashSet<StatementSyntax>? childrenStatements = null
+            )
+        {
+            public readonly StatementSyntax StatementSyntax = statementSyntax;
+            public readonly JumpTarget? BreakTarget = breakTarget;
+            public readonly JumpTarget? ContinueTarget = continueTarget;
+            public /*readonly*/ ExceptionHandlingState? TryState = tryState;
+            public readonly JumpTarget? CatchTarget = catchTarget;
+            public readonly JumpTarget? FinallyTarget = finallyTarget;
+            public readonly JumpTarget? EndFinallyTarget = endFinallyTarget;
+            public /*readonly*/ Dictionary<ILabelSymbol, JumpTarget>? GotoLabels = gotoLabels;
+            public /*readonly*/ Dictionary<SwitchLabelSyntax, JumpTarget>? SwitchLabels = switchLabels;
+            //public readonly StatementSyntax? ParentStatement = parentStatement;
+            //public readonly HashSet<StatementSyntax>? ChildrenStatements = childrenStatements;
+
+            public bool AddLabel(ILabelSymbol label, JumpTarget target)
+            {
+                if (GotoLabels == null)
+                    GotoLabels = [];
+                return GotoLabels.TryAdd(label, target);
+            }
+            public bool AddLabel(SwitchLabelSyntax label, JumpTarget target)
+            {
+                if (SwitchLabels == null)
+                    SwitchLabels = [];
+                return SwitchLabels.TryAdd(label, target);
+            }
+            public bool ContainsLabel(ILabelSymbol label) => GotoLabels is not null && GotoLabels.ContainsKey(label);
+            public bool ContainsLabel(SwitchLabelSyntax label) => SwitchLabels is not null && SwitchLabels.ContainsKey(label);
+        }
+
+        private readonly Stack<StatementContext> _generalStatementStack = new();
+
         private void ConvertStatement(SemanticModel model, StatementSyntax statement)
         {
             switch (statement)

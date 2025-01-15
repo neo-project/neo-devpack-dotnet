@@ -45,6 +45,8 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
             using (InsertSequencePoint(syntax.Condition))
             {
@@ -56,6 +58,8 @@ namespace Neo.Compiler
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside.");
         }
     }
 }
