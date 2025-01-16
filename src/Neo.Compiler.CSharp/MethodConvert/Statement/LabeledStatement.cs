@@ -51,7 +51,6 @@ namespace Neo.Compiler
                         instruction.OpCode = OpCode.JMP_L;
             target.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(model, syntax.Statement);
-            //_generalStatementStack.Peek().AddLabel(symbol, target);
         }
     }
 }

@@ -11,9 +11,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
-using Org.BouncyCastle.Asn1.X509;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Neo.Compiler
 {
@@ -28,25 +26,21 @@ namespace Neo.Compiler
             JumpTarget? catchTarget = null, JumpTarget? finallyTarget = null, JumpTarget? endFinallyTarget = null,
             Dictionary<ILabelSymbol, JumpTarget>? gotoLabels = null,
             Dictionary<SwitchLabelSyntax, JumpTarget>? switchLabels = null
-            //StatementSyntax? parentStatement = null,
-            //HashSet<StatementSyntax>? childrenStatements = null
             )
         {
             public readonly StatementSyntax StatementSyntax = statementSyntax;
             public readonly JumpTarget? BreakTarget = breakTarget;
             public readonly JumpTarget? ContinueTarget = continueTarget;
-            public /*readonly*/ ExceptionHandlingState? TryState = tryState;
+            public ExceptionHandlingState? TryState = tryState;
             public readonly JumpTarget? CatchTarget = catchTarget;
             public readonly JumpTarget? FinallyTarget = finallyTarget;
             public readonly JumpTarget? EndFinallyTarget = endFinallyTarget;
-            public /*readonly*/ Dictionary<ILabelSymbol, JumpTarget>? GotoLabels = gotoLabels;
-            public /*readonly*/ Dictionary<SwitchLabelSyntax, JumpTarget>? SwitchLabels = switchLabels;
+            public Dictionary<ILabelSymbol, JumpTarget>? GotoLabels = gotoLabels;
+            public Dictionary<SwitchLabelSyntax, JumpTarget>? SwitchLabels = switchLabels;
             // handles `break`, `continue` and `goto` in multi-layered nested try with finally
             // key: target of this ENDTRY
             // value: this ENDTRY
             public Dictionary<JumpTarget, JumpTarget>? AdditionalEndTryTargetToInstruction { get; protected set; } = null;
-            //public readonly StatementSyntax? ParentStatement = parentStatement;
-            //public readonly HashSet<StatementSyntax>? ChildrenStatements = childrenStatements;
 
             /// <param name="target">Jump target of this added ENDTRY</param>
             /// <returns>The added ENDTRY</returns>
