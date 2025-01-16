@@ -11,7 +11,9 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using Org.BouncyCastle.Asn1.X509;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler
 {
@@ -39,19 +41,37 @@ namespace Neo.Compiler
             public readonly JumpTarget? EndFinallyTarget = endFinallyTarget;
             public /*readonly*/ Dictionary<ILabelSymbol, JumpTarget>? GotoLabels = gotoLabels;
             public /*readonly*/ Dictionary<SwitchLabelSyntax, JumpTarget>? SwitchLabels = switchLabels;
+            // handles `break`, `continue` and `goto` in multi-layered nested try with finally
+            // key: target of this ENDTRY
+            // value: this ENDTRY
+            public Dictionary<JumpTarget, JumpTarget>? AdditionalEndTryTargetToInstruction { get; protected set; } = null;
             //public readonly StatementSyntax? ParentStatement = parentStatement;
             //public readonly HashSet<StatementSyntax>? ChildrenStatements = childrenStatements;
 
+            /// <param name="target">Jump target of this added ENDTRY</param>
+            /// <returns>The added ENDTRY</returns>
+            /// <exception cref="CompilationException"></exception>
+            public JumpTarget AddEndTry(JumpTarget target)
+            {
+                if (StatementSyntax is not TryStatementSyntax)
+                    throw new CompilationException(StatementSyntax, DiagnosticId.SyntaxNotSupported, $"Can only append ENDTRY for TryStatement. Got {typeof(StatementSyntax)} {StatementSyntax}. This is a compiler bug.");
+                AdditionalEndTryTargetToInstruction ??= [];
+                if (AdditionalEndTryTargetToInstruction.TryGetValue(target, out JumpTarget? existingEndTry))
+                    return existingEndTry;
+                Instruction i = new() { OpCode = OpCode.ENDTRY_L, Target = target };
+                existingEndTry = new JumpTarget() { Instruction = i };
+                AdditionalEndTryTargetToInstruction.Add(target, existingEndTry);
+                return existingEndTry;
+            }
+
             public bool AddLabel(ILabelSymbol label, JumpTarget target)
             {
-                if (GotoLabels == null)
-                    GotoLabels = [];
+                GotoLabels ??= [];
                 return GotoLabels.TryAdd(label, target);
             }
             public bool AddLabel(SwitchLabelSyntax label, JumpTarget target)
             {
-                if (SwitchLabels == null)
-                    SwitchLabels = [];
+                SwitchLabels ??= [];
                 return SwitchLabels.TryAdd(label, target);
             }
             public bool ContainsLabel(ILabelSymbol label) => GotoLabels is not null && GotoLabels.ContainsKey(label);

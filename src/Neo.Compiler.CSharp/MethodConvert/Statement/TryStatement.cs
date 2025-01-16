@@ -59,6 +59,11 @@ namespace Neo.Compiler
             _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
             ConvertStatement(model, syntax.Block);
             Jump(OpCode.ENDTRY_L, endTarget);
+            if (syntax.Catches.Count == 0 && sc.AdditionalEndTryTargetToInstruction != null)
+                // handles `break`, `continue` and `goto` in multi-layered nested try with finally
+                foreach (JumpTarget i in sc.AdditionalEndTryTargetToInstruction.Values)
+                    AddInstruction(i.Instruction!);
+
             if (syntax.Catches.Count > 1)
                 throw new CompilationException(syntax.Catches[1], DiagnosticId.MultiplyCatches, "Only support one single catch.");
             if (syntax.Catches.Count > 0)
@@ -86,6 +91,11 @@ namespace Neo.Compiler
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);
+                if (sc.AdditionalEndTryTargetToInstruction != null)
+                    // handles `break`, `continue` and `goto` in multi-layered nested try with finally
+                    foreach (JumpTarget i in sc.AdditionalEndTryTargetToInstruction.Values)
+                        AddInstruction(i.Instruction!);
+
                 if (exceptionSymbol is null)
                     RemoveAnonymousVariable(exceptionIndex);
                 else
@@ -103,7 +113,7 @@ namespace Neo.Compiler
             endTarget.Instruction = AddInstruction(OpCode.NOP);
             _tryStack.Pop();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside.");
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

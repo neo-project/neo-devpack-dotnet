@@ -14,13 +14,17 @@ namespace Neo.Compiler.CSharp.TestContracts
                 finally { Storage.Put("\xff\x00", "\x01"); }
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x01");
             foreach (object i in Storage.Find("\xff"))
-                try { throw new System.Exception(); }
+                try
+                {
+                    for (int j = 0; j < 3;)
+                        throw new System.Exception();
+                }
                 catch
                 {
                     do { break; }
                     while (true);
-                    Storage.Put("\xff\x00", "\x00");
-                    break;  // break foreach; should execute finally
+                    try { break; }  // break foreach; should execute finally
+                    finally { Storage.Put("\xff\x00", "\x00"); }
                 }
                 finally
                 {
@@ -37,14 +41,24 @@ namespace Neo.Compiler.CSharp.TestContracts
                 {
                     for (int j = 0; j < 3;)
                         break;
-                    throw new System.Exception();
                 }
                 catch
                 {
                     int j = 0;
                     while (j < 3)
                         break;
-                    break;  // foreach; should execute finally
+                    ExecutionEngine.Assert(j == 0);
+                    try
+                    {
+                        Storage.Put("\xff\x00", "\x03");
+                        throw;
+                    }
+                    catch { break; }  // foreach; should execute finally
+                    finally
+                    {
+                        ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x03");
+                        Storage.Put("\xff\x00", "\x02");
+                    }
                 }
                 finally
                 {
