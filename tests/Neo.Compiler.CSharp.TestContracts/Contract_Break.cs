@@ -6,7 +6,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Break : SmartContract.Framework.SmartContract
     {
-        public static void BreakInTryCatch()
+        public static void BreakInTryCatch(bool exception)
         {
             Storage.Put("\xff\x00", "\x00");
             foreach (object i in Storage.Find("\xff"))
@@ -41,6 +41,8 @@ namespace Neo.Compiler.CSharp.TestContracts
                 {
                     for (int j = 0; j < 3;)
                         break;
+                    if (exception)
+                        throw new System.Exception();
                 }
                 catch
                 {

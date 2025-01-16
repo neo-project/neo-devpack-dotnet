@@ -10,7 +10,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestBreakInTry()
         {
-            Contract.BreakInTryCatch();
+            Contract.BreakInTryCatch(true);
+            Contract.BreakInTryCatch(false);
         }
     }
 }
