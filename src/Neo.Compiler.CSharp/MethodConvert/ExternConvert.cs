@@ -12,6 +12,7 @@
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
+using Neo.Compiler.ABI;
 using Neo.Cryptography;
 using Neo.IO;
 using Neo.SmartContract;
