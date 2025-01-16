@@ -69,5 +69,28 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return 3;
         }
+
+        public static int ArrowMethod()
+        {
+            return ArrowInline(1, 2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int ArrowInline(int a, int b) => a + b;
+
+
+        public static void ArrowMethodNoRerurn()
+        {
+            ArrowInlineNoReturn(1, 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ArrowInlineNoReturn(int a, int b) => CallMethodThatReturnsInt(a, b);
+
+
+        private static int CallMethodThatReturnsInt(int a, int b)
+        {
+            return a + b;
+        }
     }
 }

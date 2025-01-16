@@ -189,8 +189,9 @@ namespace Neo.Optimizer
         /// Cover a basic block, and recursively cover all branches
         /// </summary>
         /// <param name="addr">Starting address of script. Should start at a basic block</param>
-        /// <param name="script"></param>
-        /// <param name="coveredMap"></param>
+        /// <param name="tryStack">try-catch-finally stack</param>
+        /// <param name="continueFromBasicBlockEntranceAddr">Specify the previous basic block entrance address, if we continue execution from the previous basic block</param>
+        /// <param name="jumpFromBasicBlockEntranceAddr">Specify the entrance address of the basic block as the source of jump, if we jumped to current address from that basic block</param>
         /// <returns>Whether it is possible to return without exception</returns>
         /// <exception cref="BadScriptException"></exception>
         /// <exception cref="NotImplementedException"></exception>

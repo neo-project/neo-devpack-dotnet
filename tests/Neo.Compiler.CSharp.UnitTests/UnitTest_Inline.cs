@@ -35,5 +35,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(3), Contract.TestInline("inline_nested"));
             AssertGasConsumed(1071930);
         }
+
+        [TestMethod]
+        public void Test_ArrowMethod()
+        {
+            Assert.AreEqual(new BigInteger(3), Contract.ArrowMethod());
+        }
+
+        [TestMethod]
+        public void Test_ArrowMethodNoReturn()
+        {
+            Contract.ArrowMethodNoRerurn();
+        }
     }
 }

@@ -91,5 +91,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue >> 1)), values[1]);
         }
+
+        [TestMethod]
+        public void Test_Member_Element_Complex_Assign()
+        {
+            Contract.UnitTest_Member_Element_Complex_Assign();
+            AssertGasConsumed(1800780);
+        }
     }
 }

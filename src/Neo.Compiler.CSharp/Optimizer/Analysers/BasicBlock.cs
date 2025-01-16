@@ -167,7 +167,7 @@ namespace Neo.Optimizer
         /// <summary>
         /// Get the set of addresses covered by the input set of BasicBlocks
         /// </summary>
-        /// <param name="blocks"></param>
+        /// <param name="blocks">Basic blocks that composes the whole contract</param>
         /// <returns></returns>
         public static HashSet<int> AddrCoveredByBlocks(IEnumerable<BasicBlock> blocks)
         {

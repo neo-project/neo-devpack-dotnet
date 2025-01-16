@@ -20,23 +20,6 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-    private void ProcessFields(SemanticModel model)
-    {
-        _initSlot = true;
-        IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
-        for (int i = 0; i < fields.Length; i++)
-        {
-            ProcessFieldInitializer(model, fields[i], () =>
-            {
-                AddInstruction(OpCode.LDARG0);
-                Push(i);
-            }, () =>
-            {
-                AddInstruction(OpCode.SETITEM);
-            });
-        }
-    }
-
     private void ProcessConstructorInitializer(SemanticModel model)
     {
         INamedTypeSymbol type = Symbol.ContainingType;
@@ -46,6 +29,8 @@ internal partial class MethodConvert
         ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
         if (initializer is null)
         {
+            if (baseType.ContainingNamespace.ToString() == "Neo.SmartContract.Framework" && baseType.Name == "SmartContract")
+                return;
             IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
             if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
                 return;

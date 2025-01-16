@@ -64,6 +64,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             return a;
         }
 
+#pragma warning disable CS8600,CS8603
         public static string TestStringDefault()
         {
             string a = default;
@@ -75,6 +76,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             object a = default;
             return a;
         }
+#pragma warning restore CS8600,CS8603
 
         public static BigInteger TestBigIntegerDefault()
         {
@@ -93,11 +95,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             public int Value;
         }
 
+#pragma warning disable CS8600,CS8603
         public static TestClass TestClassDefault()
         {
             TestClass a = default;
             return a;
         }
+#pragma warning restore CS8600,CS8603
 
         public class TestClass
         {

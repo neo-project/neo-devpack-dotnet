@@ -35,13 +35,13 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: DBFEZWJ1ZyBjb21waWxhdGlvbhHADAVEZWJ1Z0GVAW9hEUA=
-    /// 00 : PUSHDATA1 446562756720636F6D70696C6174696F6E [8 datoshi]
-    /// 13 : PUSH1 [1 datoshi]
-    /// 14 : PACK [2048 datoshi]
-    /// 15 : PUSHDATA1 4465627567 'Debug' [8 datoshi]
-    /// 1C : SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
-    /// 21 : PUSH1 [1 datoshi]
-    /// 22 : RET [0 datoshi]
+    /// PUSHDATA1 446562756720636F6D70696C6174696F6E [8 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// PUSHDATA1 4465627567 'Debug' [8 datoshi]
+    /// SYSCALL 95016F61 'System.Runtime.Notify' [32768 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testElse")]
     public abstract BigInteger? TestElse();
@@ -51,13 +51,13 @@ public abstract class Contract_Debug(Neo.SmartContract.Testing.SmartContractInit
     /// </summary>
     /// <remarks>
     /// Script: VwEAEnARcGhA
-    /// 00 : INITSLOT 0100 [64 datoshi]
-    /// 03 : PUSH2 [1 datoshi]
-    /// 04 : STLOC0 [2 datoshi]
-    /// 05 : PUSH1 [1 datoshi]
-    /// 06 : STLOC0 [2 datoshi]
-    /// 07 : LDLOC0 [2 datoshi]
-    /// 08 : RET [0 datoshi]
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testIf")]
     public abstract BigInteger? TestIf();

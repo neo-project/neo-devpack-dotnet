@@ -51,6 +51,7 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
         public int Age { get; }
         public string Address { get; init; }
 
+#pragma warning disable CS8618
         public Person(string name, int age)
         {
             Name = name;
@@ -60,5 +61,6 @@ public class Contract_PropertyMethod : SmartContract.Framework.SmartContract
         public Person()
         {
         }
+#pragma warning restore CS8618
     }
 }

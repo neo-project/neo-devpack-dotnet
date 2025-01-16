@@ -178,20 +178,22 @@ namespace Neo.Optimizer
                         {
                             tryStack.Push((tryBlock, null, TryType.CATCH, true));
                             CoverSingleTry(allTry[tryBlock].catchBlock!, tryStack);
+                            tryStack.Pop();  // Pop the CATCH
                         }
                         int endPointer = ComputeJumpTarget(currentBlock.lastAddr, instruction);
                         endFinallyBlock = contractInBasicBlocks.basicBlocksByStartAddr[endPointer];
+                        BasicBlock nextBlock;
                         if (allTry[tryBlock].finallyBlock != null)
                         {
                             tryStack.Push(new(tryBlock, endFinallyBlock, TryType.FINALLY, true));
-                            currentBlock = allTry[tryBlock].finallyBlock!;
+                            nextBlock = allTry[tryBlock].finallyBlock!;
                         }
                         else
                         {
                             allTry[tryBlock].endingBlocks.Add(endFinallyBlock);
-                            currentBlock = endFinallyBlock;
+                            nextBlock = endFinallyBlock;
                         }
-                        return CoverSingleTry(currentBlock, tryStack);
+                        return CoverSingleTry(nextBlock, tryStack);
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {

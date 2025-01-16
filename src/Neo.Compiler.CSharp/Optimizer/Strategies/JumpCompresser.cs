@@ -26,9 +26,9 @@ namespace Neo.Optimizer
         /// <summary>
         /// A preparation for operations that may increase contract size.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         /// [Strategy(Priority = int.MinValue)]  // No attribute
         public static (NefFile, ContractManifest, JObject?) UncompressJump(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -111,9 +111,9 @@ namespace Neo.Optimizer
         /// <summary>
         /// Compress _L instructions to short version, if possible
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = int.MinValue)]
         public static (NefFile, ContractManifest, JObject?) CompressJump(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -242,9 +242,9 @@ namespace Neo.Optimizer
         /// If the removed JMP or JMP_L itself is a jump target,
         /// re-target to the instruction after the JMP or JMP_L
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = int.MaxValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveUnnecessaryJumps(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -311,9 +311,9 @@ namespace Neo.Optimizer
         /// <summary>
         /// If a JMP or JMP_L jumps to a RET, replace the JMP with RET
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = int.MaxValue - 4)]
         public static (NefFile, ContractManifest, JObject?) ReplaceJumpWithRet(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -369,9 +369,9 @@ namespace Neo.Optimizer
         /// If an unconditional jump targets a conditional jump, DO NOT replace the unconditional jump with a conditional jump to its final destination. THIS IS WRONG.
         /// This should be executed very early, before <see cref="Reachability.RemoveUncoveredInstructions"/>
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = int.MaxValue - 8)]
         public static (NefFile, ContractManifest, JObject?) FoldJump(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)

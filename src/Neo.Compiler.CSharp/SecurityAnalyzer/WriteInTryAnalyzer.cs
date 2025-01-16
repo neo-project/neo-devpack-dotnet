@@ -58,9 +58,9 @@ namespace Neo.Compiler.SecurityAnalyzer
         /// But it is ambiguous whether a write in try is actually reverted.
         /// You can still abort or throw exception when you catch an exception from try. This is safe.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns>list of addresses that write in try</returns>
         public static WriteInTryVulnerability AnalyzeWriteInTry
             (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
