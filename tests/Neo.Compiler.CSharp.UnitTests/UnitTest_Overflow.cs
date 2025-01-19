@@ -52,12 +52,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_NegateChecked()
         {
-            Assert.AreEqual(-2147483647, Contract.NegateIntChecked(2147483647));
+            Assert.AreEqual(-2147483647, Contract.NegateIntChecked(int.MaxValue));
+            Assert.AreEqual(-2147483647, Contract.NegateInt(int.MaxValue));
 
             // VMUnhandledException -int.MinValue
             Assert.ThrowsException<TestException>(() => Contract.NegateIntChecked(int.MinValue));
 
-            Assert.AreEqual(-9223372036854775807, Contract.NegateLongChecked(9223372036854775807));
+            Assert.AreEqual(-long.MaxValue, Contract.NegateLongChecked(long.MaxValue));
+            Assert.AreEqual(-long.MaxValue, Contract.NegateLong(long.MaxValue));
+
+            // VMUnhandledException -long.MinValue
             Assert.ThrowsException<TestException>(() => Contract.NegateLongChecked(long.MinValue));
 
             // -short -> int
@@ -72,6 +76,20 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // it is different for short.MinValue, because `-short` is an int
             Assert.AreEqual(32768, unchecked(-short.MinValue));
+
+
+            // add and negate
+            Assert.AreEqual(-2147483648, Contract.NegateAddInt(int.MaxValue, 1));
+            Assert.ThrowsException<TestException>(() => Contract.NegateAddIntChecked(int.MaxValue, 1));
+
+            Assert.AreEqual(-9223372036854775808, Contract.NegateAddLong(long.MaxValue, 1));
+            Assert.ThrowsException<TestException>(() => Contract.NegateAddLongChecked(long.MaxValue, 1));
+
+            Assert.AreEqual(-2147483648, Contract.NegateAddInt(-2147483647, -1));
+            Assert.ThrowsException<TestException>(() => Contract.NegateAddIntChecked(-2147483647, -1));
+
+            Assert.AreEqual(-9223372036854775808, Contract.NegateAddLong(-9223372036854775807, -1));
+            Assert.ThrowsException<TestException>(() => Contract.NegateAddLongChecked(-9223372036854775807, -1));
         }
     }
 }

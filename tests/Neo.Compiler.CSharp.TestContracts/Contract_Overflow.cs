@@ -15,5 +15,11 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static int NegateShortChecked(short a) => checked(-a);
         public static int NegateShort(short a) => -a;
+
+        public static int NegateAddInt(int a, int b) => -(a + b);
+        public static int NegateAddIntChecked(int a, int b) => checked(-(a + b));
+
+        public static long NegateAddLong(long a, long b) => -(a + b);
+        public static long NegateAddLongChecked(long a, long b) => checked(-(a + b));
     }
 }
