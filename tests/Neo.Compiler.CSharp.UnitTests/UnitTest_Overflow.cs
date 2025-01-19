@@ -1,7 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -48,6 +47,31 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(unchecked(uint.MinValue * uint.MaxValue), Contract.MulUInt(uint.MinValue, uint.MaxValue));
             Assert.AreEqual(unchecked(uint.MinValue * (-uint.MaxValue)), Contract.MulUInt(uint.MinValue, -uint.MaxValue));
             Assert.AreEqual(unchecked((-uint.MinValue) * uint.MaxValue), Contract.MulUInt(unchecked(-uint.MinValue), uint.MaxValue));
+        }
+
+        [TestMethod]
+        public void Test_NegateChecked()
+        {
+            Assert.AreEqual(-2147483647, Contract.NegateIntChecked(2147483647));
+
+            // VMUnhandledException -int.MinValue
+            Assert.ThrowsException<TestException>(() => Contract.NegateIntChecked(int.MinValue));
+
+            Assert.AreEqual(-9223372036854775807, Contract.NegateLongChecked(9223372036854775807));
+            Assert.ThrowsException<TestException>(() => Contract.NegateLongChecked(long.MinValue));
+
+            // -short -> int
+            Assert.AreEqual(-32767, Contract.NegateShortChecked(32767));
+            Assert.AreEqual(32768, Contract.NegateShort(short.MinValue));
+
+            // unchecked(-int.MinValue) == int.MinValue
+            Assert.AreEqual(int.MinValue, unchecked(-int.MinValue));
+
+            // unchecked(-long.MinValue) == long.MinValue
+            Assert.AreEqual(long.MinValue, unchecked(-long.MinValue));
+
+            // it is different for short.MinValue, because `-short` is an int
+            Assert.AreEqual(32768, unchecked(-short.MinValue));
         }
     }
 }
