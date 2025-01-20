@@ -59,6 +59,17 @@ namespace Neo.Compiler
             PushBreakTarget(breakTarget);
             StatementContext sc = new(syntax, breakTarget: breakTarget, switchLabels: labels.ToDictionary());
             _generalStatementStack.Push(sc);
+
+            // handle possible normal labels in all sections of this switch
+            foreach (SwitchSectionSyntax section in syntax.Sections)
+                foreach (StatementSyntax label in section.Statements)
+                    if (label is LabeledStatementSyntax l)
+                    {
+                        ILabelSymbol symbol = (ILabelSymbol)model.GetDeclaredSymbol(l)!;
+                        JumpTarget target = AddLabel(symbol);
+                        sc.AddLabel(symbol, target);
+                    }
+
             using (InsertSequencePoint(syntax.Expression))
             {
                 ConvertExpression(model, syntax.Expression);

@@ -63,13 +63,15 @@ namespace Neo.Compiler
                 GotoLabels ??= [];
                 return GotoLabels.TryAdd(label, target);
             }
-            public bool AddLabel(SwitchLabelSyntax label, JumpTarget target)
+            public bool TryGetLabel(ILabelSymbol label, out JumpTarget? target)
             {
-                SwitchLabels ??= [];
-                return SwitchLabels.TryAdd(label, target);
+                if (GotoLabels is null)
+                {
+                    target = null;
+                    return false;
+                }
+                return GotoLabels.TryGetValue(label, out target);
             }
-            public bool ContainsLabel(ILabelSymbol label) => GotoLabels is not null && GotoLabels.ContainsKey(label);
-            public bool ContainsLabel(SwitchLabelSyntax label) => SwitchLabels is not null && SwitchLabels.ContainsKey(label);
         }
 
         private readonly Stack<StatementContext> _generalStatementStack = new();
