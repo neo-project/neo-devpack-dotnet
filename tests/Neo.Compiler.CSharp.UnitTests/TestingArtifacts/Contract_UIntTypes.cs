@@ -1,5 +1,4 @@
 using Neo.Cryptography.ECC;
-using Neo.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,7 +15,7 @@ public abstract class Contract_UIntTypes(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF5XAAF4DBT2ZENJjTh40yuZTk4Sg8aTRCHa/pdAVwABeAwUAAAAAAAAAAAAAAAAAAAAAAAAAACXQFcAAXjbKErYJAlKygAUKAM6QFcAAXhK2ShQygAUs6skBAlAeLFA1omLJA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGJXAAF4DBT2ZENJjTh40yuZTk4Sg8aTRCHa/pdAVwABeAwUAAAAAAAAAAAAAAAAAAAAAAAAAACXQFcAAXjbKErYJAlKygAUKAM6QFcAAXhK2SgkBkUJIgbKABSzJAQJQHixQDMGjmI="));
 
     #endregion
 
@@ -75,22 +74,24 @@ public abstract class Contract_UIntTypes(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeErZKFDKABSzqyQECUB4sUA=
+    /// Script: VwABeErZKCQGRQkiBsoAFLMkBAlAeLFA
     /// 00 : INITSLOT 0001 [64 datoshi]
     /// 03 : LDARG0 [2 datoshi]
     /// 04 : DUP [2 datoshi]
     /// 05 : ISTYPE 28 'ByteString' [2 datoshi]
-    /// 07 : SWAP [2 datoshi]
-    /// 08 : SIZE [4 datoshi]
-    /// 09 : PUSHINT8 14 [1 datoshi]
-    /// 0B : NUMEQUAL [8 datoshi]
-    /// 0C : BOOLAND [8 datoshi]
-    /// 0D : JMPIF 04 [2 datoshi]
-    /// 0F : PUSHF [1 datoshi]
-    /// 10 : RET [0 datoshi]
-    /// 11 : LDARG0 [2 datoshi]
-    /// 12 : NZ [4 datoshi]
-    /// 13 : RET [0 datoshi]
+    /// 07 : JMPIF 06 [2 datoshi]
+    /// 09 : DROP [2 datoshi]
+    /// 0A : PUSHF [1 datoshi]
+    /// 0B : JMP 06 [2 datoshi]
+    /// 0D : SIZE [4 datoshi]
+    /// 0E : PUSHINT8 14 [1 datoshi]
+    /// 10 : NUMEQUAL [8 datoshi]
+    /// 11 : JMPIF 04 [2 datoshi]
+    /// 13 : PUSHF [1 datoshi]
+    /// 14 : RET [0 datoshi]
+    /// 15 : LDARG0 [2 datoshi]
+    /// 16 : NZ [4 datoshi]
+    /// 17 : RET [0 datoshi]
     /// </remarks>
     [DisplayName("validateAddress")]
     public abstract bool? ValidateAddress(UInt160? address);

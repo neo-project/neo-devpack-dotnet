@@ -18,18 +18,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             // True
 
             Assert.IsTrue(Contract.ValidateAddress(address));
-            AssertGasConsumed(1048290);
+            AssertGasConsumed(1048050);
 
             // False
 
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
-            AssertGasConsumed(1047930);
-            Assert.ThrowsException<TestException>(() => Contract.ValidateAddress(InvalidUInt160.Null));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047450);
+            Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.Null));
+            AssertGasConsumed(1047450);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidType));
-            AssertGasConsumed(1047930);
+            AssertGasConsumed(1047450);
             Assert.IsFalse(Contract.ValidateAddress(InvalidUInt160.InvalidLength));
-            AssertGasConsumed(1048140);
+            AssertGasConsumed(1047900);
         }
 
         [TestMethod]
