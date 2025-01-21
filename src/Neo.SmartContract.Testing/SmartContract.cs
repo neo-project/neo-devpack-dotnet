@@ -1,4 +1,3 @@
-
 // Copyright (C) 2015-2025 The Neo Project.
 //
 // SmartContract.cs file belongs to the neo project and is free
