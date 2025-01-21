@@ -62,6 +62,8 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             foreach (var (variable, symbol) in variables)
             {
                 byte variableIndex = AddLocalVariable(symbol);
@@ -99,6 +101,8 @@ namespace Neo.Compiler
                 RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

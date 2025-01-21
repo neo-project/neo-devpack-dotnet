@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.Compiler
@@ -56,54 +57,106 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertGotoStatement(SemanticModel model, GotoStatementSyntax syntax)
         {
+            if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.None))
+                ConvertGotoNormalLabel(model, syntax);
+            else
+                ConvertGotoSwitchLabel(model, syntax);
+        }
+
+        private void ConvertGotoNormalLabel(SemanticModel model, GotoStatementSyntax syntax)
+        {
             using (InsertSequencePoint(syntax))
-                if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.None))
-                {
-                    ILabelSymbol symbol = (ILabelSymbol)model.GetSymbolInfo(syntax.Expression!).Symbol!;
-                    JumpTarget target = AddLabel(symbol, false);
-                    if (_tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally && !result.Labels.Contains(symbol))
-                        result.PendingGotoStatments.Add(Jump(OpCode.ENDTRY_L, target));
-                    else
-                        Jump(OpCode.JMP_L, target);
+            {
+                JumpTarget? gotoTarget = null;
+                List<StatementContext> visitedTry = [];  // from shallow to deep
+                ILabelSymbol label = (ILabelSymbol)model.GetSymbolInfo(syntax.Expression!).Symbol!;
+                foreach (StatementContext sc in _generalStatementStack)
+                {// start from the deepest context
+                    // find the final goto target
+                    if (sc.TryGetLabel(label, out gotoTarget))
+                        break;
+                    // stage the try stacks on the way
+                    if (sc.StatementSyntax is TryStatementSyntax)
+                        visitedTry.Add(sc);
                 }
-                else
-                {
-                    var labels = _switchStack.Peek();
-                    JumpTarget target = default!;
-                    if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.DefaultKeyword))
+                if (gotoTarget == null)
+                    // goto is not handled
+                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Cannot find what to continue. " +
+                        $"If not syntax error, this is probably a compiler bug. " +
+                        $"Check whether the compiler is leaving out a push into {nameof(_generalStatementStack)}.");
+
+                foreach (StatementContext sc in visitedTry)
+                    // start from the most external try
+                    // internal try should ENDTRY, targeting the correct external goto target
+                    gotoTarget = sc.AddEndTry(gotoTarget);
+
+                Jump(OpCode.JMP_L, gotoTarget);
+                // We could use ENDTRY if current statement calling `goto` is a try statement,
+                // but this job can be done by the optimizer
+                // Note that, do not Jump(OpCode.ENDTRY_L, gotoTarget) here,
+                // because the gotoTarget here is already an ENDTRY_L for current try stack.
+            }
+        }
+
+        private void ConvertGotoSwitchLabel(SemanticModel model, GotoStatementSyntax syntax)
+        {
+            using (InsertSequencePoint(syntax))
+            {
+                JumpTarget? gotoTarget = null;
+                List<StatementContext> visitedTry = [];  // from shallow to deep
+                foreach (StatementContext sc in _generalStatementStack)
+                {// start from the deepest context
+                    // find the final goto target
+                    if (sc.StatementSyntax is SwitchStatementSyntax switch_)
                     {
-                        target = labels.First(p => p.Item1 is DefaultSwitchLabelSyntax).Item2;
-                    }
-                    else
-                    {
-                        object? value = model.GetConstantValue(syntax.Expression!).Value;
-                        foreach (var (l, t) in labels)
+                        if (syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.DefaultKeyword))
+                            gotoTarget = sc.SwitchLabels!.First(p => p.Key is DefaultSwitchLabelSyntax).Value;
+                        else
                         {
-                            if (l is not CaseSwitchLabelSyntax cl) continue;
-                            object? clValue = model.GetConstantValue(cl.Value).Value;
-                            if (value is null)
+                            object? value = model.GetConstantValue(syntax.Expression!).Value;
+                            foreach ((SwitchLabelSyntax label, JumpTarget target) in sc.SwitchLabels!)
                             {
-                                if (clValue is null)
+                                if (label is not CaseSwitchLabelSyntax cl)
+                                    continue;
+                                object? clValue = model.GetConstantValue(cl.Value).Value;
+                                if (value is null)
                                 {
-                                    target = t;
-                                    break;
+                                    if (clValue is null)
+                                    {
+                                        gotoTarget = target;
+                                        break;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                if (value.Equals(clValue))
+                                else if (value.Equals(clValue))
                                 {
-                                    target = t;
+                                    gotoTarget = target;
                                     break;
                                 }
                             }
                         }
+                        break;
                     }
-                    if (_tryStack.TryPeek(out ExceptionHandling? result) && result.SwitchCount == 0)
-                        Jump(OpCode.ENDTRY_L, target);
-                    else
-                        Jump(OpCode.JMP_L, target);
+                    // stage the try stacks on the way
+                    if (sc.StatementSyntax is TryStatementSyntax)
+                        visitedTry.Add(sc);
                 }
+                if (gotoTarget == null)
+                    // goto is not handled
+                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Cannot find what to goto. " +
+                        $"If not syntax error, this is probably a compiler bug. " +
+                        $"Check whether the compiler is leaving out a push into {nameof(_generalStatementStack)}.");
+
+                foreach (StatementContext sc in visitedTry)
+                    // start from the most external try
+                    // internal try should ENDTRY, targeting the correct external goto target
+                    gotoTarget = sc.AddEndTry(gotoTarget);
+
+                Jump(OpCode.JMP_L, gotoTarget);
+                // We could use ENDTRY if current statement calling `goto` is a try statement,
+                // but this job can be done by the optimizer
+                // Note that, do not Jump(OpCode.ENDTRY_L, gotoTarget) here,
+                // because the gotoTarget here is already an ENDTRY_L for current try stack.
+            }
         }
     }
 }

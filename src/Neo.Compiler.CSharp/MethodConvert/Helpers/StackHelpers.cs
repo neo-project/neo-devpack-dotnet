@@ -263,16 +263,12 @@ internal partial class MethodConvert
 
     #region LabelsAndTargets
 
-    private JumpTarget AddLabel(ILabelSymbol symbol, bool checkTryStack)
+    private JumpTarget AddLabel(ILabelSymbol symbol)
     {
         if (!_labels.TryGetValue(symbol, out JumpTarget? target))
         {
             target = new JumpTarget();
             _labels.Add(symbol, target);
-        }
-        if (checkTryStack && _tryStack.TryPeek(out ExceptionHandling? result) && result.State != ExceptionHandlingState.Finally)
-        {
-            result.Labels.Add(symbol);
         }
         return target;
     }

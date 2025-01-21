@@ -10,6 +10,8 @@
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler
 {
@@ -44,10 +46,38 @@ namespace Neo.Compiler
         private void ConvertBreakStatement(BreakStatementSyntax syntax)
         {
             using (InsertSequencePoint(syntax))
-                if (_tryStack.TryPeek(out ExceptionHandling? result) && result.BreakTargetCount == 0)
-                    Jump(OpCode.ENDTRY_L, _breakTargets.Peek());
-                else
-                    Jump(OpCode.JMP_L, _breakTargets.Peek());
+            {
+                JumpTarget? breakTarget = null;
+                List<StatementContext> visitedTry = [];  // from shallow to deep
+                foreach (StatementContext sc in _generalStatementStack)
+                {// start from the deepest context
+                    // find the final break target
+                    if (sc.BreakTarget != null)
+                    {
+                        breakTarget = sc.BreakTarget;
+                        break;
+                    }
+                    // stage the try stacks on the way
+                    if (sc.StatementSyntax is TryStatementSyntax)
+                        visitedTry.Add(sc);
+                }
+                if (breakTarget == null)
+                    // break is not handled
+                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Cannot find what to break. " +
+                        $"If not syntax error, this is probably a compiler bug. " +
+                        $"Check whether the compiler is leaving out a push into {nameof(_generalStatementStack)}.");
+
+                foreach (StatementContext sc in visitedTry)
+                    // start from the most external try
+                    // internal try should ENDTRY, targeting the correct external break target
+                    breakTarget = sc.AddEndTry(breakTarget);
+
+                Jump(OpCode.JMP_L, breakTarget);
+                // We could use ENDTRY if current statement calling `break` is a try statement,
+                // but this job can be done by the optimizer
+                // Note that, do not Jump(OpCode.ENDTRY_L, breakTarget) here,
+                // because the breakTarget here is already an ENDTRY_L for current try stack.
+            }
         }
     }
 }
