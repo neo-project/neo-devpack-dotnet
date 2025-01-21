@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -46,7 +47,7 @@ internal partial class MethodConvert
                 break;
             case "-":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.NEGATE);
+                EmitNegativeInteger(model.GetTypeInfo(expression.Operand).Type);
                 break;
             case "~":
                 ConvertExpression(model, expression.Operand);
@@ -273,5 +274,39 @@ internal partial class MethodConvert
             _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
         });
         if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
+    }
+
+    private void EmitNegativeInteger(ITypeSymbol? typeSymbol)
+    {
+        if (typeSymbol is null || (typeSymbol.Name != "Int32" && typeSymbol.Name != "Int64"))
+        {
+            //  -sbyte, -byte, -short, -ushort, -char -> int, -int, -uint -> long
+            AddInstruction(OpCode.NEGATE); // Emit NEGATE for other integer types
+            return;
+        }
+
+        while (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            // Supporting nullable integer like `byte?`
+            typeSymbol = ((INamedTypeSymbol)typeSymbol).TypeArguments.First();
+        }
+
+        var minValue = typeSymbol.Name == "Int64" ? long.MinValue : int.MinValue; // int32 or int64
+
+        JumpTarget negateTarget = new(), endTarget = new();
+        AddInstruction(OpCode.DUP);
+        Push(minValue);
+        Jump(OpCode.JMPNE_L, negateTarget);
+
+        if (_checkedStack.Peek()) // if `checked` is true, throw exception
+        {
+            AddInstruction(OpCode.THROW);
+        }
+        else // -int.MinValue == -int.MinValue, -long.MinValue == -long.MinValue, i.e. same value
+        {
+            Jump(endTarget);
+        }
+        negateTarget.Instruction = AddInstruction(OpCode.NEGATE);
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 }
