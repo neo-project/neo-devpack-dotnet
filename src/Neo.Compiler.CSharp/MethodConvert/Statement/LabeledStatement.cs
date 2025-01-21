@@ -44,11 +44,7 @@ namespace Neo.Compiler
         private void ConvertLabeledStatement(SemanticModel model, LabeledStatementSyntax syntax)
         {
             ILabelSymbol symbol = model.GetDeclaredSymbol(syntax)!;
-            JumpTarget target = AddLabel(symbol, true);
-            if (_tryStack.TryPeek(out ExceptionHandling? result))
-                foreach (Instruction instruction in result.PendingGotoStatments)
-                    if (instruction.Target == target)
-                        instruction.OpCode = OpCode.JMP_L;
+            JumpTarget target = AddLabel(symbol);
             target.Instruction = AddInstruction(OpCode.NOP);
             ConvertStatement(model, syntax.Statement);
         }
