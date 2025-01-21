@@ -267,8 +267,11 @@ internal partial class MethodConvert
     {
         if (type.Name == "BigInteger") return;
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
+        {
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
+        }
+
         var (minValue, maxValue, mask) = type.Name switch
         {
             "SByte" => ((BigInteger)sbyte.MinValue, (BigInteger)sbyte.MaxValue, (BigInteger)0xff),
@@ -283,6 +286,7 @@ internal partial class MethodConvert
             //"Boolean" => (0, 1, 0x01),
             _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type: {type}")
         };
+
         JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();
         AddInstruction(OpCode.DUP);
         Push(minValue);
