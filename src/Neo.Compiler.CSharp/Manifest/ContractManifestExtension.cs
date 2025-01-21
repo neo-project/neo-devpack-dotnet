@@ -1,8 +1,6 @@
-
-
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// ContractManifestExtensions.cs file belongs to neo-express project and is free
+// ContractManifestExtension.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -22,7 +20,6 @@ namespace Neo.Compiler
 {
     internal static partial class ContractManifestExtensions
     {
-
         private static System.Collections.Generic.List<CompilationException>
             CheckNep29Compliant(this ContractManifest manifest)
         {
