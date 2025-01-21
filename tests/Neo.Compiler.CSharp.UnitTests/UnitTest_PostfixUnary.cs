@@ -10,7 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.CSharp.TestContracts;
+using Neo.SmartContract.Testing;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
