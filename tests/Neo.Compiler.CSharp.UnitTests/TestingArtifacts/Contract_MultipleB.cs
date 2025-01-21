@@ -27,8 +27,8 @@ public abstract class Contract_MultipleB(Neo.SmartContract.Testing.SmartContract
     /// </summary>
     /// <remarks>
     /// Script: CUA=
-    /// 00 : PUSHF [1 datoshi]
-    /// 01 : RET [0 datoshi]
+    /// PUSHF [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("test")]
     public abstract bool? Test();

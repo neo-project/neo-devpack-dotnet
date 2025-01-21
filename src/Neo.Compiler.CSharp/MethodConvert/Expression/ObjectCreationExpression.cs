@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// ObjectCreationExpression.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -41,13 +42,40 @@ internal partial class MethodConvert
             // an optimization to avoid PACK + billions of SETITEM
             if (TryOptimizedObjectCreation(model, expression, type, constructor))
                 return;
-            CreateObject(model, type, null);
+            CreateObject(model, type);
         }
-        CallInstanceMethod(model, constructor, needCreateObject, arguments);
+        if (!constructor.DeclaringSyntaxReferences.IsEmpty)
+            CallInstanceMethod(model, constructor, needCreateObject, arguments);
         if (expression.Initializer is not null)
-        {
             ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
+    }
+
+    /// <summary>
+    /// Check whether necessary to include the constructor instructions in the compiled contract
+    /// </summary>
+    /// <param name="convert">var (convert, _) = GetMethodConvertAndCallingConvention(model, constructor);</param>
+    /// <returns></returns>
+    public static bool CanSkipConstructor(MethodConvert? convert)
+    {
+        if (convert == null)
+            return false;  // special complex cases like virtual methods
+        if (convert.Instructions.Count >= 1)
+        {
+            Instruction ret = convert.Instructions[0];
+            if (ret.OpCode == OpCode.RET)
+                return true;
         }
+        if (convert.Instructions.Count >= 2)
+        {
+            // INITSLOT 0 locals, 1 args
+            // RET
+            Instruction initslot = convert.Instructions[0];
+            Instruction ret = convert.Instructions[1];
+            if (initslot.OpCode == OpCode.INITSLOT && initslot.Operand?[0] == 0 && initslot.Operand[1] == 1
+                && ret.OpCode == OpCode.RET)
+                return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -66,12 +94,7 @@ internal partial class MethodConvert
         if (expression.Initializer == null || expression.Initializer.IsKind(SyntaxKind.CollectionInitializerExpression))
             return false;
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, constructor);
-        if (convert == null || convert.Instructions.Count < 2)
-            return false;
-        Instruction initslot = convert.Instructions[0];
-        Instruction ret = convert.Instructions[1];
-        if (initslot.OpCode != OpCode.INITSLOT || initslot.Operand?[0] != 0 || initslot.Operand[1] != 1
-            || ret.OpCode != OpCode.RET)
+        if (!CanSkipConstructor(convert))
             return false;
         // no constructor needed
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();

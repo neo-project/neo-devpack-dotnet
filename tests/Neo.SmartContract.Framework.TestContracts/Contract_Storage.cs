@@ -1,7 +1,20 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Storage.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
+
+#pragma warning disable CS8604
     public class Contract_Storage : SmartContract
     {
         // There is no main here, it can be auto generation.
@@ -177,7 +190,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var storage = new StorageMap(context, prefix);
             var val = new Value() { Val = value };
             storage.PutObject(key, val);
-            val = (Value)storage.GetObject(key);
+            val = (Value)storage.GetObject(key)!;
             return val.Val;
         }
 
@@ -218,4 +231,5 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         #endregion
     }
+#pragma warning restore CS8604
 }

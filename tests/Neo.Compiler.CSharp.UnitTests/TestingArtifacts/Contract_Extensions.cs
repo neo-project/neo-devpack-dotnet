@@ -27,11 +27,11 @@ public abstract class Contract_Extensions(Neo.SmartContract.Testing.SmartContrac
     /// </summary>
     /// <remarks>
     /// Script: VwACeXg0A0A=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : CALL 03 [512 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testSum")]
     public abstract BigInteger? TestSum(BigInteger? a, BigInteger? b);

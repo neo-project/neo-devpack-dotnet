@@ -27,10 +27,10 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDQDQA==
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALL 03 [512 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("isValidAndNotZeroUInt160")]
     public abstract bool? IsValidAndNotZeroUInt160(UInt160? value);
@@ -40,10 +40,10 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDQDQA==
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALL 03 [512 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("isValidAndNotZeroUInt256")]
     public abstract bool? IsValidAndNotZeroUInt256(UInt256? value);
@@ -53,11 +53,11 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeLGqQA==
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : NZ [4 datoshi]
-    /// 05 : NOT [4 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// NZ [4 datoshi]
+    /// NOT [4 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("isZeroUInt160")]
     public abstract bool? IsZeroUInt160(UInt160? value);
@@ -67,11 +67,11 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeLGqQA==
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : NZ [4 datoshi]
-    /// 05 : NOT [4 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// NZ [4 datoshi]
+    /// NOT [4 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("isZeroUInt256")]
     public abstract bool? IsZeroUInt256(UInt256? value);
@@ -81,10 +81,10 @@ public abstract class Contract_UInt(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeDQDQA==
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALL 03 [512 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("toAddress")]
     public abstract string? ToAddress(UInt160? value);

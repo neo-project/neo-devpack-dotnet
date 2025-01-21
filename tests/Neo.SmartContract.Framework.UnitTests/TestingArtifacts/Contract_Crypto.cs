@@ -27,11 +27,11 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeXg3BwBA
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : CALLT 0700 [32768 datoshi]
-    /// 08 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0700 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("bls12381Add")]
     public abstract object? Bls12381Add(object? x, object? y = null);
@@ -41,10 +41,10 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcFAEA=
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0500 [32768 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0500 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("bls12381Deserialize")]
     public abstract object? Bls12381Deserialize(byte[]? data);
@@ -54,11 +54,11 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeXg3BgBA
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : CALLT 0600 [32768 datoshi]
-    /// 08 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0600 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("bls12381Equal")]
     public abstract object? Bls12381Equal(object? x, object? y = null);
@@ -68,12 +68,12 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADenl4NwgAQA==
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG2 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG0 [2 datoshi]
-    /// 06 : CALLT 0800 [32768 datoshi]
-    /// 09 : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0800 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("bls12381Mul")]
     public abstract object? Bls12381Mul(object? x, byte[]? mul, bool? neg);
@@ -83,11 +83,11 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeXg3CQBA
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : CALLT 0900 [32768 datoshi]
-    /// 08 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0900 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("bls12381Pairing")]
     public abstract object? Bls12381Pairing(object? g1, object? g2 = null);
@@ -97,10 +97,10 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeDcEAEA=
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CALLT 0400 [32768 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALLT 0400 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("bls12381Serialize")]
     public abstract byte[]? Bls12381Serialize(object? data = null);
@@ -110,13 +110,13 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwACeXjbKDcCANswQA==
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 07 : CALLT 0200 [32768 datoshi]
-    /// 0A : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 0C : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0200 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("murmur32")]
     public abstract byte[]? Murmur32(byte[]? value, BigInteger? seed);
@@ -126,12 +126,12 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNsoNwEA2zBA
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 06 : CALLT 0100 [32768 datoshi]
-    /// 09 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 0B : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0100 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     public abstract byte[]? RIPEMD160(byte[]? value);
 
@@ -140,15 +140,15 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADAHp62yh5eNsoNwMAQA==
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : PUSHINT8 7A [1 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDARG0 [2 datoshi]
-    /// 0A : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0C : CALLT 0300 [32768 datoshi]
-    /// 0F : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// PUSHINT8 7A [1 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0300 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("secp256k1VerifyKeccakSignatureWithMessage")]
     public abstract bool? Secp256k1VerifyKeccakSignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
@@ -158,15 +158,15 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADABZ62yh5eNsoNwMAQA==
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : PUSHINT8 16 [1 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDARG0 [2 datoshi]
-    /// 0A : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0C : CALLT 0300 [32768 datoshi]
-    /// 0F : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// PUSHINT8 16 [1 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0300 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("secp256k1VerifySignatureWithMessage")]
     public abstract bool? Secp256k1VerifySignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
@@ -176,15 +176,15 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADAHt62yh5eNsoNwMAQA==
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : PUSHINT8 7B [1 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDARG0 [2 datoshi]
-    /// 0A : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0C : CALLT 0300 [32768 datoshi]
-    /// 0F : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// PUSHINT8 7B [1 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0300 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("secp256r1VerifyKeccakSignatureWithMessage")]
     public abstract bool? Secp256r1VerifyKeccakSignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
@@ -194,15 +194,15 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwADABd62yh5eNsoNwMAQA==
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : PUSHINT8 17 [1 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 08 : LDARG1 [2 datoshi]
-    /// 09 : LDARG0 [2 datoshi]
-    /// 0A : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 0C : CALLT 0300 [32768 datoshi]
-    /// 0F : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// PUSHINT8 17 [1 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0300 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("secp256r1VerifySignatureWithMessage")]
     public abstract bool? Secp256r1VerifySignatureWithMessage(byte[]? message, ECPoint? pubkey, byte[]? signature);
@@ -212,12 +212,12 @@ public abstract class Contract_Crypto(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: VwABeNsoNwAA2zBA
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : CONVERT 28 'ByteString' [8192 datoshi]
-    /// 06 : CALLT 0000 [32768 datoshi]
-    /// 09 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 0B : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CONVERT 28 'ByteString' [8192 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     public abstract byte[]? SHA256(byte[]? value);
 

@@ -30,7 +30,7 @@ namespace Neo.Optimizer
         FINALLY = 1 << 3,
     }
 
-    [DebuggerDisplay("{catchAddr}, {finallyAddr}, {tryStateType}, {continueAfterFinally}")]
+    [DebuggerDisplay("{catchAddr}, {finallyAddr}, {tryType}, {continueAfterFinally}")]
     public struct TryState
     {
         public int catchAddr { get; init; }
@@ -189,8 +189,9 @@ namespace Neo.Optimizer
         /// Cover a basic block, and recursively cover all branches
         /// </summary>
         /// <param name="addr">Starting address of script. Should start at a basic block</param>
-        /// <param name="script"></param>
-        /// <param name="coveredMap"></param>
+        /// <param name="tryStack">try-catch-finally stack</param>
+        /// <param name="continueFromBasicBlockEntranceAddr">Specify the previous basic block entrance address, if we continue execution from the previous basic block</param>
+        /// <param name="jumpFromBasicBlockEntranceAddr">Specify the entrance address of the basic block as the source of jump, if we jumped to current address from that basic block</param>
         /// <returns>Whether it is possible to return without exception</returns>
         /// <exception cref="BadScriptException"></exception>
         /// <exception cref="NotImplementedException"></exception>
@@ -201,8 +202,7 @@ namespace Neo.Optimizer
                 basicBlockContinuation[(int)continueFromBasicBlockEntranceAddr] = addr;
             if (jumpFromBasicBlockEntranceAddr != null)
             {
-                HashSet<int>? jumpTargets;
-                if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out jumpTargets))
+                if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out HashSet<int>? jumpTargets))
                 {
                     jumpTargets = new();
                     basicBlockJump[(int)jumpFromBasicBlockEntranceAddr] = jumpTargets;
@@ -247,7 +247,7 @@ namespace Neo.Optimizer
                     if (continueAfterFinally)
                         return coveredMap[entranceAddr] = CoverInstruction(finallyAddr, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
                     // FINALLY is OK, but throwed in previous TRY (without catch) or CATCH
-                    return BranchType.THROW;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
+                    return value;  // Do not set coveredMap[entranceAddr] = BranchType.THROW;
                 }
                 //if (instruction.OpCode != OpCode.NOP)
                 {
@@ -273,7 +273,8 @@ namespace Neo.Optimizer
                         returnedType = BranchType.ABORT;
                         foreach (int callaTarget in pushaTargets.Keys)
                         {
-                            BranchType singleCallaResult = CoverInstruction(callaTarget, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
+                            // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                            BranchType singleCallaResult = CoverInstruction(callaTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr);
                             if (singleCallaResult < returnedType)
                                 returnedType = singleCallaResult;
                             // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
@@ -282,7 +283,8 @@ namespace Neo.Optimizer
                     else
                     {
                         int callTarget = ComputeJumpTarget(addr, instruction);
-                        returnedType = CoverInstruction(callTarget, tryStack, jumpFromBasicBlockEntranceAddr: entranceAddr);
+                        // Use `tryStack: null` to avoid using current try stack in a deeper call stack
+                        returnedType = CoverInstruction(callTarget, tryStack: null, jumpFromBasicBlockEntranceAddr: entranceAddr);
                     }
                     if (returnedType == BranchType.OK)
                         return coveredMap[entranceAddr] = CoverInstruction(addr + instruction.Size, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr);

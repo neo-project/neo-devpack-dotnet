@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// TryStatement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -53,10 +54,17 @@ namespace Neo.Compiler
             JumpTarget catchTarget = new();
             JumpTarget finallyTarget = new();
             JumpTarget endTarget = new();
+            StatementContext sc = new(syntax, catchTarget: catchTarget, finallyTarget: finallyTarget, endFinallyTarget: endTarget, tryState: ExceptionHandlingState.Try);
+            _generalStatementStack.Push(sc);
             AddInstruction(new Instruction { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget });
             _tryStack.Push(new ExceptionHandling { State = ExceptionHandlingState.Try });
             ConvertStatement(model, syntax.Block);
             Jump(OpCode.ENDTRY_L, endTarget);
+            if (syntax.Catches.Count == 0 && sc.AdditionalEndTryTargetToInstruction != null)
+                // handles `break`, `continue` and `goto` in multi-layered nested try with finally
+                foreach (JumpTarget i in sc.AdditionalEndTryTargetToInstruction.Values)
+                    AddInstruction(i.Instruction!);
+
             if (syntax.Catches.Count > 1)
                 throw new CompilationException(syntax.Catches[1], DiagnosticId.MultiplyCatches, "Only support one single catch.");
             if (syntax.Catches.Count > 0)
@@ -65,6 +73,7 @@ namespace Neo.Compiler
                 if (catchClause.Filter is not null)
                     throw new CompilationException(catchClause.Filter, DiagnosticId.CatchFilter, $"Unsupported syntax: {catchClause.Filter}");
                 _tryStack.Peek().State = ExceptionHandlingState.Catch;
+                sc.TryState = ExceptionHandlingState.Catch;
                 ILocalSymbol? exceptionSymbol = null;
                 byte exceptionIndex;
                 if (catchClause.Declaration is null)
@@ -83,6 +92,11 @@ namespace Neo.Compiler
                 _exceptionStack.Push(exceptionIndex);
                 ConvertStatement(model, catchClause.Block);
                 Jump(OpCode.ENDTRY_L, endTarget);
+                if (sc.AdditionalEndTryTargetToInstruction != null)
+                    // handles `break`, `continue` and `goto` in multi-layered nested try with finally
+                    foreach (JumpTarget i in sc.AdditionalEndTryTargetToInstruction.Values)
+                        AddInstruction(i.Instruction!);
+
                 if (exceptionSymbol is null)
                     RemoveAnonymousVariable(exceptionIndex);
                 else
@@ -92,12 +106,15 @@ namespace Neo.Compiler
             if (syntax.Finally is not null)
             {
                 _tryStack.Peek().State = ExceptionHandlingState.Finally;
+                sc.TryState = ExceptionHandlingState.Finally;
                 finallyTarget.Instruction = AddInstruction(OpCode.NOP);
                 ConvertStatement(model, syntax.Finally.Block);
                 AddInstruction(OpCode.ENDFINALLY);
             }
             endTarget.Instruction = AddInstruction(OpCode.NOP);
             _tryStack.Pop();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

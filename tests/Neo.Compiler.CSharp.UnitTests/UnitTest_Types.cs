@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Types.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Extensions;
 using Neo.Json;
@@ -172,7 +183,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Class_Test()
         {
             var item = Contract.CheckClass();
-            AssertGasConsumed(1557060);
+            AssertGasConsumed(1293840);
             Assert.IsInstanceOfType(item, typeof(Array));
             Assert.AreEqual(1, ((Array)item).Count);
             Assert.AreEqual("neo", (((Array)item)[0] as ByteString)?.GetString());

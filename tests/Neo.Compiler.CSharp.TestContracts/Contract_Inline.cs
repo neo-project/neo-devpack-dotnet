@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Inline.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System.Runtime.CompilerServices;
 using Neo.SmartContract.Framework;
 
@@ -68,6 +79,29 @@ namespace Neo.Compiler.CSharp.TestContracts
         private static int inline_C()
         {
             return 3;
+        }
+
+        public static int ArrowMethod()
+        {
+            return ArrowInline(1, 2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int ArrowInline(int a, int b) => a + b;
+
+
+        public static void ArrowMethodNoRerurn()
+        {
+            ArrowInlineNoReturn(1, 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ArrowInlineNoReturn(int a, int b) => CallMethodThatReturnsInt(a, b);
+
+
+        private static int CallMethodThatReturnsInt(int a, int b)
+        {
+            return a + b;
         }
     }
 }

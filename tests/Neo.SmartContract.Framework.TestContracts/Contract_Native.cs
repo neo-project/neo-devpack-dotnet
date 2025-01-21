@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Native.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework.Native;
 using System.ComponentModel;
 using System.Numerics;
@@ -12,11 +23,13 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return NEO.Decimals;
         }
 
+#pragma warning disable CS8625
         [DisplayName("NEO_Transfer")]
         public static bool NEO_Transfer(UInt160 from, UInt160 to, BigInteger amount)
         {
             return NEO.Transfer(from, to, amount, null);
         }
+#pragma warning restore CS8625
 
         [DisplayName("NEO_BalanceOf")]
         public static BigInteger NEO_BalanceOf(UInt160 account)

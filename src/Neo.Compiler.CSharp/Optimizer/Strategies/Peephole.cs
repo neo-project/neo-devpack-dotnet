@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// Reachability.cs file belongs to the neo project and is free
+// Peephole.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -35,9 +35,9 @@ namespace Neo.Optimizer
         /// But at runtime we just need PUSH1 STLOC:$index_of_a
         /// TODO in the future: use symbolic VM to judge multiple instructions between DUP and DROP
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = 1 << 10)]
         public static (NefFile, ContractManifest, JObject?) RemoveDupDrop(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -96,9 +96,9 @@ namespace Neo.Optimizer
         /// Do not replace PUSH0 EQUAL with NOT, because it cannot handle null
         /// Do not replace PUSH0 NOTEQUAL with NZ, because it cannot handle null
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = 1 << 9)]
         public static (NefFile, ContractManifest, JObject?) UseNz(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -179,9 +179,9 @@ namespace Neo.Optimizer
         /// PUSHNULL EQUAL -> ISNULL
         /// PUSHNULL NOTEQUAL -> ISNULL NOT
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = 1 << 9)]
         public static (NefFile, ContractManifest, JObject?) UseIsNull(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -260,9 +260,9 @@ namespace Neo.Optimizer
         /// EQUAL NOT -> NOTEQUAL
         /// NOTEQUAL NOT -> EQUAL
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = 1 << 10)]
         public static (NefFile, ContractManifest, JObject?) FoldNotInEqual(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -329,9 +329,9 @@ namespace Neo.Optimizer
         /// NZ JMPIF -> JMPIF  // not applied, because NZ for null throws exception
         /// NOT JMPIFNOT -> JMPIF
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = 1 << 8)]
         public static (NefFile, ContractManifest, JObject?) FoldNotInJmp(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -412,9 +412,9 @@ namespace Neo.Optimizer
         /// and replace LDSFLD with PUSH const.
         /// This may increase contract size.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = 1 << 5)]
         public static (NefFile, ContractManifest, JObject?) InitStaticToConst(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
@@ -588,9 +588,9 @@ namespace Neo.Optimizer
         /// <summary>
         /// Delete unnecessary _initialize method
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = 1 << 5)]
         public static (NefFile, ContractManifest, JObject?) RemoveInitialize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)

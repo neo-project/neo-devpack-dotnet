@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// TestEngineTests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Extensions;
@@ -5,6 +16,7 @@ using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -31,6 +43,27 @@ namespace Neo.SmartContract.Testing.UnitTests
 
                 File.WriteAllText(fullPath, source);
             }
+        }
+
+        [TestMethod]
+        public void TestSkip()
+        {
+            TestEngine engine = new(true);
+
+            Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
+            engine.PersistingBlock.Skip(10, TimeSpan.Zero);
+            engine.PersistingBlock.Persist();
+            Assert.AreEqual(11L, engine.Native.Ledger.CurrentIndex);
+        }
+
+        [TestMethod]
+        public void TestNextBlock()
+        {
+            TestEngine engine = new(true);
+
+            Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
+            engine.PersistingBlock.Persist();
+            Assert.AreEqual(1L, engine.Native.Ledger.CurrentIndex);
         }
 
         [TestMethod]

@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Nullable.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
@@ -21,6 +32,7 @@ namespace Neo.SmartContract.Framework.TestContracts
             return a == null && !a.HasValue;
         }
 
+#pragma warning disable CS8602
         public static bool H160NullableNotEqual(UInt160 a, UInt160? b)
         {
             return a != b && !a.Equals(b) && !b.Equals(a) && b != a;
@@ -35,6 +47,7 @@ namespace Neo.SmartContract.Framework.TestContracts
         {
             return a != b && !a.Equals(b) && !b.Equals(a) && b != a;
         }
+#pragma warning restore CS8602
 
         public static bool H256NullableEqual(UInt256 a, UInt256? b)
         {

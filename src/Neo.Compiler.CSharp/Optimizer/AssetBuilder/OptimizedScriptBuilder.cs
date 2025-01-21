@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// OptimizedScriptBuilder.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.VM;
 using System;
 using System.Collections;
@@ -14,8 +25,8 @@ namespace Neo.Optimizer
         /// Build script with instruction dictionary and jump
         /// </summary>
         /// <param name="simplifiedInstructionsToAddress">new Instruction => int address</param>
-        /// <param name="jumpSourceToTargets"></param>
-        /// <param name="trySourceToTargets"></param>
+        /// <param name="jumpSourceToTargets">All jumping instructions source => target</param>
+        /// <param name="trySourceToTargets">All try instructions source => target</param>
         /// <param name="oldAddressToInstruction">Used for convenient debugging only</param>
         /// <returns></returns>
         /// <exception cref="BadScriptException"></exception>
@@ -84,11 +95,11 @@ namespace Neo.Optimizer
         /// Typically used when you delete the oldTarget from script
         /// and the newTarget is the first following instruction undeleted in script
         /// </summary>
-        /// <param name="oldTarget"></param>
-        /// <param name="newTarget"></param>
-        /// <param name="jumpSourceToTargets"></param>
-        /// <param name="jumpTargetToSources"></param>
-        /// <param name="trySourceToTargets"></param>
+        /// <param name="oldTarget">target instruction in the old script</param>
+        /// <param name="newTarget">target instruction in the new script</param>
+        /// <param name="jumpSourceToTargets">All jumping instructions source => target</param>
+        /// <param name="trySourceToTargets">All try instructions source => target</param>
+        /// <param name="jumpTargetToSources">All target instructions that are targets of jumps and trys</param>
         public static void RetargetJump(Instruction oldTarget, Instruction newTarget,
             Dictionary<Instruction, Instruction> jumpSourceToTargets,
             Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,

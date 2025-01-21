@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_ClassInit.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.Numerics;
@@ -20,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             using var fee = Engine.CreateGasWatcher();
             var result = Contract.TestInitInt();
-            AssertGasConsumed(1554660);
+            AssertGasConsumed(1045560);
             Assert.IsNotNull(result);
 
             Assert.AreEqual(cs.A, (BigInteger)result[0]);
@@ -31,7 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_InitializationExpression()
         {
             Contract.TestInitializationExpression();
-            AssertGasConsumed(4032390);
+            AssertGasConsumed(1275690);
         }
     }
 }

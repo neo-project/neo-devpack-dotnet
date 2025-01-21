@@ -74,9 +74,9 @@ namespace Neo.Optimizer
         /// <summary>
         /// RET RET -> RET
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         /// <exception cref="BadScriptException"></exception>
         [Strategy(Priority = int.MaxValue - 16)]

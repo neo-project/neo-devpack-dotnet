@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// WhileStatement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -45,6 +46,8 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             continueTarget.Instruction = AddInstruction(OpCode.NOP);
             using (InsertSequencePoint(syntax.Condition))
             {
@@ -56,6 +59,8 @@ namespace Neo.Compiler
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

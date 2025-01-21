@@ -27,8 +27,8 @@ public abstract class Contract_SupportedStandard27(Neo.SmartContract.Testing.Sma
     /// </summary>
     /// <remarks>
     /// Script: VwADQA==
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("onNEP17Payment")]
     public abstract void OnNEP17Payment(UInt160? from, BigInteger? amount, object? data = null);

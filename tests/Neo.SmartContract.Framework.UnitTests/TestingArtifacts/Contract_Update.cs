@@ -27,8 +27,8 @@ public abstract class Contract_Update(Neo.SmartContract.Testing.SmartContractIni
     /// </summary>
     /// <remarks>
     /// Script: DANZRVNA
-    /// 00 : PUSHDATA1 594553 'YES' [8 datoshi]
-    /// 05 : RET [0 datoshi]
+    /// PUSHDATA1 594553 'YES' [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("imUpdated")]
     public abstract string? ImUpdated();

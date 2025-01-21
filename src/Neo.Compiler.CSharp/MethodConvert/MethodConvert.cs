@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// MethodConvert.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -205,7 +206,7 @@ namespace Neo.Compiler
         public void ConvertForward(SemanticModel model, MethodConvert target)
         {
             INamedTypeSymbol type = Symbol.ContainingType;
-            CreateObject(model, type, null);
+            CreateObject(model, type);
             IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0)
                 ?? throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");
             CallInstanceMethod(model, constructor, true, Array.Empty<ArgumentSyntax>());
@@ -246,22 +247,16 @@ namespace Neo.Compiler
                     initializer = syntax.Initializer;
                 }
 
-                if (initializer is null)
-                {
-                    if (field.Type.GetStackItemType() == StackItemType.Boolean ||
-                        field.Type.GetStackItemType() == StackItemType.Integer)
-                    {
-                        preInitialize?.Invoke();
-                        PushDefault(field.Type);
-                        postInitialize?.Invoke();
-                    }
-                    return;
-                }
                 using (InsertSequencePoint(syntaxNode))
                 {
                     preInitialize?.Invoke();
-                    model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
-                    ConvertExpression(model, initializer.Value, syntaxNode);
+                    if (initializer is null)
+                        PushDefault(field.Type);
+                    else
+                    {
+                        model = model.Compilation.GetSemanticModel(syntaxNode.SyntaxTree);
+                        ConvertExpression(model, initializer.Value, syntaxNode);
+                    }
                     postInitialize?.Invoke();
                 }
             }

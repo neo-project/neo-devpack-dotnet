@@ -27,9 +27,9 @@ public abstract class Contract_ContractCall(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: FDcAAEA=
-    /// 00 : PUSH4 [1 datoshi]
-    /// 01 : CALLT 0000 [32768 datoshi]
-    /// 04 : RET [0 datoshi]
+    /// PUSH4 [1 datoshi]
+    /// CALLT 0000 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testContractCall")]
     public abstract byte[]? TestContractCall();
@@ -39,8 +39,8 @@ public abstract class Contract_ContractCall(Neo.SmartContract.Testing.SmartContr
     /// </summary>
     /// <remarks>
     /// Script: NwEAQA==
-    /// 00 : CALLT 0100 [32768 datoshi]
-    /// 03 : RET [0 datoshi]
+    /// CALLT 0100 [32768 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testContractCallVoid")]
     public abstract void TestContractCallVoid();

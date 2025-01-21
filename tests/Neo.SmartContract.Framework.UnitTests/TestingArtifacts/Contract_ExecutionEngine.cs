@@ -27,9 +27,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QTlTbjzbMEA=
-    /// 00 : SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
-    /// 05 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("callingScriptHash")]
     public abstract byte[]? CallingScriptHash();
@@ -39,9 +39,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qfm04jjbMEA=
-    /// 00 : SYSCALL F9B4E238 'System.Runtime.GetEntryScriptHash' [16 datoshi]
-    /// 05 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// SYSCALL F9B4E238 'System.Runtime.GetEntryScriptHash' [16 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("entryScriptHash")]
     public abstract byte[]? EntryScriptHash();
@@ -51,9 +51,9 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: Qdv+qHTbMEA=
-    /// 00 : SYSCALL DBFEA874 'System.Runtime.GetExecutingScriptHash' [16 datoshi]
-    /// 05 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 07 : RET [0 datoshi]
+    /// SYSCALL DBFEA874 'System.Runtime.GetExecutingScriptHash' [16 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("executingScriptHash")]
     public abstract byte[]? ExecutingScriptHash();
@@ -63,8 +63,8 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 00 : SYSCALL 2D510830 'System.Runtime.GetScriptContainer' [8 datoshi]
-    /// 05 : RET [0 datoshi]
+    /// SYSCALL 2D510830 'System.Runtime.GetScriptContainer' [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("scriptContainer")]
     public abstract object? ScriptContainer();
@@ -74,8 +74,8 @@ public abstract class Contract_ExecutionEngine(Neo.SmartContract.Testing.SmartCo
     /// </summary>
     /// <remarks>
     /// Script: QS1RCDBA
-    /// 00 : SYSCALL 2D510830 'System.Runtime.GetScriptContainer' [8 datoshi]
-    /// 05 : RET [0 datoshi]
+    /// SYSCALL 2D510830 'System.Runtime.GetScriptContainer' [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("transaction")]
     public abstract object? Transaction();

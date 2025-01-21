@@ -27,10 +27,10 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeJpA
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : ABS [4 datoshi]
-    /// 05 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// ABS [4 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("abs")]
     public abstract BigInteger? Abs(BigInteger? a);
@@ -40,17 +40,17 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXigSgMAAAAAAAAAgAQAAAAAAAAAgAAAAAAAAAAAuyQDOkA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : MUL [8 datoshi]
-    /// 06 : DUP [2 datoshi]
-    /// 07 : PUSHINT64 0000000000000080 [1 datoshi]
-    /// 10 : PUSHINT128 00000000000000800000000000000000 [4 datoshi]
-    /// 21 : WITHIN [8 datoshi]
-    /// 22 : JMPIF 03 [2 datoshi]
-    /// 24 : THROW [512 datoshi]
-    /// 25 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// MUL [8 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSHINT64 0000000000000080 [1 datoshi]
+    /// PUSHINT128 00000000000000800000000000000000 [4 datoshi]
+    /// WITHIN [8 datoshi]
+    /// JMPIF 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("bigMul")]
     public abstract BigInteger? BigMul(BigInteger? a, BigInteger? b);
@@ -60,18 +60,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampByte")]
     public abstract BigInteger? ClampByte(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -81,18 +81,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampInt")]
     public abstract BigInteger? ClampInt(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -102,18 +102,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampLong")]
     public abstract BigInteger? ClampLong(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -123,18 +123,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampSByte")]
     public abstract BigInteger? ClampSByte(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -144,18 +144,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampShort")]
     public abstract BigInteger? ClampShort(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -165,18 +165,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampUInt")]
     public abstract BigInteger? ClampUInt(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -186,18 +186,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampULong")]
     public abstract BigInteger? ClampULong(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -207,18 +207,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwADeHl6S0syAzpTurlA
-    /// 00 : INITSLOT 0003 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : LDARG1 [2 datoshi]
-    /// 05 : LDARG2 [2 datoshi]
-    /// 06 : OVER [2 datoshi]
-    /// 07 : OVER [2 datoshi]
-    /// 08 : JMPLE 03 [2 datoshi]
-    /// 0A : THROW [512 datoshi]
-    /// 0B : REVERSE3 [2 datoshi]
-    /// 0C : MAX [8 datoshi]
-    /// 0D : MIN [8 datoshi]
-    /// 0E : RET [0 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG2 [2 datoshi]
+    /// OVER [2 datoshi]
+    /// OVER [2 datoshi]
+    /// JMPLE 03 [2 datoshi]
+    /// THROW [512 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("clampUShort")]
     public abstract BigInteger? ClampUShort(BigInteger? value, BigInteger? min, BigInteger? max);
@@ -228,18 +228,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemByte")]
     public abstract IList<object>? DivRemByte(BigInteger? left, BigInteger? right);
@@ -249,18 +249,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemInt")]
     public abstract IList<object>? DivRemInt(BigInteger? left, BigInteger? right);
@@ -270,18 +270,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemLong")]
     public abstract IList<object>? DivRemLong(BigInteger? left, BigInteger? right);
@@ -291,18 +291,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemSbyte")]
     public abstract IList<object>? DivRemSbyte(BigInteger? left, BigInteger? right);
@@ -312,18 +312,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemShort")]
     public abstract IList<object>? DivRemShort(BigInteger? left, BigInteger? right);
@@ -333,18 +333,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemUint")]
     public abstract IList<object>? DivRemUint(BigInteger? left, BigInteger? right);
@@ -354,18 +354,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemUlong")]
     public abstract IList<object>? DivRemUlong(BigInteger? left, BigInteger? right);
@@ -375,18 +375,18 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXhKEk2hU6ISwEA=
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : DUP [2 datoshi]
-    /// 06 : PUSH2 [1 datoshi]
-    /// 07 : PICK [2 datoshi]
-    /// 08 : DIV [8 datoshi]
-    /// 09 : REVERSE3 [2 datoshi]
-    /// 0A : MOD [8 datoshi]
-    /// 0B : PUSH2 [1 datoshi]
-    /// 0C : PACK [2048 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICK [2 datoshi]
+    /// DIV [8 datoshi]
+    /// REVERSE3 [2 datoshi]
+    /// MOD [8 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("divRemUshort")]
     public abstract IList<object>? DivRemUshort(BigInteger? left, BigInteger? right);
@@ -396,11 +396,11 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXi6QA==
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : MAX [8 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// MAX [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("max")]
     public abstract BigInteger? Max(BigInteger? a, BigInteger? b);
@@ -410,11 +410,11 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwACeXi5QA==
-    /// 00 : INITSLOT 0002 [64 datoshi]
-    /// 03 : LDARG1 [2 datoshi]
-    /// 04 : LDARG0 [2 datoshi]
-    /// 05 : MIN [8 datoshi]
-    /// 06 : RET [0 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
+    /// LDARG1 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// MIN [8 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("min")]
     public abstract BigInteger? Min(BigInteger? a, BigInteger? b);
@@ -424,10 +424,10 @@ public abstract class Contract_Math(Neo.SmartContract.Testing.SmartContractIniti
     /// </summary>
     /// <remarks>
     /// Script: VwABeJlA
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : SIGN [4 datoshi]
-    /// 05 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// SIGN [4 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("sign")]
     public abstract BigInteger? Sign(BigInteger? a);

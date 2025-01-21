@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Miscellaneous.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -13,9 +24,9 @@ namespace Neo.Optimizer
         /// <summary>
         /// If any method token in nef is not utilized by CALLT, remove the method token.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <returns></returns>
         [Strategy(Priority = int.MinValue)]
         public static (NefFile, ContractManifest, JObject?) RemoveMethodToken(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)

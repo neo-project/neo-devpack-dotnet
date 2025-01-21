@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// CoverageHit.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.VM;
 using System;
 using System.Diagnostics;
@@ -11,11 +22,17 @@ namespace Neo.SmartContract.Testing.Coverage
     /// Constructor
     /// </summary>
     /// <param name="offset">Offset</param>
-    /// <param name="description">Decription</param>
+    /// <param name="instruction">Instruction</param>
     /// <param name="outOfScript">Out of script</param>
+    /// <param name="methodTokens">Method tokens</param>
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
-    public class CoverageHit(int offset, string description, bool outOfScript = false)
+    public class CoverageHit(int offset, Instruction instruction, bool outOfScript = false, MethodToken[]? methodTokens = null)
     {
+        /// <summary>
+        /// The covered instruction
+        /// </summary>
+        public Instruction Instruction { get; } = instruction;
+
         /// <summary>
         /// The instruction offset
         /// </summary>
@@ -24,7 +41,12 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <summary>
         /// The instruction description
         /// </summary>
-        public string Description { get; } = description;
+        public string Description => DescriptionFromInstruction(Instruction, MethodTokens);
+
+        /// <summary>
+        /// Method tokens
+        /// </summary>
+        public MethodToken[]? MethodTokens { get; } = methodTokens;
 
         /// <summary>
         /// The instruction is out of the script
@@ -108,7 +130,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoverageData</returns>
         public CoverageHit Clone()
         {
-            return new CoverageHit(Offset, Description, OutOfScript)
+            return new CoverageHit(Offset, Instruction, OutOfScript, MethodTokens)
             {
                 FeeMax = FeeMax,
                 FeeMin = FeeMin,

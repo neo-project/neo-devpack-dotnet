@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Property_Method.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
@@ -14,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod()
         {
             var arr = Contract.TestProperty()!;
-            AssertGasConsumed(1868760);
+            AssertGasConsumed(1622880);
 
             Assert.AreEqual(2, arr.Count);
             Assert.AreEqual((arr[0] as StackItem)!.GetString(), "NEO3");
@@ -25,7 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod2()
         {
             Contract.TestProperty2();
-            AssertGasConsumed(1803270);
+            AssertGasConsumed(1557390);
             // No errors
         }
 
@@ -33,7 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyMethod3()
         {
             var person = Contract.TestProperty3()! as Array;
-            AssertGasConsumed(1554960); // Adjust this value based on actual gas consumption
+            AssertGasConsumed(1291740); // Adjust this value based on actual gas consumption
 
             Assert.IsNotNull(person);
             Assert.AreEqual(3, person.Count);
@@ -73,7 +84,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestPropertyInit()
         {
             var arr = Contract.TestPropertyInit()!;
-            AssertGasConsumed(2116920);
+            AssertGasConsumed(1871040);
 
             Assert.AreEqual(3, arr.Count);
             Assert.AreEqual((arr[0] as StackItem)!.GetString(), "NEO3");

@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// CoverageDataTests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.SmartContract.Testing.Coverage;
@@ -199,10 +210,10 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [5.00 % - 100.00 %]
         [TestMethod]
         public void TestHits()
         {
-            var coverage = new CoverageHit(0, "test");
+            var coverage = new CoverageHit(0, Neo.VM.Instruction.RET);
 
             Assert.AreEqual(0, coverage.Hits);
-            Assert.AreEqual("test", coverage.Description);
+            Assert.AreEqual("RET", coverage.Description);
             Assert.AreEqual(0, coverage.FeeAvg);
             Assert.AreEqual(0, coverage.FeeMax);
             Assert.AreEqual(0, coverage.FeeMin);

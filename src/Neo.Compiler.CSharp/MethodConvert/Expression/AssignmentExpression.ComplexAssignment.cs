@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// AssignmentExpression.ComplexAssignment.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -270,12 +271,15 @@ internal partial class MethodConvert
             "%=" => (OpCode.MOD, true),
             "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, true),
             "^=" when !isBoolean => (OpCode.XOR, true),
+            "^=" when isBoolean => (OpCode.XOR, false),
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
             "<<=" => (OpCode.SHL, true),
             ">>=" => (OpCode.SHR, true),
             _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
         };
         AddInstruction(opcode);
+        if (opcode == OpCode.XOR && isBoolean)
+            ChangeType(VM.Types.StackItemType.Boolean);
         if (isString) ChangeType(VM.Types.StackItemType.ByteString);
         if (checkResult) EnsureIntegerInRange(type);
     }

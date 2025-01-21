@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Array.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
@@ -8,7 +19,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     internal struct State
     {
-        public byte[] from = default;
+        public byte[]? from = default;
         public byte[] to = null!;
         public BigInteger amount = default;
         public State()
@@ -159,7 +170,7 @@ namespace Neo.Compiler.CSharp.TestContracts
             var a = Ledger.GetBlock(0);
             var array = new[] { a };
             var firstItem = array?[0];
-            Runtime.Log(firstItem?.Timestamp.ToString());
+            Runtime.Log(firstItem?.Timestamp.ToString()!);
         }
 
         // This is new language feature introduced in C# 12

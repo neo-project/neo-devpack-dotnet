@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Types.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
@@ -98,9 +109,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return Contract.Call(scriptHash, method, flag, args);
         }
 
+#pragma warning disable CS8625
         public static object Create(byte[] nef, string manifest)
         {
             return ContractManagement.Deploy((ByteString)nef, manifest, null);
         }
+#pragma warning restore CS8625
     }
 }

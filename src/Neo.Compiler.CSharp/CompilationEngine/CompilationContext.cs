@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// CompilationContext.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -12,6 +13,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.Compiler.ABI;
 using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
@@ -571,8 +573,11 @@ namespace Neo.Compiler
             {
                 method = new MethodConvert(this, symbol);
                 _methodsConverted.Add(method);
-                if (!symbol.DeclaringSyntaxReferences.IsEmpty)
+                if (!symbol.DeclaringSyntaxReferences.IsEmpty
+                  && symbol.ToString() != "Neo.SmartContract.Framework.SmartContract._initialize()")
                 {
+                    // The following codes typically switch the code context from user's contract to devpack framework codes.
+                    // Be aware that, the context of the _initialize method should be remained in the user's contract
                     ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
                     model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
                 }

@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// ReEntrancyAnalyzer.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
@@ -23,7 +34,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             // where this basic block calls contract or writes storage
             public readonly Dictionary<BasicBlock, HashSet<int>> callOtherContractInstructions;
             public readonly Dictionary<BasicBlock, HashSet<int>> writeStorageInstructions;
-            public JToken? debugInfo { get; init; }
+            public JToken? DebugInfo { get; init; }
             // TODO: use debugInfo to GetWarningInfo with source codes
 
             public ReEntrancyVulnerabilityPair(
@@ -36,7 +47,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     .Where(v => v.Value.Count > 0).ToDictionary();
                 this.callOtherContractInstructions = callOtherContractInstructions;
                 this.writeStorageInstructions = writeStorageInstructions;
-                this.debugInfo = debugInfo;
+                DebugInfo = debugInfo;
             }
 
             public string GetWarningInfo(bool print = false)
@@ -67,9 +78,9 @@ namespace Neo.Compiler.SecurityAnalyzer
         /// then B calls another contract C, changing the storage of C,
         /// finally you call C.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         public static ReEntrancyVulnerabilityPair AnalyzeSingleContractReEntrancy
             (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
@@ -87,7 +98,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             foreach (BasicBlock b in basicBlocks)
             {
                 int addr = b.startAddr;
-                foreach (Neo.VM.Instruction instruction in b.instructions)
+                foreach (VM.Instruction instruction in b.instructions)
                 {
                     if (instruction.OpCode == VM.OpCode.SYSCALL)
                     {

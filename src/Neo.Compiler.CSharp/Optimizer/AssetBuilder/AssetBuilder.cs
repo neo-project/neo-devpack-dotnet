@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// AssetBuilder.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
@@ -13,13 +24,14 @@ namespace Neo.Optimizer
         /// That means you should get the Instructions from the same initial source.
         /// Do not script.EnumerateInstructions for many times.
         /// </summary>
-        /// <param name="nef"></param>
-        /// <param name="manifest"></param>
-        /// <param name="debugInfo"></param>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
         /// <param name="simplifiedInstructionsToAddress">new Instruction => int address</param>
-        /// <param name="jumpSourceToTargets"></param>
-        /// <param name="trySourceToTargets"></param>
-        /// <param name="oldAddressToInstruction"></param>
+        /// <param name="jumpSourceToTargets">All jumping instructions source => target</param>
+        /// <param name="trySourceToTargets">All try instructions source => target</param>
+        /// <param name="oldAddressToInstruction">old int address => Instruction</param>
+        /// <param name="oldSequencePointAddressToNew">old int address => new int address</param>
         /// <returns></returns>
         public static (NefFile, ContractManifest, JObject?) BuildOptimizedAssets(
             NefFile nef, ContractManifest manifest, JObject? debugInfo,

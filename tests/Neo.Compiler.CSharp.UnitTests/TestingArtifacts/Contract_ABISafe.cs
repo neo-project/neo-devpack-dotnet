@@ -36,8 +36,8 @@ public abstract class Contract_ABISafe(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: EUA=
-    /// 00 : PUSH1 [1 datoshi]
-    /// 01 : RET [0 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("unitTest_001")]
     public abstract BigInteger? UnitTest_001();
@@ -47,8 +47,8 @@ public abstract class Contract_ABISafe(Neo.SmartContract.Testing.SmartContractIn
     /// </summary>
     /// <remarks>
     /// Script: E0A=
-    /// 00 : PUSH3 [1 datoshi]
-    /// 01 : RET [0 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("unitTest_003")]
     public abstract BigInteger? UnitTest_003();

@@ -27,19 +27,19 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwEBDAQBAgMD2zBweEpoE1HQRWhA
-    /// 00 : INITSLOT 0101 [64 datoshi]
-    /// 03 : PUSHDATA1 01020303 [8 datoshi]
-    /// 09 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 0B : STLOC0 [2 datoshi]
-    /// 0C : LDARG0 [2 datoshi]
-    /// 0D : DUP [2 datoshi]
-    /// 0E : LDLOC0 [2 datoshi]
-    /// 0F : PUSH3 [1 datoshi]
-    /// 10 : ROT [2 datoshi]
-    /// 11 : SETITEM [8192 datoshi]
-    /// 12 : DROP [2 datoshi]
-    /// 13 : LDLOC0 [2 datoshi]
-    /// 14 : RET [0 datoshi]
+    /// INITSLOT 0101 [64 datoshi]
+    /// PUSHDATA1 01020303 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testArgs1")]
     public abstract byte[]? TestArgs1(BigInteger? a);
@@ -49,9 +49,9 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwABeEA=
-    /// 00 : INITSLOT 0001 [64 datoshi]
-    /// 03 : LDARG0 [2 datoshi]
-    /// 04 : RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testArgs2")]
     public abstract object? TestArgs2(byte[]? a);
@@ -61,11 +61,11 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwEADAQBAgME2zBwQA==
-    /// 00 : INITSLOT 0100 [64 datoshi]
-    /// 03 : PUSHDATA1 01020304 [8 datoshi]
-    /// 09 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 0B : STLOC0 [2 datoshi]
-    /// 0C : RET [0 datoshi]
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHDATA1 01020304 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testVoid")]
     public abstract void TestVoid();
@@ -75,12 +75,12 @@ public abstract class Contract_Optimize(Neo.SmartContract.Testing.SmartContractI
     /// </summary>
     /// <remarks>
     /// Script: VwEADAQBAgME2zBwaEA=
-    /// 00 : INITSLOT 0100 [64 datoshi]
-    /// 03 : PUSHDATA1 01020304 [8 datoshi]
-    /// 09 : CONVERT 30 'Buffer' [8192 datoshi]
-    /// 0B : STLOC0 [2 datoshi]
-    /// 0C : LDLOC0 [2 datoshi]
-    /// 0D : RET [0 datoshi]
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHDATA1 01020304 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("unitTest_001")]
     public abstract byte[]? UnitTest_001();

@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// Expression.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -265,6 +266,12 @@ internal partial class MethodConvert
     private void EnsureIntegerInRange(ITypeSymbol type)
     {
         if (type.Name == "BigInteger") return;
+        while (type.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            // Supporting nullable integer like `byte?`
+            type = ((INamedTypeSymbol)type).TypeArguments.First();
+        }
+
         var (minValue, maxValue, mask) = type.Name switch
         {
             "SByte" => ((BigInteger)sbyte.MinValue, (BigInteger)sbyte.MaxValue, (BigInteger)0xff),
@@ -276,8 +283,10 @@ internal partial class MethodConvert
             "UInt16" => (ushort.MinValue, ushort.MaxValue, 0xffff),
             "UInt32" => (uint.MinValue, uint.MaxValue, 0xffffffff),
             "UInt64" => (ulong.MinValue, ulong.MaxValue, 0xffffffffffffffff),
+            //"Boolean" => (0, 1, 0x01),
             _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type: {type}")
         };
+
         JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();
         AddInstruction(OpCode.DUP);
         Push(minValue);
