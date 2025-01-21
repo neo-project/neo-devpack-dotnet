@@ -44,6 +44,15 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertBlockStatement(SemanticModel model, BlockSyntax syntax)
         {
+            StatementContext sc = new(syntax);
+            _generalStatementStack.Push(sc);
+            foreach (StatementSyntax label in syntax.Statements)
+                if (label is LabeledStatementSyntax l)
+                {
+                    ILabelSymbol symbol = (ILabelSymbol)model.GetDeclaredSymbol(l)!;
+                    JumpTarget target = AddLabel(symbol);
+                    sc.AddLabel(symbol, target);
+                }
             _blockSymbols.Push(new List<ILocalSymbol>());
             using (InsertSequencePoint(syntax.OpenBraceToken))
                 AddInstruction(OpCode.NOP);
@@ -53,6 +62,8 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.NOP);
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
                 RemoveLocalVariable(symbol);
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }
