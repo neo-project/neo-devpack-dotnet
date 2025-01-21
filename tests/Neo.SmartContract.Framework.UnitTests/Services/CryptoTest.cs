@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // secp256r1 with Keccak hash
 
-            var signatureKeccak = Crypto.Sign(data, key.PrivateKey, hasher: Hasher.Keccak256);
+            var signatureKeccak = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256r1, Cryptography.HashAlgorithm.Keccak256);
 
             // Check
 
@@ -70,8 +70,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             var pubkey = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
 
-            signature = Crypto.Sign(data, key.PrivateKey, ecCurve: Cryptography.ECC.ECCurve.Secp256k1,
-                hasher: Hasher.SHA256);
+            signature = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256k1);
 
             // Check
 
