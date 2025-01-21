@@ -22,5 +22,4 @@ public abstract class Contract_OnDeployment2(Neo.SmartContract.Testing.SmartCont
     #region Unsafe methods
 
     #endregion
-
 }

@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// WriteInTryAnalyzer.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
@@ -14,13 +25,13 @@ namespace Neo.Compiler.SecurityAnalyzer
         {
             // key block writes storage; value blocks in try
             public readonly Dictionary<BasicBlock, HashSet<int>> vulnerabilities;
-            public JToken? debugInfo { get; init; }
+            public JToken? DebugInfo { get; init; }
             // TODO: use debugInfo to GetWarningInfo with source codes
 
             public WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
             {
                 this.vulnerabilities = vulnerabilities;
-                this.debugInfo = debugInfo;
+                DebugInfo = debugInfo;
             }
 
             public string GetWarningInfo(bool print = false)
@@ -31,7 +42,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 {
                     int a = b.startAddr;
                     HashSet<int> writeAddrs = new();
-                    foreach (Neo.VM.Instruction i in b.instructions)
+                    foreach (VM.Instruction i in b.instructions)
                     {
                         if (i.OpCode == VM.OpCode.SYSCALL
                         && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
@@ -70,7 +81,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
             foreach (BasicBlock block in contractInBasicBlocks.sortedBasicBlocks)
-                foreach (Neo.VM.Instruction i in block.instructions)
+                foreach (VM.Instruction i in block.instructions)
                     if (i.OpCode == VM.OpCode.SYSCALL
                     && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
                      || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
@@ -85,7 +96,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                         // add to result
                         if (!result.TryGetValue(b, out HashSet<int>? tryAddrs))
                         {
-                            tryAddrs = new();
+                            tryAddrs = [];
                             result[b] = tryAddrs;
                         }
                         tryAddrs.Add(c.tryAddr);

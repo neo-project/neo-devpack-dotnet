@@ -202,8 +202,7 @@ namespace Neo.Optimizer
                 basicBlockContinuation[(int)continueFromBasicBlockEntranceAddr] = addr;
             if (jumpFromBasicBlockEntranceAddr != null)
             {
-                HashSet<int>? jumpTargets;
-                if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out jumpTargets))
+                if (!basicBlockJump.TryGetValue((int)jumpFromBasicBlockEntranceAddr, out HashSet<int>? jumpTargets))
                 {
                     jumpTargets = new();
                     basicBlockJump[(int)jumpFromBasicBlockEntranceAddr] = jumpTargets;
