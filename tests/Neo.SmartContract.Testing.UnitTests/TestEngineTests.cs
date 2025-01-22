@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Neo.Extensions;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
