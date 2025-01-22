@@ -4,7 +4,7 @@
     <PropertyGroup>
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
         <VersionPrefix>3.7.4</VersionPrefix>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
         <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet/examples</PackageProjectUrl>
@@ -29,7 +29,7 @@
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent">
         <MSBuild Projects="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" Targets="Build" ContinueOnError="true"/>
-        <Exec Command="dotnet ..\..\src\Neo.Compiler.CSharp\bin\Debug\net8.0\nccs.dll &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
+        <Exec Command="dotnet ..\..\src\Neo.Compiler.CSharp\bin\Debug\net9.0\nccs.dll &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
     </Target>
 
 </Project>

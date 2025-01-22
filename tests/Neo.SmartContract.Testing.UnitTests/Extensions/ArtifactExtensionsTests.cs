@@ -31,6 +31,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
 
             Assert.AreEqual(source, """
                                     using Neo.Cryptography.ECC;
+                                    using Neo.Extensions;
                                     using System;
                                     using System.Collections.Generic;
                                     using System.ComponentModel;

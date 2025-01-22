@@ -1,4 +1,5 @@
 using Neo.Cryptography.ECC;
+using Neo.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +16,7 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Neo.IO.Helper.AsSerializable<Neo.SmartContract.NefFile>(Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/XwBVwABACpgQFcAAxphDAVIZWxsb2IIY0AQYFg05lhAEGBYNN9YQAljC2IQYVtaWTTZWTcAAAwCLCCLWosMAiwgi1smCgwEVHJ1ZSIJDAVGYWxzZYvbKEAJYwtiEGFbWlk0qEBXAgAQcBBxImwQYFg0kmhYnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaRW1JJNoQFcAAXgmDxBgWDUb////WDcAAEAJYwtiEGFbWlk1D////1pAVwEBeHBoEZckCWgSlyQOIhwQYFg17f7//1hACWMLYhBhW1pZNeT+//9ZQA9AVwEAEGRcNAhwXGgSv0BXAAFcZFg1wP7//1hkXBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BWBUCfibjl"));
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/XwBVwABACpgQFcAAxphDAVIZWxsb2IIY0AQYFg05lhAEGBYNN9YQAljC2IQYVtaWTTZWTcAAAwCLCCLWosMAiwgi1smCgwEVHJ1ZSIJDAVGYWxzZYvbKEAJYwtiEGFbWlk0qEBXAgAQcBBxImwQYFg0kmhYnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaRW1JJNoQFcAAXgmDxBgWDUb////WDcAAEAJYwtiEGFbWlk1D////1pAVwEBeHBoEZckCWgSlyQOIhwQYFg17f7//1hACWMLYhBhW1pZNeT+//9ZQA9AVwEAEGRcNAhwXGgSv0BXAAFcZFg1wP7//1hkXBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BWBUCfibjl").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
