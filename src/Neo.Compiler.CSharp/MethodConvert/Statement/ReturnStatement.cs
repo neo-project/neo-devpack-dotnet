@@ -12,6 +12,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System.Collections.Generic;
 
 namespace Neo.Compiler
 {
@@ -44,10 +45,28 @@ namespace Neo.Compiler
             {
                 if (syntax.Expression is not null)
                     ConvertExpression(model, syntax.Expression);
-                if (_tryStack.Count > 0)
-                    Jump(OpCode.ENDTRY_L, _returnTarget);
-                else
-                    Jump(OpCode.JMP_L, _returnTarget);
+
+                // The following case is not considered:
+                // Method -> try (with finally) -> function in method -> return from function in method
+                JumpTarget? returnTarget = _returnTarget;
+                List<StatementContext> visitedTry = [];  // from shallow to deep
+                foreach (StatementContext sc in _generalStatementStack)
+                {// start from the deepest context
+                    // stage the try stacks on the way
+                    if (sc.StatementSyntax is TryStatementSyntax)
+                        visitedTry.Add(sc);
+                }
+
+                foreach (StatementContext sc in visitedTry)
+                    // start from the most external try
+                    // internal try should ENDTRY, targeting the correct external return target
+                    returnTarget = sc.AddEndTry(returnTarget);
+
+                Jump(OpCode.JMP_L, returnTarget);
+                // We could use ENDTRY if current statement calling `return` is a try statement,
+                // but this job can be done by the optimizer
+                // Note that, do not Jump(OpCode.ENDTRY_L, returnTarget) here,
+                // because the returnTarget here is already an ENDTRY_L for current try stack.
             }
         }
     }
