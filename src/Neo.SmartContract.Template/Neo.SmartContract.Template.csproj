@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <Title>Neo.SmartContract.Template</Title>
     <PackageType>Template</PackageType>
     <PackageId>Neo.SmartContract.Template</PackageId>

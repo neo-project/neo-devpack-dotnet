@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
 		<RootNamespace>Neo.Compiler.CSharp.UnitTests</RootNamespace>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>

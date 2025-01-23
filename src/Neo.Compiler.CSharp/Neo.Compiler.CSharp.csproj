@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <AssemblyTitle>Neo.Compiler.CSharp</AssemblyTitle>
+    <LangVersion>latest</LangVersion>
     <AssemblyName>nccs</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Neo.Compiler.CSharp</PackageId>
