@@ -365,6 +365,7 @@ namespace Neo.Optimizer
 
         /// <summary>
         /// If an unconditional jump targets an unconditional jump, re-target the first unconditional jump to its final destination
+        /// If an unconditional jump targets an ENDTRY, replace the unconditional jump with ENDTRY
         /// If a conditional jump targets an unconditional jump, re-target the conditional jump to its final destination
         /// If an unconditional jump targets a conditional jump, DO NOT replace the unconditional jump with a conditional jump to its final destination. THIS IS WRONG.
         /// This should be executed very early, before <see cref="Reachability.RemoveUncoveredInstructions"/>
@@ -413,6 +414,28 @@ namespace Neo.Optimizer
                             jumpSourceToTargets[i] = finalTarget;
                             jumpTargetToSources[target].Remove(i);
                             jumpTargetToSources[finalTarget].Add(i);
+                            continue;
+                        }
+                        if ((target.OpCode == OpCode.ENDTRY || target.OpCode == OpCode.ENDTRY_L)
+                          && unconditionalJump.Contains(i.OpCode))
+                        {// replace this JMP with ENDTRY
+                            modified = true;
+                            Instruction finalTarget = jumpSourceToTargets[target];
+                            oldSequencePointAddressToNew.Add(a, newAddr);
+                            // handle the reference of the deleted JMP
+                            jumpSourceToTargets.Remove(i);
+                            jumpTargetToSources[target].Remove(i);
+                            // handle the reference of the added RET
+                            Instruction newEndTry = new Script(new byte[] { (byte)OpCode.ENDTRY_L }.Concat(BitConverter.GetBytes(0)).ToArray()).GetInstruction(0);
+                            // above is a workaround of new Instruction(OpCode.ENDTRY_L)
+                            OptimizedScriptBuilder.RetargetJump(i, newEndTry,
+                                jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                            jumpSourceToTargets[newEndTry] = finalTarget;
+                            jumpTargetToSources[finalTarget].Remove(i);
+                            jumpTargetToSources[finalTarget].Add(newEndTry);
+
+                            simplifiedInstructionsToAddress.Add(newEndTry, newAddr);
+                            newAddr += newEndTry.Size;
                             continue;
                         }
                     }
