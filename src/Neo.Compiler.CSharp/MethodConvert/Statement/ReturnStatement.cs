@@ -44,23 +44,28 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax))
             {
                 if (syntax.Expression is not null)
+                {
                     ConvertExpression(model, syntax.Expression);
+                }
 
                 // The following case is not considered:
                 // Method -> try (with finally) -> function in method -> return from function in method
                 JumpTarget? returnTarget = _returnTarget;
                 List<StatementContext> visitedTry = [];  // from shallow to deep
                 foreach (StatementContext sc in _generalStatementStack)
-                {// start from the deepest context
+                {
+                    // start from the deepest context
                     // stage the try stacks on the way
                     if (sc.StatementSyntax is TryStatementSyntax)
                         visitedTry.Add(sc);
                 }
 
                 foreach (StatementContext sc in visitedTry)
+                {
                     // start from the most external try
                     // internal try should ENDTRY, targeting the correct external return target
                     returnTarget = sc.AddEndTry(returnTarget);
+                }
 
                 Jump(OpCode.JMP_L, returnTarget);
                 // We could use ENDTRY if current statement calling `return` is a try statement,
