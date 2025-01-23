@@ -56,5 +56,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual("helloworld", Encoding.ASCII.GetString(Contract.ByteStringAdd(Encoding.ASCII.GetBytes("hello"), Encoding.ASCII.GetBytes("world"))!));
         }
+
+        [TestMethod]
+        public void Test_TryReturn()
+        {
+            Assert.AreEqual(2, Contract.TryReturn());
+        }
     }
 }
