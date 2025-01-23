@@ -65,7 +65,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signature));
+            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage([], key.PublicKey, signature));
             Assert.IsTrue(Contract.Secp256r1VerifySignatureWithMessage(data, key.PublicKey, signature));
 
             // secp256r1 with Keccak hash
@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256r1VerifyKeccakSignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signatureKeccak));
+            Assert.IsFalse(Contract.Secp256r1VerifyKeccakSignatureWithMessage([], key.PublicKey, signatureKeccak));
             Assert.IsTrue(Contract.Secp256r1VerifyKeccakSignatureWithMessage(data, key.PublicKey, signatureKeccak));
 
             // secp256k1 with SHA256 hash
@@ -85,16 +85,16 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
+            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage([], pubkey, signature));
             Assert.IsTrue(Contract.Secp256k1VerifySignatureWithMessage(data, pubkey, signature));
 
             // secp256k1 with Keccak hash
 
-            signature = Crypto.Sign(data, key.PrivateKey, ecCurve: Cryptography.ECC.ECCurve.Secp256k1, hasher: Hasher.Keccak256);
+            signature = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256k1, Cryptography.HashAlgorithm.Keccak256);
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256k1VerifyKeccakSignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
+            Assert.IsFalse(Contract.Secp256k1VerifyKeccakSignatureWithMessage([], pubkey, signature));
             Assert.IsTrue(Contract.Secp256k1VerifyKeccakSignatureWithMessage(data, pubkey, signature));
         }
 

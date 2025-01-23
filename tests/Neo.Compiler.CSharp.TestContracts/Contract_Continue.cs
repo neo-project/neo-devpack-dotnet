@@ -63,7 +63,9 @@ namespace Neo.Compiler.CSharp.TestContracts
                     {
                         j += 1;
                         continue;
+#pragma warning disable CS0162 // Unreachable code detected
                         j = 10;
+#pragma warning restore CS0162 // Unreachable code detected
                     }
                     ExecutionEngine.Assert(j == 3);
                     try

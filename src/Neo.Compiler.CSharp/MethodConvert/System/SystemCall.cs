@@ -21,7 +21,6 @@ using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Array = System.Array;
-using Akka.Util.Internal;
 
 namespace Neo.Compiler;
 
@@ -29,7 +28,7 @@ internal partial class MethodConvert
 {
     private delegate void SystemCallHandler(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments);
 
-    private static readonly Dictionary<string, SystemCallHandler> SystemCallHandlers = new();
+    private static readonly Dictionary<string, SystemCallHandler> SystemCallHandlers = [];
 
     static MethodConvert()
     {
@@ -44,13 +43,13 @@ internal partial class MethodConvert
 
     private static void RegisterHandler<T, TResult>(Expression<Func<T, TResult>> expression, SystemCallHandler handler, string? key = null)
     {
-        key = key ?? GetKeyFromExpression(expression, typeof(T));
+        key ??= GetKeyFromExpression(expression, typeof(T));
         SystemCallHandlers[key] = handler;
     }
 
     private static void RegisterHandler<T1, T2, TResult>(Expression<Func<T1, T2, TResult>> expression, SystemCallHandler handler, string? key = null)
     {
-        key = key ?? GetKeyFromExpression(expression, typeof(T1), typeof(T2));
+        key ??= GetKeyFromExpression(expression, typeof(T1), typeof(T2));
         SystemCallHandlers[key] = handler;
     }
 

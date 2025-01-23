@@ -15,4 +15,9 @@
 		</ProjectReference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="MSTest.TestAdapter" Version="3.7.2" />
+	  <PackageReference Update="MSTest.TestFramework" Version="3.7.2" />
+	</ItemGroup>
+
 </Project>
