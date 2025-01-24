@@ -73,15 +73,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MutualRecursion()
         {
             Assert.IsTrue(Contract.Odd(7));
-            AssertGasConsumed(1181880);
+            AssertGasConsumed(1180830);
             Assert.IsFalse(Contract.Even(9));
-            AssertGasConsumed(1220100);
+            AssertGasConsumed(1218750);
             Assert.IsTrue(Contract.Odd(-11));
-            AssertGasConsumed(1258980);
+            AssertGasConsumed(1257330);
             Assert.IsTrue(Contract.Even(-10));
-            AssertGasConsumed(1239810);
+            AssertGasConsumed(1238310);
             Assert.IsFalse(Contract.Even(-9));
-            AssertGasConsumed(1220640);
+            AssertGasConsumed(1219290);
         }
     }
 }

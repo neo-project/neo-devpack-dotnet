@@ -153,15 +153,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Fibo()
         {
             var result = Contract.Fibo(2);
-            AssertGasConsumed(1103010);
+            AssertGasConsumed(1102830);
             Assert.AreEqual(1, result);
 
             result = Contract.Fibo(3);
-            AssertGasConsumed(1140330);
+            AssertGasConsumed(1139970);
             Assert.AreEqual(2, result);
 
             result = Contract.Fibo(4);
-            AssertGasConsumed(1214970);
+            AssertGasConsumed(1214250);
             Assert.AreEqual(3, result);
         }
 
