@@ -13,7 +13,7 @@ using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
-    [Contract("0e26a6a9b6f37a54d5666aaa2efb71dc75abfdfa")]
+    [Contract("0xb6ae1662a8228ed73e372b0d0ea11716445a4281")]
     public class Contract_Call
     {
 #pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
