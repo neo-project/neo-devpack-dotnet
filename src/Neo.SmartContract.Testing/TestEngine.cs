@@ -414,12 +414,8 @@ namespace Neo.SmartContract.Testing
             // Deploy
 
             //UInt160 expectedHash = GetDeployHash(nef, manifest);
-            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
-
-            if (state is null)
-            {
-                throw new Exception("Can't get the ContractState");
-            }
+            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data)
+                ?? throw new Exception("Can't get the ContractState");
 
             // Mock contract
 
