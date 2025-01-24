@@ -16,7 +16,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/a4BVxQADAoBAgMEBQYHCAkK2zBwaErKUBBRS5+McWgTUBBRS5+McmhKylASUUufjHNoFVATUUufjHRoSspQSsoSn1FLn4x1aErKE59QEFFLn4x2aErKFJ9QE1FLn4x3B2hKyhKfUErKFJ9RS5+MdwhoEM53CWnKNwAAQc/nR5ZqyjcAAEHP50eWa8o3AABBz+dHlmzKNwAAQc/nR5ZtyjcAAEHP50eWbso3AABBz+dHlm8HyjcAAEHP50eWbwjKNwAAQc/nR5ZvCTcAAEHP50eWDAkxMjM0NTY3ODl3Cm8KSspQEFFLn4zbKHcLbwoTUBBRS5+M2yh3DG8KSspQElFLn4zbKHcNbwoVUBNRS5+M2yh3Dm8KSspQSsoSn1FLn4zbKHcPbwpKyhOfUBBRS5+M2yh3EG8KSsoUn1ATUUufjNsodxFvCkrKEp9QSsoUn1FLn4zbKHcSbwoQzncTbwvbKEHP50eWbwzbKEHP50eWbw3bKEHP50eWbw7bKEHP50eWbw/bKEHP50eWbxDbKEHP50eWbxHbKEHP50eWbxLbKEHP50eWbxPbKEHP50eWQFm4evg=").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/a4BVxQADAoBAgMEBQYHCAkK2zBwaErKUBBRS5+McWgTUBBRS5+McmhKylASUUufjHNoFVATUUufjHRoSspQSsqdnVFLn4x1aErKE59QEFFLn4x2aErKFJ9QE1FLn4x3B2hKyp2dUErKFJ9RS5+MdwhoEM53CWnKNwAAQc/nR5ZqyjcAAEHP50eWa8o3AABBz+dHlmzKNwAAQc/nR5ZtyjcAAEHP50eWbso3AABBz+dHlm8HyjcAAEHP50eWbwjKNwAAQc/nR5ZvCTcAAEHP50eWDAkxMjM0NTY3ODl3Cm8KSspQEFFLn4zbKHcLbwoTUBBRS5+M2yh3DG8KSspQElFLn4zbKHcNbwoVUBNRS5+M2yh3Dm8KSspQSsqdnVFLn4zbKHcPbwpKyhOfUBBRS5+M2yh3EG8KSsoUn1ATUUufjNsodxFvCkrKnZ1QSsoUn1FLn4zbKHcSbwoQzncTbwvbKEHP50eWbwzbKEHP50eWbw3bKEHP50eWbw7bKEHP50eWbw/bKEHP50eWbxDbKEHP50eWbxHbKEHP50eWbxLbKEHP50eWbxPbKEHP50eWQKCEoxg=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -26,7 +26,7 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VxQADAoBAgMEBQYHCAkK2zBwaErKUBBRS5+McWgTUBBRS5+McmhKylASUUufjHNoFVATUUufjHRoSspQSsoSn1FLn4x1aErKE59QEFFLn4x2aErKFJ9QE1FLn4x3B2hKyhKfUErKFJ9RS5+MdwhoEM53CWnKNwAAQc/nR5ZqyjcAAEHP50eWa8o3AABBz+dHlmzKNwAAQc/nR5ZtyjcAAEHP50eWbso3AABBz+dHlm8HyjcAAEHP50eWbwjKNwAAQc/nR5ZvCTcAAEHP50eWDAkxMjM0NTY3ODl3Cm8KSspQEFFLn4zbKHcLbwoTUBBRS5+M2yh3DG8KSspQElFLn4zbKHcNbwoVUBNRS5+M2yh3Dm8KSspQSsoSn1FLn4zbKHcPbwpKyhOfUBBRS5+M2yh3EG8KSsoUn1ATUUufjNsodxFvCkrKEp9QSsoUn1FLn4zbKHcSbwoQzncTbwvbKEHP50eWbwzbKEHP50eWbw3bKEHP50eWbw7bKEHP50eWbw/bKEHP50eWbxDbKEHP50eWbxHbKEHP50eWbxLbKEHP50eWbxPbKEHP50eWQA==
+    /// Script: VxQADAoBAgMEBQYHCAkK2zBwaErKUBBRS5+McWgTUBBRS5+McmhKylASUUufjHNoFVATUUufjHRoSspQSsqdnVFLn4x1aErKE59QEFFLn4x2aErKFJ9QE1FLn4x3B2hKyp2dUErKFJ9RS5+MdwhoEM53CWnKNwAAQc/nR5ZqyjcAAEHP50eWa8o3AABBz+dHlmzKNwAAQc/nR5ZtyjcAAEHP50eWbso3AABBz+dHlm8HyjcAAEHP50eWbwjKNwAAQc/nR5ZvCTcAAEHP50eWDAkxMjM0NTY3ODl3Cm8KSspQEFFLn4zbKHcLbwoTUBBRS5+M2yh3DG8KSspQElFLn4zbKHcNbwoVUBNRS5+M2yh3Dm8KSspQSsqdnVFLn4zbKHcPbwpKyhOfUBBRS5+M2yh3EG8KSsoUn1ATUUufjNsodxFvCkrKnZ1QSsoUn1FLn4zbKHcSbwoQzncTbwvbKEHP50eWbwzbKEHP50eWbw3bKEHP50eWbw7bKEHP50eWbw/bKEHP50eWbxDbKEHP50eWbxHbKEHP50eWbxLbKEHP50eWbxPbKEHP50eWQA==
     /// INITSLOT 1400 [64 datoshi]
     /// PUSHDATA1 0102030405060708090A [8 datoshi]
     /// CONVERT 30 'Buffer' [8192 datoshi]
@@ -75,8 +75,8 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SWAP [2 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// SUB [8 datoshi]
+    /// DEC [4 datoshi]
+    /// DEC [4 datoshi]
     /// ROT [2 datoshi]
     /// OVER [2 datoshi]
     /// SUB [8 datoshi]
@@ -109,8 +109,8 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// LDLOC0 [2 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// SUB [8 datoshi]
+    /// DEC [4 datoshi]
+    /// DEC [4 datoshi]
     /// SWAP [2 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]
@@ -210,8 +210,8 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// SWAP [2 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// SUB [8 datoshi]
+    /// DEC [4 datoshi]
+    /// DEC [4 datoshi]
     /// ROT [2 datoshi]
     /// OVER [2 datoshi]
     /// SUB [8 datoshi]
@@ -247,8 +247,8 @@ public abstract class Contract_IndexOrRange(Neo.SmartContract.Testing.SmartContr
     /// LDLOC 0A [2 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// SUB [8 datoshi]
+    /// DEC [4 datoshi]
+    /// DEC [4 datoshi]
     /// SWAP [2 datoshi]
     /// DUP [2 datoshi]
     /// SIZE [4 datoshi]

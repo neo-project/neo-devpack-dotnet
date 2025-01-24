@@ -91,6 +91,124 @@ namespace Neo.Optimizer
         }
 
         /// <summary>
+        /// PUSH1 ADD -> INC
+        /// PUSH1 SUB -> DEC
+        /// PUSH2 ADD -> INC INC
+        /// PUSH2 SUB -> DEC DEC
+        /// </summary>
+        /// <param name="nef">Nef file</param>
+        /// <param name="manifest">Manifest</param>
+        /// <param name="debugInfo">Debug information</param>
+        /// <returns></returns>
+        [Strategy(Priority = 1 << 9)]
+        public static (NefFile, ContractManifest, JObject?) UseIncDec(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+        {
+            ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+            List<(int a, Instruction i)> oldAddressAndInstructionsList = contractInBasicBlocks.coverage.addressAndInstructions;
+            Dictionary<int, Instruction> oldAddressToInstruction = contractInBasicBlocks.coverage.addressToInstructions;
+            (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+                Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+                Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+                (contractInBasicBlocks.coverage.jumpInstructionSourceToTargets,
+                contractInBasicBlocks.coverage.tryInstructionSourceToTargets,
+                contractInBasicBlocks.coverage.jumpTargetToSources);
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+            int currentAddress = 0;
+            foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+            {
+                int oldAddr = oldStartAddr;
+                for (int index = 0; index < basicBlock.Count; index++)
+                {
+                    if (index + 1 < basicBlock.Count)
+                    {
+                        Instruction current = basicBlock[index];
+                        Instruction next = basicBlock[index + 1];
+                        if (OpCodeTypes.pushInt.Contains(current.OpCode)
+                         && new System.Numerics.BigInteger(current.Operand.Span) == 1
+                         || current.OpCode == OpCode.PUSH1)
+                        {
+                            if (next.OpCode == OpCode.ADD)
+                            {
+                                Script script = new Script(new byte[] { (byte)OpCode.INC });
+                                Instruction inc = script.GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(inc, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                currentAddress += inc.Size;
+                                oldAddr += next.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, inc,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                            if (next.OpCode == OpCode.SUB)
+                            {
+                                Script script = new Script(new byte[] { (byte)OpCode.DEC });
+                                Instruction dec = script.GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(dec, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                currentAddress += dec.Size;
+                                oldAddr += next.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, dec,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                        if (OpCodeTypes.pushInt.Contains(current.OpCode)
+                        && new System.Numerics.BigInteger(current.Operand.Span) == 2
+                        || current.OpCode == OpCode.PUSH2)
+                        {
+                            if (next.OpCode == OpCode.ADD)
+                            {
+                                Script script = new Script(new byte[] { (byte)OpCode.INC, (byte)OpCode.INC });
+                                Instruction inc = script.GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(inc, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                currentAddress += inc.Size;
+                                simplifiedInstructionsToAddress.Add(script.GetInstruction(inc.Size), currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += inc.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, inc,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                            if (next.OpCode == OpCode.SUB)
+                            {
+                                Script script = new Script(new byte[] { (byte)OpCode.DEC, (byte)OpCode.DEC });
+                                Instruction dec = script.GetInstruction(0);
+                                simplifiedInstructionsToAddress.Add(dec, currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += current.Size;
+                                currentAddress += dec.Size;
+                                simplifiedInstructionsToAddress.Add(script.GetInstruction(dec.Size), currentAddress);
+                                oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                                oldAddr += next.Size;
+                                currentAddress += dec.Size;
+                                index += 1;
+                                OptimizedScriptBuilder.RetargetJump(current, dec,
+                                    jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                                continue;
+                            }
+                        }
+                    }
+                    simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                    currentAddress += basicBlock[index].Size;
+                    oldAddr += basicBlock[index].Size;
+                }
+            }
+            return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+                simplifiedInstructionsToAddress,
+                jumpSourceToTargets, trySourceToTargets,
+                oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+        }
+
+        /// <summary>
         /// PUSH0 NUMEQUAL -> NZ NOT
         /// PUSH0 NUMNOTEQUAL -> NZ
         /// Do not replace PUSH0 EQUAL with NOT, because it cannot handle null
