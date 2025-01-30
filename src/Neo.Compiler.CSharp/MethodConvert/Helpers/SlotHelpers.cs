@@ -308,7 +308,7 @@ internal partial class MethodConvert
         catch
         {
             // check if the argument is a discard
-            var argument = arguments[parameter.Ordinal] as ArgumentSyntax;
+            var argument = (arguments[parameter.Ordinal] as ArgumentSyntax)!;
             if (argument.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
                 throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported,
                     $"In method {Symbol.Name}, unsupported out argument: {arguments[parameter.Ordinal]}");
