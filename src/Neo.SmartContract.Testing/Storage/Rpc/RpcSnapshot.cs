@@ -12,6 +12,7 @@
 using Neo.Persistence;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Neo.SmartContract.Testing.Storage.Rpc;
 
@@ -56,12 +57,12 @@ internal class RpcSnapshot : ISnapshot
         IsDirty = true;
     }
 
-    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[] keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
+    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
     {
         return Store.Seek(keyOrPrefix, direction);
     }
 
-    public bool TryGet(byte[] key, out byte[]? value)
+    public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
     {
         return Store.TryGet(key, out value);
     }

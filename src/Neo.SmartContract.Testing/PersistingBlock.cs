@@ -165,7 +165,10 @@ namespace Neo.SmartContract.Testing
 
             for (int x = 0; x < txs.Length; x++)
             {
-                var transactionState = clonedSnapshot.TryGet(new KeyBuilder(_engine.Native.Ledger.Storage.Id, prefix_Transaction).Add(txs[x].Hash));
+                var key = new KeyBuilder(_engine.Native.Ledger.Storage.Id, prefix_Transaction).Add(txs[x].Hash);
+                var transactionState = clonedSnapshot.TryGet(key);
+                if (transactionState is null)
+                    throw new Exception($"Transaction state not found: {txs[x].Hash}");
                 transactionState.GetInteroperable<TransactionState>().State = states[x];
             }
 
