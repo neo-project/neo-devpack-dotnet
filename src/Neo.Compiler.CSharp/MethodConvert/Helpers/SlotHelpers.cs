@@ -308,10 +308,10 @@ internal partial class MethodConvert
         catch
         {
             // check if the argument is a discard
-            var argument = (arguments[parameter.Ordinal] as ArgumentSyntax)!;
-            if (argument.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
-                throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported,
-                    $"In method {Symbol.Name}, unsupported out argument: {arguments[parameter.Ordinal]}");
+            var argument = arguments[parameter.Ordinal] as ArgumentSyntax;
+            if (argument is null || argument.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
+                throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported,
+                    $"In method {Symbol.Name}, unsupported out argument: {argument}");
             LdArgSlot(parameter);
         }
     }

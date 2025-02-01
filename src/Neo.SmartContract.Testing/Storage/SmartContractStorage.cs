@@ -126,7 +126,7 @@ namespace Neo.SmartContract.Testing.Storage
             var skey = new StorageKey() { Id = GetContractId(), Key = key };
 
             var entry = _smartContract.Engine.Storage.Snapshot.GetAndChange(skey, () => new StorageItem() { Value = value });
-            entry!.Value = value;
+            entry.Value = value;
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Neo.SmartContract.Testing.Storage
             var skey = new StorageKey() { Id = GetContractId(), Key = key };
 
             var entry = _smartContract.Engine.Storage.Snapshot.GetAndChange(skey, () => new StorageItem(value));
-            entry!.Set(value);
+            entry.Set(value);
         }
 
         /// <summary>
