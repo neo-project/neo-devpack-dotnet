@@ -11,7 +11,7 @@ public abstract class Contract_CheckWitness(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_CheckWitness"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""main"",""parameters"":[{""name"":""u"",""type"":""Hash160""}],""returntype"":""Void"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_CheckWitness"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""checkWitnessAnalysis"",""parameters"":[{""name"":""u"",""type"":""Hash160""}],""returntype"":""Void"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
@@ -36,8 +36,8 @@ public abstract class Contract_CheckWitness(Neo.SmartContract.Testing.SmartContr
     /// ASSERT [1 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
-    [DisplayName("main")]
-    public abstract void Main(UInt160? u);
+    [DisplayName("checkWitnessAnalysis")]
+    public abstract void CheckWitnessAnalysis(UInt160? u);
 
     #endregion
 }

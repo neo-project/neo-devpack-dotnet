@@ -93,8 +93,8 @@ internal partial class MethodConvert
         return expression.Body switch
         {
             MethodCallExpression methodCall => GetMethodCallKey(methodCall, argumentTypes),
-            MemberExpression { Member: PropertyInfo property } => $"{GetShortTypeName(property.DeclaringType)}.{property.Name}.get",
-            MemberExpression { Member: FieldInfo field } => $"{GetShortTypeName(field.DeclaringType)}.{field.Name}",
+            MemberExpression { Member: PropertyInfo property } => $"{GetShortTypeName(property.DeclaringType!)}.{property.Name}.get",
+            MemberExpression { Member: FieldInfo field } => $"{GetShortTypeName(field.DeclaringType!)}.{field.Name}",
             UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression => GetUnaryExpressionKey(unaryExpression),
             IndexExpression indexExpression => GetIndexExpressionKey(indexExpression),
             _ => throw new ArgumentException("Expression must be a method call, property, field access, or special member.", nameof(expression)),
@@ -104,6 +104,7 @@ internal partial class MethodConvert
     private static string GetMethodCallKey(MethodCallExpression methodCall, Type[] argumentTypes)
     {
         var method = methodCall.Method;
+        var declaringType = method.DeclaringType!;
         // Static method
         if (methodCall.Object == null) return GetMethodKey(method, argumentTypes);
 
@@ -114,12 +115,12 @@ internal partial class MethodConvert
         if (method.IsSpecialName && (methodName.StartsWith("get_Char") || methodName.StartsWith("set_Char")))
         {
             var accessorType = methodName.StartsWith("get_Char") ? "get" : "set";
-            return $"{GetShortTypeName(method.DeclaringType)}.this[{parameters}].{accessorType}";
+            return $"{GetShortTypeName(declaringType)}.this[{parameters}].{accessorType}";
         }
 
         if (method.IsGenericMethod)
         {
-            var containingType = GetShortTypeName(method.DeclaringType);
+            var containingType = GetShortTypeName(declaringType);
             var genericArguments = $"<{string.Join(", ", method.GetGenericArguments().Select(GetShortTypeName))}>";
             return $"{containingType}.{methodName}{genericArguments}({parameters})";
         }
@@ -131,7 +132,7 @@ internal partial class MethodConvert
     {
         var operandType = GetShortTypeName(unaryExpression.Operand.Type);
         var targetType = GetShortTypeName(unaryExpression.Type);
-        return unaryExpression.Method.Name == "op_Implicit"
+        return unaryExpression.Method!.Name == "op_Implicit"
             ? $"{targetType}.implicit operator {targetType}({operandType})"
             : $"{operandType}.explicit operator {targetType}({operandType})";
     }
@@ -139,12 +140,13 @@ internal partial class MethodConvert
     private static string GetIndexExpressionKey(IndexExpression indexExpression)
     {
         var indexParams = string.Join(", ", indexExpression.Arguments.Select(arg => GetShortTypeName(arg.Type)));
-        return $"{GetShortTypeName(indexExpression.Object.Type)}.this[{indexParams}].get";
+        return $"{GetShortTypeName(indexExpression.Object!.Type)}.this[{indexParams}].get";
     }
 
     private static string GetMethodKey(MethodInfo method, Type[] argumentTypes)
     {
-        var containingType = GetShortTypeName(method.DeclaringType);
+        var declaringType = method.DeclaringType!;
+        var containingType = GetShortTypeName(declaringType);
         var parameters = string.Join(", ", argumentTypes.Select(GetShortTypeName));
 
         switch (method.IsSpecialName)
@@ -152,7 +154,7 @@ internal partial class MethodConvert
             case true when method.Name.StartsWith("get_Char") || method.Name.StartsWith("set_Char"):
                 {
                     var accessorType = method.Name.StartsWith("get_Char") ? "get" : "set";
-                    return $"{GetShortTypeName(method.DeclaringType)}.this[{parameters}].{accessorType}";
+                    return $"{containingType}.this[{parameters}].{accessorType}";
                 }
             case true when method.Name.StartsWith("op_"):
                 {
@@ -179,7 +181,7 @@ internal partial class MethodConvert
     {
         if (type.IsArray)
         {
-            return GetShortTypeName(type.GetElementType()) + "[]";
+            return GetShortTypeName(type.GetElementType()!) + "[]";
         }
 
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
