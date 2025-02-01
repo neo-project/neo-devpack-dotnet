@@ -16,7 +16,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_CheckWitness : SmartContract.Framework.SmartContract
     {
-        public static void Main(UInt160 u)
+        public static void CheckWitnessAnalysis(UInt160 u)
         {
             Runtime.CheckWitness(u);
             ExecutionEngine.Assert(Runtime.CheckWitness(u));

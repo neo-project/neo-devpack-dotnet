@@ -92,10 +92,10 @@ namespace Neo.SmartContract.Analyzer
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false)!;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().First();
+            var declaration = root!.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().First();
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -120,7 +120,7 @@ namespace Neo.SmartContract.Analyzer
                 var newInitializer = SyntaxFactory.EqualsValueClause(SyntaxFactory.ParseExpression(argument));
 
                 var newField = fieldDeclaration
-                    .RemoveNodes(fieldDeclaration.AttributeLists, SyntaxRemoveOptions.KeepNoTrivia)
+                    .RemoveNodes(fieldDeclaration.AttributeLists, SyntaxRemoveOptions.KeepNoTrivia)!
                     .WithDeclaration(fieldDeclaration.Declaration.WithVariables(
                         SyntaxFactory.SingletonSeparatedList(
                             fieldDeclaration.Declaration.Variables[0].WithInitializer(newInitializer))));

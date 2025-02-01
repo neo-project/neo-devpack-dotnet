@@ -46,11 +46,11 @@ internal partial class MethodConvert
 
     private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)
     {
-        Optional<object?> constant = model.GetConstantValue(syntax);
-        if (!constant.HasValue)
+        var constant = model.GetConstantValue(syntax);
+        var value = constant.Value;
+        if (value == null)
             return false;
 
-        var value = constant.Value;
         ITypeSymbol? typeSymbol = GetTypeSymbol(syntaxNode, model);
 
         if (typeSymbol != null)

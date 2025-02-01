@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             writer.WriteAttributeString("branch-rate", $"{branchRate:N4}");
             writer.WriteAttributeString("branches-covered", $"{branchesCovered}");
             writer.WriteAttributeString("branches-valid", $"{branchesValid}");
-            writer.WriteAttributeString("version", typeof(CoberturaFormat).Assembly.GetName().Version.ToString());
+            writer.WriteAttributeString("version", typeof(CoberturaFormat).Assembly.GetName().Version?.ToString() ?? "Unknown Version");
             writer.WriteAttributeString("timestamp", $"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}");
 
             writer.WriteStartElement("sources");
