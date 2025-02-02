@@ -18,6 +18,10 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static uint AddUInt(uint a, uint b) => a + b;
         public static uint MulUInt(uint a, uint b) => a * b;
 
+        public static int DivInt(int a, int b) => checked(a / b);
+
+        public static int DivShort(short a, short b) => checked(a / b);
+
         public static int NegateIntChecked(int a) => checked(-a);
         public static int NegateInt(int a) => -a;
 

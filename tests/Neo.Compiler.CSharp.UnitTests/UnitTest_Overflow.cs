@@ -102,5 +102,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(-9223372036854775808, Contract.NegateAddLong(-9223372036854775807, -1));
             Assert.ThrowsException<TestException>(() => Contract.NegateAddLongChecked(-9223372036854775807, -1));
         }
+
+        [TestMethod]
+        public void Test_DivOverflow()
+        {
+            Assert.AreEqual(int.MaxValue, Contract.DivInt(int.MaxValue, 1));
+            Assert.AreEqual(short.MaxValue, Contract.DivShort(short.MaxValue, 1));
+
+            // VMUnhandledException int.MinValue / -1
+            Assert.ThrowsException<TestException>(() => Contract.DivInt(int.MinValue, -1));
+
+            // short / -1 -> int, so no overflow
+            Assert.AreEqual(32768, Contract.DivShort(short.MinValue, -1));
+        }
     }
 }

@@ -279,17 +279,18 @@ internal partial class MethodConvert
 
     private void EmitNegativeInteger(ITypeSymbol? typeSymbol)
     {
-        if (typeSymbol is null || (typeSymbol.Name != "Int32" && typeSymbol.Name != "Int64"))
-        {
-            //  -sbyte, -byte, -short, -ushort, -char -> int, -int, -uint -> long
-            AddInstruction(OpCode.NEGATE); // Emit NEGATE for other integer types
-            return;
-        }
-
+        if (typeSymbol is null) return;
         while (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
         {
             // Supporting nullable integer like `byte?`
             typeSymbol = ((INamedTypeSymbol)typeSymbol).TypeArguments.First();
+        }
+
+        if (typeSymbol.Name != "Int32" && typeSymbol.Name != "Int64")
+        {
+            //  -sbyte, -byte, -short, -ushort, -char -> int, -int, -uint -> long
+            AddInstruction(OpCode.NEGATE); // Emit NEGATE for other integer types
+            return;
         }
 
         var minValue = typeSymbol.Name == "Int64" ? long.MinValue : int.MinValue; // int32 or int64
