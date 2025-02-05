@@ -314,5 +314,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.ThrowsException<TestException>(Contract.ThrowCall);
         }
+
+        [TestMethod]
+        public void Test_CatchExceptionType()
+        {
+            string? result = Contract.CatchExceptionType();
+            Assert.AreEqual(result, "NoExceptionexception");
+        }
     }
 }
