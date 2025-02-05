@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Recursion.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.VM.Types;
@@ -62,15 +73,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MutualRecursion()
         {
             Assert.IsTrue(Contract.Odd(7));
-            AssertGasConsumed(1181880);
+            AssertGasConsumed(1180830);
             Assert.IsFalse(Contract.Even(9));
-            AssertGasConsumed(1220100);
+            AssertGasConsumed(1218750);
             Assert.IsTrue(Contract.Odd(-11));
-            AssertGasConsumed(1258980);
+            AssertGasConsumed(1257330);
             Assert.IsTrue(Contract.Even(-10));
-            AssertGasConsumed(1239810);
+            AssertGasConsumed(1238310);
             Assert.IsFalse(Contract.Even(-9));
-            AssertGasConsumed(1220640);
+            AssertGasConsumed(1219290);
         }
     }
 }

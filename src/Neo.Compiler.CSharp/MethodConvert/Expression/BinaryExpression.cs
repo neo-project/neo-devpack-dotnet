@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// BinaryExpression.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -10,6 +11,7 @@
 
 extern alias scfx;
 
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -90,12 +92,51 @@ internal partial class MethodConvert
             ">=" => (OpCode.GE, false),
             _ => throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}")
         };
+
+        if (expression.OperatorToken.ValueText == "/")
+        {
+            CheckDivideOverflow(model.GetTypeInfo(expression).Type);
+        }
+
         AddInstruction(opcode);
         if (checkResult)
         {
             ITypeSymbol type = model.GetTypeInfo(expression).Type!;
             EnsureIntegerInRange(type);
         }
+    }
+
+    private void CheckDivideOverflow(ITypeSymbol? type)
+    {
+        if (type is null) return;
+        while (type.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            // Supporting nullable integer like `byte?`
+            type = ((INamedTypeSymbol)type).TypeArguments.First();
+        }
+
+        // Check division overflow if checked statement.
+        // In C#, division overflow is checked or not in `unchecked` statement depends on the implementation.
+        if (!_checkedStack.Peek()) return;
+
+        // Only check overflow for int32 and int64
+        // NOTE: short / short -> int, ushort / ushort -> int, char / char -> int,
+        // sbyte / sbyte -> int, byte / byte -> int, so overflow check is not needed.
+        if (type.Name != "Int32" && type.Name != "Int64") return;
+
+        var minValue = type.Name == "Int64" ? long.MinValue : int.MinValue;
+        var endTarget = new JumpTarget();
+
+        AddInstruction(OpCode.DUP);
+        Push(-1);
+        Jump(OpCode.JMPNE_L, endTarget);
+
+        AddInstruction(OpCode.OVER);
+        Push(minValue);
+        Jump(OpCode.JMPNE_L, endTarget);
+
+        AddInstruction(OpCode.THROW);
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
     private void ConvertLogicalOrExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)

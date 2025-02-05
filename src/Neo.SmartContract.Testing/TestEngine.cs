@@ -1,6 +1,17 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// TestEngine.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Moq;
 using Neo.Cryptography.ECC;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Manifest;
@@ -403,12 +414,8 @@ namespace Neo.SmartContract.Testing
             // Deploy
 
             //UInt160 expectedHash = GetDeployHash(nef, manifest);
-            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
-
-            if (state is null)
-            {
-                throw new Exception("Can't get the ContractState");
-            }
+            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data)
+                ?? throw new Exception("Can't get the ContractState");
 
             // Mock contract
 

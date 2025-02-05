@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Lambda.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using System.Collections.Generic;
@@ -142,15 +153,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Fibo()
         {
             var result = Contract.Fibo(2);
-            AssertGasConsumed(1103010);
+            AssertGasConsumed(1102830);
             Assert.AreEqual(1, result);
 
             result = Contract.Fibo(3);
-            AssertGasConsumed(1140330);
+            AssertGasConsumed(1139970);
             Assert.AreEqual(2, result);
 
             result = Contract.Fibo(4);
-            AssertGasConsumed(1214970);
+            AssertGasConsumed(1214250);
             Assert.AreEqual(3, result);
         }
 

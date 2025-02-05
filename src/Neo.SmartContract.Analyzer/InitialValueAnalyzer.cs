@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// InitialValueAnalyzer.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -81,10 +92,10 @@ namespace Neo.SmartContract.Analyzer
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false)!;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().First();
+            var declaration = root!.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf().OfType<FieldDeclarationSyntax>().First();
 
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -109,7 +120,7 @@ namespace Neo.SmartContract.Analyzer
                 var newInitializer = SyntaxFactory.EqualsValueClause(SyntaxFactory.ParseExpression(argument));
 
                 var newField = fieldDeclaration
-                    .RemoveNodes(fieldDeclaration.AttributeLists, SyntaxRemoveOptions.KeepNoTrivia)
+                    .RemoveNodes(fieldDeclaration.AttributeLists, SyntaxRemoveOptions.KeepNoTrivia)!
                     .WithDeclaration(fieldDeclaration.Declaration.WithVariables(
                         SyntaxFactory.SingletonSeparatedList(
                             fieldDeclaration.Declaration.Variables[0].WithInitializer(newInitializer))));

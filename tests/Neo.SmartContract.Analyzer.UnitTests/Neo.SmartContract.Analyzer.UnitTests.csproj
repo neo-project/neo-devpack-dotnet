@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
 		<IsPackable>false</IsPackable>
 		<RootNamespace>Neo.SmartContract.Analyzer.UnitTests</RootNamespace>
 		<IsPackable>false</IsPackable>

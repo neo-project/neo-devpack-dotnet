@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Contract_ComplexAssign.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
@@ -12,14 +23,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_AddAssign_Checked()
         {
             Assert.ThrowsException<TestException>(Contract.UnitTest_Add_Assign_Checked);
-            AssertGasConsumed(1002120);
+            AssertGasConsumed(1001970);
         }
 
         [TestMethod]
         public void Test_AddAssign_UnChecked()
         {
             var values = Contract.UnitTest_Add_Assign_UnChecked()!;
-            AssertGasConsumed(1050060);
+            AssertGasConsumed(1049760);
             // Asserting the expected values after overflow
             Assert.AreEqual(BigInteger.Zero, values[0]); // uint.MaxValue + 1 overflows to 0
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue + 1)), values[1]); // int.MaxValue + 1 overflows to int.MinValue
@@ -29,14 +40,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_SubAssign_Checked()
         {
             Assert.ThrowsException<TestException>(Contract.UnitTest_Sub_Assign_Checked);
-            AssertGasConsumed(1001970);
+            AssertGasConsumed(1001820);
         }
 
         [TestMethod]
         public void Test_SubAssign_UnChecked()
         {
             var values = Contract.UnitTest_Sub_Assign_UnChecked()!;
-            AssertGasConsumed(1049610);
+            AssertGasConsumed(1049310);
             // Asserting the expected values after underflow
             Assert.AreEqual(new BigInteger(uint.MaxValue), values[0]); // uint.MinValue - 1 underflows to uint.MaxValue
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue - 1)), values[1]); // int.MinValue - 1 underflows to int.MaxValue

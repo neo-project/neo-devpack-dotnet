@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// UnaryExpression.PrefixUnary.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -16,6 +17,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace Neo.Compiler;
 
@@ -46,7 +48,7 @@ internal partial class MethodConvert
                 break;
             case "-":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.NEGATE);
+                EmitNegativeInteger(model.GetTypeInfo(expression.Operand).Type);
                 break;
             case "~":
                 ConvertExpression(model, expression.Operand);
@@ -273,5 +275,40 @@ internal partial class MethodConvert
             _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
         });
         if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
+    }
+
+    private void EmitNegativeInteger(ITypeSymbol? typeSymbol)
+    {
+        if (typeSymbol is null) return;
+        while (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            // Supporting nullable integer like `byte?`
+            typeSymbol = ((INamedTypeSymbol)typeSymbol).TypeArguments.First();
+        }
+
+        if (typeSymbol.Name != "Int32" && typeSymbol.Name != "Int64")
+        {
+            //  -sbyte, -byte, -short, -ushort, -char -> int, -int, -uint -> long
+            AddInstruction(OpCode.NEGATE); // Emit NEGATE for other integer types
+            return;
+        }
+
+        var minValue = typeSymbol.Name == "Int64" ? long.MinValue : int.MinValue; // int32 or int64
+
+        JumpTarget negateTarget = new(), endTarget = new();
+        AddInstruction(OpCode.DUP);
+        Push(minValue);
+        Jump(OpCode.JMPNE_L, negateTarget);
+
+        if (_checkedStack.Peek()) // if `checked` is true, throw exception
+        {
+            AddInstruction(OpCode.THROW);
+        }
+        else // -int.MinValue == -int.MinValue, -long.MinValue == -long.MinValue, i.e. same value
+        {
+            Jump(endTarget);
+        }
+        negateTarget.Instruction = AddInstruction(OpCode.NEGATE);
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 }

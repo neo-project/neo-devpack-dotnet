@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// CryptoTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography;
 using Neo.Network.P2P;
@@ -54,37 +65,36 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signature));
+            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage([], key.PublicKey, signature));
             Assert.IsTrue(Contract.Secp256r1VerifySignatureWithMessage(data, key.PublicKey, signature));
 
             // secp256r1 with Keccak hash
 
-            var signatureKeccak = Crypto.Sign(data, key.PrivateKey, hasher: Hasher.Keccak256);
+            var signatureKeccak = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256r1, Cryptography.HashAlgorithm.Keccak256);
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256r1VerifyKeccakSignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signatureKeccak));
+            Assert.IsFalse(Contract.Secp256r1VerifyKeccakSignatureWithMessage([], key.PublicKey, signatureKeccak));
             Assert.IsTrue(Contract.Secp256r1VerifyKeccakSignatureWithMessage(data, key.PublicKey, signatureKeccak));
 
             // secp256k1 with SHA256 hash
 
             var pubkey = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
 
-            signature = Crypto.Sign(data, key.PrivateKey, ecCurve: Cryptography.ECC.ECCurve.Secp256k1,
-                hasher: Hasher.SHA256);
+            signature = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256k1);
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
+            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage([], pubkey, signature));
             Assert.IsTrue(Contract.Secp256k1VerifySignatureWithMessage(data, pubkey, signature));
 
             // secp256k1 with Keccak hash
 
-            signature = Crypto.Sign(data, key.PrivateKey, ecCurve: Cryptography.ECC.ECCurve.Secp256k1, hasher: Hasher.Keccak256);
+            signature = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256k1, Cryptography.HashAlgorithm.Keccak256);
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256k1VerifyKeccakSignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
+            Assert.IsFalse(Contract.Secp256k1VerifyKeccakSignatureWithMessage([], pubkey, signature));
             Assert.IsTrue(Contract.Secp256k1VerifyKeccakSignatureWithMessage(data, pubkey, signature));
         }
 

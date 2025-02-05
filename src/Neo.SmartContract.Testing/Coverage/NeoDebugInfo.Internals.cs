@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// NeoDebugInfo.Internals.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -6,7 +17,7 @@ namespace Neo.SmartContract.Testing.Coverage
     public partial class NeoDebugInfo
     {
         [DebuggerDisplay("Name={Name}")]
-        public struct Method(string id, string @namespace, string name, (int, int) range,
+        public readonly struct Method(string id, string @namespace, string name, (int, int) range,
             IReadOnlyList<NeoDebugInfo.Parameter> parameters, IReadOnlyList<NeoDebugInfo.SequencePoint> sequencePoints)
         {
             public readonly string Id = id;
@@ -18,7 +29,7 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         [DebuggerDisplay("Name={Name}, Type={Type}")]
-        public struct Parameter(string name, string type, int index)
+        public readonly struct Parameter(string name, string type, int index)
         {
             public readonly string Name = name;
             public readonly string Type = type;
@@ -26,7 +37,7 @@ namespace Neo.SmartContract.Testing.Coverage
         }
 
         [DebuggerDisplay("Document={Document}, Address={Address}")]
-        public struct SequencePoint(int address, int document, (int, int) start, (int, int) end)
+        public readonly struct SequencePoint(int address, int document, (int, int) start, (int, int) end)
         {
             public readonly int Address = address;
             public readonly int Document = document;

@@ -1,12 +1,17 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_CheckWitness.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.SecurityAnalyzer;
-using Neo.Optimizer;
 using Neo.SmartContract.Testing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -16,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         [TestMethod]
         public void Test_CheckWitness()
         {
-            CheckWitnessAnalyzer.CheckWitnessVulnerability result = CheckWitnessAnalyzer.AnalyzeCheckWitness(NefFile, Manifest, null);
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(NefFile, Manifest, null);
             Assert.AreEqual(result.droppedCheckWitnessResults.Count, 1);
         }
     }

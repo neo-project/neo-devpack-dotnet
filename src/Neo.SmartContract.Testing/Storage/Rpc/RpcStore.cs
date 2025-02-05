@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// RpcStore.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.IO;
 using Neo.Persistence;
 using Newtonsoft.Json;
@@ -5,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -44,18 +56,24 @@ public class RpcStore : IStore
 
     #region Rpc calls
 
-    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[] key, SeekDirection direction)
+    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[]? key, SeekDirection direction)
     {
+        // This(IStore.Seek) is different from LevelDbStore, RocksDbStore and MemoryStore.
+        if (key is null)
+            throw new ArgumentNullException(nameof(key));
+
+        // This(IStore.Seek) is different from LevelDbStore, RocksDbStore and MemoryStore.
+        // The following logic has this requirement.
+        if (key.Length < 4)
+            throw new ArgumentException("Key must be at least 4 bytes(the first 4 bytes are the contract id)", nameof(key));
+
         if (direction is SeekDirection.Backward)
         {
             // Not implemented in RPC, we will query all the storage from the contract, and do it manually
             // it could return wrong results if we want to get data between contracts
-
-            var prefix = key.Take(4).ToArray();
             ConcurrentDictionary<byte[], byte[]> data = new();
 
             // We ask for 5 bytes because the minimum prefix is one byte
-
             foreach (var entry in Seek(key.Take(key.Length == 4 ? 4 : 5).ToArray(), SeekDirection.Forward))
             {
                 data.TryAdd(entry.Key, entry.Value);
@@ -131,7 +149,7 @@ public class RpcStore : IStore
         throw new Exception();
     }
 
-    public bool TryGet(byte[] key, out byte[]? value)
+    public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
     {
         var skey = new StorageKey(key);
         var requestBody = new

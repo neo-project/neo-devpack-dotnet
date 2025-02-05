@@ -1,8 +1,9 @@
 // Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// SlotHelpers.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -307,10 +308,10 @@ internal partial class MethodConvert
         catch
         {
             // check if the argument is a discard
-            var argument = arguments[parameter.Ordinal] as ArgumentSyntax;
-            if (argument.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
-                throw new CompilationException(arguments[parameter.Ordinal], DiagnosticId.SyntaxNotSupported,
-                    $"In method {Symbol.Name}, unsupported out argument: {arguments[parameter.Ordinal]}");
+            var argument = arguments[parameter.Ordinal];
+            if (argument is not ArgumentSyntax syntax || syntax.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
+                throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported,
+                    $"In method {Symbol.Name}, unsupported out argument: {argument}");
             LdArgSlot(parameter);
         }
     }

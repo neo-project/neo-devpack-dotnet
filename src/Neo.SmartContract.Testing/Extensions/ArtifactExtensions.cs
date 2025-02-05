@@ -1,5 +1,16 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// ArtifactExtensions.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Disassembler.CSharp;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.TestingStandards;
@@ -124,6 +135,7 @@ namespace Neo.SmartContract.Testing.Extensions
             if (manifest.IsVerificable()) inheritance.Add(typeof(IVerificable));
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
+            sourceCode.WriteLine("using Neo.Extensions;");
             sourceCode.WriteLine("using System;");
             sourceCode.WriteLine("using System.Collections.Generic;");
             sourceCode.WriteLine("using System.ComponentModel;");
@@ -155,7 +167,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     sourceCode.WriteLine($"    /// Optimization: {optimization}");
                     sourceCode.WriteLine($"    /// </summary>");
                 }
-                sourceCode.WriteLine($"    public static {typeof(NefFile).FullName} Nef => Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+                sourceCode.WriteLine($"    public static {typeof(NefFile).FullName} Nef => Convert.FromBase64String(@\"{value}\").AsSerializable<{typeof(NefFile).FullName}>();");
                 sourceCode.WriteLine();
             }
 
