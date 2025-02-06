@@ -92,6 +92,11 @@ namespace Neo.Compiler.SecurityAnalyzer
             {
                 if (c.catchBlock == null || c.catchBlock.branchType == BranchType.THROW || c.catchBlock.branchType == BranchType.ABORT)
                     continue;
+                // The following is a defensive judge
+                // If finally block surely throws or aborts, the try is safe even if try writes storage
+                // However, if finally block surely throws or aborts, the catch block BranchType above should surely throw or abort
+                // The `continue` above should be executed, and the following continue is never utilized
+                // If the following continue is actually executed, there may be some problem in BranchType analysis
                 if (c.finallyBlock != null && (c.finallyBlock.branchType == BranchType.THROW || c.finallyBlock.branchType == BranchType.ABORT))
                     continue;
                 IEnumerable<BasicBlock> containingBasicBlocksWritingStorage = c.tryBlocks

@@ -91,16 +91,17 @@ namespace Neo.Compiler.CSharp.TestContracts
             finally { ExecutionEngine.Abort(); }
         }
 
-        public static void UnsafeNestedTryWrite()
+        public static void UnsafeNestedTryWrite(bool recursive)
         {
             try
             {
                 try { Write(); }
-                finally { }
+                finally
+                {
+                    if (recursive)
+                        UnsafeNestedTryWrite(false);
+                }
                 throw new Exception();
-#pragma warning disable CS0162 // Unreachable code detected
-                UnsafeNestedTryWrite();
-#pragma warning restore CS0162 // Unreachable code detected
             }
             // no catch above and is safe
             // but will be catched below, so the try above is unsafe
