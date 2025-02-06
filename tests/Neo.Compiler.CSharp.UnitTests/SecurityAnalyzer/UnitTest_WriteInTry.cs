@@ -41,12 +41,12 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ContractInBasicBlocks contractInBasicBlocks = new(NefFile, Manifest);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
-            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 9);
+            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 13);
 
             WriteInTryAnalzyer.WriteInTryVulnerability v =
                 WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest);
-            // because most try throws or aborts in catch, or has no catch
-            Assert.AreEqual(v.vulnerabilities.Count, 1);
+            // because most try throws or aborts in catch, or has no catch, or throws or aborts in finally
+            Assert.AreEqual(v.vulnerabilities.Count, 2);
             v.GetWarningInfo(print: false);
         }
     }

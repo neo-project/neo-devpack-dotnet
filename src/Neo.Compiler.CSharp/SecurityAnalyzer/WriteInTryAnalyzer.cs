@@ -15,6 +15,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Neo.Compiler.SecurityAnalyzer
@@ -51,7 +52,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                         a += i.Size;
                     }
                     StringBuilder additional = new();
-                    additional.AppendLine($"[SEC] Writing storage in `try` (address {tryAddr}), at instruction address:");
+                    additional.AppendLine($"[SEC] Writing storage in `try` (address {{{string.Join(", ", tryAddr)}}}), at instruction address:");
                     additional.AppendLine($"\t{string.Join(", ", writeAddrs)}");
                     if (print)
                         Console.Write(additional.ToString());
@@ -67,7 +68,8 @@ namespace Neo.Compiler.SecurityAnalyzer
         /// Writing in try is risky.
         /// In case of exception, your write should usually be reverted.
         /// But it is ambiguous whether a write in try is actually reverted.
-        /// You can still abort or throw exception when you catch an exception from try. This is safe.
+        /// You can still have no catch, or abort or throw exception when you catch. This is safe.
+        /// Or you can abort or throw in finally, though not very meaningful in practice.
         /// </summary>
         /// <param name="nef">Nef file</param>
         /// <param name="manifest">Manifest</param>
@@ -76,7 +78,7 @@ namespace Neo.Compiler.SecurityAnalyzer
         public static WriteInTryVulnerability AnalyzeWriteInTry
             (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
-            HashSet<BasicBlock> blockWriteStorage = [];
+            HashSet<BasicBlock> allBasicBlocksWritingStorage = [];
             Dictionary<BasicBlock, HashSet<int>> result = [];
             ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
@@ -85,14 +87,28 @@ namespace Neo.Compiler.SecurityAnalyzer
                     if (i.OpCode == VM.OpCode.SYSCALL
                     && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
                      || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
-                        blockWriteStorage.Add(block);
+                        allBasicBlocksWritingStorage.Add(block);
             foreach (TryCatchFinallySingleCoverage c in tryCatchFinallyCoverage.allTry.Values)
-                foreach (BasicBlock b in c.tryBlocks)
-                    if (blockWriteStorage.Contains(b))
+            {
+                if (c.catchBlock == null || c.catchBlock.branchType == BranchType.THROW || c.catchBlock.branchType == BranchType.ABORT)
+                    continue;
+                if (c.finallyBlock != null && (c.finallyBlock.branchType == BranchType.THROW || c.finallyBlock.branchType == BranchType.ABORT))
+                    continue;
+                HashSet<BasicBlock> containingBasicBlocksWritingStorage = c.tryBlocks
+                    .Where(allBasicBlocksWritingStorage.Contains).ToHashSet();
+                // If this try contains more internal nested trys,
+                // and the internal try/catch/finally writes to storage,
+                // this is unsafe.
+                // But it is ok to have writes in catch and finally of this try.
+                foreach (TryCatchFinallySingleCoverage nestedTry in c.nestedTrys)
+                    containingBasicBlocksWritingStorage = containingBasicBlocksWritingStorage
+                        .Union(FindAllBasicBlocksWritingStorageInTryCatchFinally(nestedTry, [], allBasicBlocksWritingStorage))
+                        .ToHashSet();
+
+                foreach (BasicBlock b in containingBasicBlocksWritingStorage)
+                    if (allBasicBlocksWritingStorage.Contains(b))
                     {
                         // If no catch, or surely throws or aborts from catch, this is still safe
-                        if (c.catchBlock == null || c.catchBlock.branchType == BranchType.THROW || c.catchBlock.branchType == BranchType.ABORT)
-                            continue;
                         // add to result
                         if (!result.TryGetValue(b, out HashSet<int>? tryAddrs))
                         {
@@ -101,7 +117,23 @@ namespace Neo.Compiler.SecurityAnalyzer
                         }
                         tryAddrs.Add(c.tryAddr);
                     }
+            }
             return new(result, debugInfo);
+        }
+
+        public static HashSet<BasicBlock> FindAllBasicBlocksWritingStorageInTryCatchFinally
+            (TryCatchFinallySingleCoverage c, HashSet<TryCatchFinallySingleCoverage> visitedTrys, HashSet<BasicBlock> allBasicBlocksWritingStorage)
+        {
+            if (visitedTrys.Contains(c))
+                return [];
+            visitedTrys.Add(c);
+            IEnumerable<BasicBlock> writesInTry = c.tryBlocks
+                .Concat(c.catchBlocks)
+                .Concat(c.finallyBlocks)
+                .Where(allBasicBlocksWritingStorage.Contains);
+            foreach (TryCatchFinallySingleCoverage nestedTry in c.nestedTrys)
+                writesInTry = writesInTry.Concat(FindAllBasicBlocksWritingStorageInTryCatchFinally(nestedTry, visitedTrys, allBasicBlocksWritingStorage));
+            return writesInTry.ToHashSet();
         }
     }
 }

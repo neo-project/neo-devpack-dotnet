@@ -45,7 +45,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
         public static void TryWriteWithVulnerability()
         {
-            try { Delete(); } catch { }
+            try { Delete(); } catch { }  // unsafe
         }
 
         public static void RecursiveTry(int i)
@@ -72,6 +72,35 @@ namespace Neo.Compiler.CSharp.TestContracts
                 Delete();
             }
             finally { }
+        }
+
+        public static void SafeTryWithCatchWithThrowInFinally()
+        {
+            try
+            {
+                try { Write(); }
+                catch { }
+                finally { throw new Exception(); }
+            }
+            catch { }
+            finally { ExecutionEngine.Abort(); }
+        }
+
+        public static void UnsafeNestedTryWrite()
+        {
+            try
+            {
+                try { Write(); }
+                finally { }
+                throw new Exception();
+#pragma warning disable CS0162 // Unreachable code detected
+                UnsafeNestedTryWrite();
+#pragma warning restore CS0162 // Unreachable code detected
+            }
+            // no catch above and is safe
+            // but will be catched below, so the try above is unsafe
+            // for containing write in a nested try
+            catch { }
         }
     }
 }
