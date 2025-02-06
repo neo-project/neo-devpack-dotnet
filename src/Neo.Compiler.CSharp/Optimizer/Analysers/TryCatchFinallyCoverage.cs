@@ -39,12 +39,17 @@ namespace Neo.Optimizer
         public HashSet<BasicBlock> endingBlocks { get; protected set; }
         // other try blocks DIRECTLY included in this try block
         // if there is a nested try in the catch block in this try, the internal try is not included here
-        public HashSet<TryCatchFinallySingleCoverage> nestedTrys { get; protected set; }
+        public HashSet<TryCatchFinallySingleCoverage> nestedTrysInTry { get; protected set; }
+        public HashSet<TryCatchFinallySingleCoverage> nestedTrysInCatch { get; protected set; }
+        public HashSet<TryCatchFinallySingleCoverage> nestedTrysInFinally { get; protected set; }
         public TryCatchFinallySingleCoverage(ContractInBasicBlocks contractInBasicBlocks,
             int tryAddr, int catchAddr, int finallyAddr,
             BasicBlock tryBlock, BasicBlock? catchBlock, BasicBlock? finallyBlock,
             HashSet<BasicBlock> tryBlocks, HashSet<BasicBlock> catchBlocks, HashSet<BasicBlock> finallyBlocks,
-            HashSet<BasicBlock> endingBlocks, HashSet<TryCatchFinallySingleCoverage> nestedTrys)
+            HashSet<BasicBlock> endingBlocks,
+            HashSet<TryCatchFinallySingleCoverage> nestedTrysInTry,
+            HashSet<TryCatchFinallySingleCoverage> nestedTrysInCatch,
+            HashSet<TryCatchFinallySingleCoverage> nestedTrysInFinally)
         {
             this.contractInBasicBlocks = contractInBasicBlocks;
             this.tryAddr = tryAddr;
@@ -57,14 +62,16 @@ namespace Neo.Optimizer
             this.catchBlocks = catchBlocks;
             this.finallyBlocks = finallyBlocks;
             this.endingBlocks = endingBlocks;
-            this.nestedTrys = nestedTrys;
+            this.nestedTrysInTry = nestedTrysInTry;
+            this.nestedTrysInCatch = nestedTrysInCatch;
+            this.nestedTrysInFinally = nestedTrysInFinally;
         }
 
         public TryCatchFinallySingleCoverage(ContractInBasicBlocks contractInBasicBlocks,
             int tryAddr, int catchAddr, int finallyAddr,
             BasicBlock tryBlock, BasicBlock? catchBlock, BasicBlock? finallyBlock) :
             this(contractInBasicBlocks, tryAddr, catchAddr, finallyAddr, tryBlock, catchBlock, finallyBlock,
-                [], [], [], [], [])
+                [], [], [], [], [], [], [])
         { }
     }
 
@@ -149,8 +156,14 @@ namespace Neo.Optimizer
                 {
                     if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
                     {
-                        if (tryType == TryType.TRY)
-                            allTry[tryBlock].nestedTrys.Add(allTry[currentBlock.nextBlock!]);
+                        HashSet<TryCatchFinallySingleCoverage> handledCoverage = tryType switch
+                        {
+                            TryType.TRY => allTry[tryBlock].nestedTrysInTry,
+                            TryType.CATCH => allTry[tryBlock].nestedTrysInCatch,
+                            TryType.FINALLY => allTry[tryBlock].nestedTrysInFinally,
+                            _ => throw new ArgumentException($"Invalid {nameof(tryType)} {tryType}"),
+                        };
+                        handledCoverage.Add(allTry[currentBlock.nextBlock!]);
                         tryStack.Push((currentBlock.nextBlock!, null, TryType.TRY, true));
                         CoverSingleTry(currentBlock.nextBlock!, tryStack);
                     }

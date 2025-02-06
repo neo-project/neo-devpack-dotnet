@@ -94,16 +94,16 @@ namespace Neo.Compiler.SecurityAnalyzer
                     continue;
                 if (c.finallyBlock != null && (c.finallyBlock.branchType == BranchType.THROW || c.finallyBlock.branchType == BranchType.ABORT))
                     continue;
-                HashSet<BasicBlock> containingBasicBlocksWritingStorage = c.tryBlocks
-                    .Where(allBasicBlocksWritingStorage.Contains).ToHashSet();
+                IEnumerable<BasicBlock> containingBasicBlocksWritingStorage = c.tryBlocks
+                    .Where(allBasicBlocksWritingStorage.Contains);
                 // If this try contains more internal nested trys,
                 // and the internal try/catch/finally writes to storage,
                 // this is unsafe.
                 // But it is ok to have writes in catch and finally of this try.
-                foreach (TryCatchFinallySingleCoverage nestedTry in c.nestedTrys)
+                foreach (TryCatchFinallySingleCoverage nestedTry in c.nestedTrysInTry)
                     containingBasicBlocksWritingStorage = containingBasicBlocksWritingStorage
-                        .Union(FindAllBasicBlocksWritingStorageInTryCatchFinally(nestedTry, [], allBasicBlocksWritingStorage))
-                        .ToHashSet();
+                        .Union(FindAllBasicBlocksWritingStorageInTryCatchFinally(nestedTry, [], allBasicBlocksWritingStorage));
+                containingBasicBlocksWritingStorage = containingBasicBlocksWritingStorage.ToHashSet();
 
                 foreach (BasicBlock b in containingBasicBlocksWritingStorage)
                     if (allBasicBlocksWritingStorage.Contains(b))
@@ -131,7 +131,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 .Concat(c.catchBlocks)
                 .Concat(c.finallyBlocks)
                 .Where(allBasicBlocksWritingStorage.Contains);
-            foreach (TryCatchFinallySingleCoverage nestedTry in c.nestedTrys)
+            foreach (TryCatchFinallySingleCoverage nestedTry in c.nestedTrysInTry.Union(c.nestedTrysInCatch).Union(c.nestedTrysInFinally).ToHashSet())
                 writesInTry = writesInTry.Concat(FindAllBasicBlocksWritingStorageInTryCatchFinally(nestedTry, visitedTrys, allBasicBlocksWritingStorage));
             return writesInTry.ToHashSet();
         }

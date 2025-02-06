@@ -41,7 +41,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ContractInBasicBlocks contractInBasicBlocks = new(NefFile, Manifest);
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
-            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 13);
+            Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 14);
 
             WriteInTryAnalzyer.WriteInTryVulnerability v =
                 WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest);

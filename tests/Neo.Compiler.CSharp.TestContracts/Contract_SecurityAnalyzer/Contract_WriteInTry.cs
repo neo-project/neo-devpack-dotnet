@@ -82,7 +82,12 @@ namespace Neo.Compiler.CSharp.TestContracts
                 catch { }
                 finally { throw new Exception(); }
             }
-            catch { }
+            catch
+            {
+                try { Write(); }
+                catch { }
+                finally { throw new Exception(); }
+            }
             finally { ExecutionEngine.Abort(); }
         }
 
