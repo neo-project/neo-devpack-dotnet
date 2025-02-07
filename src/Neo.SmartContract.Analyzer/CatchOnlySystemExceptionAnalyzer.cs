@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics[0];
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root.FindNode(diagnosticSpan) as TypeSyntax;
+            var declaration = root?.FndNode(diagnosticSpan) as TypeSyntax;
             if (declaration == null) return;
 
             context.RegisterCodeFix(
