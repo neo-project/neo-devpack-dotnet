@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class CatchOnlySystemExceptionAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "CatchOnlySystemException";
+        public const string DiagnosticId = "NC4027";
 
         private static readonly LocalizableString Title = "Catch System.Exception";
         private static readonly LocalizableString MessageFormat = "Neo smart contract supports catching System.Exception only. The compiler will catch all exeptions even if you want to catch a limited class of exception.";
