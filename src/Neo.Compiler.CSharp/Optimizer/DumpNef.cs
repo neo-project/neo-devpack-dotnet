@@ -11,6 +11,7 @@
 
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using System;
@@ -253,7 +254,14 @@ namespace Neo.Optimizer
                 ).Select(ai => ai.a).ToList();
         }
 
-        public static string GenerateDumpNef(NefFile nef, JToken? debugInfo)
+        /// <summary>
+        /// Dumps .nef assembly to a text file
+        /// </summary>
+        /// <param name="nef">The NEF file.</param>
+        /// <param name="debugInfo">The debug information. If available, provides source code comments in the dumped assembly.</param>
+        /// <param name="manifest">The contract manifest. Provides method start comments. Not necessary if debugInfo is available</param>
+        /// <returns></returns>
+        public static string GenerateDumpNef(NefFile nef, JToken? debugInfo, ContractManifest? manifest = null)
         {
             Script script = nef.Script;
             string addressPadding = script.GetInstructionAddressPadding();
@@ -291,6 +299,10 @@ namespace Neo.Optimizer
                     }
                 }
             }
+
+            if (debugInfo == null && manifest != null)
+                foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+                    methodStartAddrToName[method.Offset] = method.Name;
 
             Dictionary<string, string[]> docPathToContent = new();
             StringBuilder dumpnef = new();
