@@ -36,21 +36,15 @@ namespace Neo.Optimizer
 
         public static byte[] ZipDebugInfo(byte[] content, string innerFilename)
         {
-            using (var compressedFileStream = new MemoryStream())
+            using var compressedFileStream = new MemoryStream();
+            using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Update, false))
             {
-                using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Update, false))
-                {
-                    var zipEntry = zipArchive.CreateEntry(innerFilename);
-                    using (var originalFileStream = new MemoryStream(content))
-                    {
-                        using (var zipEntryStream = zipEntry.Open())
-                        {
-                            originalFileStream.CopyTo(zipEntryStream);
-                        }
-                    }
-                }
-                return compressedFileStream.ToArray();
+                var zipEntry = zipArchive.CreateEntry(innerFilename);
+                using var originalFileStream = new MemoryStream(content);
+                using var zipEntryStream = zipEntry.Open();
+                originalFileStream.CopyTo(zipEntryStream);
             }
+            return compressedFileStream.ToArray();
         }
 
         public static string UnzipDebugInfo(byte[] zippedBuffer)
@@ -118,7 +112,7 @@ namespace Neo.Optimizer
                 instruction = script.GetInstruction(address);
                 opcode = instruction.OpCode;
                 if (print)
-                    Console.WriteLine(WriteInstruction(address, instruction, "0000", Array.Empty<MethodToken>()));
+                    Console.WriteLine(WriteInstruction(address, instruction, "0000", []));
                 yield return (address, instruction);
             }
             if (opcode != OpCode.RET)
@@ -129,7 +123,7 @@ namespace Neo.Optimizer
 
         public static string GetComment(this Instruction instruction, int ip, MethodToken[]? tokens = null)
         {
-            tokens ??= Array.Empty<MethodToken>();
+            tokens ??= [];
 
             switch (instruction.OpCode)
             {
@@ -229,7 +223,7 @@ namespace Neo.Optimizer
 
         public static (int start, int end) GetMethodStartEndAddress(string name, JToken debugInfo)
         {
-            name = name.Length == 0 ? string.Empty : name[0].ToString().ToUpper() + name.Substring(1);  // first letter uppercase
+            name = name.Length == 0 ? string.Empty : name[0].ToString().ToUpper() + name[1..];  // first letter uppercase
             int start = -1, end = -1;
             foreach (JToken? method in (JArray)debugInfo["methods"]!)
             {
@@ -258,12 +252,12 @@ namespace Neo.Optimizer
             Script script = nef.Script;
             string addressPadding = script.GetInstructionAddressPadding();
             List<(int, Instruction)> addressAndInstructionsList = script.EnumerateInstructions().ToList();
-            Dictionary<int, Instruction> addressToInstruction = new();
+            Dictionary<int, Instruction> addressToInstruction = [];
             foreach ((int a, Instruction i) in addressAndInstructionsList)
                 addressToInstruction.Add(a, i);
-            Dictionary<int, string> methodStartAddrToName = new();
-            Dictionary<int, string> methodEndAddrToName = new();
-            Dictionary<int, List<(int docId, int startLine, int startCol, int endLine, int endCol)>> newAddrToSequencePoint = new();
+            Dictionary<int, string> methodStartAddrToName = [];
+            Dictionary<int, string> methodEndAddrToName = [];
+            Dictionary<int, List<(int docId, int startLine, int startCol, int endLine, int endCol)>> newAddrToSequencePoint = [];
 
             if (debugInfo != null)
             {
@@ -280,7 +274,7 @@ namespace Neo.Optimizer
                         GroupCollection documentGroups = DocumentRegex.Match(sequencePointGroups[2].ToString()).Groups;
                         int addr = int.Parse(sequencePointGroups[1].Value);
                         if (!newAddrToSequencePoint.ContainsKey(addr))
-                            newAddrToSequencePoint.Add(addr, new());
+                            newAddrToSequencePoint.Add(addr, []);
                         newAddrToSequencePoint[addr].Add((
                             int.Parse(documentGroups[1].ToString()),
                             int.Parse(documentGroups[2].ToString()),
@@ -292,23 +286,23 @@ namespace Neo.Optimizer
                 }
             }
 
-            Dictionary<string, string[]> docPathToContent = new();
+            Dictionary<string, string[]> docPathToContent = [];
             StringBuilder dumpnef = new();
-            foreach ((int a, Instruction i) in script.EnumerateInstructions(/*print: true*/).ToList())
+            foreach ((int a, _) in script.EnumerateInstructions(/*print: true*/).ToList())
             {
-                if (methodStartAddrToName.ContainsKey(a))
-                    dumpnef.AppendLine($"# Method Start {methodStartAddrToName[a]}");
-                if (methodEndAddrToName.ContainsKey(a))
-                    dumpnef.AppendLine($"# Method End {methodEndAddrToName[a]}");
-                if (newAddrToSequencePoint.ContainsKey(a))
+                if (methodStartAddrToName.TryGetValue(a, out var value))
+                    dumpnef.AppendLine($"# Method Start {value}");
+                if (methodEndAddrToName.TryGetValue(a, out value))
+                    dumpnef.AppendLine($"# Method End {value}");
+                if (newAddrToSequencePoint.TryGetValue(a, out var sequence))
                 {
-                    foreach ((int docId, int startLine, int startCol, int endLine, int endCol) in newAddrToSequencePoint[a])
+                    foreach ((int docId, int startLine, int startCol, int endLine, int endCol) in sequence)
                     {
                         string docPath = debugInfo!["documents"]![docId]!.AsString();
                         if (debugInfo["document-root"] != null)
                             docPath = Path.Combine(debugInfo["document-root"]!.AsString(), docPath);
                         if (!docPathToContent.ContainsKey(docPath))
-                            docPathToContent.Add(docPath, File.ReadAllLines(docPath).ToArray());
+                            docPathToContent.Add(docPath, [.. File.ReadAllLines(docPath)]);
                         if (startLine == endLine)
                             dumpnef.AppendLine($"# Code {Path.GetFileName(docPath)} line {startLine}: \"{docPathToContent[docPath][startLine - 1][(startCol - 1)..(endCol - 1)]}\"");
                         else
