@@ -300,7 +300,7 @@ namespace Neo.Optimizer
                 }
             }
 
-            if (debugInfo == null && manifest != null)
+            if (manifest != null)
                 foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
                     methodStartAddrToName[method.Offset] = method.Name;
 
