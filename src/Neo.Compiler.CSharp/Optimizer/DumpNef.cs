@@ -296,7 +296,7 @@ namespace Neo.Optimizer
 
             if (manifest != null)
                 foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
-                    methodStartAddrToName[method.Offset] = method.Name;
+                    methodStartAddrToName.TryAdd(method.Offset, method.Name);
 
             Dictionary<string, string[]> docPathToContent = [];
             StringBuilder dumpnef = new();
