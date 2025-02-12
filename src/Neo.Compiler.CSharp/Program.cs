@@ -142,7 +142,7 @@ namespace Neo.Compiler
                     File.WriteAllBytes(Path.Combine(directory, filename + ".optimized.manifest.json"), manifest.ToJson().ToByteArray(true));
                     if (options.Assembly)
                     {
-                        string dumpnef = DumpNef.GenerateDumpNef(nef, debugInfo);
+                        string dumpnef = DumpNef.GenerateDumpNef(nef, debugInfo, manifest);
                         File.WriteAllText(Path.Combine(directory, filename + ".optimized.nef.txt"), dumpnef);
                     }
                     if (debugInfo != null)
@@ -363,7 +363,7 @@ namespace Neo.Compiler
                     try
                     {
                         path = Path.Combine(outputFolder, $"{baseName}.nef.txt");
-                        File.WriteAllText(path, DumpNef.GenerateDumpNef(nef, debugInfo));
+                        File.WriteAllText(path, DumpNef.GenerateDumpNef(nef, debugInfo, manifest));
                         Console.WriteLine($"Created {path}");
                     }
                     catch (Exception ex)

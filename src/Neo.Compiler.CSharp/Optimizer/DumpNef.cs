@@ -11,6 +11,7 @@
 
 using Neo.Json;
 using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using System;
@@ -25,11 +26,11 @@ using System.Text.RegularExpressions;
 
 namespace Neo.Optimizer
 {
-    static class DumpNef
+    internal static class DumpNef
     {
-        private static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
-        private static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);
-        private static readonly Regex SequencePointRegex = new(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
+        internal static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
+        internal static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);
+        internal static readonly Regex SequencePointRegex = new(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
 
         static readonly Lazy<IReadOnlyDictionary<uint, string>> sysCallNames = new(
             () => ApplicationEngine.Services.ToImmutableDictionary(kvp => kvp.Value.Hash, kvp => kvp.Value.Name));
@@ -247,7 +248,14 @@ namespace Neo.Optimizer
                 ).Select(ai => ai.a).ToList();
         }
 
-        public static string GenerateDumpNef(NefFile nef, JToken? debugInfo)
+        /// <summary>
+        /// Dumps .nef assembly to a text file
+        /// </summary>
+        /// <param name="nef">The NEF file.</param>
+        /// <param name="debugInfo">The debug information. If available, provides source code comments in the dumped assembly.</param>
+        /// <param name="manifest">The contract manifest. Provides method start comments. Not necessary if debugInfo is available</param>
+        /// <returns></returns>
+        public static string GenerateDumpNef(NefFile nef, JToken? debugInfo, ContractManifest? manifest = null)
         {
             Script script = nef.Script;
             string addressPadding = script.GetInstructionAddressPadding();
@@ -285,6 +293,10 @@ namespace Neo.Optimizer
                     }
                 }
             }
+
+            if (manifest != null)
+                foreach (ContractMethodDescriptor method in manifest.Abi.Methods)
+                    methodStartAddrToName.TryAdd(method.Offset, method.Name);
 
             Dictionary<string, string[]> docPathToContent = [];
             StringBuilder dumpnef = new();
