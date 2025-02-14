@@ -152,12 +152,12 @@ namespace Neo.SmartContract.Testing.Storage
             var buffer = new byte[sizeof(int)];
             JObject ret = new();
 
-            foreach ((var Key, var Value) in Snapshot.Seek([], SeekDirection.Forward))
+            foreach ((var key, var value) in Snapshot.Seek([], SeekDirection.Forward))
             {
                 // "key":"value" in base64
 
                 JObject prefix;
-                BinaryPrimitives.WriteInt32LittleEndian(buffer, Key.Id);
+                BinaryPrimitives.WriteInt32LittleEndian(buffer, key.Id);
                 var keyId = Convert.ToBase64String(buffer);
 
                 if (ret.ContainsProperty(keyId))
@@ -170,7 +170,7 @@ namespace Neo.SmartContract.Testing.Storage
                     ret[keyId] = prefix;
                 }
 
-                prefix[Convert.ToBase64String(Key.Key.ToArray())] = Convert.ToBase64String(Value.Value.ToArray());
+                prefix[Convert.ToBase64String(key.Key.ToArray())] = Convert.ToBase64String(value.Value.ToArray());
             }
 
             return ret;
