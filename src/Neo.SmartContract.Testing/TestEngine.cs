@@ -13,7 +13,7 @@ using Moq;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
+using Neo.Persistence.Providers;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Coverage;
