@@ -13,7 +13,6 @@ using Neo.Json;
 using Neo.Persistence;
 using System;
 using System.Buffers.Binary;
-using System.Linq;
 
 namespace Neo.SmartContract.Testing.Storage
 {
