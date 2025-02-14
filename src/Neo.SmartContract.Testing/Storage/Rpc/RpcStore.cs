@@ -9,7 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Persistence;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -50,11 +50,27 @@ public class RpcStore : IStore
 
     public void Delete(byte[] key) => throw new NotImplementedException();
     public void Put(byte[] key, byte[] value) => throw new NotImplementedException();
-    public ISnapshot GetSnapshot() => new RpcSnapshot(this);
+    public IStoreSnapshot GetSnapshot() => new RpcSnapshot(this);
     public bool Contains(byte[] key) => TryGet(key) != null;
     public void Dispose() { }
 
     #region Rpc calls
+
+    // Same logic as MemorySnapshot
+    private static IEnumerable<(byte[] Key, byte[] Value)> Seek(ConcurrentDictionary<byte[], byte[]> innerData, byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
+    {
+        keyOrPrefix ??= [];
+        if (direction == SeekDirection.Backward && keyOrPrefix.Length == 0) yield break;
+
+        var comparer = direction == SeekDirection.Forward ? ByteArrayComparer.Default : ByteArrayComparer.Reverse;
+        IEnumerable<KeyValuePair<byte[], byte[]>> records = innerData;
+        if (keyOrPrefix.Length > 0)
+            records = records
+                .Where(p => comparer.Compare(p.Key, keyOrPrefix) >= 0);
+        records = records.OrderBy(p => p.Key, comparer);
+        foreach (var pair in records)
+            yield return (pair.Key[..], pair.Value[..]);
+    }
 
     public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[]? key, SeekDirection direction)
     {
@@ -79,7 +95,7 @@ public class RpcStore : IStore
                 data.TryAdd(entry.Key, entry.Value);
             }
 
-            foreach (var entry in new MemorySnapshot(data).Seek(key, direction))
+            foreach (var entry in Seek(data, key, direction))
             {
                 yield return (entry.Key, entry.Value);
             }

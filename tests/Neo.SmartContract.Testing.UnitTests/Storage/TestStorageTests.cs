@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Persistence;
+using Neo.Persistence.Providers;
 using Neo.SmartContract.Testing.Storage;
 using System;
 using System.IO;
