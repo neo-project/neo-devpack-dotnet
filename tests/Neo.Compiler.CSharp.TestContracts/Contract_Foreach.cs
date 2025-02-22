@@ -1,13 +1,25 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Foreach.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Foreach : SmartContract.Framework.SmartContract
     {
         [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
-        private static readonly byte[] rawECpoint = default;
+        private static readonly byte[] rawECpoint = default!;
 
         struct Pending
         {
@@ -71,10 +83,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static Neo.SmartContract.Framework.List<byte> ByteArrayForeach()
+        public static List<byte> ByteArrayForeach()
         {
             byte[] a_bytearray = new byte[] { 0x01, 0x0a, 0x11 };
-            SmartContract.Framework.List<byte> result = new SmartContract.Framework.List<byte>();
+            List<byte> result = new List<byte>();
             foreach (var item in a_bytearray)
             {
                 result.Add(item);
@@ -82,10 +94,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static SmartContract.Framework.List<UInt160> UInt160Foreach()
+        public static List<UInt160> UInt160Foreach()
         {
             UInt160[] test = new UInt160[] { UInt160.Zero, UInt160.Zero };
-            SmartContract.Framework.List<UInt160> result = new SmartContract.Framework.List<UInt160>();
+            List<UInt160> result = new List<UInt160>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -93,10 +105,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static SmartContract.Framework.List<UInt256> UInt256Foreach()
+        public static List<UInt256> UInt256Foreach()
         {
             UInt256[] test = new UInt256[] { UInt256.Zero, UInt256.Zero };
-            SmartContract.Framework.List<UInt256> result = new SmartContract.Framework.List<UInt256>();
+            List<UInt256> result = new List<UInt256>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -104,11 +116,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static SmartContract.Framework.List<ECPoint> ECPointForeach()
+        public static List<ECPoint> ECPointForeach()
         {
             ECPoint[] test = new ECPoint[] { (ECPoint)rawECpoint, (ECPoint)rawECpoint };
-            SmartContract.Framework.List<ECPoint> result = new SmartContract.Framework.List<ECPoint>();
-            int i = 0;
+            List<ECPoint> result = new List<ECPoint>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -116,10 +127,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static SmartContract.Framework.List<BigInteger> BigIntegerForeach()
+        public static List<BigInteger> BigIntegerForeach()
         {
             BigInteger[] test = new BigInteger[] { 10_000, 1000_000, 1000_000_000, 1000_000_000_000_000_000 };
-            SmartContract.Framework.List<BigInteger> result = new SmartContract.Framework.List<BigInteger>();
+            List<BigInteger> result = new List<BigInteger>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -127,10 +138,10 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return result;
         }
 
-        public static SmartContract.Framework.List<object> ObjectArrayForeach()
+        public static List<object> ObjectArrayForeach()
         {
             object[] test = new object[] { new byte[] { 0x01, 0x02 }, "test", 123 };
-            SmartContract.Framework.List<object> result = new SmartContract.Framework.List<object>();
+            List<object> result = new List<object>();
             foreach (var item in test)
             {
                 result.Add(item);
@@ -147,7 +158,25 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             {
                 foreach (var item in a)
                 {
-                    if (breakIndex-- <= 0) break;
+                    if (breakIndex-- <= 0)
+                        break;
+                    sum += item;
+                }
+            }
+            catch { }
+            return sum;
+        }
+
+        public static int TestContinue()
+        {
+            int[] a = new int[] { 1, 2, 3, 4, 5 };
+            int sum = 0;
+            try
+            {
+                foreach (var item in a)
+                {
+                    if (item % 2 == 0)
+                        continue;
                     sum += item;
                 }
             }
@@ -165,6 +194,46 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 sum += a[i];
             }
             return sum;
+        }
+
+        public static void TestIteratorForEach()
+        {
+            var tokens = new StorageMap(Storage.CurrentContext, 3).Find(FindOptions.KeysOnly | FindOptions.RemovePrefix);
+            foreach (var item in tokens)
+            {
+                Runtime.Log(item.ToString()!);
+            }
+        }
+
+        static (int, string)[] Function1() => new (int, string)[] { new(1, "hello"), new(2, "world") };
+
+        public static void TestForEachVariable()
+        {
+
+            foreach (var (a, b) in Function1())
+            {
+                Runtime.Log($"{a}: {b}");
+            }
+        }
+
+        public static void TestDo()
+        {
+            int n = 0;
+            do
+            {
+                Runtime.Log(n.ToString());
+                n++;
+            } while (n < 5);
+        }
+
+        public static void TestWhile()
+        {
+            int n = 0;
+            while (n < 5)
+            {
+                Runtime.Log(n.ToString());
+                n++;
+            }
         }
     }
 }

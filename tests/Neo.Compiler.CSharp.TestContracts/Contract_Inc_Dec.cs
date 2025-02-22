@@ -1,9 +1,20 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Inc_Dec.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System;
 using System.ComponentModel;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
-    public class Contract2_Inc_Dec : SmartContract.Framework.SmartContract
+    public class Contract_Inc_Dec : SmartContract.Framework.SmartContract
     {
         private static uint _property;
         private static int _intProperty;
@@ -98,7 +109,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static uint UnitTest_Param_Dec_Checked(uint param)
         {
-            param = uint.MinValue;
             checked
             {
                 --param;
@@ -109,7 +119,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static uint UnitTest_Param_Dec_UnChecked(uint param)
         {
-            param = uint.MinValue;
             unchecked
             {
                 --param;
@@ -120,7 +129,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static uint UnitTest_Param_Inc_Checked(uint param)
         {
-            param = uint.MaxValue;
             checked
             {
                 ++param;
@@ -131,7 +139,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static uint UnitTest_Param_Inc_UnChecked(uint param)
         {
-            param = uint.MaxValue;
             unchecked
             {
                 ++param;
@@ -232,7 +239,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         // Parameter Tests
         public static int UnitTest_Param_Inc_Checked_Int(int param)
         {
-            param = int.MaxValue;
             checked
             {
                 ++param;
@@ -243,7 +249,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static int UnitTest_Param_Inc_UnChecked_Int(int param)
         {
-            param = int.MaxValue;
             unchecked
             {
                 ++param;
@@ -254,7 +259,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static int UnitTest_Param_Dec_Checked_Int(int param)
         {
-            param = int.MinValue;
             checked
             {
                 --param;
@@ -265,7 +269,6 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         public static int UnitTest_Param_Dec_UnChecked_Int(int param)
         {
-            param = int.MinValue;
             unchecked
             {
                 --param;

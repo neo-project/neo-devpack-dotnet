@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// RpcStoreTests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Cryptography.ECC;
@@ -37,7 +48,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             var node = ECPoint.Parse("03009b7540e10f2562e5fd8fac9eaec25166a58b26e412348ff5a86927bfac22a2", ECCurve.Secp256r1);
             var state = engine.Native.ContractManagement.GetContract(engine.Native.NEO.Hash);
-            var contract = engine.Deploy<DummyContract>(state.Nef, state.Manifest, null,
+            var contract = engine.Deploy<DummyContract>(state!.Nef, state.Manifest, null,
                 c => c.Setup(s => s.GetCandidateVote(It.IsAny<ECPoint>())).Returns(() => engine.Native.NEO.GetCandidateVote(node)));
 
             var votes = contract.GetCandidateVote(node);

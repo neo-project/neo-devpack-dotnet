@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.SmartContract.Framework is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// StorageMap.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -23,7 +24,7 @@ namespace Neo.SmartContract.Framework.Services
         private readonly StorageContext context;
         private readonly byte[] prefix;
 
-        public extern ByteString this[ByteString key]
+        public extern ByteString? this[ByteString key]
         {
             [CallingConvention(CallingConvention.Cdecl)]
             [OpCode(OpCode.UNPACK)]
@@ -43,7 +44,7 @@ namespace Neo.SmartContract.Framework.Services
             set;
         }
 
-        public extern ByteString this[byte[] key]
+        public extern ByteString? this[byte[] key]
         {
             [CallingConvention(CallingConvention.Cdecl)]
             [OpCode(OpCode.UNPACK)]
@@ -112,7 +113,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString Get(ByteString key);
+        public extern ByteString? Get(ByteString key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -204,7 +205,7 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
         [Syscall("System.Storage.Get")]
-        public extern ByteString Get(byte[] key);
+        public extern ByteString? Get(byte[] key);
 
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -289,16 +290,16 @@ namespace Neo.SmartContract.Framework.Services
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
         public extern BigInteger GetIntegerOrZero(byte[] key);
 
-        public object GetObject(ByteString key)
+        public object? GetObject(ByteString key)
         {
-            ByteString value = Get(key);
+            ByteString? value = Get(key);
             if (value is null) return null;
             return StdLib.Deserialize(value);
         }
 
-        public object GetObject(byte[] key)
+        public object? GetObject(byte[] key)
         {
-            ByteString value = Get(key);
+            ByteString? value = Get(key);
             if (value is null) return null;
             return StdLib.Deserialize(value);
         }

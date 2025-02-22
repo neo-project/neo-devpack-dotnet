@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// AbiMethod.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -57,16 +68,16 @@ namespace Neo.SmartContract.Testing.Coverage
                             display = pInfo.GetSetMethod()?.GetCustomAttribute<DisplayNameAttribute>();
                             var nameWrite = display is not null ? display.DisplayName : memberExpression.Member.Name;
 
-                            return new AbiMethod[]
-                            {
-                                new AbiMethod(nameRead, Array.Empty<string>()),
-                                new AbiMethod(nameWrite, new string[]{ "value" })
-                            };
+                            return
+                            [
+                                new AbiMethod(nameRead, []),
+                                new AbiMethod(nameWrite, ["value"])
+                            ];
                         }
 
                         // Only read property
 
-                        return new AbiMethod[] { new AbiMethod(nameRead, Array.Empty<string>()) };
+                        return [new AbiMethod(nameRead, [])];
                     }
                 }
             }
@@ -77,21 +88,21 @@ namespace Neo.SmartContract.Testing.Coverage
                     var display = mInfo.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : mInfo.Name;
 
-                    return new AbiMethod[] { new AbiMethod(name, mInfo.GetParameters().Select(u => u.Name ?? "arg").ToArray()) };
+                    return [new AbiMethod(name, mInfo.GetParameters().Select(u => u.Name ?? "arg").ToArray())];
                 }
             }
 
-            return Array.Empty<AbiMethod>();
+            return [];
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is not AbiMethod other) return false;
 
             return PCount == other.PCount && Name == other.Name;
         }
 
-        bool IEquatable<AbiMethod>.Equals(AbiMethod other) => PCount == other.PCount && Name == other.Name;
+        bool IEquatable<AbiMethod>.Equals(AbiMethod? other) => other != null && PCount == other.PCount && Name == other.Name;
         public override int GetHashCode() => HashCode.Combine(PCount, Name);
         public override string ToString() => _toString;
     }

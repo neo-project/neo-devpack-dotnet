@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// SyscallTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 extern alias scfx;
 
 using Microsoft.CodeAnalysis;
@@ -28,7 +39,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             foreach (INamespaceOrTypeSymbol member in symbol.GetMembers())
             {
                 if (member.ContainingAssembly?.Name != checkingAssembly) continue;
-                IEnumerable<string> result = member.Accept(this);
+                IEnumerable<string> result = member.Accept(this)!;
                 if (result is null) continue;
                 foreach (string value in result) yield return value;
             }
@@ -39,7 +50,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             foreach (ISymbol member in symbol.GetMembers())
             {
                 if (member is not INamedTypeSymbol and not IMethodSymbol) continue;
-                IEnumerable<string> result = member.Accept(this);
+                IEnumerable<string> result = member.Accept(this)!;
                 if (result is null) continue;
                 foreach (string value in result) yield return value;
             }
@@ -49,8 +60,8 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             foreach (AttributeData attribute in symbol.GetAttributes())
             {
-                if (attribute.AttributeClass.Name != checkingAttribute) continue;
-                yield return (string)attribute.ConstructorArguments[0].Value;
+                if (attribute.AttributeClass!.Name != checkingAttribute) continue;
+                yield return ((string)attribute.ConstructorArguments[0].Value!);
             }
         }
     }
@@ -68,18 +79,18 @@ namespace Neo.SmartContract.Framework.UnitTests
             neoSyscalls.Remove("Neo.SmartContract.Testing.Invoke");
 
             string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            MetadataReference[] references = new[]
-            {
+            MetadataReference[] references =
+            [
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
                 MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
                 MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(SyscallAttribute).Assembly.Location)
-            };
+            ];
             CSharpCompilation compilation = CSharpCompilation.Create(null, references: references);
             MySymbolVisitor visitor = new("Neo.SmartContract.Framework", nameof(SyscallAttribute));
-            HashSet<string> fwSyscalls = visitor.Visit(compilation.GlobalNamespace).ToHashSet();
+            HashSet<string> fwSyscalls = visitor.Visit(compilation.GlobalNamespace)!.ToHashSet();
 
             fwSyscalls.SymmetricExceptWith(neoSyscalls);
             if (fwSyscalls.Count > 0 && fwSyscalls.All(p => !p.Equals("System.Runtime.Notify")))

@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.SmartContract.Framework is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// Nep17Token.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -18,17 +19,17 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep17)]
-    [ContractPermission(Permission.WildCard, Method.OnNEP17Payment)]
+    [ContractPermission(Permission.Any, Method.OnNEP17Payment)]
     public abstract class Nep17Token : TokenContract
     {
-        public delegate void OnTransferDelegate(UInt160 from, UInt160 to, BigInteger amount);
+        public delegate void OnTransferDelegate(UInt160? from, UInt160? to, BigInteger amount);
 
         [DisplayName("Transfer")]
         public static event OnTransferDelegate OnTransfer;
 
         public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data)
         {
-            if (from is null || !from.IsValid)
+            if (!from.IsValid)
                 throw new Exception("The argument \"from\" is invalid.");
             if (to is null || !to.IsValid)
                 throw new Exception("The argument \"to\" is invalid.");
@@ -64,7 +65,7 @@ namespace Neo.SmartContract.Framework
             PostTransfer(account, null, amount, null);
         }
 
-        protected static void PostTransfer(UInt160 from, UInt160 to, BigInteger amount, object data)
+        protected static void PostTransfer(UInt160? from, UInt160? to, BigInteger amount, object? data)
         {
             OnTransfer(from, to, amount);
             if (to is not null && ContractManagement.GetContract(to) is not null)

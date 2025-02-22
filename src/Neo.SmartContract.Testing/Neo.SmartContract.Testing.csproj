@@ -1,26 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<Title>Neo.SmartContract.Testing</Title>
-		<TargetFrameworks>netstandard2.1;net7.0</TargetFrameworks>
-		<LangVersion>latest</LangVersion>
-		<PackageId>Neo.SmartContract.Testing</PackageId>
-		<PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
-		<Description>TestEngine for NEO smart contract testing.</Description>
-		<IncludeContentInPack>true</IncludeContentInPack>
-		<ContentTargetFolders>content</ContentTargetFolders>
-		<Nullable>enable</Nullable>
-		<NoWarn>$(NoWarn);NU5128</NoWarn>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Title>Neo.SmartContract.Testing</Title>
+        <LangVersion>latest</LangVersion>
+        <AssemblyTitle>Neo.SmartContract.Testing</AssemblyTitle>
+        <AssemblyName>Neo.SmartContract.Testing</AssemblyName>
+        <RootNamespace>Neo.SmartContract.Testing</RootNamespace>
+        <PackageId>Neo.SmartContract.Testing</PackageId>
+        <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
+        <Description>TestEngine for NEO smart contract testing.</Description>
+        <IncludeContentInPack>true</IncludeContentInPack>
+        <ContentTargetFolders>content</ContentTargetFolders>
+        <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+    </PropertyGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="Moq" Version="4.20.70" />
-	  <PackageReference Include="MSTest.TestFramework" Version="3.2.1" />
-	  <PackageReference Include="ReportGenerator.Core" Version="5.2.1" />
-	</ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Moq" Version="4.20.72" />
+      <PackageReference Include="MSTest.TestFramework" Version="3.8.0" />
+      <PackageReference Include="ReportGenerator.Core" Version="5.4.4" />
+    </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+      <ProjectReference Include="..\Neo.Disassembler.CSharp\Neo.Disassembler.CSharp.csproj" />
+    </ItemGroup>
 
 </Project>

@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// AssignmentExpression.ComplexAssignment.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -19,8 +20,36 @@ using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the code for complex assignment (or compound assignment) expression into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about complex assignment expression.</param>
+    /// <param name="expression">The syntax representation of the complex assignment expression statement being converted.</param>
+    /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
+    /// <remarks>
+    /// For a binary operator op, a compound assignment expression of the form "x op= y" is equivalent to "x = x op y" except that x is only evaluated once.
+    /// </remarks>
+    /// <example>
+    /// The following example demonstrates the usage of compound assignment with arithmetic operators:
+    /// The corresponding code branch is "ConvertComplexAssignmentExpression"
+    /// <code>
+    /// int a = 5;
+    /// a += 9;
+    /// Runtime.Log(a.ToString());
+    /// a -= 4;
+    /// Runtime.Log(a.ToString());
+    /// a *= 2;
+    /// Runtime.Log(a.ToString());
+    /// a /= 4;
+    /// Runtime.Log(a.ToString());
+    /// a %= 3;
+    /// Runtime.Log(a.ToString());
+    /// </code>
+    /// output: 14, 10, 20, 5, 2
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator#compound-assignment">Compound assignment</seealso>
     private void ConvertComplexAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
@@ -50,12 +79,12 @@ partial class MethodConvert
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
-            Call(model, property.GetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
-            Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
@@ -140,43 +169,41 @@ partial class MethodConvert
 
     private void ConvertLocalIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ILocalSymbol left, ExpressionSyntax right)
     {
-        byte index = _localVariables[left];
-        AccessSlot(OpCode.LDLOC, index);
+        LdLocSlot(left);
         ConvertExpression(model, right);
         EmitComplexAssignmentOperator(type, operatorToken);
         AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.STLOC, index);
+        StLocSlot(left);
     }
 
     private void ConvertParameterIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IParameterSymbol left, ExpressionSyntax right)
     {
-        byte index = _parameters[left];
-        AccessSlot(OpCode.LDARG, index);
+        LdArgSlot(left);
         ConvertExpression(model, right);
         EmitComplexAssignmentOperator(type, operatorToken);
         AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.STARG, index);
+        StArgSlot(left);
     }
 
     private void ConvertPropertyIdentifierNameComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, IPropertySymbol left, ExpressionSyntax right)
     {
         if (left.IsStatic)
         {
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.DUP);
-            Call(model, left.SetMethod!);
+            CallMethodWithConvention(model, left.SetMethod!);
         }
         else
         {
             AddInstruction(OpCode.LDARG0);
             AddInstruction(OpCode.DUP);
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.TUCK);
-            Call(model, left.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, left.SetMethod!, CallingConvention.StdCall);
         }
     }
 
@@ -211,21 +238,21 @@ partial class MethodConvert
     {
         if (property.IsStatic)
         {
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.DUP);
-            Call(model, property.SetMethod!);
+            CallMethodWithConvention(model, property.SetMethod!);
         }
         else
         {
             ConvertExpression(model, left.Expression);
             AddInstruction(OpCode.DUP);
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             ConvertExpression(model, right);
             EmitComplexAssignmentOperator(type, operatorToken);
             AddInstruction(OpCode.TUCK);
-            Call(model, property.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
     }
 
@@ -244,12 +271,15 @@ partial class MethodConvert
             "%=" => (OpCode.MOD, true),
             "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, true),
             "^=" when !isBoolean => (OpCode.XOR, true),
+            "^=" when isBoolean => (OpCode.XOR, false),
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
             "<<=" => (OpCode.SHL, true),
             ">>=" => (OpCode.SHR, true),
             _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
         };
         AddInstruction(opcode);
+        if (opcode == OpCode.XOR && isBoolean)
+            ChangeType(VM.Types.StackItemType.Boolean);
         if (isString) ChangeType(VM.Types.StackItemType.ByteString);
         if (checkResult) EnsureIntegerInRange(type);
     }

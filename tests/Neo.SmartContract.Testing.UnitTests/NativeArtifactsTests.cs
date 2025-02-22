@@ -1,6 +1,18 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// NativeArtifactsTests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Cryptography.ECC;
+using Neo.SmartContract.Testing.Exceptions;
 using System.Linq;
 using System.Reflection;
 
@@ -24,8 +36,15 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check symbols
 
+            using var fee = engine.CreateGasWatcher();
             Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
-            Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
+            Assert.AreEqual(984060L, fee.Value);
+
+            using var gas = engine.CreateGasWatcher();
+            {
+                Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
+                Assert.AreEqual(984060L, gas);
+            }
 
             // Ensure that the main address contains the totalSupply
 
@@ -34,15 +53,15 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check coverage
 
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.Symbol).CoveredLinesPercentage);
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.TotalSupply).CoveredLinesPercentage);
-            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>())).CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.Symbol)!.CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.TotalSupply)!.CoveredLinesPercentage);
+            Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>()))!.CoveredLinesPercentage);
         }
 
         [TestMethod]
         public void TestCandidate()
         {
-            var engine = new TestEngine(true) { Gas = 1001_0000_0000 };
+            var engine = new TestEngine(true) { Fee = 1001_0000_0000 };
 
             // Check initial value
 
@@ -57,7 +76,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Check
 
             Assert.AreEqual(1, engine.Native.NEO.Candidates?.Length);
-            Assert.AreEqual(candidate.ToString(), engine.Native.NEO.Candidates[0].PublicKey.ToString());
+            Assert.AreEqual(candidate.ToString(), engine.Native.NEO.Candidates![0].PublicKey!.ToString());
         }
 
         [TestMethod]
@@ -128,7 +147,8 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             engine.SetTransactionSigners(TestEngine.GetNewSigner());
 
-            Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.RegisterPrice = 123);
+            var exception = Assert.ThrowsException<TestException>(() => engine.Native.NEO.RegisterPrice = 123);
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
     }
 }

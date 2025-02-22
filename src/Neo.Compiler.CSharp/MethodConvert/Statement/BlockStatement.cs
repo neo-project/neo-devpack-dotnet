@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// BlockStatement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -15,10 +16,10 @@ using System.Collections.Generic;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
-        /// Converts a block statement to a sequence of instructions. This method is used for parsing
+        /// Converts a block statement to OpCodes. This method is used for parsing
         /// the syntax of block statements within the context of a semantic model. A block statement
         /// typically consists of a series of statements enclosed in braces `{}`.
         /// </summary>
@@ -44,6 +45,15 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertBlockStatement(SemanticModel model, BlockSyntax syntax)
         {
+            StatementContext sc = new(syntax);
+            _generalStatementStack.Push(sc);
+            foreach (StatementSyntax label in syntax.Statements)
+                if (label is LabeledStatementSyntax l)
+                {
+                    ILabelSymbol symbol = (ILabelSymbol)model.GetDeclaredSymbol(l)!;
+                    JumpTarget target = AddLabel(symbol);
+                    sc.AddLabel(symbol, target);
+                }
             _blockSymbols.Push(new List<ILocalSymbol>());
             using (InsertSequencePoint(syntax.OpenBraceToken))
                 AddInstruction(OpCode.NOP);
@@ -53,6 +63,8 @@ namespace Neo.Compiler
                 AddInstruction(OpCode.NOP);
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
                 RemoveLocalVariable(symbol);
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

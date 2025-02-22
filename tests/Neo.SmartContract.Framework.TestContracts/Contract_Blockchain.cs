@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Blockchain.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
@@ -17,19 +28,19 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return Ledger.GetTransactionHeight(hash);
         }
 
-        public static object GetBlockByHash(UInt256 hash, string whatReturn)
+        public static object? GetBlockByHash(UInt256 hash, string whatReturn)
         {
             var block = Ledger.GetBlock(hash);
             return GetBlockInfo(block, whatReturn);
         }
 
-        public static object GetBlockByIndex(uint index, string whatReturn)
+        public static object? GetBlockByIndex(uint index, string whatReturn)
         {
             var block = Ledger.GetBlock(index);
             return GetBlockInfo(block, whatReturn);
         }
 
-        private static object GetBlockInfo(Block block, string whatReturn)
+        private static object? GetBlockInfo(Block? block, string whatReturn)
         {
             if (block == null)
             {
@@ -49,25 +60,25 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             throw new Exception("Uknown property");
         }
 
-        public static object GetTxByHash(UInt256 hash, string whatReturn)
+        public static object? GetTxByHash(UInt256 hash, string whatReturn)
         {
             var tx = Ledger.GetTransaction(hash);
             return GetTxInfo(tx, whatReturn);
         }
 
-        public static object GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
+        public static object? GetTxByBlockHash(UInt256 blockHash, int txIndex, string whatReturn)
         {
             var tx = Ledger.GetTransactionFromBlock(blockHash, txIndex);
             return GetTxInfo(tx, whatReturn);
         }
 
-        public static object GetTxByBlockIndex(uint blockIndex, int txIndex, string whatReturn)
+        public static object? GetTxByBlockIndex(uint blockIndex, int txIndex, string whatReturn)
         {
             var tx = Ledger.GetTransactionFromBlock(blockIndex, txIndex);
             return GetTxInfo(tx, whatReturn);
         }
 
-        private static object GetTxInfo(Transaction tx, string whatReturn)
+        private static object? GetTxInfo(Transaction? tx, string whatReturn)
         {
             if (tx == null)
             {
@@ -89,13 +100,13 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             throw new Exception("Uknown property");
         }
 
-        public static object GetContract(UInt160 hash, string whatReturn)
+        public static object? GetContract(UInt160 hash, string whatReturn)
         {
             var contract = ContractManagement.GetContract(hash);
             return GetContractInfo(contract, whatReturn);
         }
 
-        private static object GetContractInfo(Contract contract, string whatReturn)
+        private static object? GetContractInfo(Contract? contract, string whatReturn)
         {
             if (contract == null)
             {

@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
     <PackageId>Neo.SmartContract.Framework</PackageId>

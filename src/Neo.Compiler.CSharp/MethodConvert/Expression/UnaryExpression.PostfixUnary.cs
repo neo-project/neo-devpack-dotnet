@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// UnaryExpression.PostfixUnary.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -19,8 +20,25 @@ using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the postfix operator into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about the postfix operator.</param>
+    /// <param name="expression">The syntax representation of the postfix operator being converted.</param>
+    /// <example>
+    /// The result of x++ is the value of x before the operation, as the following example shows:
+    /// <code>
+    /// int i = 3;
+    /// Runtime.Log(i.ToString());
+    /// Runtime.Log(i++.ToString());
+    /// Runtime.Log(i.ToString());
+    /// </code>
+    /// output: 3、3、4
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/arithmetic-operators#postfix-increment-operator">Postfix increment operator</seealso>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-forgiving">! (null-forgiving) operator</seealso>
     private void ConvertPostfixUnaryExpression(SemanticModel model, PostfixUnaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
@@ -65,12 +83,12 @@ partial class MethodConvert
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
-            Call(model, property.GetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
             AddInstruction(OpCode.REVERSE3);
             EmitIncrementOrDecrement(operatorToken, property.Type);
-            Call(model, property.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
         else
         {
@@ -136,39 +154,37 @@ partial class MethodConvert
 
     private void ConvertLocalIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
     {
-        byte index = _localVariables[symbol];
-        AccessSlot(OpCode.LDLOC, index);
+        LdLocSlot(symbol);
         AddInstruction(OpCode.DUP);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
-        AccessSlot(OpCode.STLOC, index);
+        StLocSlot(symbol);
     }
 
     private void ConvertParameterIdentifierNamePostIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
     {
-        byte index = _parameters[symbol];
-        AccessSlot(OpCode.LDARG, index);
+        LdArgSlot(symbol);
         AddInstruction(OpCode.DUP);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
-        AccessSlot(OpCode.STARG, index);
+        StArgSlot(symbol);
     }
 
     private void ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IPropertySymbol symbol)
     {
-        if (symbol.IsStatic)
+        if (!NeedInstanceConstructor(symbol.GetMethod!))
         {
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.DUP);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!);
+            CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             AddInstruction(OpCode.LDARG0);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.TUCK);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 
@@ -217,19 +233,19 @@ partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.DUP);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!);
+            CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             ConvertExpression(model, operand.Expression);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             AddInstruction(OpCode.TUCK);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
-            Call(model, symbol.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 }

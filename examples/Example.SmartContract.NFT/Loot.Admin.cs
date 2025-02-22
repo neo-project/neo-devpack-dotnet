@@ -31,8 +31,7 @@ namespace NFT
     /// </summary>
     public partial class Loot
     {
-        [Hash160("NaA5nQieb5YGg5nSFjhJMVEXQCQ5HdukwP")]
-        static readonly UInt160 Owner = default;
+        static readonly UInt160 Owner = "NaA5nQieb5YGg5nSFjhJMVEXQCQ5HdukwP";
 
         /// <summary>
         /// Security requirement:

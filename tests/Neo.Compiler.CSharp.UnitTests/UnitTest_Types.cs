@@ -1,647 +1,286 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Types.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Extensions;
+using Neo.Json;
+using Neo.SmartContract;
+using Neo.SmartContract.Testing;
+using Neo.VM.Types;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
-using Neo.Json;
-using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
-using Neo.SmartContract;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
-using Neo.VM.Types;
-using Neo.Wallets;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Types
+    public class UnitTest_Types : DebugAndTestBase<Contract_Types>
     {
-        #region Unsupported Types
-
         [TestMethod]
-        public void float_Test()
+        public void Null_Test()
         {
-            using var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Float.cs").Success);
+            Assert.IsNull(Contract.CheckNull());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void decimal_Test()
+        public void Bool_Test()
         {
-            using var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Decimal.cs").Success);
+            Assert.IsTrue(Contract.CheckBoolTrue());
+            AssertGasConsumed(984060);
+            Assert.IsFalse(Contract.CheckBoolFalse());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void double_Test()
+        public void ByteStringConcat_Test()
         {
-            using var testengine = new TestEngine();
-            Assert.IsFalse(testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_Double.cs").Success);
-        }
-
-        #endregion
-
-        [TestMethod]
-        public void null_Test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkNull");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Null));
+            Assert.AreEqual("1212", Contract.ConcatByteString([(byte)'1'], [(byte)'2']));
+            AssertGasConsumed(1969260);
         }
 
         [TestMethod]
-        public void bool_Test()
+        public void ToAddress_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkBoolTrue");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(true, item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkBoolFalse");
-
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.AreEqual(false, item.GetBoolean());
+            Assert.AreEqual("NdtB8RXRmJ7Nhw1FPTm7E6HoDZGnDw37nf", Contract.ToAddress(UInt160.Parse("820944cfdc70976602d71b0091445eedbc661bc5"), 53));
+            AssertGasConsumed(4574880);
         }
 
         [TestMethod]
-        public void byteStringConcat_Test()
+        public void CheckEnumArg_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("concatByteString", "1", "2");
+            var methods = Contract_Types.Manifest.Abi.Methods;
+            var checkEnumArg = methods.First(u => u.Name == "checkEnumArg");
+            Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray<JToken?>()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
 
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("1212", item.GetString());
+            Contract.CheckEnumArg(5);
+            AssertGasConsumed(1046970);
         }
 
         [TestMethod]
-        public void bigInteer_Test()
+        public void CheckBoolString_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_BigInteger.cs");
-
-            // static vars
-
-            var result = testengine.ExecuteTestCaseStandard("zero");
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(BigInteger.Zero, ((Integer)item).GetInteger());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("one");
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(BigInteger.One, ((Integer)item).GetInteger());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("minusOne");
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(BigInteger.MinusOne, ((Integer)item).GetInteger());
-
-            // Parse
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("parse", "456");
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(456, item.GetInteger());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("convertFromChar");
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(65, item.GetInteger());
+            Assert.AreEqual(true.ToString(), Contract.CheckBoolString(true));
+            AssertGasConsumed(1047330);
+            Assert.AreEqual(false.ToString(), Contract.CheckBoolString(false));
+            AssertGasConsumed(1047330);
         }
 
         [TestMethod]
-        public void toAddress_Test()
+        public void Sbyte_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("toAddress", "820944cfdc70976602d71b0091445eedbc661bc5".HexToBytes().Reverse().ToArray(), 53);
-            Assert.AreEqual("NdtB8RXRmJ7Nhw1FPTm7E6HoDZGnDw37nf", result.Pop().GetString());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckSbyte());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void checkEnumArg_Test()
+        public void Byte_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var methods = testengine.Manifest.Abi.Methods;
-            var checkEnumArg = methods.Where(u => u.Name == "checkEnumArg").FirstOrDefault();
-            Assert.AreEqual(new JArray(checkEnumArg.Parameters.Select(u => u.ToJson()).ToArray()).ToString(false), @"[{""name"":""arg"",""type"":""Integer""}]");
+            Assert.AreEqual(new BigInteger(5), Contract.CheckByte());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void checkBoolString_Test()
+        public void Short_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("checkBoolString", true);
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual(true.ToString(), item.GetString());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkBoolString", false);
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual(false.ToString(), item.GetString());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckShort());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void sbyte_Test()
+        public void Ushort_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkSbyte");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckUshort());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void byte_Test()
+        public void Int_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkByte");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckInt());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void short_Test()
+        public void Uint_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkShort");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckUint());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void ushort_Test()
+        public void Long_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkUshort");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckLong());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void int_Test()
+        public void Ulong_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkInt");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckUlong());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void uint_Test()
+        public void BigInteger_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkUint");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual(new BigInteger(5), Contract.CheckBigInteger());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void long_Test()
+        public void ByteArray_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkLong");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, Contract.CheckByteArray());
+            AssertGasConsumed(1230030);
         }
 
         [TestMethod]
-        public void ulong_Test()
+        public void Char_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkUlong");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual(new BigInteger('n'), Contract.CheckChar());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void bigInteger_Test()
+        public void String_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkBigInteger");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
+            Assert.AreEqual("neo", Contract.CheckString());
+            AssertGasConsumed(984270);
+            Assert.AreEqual(new BigInteger('e'), Contract.CheckStringIndex("neo", 1));
+            AssertGasConsumed(1049250);
+            Assert.AreEqual(new BigInteger('o'), Contract.CheckStringIndex("neo", 2));
+            AssertGasConsumed(1049250);
         }
 
         [TestMethod]
-        public void byteArray_Test()
+        public void ArrayObj_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkByteArray");
+            var item = Contract.CheckArrayObj()!;
+            AssertGasConsumed(1045740);
 
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Buffer));
-            CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, ((VM.Types.Buffer)item).GetSpan().ToArray());
+            Assert.AreEqual(1, item.Count);
+            Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
         }
 
         [TestMethod]
-        public void char_Test()
+        public void Enum_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkChar");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual((int)'n', ((Integer)item).GetInteger());
+            Assert.AreEqual(new Integer(5), Contract.CheckEnum());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
-        public void string_Test()
+        public void Class_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkString");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(ByteString));
-            Assert.AreEqual("neo", item.GetString());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkStringIndex", "neo", 1);
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual("e", item.GetString());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkStringIndex", "neo", 2);
-            item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual("o", item.GetString());
+            var item = Contract.CheckClass();
+            AssertGasConsumed(1293840);
+            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.AreEqual(1, ((Array)item).Count);
+            Assert.AreEqual("neo", (((Array)item)[0] as ByteString)?.GetString());
         }
 
         [TestMethod]
-        public void arrayObj_Test()
+        public void Struct_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkArrayObj");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
-            Assert.AreEqual(1, ((VM.Types.Array)item).Count);
-            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
-        }
-
-        [TestMethod]
-        public void enum_Test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkEnum");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(Integer));
-            Assert.AreEqual(5, ((Integer)item).GetInteger());
-        }
-
-        [TestMethod]
-        public void class_Test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkClass");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
-            Assert.AreEqual(1, ((VM.Types.Array)item).Count);
-            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
-        }
-
-        [TestMethod]
-        public void struct_Test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkStruct");
-
-            var item = result.Pop();
+            var item = Contract.CheckStruct();
+            AssertGasConsumed(1293840);
             Assert.IsInstanceOfType(item, typeof(Struct));
             Assert.AreEqual(1, ((Struct)item).Count);
-            Assert.AreEqual("neo", (((Struct)item)[0] as ByteString).GetString());
+            Assert.AreEqual("neo", (((Struct)item)[0] as ByteString)?.GetString());
         }
 
         [TestMethod]
-        public void tuple_Test()
+        public void Tuple_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkTuple");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
-            Assert.AreEqual(2, ((VM.Types.Array)item).Count);
-            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((VM.Types.Array)item)[1] as ByteString).GetString());
+            var item = Contract.CheckTuple()!;
+            AssertGasConsumed(1045980);
+            Assert.AreEqual(2, item.Count);
+            Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
+            Assert.AreEqual("smart economy", (item[1] as ByteString)?.GetString());
         }
 
         [TestMethod]
-        public void tuple2_Test()
+        public void Tuple2_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkTuple2");
-
-            var item = result.Pop();
-            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
-            Assert.AreEqual(2, ((VM.Types.Array)item).Count);
-            Assert.AreEqual("neo", (((VM.Types.Array)item)[0] as ByteString).GetString());
-            Assert.AreEqual("smart economy", (((VM.Types.Array)item)[1] as ByteString).GetString());
+            var item = Contract.CheckTuple2()!;
+            AssertGasConsumed(1048020);
+            Assert.AreEqual(2, item.Count);
+            Assert.AreEqual("neo", (item[0] as ByteString)?.GetString());
+            Assert.AreEqual("smart economy", (item[1] as ByteString)?.GetString());
         }
 
         [TestMethod]
-        public void event_Test()
+        public void Event_Test()
         {
-            var system = new NeoSystem(TestProtocolSettings.Default);
-            using var testengine = new TestEngine(verificable: new Transaction()
-            {
-                Signers = new Signer[] { new Signer() { Account = UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01") } },
-                Witnesses = System.Array.Empty<Witness>(),
-                Attributes = System.Array.Empty<TransactionAttribute>()
-            },
-            snapshot: new TestDataCache(system.GenesisBlock),
-            persistingBlock: system.GenesisBlock);
+            // Prepare
 
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
+            Engine.SetTransactionSigners(UInt160.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff01"));
+            var hash = Engine.GetDeployHash(Contract_Types.Nef, Contract_Types.Manifest);
 
-            var manifest = testengine.Manifest;
-            var nef = new NefFile() { Script = testengine.Nef.Script, Compiler = testengine.Nef.Compiler, Source = testengine.Nef.Source, Tokens = testengine.Nef.Tokens };
-            nef.CheckSum = NefFile.ComputeChecksum(nef);
-
-            var hash = SmartContract.Helper.GetContractHash((testengine.ScriptContainer as Transaction).Sender, nef.CheckSum, manifest.Name);
+            var notifications = new List<string>();
+            var delEvent = new Contract_Types.delDummyEvent(notifications.Add!);
 
             // Deploy because notify require a contract
 
-            testengine.Reset();
+            var result = Contract.Create(Contract_Types.Nef.ToArray(), Contract_Types.Manifest.ToJson().ToString());
+            Assert.IsNotNull(result);
+            CollectionAssert.AreEqual(hash.ToArray(), ((result as Array)![2] as ByteString)?.GetSpan().ToArray());
 
-            var result = testengine.ExecuteTestCaseStandard("create", nef.ToArray(), manifest.ToJson().ToString());
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count); // Hash can be retrived here
+            var cnew = Engine.FromHash<Contract_Types>(hash, true);
+            cnew.OnDummyEvent += delEvent;
+            result = Contract.Call(hash, "checkEvent", (int)CallFlags.All, []);
+            cnew.OnDummyEvent -= delEvent;
 
-            testengine.Reset();
-
-            result = testengine.ExecuteTestCaseStandard("call", hash.ToArray(), "checkEvent", (int)CallFlags.All, new Array());
-            //result = testengine.ExecuteTestCaseStandard("checkEvent");
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(Null.Null, result.Pop());
-            Assert.AreEqual(2, testengine.Notifications.Count);
-
-            var item = testengine.Notifications.Last();
-
-            Assert.AreEqual(1, item.State.Count);
-            Assert.AreEqual("dummyEvent", item.EventName);
-            Assert.AreEqual("neo", (item.State[0] as ByteString).GetString());
+            Assert.IsNull(result);
+            Assert.AreEqual(1, notifications.Count);
+            Assert.AreEqual("neo", notifications.Last());
         }
 
         [TestMethod]
-        public void lambda_Test()
+        public void Lambda_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkLambda");
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
+            var item = Contract.CheckLambda();
+            AssertGasConsumed(984150);
             Assert.IsInstanceOfType(item, typeof(Pointer));
         }
 
         [TestMethod]
-        public void delegate_Test()
+        public void Delegate_Test()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkDelegate");
-            Assert.AreEqual(1, result.Count);
-
-            var item = result.Pop();
+            var item = Contract.CheckDelegate();
+            AssertGasConsumed(984150);
             Assert.IsInstanceOfType(item, typeof(Pointer));
         }
 
         [TestMethod]
-        public void UInt160_ValidateAddress()
+        public void Nameof_Test()
         {
-            var address = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
-
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
-
-            // True
-
-            var result = testengine.ExecuteTestCaseStandard("validateAddress", address.ToArray());
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsTrue(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", new ByteString(address.ToArray()));
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsTrue(item.GetBoolean());
-
-            // False
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", new byte[1] { 1 }.Concat(address.ToArray()).ToArray());
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", BigInteger.One);
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            testengine.ExecuteTestCaseStandard("validateAddress", StackItem.Null);
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", new VM.Types.Array());
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", new Struct());
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", new Map());
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("validateAddress", StackItem.True);
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
+            Assert.AreEqual("checkNull", Contract.CheckNameof());
+            AssertGasConsumed(984270);
         }
 
         [TestMethod]
-        public void UInt160_equals_test()
+        public void CheckEvent_Test()
         {
-            var owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
-            var notOwner = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
+            var notifications = new List<string>();
+            var delEvent = new Contract_Types.delDummyEvent(notifications.Add!);
 
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("checkOwner", owner.ToArray());
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsTrue(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkOwner", notOwner.ToArray());
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
-        }
-
-        [TestMethod]
-        public void UInt160_equals_zero_test()
-        {
-            var zero = UInt160.Zero;
-            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
-
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
-            var result = testengine.ExecuteTestCaseStandard("checkZeroStatic", zero.ToArray());
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsTrue(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("checkZeroStatic", notZero.ToArray());
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsFalse(item.GetBoolean());
-        }
-
-        [TestMethod]
-        public void UInt160_byte_array_construct()
-        {
-            var notZero = "NYjzhdekseMYWvYpSoAeypqMiwMuEUDhKB".ToScriptHash(ProtocolSettings.Default.AddressVersion);
-
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_UIntTypes.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("constructUInt160", notZero.ToArray());
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsTrue(item is ByteString);
-            var received = new UInt160(((ByteString)item).GetSpan());
-            Assert.AreEqual(received, notZero);
-        }
-
-        [TestMethod]
-        public void ECPoint_test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types_ECPoint.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("isValid", "0102");
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsTrue(item is Boolean b1 && !b1.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("isValid", new byte[33]);
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsTrue(item is Boolean b2 && b2.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("isValid", false);
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsTrue(item is Boolean b3 && !b3.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("ecpoint2String");
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsTrue(item is ByteString s1);
-            Assert.AreEqual(item.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("ecpointReturn");
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsTrue(item is ByteString s2);
-            Assert.AreEqual(item.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("ecpoint2ByteArray");
-            Assert.AreEqual(1, result.Count);
-            item = result.Pop();
-            Assert.IsTrue(item is Buffer bf1);
-            Assert.AreEqual(item.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
-        }
-
-        [TestMethod]
-        public void Nameof_test()
-        {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Types.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("checkNameof");
-            Assert.AreEqual(1, result.Count);
-            var item = result.Pop();
-            Assert.IsTrue(item is ByteString);
-            Assert.AreEqual(item.GetString(), "checkNull");
+            Contract.OnDummyEvent += delEvent;
+            Contract.CheckEvent();
+            Contract.OnDummyEvent -= delEvent;
+            Assert.AreEqual(1, notifications.Count);
+            Assert.AreEqual("neo", notifications.Last());
+            AssertGasConsumed(2029020);
         }
     }
 }

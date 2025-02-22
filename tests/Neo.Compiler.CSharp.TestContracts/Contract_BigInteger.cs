@@ -1,16 +1,28 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_BigInteger.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_BigInteger : SmartContract.Framework.SmartContract
     {
-        public static object TestPow(BigInteger x, int y)
+        public static BigInteger TestPow(BigInteger x, int y)
         {
             return BigInteger.Pow(x, y);
         }
 
-        public static object TestSqrt(BigInteger x)
+        public static BigInteger TestSqrt(BigInteger x)
         {
             return x.Sqrt();
         }
@@ -119,9 +131,43 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
         }
 
+        public static char testchar(BigInteger input)
+        {
+            try
+            {
+                char x = (char)input;
+                return x;
+            }
+            catch
+            {
+                throw new System.Exception();
+            }
+        }
+
+        public static string testchartostring(BigInteger input)
+        {
+            char x = (char)input;
+            return x.ToString();
+        }
+
         public static bool testIsEven(BigInteger input)
         {
             return input.IsEven;
+        }
+
+        public static bool testIsZero(BigInteger input)
+        {
+            return input.IsZero;
+        }
+
+        public static bool testIsOne(BigInteger input)
+        {
+            return input.IsOne;
+        }
+
+        public static int testSign(BigInteger input)
+        {
+            return input.Sign;
         }
 
         public static BigInteger TestAdd(BigInteger x, BigInteger y)
@@ -162,6 +208,24 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static BigInteger TestGreatestCommonDivisor(BigInteger x, BigInteger y)
         {
             return BigInteger.GreatestCommonDivisor(x, y);
+        }
+
+        public static bool TestEquals(BigInteger x, BigInteger y)
+        {
+            return x.Equals(y);
+        }
+
+        public static BigInteger ParseConstant()
+        {
+            return BigInteger.Parse("100000000000000000000000000");
+        }
+
+        public static BigInteger TestModPow()
+        {
+            BigInteger number = 10;
+            int exponent = 3;
+            BigInteger modulus = 30;
+            return BigInteger.ModPow(number, exponent, modulus);
         }
     }
 }

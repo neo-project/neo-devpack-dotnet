@@ -1,31 +1,28 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_ConcatByteStringAddAssign.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM.Types;
+using Neo.SmartContract.Testing;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_ConcatByteStringAddAssign
+    public class UnitTest_ConcatByteStringAddAssign : DebugAndTestBase<Contract_ConcatByteStringAddAssign>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ConcatByteStringAddAssign.cs");
-        }
-
         [TestMethod]
         public void Test_ByteStringAdd()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("byteStringAddAssign", "a", "b", "c");
-
-            Assert.AreEqual(1, result.Count);
-
-            var r1 = result.Pop<ByteString>();
-            Assert.AreEqual(r1.GetString(), "abc");
+            Assert.AreEqual("abc", Encoding.ASCII.GetString(Contract.ByteStringAddAssign(Encoding.ASCII.GetBytes("a"), Encoding.ASCII.GetBytes("b"), "c")!));
+            AssertGasConsumed(1970160);
         }
     }
 }

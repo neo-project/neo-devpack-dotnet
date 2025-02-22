@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// Statement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -10,11 +11,72 @@
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.VM;
+using System.Collections.Generic;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
+        /// <summary>
+        /// Store the contexts of goto, break, continue targets
+        /// </summary>
+        internal class StatementContext(StatementSyntax statementSyntax,
+            JumpTarget? breakTarget = null, JumpTarget? continueTarget = null,
+            ExceptionHandlingState? tryState = null,
+            JumpTarget? catchTarget = null, JumpTarget? finallyTarget = null, JumpTarget? endFinallyTarget = null,
+            Dictionary<ILabelSymbol, JumpTarget>? gotoLabels = null,
+            Dictionary<SwitchLabelSyntax, JumpTarget>? switchLabels = null
+            )
+        {
+            public readonly StatementSyntax StatementSyntax = statementSyntax;
+            public readonly JumpTarget? BreakTarget = breakTarget;
+            public readonly JumpTarget? ContinueTarget = continueTarget;
+            public ExceptionHandlingState? TryState = tryState;
+            public readonly JumpTarget? CatchTarget = catchTarget;
+            public readonly JumpTarget? FinallyTarget = finallyTarget;
+            public readonly JumpTarget? EndFinallyTarget = endFinallyTarget;
+            public Dictionary<ILabelSymbol, JumpTarget>? GotoLabels = gotoLabels;
+            public Dictionary<SwitchLabelSyntax, JumpTarget>? SwitchLabels = switchLabels;
+            // handles `break`, `continue` and `goto` in multi-layered nested try with finally
+            // key: target of this ENDTRY
+            // value: this ENDTRY
+            public Dictionary<JumpTarget, JumpTarget>? AdditionalEndTryTargetToInstruction { get; protected set; } = null;
+
+            /// <param name="target">Jump target of this added ENDTRY</param>
+            /// <returns>The added ENDTRY</returns>
+            /// <exception cref="CompilationException"></exception>
+            public JumpTarget AddEndTry(JumpTarget target)
+            {
+                if (StatementSyntax is not TryStatementSyntax)
+                    throw new CompilationException(StatementSyntax, DiagnosticId.SyntaxNotSupported, $"Can only append ENDTRY for TryStatement. Got {typeof(StatementSyntax)} {StatementSyntax}. This is a compiler bug.");
+                AdditionalEndTryTargetToInstruction ??= [];
+                if (AdditionalEndTryTargetToInstruction.TryGetValue(target, out JumpTarget? existingEndTry))
+                    return existingEndTry;
+                Instruction i = new() { OpCode = OpCode.ENDTRY_L, Target = target };
+                existingEndTry = new JumpTarget() { Instruction = i };
+                AdditionalEndTryTargetToInstruction.Add(target, existingEndTry);
+                return existingEndTry;
+            }
+
+            public bool AddLabel(ILabelSymbol label, JumpTarget target)
+            {
+                GotoLabels ??= [];
+                return GotoLabels.TryAdd(label, target);
+            }
+            public bool TryGetLabel(ILabelSymbol label, out JumpTarget? target)
+            {
+                if (GotoLabels is null)
+                {
+                    target = null;
+                    return false;
+                }
+                return GotoLabels.TryGetValue(label, out target);
+            }
+        }
+
+        private readonly Stack<StatementContext> _generalStatementStack = new();
+
         private void ConvertStatement(SemanticModel model, StatementSyntax statement)
         {
             switch (statement)

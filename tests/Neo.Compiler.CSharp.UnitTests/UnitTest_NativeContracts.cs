@@ -1,26 +1,24 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_NativeContracts.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
-using Neo.SmartContract;
 using Neo.SmartContract.Native;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class Contract_NativeContracts
+    public class UnitTest_NativeContracts : DebugAndTestBase<Contract_NativeContracts>
     {
-        private TestDataCache snapshot;
-        private Block genesisBlock;
-
-        [TestInitialize]
-        public void Test_Init()
-        {
-            snapshot = new TestDataCache();
-            genesisBlock = new NeoSystem(TestProtocolSettings.Default).GenesisBlock;
-        }
-
         [TestMethod]
         public void TestHashes()
         {
@@ -38,122 +36,52 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_Oracle()
         {
-            var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
-
             // Minimum Response Fee
 
-            var result = testengine.ExecuteTestCaseStandard("oracleMinimumResponseFee");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var entry = result.Pop();
-
-            Assert.AreEqual(0_10000000u, entry.GetInteger());
+            Assert.AreEqual(new BigInteger(0_10000000u), Contract.OracleMinimumResponseFee());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Test_Designation()
         {
-            var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
-
             // getOracleNodes
 
-            var result = testengine.ExecuteTestCaseStandard("getOracleNodes");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var entry = result.Pop();
-
-            Assert.AreEqual(0, (entry as VM.Types.Array).Count);
+            Assert.AreEqual(0, Contract.GetOracleNodes()!.Count);
+            AssertGasConsumed(2950200);
         }
 
         [TestMethod]
         public void Test_NEO()
         {
-            var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
-
             // NeoSymbol
 
-            var result = testengine.ExecuteTestCaseStandard("nEOSymbol");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var entry = result.Pop();
-            Assert.AreEqual("NEO", entry.GetString());
+            Assert.AreEqual("NEO", Contract.NEOSymbol());
+            AssertGasConsumed(1967100);
 
             // NeoHash
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nEOHash");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            entry = result.Pop();
-            Assert.IsTrue(entry is VM.Types.ByteString);
-            var hash = new UInt160((VM.Types.ByteString)entry);
-            Assert.AreEqual(NativeContract.NEO.Hash, hash);
+            Assert.AreEqual(NativeContract.NEO.Hash, Contract.NEOHash());
+            AssertGasConsumed(984270);
         }
 
         [TestMethod]
         public void Test_GAS()
         {
-            var testengine = new TestEngine(TriggerType.Application, null, snapshot);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("gASSymbol");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var entry = result.Pop();
-
-            Assert.AreEqual("GAS", entry.GetString());
+            Assert.AreEqual("GAS", Contract.GASSymbol());
+            AssertGasConsumed(1967100);
         }
 
         [TestMethod]
         public void Test_Ledger()
         {
-            var testengine = new TestEngine(TriggerType.Application, null, snapshot, persistingBlock: genesisBlock);
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NativeContracts.cs");
-
-            var result = testengine.ExecuteTestCaseStandard("ledgerHash");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            var entry = result.Pop();
-            Assert.IsTrue(entry is VM.Types.ByteString);
-            var hash = new UInt160((VM.Types.ByteString)entry);
-            Assert.AreEqual(NativeContract.Ledger.Hash.ToString(), hash.ToString());
-
-            testengine.Reset();
-
-            result = testengine.ExecuteTestCaseStandard("ledgerCurrentIndex");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            entry = result.Pop();
-
-            Assert.AreEqual(0, entry.GetInteger());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("ledgerCurrentHash");
-
-            Assert.AreEqual(VMState.HALT, testengine.State);
-            Assert.AreEqual(1, result.Count);
-
-            entry = result.Pop();
-            Assert.IsTrue(entry is VM.Types.ByteString);
-            var blockHash = new UInt256((VM.Types.ByteString)entry);
-            Assert.AreEqual(genesisBlock.Hash.ToString(), blockHash.ToString());
+            var genesisBlock = NativeContract.Ledger.GetBlock(Engine.Storage.Snapshot, 0);
+            Assert.AreEqual(NativeContract.Ledger.Hash, Contract.LedgerHash());
+            AssertGasConsumed(984270);
+            Assert.AreEqual(0, Contract.LedgerCurrentIndex());
+            AssertGasConsumed(2950140);
+            Assert.AreEqual(genesisBlock.Hash, Contract.LedgerCurrentHash());
+            AssertGasConsumed(2950140);
         }
     }
 }

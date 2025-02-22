@@ -1,6 +1,16 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// BackedStorageTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -8,10 +18,8 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BackedStorageTest : TestBase<Contract_Stored>
+    public class BackedStorageTest : DebugAndTestBase<Contract_Stored>
     {
-        public BackedStorageTest() : base(Contract_Stored.Nef, Contract_Stored.Manifest) { }
-
         [TestMethod]
         public void Test()
         {
@@ -52,6 +60,26 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // check public setter
 
             Assert.AreEqual(123, Contract.NonStaticPrivateGetterPublicSetter);
+        }
+
+        [TestMethod]
+        public void Test_StaticMultiSet()
+        {
+            var res = Contract.TestStaticMultiGet();
+            Assert.AreEqual(0, res);
+            res = Contract.TestStaticMultiSet();
+            Assert.AreEqual(3, res);
+            res = Contract.TestStaticMultiGet();
+            Assert.AreEqual(3, res);
+        }
+
+        [TestMethod]
+        public void Test_MultiSet()
+        {
+            var res = Contract.TestMultiGet();
+            res = Contract.TestMultiSet();
+            res = Contract.TestMultiGet();
+            Assert.AreEqual(3, res);
         }
 
         public void Test_Kind(Func<BigInteger?> getter, Func<BigInteger?> publicGetter, Action<BigInteger> put)

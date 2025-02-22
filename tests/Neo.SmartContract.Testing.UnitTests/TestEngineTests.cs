@@ -1,9 +1,22 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// TestEngineTests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Neo.Extensions;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
 using Neo.VM.Types;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -33,6 +46,27 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         [TestMethod]
+        public void TestSkip()
+        {
+            TestEngine engine = new(true);
+
+            Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
+            engine.PersistingBlock.Skip(10, TimeSpan.Zero);
+            engine.PersistingBlock.Persist();
+            Assert.AreEqual(11L, engine.Native.Ledger.CurrentIndex);
+        }
+
+        [TestMethod]
+        public void TestNextBlock()
+        {
+            TestEngine engine = new(true);
+
+            Assert.AreEqual(0L, engine.Native.Ledger.CurrentIndex);
+            engine.PersistingBlock.Persist();
+            Assert.AreEqual(1L, engine.Native.Ledger.CurrentIndex);
+        }
+
+        [TestMethod]
         public void TestOnGetEntryScriptHash()
         {
             TestEngine engine = new(true);
@@ -41,10 +75,10 @@ namespace Neo.SmartContract.Testing.UnitTests
             builder.EmitSysCall(ApplicationEngine.System_Runtime_GetEntryScriptHash);
             var script = builder.ToArray();
 
-            Assert.AreEqual("0xfa99b1aeedab84a47856358515e7f982341aa767", engine.Execute(script).ConvertTo(typeof(UInt160)).ToString());
+            Assert.AreEqual("0xfa99b1aeedab84a47856358515e7f982341aa767", engine.Execute(script).ConvertTo(typeof(UInt160))!.ToString());
 
             engine.OnGetEntryScriptHash = (current, expected) => UInt160.Parse("0x0000000000000000000000000000000000000001");
-            Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160)).ToString());
+            Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160))!.ToString());
         }
 
         [TestMethod]
@@ -59,7 +93,7 @@ namespace Neo.SmartContract.Testing.UnitTests
             Assert.AreEqual(StackItem.Null, engine.Execute(script));
 
             engine.OnGetCallingScriptHash = (current, expected) => UInt160.Parse("0x0000000000000000000000000000000000000001");
-            Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160)).ToString());
+            Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160))!.ToString());
         }
 
         [TestMethod]

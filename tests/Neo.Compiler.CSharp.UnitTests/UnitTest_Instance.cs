@@ -1,37 +1,31 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Instance.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Instance
+    public class UnitTest_Instance : DebugAndTestBase<Contract_Instance>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            testengine = new TestEngine(snapshot: null);
-            var ctx = testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Instance.cs");
-            Assert.AreEqual("this,Any,0", ctx.CreateDebugInformation()["methods"][0]["params"][0].AsString());
-            Assert.AreEqual("this,Any,0", ctx.CreateDebugInformation()["methods"][1]["params"][0].AsString());
-        }
-
         [TestMethod]
         public void TestFunc()
         {
-            testengine.Reset();
-
-            var result = testengine.ExecuteTestCaseStandard("sum", 2).Pop();
-            Assert.AreEqual(3, result.GetInteger());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("sum", 3).Pop();
-            Assert.AreEqual(4, result.GetInteger());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("sum2", 3).Pop();
-            Assert.AreEqual(8, result.GetInteger());
+            Assert.AreEqual(3, Contract.Sum(2));
+            AssertGasConsumed(1376940);
+            Assert.AreEqual(4, Contract.Sum(3));
+            AssertGasConsumed(1376940);
+            Assert.AreEqual(8, Contract.Sum2(3));
+            AssertGasConsumed(1414890);
         }
     }
 }

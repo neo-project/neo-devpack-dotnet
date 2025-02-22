@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// UnaryExpression.PrefixUnary.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -16,11 +17,28 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the prefix operator into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about the prefix operator.</param>
+    /// <param name="expression">The syntax representation of the prefix operator being converted.</param>
+    /// <example>
+    /// The result of ++x is the value of x before the operation, as the following example shows:
+    /// <code>
+    /// int i = 3;
+    /// Runtime.Log(i.ToString());
+    /// Runtime.Log(++i.ToString());
+    /// Runtime.Log(i.ToString());
+    /// </code>
+    /// output: 3、4、4
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/arithmetic-operators#prefix-increment-operator">Prefix increment operator</seealso>
     private void ConvertPrefixUnaryExpression(SemanticModel model, PrefixUnaryExpressionSyntax expression)
     {
         switch (expression.OperatorToken.ValueText)
@@ -30,7 +48,7 @@ partial class MethodConvert
                 break;
             case "-":
                 ConvertExpression(model, expression.Operand);
-                AddInstruction(OpCode.NEGATE);
+                EmitNegativeInteger(model.GetTypeInfo(expression.Operand).Type);
                 break;
             case "~":
                 ConvertExpression(model, expression.Operand);
@@ -83,11 +101,11 @@ partial class MethodConvert
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
-            Call(model, property.GetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             EmitIncrementOrDecrement(operatorToken, property.Type);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
-            Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
@@ -153,39 +171,37 @@ partial class MethodConvert
 
     private void ConvertLocalIdentifierNamePreIncrementOrDecrementExpression(SyntaxToken operatorToken, ILocalSymbol symbol)
     {
-        byte index = _localVariables[symbol];
-        AccessSlot(OpCode.LDLOC, index);
+        LdLocSlot(symbol);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
         AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.STLOC, index);
+        StLocSlot(symbol);
     }
 
     private void ConvertParameterIdentifierNamePreIncrementOrDecrementExpression(SyntaxToken operatorToken, IParameterSymbol symbol)
     {
-        byte index = _parameters[symbol];
-        AccessSlot(OpCode.LDARG, index);
+        LdArgSlot(symbol);
         EmitIncrementOrDecrement(operatorToken, symbol.Type);
         AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.STARG, index);
+        StArgSlot(symbol);
     }
 
     private void ConvertPropertyIdentifierNamePreIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, IPropertySymbol symbol)
     {
         if (symbol.IsStatic)
         {
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.SetMethod!);
+            CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             AddInstruction(OpCode.LDARG0);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.TUCK);
-            Call(model, symbol.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 
@@ -234,19 +250,19 @@ partial class MethodConvert
     {
         if (symbol.IsStatic)
         {
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.SetMethod!);
+            CallMethodWithConvention(model, symbol.SetMethod!);
         }
         else
         {
             ConvertExpression(model, operand.Expression);
             AddInstruction(OpCode.DUP);
-            Call(model, symbol.GetMethod!);
+            CallMethodWithConvention(model, symbol.GetMethod!);
             EmitIncrementOrDecrement(operatorToken, symbol.Type);
             AddInstruction(OpCode.TUCK);
-            Call(model, symbol.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, symbol.SetMethod!, CallingConvention.StdCall);
         }
     }
 
@@ -259,5 +275,40 @@ partial class MethodConvert
             _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
         });
         if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
+    }
+
+    private void EmitNegativeInteger(ITypeSymbol? typeSymbol)
+    {
+        if (typeSymbol is null) return;
+        while (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            // Supporting nullable integer like `byte?`
+            typeSymbol = ((INamedTypeSymbol)typeSymbol).TypeArguments.First();
+        }
+
+        if (typeSymbol.Name != "Int32" && typeSymbol.Name != "Int64")
+        {
+            //  -sbyte, -byte, -short, -ushort, -char -> int, -int, -uint -> long
+            AddInstruction(OpCode.NEGATE); // Emit NEGATE for other integer types
+            return;
+        }
+
+        var minValue = typeSymbol.Name == "Int64" ? long.MinValue : int.MinValue; // int32 or int64
+
+        JumpTarget negateTarget = new(), endTarget = new();
+        AddInstruction(OpCode.DUP);
+        Push(minValue);
+        Jump(OpCode.JMPNE_L, negateTarget);
+
+        if (_checkedStack.Peek()) // if `checked` is true, throw exception
+        {
+            AddInstruction(OpCode.THROW);
+        }
+        else // -int.MinValue == -int.MinValue, -long.MinValue == -long.MinValue, i.e. same value
+        {
+            Jump(endTarget);
+        }
+        negateTarget.Instruction = AddInstruction(OpCode.NEGATE);
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 }

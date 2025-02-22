@@ -1,11 +1,21 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Switch.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
+using Neo.SmartContract.Testing;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Switch
+    public class UnitTest_Switch : DebugAndTestBase<Contract_Switch>
     {
         /// <summary>
         /// switch of more than 6 entries require a ComputeStringHash method
@@ -13,140 +23,67 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_SwitchLong()
         {
-            EvaluationStack result;
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLong.cs");
-
             // Test cases
 
             for (int x = 0; x <= 20; x++)
             {
-                testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("testMain", x.ToString());
-                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
+                Assert.AreEqual(x + 1, ((VM.Types.Integer)Contract.SwitchLong(x.ToString())!).GetInteger());
             }
 
             // Test default
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testMain", 21.ToString());
-            Assert.AreEqual(result.Pop().GetInteger(), 99);
+            Assert.AreEqual(99, ((VM.Types.Integer)Contract.SwitchLong(21.ToString())!).GetInteger());
         }
 
         [TestMethod]
         public void Test_SwitchLongLong()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLongLong.cs");
-
-            var resulta = testengine.ExecuteTestCaseStandard("testMain", "a").Pop();
-            var awant = 2;
-            testengine.Reset();
-            var resultb = testengine.ExecuteTestCaseStandard("testMain", "b").Pop();
-            var bwant = 0;
-            testengine.Reset();
-            var resultc = testengine.ExecuteTestCaseStandard("testMain", "c").Pop();
-            var cwant = 2;
-            testengine.Reset();
-            var resultd = testengine.ExecuteTestCaseStandard("testMain", "d").Pop();
-            var dwant = -1;
-            testengine.Reset();
-            var resulte = testengine.ExecuteTestCaseStandard("testMain", "e").Pop();
-            var ewant = 1;
-            testengine.Reset();
-            var resultf = testengine.ExecuteTestCaseStandard("testMain", "f").Pop();
-            var fwant = 3;
-            testengine.Reset();
-            var resultg = testengine.ExecuteTestCaseStandard("testMain", "g").Pop();
-            var gwant = 3;
-
-            // Test default
-
-            Assert.AreEqual(resulta.GetInteger(), awant);
-            Assert.AreEqual(resultb.GetInteger(), bwant);
-            Assert.AreEqual(resultc.GetInteger(), cwant);
-            Assert.AreEqual(resultd.GetInteger(), dwant);
-            Assert.AreEqual(resulte.GetInteger(), ewant);
-            Assert.AreEqual(resultf.GetInteger(), fwant);
-            Assert.AreEqual(resultg.GetInteger(), gwant);
+            Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("a")!).GetInteger());
+            AssertGasConsumed(1049490);
+            Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchLongLong("b")!).GetInteger());
+            AssertGasConsumed(1052130);
+            Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchLongLong("c")!).GetInteger());
+            AssertGasConsumed(1050840);
+            Assert.AreEqual(-1, ((VM.Types.Integer)Contract.SwitchLongLong("d")!).GetInteger());
+            AssertGasConsumed(1053480);
+            Assert.AreEqual(1, ((VM.Types.Integer)Contract.SwitchLongLong("e")!).GetInteger());
+            AssertGasConsumed(1054830);
+            Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("f")!).GetInteger());
+            AssertGasConsumed(1056120);
+            Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchLongLong("g")!).GetInteger());
+            AssertGasConsumed(1057410);
         }
 
         [TestMethod]
         public void Test_SwitchInteger()
         {
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchInteger.cs");
-
-            var result1 = testengine.ExecuteTestCaseStandard("testMain", 1).Pop();
-            var onewant = 2;
-            testengine.Reset();
-            var result2 = testengine.ExecuteTestCaseStandard("testMain", 2).Pop();
-            var twowant = 3;
-            testengine.Reset();
-            var result3 = testengine.ExecuteTestCaseStandard("testMain", 3).Pop();
-            var threewant = 6;
-            testengine.Reset();
-            var result0 = testengine.ExecuteTestCaseStandard("testMain", 0).Pop();
-            var zerowant = 0;
-
-            // Test default
-
-            Assert.AreEqual(result1.GetInteger(), onewant);
-            Assert.AreEqual(result2.GetInteger(), twowant);
-            Assert.AreEqual(result3.GetInteger(), threewant);
-            Assert.AreEqual(result0.GetInteger(), zerowant);
-        }
-
-        [TestMethod]
-        public void Test_SwitchLong_Release()
-        {
-            EvaluationStack result;
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_SwitchLong.cs");
-
-            // Test cases
-
-            for (int x = 0; x <= 20; x++)
-            {
-                testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("testMain", x.ToString());
-                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
-            }
-
-            // Test default
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testMain", 21.ToString());
-            Assert.AreEqual(result.Pop().GetInteger(), 99);
+            Assert.AreEqual(2, ((VM.Types.Integer)Contract.SwitchInteger(1)!).GetInteger());
+            AssertGasConsumed(1048500);
+            Assert.AreEqual(3, ((VM.Types.Integer)Contract.SwitchInteger(2)!).GetInteger());
+            AssertGasConsumed(1049610);
+            Assert.AreEqual(6, ((VM.Types.Integer)Contract.SwitchInteger(3)!).GetInteger());
+            AssertGasConsumed(1050720);
+            Assert.AreEqual(0, ((VM.Types.Integer)Contract.SwitchInteger(0)!).GetInteger());
+            AssertGasConsumed(1050720);
         }
 
         [TestMethod]
         public void Test_Switch6()
         {
-            EvaluationStack result;
-            using var testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Switch6.cs");
-
             // Test cases
 
             for (int x = 0; x <= 5; x++)
             {
-                testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("testMain", x.ToString());
-                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
-                testengine.Reset();
-                result = testengine.ExecuteTestCaseStandard("main2", x.ToString());
-                Assert.AreEqual(result.Pop().GetInteger(), x + 1);
+                Assert.AreEqual(x + 1, ((VM.Types.Integer)Contract.Switch6(x.ToString())!).GetInteger());
+                Assert.AreEqual(x + 1, ((VM.Types.Integer)Contract.Switch6Inline(x.ToString())!).GetInteger());
             }
 
             // Test default
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("testMain", 6.ToString());
-            Assert.AreEqual(result.Pop().GetInteger(), 99);
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("main2", 6.ToString());
-            Assert.AreEqual(result.Pop().GetInteger(), 99);
+            Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6(6.ToString())!).GetInteger());
+            AssertGasConsumed(1055310);
+            Assert.AreEqual(99, ((VM.Types.Integer)Contract.Switch6Inline(6.ToString())!).GetInteger());
+            AssertGasConsumed(1055340);
         }
     }
 }

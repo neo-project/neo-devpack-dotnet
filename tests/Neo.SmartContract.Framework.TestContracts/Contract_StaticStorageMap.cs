@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_StaticStorageMap.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
@@ -13,6 +24,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             Data.Put(message, 1);
         }
 
+#pragma warning disable CS8604
         public static BigInteger Get(string msg)
         {
             return (BigInteger)Data.Get(msg);
@@ -51,5 +63,6 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             var store = new StorageMap(Storage.CurrentContext, x);
             return (BigInteger)store.Get("test1");
         }
+#pragma warning restore CS8604
     }
 }

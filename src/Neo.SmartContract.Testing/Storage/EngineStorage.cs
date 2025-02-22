@@ -1,8 +1,18 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// EngineStorage.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Json;
 using Neo.Persistence;
 using System;
 using System.Buffers.Binary;
-using System.Linq;
 
 namespace Neo.SmartContract.Testing.Storage
 {
@@ -33,7 +43,7 @@ namespace Neo.SmartContract.Testing.Storage
         /// Constructor
         /// </summary>
         /// <param name="store">Store</param>
-        public EngineStorage(IStore store) : this(store, new SnapshotCache(store.GetSnapshot())) { }
+        public EngineStorage(IStore store) : this(store, new StoreCache(store.GetSnapshot())) { }
 
         /// <summary>
         /// Constructor
@@ -63,7 +73,7 @@ namespace Neo.SmartContract.Testing.Storage
             {
                 sp.Dispose();
             }
-            Snapshot = new SnapshotCache(Store.GetSnapshot());
+            Snapshot = new StoreCache(Store.GetSnapshot());
         }
 
         /// <summary>
@@ -124,7 +134,7 @@ namespace Neo.SmartContract.Testing.Storage
                         if (subEntry.Value is JString subStr)
                         {
                             Snapshot.Add(
-                                new StorageKey(prefix.Concat(Convert.FromBase64String(subEntry.Key)).ToArray()),
+                                new StorageKey([.. prefix, .. Convert.FromBase64String(subEntry.Key)]),
                                 new StorageItem(Convert.FromBase64String(subStr.Value))
                                 );
                         }
@@ -138,15 +148,15 @@ namespace Neo.SmartContract.Testing.Storage
         /// </summary>
         public JObject Export()
         {
-            var buffer = new byte[(sizeof(int))];
+            var buffer = new byte[sizeof(int)];
             JObject ret = new();
 
-            foreach (var entry in Snapshot.Seek(Array.Empty<byte>(), SeekDirection.Forward))
+            foreach ((var key, var value) in Snapshot.Seek([], SeekDirection.Forward))
             {
                 // "key":"value" in base64
 
                 JObject prefix;
-                BinaryPrimitives.WriteInt32LittleEndian(buffer, entry.Key.Id);
+                BinaryPrimitives.WriteInt32LittleEndian(buffer, key.Id);
                 var keyId = Convert.ToBase64String(buffer);
 
                 if (ret.ContainsProperty(keyId))
@@ -159,7 +169,7 @@ namespace Neo.SmartContract.Testing.Storage
                     ret[keyId] = prefix;
                 }
 
-                prefix[Convert.ToBase64String(entry.Key.Key.ToArray())] = Convert.ToBase64String(entry.Value.Value.ToArray());
+                prefix[Convert.ToBase64String(key.Key.ToArray())] = Convert.ToBase64String(value.Value.ToArray());
             }
 
             return ret;

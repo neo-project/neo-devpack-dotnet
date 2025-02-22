@@ -1,16 +1,26 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// RuntimeTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Extensions;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
-using System;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class RuntimeTest : TestBase<Contract_Runtime>
+    public class RuntimeTest : DebugAndTestBase<Contract_Runtime>
     {
         static RuntimeTest()
         {
@@ -22,8 +32,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 Scopes = Network.P2P.Payloads.WitnessScope.CalledByEntry
             };
         }
-
-        public RuntimeTest() : base(Contract_Runtime.Nef, Contract_Runtime.Manifest) { }
 
         [TestMethod]
         public void Test_InvocationCounter()
@@ -79,7 +87,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Engine.SetTransactionSigners(Alice);
             Engine.Transaction.Nonce = 0x01020304;
             Engine.PersistingBlock.Nonce = 0x01020304;
-            Assert.AreEqual(BigInteger.Parse("205214629647252551804410215848131909835"), Contract.GetRandom());
+            Assert.AreEqual(BigInteger.Parse("140181351494432352371728933832694804614"), Contract.GetRandom());
         }
 
         [TestMethod]

@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// Oracle.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Native;
 using System.ComponentModel;
 
@@ -17,12 +28,16 @@ public abstract class Oracle : SmartContract, TestingStandards.IVerificable
     public delegate void delOracleRequest(ulong Id, UInt160 RequestContract, string Url, string? Filter);
 
     [DisplayName("OracleRequest")]
+#pragma warning disable CS0067 // Event is never used
     public event delOracleRequest? OnOracleRequest;
+#pragma warning restore CS0067 // Event is never used
 
     public delegate void delOracleResponse(ulong Id, UInt256 OriginalTx);
 
     [DisplayName("OracleResponse")]
+#pragma warning disable CS0067 // Event is never used
     public event delOracleResponse? OnOracleResponse;
+#pragma warning restore CS0067 // Event is never used
 
     #endregion
 

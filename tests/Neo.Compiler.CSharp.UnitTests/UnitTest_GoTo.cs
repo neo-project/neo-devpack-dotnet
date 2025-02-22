@@ -1,33 +1,41 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_GoTo.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
+using Neo.SmartContract.Testing;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_GoTo
+    public class UnitTest_GoTo : DebugAndTestBase<Contract_GoTo>
     {
-        private TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
+        [TestMethod]
+        public void Test()
         {
-            _engine = new TestEngine();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_GoTo.cs");
+            Assert.AreEqual(3, Contract.Test());
+            AssertGasConsumed(989640);
         }
 
         [TestMethod]
-        public void test()
+        public void TestTry()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("test");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(3, result.Pop().GetInteger());
+            Assert.AreEqual(3, Contract.TestTry());
+            AssertGasConsumed(990180);
+        }
 
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("testTry");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(3, result.Pop().GetInteger());
+        [TestMethod]
+        public void TestTryComplex()
+        {
+            Contract.TestTryComplex(true);
+            Contract.TestTryComplex(false);
         }
     }
 }

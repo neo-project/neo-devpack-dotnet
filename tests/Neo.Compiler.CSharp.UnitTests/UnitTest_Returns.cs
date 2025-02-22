@@ -1,76 +1,66 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Returns.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM.Types;
+using Neo.SmartContract.Testing;
+using System.Numerics;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Returns
+    public class UnitTest_Returns : DebugAndTestBase<Contract_Returns>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Returns.cs");
-        }
-
         [TestMethod]
         public void Test_OneReturn()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("subtract", 5, 9);
-
-            Integer wantresult = -4;
-            Assert.AreEqual(wantresult, result.Pop());
+            Assert.AreEqual(new BigInteger(-4), Contract.Subtract(5, 9));
+            AssertGasConsumed(1047660);
         }
 
         [TestMethod]
         public void Test_DoubleReturnA()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("div", 9, 5);
+            var array = Contract.Div(9, 5)!;
+            AssertGasConsumed(1109190);
 
-            Assert.AreEqual(1, result.Count);
-            var array = result.Pop() as Array;
-            Assert.AreEqual(1, array[0]);
-            Assert.AreEqual(4, array[1]);
+            Assert.AreEqual(2, array.Count);
+            Assert.AreEqual(BigInteger.One, array[0]);
+            Assert.AreEqual(new BigInteger(4), array[1]);
         }
 
         [TestMethod]
         public void Test_VoidReturn()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("sum", 9, 5);
-
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(0, testengine.Notifications.Count);
-            Assert.AreEqual(14, result.Pop().GetInteger());
+            Assert.AreEqual(new BigInteger(14), Contract.Sum(9, 5));
+            AssertGasConsumed(1047660);
         }
 
         [TestMethod]
         public void Test_DoubleReturnB()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("mix", 9, 5);
-
-            Assert.AreEqual(1, result.Count);
-
-            var r1 = result.Pop<Integer>();
-            Assert.AreEqual(-3, r1);
+            Assert.AreEqual(new BigInteger(-3), Contract.Mix(9, 5));
+            AssertGasConsumed(1206390);
         }
 
         [TestMethod]
         public void Test_ByteStringAdd()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("byteStringAdd", "hello", "world");
+            Assert.AreEqual("helloworld", Encoding.ASCII.GetString(Contract.ByteStringAdd(Encoding.ASCII.GetBytes("hello"), Encoding.ASCII.GetBytes("world"))!));
+        }
 
-            Assert.AreEqual(1, result.Count);
-
-            var r1 = result.Pop<ByteString>();
-            Assert.AreEqual("helloworld", r1);
+        [TestMethod]
+        public void Test_TryReturn()
+        {
+            Assert.AreEqual(2, Contract.TryReturn());
         }
     }
 }

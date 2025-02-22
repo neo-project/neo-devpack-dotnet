@@ -1,7 +1,18 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Recursion.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using System.Numerics;
 using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Recursion : SmartContract.Framework.SmartContract
     {
@@ -37,11 +48,11 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         /// <param name="aux">Id of auxiliary rod</param>
         /// <param name="dst">Id of destination rod</param>
         /// <returns>List[Move (diskId, fromRod, toRod)]</returns>
-        public static SmartContract.Framework.List<HanoiStep>
+        public static List<HanoiStep>
             HanoiTower(BigInteger n, BigInteger src, BigInteger aux, BigInteger dst)
         {
             ExecutionEngine.Assert(n > 0, "Count of disks <= 0");
-            SmartContract.Framework.List<HanoiStep> result;
+            List<HanoiStep> result;
             if (n == 1)
             {
                 result = new();

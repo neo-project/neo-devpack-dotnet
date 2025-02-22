@@ -1,22 +1,28 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// SequencePointInserterTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class SequencePointInserterTest : TestBase<Contract_SequencePointInserter>
+    public class SequencePointInserterTest : DebugAndTestBase<Contract_SequencePointInserter>
     {
-        public SequencePointInserterTest() : base(Contract_SequencePointInserter.Nef, Contract_SequencePointInserter.Manifest) { }
-
         [TestMethod]
         public void Test_SequencePointInserter()
         {
-            TestCleanup.EnsureArtifactsUpToDateInternal();
-
-            var debug = TestCleanup.DebugInfos[typeof(Contract_SequencePointInserter)];
+            var debug = TestCleanup.CachedContracts[typeof(Contract_SequencePointInserter)].DbgInfo;
             Assert.IsNotNull(debug);
 
             var points = debug.Methods[0].SequencePoints.Select(u => u.Address).ToArray();

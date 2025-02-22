@@ -1,49 +1,42 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Invoke.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM.Types;
+using Neo.SmartContract.Testing;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Invoke
+    public class UnitTest_Invoke : DebugAndTestBase<Contract_InvokeCsNef>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_InvokeCsNef.cs");
-        }
-
         [TestMethod]
         public void Test_Return_Integer()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("returnInteger");
-
-            Integer wantresult = 42;
-            Assert.IsTrue(wantresult.Equals(result.Pop()));
+            Assert.AreEqual(new BigInteger(42), Contract.ReturnInteger());
+            AssertGasConsumed(984060);
         }
 
         [TestMethod]
         public void Test_Return_String()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("returnString");
-
-            ByteString wantresult = "hello world";
-            Assert.IsTrue(wantresult.Equals(result.Pop()));
+            Assert.AreEqual("hello world", Contract.ReturnString());
+            AssertGasConsumed(984270);
         }
 
         [TestMethod]
         public void Test_Main()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("testMain");
-
-            Integer wantresult = 22;
-            Assert.IsTrue(wantresult.Equals(result.Pop()));
+            Assert.AreEqual(new BigInteger(22), Contract.TestMain());
+            AssertGasConsumed(984060);
         }
     }
 }

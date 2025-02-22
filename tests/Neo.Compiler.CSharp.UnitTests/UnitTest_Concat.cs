@@ -1,56 +1,48 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Concat.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
+using Neo.SmartContract.Testing;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Concat
+    public class UnitTest_Concat : DebugAndTestBase<Contract_Concat>
     {
-        private TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Concat.cs");
-        }
-
         [TestMethod]
         public void TestStringAdd1()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testStringAdd1", "a");
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual("ahello", result.Pop().GetString());
+            Assert.AreEqual("ahello", Contract.TestStringAdd1("a"));
+            AssertGasConsumed(1354680);
         }
 
         [TestMethod]
         public void TestStringAdd2()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testStringAdd2", "a", "b");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual("abhello", result.Pop().GetString());
+            Assert.AreEqual("abhello", Contract.TestStringAdd2("a", "b"));
+            AssertGasConsumed(1662180);
         }
 
         [TestMethod]
         public void TestStringAdd3()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testStringAdd3", "a", "b", "c");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual("abchello", result.Pop().GetString());
+            Assert.AreEqual("abchello", Contract.TestStringAdd3("a", "b", "c"));
+            AssertGasConsumed(1969680);
         }
 
         [TestMethod]
         public void TestStringAdd4()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("testStringAdd4", "a", "b", "c", "d");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual("abcdhello", result.Pop().GetString());
+            Assert.AreEqual("abcdhello", Contract.TestStringAdd4("a", "b", "c", "d"));
+            AssertGasConsumed(2277180);
         }
     }
 }

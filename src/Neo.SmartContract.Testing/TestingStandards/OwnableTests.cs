@@ -1,9 +1,20 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// OwnableTests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +22,7 @@ using System.IO;
 namespace Neo.SmartContract.Testing.TestingStandards;
 
 public class OwnableTests<T> : TestBase<T>
-    where T : SmartContract, IOwnable
+    where T : SmartContract, IOwnable, IContractInfo
 {
     #region Transfer event checks
 
@@ -115,17 +126,19 @@ public class OwnableTests<T> : TestBase<T>
 
         Assert.AreEqual(Alice.Account, Contract.Owner);
         Engine.SetTransactionSigners(Bob);
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner = Bob.Account);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Alice);
-        Assert.ThrowsException<Exception>(() => Contract.Owner = UInt160.Zero);
-        Assert.ThrowsException<InvalidOperationException>(() => Contract.Owner = InvalidUInt160.Null);
-        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.InvalidLength);
-        Assert.ThrowsException<Exception>(() => Contract.Owner = InvalidUInt160.InvalidType);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = UInt160.Zero);
+        var exception = Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.Null);
+        // not InvalidOperationExcpetion, because no SIZE operation on null
+        Assert.IsInstanceOfType<Exception>(exception.InnerException);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidLength);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = InvalidUInt160.InvalidType);
 
         Contract.Owner = Bob.Account;
         Assert.AreEqual(Bob.Account, Contract.Owner);
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.Owner = Bob.Account);
+        Assert.ThrowsException<TestException>(() => Contract.Owner = Bob.Account);
 
         Engine.SetTransactionSigners(Bob);
 

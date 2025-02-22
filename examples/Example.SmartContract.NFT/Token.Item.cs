@@ -13,7 +13,7 @@ namespace NFT
 {
     public partial class Loot
     {
-        private readonly string[] _weapons = {
+        private static readonly string[] _weapons = {
             "Warhammer",
             "Quarterstaff",
             "Maul",
@@ -34,7 +34,7 @@ namespace NFT
             "Book"
         };
 
-        private readonly string[] _chestArmor = {
+        private static readonly string[] _chestArmor = {
             "Divine Robe",
             "Silk Robe",
             "Linen Robe",
@@ -52,7 +52,7 @@ namespace NFT
             "Ring Mail"
         };
 
-        private readonly string[] _headArmor = {
+        private static readonly string[] _headArmor = {
             "Ancient Helm",
             "Ornate Helm",
             "Great Helm",
@@ -70,7 +70,7 @@ namespace NFT
             "Hood"
         };
 
-        private readonly string[] _waistArmor = {
+        private static readonly string[] _waistArmor = {
             "Ornate Belt",
             "War Belt",
             "Plated Belt",
@@ -88,7 +88,7 @@ namespace NFT
             "Sash"
         };
 
-        private readonly string[] _footArmor = {
+        private static readonly string[] _footArmor = {
             "Holy Greaves",
             "Ornate Greaves",
             "Greaves",
@@ -106,7 +106,7 @@ namespace NFT
             "Shoes"
         };
 
-        private readonly string[] _handArmor = {
+        private static readonly string[] _handArmor = {
             "Holy Gauntlets",
             "Ornate Gauntlets",
             "Gauntlets",
@@ -124,13 +124,13 @@ namespace NFT
             "Gloves"
         };
 
-        private readonly string[] _necklaces = {
+        private static readonly string[] _necklaces = {
             "Necklace",
             "Amulet",
             "Pendant"
         };
 
-        private readonly string[] _rings = {
+        private static readonly string[] _rings = {
             "Gold Ring",
             "Silver Ring",
             "Bronze Ring",
@@ -138,7 +138,7 @@ namespace NFT
             "Titanium Ring"
         };
 
-        private readonly string[] _suffixes = {
+        private static readonly string[] _suffixes = {
             "of Power",
             "of Giants",
             "of Titans",
@@ -157,7 +157,7 @@ namespace NFT
             "of the Twins"
         };
 
-        private readonly string[] _namePrefixes = {
+        private static readonly string[] _namePrefixes = {
             "Agony", "Apocalypse", "Armageddon", "Beast", "Behemoth", "Blight", "Blood", "Bramble",
             "Brimstone", "Brood", "Carrion", "Cataclysm", "Chimeric", "Corpse", "Corruption", "Damnation",
             "Death", "Demon", "Dire", "Dragon", "Dread", "Doom", "Dusk", "Eagle", "Empyrean", "Fate", "Foe",
@@ -168,7 +168,7 @@ namespace NFT
             "Light's", "Shimmering"
         };
 
-        private readonly string[] _nameSuffixes = {
+        private static readonly string[] _nameSuffixes = {
             "Bane",
             "Root",
             "Bite",

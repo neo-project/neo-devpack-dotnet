@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// NativeContracts.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using System;
@@ -105,9 +116,9 @@ namespace Neo.SmartContract.Testing.Native
             {
                 // Mock Native.OnPersist
 
-                var method = native.GetType().GetMethod("OnPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+                var method = native.GetType().GetMethod("OnPersistAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
-                DataCache clonedSnapshot = _engine.Storage.Snapshot.CreateSnapshot();
+                DataCache clonedSnapshot = _engine.Storage.Snapshot.CloneCache();
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
@@ -116,12 +127,12 @@ namespace Neo.SmartContract.Testing.Native
 
                     task.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
-                        throw new Exception($"Error executing {native.Name}.OnPersist");
+                        throw new Exception($"Error executing {native.Name}.OnPersistAsync");
                 }
 
                 // Mock Native.PostPersist
 
-                method = native.GetType().GetMethod("PostPersist", BindingFlags.NonPublic | BindingFlags.Instance);
+                method = native.GetType().GetMethod("PostPersistAsync", BindingFlags.NonPublic | BindingFlags.Instance);
 
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, genesis, clonedSnapshot, genesis))
                 {
@@ -131,7 +142,7 @@ namespace Neo.SmartContract.Testing.Native
 
                     task.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
-                        throw new Exception($"Error executing {native.Name}.PostPersist");
+                        throw new Exception($"Error executing {native.Name}.PostPersistAsync");
                 }
 
                 clonedSnapshot.Commit();

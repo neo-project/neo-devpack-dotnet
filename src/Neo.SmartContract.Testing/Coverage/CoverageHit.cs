@@ -1,27 +1,57 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// CoverageHit.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.VM;
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Neo.Extensions;
+using Neo.SmartContract.Testing.Interpreters;
 
 namespace Neo.SmartContract.Testing.Coverage
 {
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="offset">Offset</param>
+    /// <param name="instruction">Instruction</param>
+    /// <param name="outOfScript">Out of script</param>
+    /// <param name="methodTokens">Method tokens</param>
     [DebuggerDisplay("Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}")]
-    public class CoverageHit
+    public class CoverageHit(int offset, Instruction instruction, bool outOfScript = false, MethodToken[]? methodTokens = null)
     {
+        /// <summary>
+        /// The covered instruction
+        /// </summary>
+        public Instruction Instruction { get; } = instruction;
+
         /// <summary>
         /// The instruction offset
         /// </summary>
-        public int Offset { get; }
+        public int Offset { get; } = offset;
 
         /// <summary>
         /// The instruction description
         /// </summary>
-        public string Description { get; }
+        public string Description => DescriptionFromInstruction(Instruction, MethodTokens);
+
+        /// <summary>
+        /// Method tokens
+        /// </summary>
+        public MethodToken[]? MethodTokens { get; } = methodTokens;
 
         /// <summary>
         /// The instruction is out of the script
         /// </summary>
-        public bool OutOfScript { get; }
+        public bool OutOfScript { get; } = outOfScript;
 
         /// <summary>
         /// Hits
@@ -29,58 +59,45 @@ namespace Neo.SmartContract.Testing.Coverage
         public int Hits { get; private set; }
 
         /// <summary>
-        /// Minimum used gas
+        /// Minimum used fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public long GasMin { get; private set; }
+        public long FeeMin { get; private set; }
 
         /// <summary>
-        /// Minimum used gas
+        /// Minimum used fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public long GasMax { get; private set; }
+        public long FeeMax { get; private set; }
 
         /// <summary>
-        /// Total used gas
+        /// Total used fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
         /// </summary>
-        public long GasTotal { get; private set; }
+        public long FeeTotal { get; private set; }
 
         /// <summary>
-        /// Average used gas
+        /// Average used fee
         /// </summary>
-        public long GasAvg => Hits == 0 ? 0 : GasTotal / Hits;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="offset">Offset</param>
-        /// <param name="description">Decription</param>
-        /// <param name="outOfScript">Out of script</param>
-        public CoverageHit(int offset, string description, bool outOfScript = false)
-        {
-            Offset = offset;
-            Description = description;
-            OutOfScript = outOfScript;
-        }
+        public long FeeAvg => Hits == 0 ? 0 : FeeTotal / Hits;
 
         /// <summary>
         /// Hits
         /// </summary>
-        /// <param name="gas">Gas</param>
-        public void Hit(long gas)
+        /// <param name="fee">Fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)</param>
+        public void Hit(long fee)
         {
             Hits++;
 
             if (Hits == 1)
             {
-                GasMin = gas;
-                GasMax = gas;
+                FeeMin = fee;
+                FeeMax = fee;
             }
             else
             {
-                GasMin = Math.Min(GasMin, gas);
-                GasMax = Math.Max(GasMax, gas);
+                FeeMin = Math.Min(FeeMin, fee);
+                FeeMax = Math.Max(FeeMax, fee);
             }
 
-            GasTotal += gas;
+            FeeTotal += fee;
         }
 
         /// <summary>
@@ -95,16 +112,16 @@ namespace Neo.SmartContract.Testing.Coverage
 
             if (Hits == 1)
             {
-                GasMin = value.GasMin;
-                GasMax = value.GasMax;
+                FeeMin = value.FeeMin;
+                FeeMax = value.FeeMax;
             }
             else
             {
-                GasMin = Math.Min(GasMin, value.GasMin);
-                GasMax = Math.Max(GasMax, value.GasMax);
+                FeeMin = Math.Min(FeeMin, value.FeeMin);
+                FeeMax = Math.Max(FeeMax, value.FeeMax);
             }
 
-            GasTotal += value.GasTotal;
+            FeeTotal += value.FeeTotal;
         }
 
         /// <summary>
@@ -113,11 +130,11 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns>CoverageData</returns>
         public CoverageHit Clone()
         {
-            return new CoverageHit(Offset, Description, OutOfScript)
+            return new CoverageHit(Offset, Instruction, OutOfScript, MethodTokens)
             {
-                GasMax = GasMax,
-                GasMin = GasMin,
-                GasTotal = GasTotal,
+                FeeMax = FeeMax,
+                FeeMin = FeeMin,
+                FeeTotal = FeeTotal,
                 Hits = Hits
             };
         }
@@ -176,7 +193,7 @@ namespace Neo.SmartContract.Testing.Coverage
                         }
                 }
 
-                if (instruction.Operand.Span.TryGetString(out var str) && Regex.IsMatch(str, @"^[a-zA-Z0-9_]+$"))
+                if (instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
                 {
                     return ret + $" '{str}'";
                 }
@@ -193,7 +210,7 @@ namespace Neo.SmartContract.Testing.Coverage
         /// <returns></returns>
         public override string ToString()
         {
-            return $"Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, GasTotal:{GasTotal}, GasMin:{GasMin}, GasMax:{GasMax}, GasAvg:{GasAvg}";
+            return $"Offset:{Offset}, Description:{Description}, OutOfScript:{OutOfScript}, Hits:{Hits}, FeeTotal:{FeeTotal}, FeeMin:{FeeMin}, FeeMax:{FeeMax}, FeeAvg:{FeeAvg}";
         }
     }
 }

@@ -1,19 +1,27 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// NativeTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography.ECC;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class NativeTest : TestBase<Contract_Native>
+    public class NativeTest : DebugAndTestBase<Contract_Native>
     {
-        public NativeTest() : base(Contract_Native.Nef, Contract_Native.Manifest) { }
-
         [TestMethod]
         public void Test_NEO()
         {
@@ -27,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Before RegisterCandidate
             Assert.AreEqual(0, Contract.NEO_GetCandidates()?.Count);
             // RegisterCandidate
-            Engine.Gas = 1005_0000_0000;
+            Engine.Fee = 1005_0000_0000;
             var pubKey = ECPoint.Parse("03b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c", ECCurve.Secp256r1);
             Engine.SetTransactionSigners(WitnessScope.Global, pubKey);
             Assert.IsTrue(Contract.NEO_RegisterCandidate(pubKey));

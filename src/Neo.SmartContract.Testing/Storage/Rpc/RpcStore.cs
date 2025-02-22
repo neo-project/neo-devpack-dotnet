@@ -1,10 +1,22 @@
-using Neo.IO;
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// RpcStore.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Neo.Extensions;
 using Neo.Persistence;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -38,30 +50,52 @@ public class RpcStore : IStore
 
     public void Delete(byte[] key) => throw new NotImplementedException();
     public void Put(byte[] key, byte[] value) => throw new NotImplementedException();
-    public ISnapshot GetSnapshot() => new RpcSnapshot(this);
+    public IStoreSnapshot GetSnapshot() => new RpcSnapshot(this);
     public bool Contains(byte[] key) => TryGet(key) != null;
     public void Dispose() { }
 
     #region Rpc calls
 
-    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[] key, SeekDirection direction)
+    // Same logic as MemorySnapshot
+    private static IEnumerable<(byte[] Key, byte[] Value)> Seek(ConcurrentDictionary<byte[], byte[]> innerData, byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
     {
+        keyOrPrefix ??= [];
+        if (direction == SeekDirection.Backward && keyOrPrefix.Length == 0) yield break;
+
+        var comparer = direction == SeekDirection.Forward ? ByteArrayComparer.Default : ByteArrayComparer.Reverse;
+        IEnumerable<KeyValuePair<byte[], byte[]>> records = innerData;
+        if (keyOrPrefix.Length > 0)
+            records = records
+                .Where(p => comparer.Compare(p.Key, keyOrPrefix) >= 0);
+        records = records.OrderBy(p => p.Key, comparer);
+        foreach (var pair in records)
+            yield return (pair.Key[..], pair.Value[..]);
+    }
+
+    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[]? key, SeekDirection direction)
+    {
+        // This(IStore.Seek) is different from LevelDbStore, RocksDbStore and MemoryStore.
+        if (key is null)
+            throw new ArgumentNullException(nameof(key));
+
+        // This(IStore.Seek) is different from LevelDbStore, RocksDbStore and MemoryStore.
+        // The following logic has this requirement.
+        if (key.Length < 4)
+            throw new ArgumentException("Key must be at least 4 bytes(the first 4 bytes are the contract id)", nameof(key));
+
         if (direction is SeekDirection.Backward)
         {
             // Not implemented in RPC, we will query all the storage from the contract, and do it manually
             // it could return wrong results if we want to get data between contracts
-
-            var prefix = key.Take(4).ToArray();
             ConcurrentDictionary<byte[], byte[]> data = new();
 
             // We ask for 5 bytes because the minimum prefix is one byte
-
             foreach (var entry in Seek(key.Take(key.Length == 4 ? 4 : 5).ToArray(), SeekDirection.Forward))
             {
                 data.TryAdd(entry.Key, entry.Value);
             }
 
-            foreach (var entry in new MemorySnapshot(data).Seek(key, direction))
+            foreach (var entry in Seek(data, key, direction))
             {
                 yield return (entry.Key, entry.Value);
             }
@@ -131,7 +165,7 @@ public class RpcStore : IStore
         throw new Exception();
     }
 
-    public byte[]? TryGet(byte[] key)
+    public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
     {
         var skey = new StorageKey(key);
         var requestBody = new
@@ -152,7 +186,8 @@ public class RpcStore : IStore
         {
             // {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"Aw==\"}
 
-            return Convert.FromBase64String(result);
+            value = Convert.FromBase64String(result);
+            return true;
         }
         else
         {
@@ -162,11 +197,22 @@ public class RpcStore : IStore
                 error["code"]?.Value<int>() is int errorCode &&
                 (errorCode == -100 || errorCode == -104))
             {
-                return null;
+                value = null;
+                return false;
             }
 
             throw new Exception();
         }
+    }
+
+    public byte[]? TryGet(byte[] key)
+    {
+        if (TryGet(key, out var value))
+        {
+            return value;
+        }
+
+        return null;
     }
 
     #endregion

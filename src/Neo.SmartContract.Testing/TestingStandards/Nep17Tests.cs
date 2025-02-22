@@ -1,10 +1,21 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// Nep17Tests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.VM;
 using Neo.VM.Types;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +24,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Testing.TestingStandards;
 
 public class Nep17Tests<T> : TestBase<T>
-    where T : SmartContract, INep17Standard
+    where T : SmartContract, INep17Standard, IContractInfo
 {
     public abstract class onNEP17PaymentContract : SmartContract
     {
@@ -138,9 +149,9 @@ public class Nep17Tests<T> : TestBase<T>
     public virtual void TestBalanceOf()
     {
         Assert.AreEqual(0, Contract.BalanceOf(Bob.Account));
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.Null));
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.InvalidLength));
-        Assert.ThrowsException<VMUnhandledException>(() => Contract.BalanceOf(InvalidUInt160.InvalidType));
+        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.Null));
+        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidLength));
+        Assert.ThrowsException<TestException>(() => Contract.BalanceOf(InvalidUInt160.InvalidType));
     }
 
     [TestMethod]
@@ -169,15 +180,15 @@ public class Nep17Tests<T> : TestBase<T>
 
         // Invoke invalid transfers
 
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.Null, Bob.Account, -1)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.Null, 0)));
 
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidLength, Bob.Account, -1)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidType, Bob.Account, -1)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidLength, 0)));
-        Assert.ThrowsException<VMUnhandledException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidType, 0)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, Bob.Account, -1)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidLength, Bob.Account, -1)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(InvalidUInt160.InvalidType, Bob.Account, -1)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidLength, 0)));
+        Assert.ThrowsException<TestException>(() => Assert.IsTrue(Contract.Transfer(Alice.Account, InvalidUInt160.InvalidType, 0)));
 
         // Invoke transfer without signature
 
@@ -209,21 +220,21 @@ public class Nep17Tests<T> : TestBase<T>
         // Only we need to create the manifest method, then it will be redirected
 
         ContractManifest manifest = ContractManifest.Parse(Manifest.ToJson().ToString());
-        manifest.Abi.Methods = new ContractMethodDescriptor[]
-        {
-            new ()
+        manifest.Abi.Methods =
+        [
+            new()
             {
                 Name = "onNEP17Payment",
                 ReturnType = ContractParameterType.Void,
                 Safe = false,
-                Parameters = new ContractParameterDefinition[]
-                    {
+                Parameters =
+                    [
                         new() { Name = "a", Type = ContractParameterType.Hash160 },
                         new() { Name = "b", Type = ContractParameterType.Integer },
                         new() { Name = "c", Type = ContractParameterType.Any }
-                    }
+                    ]
             }
-        };
+        ];
 
         // Deploy dummy contract
 

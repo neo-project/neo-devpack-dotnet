@@ -1,75 +1,73 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_TryCatch.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_TryCatch : SmartContract.Framework.SmartContract
     {
         [ByteArray("0a0b0c0d0E0F")]
-        private static readonly ByteString invalidECpoint = default;
+        private static readonly ByteString invalidECpoint = default!;
         [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
-        private static readonly ByteString byteString2Ecpoint = default;
+        private static readonly ByteString byteString2Ecpoint = default!;
         [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
-        private static readonly ByteString validUInt160 = default;
-        // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
+        private static readonly ByteString validUInt160 = default!;
         private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
-        public static object try01()
+
+        public static int try01(bool throwException, bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
+                if (throwException) throw new System.Exception();
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object try02()
+        public static int try02(bool throwException, bool enterCatch, bool enterFinally)
+        {
+            return try01(throwException, enterCatch, enterFinally);
+        }
+
+        public static int try03(bool throwException, bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throw new System.Exception();
+                if (throwException) ThrowCall();
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object try03()
-        {
-            int v = 0;
-            try
-            {
-                v = 2;
-                throwcall();
-            }
-            catch
-            {
-                v = 3;
-            }
-            finally
-            {
-                v++;
-            }
-            return v;
-        }
-
-        public static object tryNest()
+        public static int tryNest(bool throwInTry, bool throwInCatch, bool throwInFinally, bool enterOuterCatch)
         {
             int v = 0;
             try
@@ -77,92 +75,93 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 try
                 {
                     v = 2;
-                    throwcall();
+                    if (throwInTry) ThrowCall();
                 }
                 catch
                 {
                     v = 3;
-                    throwcall();
+                    if (throwInCatch) ThrowCall();
                 }
                 finally
                 {
-                    throwcall();
+                    if (throwInFinally) ThrowCall();
                     v++;
                 }
             }
             catch
             {
-                v++;
+                if (enterOuterCatch) v++;
             }
             return v;
         }
 
-        public static object throwInCatch()
+        public static int throwInCatch(bool throwInTry, bool throwInCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 1;
-                throw new System.Exception();
+                if (throwInTry) throw new System.Exception();
             }
             catch
             {
                 v = 2;
-                throw new System.Exception();
+                if (throwInCatch) throw new System.Exception();
             }
             finally
             {
-                v = 3;
+                if (enterFinally) v = 3;
             }
             v = 4;
             return v;
         }
 
-        public static object tryFinally()
+        public static int tryFinally(bool throwException, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
+                if (throwException) throw new System.Exception();
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object tryFinallyAndRethrow()
+        public static int tryFinallyAndRethrow(bool throwException, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throwcall();
+                if (throwException) ThrowCall();
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object tryCatch()
+        public static int tryCatch(bool throwException, bool enterCatch)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throwcall();
+                if (throwException) ThrowCall();
             }
             catch
             {
-                v++;
+                if (enterCatch) v++;
             }
             return v;
         }
 
-        public static object tryWithTwoFinally()
+        public static int tryWithTwoFinally(bool throwInInner, bool throwInOuter, bool enterInnerCatch, bool enterOuterCatch, bool enterInnerFinally, bool enterOuterFinally)
         {
             int v = 0;
             try
@@ -170,47 +169,49 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 try
                 {
                     v++;
+                    if (throwInInner) throw new System.Exception();
                 }
                 catch
                 {
-                    v += 2;
+                    if (enterInnerCatch) v += 2;
                 }
                 finally
                 {
-                    v += 3;
+                    if (enterInnerFinally) v += 3;
                 }
+                if (throwInOuter) throw new System.Exception();
             }
             catch
             {
-                v += 4;
+                if (enterOuterCatch) v += 4;
             }
             finally
             {
-                v += 5;
+                if (enterOuterFinally) v += 5;
             }
             return v;
         }
 
-        public static object tryecpointCast()
+        public static int tryecpointCast(bool useInvalidECpoint, bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
-                ECPoint pubkey = (ECPoint)invalidECpoint;
+                ECPoint pubkey = (ECPoint)(useInvalidECpoint ? invalidECpoint : byteString2Ecpoint);
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object tryvalidByteString2Ecpoint()
+        public static int tryvalidByteString2Ecpoint(bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
@@ -220,35 +221,35 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object tryinvalidByteArray2UInt160()
+        public static int tryinvalidByteArray2UInt160(bool useInvalidECpoint, bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
-                UInt160 data = (UInt160)invalidECpoint;
+                UInt160 data = (UInt160)(useInvalidECpoint ? invalidECpoint : validUInt160);
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object tryvalidByteArray2UInt160()
+        public static int tryvalidByteArray2UInt160(bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
@@ -258,69 +259,69 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object tryinvalidByteArray2UInt256()
+        public static int tryinvalidByteArray2UInt256(bool useInvalidECpoint, bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
-                UInt256 data = (UInt256)invalidECpoint;
+                UInt256 data = useInvalidECpoint ? (UInt256)invalidECpoint : validUInt256;
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static object tryvalidByteArray2UInt256()
+        public static int tryvalidByteArray2UInt256(bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
-                UInt256 data = (UInt256)validUInt256;
+                UInt256 data = validUInt256;
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
-        public static (int, object) tryNULL2Ecpoint_1()
+        public static (int, object?) tryNULL2Ecpoint_1(bool setToNull, bool enterCatch, bool enterFinally)
         {
             int v = 0;
-            ECPoint data = (ECPoint)(new byte[33]);
+            ECPoint? data = (ECPoint)(new byte[33]);
             try
             {
                 v = 2;
-                data = (ECPoint)null;
+                if (setToNull) data = null;
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
                 if (data is null)
                 {
                     v++;
@@ -329,22 +330,22 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Uint160_1()
+        public static (int, object?) tryNULL2Uint160_1(bool setToNull, bool enterCatch, bool enterFinally)
         {
             int v = 0;
-            UInt160 data = (UInt160)(new byte[20]);
+            UInt160? data = (UInt160)(new byte[20]);
             try
             {
                 v = 2;
-                data = (UInt160)null;
+                if (setToNull) data = null;
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
                 if (data is null)
                 {
                     v++;
@@ -353,22 +354,22 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Uint256_1()
+        public static (int, object?) tryNULL2Uint256_1(bool setToNull, bool enterCatch, bool enterFinally)
         {
             int v = 0;
-            UInt256 data = (UInt256)(new byte[32]);
+            UInt256? data = (UInt256)(new byte[32]);
             try
             {
                 v = 2;
-                data = (UInt256)null;
+                if (setToNull) data = null;
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
                 if (data is null)
                 {
                     v++;
@@ -377,22 +378,22 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return (v, data);
         }
 
-        public static (int, object) tryNULL2Bytestring_1()
+        public static (int, object?) tryNULL2Bytestring_1(bool setToNull, bool enterCatch, bool enterFinally)
         {
             int v = 0;
-            ByteString data = "123";
+            ByteString? data = "123";
             try
             {
                 v = 2;
-                data = (ByteString)null;
+                if (setToNull) data = null;
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
                 if (data is null)
                 {
                     v++;
@@ -401,29 +402,36 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return (v, data);
         }
 
-        public static object throwcall()
+        public static object ThrowCall()
         {
             throw new System.Exception();
         }
 
-        public static object tryUncatchableException()
+        public static int tryUncatchableException(bool throwException, bool enterCatch, bool enterFinally)
         {
             int v = 0;
             try
             {
                 v = 2;
-                throw new UncatchableException();
+                if (throwException) throw new UncatchableException();
             }
             catch
             {
-                v = 3;
+                if (enterCatch) v = 3;
             }
             finally
             {
-                v++;
+                if (enterFinally) v++;
             }
             return v;
         }
 
+        public static string catchExceptionType()
+        {
+            string result = "NoException";
+            try { throw new System.Exception(); }
+            catch (UncatchableException e) { result += e; }
+            return result;
+        }
     }
 }

@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// SwitchStatement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -15,7 +16,7 @@ using System.Linq;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a 'switch' statement into a set of conditional jump instructions and targets.
@@ -57,6 +58,19 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             byte anonymousIndex = AddAnonymousVariable();
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, switchLabels: labels.ToDictionary());
+            _generalStatementStack.Push(sc);
+
+            // handle possible normal labels in all sections of this switch
+            foreach (SwitchSectionSyntax section in syntax.Sections)
+                foreach (StatementSyntax label in section.Statements)
+                    if (label is LabeledStatementSyntax l)
+                    {
+                        ILabelSymbol symbol = (ILabelSymbol)model.GetDeclaredSymbol(l)!;
+                        JumpTarget target = AddLabel(symbol);
+                        sc.AddLabel(symbol, target);
+                    }
+
             using (InsertSequencePoint(syntax.Expression))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -111,6 +125,8 @@ namespace Neo.Compiler
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             PopSwitchLabels();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

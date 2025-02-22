@@ -1,179 +1,143 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Foreach.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.VM;
+using Neo.SmartContract.Testing;
 using Neo.VM.Types;
 using System.Numerics;
-using Neo.SmartContract.TestEngine;
+using System.Text;
+using Neo.Extensions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Foreach
+    public class UnitTest_Foreach : DebugAndTestBase<Contract_Foreach>
     {
-        private TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
+        [TestMethod]
+        public void IntForeachTest()
         {
-            _engine = new TestEngine();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Foreach.cs");
+            Assert.AreEqual(10, Contract.IntForeach());
+            AssertGasConsumed(1061400);
+            Assert.AreEqual(6, Contract.IntForeachBreak(3));
+            AssertGasConsumed(1125240);
         }
 
         [TestMethod]
-        public void intForeach_test()
+        public void IntForloopTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("intForeach");
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(10, result.Pop().GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("intForeachBreak", 3);
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(6, result.Pop().GetInteger());
+            Assert.AreEqual(10, Contract.IntForloop());
+            AssertGasConsumed(1064040);
+            Assert.AreEqual(6, Contract.IntForeachBreak(3));
+            AssertGasConsumed(1125240);
         }
 
         [TestMethod]
-        public void intForloop_test()
+        public void StringForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("intForloop");
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(10, result.Pop().GetInteger());
-
-            _engine.Reset();
-            result = _engine.ExecuteTestCaseStandard("intForeachBreak", 3);
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(6, result.Pop().GetInteger());
+            Assert.AreEqual("abcdefhij", Contract.StringForeach());
+            AssertGasConsumed(1978950);
         }
 
         [TestMethod]
-        public void stringForeach_test()
+        public void ByteStringEmptyTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("stringForeach");
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual("abcdefhij", result.Pop().GetString());
+            Assert.AreEqual(0, Contract.ByteStringEmpty());
+            AssertGasConsumed(986430);
         }
 
         [TestMethod]
-        public void byteStringEmpty_test()
+        public void BytestringForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("byteStringEmpty");
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual(0, result.Pop().GetInteger());
+            Assert.AreEqual("abcdefhij", Encoding.ASCII.GetString(Contract.ByteStringForeach()!));
+            AssertGasConsumed(2599230);
         }
 
         [TestMethod]
-        public void bytestringForeach_test()
+        public void StructForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("byteStringForeach");
+            var map = Contract.StructForeach()!;
+            AssertGasConsumed(2661570);
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            Assert.AreEqual("abcdefhij", result.Pop().GetString());
+            Assert.AreEqual(map[(ByteString)"test1"], new BigInteger(1));
+            Assert.AreEqual(map[(ByteString)"test2"], new BigInteger(2));
         }
 
         [TestMethod]
-        public void structForeach_test()
+        public void ByteArrayForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("structForeach");
+            var array = Contract.ByteArrayForeach()!;
+            AssertGasConsumed(1978500);
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var map = result.Pop() as VM.Types.Map;
-            Assert.AreEqual(map["test1"].GetInteger(), 1);
-            Assert.AreEqual(map["test2"].GetInteger(), 2);
+            Assert.AreEqual(array[0], new BigInteger(1));
+            Assert.AreEqual(array[1], new BigInteger(10));
+            Assert.AreEqual(array[2], new BigInteger(17));
         }
 
         [TestMethod]
-        public void byteArrayForeach_test()
+        public void Uint160ForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("byteArrayForeach");
+            var array = Contract.UInt160Foreach()!;
+            AssertGasConsumed(1546050);
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var array = result.Pop() as VM.Types.Array;
-            Assert.AreEqual(array[0].GetInteger(), 1);
-            Assert.AreEqual(array[1].GetInteger(), 10);
-            Assert.AreEqual(array[2].GetInteger(), 17);
-        }
-
-        [TestMethod]
-        public void uint160Foreach_test()
-        {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("uInt160Foreach");
-
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var array = result.Pop() as VM.Types.Array;
             Assert.AreEqual(array.Count, 2);
-            Assert.AreEqual((array[0] as VM.Types.ByteString).GetSpan().ToHexString(), "0000000000000000000000000000000000000000");
-            Assert.AreEqual((array[1] as VM.Types.ByteString).GetSpan().ToHexString(), "0000000000000000000000000000000000000000");
+            Assert.AreEqual((array[0] as ByteString)!.GetSpan().ToHexString(), "0000000000000000000000000000000000000000");
+            Assert.AreEqual((array[1] as ByteString)!.GetSpan().ToHexString(), "0000000000000000000000000000000000000000");
         }
 
         [TestMethod]
-        public void uint256Foreach_test()
+        public void Uint256ForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("uInt256Foreach");
+            var array = Contract.UInt256Foreach()!;
+            AssertGasConsumed(1546050);
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var array = result.Pop() as VM.Types.Array;
             Assert.AreEqual(array.Count, 2);
-            Assert.AreEqual((array[0] as VM.Types.ByteString).GetSpan().ToHexString(), "0000000000000000000000000000000000000000000000000000000000000000");
-            Assert.AreEqual((array[1] as VM.Types.ByteString).GetSpan().ToHexString(), "0000000000000000000000000000000000000000000000000000000000000000");
+            Assert.AreEqual((array[0] as ByteString)!.GetSpan().ToHexString(), "0000000000000000000000000000000000000000000000000000000000000000");
+            Assert.AreEqual((array[1] as ByteString)!.GetSpan().ToHexString(), "0000000000000000000000000000000000000000000000000000000000000000");
         }
 
         [TestMethod]
-        public void ecpointForeach_test()
+        public void EcpointForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("eCPointForeach");
+            var array = Contract.ECPointForeach()!;
+            AssertGasConsumed(2038470);
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var array = result.Pop() as VM.Types.Array;
             Assert.AreEqual(array.Count, 2);
-            Assert.AreEqual((array[0] as VM.Types.ByteString).GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
-            Assert.AreEqual((array[1] as VM.Types.ByteString).GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
+            Assert.AreEqual((array[0] as ByteString)!.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
+            Assert.AreEqual((array[1] as ByteString)!.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
         }
 
         [TestMethod]
-        public void bigintegerForeach_test()
+        public void BigintegerForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("bigIntegerForeach");
-            BigInteger[] expected = new BigInteger[] { 10_000, 1000_000, 1000_000_000, 1000_000_000_000_000_000 };
+            var array = Contract.BigIntegerForeach()!;
+            AssertGasConsumed(2042490);
+            BigInteger[] expected = [10_000, 1000_000, 1000_000_000, 1000_000_000_000_000_000];
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var array = result.Pop() as VM.Types.Array;
             Assert.AreEqual(array.Count, 4);
             for (int i = 0; i < 4; i++)
             {
-                Assert.AreEqual(array[i].GetInteger(), expected[i]);
+                Assert.AreEqual(array[i], expected[i]);
             }
         }
 
         [TestMethod]
-        public void objectarrayForeach_test()
+        public void ObjectarrayForeachTest()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("objectArrayForeach");
+            var array = Contract.ObjectArrayForeach()!;
+            AssertGasConsumed(2040240);
 
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var array = result.Pop() as VM.Types.Array;
             Assert.AreEqual(array.Count, 3);
-            ByteString firstitem = (array[0] as VM.Types.Buffer).InnerBuffer.ToArray();
-            ByteString bytearray = new byte[] { 0x01, 0x02 };
-            Assert.IsTrue(VM.Types.ByteString.Equals(firstitem, bytearray));
-            Assert.AreEqual(array[1].GetString(), "test");
-            Assert.AreEqual(array[2].GetInteger(), 123);
+            CollectionAssert.AreEqual(array[0] as byte[], new byte[] { 0x01, 0x02 });
+            Assert.AreEqual((array[1] as ByteString)!.GetString(), "test");
+            Assert.AreEqual(array[2], new BigInteger(123));
         }
     }
 }

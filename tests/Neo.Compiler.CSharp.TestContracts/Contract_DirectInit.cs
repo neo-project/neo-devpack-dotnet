@@ -1,8 +1,20 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_DirectInit.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using System.Collections;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
 
     public class Contract_DirectInit : SmartContract.Framework.SmartContract
@@ -24,7 +36,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
 
         /// <summary>
         /// A static field of type UInt160 initialized directly from a hex string. This allows for compile-time
-        /// initialization of blockchain-specific types like addresses, represented here as Hash256.
+        /// initialization of blockchain-specific types like txid/blockhash, represented here as Hash256.
         /// </summary>
         // [ByteArray("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925")]
         private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";

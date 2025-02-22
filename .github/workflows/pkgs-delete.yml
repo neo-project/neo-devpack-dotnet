@@ -75,6 +75,7 @@ jobs:
         min-versions-to-keep: 3
         delete-only-pre-release-versions: "true"
         token: "${{ secrets.GITHUB_TOKEN }}"
+      continue-on-error: true
 
     - name: Delete Neo.SmartContract.Framework Package
       uses: actions/delete-package-versions@v4
@@ -84,3 +85,4 @@ jobs:
         min-versions-to-keep: 3
         delete-only-pre-release-versions: "true"
         token: "${{ secrets.GITHUB_TOKEN }}"
+      continue-on-error: true

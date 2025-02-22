@@ -1,10 +1,21 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// ContractTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography.ECC;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
@@ -14,9 +25,14 @@ using Array = Neo.VM.Types.Array;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ContractTest : TestBase<Contract_Contract>
+    public class ContractTest : DebugAndTestBase<Contract_Contract>
     {
-        public ContractTest() : base(Contract_Contract.Nef, Contract_Contract.Manifest) { }
+        public ContractTest() : base()
+        {
+            // Ensure also Contract_Create
+            TestCleanup.TestInitialize(typeof(Contract_Create));
+            TestCleanup.TestInitialize(typeof(Contract_Update));
+        }
 
         [TestMethod]
         public void Test_CreateCallDestroy()
@@ -31,7 +47,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Check again for failures
 
-            Assert.ThrowsException<TargetInvocationException>(() => created.GetCallFlags());
+            var exception = Assert.ThrowsException<TestException>(() => created.GetCallFlags());
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
             Engine.Storage.Rollback();
         }
 
@@ -109,9 +126,12 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // Wrong pubKey
 
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.CreateStandardAccount(null));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
-            Assert.ThrowsException<IndexOutOfRangeException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(null));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
+            exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
+            Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
+            exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
+            Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
 
             // Good pubKey (compressed)
 

@@ -1,8 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
 		<RootNamespace>Neo.SmartContract.Framework.UnitTests</RootNamespace>
 		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<NoWarn>CS0067</NoWarn> <!-- disable CS0067(event is never used) -->
 	</PropertyGroup>
 
 	<ItemGroup>

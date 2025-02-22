@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// ExpressionStatement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -15,10 +16,10 @@ using Neo.VM;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
-        /// Converts an expression statement into a sequence of instructions.
+        /// Converts an expression statement into OpCodes.
         /// This method handles the translation of a given expression within a statement,
         /// considering the type of the expression to determine the necessary instructions.
         /// </summary>
@@ -36,7 +37,7 @@ namespace Neo.Compiler
         /// CalculateSum(10, 20);
         /// </code>
         /// In this example, the expression is a method call to 'CalculateSum'.
-        /// If 'CalculateSum' returns a value and it is not used, a 'DROP' instruction will be added.
+        /// If 'CalculateSum' returns a value, and it is not used, a 'DROP' instruction will be added.
         /// </example>
         private void ConvertExpressionStatement(SemanticModel model, ExpressionStatementSyntax syntax)
         {

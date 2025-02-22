@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// NEO.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Iterators;
 using Neo.SmartContract.Native;
@@ -20,6 +31,7 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
     public delegate void delCandidateStateChanged(ECPoint pubkey, bool registered, BigInteger votes);
 
     [DisplayName("CandidateStateChanged")]
+#pragma warning disable CS0067 // Event is never used
     public event delCandidateStateChanged? OnCandidateStateChanged;
 
     [DisplayName("Transfer")]
@@ -29,12 +41,11 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
 
     [DisplayName("CommitteeChanged")]
     public event delCommitteeChanged? OnCommitteeChanged;
-
     public delegate void delVote(UInt160 account, ECPoint? from, ECPoint? to, BigInteger amount);
 
     [DisplayName("Vote")]
     public event delVote? OnVote;
-
+#pragma warning restore CS0067 // Event is never used
     #endregion
 
     #region Properties

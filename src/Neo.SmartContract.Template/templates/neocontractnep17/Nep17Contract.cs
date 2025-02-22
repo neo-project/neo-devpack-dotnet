@@ -10,13 +10,12 @@ using System.Numerics;
 namespace Neo.SmartContract.Template
 {
     [DisplayName(nameof(Nep17Contract))]
-    [ManifestExtra("Author", "<Your Name Or Company Here>")]
-    [ManifestExtra("Description", "<Description Here>")]
-    [ManifestExtra("Email", "<Your Public Email Here>")]
-    [ManifestExtra("Version", "<Version String Here>")]
+    [ContractAuthor("<Your Name Or Company Here>", "<Your Public Email Here>")]
+    [ContractDescription( "<Description Here>")]
+    [ContractVersion("<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractnep17/Nep17Contract.cs")]
-    [ContractPermission("*", "*")]
-    [SupportedStandards("NEP-17")]
+    [ContractPermission(Permission.Any, Method.Any)]
+    [SupportedStandards(NepStandard.Nep17)]
     public class Nep17Contract : Neo.SmartContract.Framework.Nep17Token
     {
         #region Owner
@@ -39,7 +38,7 @@ namespace Neo.SmartContract.Template
 
         public static void SetOwner(UInt160 newOwner)
         {
-            if (IsOwner() == false)
+            if (!IsOwner())
                 throw new InvalidOperationException("No Authorization!");
 
             ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
@@ -61,14 +60,14 @@ namespace Neo.SmartContract.Template
 
         public static new void Burn(UInt160 account, BigInteger amount)
         {
-            if (IsOwner() == false)
+            if (!IsOwner())
                 throw new InvalidOperationException("No Authorization!");
             Nep17Token.Burn(account, amount);
         }
 
         public static new void Mint(UInt160 to, BigInteger amount)
         {
-            if (IsOwner() == false)
+            if (!IsOwner())
                 throw new InvalidOperationException("No Authorization!");
             Nep17Token.Mint(to, amount);
         }
@@ -110,7 +109,7 @@ namespace Neo.SmartContract.Template
 
         public static void Update(ByteString nefFile, string manifest, object? data = null)
         {
-            if (IsOwner() == false)
+            if (!IsOwner())
                 throw new InvalidOperationException("No authorization.");
             ContractManagement.Update(nefFile, manifest, data);
         }

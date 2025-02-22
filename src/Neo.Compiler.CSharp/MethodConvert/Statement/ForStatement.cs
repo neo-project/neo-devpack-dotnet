@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// ForStatement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -16,10 +17,10 @@ using System.Linq;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
-        /// Converts a 'for' loop statement into a sequence of instructions. This method handles the parsing
+        /// Converts a 'for' loop statement into OpCodes. This method handles the parsing
         /// and translation of the 'for' loop construct, including its initialization, condition, and
         /// increment expressions, as well as the loop body.
         /// </summary>
@@ -62,6 +63,8 @@ namespace Neo.Compiler
             JumpTarget breakTarget = new();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             foreach (var (variable, symbol) in variables)
             {
                 byte variableIndex = AddLocalVariable(symbol);
@@ -99,6 +102,8 @@ namespace Neo.Compiler
                 RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

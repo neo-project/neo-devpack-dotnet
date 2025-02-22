@@ -1,5 +1,16 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// TestBase.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
@@ -8,20 +19,25 @@ using System.IO;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public class TestBase<T> where T : SmartContract
+public class TestBase<T> where T : SmartContract, IContractInfo
 {
-    private readonly List<string> _contractLogs = new();
+    private readonly List<string> _contractLogs = [];
 
     public static CoveredContract? Coverage { get; private set; }
     public static Signer Alice { get; set; } = TestEngine.GetNewSigner();
     public static Signer Bob { get; set; } = TestEngine.GetNewSigner();
 
-    public NefFile NefFile { get; }
-    public ContractManifest Manifest { get; }
-    public NeoDebugInfo? DebugInfo { get; }
-    public TestEngine Engine { get; }
-    public T Contract { get; }
+    public NefFile NefFile { get; private set; } = default!;
+    public ContractManifest Manifest { get; private set; } = default!;
+    public NeoDebugInfo? DebugInfo { get; set; }
+    public TestEngine Engine { get; private set; } = default!;
+    public T Contract { get; private set; } = default!;
     public UInt160 ContractHash => Contract.Hash;
+
+    /// <summary>
+    /// Empty constructor
+    /// </summary>
+    public TestBase() => TestBaseSetup(T.Nef, T.Manifest);
 
     /// <summary>
     /// Constructor
@@ -43,12 +59,22 @@ public class TestBase<T> where T : SmartContract
     /// <param name="debugInfo">Debug info</param>
     public TestBase(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
     {
+        TestBaseSetup(nefFile, manifestFile, debugInfo);
+    }
+
+    /// <summary>
+    /// Setup the test contract
+    /// </summary>
+    /// <param name="nefFile">Nef file</param>
+    /// <param name="manifestFile">Manifest</param>
+    /// <param name="debugInfo">Debug info</param>
+    public virtual void TestBaseSetup(NefFile nefFile, ContractManifest manifestFile, NeoDebugInfo? debugInfo = null)
+    {
         NefFile = nefFile;
         Manifest = manifestFile;
         DebugInfo = debugInfo;
 
-        Engine = new TestEngine(true);
-        Engine.SetTransactionSigners(Alice);
+        Engine = CreateTestEngine();
         Contract = Engine.Deploy<T>(NefFile, Manifest, null);
 
         if (Coverage is null)
@@ -60,7 +86,18 @@ public class TestBase<T> where T : SmartContract
         Contract.OnRuntimeLog += Contract_OnRuntimeLog;
     }
 
-    private void Contract_OnRuntimeLog(string message)
+    /// <summary>
+    /// Configure the initial testEngine
+    /// </summary>
+    /// <returns>TestEngine</returns>
+    protected virtual TestEngine CreateTestEngine()
+    {
+        var engine = new TestEngine(true);
+        engine.SetTransactionSigners(Alice);
+        return engine;
+    }
+
+    private void Contract_OnRuntimeLog(UInt160 sender, string message)
     {
         _contractLogs.Add(message);
     }

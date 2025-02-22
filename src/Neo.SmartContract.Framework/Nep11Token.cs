@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.SmartContract.Framework is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// Nep11Token.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -18,7 +19,7 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep11)]
-    [ContractPermission(Permission.WildCard, Method.OnNEP11Payment)]
+    [ContractPermission(Permission.Any, Method.OnNEP11Payment)]
     public abstract class Nep11Token<TokenState> : TokenContract
         where TokenState : Nep11TokenState
     {
@@ -41,7 +42,7 @@ namespace Neo.SmartContract.Framework
         public static UInt160 OwnerOf(ByteString tokenId)
         {
             if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
-            StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            var tokenMap = new StorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             return token.Owner;
@@ -50,26 +51,27 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public virtual Map<string, object> Properties(ByteString tokenId)
         {
-            StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            var tokenMap = new StorageMap(Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
-            Map<string, object> map = new();
-            map["name"] = token.Name;
-            return map;
+            return new Map<string, object>()
+            {
+                ["name"] = token.Name
+            };
         }
 
         [Safe]
         public static Iterator Tokens()
         {
-            StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            var tokenMap = new StorageMap(Prefix_Token);
             return tokenMap.Find(FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
         [Safe]
         public static Iterator TokensOf(UInt160 owner)
         {
-            if (owner is null || !owner.IsValid)
+            if (!owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid");
-            StorageMap accountMap = new(Storage.CurrentContext, Prefix_AccountToken);
+            var accountMap = new StorageMap(Prefix_AccountToken);
             return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
@@ -77,7 +79,7 @@ namespace Neo.SmartContract.Framework
         {
             if (to is null || !to.IsValid)
                 throw new Exception("The argument \"to\" is invalid.");
-            StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            var tokenMap = new StorageMap(Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
             UInt160 from = token.Owner;
             if (!Runtime.CheckWitness(from)) return false;

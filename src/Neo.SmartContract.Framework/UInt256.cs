@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.SmartContract.Framework is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// UInt256.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -27,13 +28,17 @@ namespace Neo.SmartContract.Framework
         {
             [OpCode(OpCode.DUP)]
             [OpCode(OpCode.ISTYPE, "0x28")] //ByteString
-            [OpCode(OpCode.SWAP)]
+            [OpCode(OpCode.JMPIF, "06")]  // to SIZE
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.PUSHF)]
+            [OpCode(OpCode.JMP, "06")]    // to the end
             [OpCode(OpCode.SIZE)]
             [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
             [OpCode(OpCode.NUMEQUAL)]
-            [OpCode(OpCode.BOOLAND)]
             get;
         }
+
+        public bool IsValidAndNotZero => IsValid && !IsZero;
 
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
@@ -61,6 +66,8 @@ namespace Neo.SmartContract.Framework
         /// If you want to convert a runtime string, convert it to byte[] first.
         /// </remarks>
         /// </summary>
+#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
         public static extern implicit operator UInt256(string value);
+#pragma warning restore CS0626 // Method, operator, or accessor is marked external and has no attributes on it
     }
 }

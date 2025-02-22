@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.SmartContract.Framework is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// ECPoint.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -53,6 +54,8 @@ namespace Neo.SmartContract.Framework
         /// This is a compile time conversion, only work with constant string.
         /// If you want to convert a runtime string, convert it to byte[] first.
         /// </remarks>
+#pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
         public static extern implicit operator ECPoint(string value);
+#pragma warning restore CS0626 // Method, operator, or accessor is marked external and has no attributes on it
     }
 }

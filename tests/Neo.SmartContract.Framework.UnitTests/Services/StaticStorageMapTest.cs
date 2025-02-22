@@ -1,16 +1,24 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// StaticStorageMapTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
+using Neo.SmartContract.Testing.Exceptions;
 using System;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StaticStorageMapTest : TestBase<Contract_StaticStorageMap>
+    public class StaticStorageMapTest : DebugAndTestBase<Contract_StaticStorageMap>
     {
-        public StaticStorageMapTest() : base(Contract_StaticStorageMap.Nef, Contract_StaticStorageMap.Manifest) { }
-
         [TestMethod]
         public void Test_Storage()
         {
@@ -42,7 +50,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Contract.Teststoragemap_Putbyteprefix(127);
             Assert.AreEqual(123, Contract.Teststoragemap_Getbyteprefix(127));
 
-            Assert.ThrowsException<InvalidOperationException>(() => Contract.Teststoragemap_Putbyteprefix(256));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.Teststoragemap_Putbyteprefix(256));
+            Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
         }
     }
 }

@@ -1,7 +1,19 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_ComplexAssign.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Neo.SmartContract.Framework;
 using System;
 using System.ComponentModel;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_ComplexAssign : SmartContract.Framework.SmartContract
     {
@@ -123,6 +135,21 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
                 value2 >>= 1;
             }
             return (value1, value2);
+        }
+
+        public class TestClass
+        {
+            public byte Property = 7;
+            public byte[] ArrayProperty = [0, 1, 2, 3];
+        }
+
+        public static void UnitTest_Member_Element_Complex_Assign()
+        {
+            TestClass t = new();
+            t.Property %= 3;
+            ExecutionEngine.Assert(t.Property == 1);
+            t.ArrayProperty[3] &= 4;
+            ExecutionEngine.Assert(t.ArrayProperty[0] == 0);
         }
     }
 }

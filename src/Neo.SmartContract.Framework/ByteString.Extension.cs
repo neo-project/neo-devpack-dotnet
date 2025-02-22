@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// ByteString.Extension.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework.Native;
 namespace Neo.SmartContract.Framework;
 
@@ -82,7 +93,7 @@ public static class ByteStringExtension
     /// <returns>True if start with</returns>
     public static bool StartWith(this ByteString byteString, ByteString byteToFind)
     {
-        return StdLib.MemorySearch(byteString, byteToFind) == 0;
+        return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind), 0);
     }
 
     /// <summary>
@@ -93,7 +104,7 @@ public static class ByteStringExtension
     /// <returns>True if ends with</returns>
     public static bool EndsWith(this ByteString byteString, ByteString byteToFind)
     {
-        return StdLib.MemorySearch(byteString, byteToFind) + byteToFind.Length == byteString.Length;
+        return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind) + byteToFind.Length, byteString.Length);
     }
 
     /// <summary>

@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<NoWarn>CS0067</NoWarn> <!-- disable CS0067(event is never used) -->
 	</PropertyGroup>
 
 	<ItemGroup>

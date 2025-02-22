@@ -1,3 +1,15 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// SmartContract.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Neo.Extensions;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
@@ -18,8 +30,7 @@ namespace Neo.SmartContract.Testing
         private readonly Type _contractType;
         private readonly Dictionary<string, FieldInfo?> _notifyCache = new();
 
-        public delegate void OnRuntimeLogDelegate(string message);
-        public event OnRuntimeLogDelegate? OnRuntimeLog;
+        public event TestEngine.OnRuntimeLogDelegate? OnRuntimeLog;
 
         /// <summary>
         /// Contract hash
@@ -68,14 +79,14 @@ namespace Neo.SmartContract.Testing
             return Engine.Execute(script.ToArray(), 0, dynArgument is null ? null : engine => ConfigureEngine(engine, dynArgument));
         }
 
-        private void ConfigureEngine(ApplicationEngine engine, TestingSyscall testingSyscall)
+        private static void ConfigureEngine(ApplicationEngine engine, TestingSyscall testingSyscall)
         {
             if (engine is not TestingApplicationEngine testEngine) throw new InvalidOperationException();
 
             testEngine.TestingSyscall = testingSyscall;
         }
 
-        private void ConvertArgs(ScriptBuilder script, object[] args, ref TestingSyscall? testingSyscall)
+        private static void ConvertArgs(ScriptBuilder script, object[] args, ref TestingSyscall? testingSyscall)
         {
             if (args is null || args.Length == 0)
                 script.Emit(OpCode.NEWARRAY0);
@@ -125,6 +136,21 @@ namespace Neo.SmartContract.Testing
                         script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => onItem(e)));
                         continue;
                     }
+                    else if (arg is PrimitiveType)
+                    {
+                        if (arg is ByteString vmbs)
+                        {
+                            arg = vmbs.GetSpan().ToArray();
+                        }
+                        else if (arg is VM.Types.Boolean vmb)
+                        {
+                            arg = vmb.GetBoolean();
+                        }
+                        else if (arg is VM.Types.Integer vmi)
+                        {
+                            arg = vmi.GetInteger();
+                        }
+                    }
 
                     script.EmitPush(arg);
                 }
@@ -136,10 +162,11 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Invoke OnRuntimeLog
         /// </summary>
+        /// <param name="sender">Sender</param>
         /// <param name="message">Message</param>
-        internal void InvokeOnRuntimeLog(string message)
+        internal void InvokeOnRuntimeLog(UInt160 sender, string message)
         {
-            OnRuntimeLog?.Invoke(message);
+            OnRuntimeLog?.Invoke(sender, message);
         }
 
         /// <summary>
@@ -178,7 +205,7 @@ namespace Neo.SmartContract.Testing
 
             // Invoke
 
-            var args = state.ConvertTo(del.Method.GetParameters());
+            var args = state.ConvertTo(del.Method.GetParameters(), Engine.StringInterpreter);
 
             foreach (var handler in invocations)
             {

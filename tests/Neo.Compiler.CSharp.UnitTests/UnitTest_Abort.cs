@@ -1,46 +1,58 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Abort.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
+using Neo.Json;
 using Neo.Optimizer;
-using System.Collections.Generic;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM;
+using System.Collections.Generic;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_Abort
+    public class UnitTest_Abort : DebugAndTestBase<Contract_Abort>
     {
-        TestEngine testengine;
-        bool[] falseTrue = new bool[] { false, true };
+        private readonly JObject _debugInfo;
+        private readonly bool[] falseTrue = [false, true];
 
-        [TestInitialize]
-        public void Initialize()
+        public UnitTest_Abort()
         {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_Abort.cs");
+            var contract = TestCleanup.EnsureArtifactUpToDateInternal(nameof(Contract_Abort));
+            _debugInfo = contract.CreateDebugInformation();
         }
 
         [TestMethod]
         public void Test_Abort()
         {
-            string method = "testAbort";
-            Assert.AreEqual(testengine.ExecuteTestCaseStandard(method).Count, 0);
             // All the ABORT instruction addresses in "testAbort" method
-            List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(testengine.Nef, testengine.DebugInfo, method, OpCode.ABORT);
-            Assert.AreEqual(testengine.CurrentContext.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORT
-            Assert.AreEqual(testengine.CurrentContext.LocalVariables[0].GetInteger(), 0);  // v==0
-            Assert.AreEqual(testengine.State, VMState.FAULT);
+            List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbort", OpCode.ABORT);
+            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbort());
+            AssertGasConsumed(986040);
+            Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORT
+            Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
+            Assert.AreEqual(exception.State, VMState.FAULT);
         }
 
         [TestMethod]
         public void Test_AbortMsg()
         {
-            string method = "testAbortMsg";
-            Assert.AreEqual(testengine.ExecuteTestCaseStandard(method).Count, 0);
             // All the ABORTMSG instruction addresses in "testAbortMsg" method
-            List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(testengine.Nef, testengine.DebugInfo, method, OpCode.ABORTMSG);
-            Assert.AreEqual(testengine.CurrentContext.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORTMSG
-            Assert.AreEqual(testengine.CurrentContext.LocalVariables[0].GetInteger(), 0);  // v==0
-            Assert.AreEqual(testengine.State, VMState.FAULT);
+            List<int> AbortAddresses = DumpNef.OpCodeAddressesInMethod(Contract_Abort.Nef, _debugInfo, "testAbortMsg", OpCode.ABORTMSG);
+            var exception = Assert.ThrowsException<TestException>(() => Contract.TestAbortMsg());
+            AssertGasConsumed(986280);
+            Assert.AreEqual(exception.CurrentContext?.InstructionPointer, AbortAddresses[0]);  // stop at the 1st ABORTMSG
+            Assert.AreEqual(exception.CurrentContext?.LocalVariables?[0].GetInteger(), 0);  // v==0
+            Assert.AreEqual(exception.State, VMState.FAULT);
         }
 
         [TestMethod]
@@ -48,8 +60,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInFunction", b).Count, 0);
-                Assert.AreEqual(testengine.State, VMState.FAULT);
+                Assert.ThrowsException<TestException>(() => Contract.TestAbortInFunction(b));
             }
         }
 
@@ -58,8 +69,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInTry", b).Count, 0);
-                Assert.AreEqual(testengine.State, VMState.FAULT);
+                Assert.ThrowsException<TestException>(() => Contract.TestAbortInTry(b));
             }
         }
 
@@ -68,8 +78,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInCatch", b).Count, 0);
-                Assert.AreEqual(testengine.State, VMState.FAULT);
+                Assert.ThrowsException<TestException>(() => Contract.TestAbortInCatch(b));
             }
         }
 
@@ -78,8 +87,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             foreach (bool b in falseTrue)
             {
-                Assert.AreEqual(testengine.ExecuteTestCaseStandard("testAbortInFinally", b).Count, 0);
-                Assert.AreEqual(testengine.State, VMState.FAULT);
+                Assert.ThrowsException<TestException>(() => Contract.TestAbortInFinally(b));
             }
         }
     }

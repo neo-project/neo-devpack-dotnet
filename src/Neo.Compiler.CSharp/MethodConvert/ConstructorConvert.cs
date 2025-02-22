@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// ConstructorConvert.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -18,25 +19,8 @@ using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
-    private void ProcessFields(SemanticModel model)
-    {
-        _initslot = true;
-        IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
-        for (int i = 0; i < fields.Length; i++)
-        {
-            ProcessFieldInitializer(model, fields[i], () =>
-            {
-                AddInstruction(OpCode.LDARG0);
-                Push(i);
-            }, () =>
-            {
-                AddInstruction(OpCode.SETITEM);
-            });
-        }
-    }
-
     private void ProcessConstructorInitializer(SemanticModel model)
     {
         INamedTypeSymbol type = Symbol.ContainingType;
@@ -46,16 +30,18 @@ partial class MethodConvert
         ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
         if (initializer is null)
         {
+            if (baseType.ContainingNamespace.ToString() == "Neo.SmartContract.Framework" && baseType.Name == "SmartContract")
+                return;
             IMethodSymbol baseConstructor = baseType.InstanceConstructors.First(p => p.Parameters.Length == 0);
             if (baseType.DeclaringSyntaxReferences.IsEmpty && baseConstructor.GetAttributes().All(p => p.AttributeClass!.ContainingAssembly.Name != "Neo.SmartContract.Framework"))
                 return;
-            Call(model, baseConstructor, null);
+            CallMethodWithInstanceExpression(model, baseConstructor, null);
         }
         else
         {
             IMethodSymbol baseConstructor = (IMethodSymbol)model.GetSymbolInfo(initializer).Symbol!;
             using (InsertSequencePoint(initializer))
-                Call(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
+                CallMethodWithInstanceExpression(model, baseConstructor, null, initializer.ArgumentList.Arguments.ToArray());
         }
     }
 
@@ -85,8 +71,7 @@ partial class MethodConvert
                 }
                 else
                 {
-                    MethodConvert convert = _context.ConvertMethod(model, method);
-                    Jump(OpCode.PUSHA, convert._startTarget);
+                    InvokeMethod(model, method);
                 }
             }
             Push(virtualMethods.Length);

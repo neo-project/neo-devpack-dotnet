@@ -1,260 +1,325 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_TryCatch.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Neo.SmartContract.TestEngine;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_TryCatch
+    public class UnitTest_TryCatch : DebugAndTestBase<Contract_TryCatch>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
+        [TestMethod]
+        public void Test_Try01_AllPaths()
         {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_TryCatch.cs");
+            Assert.AreEqual(new BigInteger(2), Contract.Try01(false, false, false));
+            AssertGasConsumed(1047870);
+            Assert.AreEqual(new BigInteger(3), Contract.Try01(false, false, true));
+            AssertGasConsumed(1048530);
+            Assert.AreEqual(new BigInteger(3), Contract.Try01(true, true, false));
+            AssertGasConsumed(1063740);
+            Assert.AreEqual(new BigInteger(4), Contract.Try01(true, true, true));
+            AssertGasConsumed(1064400);
         }
 
         [TestMethod]
-        public void Test_TryCatch_Succ()
+        public void Test_Try02_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("try01");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 3);
+            Assert.AreEqual(new BigInteger(2), Contract.Try02(false, false, false));
+            AssertGasConsumed(1065330);
+            Assert.AreEqual(new BigInteger(3), Contract.Try02(false, false, true));
+            AssertGasConsumed(1065990);
+            Assert.AreEqual(new BigInteger(3), Contract.Try02(true, true, false));
+            AssertGasConsumed(1081200);
+            Assert.AreEqual(new BigInteger(4), Contract.Try02(true, true, true));
+            AssertGasConsumed(1081860);
         }
 
         [TestMethod]
-        public void Test_UncatchableException()
+        public void Test_Try03_AllPaths()
         {
-            testengine.Reset();
-            _ = testengine.ExecuteTestCaseStandard("tryUncatchableException");
-            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
+            Assert.AreEqual(new BigInteger(2), Contract.Try03(false, false, false));
+            AssertGasConsumed(1047870);
+            Assert.AreEqual(new BigInteger(3), Contract.Try03(false, false, true));
+            AssertGasConsumed(1048530);
+            Assert.AreEqual(new BigInteger(3), Contract.Try03(true, true, false));
+            AssertGasConsumed(1079100);
+            Assert.AreEqual(new BigInteger(4), Contract.Try03(true, true, true));
+            AssertGasConsumed(1079760);
         }
 
         [TestMethod]
-        public void Test_TryCatch_ThrowByCall()
+        public void Test_TryNest_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("try03");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 4);
+            Assert.AreEqual(new BigInteger(3), Contract.TryNest(false, false, false, false));
+            AssertGasConsumed(1048800);
+            Assert.AreEqual(new BigInteger(4), Contract.TryNest(true, false, false, false));
+            AssertGasConsumed(1080030);
+            Assert.AreEqual(new BigInteger(3), Contract.TryNest(false, true, false, false));
+            AssertGasConsumed(1048800);
+            Assert.AreEqual(new BigInteger(3), Contract.TryNest(false, false, true, true));
+            AssertGasConsumed(1079820);
+            Assert.AreEqual(new BigInteger(4), Contract.TryNest(true, true, true, true));
+            AssertGasConsumed(1141890);
         }
 
         [TestMethod]
-        public void Test_TryCatch_Throw()
+        public void Test_ThrowInCatch_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("try02");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 4);
+            Assert.AreEqual(new BigInteger(4), Contract.ThrowInCatch(false, false, true));
+            AssertGasConsumed(1048050);
+            Assert.AreEqual(new BigInteger(4), Contract.ThrowInCatch(true, false, true));
+            AssertGasConsumed(1063920);
+            Assert.ThrowsException<TestException>(() => Contract.ThrowInCatch(true, true, true));
+            AssertGasConsumed(1079250);
         }
 
         [TestMethod]
-        public void Test_TryNest()
+        public void Test_TryFinally_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryNest");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 4);
+            Assert.AreEqual(new BigInteger(2), Contract.TryFinally(false, false));
+            AssertGasConsumed(1047840);
+            Assert.AreEqual(new BigInteger(3), Contract.TryFinally(false, true));
+            AssertGasConsumed(1048500);
+            Assert.ThrowsException<TestException>(() => Contract.TryFinally(true, true));
+            AssertGasConsumed(1063920);
         }
 
         [TestMethod]
-        public void Test_ThrowInCatch()
+        public void Test_TryFinallyAndRethrow_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("throwInCatch");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            Assert.AreEqual(VM.VMState.FAULT, testengine.State);
-            var v = testengine.CurrentContext.LocalVariables[0];
-            Assert.AreEqual(v.GetInteger(), 3);
+            Assert.AreEqual(new BigInteger(2), Contract.TryFinallyAndRethrow(false, false));
+            AssertGasConsumed(1047840);
+            Assert.AreEqual(new BigInteger(3), Contract.TryFinallyAndRethrow(false, true));
+            AssertGasConsumed(1048500);
+            Assert.ThrowsException<TestException>(() => Contract.TryFinallyAndRethrow(true, true));
+            AssertGasConsumed(1079280);
         }
 
         [TestMethod]
-        public void Test_TryFinally()
+        public void Test_TryCatch_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryFinally");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 3);
+            Assert.AreEqual(new BigInteger(2), Contract.TryCatch(false, false));
+            AssertGasConsumed(1047600);
+            Assert.AreEqual(new BigInteger(3), Contract.TryCatch(true, true));
+            AssertGasConsumed(1079400);
         }
 
         [TestMethod]
-        public void Test_TryFinallyAndRethrow()
+        public void Test_TryWithTwoFinally_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryFinallyAndRethrow");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            Assert.AreEqual(testengine.State, VM.VMState.FAULT);
+            Assert.AreEqual(new BigInteger(1), Contract.TryWithTwoFinally(false, false, false, false, false, false));
+            AssertGasConsumed(1049130);
+            Assert.AreEqual(new BigInteger(4), Contract.TryWithTwoFinally(false, false, false, false, true, false));
+            AssertGasConsumed(1049820);
+            Assert.AreEqual(new BigInteger(6), Contract.TryWithTwoFinally(false, false, false, false, false, true));
+            AssertGasConsumed(1049820);
+            Assert.AreEqual(new BigInteger(3), Contract.TryWithTwoFinally(true, false, true, false, false, false));
+            AssertGasConsumed(1065570);
+            Assert.AreEqual(new BigInteger(10), Contract.TryWithTwoFinally(false, true, false, true, false, true));
+            AssertGasConsumed(1066290);
+            Assert.AreEqual(new BigInteger(15), Contract.TryWithTwoFinally(true, true, true, true, true, true));
+            AssertGasConsumed(1083420);
         }
 
         [TestMethod]
-        public void Test_TryCatch()
+        public void Test_TryECPointCast_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryCatch");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 3);
+            Assert.AreEqual(new BigInteger(2), Contract.TryecpointCast(false, false, false));
+            AssertGasConsumed(1048620);
+            Assert.AreEqual(new BigInteger(3), Contract.TryecpointCast(false, false, true));
+            AssertGasConsumed(1049280);
+            Assert.AreEqual(new BigInteger(3), Contract.TryecpointCast(true, true, false));
+            AssertGasConsumed(1064250);
+            Assert.AreEqual(new BigInteger(4), Contract.TryecpointCast(true, true, true));
+            AssertGasConsumed(1064910);
         }
 
         [TestMethod]
-        public void Test_TryWithTwoFinally()
+        public void Test_TryValidByteString2Ecpoint_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryWithTwoFinally");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 9);
+            Assert.AreEqual(new BigInteger(2), Contract.TryvalidByteString2Ecpoint(false, false));
+            AssertGasConsumed(1048470);
+            Assert.AreEqual(new BigInteger(3), Contract.TryvalidByteString2Ecpoint(false, true));
+            AssertGasConsumed(1049130);
+            Assert.AreEqual(new BigInteger(2), Contract.TryvalidByteString2Ecpoint(true, false));
+            AssertGasConsumed(1048470);
+            Assert.AreEqual(new BigInteger(3), Contract.TryvalidByteString2Ecpoint(true, true));
+            AssertGasConsumed(1049130);
         }
 
         [TestMethod]
-        public void Test_TryECPointCast()
+        public void Test_TryInvalidByteArray2UInt160_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryecpointCast");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 4);
+            Assert.AreEqual(new BigInteger(2), Contract.TryinvalidByteArray2UInt160(false, false, false));
+            AssertGasConsumed(1048620);
+            Assert.AreEqual(new BigInteger(3), Contract.TryinvalidByteArray2UInt160(false, false, true));
+            AssertGasConsumed(1049280);
+            Assert.AreEqual(new BigInteger(3), Contract.TryinvalidByteArray2UInt160(true, true, false));
+            AssertGasConsumed(1064250);
+            Assert.AreEqual(new BigInteger(4), Contract.TryinvalidByteArray2UInt160(true, true, true));
+            AssertGasConsumed(1064910);
         }
 
         [TestMethod]
-        public void Test_TryValidECPointCast()
+        public void Test_TryValidByteArray2UInt160_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryvalidByteString2Ecpoint");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 3);
+            Assert.AreEqual(new BigInteger(2), Contract.TryvalidByteArray2UInt160(false, false));
+            AssertGasConsumed(1048470);
+            Assert.AreEqual(new BigInteger(3), Contract.TryvalidByteArray2UInt160(false, true));
+            AssertGasConsumed(1049130);
+            Assert.AreEqual(new BigInteger(2), Contract.TryvalidByteArray2UInt160(true, false));
+            AssertGasConsumed(1048470);
+            Assert.AreEqual(new BigInteger(3), Contract.TryvalidByteArray2UInt160(true, true));
+            AssertGasConsumed(1049130);
         }
 
         [TestMethod]
-        public void Test_TryInvalidUInt160Cast()
+        public void Test_TryInvalidByteArray2UInt256_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryinvalidByteArray2UInt160");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 4);
+            Assert.AreEqual(new BigInteger(2), Contract.TryinvalidByteArray2UInt256(false, false, false));
+            AssertGasConsumed(1048170);
+            Assert.AreEqual(new BigInteger(3), Contract.TryinvalidByteArray2UInt256(false, false, true));
+            AssertGasConsumed(1048830);
+            Assert.AreEqual(new BigInteger(3), Contract.TryinvalidByteArray2UInt256(true, true, false));
+            AssertGasConsumed(1064190);
+            Assert.AreEqual(new BigInteger(4), Contract.TryinvalidByteArray2UInt256(true, true, true));
+            AssertGasConsumed(1064850);
         }
 
         [TestMethod]
-        public void Test_TryValidUInt160Cast()
+        public void Test_TryValidByteArray2UInt256_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryvalidByteArray2UInt160");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 3);
+            Assert.AreEqual(new BigInteger(2), Contract.TryvalidByteArray2UInt256(false, false));
+            AssertGasConsumed(1048020);
+            Assert.AreEqual(new BigInteger(3), Contract.TryvalidByteArray2UInt256(false, true));
+            AssertGasConsumed(1048680);
+            Assert.AreEqual(new BigInteger(2), Contract.TryvalidByteArray2UInt256(true, false));
+            AssertGasConsumed(1048020);
+            Assert.AreEqual(new BigInteger(3), Contract.TryvalidByteArray2UInt256(true, true));
+            AssertGasConsumed(1048680);
         }
 
         [TestMethod]
-        public void Test_TryInvalidUInt256Cast()
+        public void Test_TryNULL2Ecpoint_1_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryinvalidByteArray2UInt256");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 4);
+            var result = Contract.TryNULL2Ecpoint_1(false, false, false);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1363680);
+            Assert.AreEqual(new BigInteger(2), result[0]);
+            Assert.IsNotNull(result[1]);
+
+            result = Contract.TryNULL2Ecpoint_1(true, false, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1365090);
+            Assert.AreEqual(new BigInteger(4), result[0]);
+            Assert.IsNull(result[1]);
+
+            result = Contract.TryNULL2Ecpoint_1(false, true, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1364340);
+            Assert.AreEqual(new BigInteger(3), result[0]);
+            Assert.IsNotNull(result[1]);
         }
 
         [TestMethod]
-        public void Test_TryValidUInt256Cast()
+        public void Test_TryNULL2Uint160_1_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryvalidByteArray2UInt256");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var value = result.Pop();
-            Console.WriteLine("result:" + value.Type + "  " + value.ToString());
-            var num = value as Neo.VM.Types.Integer;
-            Console.WriteLine("result = " + num.GetInteger().ToString());
-            Assert.AreEqual(num.GetInteger(), 3);
+            var result = Contract.TryNULL2Uint160_1(false, false, false);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1363680);
+            Assert.AreEqual(new BigInteger(2), result[0]);
+            Assert.IsNotNull(result[1]);
+
+            result = Contract.TryNULL2Uint160_1(true, false, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1365090);
+            Assert.AreEqual(new BigInteger(4), result[0]);
+            Assert.IsNull(result[1]);
+
+            result = Contract.TryNULL2Uint160_1(false, true, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1364340);
+            Assert.AreEqual(new BigInteger(3), result[0]);
+            Assert.IsNotNull(result[1]);
         }
 
         [TestMethod]
-        public void Test_TryNULLECPointCast_1()
+        public void Test_TryNULL2Uint256_1_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryNULL2Ecpoint_1");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var array = result.Pop() as Neo.VM.Types.Struct;
-            Assert.AreEqual(4, array[0]);
-            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+            var result = Contract.TryNULL2Uint256_1(false, false, false);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1363680);
+            Assert.AreEqual(new BigInteger(2), result[0]);
+            Assert.IsNotNull(result[1]);
+
+            result = Contract.TryNULL2Uint256_1(true, false, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1365090);
+            Assert.AreEqual(new BigInteger(4), result[0]);
+            Assert.IsNull(result[1]);
+
+            result = Contract.TryNULL2Uint256_1(false, true, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1364340);
+            Assert.AreEqual(new BigInteger(3), result[0]);
+            Assert.IsNotNull(result[1]);
         }
 
         [TestMethod]
-        public void Test_TryNULLUInt160Cast_1()
+        public void Test_TryNULL2Bytestring_1_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryNULL2Uint160_1");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var array = result.Pop() as Neo.VM.Types.Struct;
-            Assert.AreEqual(4, array[0]);
-            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+            var result = Contract.TryNULL2Bytestring_1(false, false, false);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1110000);
+            Assert.AreEqual(new BigInteger(2), result[0]);
+            Assert.IsNotNull(result[1]);
+
+            result = Contract.TryNULL2Bytestring_1(true, false, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1111410);
+            Assert.AreEqual(new BigInteger(4), result[0]);
+            Assert.IsNull(result[1]);
+
+            result = Contract.TryNULL2Bytestring_1(false, true, true);
+            Assert.IsNotNull(result);
+            AssertGasConsumed(1110660);
+            Assert.AreEqual(new BigInteger(3), result[0]);
+            Assert.IsNotNull(result[1]);
         }
 
         [TestMethod]
-        public void Test_TryNULLUInt256Cast_1()
+        public void Test_TryUncatchableException_AllPaths()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryNULL2Uint256_1");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var array = result.Pop() as Neo.VM.Types.Struct;
-            Assert.AreEqual(4, array[0]);
-            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+            Assert.AreEqual(new BigInteger(2), Contract.TryUncatchableException(false, false, false));
+            AssertGasConsumed(1047870);
+            Assert.AreEqual(new BigInteger(3), Contract.TryUncatchableException(false, false, true));
+            AssertGasConsumed(1048530);
+            Assert.ThrowsException<TestException>(() => Contract.TryUncatchableException(true, true, true));
+            AssertGasConsumed(1047450);
         }
 
         [TestMethod]
-        public void Test_TryNULLBytestringCast_1()
+        public void Test_ThrowCall()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("tryNULL2Bytestring_1");
-            Console.WriteLine("state=" + testengine.State + "  result on stack= " + result.Count);
-            var array = result.Pop() as Neo.VM.Types.Struct;
-            Assert.AreEqual(4, array[0]);
-            Assert.IsTrue(array[1] is Neo.VM.Types.Null);
+            Assert.ThrowsException<TestException>(Contract.ThrowCall);
+        }
+
+        [TestMethod]
+        public void Test_CatchExceptionType()
+        {
+            string? result = Contract.CatchExceptionType();
+            Assert.AreEqual(result, "NoExceptionexception");
         }
     }
 }

@@ -1,16 +1,25 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// ExecutionEngineTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM.Types;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class ExecutionEngineTest : TestBase<Contract_ExecutionEngine>
+    public class ExecutionEngineTest
+         : DebugAndTestBase<Contract_ExecutionEngine>
     {
-        public ExecutionEngineTest() : base(Contract_ExecutionEngine.Nef, Contract_ExecutionEngine.Manifest) { }
-
         [TestMethod]
         public void CallingScriptHashTest()
         {

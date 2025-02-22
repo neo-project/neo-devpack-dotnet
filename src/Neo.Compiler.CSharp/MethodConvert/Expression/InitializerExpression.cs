@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// InitializerExpression.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -18,8 +19,30 @@ using System.Linq;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
+    /// <summary>
+    /// Converts initialization of array fields into OpCodes.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about initialization of array fields expression.</param>
+    /// <param name="expression">The syntax representation of the initialization of array fields expression statement being converted.</param>
+    /// <example>
+    /// The following 4 static fields will each be converted in this method.
+    /// <code>
+    /// static string[] A = { "BTC", "NEO", "GAS" };
+    /// static int[] B = { 1, 2 };
+    /// static byte[] C = { 1, 2 };
+    /// static UInt160 D = UInt160.Zero;
+    ///
+    /// public static void MyMethod()
+    /// {
+    ///     Runtime.Log(A[0]);
+    ///     Runtime.Log(B[0]);
+    ///     Runtime.Log(C[0]);
+    ///     Runtime.Log(D.ToAddress());
+    /// }
+    /// </code>
+    /// </example>
     private void ConvertInitializerExpression(SemanticModel model, InitializerExpressionSyntax expression)
     {
         IArrayTypeSymbol type = (IArrayTypeSymbol)model.GetTypeInfo(expression).ConvertedType!;

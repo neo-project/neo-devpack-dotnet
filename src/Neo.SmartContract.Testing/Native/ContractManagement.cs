@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// ContractManagement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Iterators;
 using Neo.SmartContract.Native;
 using System.ComponentModel;
@@ -19,17 +30,23 @@ public abstract class ContractManagement : SmartContract
     public delegate void delDeploy(UInt160 Hash);
 
     [DisplayName("Deploy")]
+#pragma warning disable CS0067 // Event is never used
     public event delDeploy? OnDeploy;
+#pragma warning restore CS0067 // Event is never used
 
     public delegate void delDestroy(UInt160 Hash);
 
     [DisplayName("Destroy")]
+#pragma warning disable CS0067 // Event is never used
     public event delDestroy? OnDestroy;
+#pragma warning restore CS0067 // Event is never used
 
     public delegate void delUpdate(UInt160 Hash);
 
     [DisplayName("Update")]
+#pragma warning disable CS0067 // Event is never used
     public event delUpdate? OnUpdate;
+#pragma warning restore CS0067 // Event is never used
 
     #endregion
 

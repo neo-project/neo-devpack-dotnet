@@ -1,23 +1,28 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// CryptoTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography;
-using Neo.IO;
 using Neo.Network.P2P;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.Wallets;
-using Org.BouncyCastle.Crypto;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Neo.Extensions;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class CryptoTest : TestBase<Contract_Crypto>
+    public class CryptoTest : DebugAndTestBase<Contract_Crypto>
     {
-        public CryptoTest() : base(Contract_Crypto.Nef, Contract_Crypto.Manifest) { }
-
         public static KeyPair GenerateKey(int privateKeyLength = 32)
         {
             byte[] privateKey = new byte[privateKeyLength];
@@ -32,57 +37,65 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_SHA256()
         {
             Assert.AreEqual("688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6",
-                Contract.SHA256(Encoding.UTF8.GetBytes("asd")).ToHexString());
+                Contract.SHA256(Encoding.UTF8.GetBytes("asd"))!.ToHexString());
         }
 
         [TestMethod]
         public void Test_Murmur32()
         {
             Assert.AreEqual("2ad58504",
-               Contract.Murmur32(Encoding.UTF8.GetBytes("asd"), 2).ToHexString());
+               Contract.Murmur32(Encoding.UTF8.GetBytes("asd"), 2)!.ToHexString());
         }
 
         [TestMethod]
         public void Test_RIPEMD160()
         {
             Assert.AreEqual("98c615784ccb5fe5936fbc0cbe9dfdb408d92f0f",
-              Contract.RIPEMD160(Encoding.UTF8.GetBytes("hello world")).ToHexString());
+              Contract.RIPEMD160(Encoding.UTF8.GetBytes("hello world"))!.ToHexString());
         }
 
         [TestMethod]
         public void Test_VerifySignatureWithMessage()
         {
-            // secp256r1
+            // secp256r1 with SHA256 hash
 
             var key = GenerateKey(32);
             var data = Engine.Transaction.GetSignData(ProtocolSettings.Default.Network);
-            var signature = Crypto.Sign(data, key.PrivateKey, key.PublicKey.EncodePoint(false).Skip(1).ToArray());
+            var signature = Crypto.Sign(data, key.PrivateKey);
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage(System.Array.Empty<byte>(), key.PublicKey, signature));
+            Assert.IsFalse(Contract.Secp256r1VerifySignatureWithMessage([], key.PublicKey, signature));
             Assert.IsTrue(Contract.Secp256r1VerifySignatureWithMessage(data, key.PublicKey, signature));
 
-            // secp256k1
+            // secp256r1 with Keccak hash
 
-            var pubkey = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
-            var pubKeyData = pubkey.EncodePoint(false).Skip(1).ToArray();
-            var ecdsa = ECDsa.Create(new ECParameters
-            {
-                Curve = ECCurve.CreateFromFriendlyName("secP256k1"),
-                D = key.PrivateKey,
-                Q = new ECPoint
-                {
-                    X = pubKeyData[..32],
-                    Y = pubKeyData[32..]
-                }
-            });
-            signature = ecdsa.SignData(data, HashAlgorithmName.SHA256);
+            var signatureKeccak = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256r1, Cryptography.HashAlgorithm.Keccak256);
 
             // Check
 
-            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage(System.Array.Empty<byte>(), pubkey, signature));
+            Assert.IsFalse(Contract.Secp256r1VerifyKeccakSignatureWithMessage([], key.PublicKey, signatureKeccak));
+            Assert.IsTrue(Contract.Secp256r1VerifyKeccakSignatureWithMessage(data, key.PublicKey, signatureKeccak));
+
+            // secp256k1 with SHA256 hash
+
+            var pubkey = Cryptography.ECC.ECCurve.Secp256k1.G * key.PrivateKey;
+
+            signature = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256k1);
+
+            // Check
+
+            Assert.IsFalse(Contract.Secp256k1VerifySignatureWithMessage([], pubkey, signature));
             Assert.IsTrue(Contract.Secp256k1VerifySignatureWithMessage(data, pubkey, signature));
+
+            // secp256k1 with Keccak hash
+
+            signature = Crypto.Sign(data, key.PrivateKey, Cryptography.ECC.ECCurve.Secp256k1, Cryptography.HashAlgorithm.Keccak256);
+
+            // Check
+
+            Assert.IsFalse(Contract.Secp256k1VerifyKeccakSignatureWithMessage([], pubkey, signature));
+            Assert.IsTrue(Contract.Secp256k1VerifyKeccakSignatureWithMessage(data, pubkey, signature));
         }
 
         [TestMethod]

@@ -1,6 +1,20 @@
-using Neo.IO;
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// ArtifactExtensions.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Neo.Disassembler.CSharp;
+using Neo.Extensions;
+using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.TestingStandards;
+using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,22 +25,86 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class ArtifactExtensions
     {
-        static readonly string[] _protectedWords = new string[]
-        {
-            "abstract", "as", "base", "bool", "break", "byte",
-            "case", "catch", "char", "checked", "class", "const",
-            "continue", "decimal", "default", "delegate", "do", "double",
-            "else", "enum", "event", "explicit", "extern", "false",
-            "finally", "fixed", "float", "for", "foreach", "goto",
-            "if", "implicit", "in", "int", "interface", "internal",
-            "is", "lock", "long", "namespace", "new", "null",
-            "object", "operator", "out", "override", "params", "private",
-            "protected", "public", "readonly", "ref", "return", "sbyte",
-            "sealed", "short", "sizeof", "stackalloc", "static", "string",
-            "struct", "switch", "this", "throw", "true", "try",
-            "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort",
-            "using", "virtual", "void", "volatile", "while"
-        };
+        static readonly string[] _protectedWords =
+        [
+            "abstract",
+            "as",
+            "base",
+            "bool",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "checked",
+            "class",
+            "const",
+            "continue",
+            "decimal",
+            "default",
+            "delegate",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "event",
+            "explicit",
+            "extern",
+            "false",
+            "finally",
+            "fixed",
+            "float",
+            "for",
+            "foreach",
+            "goto",
+            "if",
+            "implicit",
+            "in",
+            "int",
+            "interface",
+            "internal",
+            "is",
+            "lock",
+            "long",
+            "namespace",
+            "new",
+            "null",
+            "object",
+            "operator",
+            "out",
+            "override",
+            "params",
+            "private",
+            "protected",
+            "public",
+            "readonly",
+            "ref",
+            "return",
+            "sbyte",
+            "sealed",
+            "short",
+            "sizeof",
+            "stackalloc",
+            "static",
+            "string",
+            "struct",
+            "switch",
+            "this",
+            "throw",
+            "true",
+            "try",
+            "typeof",
+            "uint",
+            "ulong",
+            "unchecked",
+            "unsafe",
+            "ushort",
+            "using",
+            "virtual",
+            "void",
+            "volatile",
+            "while"
+        ];
 
         /// <summary>
         /// Get source code from contract Manifest
@@ -35,11 +113,12 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="name">Class name, by default is manifest.Name</param>
         /// <param name="nef">Nef file</param>
         /// <param name="generateProperties">Generate properties</param>
+        /// <param name="debugInfo">NEP-19 debug information</param>
+        /// <param name="traceRemarks">Trace remarks</param>
         /// <returns>Source</returns>
-        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true)
+        public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, JToken? debugInfo = null, bool traceRemarks = false)
         {
             name ??= manifest.Name;
-
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
@@ -56,6 +135,7 @@ namespace Neo.SmartContract.Testing.Extensions
             if (manifest.IsVerificable()) inheritance.Add(typeof(IVerificable));
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
+            sourceCode.WriteLine("using Neo.Extensions;");
             sourceCode.WriteLine("using System;");
             sourceCode.WriteLine("using System.Collections.Generic;");
             sourceCode.WriteLine("using System.ComponentModel;");
@@ -63,7 +143,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
             sourceCode.WriteLine("");
-            sourceCode.WriteLine($"public abstract class {name} : " + string.Join(", ", inheritance));
+            sourceCode.WriteLine($"public abstract class {name}({typeof(SmartContractInitialize).FullName} initialize) : " + FormatInheritance(inheritance, "initialize") + ", IContractInfo");
             sourceCode.WriteLine("{");
 
             // Write compiled data
@@ -72,13 +152,22 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine();
 
             var value = manifest.ToJson().ToString(false).Replace("\"", "\"\"");
-            sourceCode.WriteLine($"    public static readonly {typeof(ContractManifest).FullName} Manifest = {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
+            sourceCode.WriteLine($"    public static {typeof(ContractManifest).FullName} Manifest => {typeof(ContractManifest).FullName}.Parse(@\"{value}\");");
             sourceCode.WriteLine();
 
             if (nef is not null)
             {
                 value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
-                sourceCode.WriteLine($"    public static readonly {typeof(NefFile).FullName} Nef = Neo.IO.Helper.AsSerializable<{typeof(NefFile).FullName}>(Convert.FromBase64String(@\"{value}\"));");
+
+                var optimization = manifest.Extra?["nef"]?["optimization"]?.ToString();
+
+                if (optimization != null)
+                {
+                    sourceCode.WriteLine($"    /// <summary>");
+                    sourceCode.WriteLine($"    /// Optimization: {optimization}");
+                    sourceCode.WriteLine($"    /// </summary>");
+                }
+                sourceCode.WriteLine($"    public static {typeof(NefFile).FullName} Nef => Convert.FromBase64String(@\"{value}\").AsSerializable<{typeof(NefFile).FullName}>();");
                 sourceCode.WriteLine();
             }
 
@@ -135,9 +224,9 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // This method can't be called, so avoid them
 
-                    if (method.Name.StartsWith("_")) continue;
+                    if (method.Name.StartsWith('_')) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo, traceRemarks));
                     sourceCode.WriteLine();
                 }
 
@@ -154,22 +243,13 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // This method can't be called, so avoid them
 
-                    if (method.Name.StartsWith("_")) continue;
+                    if (method.Name.StartsWith('_')) continue;
 
-                    sourceCode.Write(CreateSourceMethodFromManifest(method));
+                    sourceCode.Write(CreateSourceMethodFromManifest(method, nef, debugInfo, traceRemarks));
                     sourceCode.WriteLine();
                 }
                 sourceCode.WriteLine("    #endregion");
-                sourceCode.WriteLine();
             }
-
-            // Create constructor
-
-            sourceCode.WriteLine("    #region Constructor for internal use only");
-            sourceCode.WriteLine();
-            sourceCode.WriteLine($"    protected {name}({typeof(SmartContractInitialize).FullName} initialize) : base(initialize) {{ }}");
-            sourceCode.WriteLine();
-            sourceCode.WriteLine("    #endregion");
 
             sourceCode.WriteLine("}");
 
@@ -329,8 +409,11 @@ namespace Neo.SmartContract.Testing.Extensions
         /// Create source code from manifest method
         /// </summary>
         /// <param name="method">Contract method</param>
+        /// <param name="nefFile">Nef File</param>
+        /// <param name="debugInfo">Debug info</param>
+        /// <param name="traceRemarks">Trace remarks</param>
         /// <returns>Source</returns>
-        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method)
+        private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method, NefFile? nefFile = null, JToken? debugInfo = null, bool traceRemarks = false)
         {
             var methodName = TongleLowercase(EscapeName(method.Name));
 
@@ -343,6 +426,58 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine($"    /// <summary>");
             sourceCode.WriteLine($"    /// {(method.Safe ? "Safe method" : "Unsafe method")}");
             sourceCode.WriteLine($"    /// </summary>");
+
+            // Add the opcodes
+            if (debugInfo != null && nefFile != null)
+            {
+                var debugMethod = Disassembler.CSharp.Disassembler.GetMethod(method, debugInfo);
+                if (debugMethod != null)
+                {
+                    var (start, end) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(debugMethod);
+                    var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, start, end);
+
+                    if (instructions is not null && instructions.Count > 0)
+                    {
+                        Script script = nefFile.Script;
+                        var actualEnd = end + script.GetInstruction(end).Size;
+                        var scripts = nefFile.Script[start..actualEnd].ToArray();
+
+                        var maxAddressLength = instructions.Max(instruction => instruction.address.ToString("X").Length);
+                        var addressFormat = $"X{(maxAddressLength + 1) / 2 * 2}";
+
+                        sourceCode.WriteLine("    /// <remarks>");
+                        sourceCode.WriteLine($"    /// Script: {Convert.ToBase64String(scripts)}");
+
+                        var lastExtraComments = string.Empty;
+                        foreach (var instruction in instructions)
+                        {
+                            var extraComments = string.Empty;
+
+                            if (traceRemarks)
+                            {
+                                if (debugMethod["sequence-points-v2"] is JObject sequencePointsV2 &&
+                                    sequencePointsV2[instruction.offset.ToString()] is JObject sequenceV2)
+                                {
+                                    extraComments = BuildExtraInformation(sequenceV2);
+                                }
+
+                                if (lastExtraComments != extraComments)
+                                {
+                                    lastExtraComments = extraComments;
+                                }
+                                else
+                                {
+                                    extraComments = string.Empty;
+                                }
+                            }
+
+                            sourceCode.WriteLine($"    /// {instruction.instruction.InstructionToString()}" + extraComments);
+                        }
+                        sourceCode.WriteLine("    /// </remarks>");
+                    }
+                }
+            }
+
             if (method.Name != methodName)
             {
                 sourceCode.WriteLine($"    [DisplayName(\"{method.Name}\")]");
@@ -360,7 +495,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 if (isLast && arg.Type == ContractParameterType.Any)
                 {
-                    // it will be object X, we can add a default value
+                    // it will be `object X`, we can add a default value
 
                     sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)} = null");
                 }
@@ -370,8 +505,39 @@ namespace Neo.SmartContract.Testing.Extensions
                 }
             }
 
-
             sourceCode.WriteLine(");");
+
+            return builder.ToString();
+        }
+
+        private static string BuildExtraInformation(JObject sequenceV2)
+        {
+            var builder = new StringBuilder();
+            using var sourceCode = new StringWriter(builder)
+            {
+                NewLine = "\n"
+            };
+
+            builder.Append($" [optimization={sequenceV2["optimization"]?.AsString()},compiler=");
+
+            if (sequenceV2["compiler"] is JObject compilerObj)
+            {
+                builder.Append($"{compilerObj["file"]?.AsString()}:{compilerObj["line"]}({compilerObj["method"]?.AsString()})");
+            }
+            else if (sequenceV2["compiler"] is JArray compilerArray)
+            {
+                var first = true;
+
+                foreach (var entry in compilerArray)
+                {
+                    if (entry == null) continue;
+                    if (first) first = false;
+                    else builder.Append(',');
+                    builder.Append($"{entry["file"]?.AsString()}:{entry["line"]}({entry["method"]?.AsString()})");
+                }
+            }
+
+            builder.Append(']');
 
             return builder.ToString();
         }
@@ -426,6 +592,15 @@ namespace Neo.SmartContract.Testing.Extensions
                 ContractParameterType.Void => "void",
                 _ => "object?",
             };
+        }
+
+        private static string FormatInheritance(List<Type> inheritance, string initializeParam)
+        {
+            var formattedInheritance = inheritance.Select(type => (type == typeof(SmartContract)
+                    ? $"{type.FullName}({initializeParam})"
+                    : type.FullName)!)
+                .ToList();
+            return string.Join(", ", formattedInheritance);
         }
     }
 }

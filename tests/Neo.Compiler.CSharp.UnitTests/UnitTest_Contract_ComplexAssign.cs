@@ -1,120 +1,113 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_Contract_ComplexAssign.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
-using Neo.VM.Types;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_CompoundAssignments
+    public class UnitTest_CompoundAssignments : DebugAndTestBase<Contract_ComplexAssign>
     {
-        private TestEngine _engine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _engine = new TestEngine();
-            _engine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_ComplexAssign.cs");
-        }
-
         [TestMethod]
         public void Test_AddAssign_Checked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Add_Assign_Checked");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Add_Assign_Checked);
+            AssertGasConsumed(1001970);
         }
 
         [TestMethod]
         public void Test_AddAssign_UnChecked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Add_Assign_UnChecked");
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            var values = Contract.UnitTest_Add_Assign_UnChecked()!;
+            AssertGasConsumed(1049760);
             // Asserting the expected values after overflow
-            var values = (Array)result.Pop();
-            Assert.AreEqual(0, values[0].GetInteger()); // uint.MaxValue + 1 overflows to 0
-            Assert.AreEqual(unchecked(int.MaxValue + 1), values[1].GetInteger()); // int.MaxValue + 1 overflows to int.MinValue
+            Assert.AreEqual(BigInteger.Zero, values[0]); // uint.MaxValue + 1 overflows to 0
+            Assert.AreEqual(new BigInteger(unchecked(int.MaxValue + 1)), values[1]); // int.MaxValue + 1 overflows to int.MinValue
         }
 
         [TestMethod]
         public void Test_SubAssign_Checked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Sub_Assign_Checked");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Sub_Assign_Checked);
+            AssertGasConsumed(1001820);
         }
 
         [TestMethod]
         public void Test_SubAssign_UnChecked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Sub_Assign_UnChecked");
-            Assert.AreEqual(VMState.HALT, _engine.State);
+            var values = Contract.UnitTest_Sub_Assign_UnChecked()!;
+            AssertGasConsumed(1049310);
             // Asserting the expected values after underflow
-            var values = (Array)result.Pop();
-            Assert.AreEqual(uint.MaxValue, values[0].GetInteger()); // uint.MinValue - 1 underflows to uint.MaxValue
-            Assert.AreEqual(unchecked(int.MinValue - 1), values[1].GetInteger()); // int.MinValue - 1 underflows to int.MaxValue
+            Assert.AreEqual(new BigInteger(uint.MaxValue), values[0]); // uint.MinValue - 1 underflows to uint.MaxValue
+            Assert.AreEqual(new BigInteger(unchecked(int.MinValue - 1)), values[1]); // int.MinValue - 1 underflows to int.MaxValue
         }
 
         [TestMethod]
         public void Test_MulAssign_Checked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Mul_Assign_Checked");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Mul_Assign_Checked);
+            AssertGasConsumed(1002120);
         }
 
         [TestMethod]
         public void Test_MulAssign_UnChecked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Mul_Assign_UnChecked");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var values = (Array)result.Pop();
-            Assert.AreEqual(unchecked(uint.MaxValue * 2), values[0].GetInteger()); // Multiplying by 2 should not change the value
-            Assert.AreEqual(unchecked(int.MaxValue * 2), values[1].GetInteger()); // Same here
+            var values = Contract.UnitTest_Mul_Assign_UnChecked()!;
+            AssertGasConsumed(1050060);
+            Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue * 2)), values[0]); // Multiplying by 2 should not change the value
+            Assert.AreEqual(new BigInteger(unchecked(int.MaxValue * 2)), values[1]); // Same here
         }
 
         [TestMethod]
         public void Test_LeftShiftAssign_Checked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Left_Shift_Assign_Checked");
-            Assert.AreEqual(VMState.FAULT, _engine.State);
+            Assert.ThrowsException<TestException>(Contract.UnitTest_Left_Shift_Assign_Checked);
+            AssertGasConsumed(1002120);
         }
 
         [TestMethod]
         public void Test_LeftShiftAssign_UnChecked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Left_Shift_Assign_UnChecked");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var values = (Array)result.Pop();
-            Assert.AreEqual(unchecked(uint.MaxValue << 1), values[0].GetInteger());
-            Assert.AreEqual(unchecked(int.MaxValue << 1), values[1].GetInteger());
+            var values = Contract.UnitTest_Left_Shift_Assign_UnChecked()!;
+            AssertGasConsumed(1050060);
+            Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue << 1)), values[0]);
+            Assert.AreEqual(new BigInteger(unchecked(int.MaxValue << 1)), values[1]);
         }
 
         [TestMethod]
         public void Test_RightShiftAssign_Checked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Right_Shift_Assign_Checked");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var values = (Array)result.Pop();
-            Assert.AreEqual(checked(uint.MinValue >> 1), values[0].GetInteger());
-            Assert.AreEqual(checked(int.MinValue >> 1), values[1].GetInteger());
+            var values = Contract.UnitTest_Right_Shift_Assign_Checked()!;
+            AssertGasConsumed(1049100);
+            Assert.AreEqual(new BigInteger(checked(uint.MinValue >> 1)), values[0]);
+            Assert.AreEqual(new BigInteger(checked(int.MinValue >> 1)), values[1]);
         }
 
         [TestMethod]
         public void Test_RightShiftAssign_UnChecked()
         {
-            _engine.Reset();
-            var result = _engine.ExecuteTestCaseStandard("unitTest_Right_Shift_Assign_UnChecked");
-            Assert.AreEqual(VMState.HALT, _engine.State);
-            var values = (Array)result.Pop();
-            Assert.AreEqual(unchecked(uint.MinValue >> 1), values[0].GetInteger());
-            Assert.AreEqual(unchecked(int.MinValue >> 1), values[1].GetInteger());
+            var values = Contract.UnitTest_Right_Shift_Assign_UnChecked()!;
+            AssertGasConsumed(1049100);
+            Assert.AreEqual(new BigInteger(unchecked(uint.MinValue >> 1)), values[0]);
+            Assert.AreEqual(new BigInteger(unchecked(int.MinValue >> 1)), values[1]);
+        }
+
+        [TestMethod]
+        public void Test_Member_Element_Complex_Assign()
+        {
+            Contract.UnitTest_Member_Element_Complex_Assign();
+            AssertGasConsumed(1800780);
         }
     }
 }

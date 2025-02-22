@@ -2,9 +2,9 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <Copyright>2015-2023 The Neo Project</Copyright>
-    <VersionPrefix>3.6.2</VersionPrefix>
-    <TargetFramework>net7.0</TargetFramework>
+    <Copyright>2015-2024 The Neo Project</Copyright>
+    <Company>The Neo Project</Company>
+    <VersionPrefix>3.7.4</VersionPrefix>
     <Authors>The Neo Project</Authors>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

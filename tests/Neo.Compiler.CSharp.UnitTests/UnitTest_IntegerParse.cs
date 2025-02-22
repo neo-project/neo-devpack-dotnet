@@ -1,464 +1,222 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_IntegerParse.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.TestEngine;
-using Neo.VM;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_IntegerParse
+    public class UnitTest_IntegerParse : DebugAndTestBase<Contract_IntegerParse>
     {
         [TestMethod]
         public void SByteParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testSbyteparse";
-
-            var result = testengine.ExecuteTestCaseStandard(methodname, "127");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(sbyte.MaxValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-128");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(sbyte.MinValue, value);
+            Assert.AreEqual(new BigInteger(sbyte.MaxValue), Contract.TestSbyteparse("127"));
+            AssertGasConsumed(2032650);
+            Assert.AreEqual(new BigInteger(sbyte.MinValue), Contract.TestSbyteparse("-128"));
+            AssertGasConsumed(2032650);
 
             //test backspace trip
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "128");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-129");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("128"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("-129"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestSbyteparse("@"));
+            AssertGasConsumed(2032230);
         }
 
         [TestMethod]
         public void ByteParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testByteparse";
-
-            var result = testengine.ExecuteTestCaseStandard(methodname, "0");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(byte.MinValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "255");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(byte.MaxValue, value);
+            Assert.AreEqual(new BigInteger(byte.MinValue), Contract.TestByteparse("0"));
+            AssertGasConsumed(2032650);
+            Assert.AreEqual(new BigInteger(byte.MaxValue), Contract.TestByteparse("255"));
+            AssertGasConsumed(2032650);
 
             //test backspace trip
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-1");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "256");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestByteparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("-1"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("256"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestByteparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestByteparse("@"));
+            AssertGasConsumed(2032230);
         }
 
         [TestMethod]
         public void UShortParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testUshortparse";
-
-            var result = testengine.ExecuteTestCaseStandard(methodname, "0");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(ushort.MinValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "65535");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(ushort.MaxValue, value);
+            Assert.AreEqual(new BigInteger(ushort.MinValue), Contract.TestUshortparse("0"));
+            AssertGasConsumed(2032650);
+            Assert.AreEqual(new BigInteger(ushort.MaxValue), Contract.TestUshortparse("65535"));
+            AssertGasConsumed(2032650);
 
             //test backspace trip
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-1");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "65536");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("-1"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("65536"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUshortparse("@"));
+            AssertGasConsumed(2032230);
         }
 
         [TestMethod]
         public void ShortParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testShortparse";
-
-            var result = testengine.ExecuteTestCaseStandard(methodname, "-32768");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(short.MinValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "32767");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(short.MaxValue, value);
+            Assert.AreEqual(new BigInteger(short.MinValue), Contract.TestShortparse("-32768"));
+            AssertGasConsumed(2032650);
+            Assert.AreEqual(new BigInteger(short.MaxValue), Contract.TestShortparse("32767"));
+            AssertGasConsumed(2032650);
 
             //test backspace trip
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-32769");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "32768");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestShortparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("-32769"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("32768"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestShortparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestShortparse("@"));
+            AssertGasConsumed(2032230);
         }
 
         [TestMethod]
         public void ULongParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testUlongparse";
-
-            var result = testengine.ExecuteTestCaseStandard(methodname, "18446744073709551615");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(ulong.MaxValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "0");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(ulong.MinValue, value);
+            Assert.AreEqual(new BigInteger(ulong.MinValue), Contract.TestUlongparse("0"));
+            AssertGasConsumed(2032740);
+            Assert.AreEqual(new BigInteger(ulong.MaxValue), Contract.TestUlongparse("18446744073709551615"));
+            AssertGasConsumed(2032740);
 
             //test backspace trip
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "18446744073709551616");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-1");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("-1"));
+            AssertGasConsumed(2048100);
+            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("18446744073709551616"));
+            AssertGasConsumed(2048100);
+            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUlongparse("@"));
+            AssertGasConsumed(2032230);
         }
 
         [TestMethod]
         public void LongParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testLongparse";
-
-            var result = testengine.ExecuteTestCaseStandard(methodname, "-9223372036854775808");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(long.MinValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "9223372036854775807");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(long.MaxValue, value);
+            Assert.AreEqual(new BigInteger(long.MinValue), Contract.TestLongparse("-9223372036854775808"));
+            AssertGasConsumed(2032740);
+            Assert.AreEqual(new BigInteger(long.MaxValue), Contract.TestLongparse("9223372036854775807"));
+            AssertGasConsumed(2032740);
 
             //test backspace trip
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-9223372036854775809");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "9223372036854775808");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestLongparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("-9223372036854775809"));
+            AssertGasConsumed(2048100);
+            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("9223372036854775808"));
+            AssertGasConsumed(2048100);
+            Assert.ThrowsException<TestException>(() => Contract.TestLongparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestLongparse("@"));
+            AssertGasConsumed(2032230);
         }
 
         [TestMethod]
         public void UIntParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testUintparse";
+            Assert.AreEqual(new BigInteger(uint.MinValue), Contract.TestUintparse("0"));
+            AssertGasConsumed(2032650);
+            Assert.AreEqual(new BigInteger(uint.MaxValue), Contract.TestUintparse("4294967295"));
+            AssertGasConsumed(2032650);
 
-            var result = testengine.ExecuteTestCaseStandard(methodname, "4294967295");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(uint.MaxValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "0");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(uint.MinValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-1");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "4294967296");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            //test backspace trip
+            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUintparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("-1"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("4294967296"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestUintparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestUintparse("@"));
+            AssertGasConsumed(2032230);
         }
 
         [TestMethod]
         public void IntParse_Test()
         {
-            using var testengine = new TestEngine(snapshot: new TestDataCache());
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_IntegerParse.cs");
-            string methodname = "testIntparse";
+            Assert.AreEqual(new BigInteger(int.MinValue), Contract.TestIntparse("-2147483648"));
+            AssertGasConsumed(2032650);
+            Assert.AreEqual(new BigInteger(int.MaxValue), Contract.TestIntparse("2147483647"));
+            AssertGasConsumed(2032650);
 
-            var result = testengine.ExecuteTestCaseStandard(methodname, "2147483647");
-            var value = result.Pop().GetInteger();
-            Assert.AreEqual(int.MaxValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-2147483648");
-
-            value = result.Pop().GetInteger();
-            Assert.AreEqual(int.MinValue, value);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, " 20 ");
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "2147483648");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "-2147483649");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "abc");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard(methodname, "@");
-
-            Assert.AreEqual(VMState.FAULT, testengine.State);
-            Assert.IsNotNull(testengine.FaultException);
+            //test backspace trip
+            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestIntparse(" 20 "));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("-2147483649"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("2147483648"));
+            AssertGasConsumed(2048010);
+            Assert.ThrowsException<TestException>(() => Contract.TestIntparse(""));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("abc"));
+            AssertGasConsumed(2032230);
+            Assert.ThrowsException<TestException>(() => Contract.TestIntparse("@"));
+            AssertGasConsumed(2032230);
         }
     }
 }

@@ -22,6 +22,8 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Custom mocks](#custom-mocks)
     - [Example of use](#example-of-use)
+- [Fee watcher](#fee-watcher)
+    - [Example of use](#example-of-use)
 - [Forging signatures](#forging-signatures)
     - [Example of use](#example-of-use)
 - [Event testing](#event-testing)
@@ -80,9 +82,11 @@ The publicly exposed read-only properties are as follows:
 
 And for read and write, we have:
 
-- **Gas**: Sets the gas execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
+- **Fee**: Sets the fee execution limit for contract calls. Sets the `NetworkFee` of the `Transaction` object.
+- **FeeConsumed**: Get or set the consumed execution fee.
 - **EnableCoverageCapture**: Enables or disables the coverage capture. 
 - **Trigger**: The trigger of the execution.
+- **StringInterpreter**: Define the interpreter used when a ByteString or Buffer is converted to `string` type.
 - **CallFlags**: Define the `CallFlags` for the mocked function, `All` by default.
 - **OnGetEntryScriptHash**: This feature makes it easy to change the EntryScriptHash.
 - **OnGetCallingScriptHash**: This feature makes it easy to change the CallingScriptHash.
@@ -248,6 +252,21 @@ using (ScriptBuilder script = new())
     script.EmitDynamicCall(neo.Hash, "balanceOf", engine.ValidatorsAddress);
 
     Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
+}
+```
+
+### Fee watcher
+
+It is possible to check the fee being used between multiple calls using the `FeeWatcher` class. To do this you can call the `CreateFeeWatcher` method of `TestEngine` or directly use the `FeeConsumed` property.
+
+
+#### Example of use
+
+```csharp
+using var fee = engine.CreateFeeWatcher();
+{
+    Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
+    Assert.AreEqual(984060L, fee);
 }
 ```
 

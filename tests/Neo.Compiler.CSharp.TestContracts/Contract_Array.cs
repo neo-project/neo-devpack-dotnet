@@ -1,17 +1,50 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Array.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
+using Neo.SmartContract.Framework;
 
-namespace Neo.Compiler.CSharp.UnitTests.TestClasses
+namespace Neo.Compiler.CSharp.TestContracts
 {
-    struct State
+    internal struct State
     {
-        public byte[] from;
-        public byte[] to;
-        public BigInteger amount;
+        public byte[]? from = default;
+        public byte[] to = null!;
+        public BigInteger amount = default;
+        public State()
+        {
+        }
     }
 
     public class Contract_Array : SmartContract.Framework.SmartContract
     {
+        // Does NOT work:
+        private static readonly byte[] TreeByteLengthPrefix = [0x01, 0x03];
+
+        // Works:
+        private static readonly byte[] TreeByteLengthPrefix2 = new byte[] { 0x01, 0x03 };
+
+        public static byte[] GetTreeByteLengthPrefix()
+        {
+            return TreeByteLengthPrefix;
+        }
+
+        public static byte[] GetTreeByteLengthPrefix2()
+        {
+            return TreeByteLengthPrefix2;
+        }
+
         public static int[][] TestJaggedArray()
         {
             int[] array1 = new int[] { 1, 2, 3, 4 };
@@ -30,7 +63,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return new byte[][] { array1, array2, array3, array4 };
         }
 
-        public static object TestIntArray()
+        public static int[] TestIntArray()
         {
             var arrobj = new int[3];
             arrobj[0] = 0;
@@ -39,14 +72,14 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return arrobj;
         }
 
-        public static object TestDefaultArray()
+        public static bool TestDefaultArray()
         {
             var arrobj = new int[3];
             if (arrobj[0] == 0) return true;
             return false;
         }
 
-        public static object TestIntArrayInit()
+        public static int[] TestIntArrayInit()
         {
             var arrobj = new int[] { 1, 2, 3 };
             arrobj[1] = 4;
@@ -54,7 +87,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return arrobj;
         }
 
-        public static object testIntArrayInit2()
+        public static int[] testIntArrayInit2()
         {
             int[] arrobj = { 1, 2, 3 };
             arrobj[1] = 4;
@@ -62,7 +95,7 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return arrobj;
         }
 
-        public static object testIntArrayInit3()
+        public static int[] testIntArrayInit3()
         {
             int[] arrobj = new[] { 1, 2, 3 };
             arrobj[1] = 4;
@@ -90,6 +123,12 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             return sarray[2];
         }
 
+        public static object TestDefaultState()
+        {
+            var s = new State();
+            return s;
+        }
+
         public static object[] TestEmptyArray()
         {
             var sarray = Array.Empty<object>();
@@ -99,13 +138,9 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
         public static object TestStructArrayInit()
         {
             var s = new State();
-            State[] states = new State[] { s };
-            for (var i = 0; i < 1; i++)
-            {
-                State state = states[i];
-                return state;
-            }
-            return null;
+            State[] states = [s];
+            var state = states[0];
+            return state;
         }
 
         static readonly byte[] OwnerVar = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
@@ -114,20 +149,50 @@ namespace Neo.Compiler.CSharp.UnitTests.TestClasses
             var bs = new byte[] { 0xf6, 0x64, 0x43, 0x49, 0x8d, 0x38, 0x78, 0xd3, 0x2b, 0x99, 0x4e, 0x4e, 0x12, 0x83, 0xc6, 0x93, 0x44, 0x21, 0xda, 0xfe };
             return bs;
         }
-        public static object TestByteArrayOwner()
+        public static byte[] TestByteArrayOwner()
         {
             return OwnerVar;
         }
-        public static object TestByteArrayOwnerCall()
+        public static byte[] TestByteArrayOwnerCall()
         {
             return Owner();
         }
 
         static readonly string[] SupportedStandards = new string[] { "NEP-5", "NEP-10" };
 
-        public static object TestSupportedStandards()
+        public static string[] TestSupportedStandards()
         {
             return SupportedStandards;
+        }
+
+        public static void TestElementBinding()
+        {
+            var a = Ledger.GetBlock(0);
+            var array = new[] { a };
+            var firstItem = array?[0];
+            Runtime.Log(firstItem?.Timestamp.ToString()!);
+        }
+
+        // This is new language feature introduced in C# 12
+        // ref. https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12#inline-arrays
+        public static (int[], List<string>, int[][], int[][]) TestCollectionexpressions()
+        {
+            // Create an array:
+            int[] a = [1, 2, 3, 4, 5, 6, 7, 8];
+
+            // Create a list:
+            List<string> b = ["one", "two", "three"];
+
+            // Create a jagged 2D array:
+            int[][] twoD = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+
+            // Create a jagged 2D array from variables:
+            int[] row0 = [1, 2, 3];
+            int[] row1 = [4, 5, 6];
+            int[] row2 = [7, 8, 9];
+            int[][] twoDFromVariables = [row0, row1, row2];
+
+            return (a, b, twoD, twoDFromVariables);
         }
     }
 }

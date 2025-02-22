@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// CommonForEachStatement.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -17,7 +18,7 @@ using Neo.VM;
 
 namespace Neo.Compiler
 {
-    partial class MethodConvert
+    internal partial class MethodConvert
     {
         /// <summary>
         /// Converts a 'foreach' statement based on the type of the collection being iterated over.
@@ -73,6 +74,8 @@ namespace Neo.Compiler
             byte elementIndex = AddLocalVariable(elementSymbol);
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -82,14 +85,14 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.Identifier))
             {
                 startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Value);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Value);
                 AccessSlot(OpCode.STLOC, elementIndex);
             }
             ConvertStatement(model, syntax.Statement);
             using (InsertSequencePoint(syntax.Expression))
             {
                 continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Next);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Next);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -97,6 +100,8 @@ namespace Neo.Compiler
             RemoveLocalVariable(elementSymbol);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
 
         /// <summary>
@@ -151,6 +156,8 @@ namespace Neo.Compiler
             byte iteratorIndex = AddAnonymousVariable();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -160,7 +167,7 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.Variable))
             {
                 startTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Value);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Value);
                 AddInstruction(OpCode.UNPACK);
                 AddInstruction(OpCode.DROP);
                 for (int i = 0; i < symbols.Length; i++)
@@ -180,7 +187,7 @@ namespace Neo.Compiler
             using (InsertSequencePoint(syntax.Expression))
             {
                 continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iteratorIndex);
-                Call(ApplicationEngine.System_Iterator_Next);
+                CallInteropMethod(ApplicationEngine.System_Iterator_Next);
                 Jump(OpCode.JMPIF_L, startTarget);
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
@@ -190,6 +197,8 @@ namespace Neo.Compiler
                     RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
 
         /// <summary>
@@ -220,6 +229,8 @@ namespace Neo.Compiler
             byte elementIndex = AddLocalVariable(elementSymbol);
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -255,6 +266,8 @@ namespace Neo.Compiler
             RemoveLocalVariable(elementSymbol);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
 
         /// <summary>
@@ -284,6 +297,8 @@ namespace Neo.Compiler
             byte iIndex = AddAnonymousVariable();
             PushContinueTarget(continueTarget);
             PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
             using (InsertSequencePoint(syntax.ForEachKeyword))
             {
                 ConvertExpression(model, syntax.Expression);
@@ -334,6 +349,8 @@ namespace Neo.Compiler
                     RemoveLocalVariable(symbol);
             PopContinueTarget();
             PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
         }
     }
 }

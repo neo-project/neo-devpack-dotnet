@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// CoveredContract.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage.Formats;
 using Neo.VM;
@@ -34,6 +45,8 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         public CoveredMethod[] Methods { get; private set; }
 
+        public ContractState? ContractState { get; private set; }
+
         /// <summary>
         /// Coverage Lines
         /// </summary>
@@ -54,6 +67,7 @@ namespace Neo.SmartContract.Testing.Coverage
         {
             Hash = hash;
             Methods = Array.Empty<CoveredMethod>();
+            ContractState = state;
 
             if (state is not null)
             {
@@ -86,7 +100,7 @@ namespace Neo.SmartContract.Testing.Coverage
 
                 if (!_lines.ContainsKey(ip))
                 {
-                    AddLine(instruction, new CoverageHit(ip, CoverageHit.DescriptionFromInstruction(instruction, state.Nef.Tokens), false));
+                    AddLine(instruction, new CoverageHit(ip, instruction, false, instruction.OpCode == OpCode.CALLT ? state.Nef.Tokens : null));
                 }
 
                 if (mechanism == MethodDetectionMechanism.NextMethod)
@@ -305,9 +319,9 @@ namespace Neo.SmartContract.Testing.Coverage
         /// </summary>
         /// <param name="instructionPointer">Instruction pointer</param>
         /// <param name="instruction">Instruction</param>
-        /// <param name="gas">Gas</param>
+        /// <param name="fee">Fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)</param>
         /// <param name="branchPath">Branch path</param>
-        public void Hit(int instructionPointer, Instruction instruction, long gas, bool? branchPath)
+        public void Hit(int instructionPointer, Instruction instruction, long fee, bool? branchPath)
         {
             lock (_lines)
             {
@@ -315,7 +329,7 @@ namespace Neo.SmartContract.Testing.Coverage
                 {
                     // Note: This call is unusual, out of the expected
 
-                    coverage = new(instructionPointer, CoverageHit.DescriptionFromInstruction(instruction), true);
+                    coverage = new(instructionPointer, instruction, true, instruction.OpCode == OpCode.CALLT ? this.ContractState?.Nef.Tokens : null);
                     AddLine(instruction, coverage);
                 }
 
@@ -324,7 +338,7 @@ namespace Neo.SmartContract.Testing.Coverage
                     branch.Hit(branchPath.Value);
                 }
 
-                coverage.Hit(gas);
+                coverage.Hit(fee);
             }
         }
 

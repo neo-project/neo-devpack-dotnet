@@ -1,3 +1,14 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Contract_Helper.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Neo.SmartContract.Framework.Attributes;
 using System.Numerics;
 
@@ -6,10 +17,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     public class Contract_Helper : SmartContract
     {
         [ByteArray("0a0b0c0d0E0F")]
-        private static readonly byte[] data = default;
+        private static readonly byte[] data = default!;
 
         [Hash160("NL1JGjDe22U44R57ZXVSeTYFBavEkVmkgF")]
-        private static readonly byte[] hashResult = default;
+        private static readonly byte[] hashResult = default!;
 
         public static byte[] TestHexToBytes()
         {
@@ -26,6 +37,9 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return new BigInteger(data);
         }
+
+        public static bool TestNumEqual(BigInteger a, BigInteger b) => Helper.NumEqual(a, b);
+        public static bool TestNumNotEqual(BigInteger a, BigInteger b) => Helper.NumNotEqual(a, b);
 
         public static BigInteger ModMultiply(BigInteger value, BigInteger y, BigInteger modulus)
         {

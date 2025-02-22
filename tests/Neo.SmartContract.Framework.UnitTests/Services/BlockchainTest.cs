@@ -1,9 +1,20 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// BlockchainTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
@@ -12,30 +23,30 @@ using System.Numerics;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class BlockchainTest : TestBase<Contract_Blockchain>
+    public class BlockchainTest : DebugAndTestBase<Contract_Blockchain>
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private Block _block;
-
-        public BlockchainTest() : base(Contract_Blockchain.Nef, Contract_Blockchain.Manifest) { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [TestInitialize]
         public void Init()
         {
             var tx = new Transaction()
             {
-                Attributes = System.Array.Empty<TransactionAttribute>(),
-                Signers = new Signer[]
-                {
-                    new ()
+                Attributes = [],
+                Signers =
+                [
+                    new()
                     {
-                        Account = UInt160.Zero ,
-                        AllowedContracts = System.Array.Empty<UInt160>(),
-                        AllowedGroups = System.Array.Empty<Cryptography.ECC.ECPoint>(),
-                        Rules = System.Array.Empty<WitnessRule>(),
-                        Scopes =  WitnessScope.Global
+                        Account = UInt160.Zero,
+                        AllowedContracts = [],
+                        AllowedGroups = [],
+                        Rules = [],
+                        Scopes = WitnessScope.Global
                     }
-                },
-                Witnesses = System.Array.Empty<Witness>(),
+                ],
+                Witnesses = [],
                 Script = System.Array.Empty<byte>()
             };
 
@@ -125,7 +136,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Uknown property
 
-            Assert.ThrowsException<VMUnhandledException>(() => method(foundArg, "¿...?"));
+            Assert.ThrowsException<TestException>(() => method(foundArg, "¿...?"));
         }
 
         [TestMethod]
@@ -165,7 +176,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             }
             else
             {
-                Assert.ThrowsException<VMUnhandledException>(() => found(""));
+                Assert.ThrowsException<TestException>(() => found(""));
             }
 
             var tx = _block.Transactions[0];
@@ -245,7 +256,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Found + Uknown property
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.GetContract(Contract.Hash, "¿..?"));
+            Assert.ThrowsException<TestException>(() => Contract.GetContract(Contract.Hash, "¿..?"));
         }
     }
 }

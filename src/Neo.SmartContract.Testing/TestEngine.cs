@@ -1,12 +1,25 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// TestEngine.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Moq;
 using Neo.Cryptography.ECC;
-using Neo.IO;
+using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
-using Neo.Persistence;
+using Neo.Persistence.Providers;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Interpreters;
 using Neo.SmartContract.Testing.Native;
 using Neo.SmartContract.Testing.Storage;
 using Neo.VM;
@@ -26,10 +39,14 @@ namespace Neo.SmartContract.Testing
     {
         public delegate UInt160? OnGetScriptHash(UInt160 current, UInt160 expected);
 
-        internal readonly Dictionary<UInt160, CoveredContract> Coverage = new();
-        private readonly Dictionary<UInt160, List<SmartContract>> _contracts = new();
-        private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = new();
+        internal readonly List<FeeWatcher> _feeWatchers = [];
+        internal readonly Dictionary<UInt160, CoveredContract> Coverage = [];
+        private readonly Dictionary<UInt160, List<SmartContract>> _contracts = [];
+        private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = [];
         private NativeContracts? _native;
+
+        public delegate void OnRuntimeLogDelegate(UInt160 sender, string message);
+        public event OnRuntimeLogDelegate? OnRuntimeLog;
 
         /// <summary>
         /// Default Protocol Settings
@@ -38,8 +55,8 @@ namespace Neo.SmartContract.Testing
         {
             Network = 0x334F454Eu,
             AddressVersion = ProtocolSettings.Default.AddressVersion,
-            StandbyCommittee = new[]
-            {
+            StandbyCommittee =
+            [
                 //Validators
                 ECPoint.Parse("03b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c", ECCurve.Secp256r1),
                 ECPoint.Parse("02df48f60e8f3e01c48ff40b9b7f1310d7a8b2a193188befe1c2e3df740e895093", ECCurve.Secp256r1),
@@ -63,9 +80,9 @@ namespace Neo.SmartContract.Testing
                 ECPoint.Parse("0226933336f1b75baa42d42b71d9091508b638046d19abd67f4e119bf64a7cfb4d", ECCurve.Secp256r1),
                 ECPoint.Parse("03cdcea66032b82f5c30450e381e5295cae85c5e6943af716cc6b646352a6067dc", ECCurve.Secp256r1),
                 ECPoint.Parse("02cd5a5547119e24feaa7c2a0f37b8c9366216bab7054de0065c9be42084003c8a", ECCurve.Secp256r1)
-            },
+            ],
             ValidatorsCount = 7,
-            SeedList = System.Array.Empty<string>(),
+            SeedList = [],
             MillisecondsPerBlock = ProtocolSettings.Default.MillisecondsPerBlock,
             MaxTransactionsPerBlock = ProtocolSettings.Default.MaxTransactionsPerBlock,
             MemoryPoolMaxTransactions = ProtocolSettings.Default.MemoryPoolMaxTransactions,
@@ -161,13 +178,28 @@ namespace Neo.SmartContract.Testing
         public OnGetScriptHash? OnGetCallingScriptHash { get; set; } = null;
 
         /// <summary>
-        /// Gas
+        /// Encoding used for string types
         /// </summary>
-        public long Gas
+        public IStringInterpreter StringInterpreter { get; set; } = Interpreters.StringInterpreter.StrictUTF8;
+
+        /// <summary>
+        /// Fee (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
+        /// </summary>
+        public long Fee
         {
             get => Transaction.NetworkFee;
             set { Transaction.NetworkFee = value; }
         }
+
+        /// <summary>
+        /// Fee Consumed (In the unit of datoshi, 1 datoshi = 1e-8 GAS)
+        /// </summary>
+        public FeeWatcher FeeConsumed { get; }
+
+        /// <summary>
+        /// Reset FeeConsumed on each Execution
+        /// </summary>
+        public bool ResetFeeConsumed { get; set; } = true;
 
         /// <summary>
         /// Sender
@@ -234,14 +266,14 @@ namespace Neo.SmartContract.Testing
             Transaction = new Transaction()
             {
                 Version = 0,
-                Attributes = System.Array.Empty<TransactionAttribute>(),
+                Attributes = [],
                 Script = System.Array.Empty<byte>(),
                 NetworkFee = ApplicationEngine.TestModeGas,
                 SystemFee = 0,
                 ValidUntilBlock = 0,
                 Nonce = 0x01020304,
-                Signers = new Signer[]
-                {
+                Signers =
+                [
                     new()
                     {
                         // ValidatorsAddress
@@ -254,8 +286,8 @@ namespace Neo.SmartContract.Testing
                         Account = committeeScript.ToScriptHash(),
                         Scopes = WitnessScope.Global
                     }
-                },
-                Witnesses = System.Array.Empty<Witness>() // Not required
+                ],
+                Witnesses = [] // Not required
             };
 
             // Check initialization
@@ -276,6 +308,7 @@ namespace Neo.SmartContract.Testing
                     PersistingBlock = new PersistingBlock(this, NeoSystem.CreateGenesisBlock(ProtocolSettings));
                 }
             }
+            FeeConsumed = new FeeWatcher(this);
         }
 
         #region Invoke events
@@ -293,11 +326,13 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineLog(object? sender, LogEventArgs e)
         {
+            OnRuntimeLog?.Invoke(e.ScriptHash, e.Message);
+
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
             {
                 foreach (var contract in contracts)
                 {
-                    contract.InvokeOnRuntimeLog(e.Message);
+                    contract.InvokeOnRuntimeLog(e.ScriptHash, e.Message);
                 }
             }
         }
@@ -319,6 +354,15 @@ namespace Neo.SmartContract.Testing
         public void Restore(EngineCheckpoint checkpoint) => Storage.Restore(checkpoint);
 
         #endregion
+
+        /// <summary>
+        /// Create gas watcher
+        /// </summary>
+        /// <returns>Gas watcher</returns>
+        public FeeWatcher CreateGasWatcher()
+        {
+            return new FeeWatcher(this);
+        }
 
         /// <summary>
         /// Get deploy hash
@@ -370,12 +414,8 @@ namespace Neo.SmartContract.Testing
             // Deploy
 
             //UInt160 expectedHash = GetDeployHash(nef, manifest);
-            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data);
-
-            if (state is null)
-            {
-                throw new Exception("Can't get the ContractState");
-            }
+            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data)
+                ?? throw new Exception("Can't get the ContractState");
 
             // Mock contract
 
@@ -488,7 +528,7 @@ namespace Neo.SmartContract.Testing
 
                 if (method.ReturnType != typeof(void))
                 {
-                    mock.MockFunction(method.Name, args, method.ReturnType);
+                    mock.MockFunction(method.Name, args, method.ReturnType, this);
                 }
                 else
                 {
@@ -506,7 +546,7 @@ namespace Neo.SmartContract.Testing
             }
             else
             {
-                _contracts[hash] = new List<SmartContract>(new SmartContract[] { mock.Object });
+                _contracts[hash] = new List<SmartContract>([mock.Object]);
             }
 
             // return mocked SmartContract
@@ -577,7 +617,7 @@ namespace Neo.SmartContract.Testing
 
             // Execute in neo VM
 
-            var snapshot = Storage.Snapshot.CreateSnapshot();
+            var snapshot = Storage.Snapshot.CloneCache();
 
             // Create persisting block, required for GasRewards
 
@@ -597,9 +637,13 @@ namespace Neo.SmartContract.Testing
             ApplicationEngine.Notify += ApplicationEngineNotify;
 
             // Execute
-
+            if (ResetFeeConsumed) FeeConsumed.Reset();
             beforeExecute?.Invoke(engine);
             var executionResult = engine.Execute();
+
+            // Increment fee
+
+            foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
 
             // Detach to static event
 
@@ -610,7 +654,7 @@ namespace Neo.SmartContract.Testing
 
             if (executionResult != VMState.HALT)
             {
-                throw engine.FaultException ?? new Exception($"Error while executing the script");
+                throw new TestException(engine);
             }
 
             snapshot.Commit();
@@ -708,7 +752,7 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         public void ClearTransactionSigners()
         {
-            Transaction.Signers = System.Array.Empty<Signer>();
+            Transaction.Signers = [];
         }
 
         /// <summary>

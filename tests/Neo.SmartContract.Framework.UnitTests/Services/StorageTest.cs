@@ -1,6 +1,17 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// StorageTest.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
+using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -9,14 +20,12 @@ using System.Text;
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
     [TestClass]
-    public class StorageTest : TestBase<Contract_Storage>
+    public class StorageTest : DebugAndTestBase<Contract_Storage>
     {
-        public StorageTest() : base(Contract_Storage.Nef, Contract_Storage.Manifest) { }
-
         [TestMethod]
         public void Test_StorageMap()
         {
-            Assert.AreEqual(456, Contract.SerializeTest(new byte[] { 1, 2, 3 }, 456));
+            Assert.AreEqual(456, Contract.SerializeTest([1, 2, 3], 456));
         }
 
         private void EnsureChanges(byte[] prefix, byte[] key, byte[] value, int count)
@@ -26,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(count, Engine.Storage.Snapshot.GetChangeSet()
                 .Count(a =>
                     a.Key.Key.Span.SequenceEqual(concat) &&
-                    a.Item.Value.Span.SequenceEqual(value)));
+                    a.Value.Item.Value.Span.SequenceEqual(value)));
         }
 
         private void EnsureChanges(byte[] prefix, byte[] key, int count)
@@ -127,7 +136,8 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             // Put
 
-            Assert.ThrowsException<TargetInvocationException>(() => Contract.TestPutReadOnly(key, value));
+            var exception = Assert.ThrowsException<TestException>(() => Contract.TestPutReadOnly(key, value));
+            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
 
         [TestMethod]
@@ -142,14 +152,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var key = Encoding.UTF8.GetBytes("key");
             var value = Encoding.UTF8.GetBytes("123");
 
-            Assert.AreEqual(true, Contract.TestIndexPut(key, value));
+            Assert.IsTrue(Contract.TestIndexPut(key, value));
             CollectionAssert.AreEqual(value, Contract.TestIndexGet(key));
         }
 
         [TestMethod]
         public void Test_NewGetMethods()
         {
-            Assert.AreEqual(true, Contract.TestNewGetMethods());
+            Assert.IsTrue(Contract.TestNewGetMethods());
         }
 
         [TestMethod]

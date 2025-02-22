@@ -1,10 +1,11 @@
-// Copyright (C) 2015-2023 The Neo Project.
-// 
-// The Neo.SmartContract.Framework is free software distributed under the MIT 
-// software license, see the accompanying file LICENSE in the main directory 
-// of the project or http://www.opensource.org/licenses/mit-license.php 
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// Helper.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
-// 
+//
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
@@ -40,6 +41,18 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         public extern static string ToByteString(this byte[] source);
+
+        /// <summary>
+        /// Saves GAS (compared to OpCode.EQUAL); throw exception when any input is null
+        /// </summary>
+        [OpCode(OpCode.NUMEQUAL)]
+        public extern static bool NumEqual(BigInteger a, BigInteger b);
+
+        /// <summary>
+        /// Saves GAS (compared to OpCode.EQUAL); throw exception when any input is null
+        /// </summary>
+        [OpCode(OpCode.NUMNOTEQUAL)]
+        public extern static bool NumNotEqual(BigInteger a, BigInteger b);
 
         /// <summary>
         /// Returns true iff a <= x && x < b. Examples: x=5 a=5 b=15 is true; x=15 a=5 b=15 is false

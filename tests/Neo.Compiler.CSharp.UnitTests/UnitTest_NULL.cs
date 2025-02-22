@@ -1,179 +1,97 @@
+// Copyright (C) 2015-2025 The Neo Project.
+//
+// UnitTest_NULL.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract;
-using Neo.SmartContract.Manifest;
-using Neo.SmartContract.TestEngine;
-using Neo.VM.Types;
+using Neo.SmartContract.Testing;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_NULL
+    public class UnitTest_NULL : DebugAndTestBase<Contract_NULL>
     {
-        private TestEngine testengine;
-
-        [TestInitialize]
-        public void Init()
-        {
-            testengine = new TestEngine();
-            testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
-        }
-
         [TestMethod]
         public void IsNull()
         {
             // True
 
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("isNull", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.IsNull(null));
+            AssertGasConsumed(1047870);
 
             // False
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("isNull", new Integer(1));
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.IsNull(1));
+            AssertGasConsumed(1047870);
         }
 
         [TestMethod]
         public void IfNull()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("ifNull", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.IfNull(null));
+            AssertGasConsumed(1047780);
         }
 
         [TestMethod]
         public void NullProperty()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("nullProperty", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullProperty", "");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullProperty", "123");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.NullProperty(null));
+            AssertGasConsumed(1048860);
+            Assert.IsFalse(Contract.NullProperty(""));
+            AssertGasConsumed(1049190);
+            Assert.IsTrue(Contract.NullProperty("123"));
+            AssertGasConsumed(1049190);
         }
 
         [TestMethod]
         public void NullPropertyGT()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("nullPropertyGT", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyGT", "");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyGT", "123");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsFalse(Contract.NullPropertyGT(null));
+            AssertGasConsumed(1048140);
+            Assert.IsFalse(Contract.NullPropertyGT(""));
+            AssertGasConsumed(1048470);
+            Assert.IsTrue(Contract.NullPropertyGT("123"));
+            AssertGasConsumed(1048470);
         }
 
         [TestMethod]
         public void NullPropertyLT()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("nullPropertyLT", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyLT", "");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyLT", "123");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.NullPropertyLT(null));
+            AssertGasConsumed(1048140);
+            Assert.IsFalse(Contract.NullPropertyLT(""));
+            AssertGasConsumed(1048470);
+            Assert.IsFalse(Contract.NullPropertyLT("123"));
+            AssertGasConsumed(1048470);
         }
 
         [TestMethod]
         public void NullPropertyGE()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("nullPropertyGE", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyGE", "");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyGE", "123");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsFalse(Contract.NullPropertyGE(null));
+            AssertGasConsumed(1048140);
+            Assert.IsTrue(Contract.NullPropertyGE(""));
+            AssertGasConsumed(1048470);
+            Assert.IsTrue(Contract.NullPropertyGE("123"));
+            AssertGasConsumed(1048470);
         }
 
         [TestMethod]
-        public void nullPropertyLE()
+        public void NullPropertyLE()
         {
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("nullPropertyLE", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyLE", "");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
-
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("nullPropertyLE", "123");
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.NullPropertyLE(null));
+            AssertGasConsumed(1048140);
+            Assert.IsTrue(Contract.NullPropertyLE(""));
+            AssertGasConsumed(1048470);
+            Assert.IsFalse(Contract.NullPropertyLE("123"));
+            AssertGasConsumed(1048470);
         }
 
         [TestMethod]
@@ -183,22 +101,15 @@ namespace Neo.Compiler.CSharp.UnitTests
             // return  code ?.Substring(1,2);
 
             // a123b->12
-            testengine.Reset();
             {
-                var result = testengine.ExecuteTestCaseStandard("nullCoalescing", "a123b");
-                var item = result.Pop().ConvertTo(StackItemType.ByteString) as ByteString;
-                System.ReadOnlySpan<byte> data = item;
-                var str = System.Text.Encoding.ASCII.GetString(data);
-                Assert.IsTrue(str == "12");
+                var data = (VM.Types.ByteString)Contract.NullCoalescing("a123b")!;
+                AssertGasConsumed(1109700);
+                Assert.AreEqual("12", System.Text.Encoding.ASCII.GetString(data.GetSpan()));
             }
             // null->null
-
-            testengine.Reset();
             {
-                var result = testengine.ExecuteTestCaseStandard("nullCoalescing", StackItem.Null);
-                var item = result.Pop();
-
-                Assert.IsTrue(item.IsNull);
+                Assert.IsNull(Contract.NullCoalescing(null));
+                AssertGasConsumed(1047990);
             }
         }
 
@@ -209,63 +120,30 @@ namespace Neo.Compiler.CSharp.UnitTests
             // return code ?? "linux"
 
             // nes->nes
-            testengine.Reset();
             {
-                var result = testengine.ExecuteTestCaseStandard("nullCollation", "nes");
-                var item = result.Pop() as ByteString;
-                System.ReadOnlySpan<byte> data = item;
-                var str = System.Text.Encoding.ASCII.GetString(data);
-                Assert.IsTrue(str == "nes");
+                Assert.AreEqual("nes", Contract.NullCollation("nes"));
+                AssertGasConsumed(1048200);
             }
 
             // null->linux
-            testengine.Reset();
             {
-                var result = testengine.ExecuteTestCaseStandard("nullCollation", StackItem.Null);
-                var item = result.Pop() as ByteString;
-                System.ReadOnlySpan<byte> data = item;
-                var str = System.Text.Encoding.ASCII.GetString(data);
-                Assert.IsTrue(str == "linux");
+                Assert.AreEqual("linux", Contract.NullCollation(null));
+                AssertGasConsumed(1048290);
             }
         }
 
         [TestMethod]
         public void NullCollationAndCollation()
         {
-            var snapshot = new TestDataCache();
-            var _testengine = new TestEngine(snapshot: snapshot);
-            _testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
-            snapshot.ContractAdd(new ContractState()
-            {
-                Hash = testengine.EntryScriptHash,
-                Nef = testengine.Nef,
-                Manifest = new ContractManifest()
-            });
-
-            var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation", "nes");
-            var item = result.Pop() as ByteString;
-            Assert.AreEqual(123, item.GetSpan()[0]);
+            Assert.AreEqual(new BigInteger(123), ((VM.Types.ByteString)Contract.NullCollationAndCollation("nes")!).GetInteger());
+            AssertGasConsumed(2523540);
         }
 
         [TestMethod]
         public void NullCollationAndCollation2()
         {
-            var snapshot = new TestDataCache();
-            var _testengine = new TestEngine(snapshot: snapshot);
-            _testengine.AddEntryScript(Utils.Extensions.TestContractRoot + "Contract_NULL.cs");
-            snapshot.ContractAdd(new ContractState()
-            {
-                Hash = testengine.EntryScriptHash,
-                Nef = testengine.Nef,
-                Manifest = new ContractManifest()
-            });
-
-            var result = _testengine.ExecuteTestCaseStandard("nullCollationAndCollation2", "nes");
-            var item = result.Pop() as ByteString;
-            var bts = System.Text.Encoding.ASCII.GetBytes("111");
-            var num = new System.Numerics.BigInteger(bts);
-
-            Assert.AreEqual(num, item.GetInteger());
+            Assert.AreEqual("111", ((VM.Types.ByteString)Contract.NullCollationAndCollation2("nes")!).GetString());
+            AssertGasConsumed(3615120);
         }
 
         [TestMethod]
@@ -273,39 +151,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // True
 
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("equalNullA", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.EqualNullA(null));
+            AssertGasConsumed(1048680);
 
             // False
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("equalNullA", new Integer(1));
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.EqualNullA(1));
+            AssertGasConsumed(1048680);
 
             // True
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("equalNullB", StackItem.Null);
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.EqualNullB(null));
+            AssertGasConsumed(1047750);
 
             // False
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("equalNullB", new Integer(1));
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.EqualNullB(1));
+            AssertGasConsumed(1047750);
         }
 
         [TestMethod]
@@ -313,39 +175,44 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             // True
 
-            testengine.Reset();
-            var result = testengine.ExecuteTestCaseStandard("equalNotNullA", StackItem.Null);
-            var item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.EqualNotNullA(null));
+            AssertGasConsumed(1048680);
 
             // False
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("equalNotNullA", new Integer(1));
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+            Assert.IsTrue(Contract.EqualNotNullA(1));
+            AssertGasConsumed(1048680);
 
             // True
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("equalNotNullB", StackItem.Null);
-            item = result.Pop();
-
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsFalse(item.GetBoolean());
+            Assert.IsFalse(Contract.EqualNotNullB(null));
+            AssertGasConsumed(1047870);
 
             // False
 
-            testengine.Reset();
-            result = testengine.ExecuteTestCaseStandard("equalNotNullB", new Integer(1));
-            item = result.Pop();
+            Assert.IsTrue(Contract.EqualNotNullB(1));
+            AssertGasConsumed(1047870);
+        }
 
-            Assert.IsInstanceOfType(item, typeof(Boolean));
-            Assert.IsTrue(item.GetBoolean());
+        [TestMethod]
+        public void NullTypeTest()
+        {
+            Contract.NullType(); // no error
+            AssertGasConsumed(987000);
+        }
+
+        [TestMethod]
+        public void NullCoalescingAssignment()
+        {
+            Contract.NullCoalescingAssignment(null);
+            AssertGasConsumed(2867310);
+        }
+
+        [TestMethod]
+        public void StaticNullableCoalesceAssignment()
+        {
+            Contract.StaticNullableCoalesceAssignment();
+            AssertGasConsumed(993870);
         }
     }
 }

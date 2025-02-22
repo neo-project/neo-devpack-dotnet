@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// AssignmentExpression.CoalesceAssignment.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -19,8 +20,34 @@ using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
+    /// <summary>
+    /// Converts the code for null-coalescing assignment expression into OpCodes.
+    /// The null-coalescing assignment operator ??= assigns the value of its right-hand operand to its left-hand operand only if the left-hand operand evaluates to null.
+    /// The ??= operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
+    /// Null-coalescing assignment expressions are a new feature introduced in C# 8.0(Released September, 2019).
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about coalesce assignment expression.</param>
+    /// <param name="expression">The syntax representation of the coalesce assignment expression statement being converted.</param>
+    /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
+    /// <example>
+    /// <code>
+    /// public class Cat
+    /// {
+    ///     public string Name { get; set; }
+    /// }
+    /// </code>
+    /// <code>
+    /// Cat nullableCat = null;
+    /// Cat nonNullableCat = new() { Name = "Mimi" };
+    /// nullableCat ??= nonNullableCat;
+    /// Runtime.Log("Nullable cat: " + nullableCat.Name);
+    /// </code>
+    /// <c>nullableCat ??= nonNullableCat;</c> this line is evaluated as
+    /// <c>nullableCat = nullableCat ?? nonNullableCat;</c> is evaluated as <c>if (nullableCat == null) nullableCat = nonNullableCat;</c>
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-coalescing-operator">?? and ??= operators - the null-coalescing operators</seealso>
     private void ConvertCoalesceAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         switch (expression.Left)
@@ -51,7 +78,7 @@ partial class MethodConvert
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
             AddInstruction(OpCode.OVER);
-            Call(model, property.GetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.GetMethod!, CallingConvention.StdCall);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);
@@ -62,7 +89,7 @@ partial class MethodConvert
             ConvertExpression(model, right);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.REVERSE4);
-            Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
@@ -166,16 +193,15 @@ partial class MethodConvert
     {
         JumpTarget assignmentTarget = new();
         JumpTarget endTarget = new();
-        byte index = _localVariables[left];
-        AccessSlot(OpCode.LDLOC, index);
+        LdLocSlot(left);
         AddInstruction(OpCode.ISNULL);
         Jump(OpCode.JMPIF_L, assignmentTarget);
-        AccessSlot(OpCode.LDLOC, index);
+        LdLocSlot(left);
         Jump(OpCode.JMP_L, endTarget);
         assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
         ConvertExpression(model, right);
         AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.STLOC, index);
+        StLocSlot(left);
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
@@ -183,16 +209,15 @@ partial class MethodConvert
     {
         JumpTarget assignmentTarget = new();
         JumpTarget endTarget = new();
-        byte index = _parameters[left];
-        AccessSlot(OpCode.LDARG, index);
+        LdArgSlot(left);
         AddInstruction(OpCode.ISNULL);
         Jump(OpCode.JMPIF_L, assignmentTarget);
-        AccessSlot(OpCode.LDARG, index);
+        LdArgSlot(left);
         Jump(OpCode.JMP_L, endTarget);
         assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
         ConvertExpression(model, right);
         AddInstruction(OpCode.DUP);
-        AccessSlot(OpCode.STARG, index);
+        StArgSlot(left);
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
@@ -201,19 +226,19 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (left.IsStatic)
         {
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIFNOT_L, endTarget);
             AddInstruction(OpCode.DROP);
             ConvertExpression(model, right);
             AddInstruction(OpCode.DUP);
-            Call(model, left.SetMethod!);
+            CallMethodWithConvention(model, left.SetMethod!);
         }
         else
         {
             AddInstruction(OpCode.LDARG0);
-            Call(model, left.GetMethod!);
+            CallMethodWithConvention(model, left.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIFNOT_L, endTarget);
@@ -221,7 +246,7 @@ partial class MethodConvert
             AddInstruction(OpCode.LDARG0);
             ConvertExpression(model, right);
             AddInstruction(OpCode.TUCK);
-            Call(model, left.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, left.SetMethod!, CallingConvention.StdCall);
         }
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
@@ -270,21 +295,21 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         if (property.IsStatic)
         {
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIFNOT_L, endTarget);
             AddInstruction(OpCode.DROP);
             ConvertExpression(model, right);
             AddInstruction(OpCode.DUP);
-            Call(model, property.SetMethod!);
+            CallMethodWithConvention(model, property.SetMethod!);
         }
         else
         {
             JumpTarget assignmentTarget = new();
             ConvertExpression(model, left.Expression);
             AddInstruction(OpCode.DUP);
-            Call(model, property.GetMethod!);
+            CallMethodWithConvention(model, property.GetMethod!);
             AddInstruction(OpCode.DUP);
             AddInstruction(OpCode.ISNULL);
             Jump(OpCode.JMPIF_L, assignmentTarget);
@@ -293,7 +318,7 @@ partial class MethodConvert
             assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
             ConvertExpression(model, right);
             AddInstruction(OpCode.TUCK);
-            Call(model, property.SetMethod!, CallingConvention.StdCall);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.StdCall);
         }
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }

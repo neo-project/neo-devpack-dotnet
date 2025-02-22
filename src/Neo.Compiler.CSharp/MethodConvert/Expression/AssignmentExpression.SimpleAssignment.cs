@@ -1,8 +1,9 @@
-// Copyright (C) 2015-2023 The Neo Project.
+// Copyright (C) 2015-2024 The Neo Project.
 //
-// The Neo.Compiler.CSharp is free software distributed under the MIT
-// software license, see the accompanying file LICENSE in the main directory
-// of the project or http://www.opensource.org/licenses/mit-license.php
+// AssignmentExpression.SimpleAssignment.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
 // for more details.
 //
 // Redistribution and use in source and binary forms with or without
@@ -15,13 +16,30 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
 
-partial class MethodConvert
+internal partial class MethodConvert
 {
-
+    /// <summary>
+    /// Converts the code for simple assignment expression into OpCodes.
+    /// The assignment operator = assigns the value of its right-hand operand to a variable,
+    /// a property, or an indexer element given by its left-hand operand.
+    /// </summary>
+    /// <param name="model">The semantic model providing context and information about simple assignment expression.</param>
+    /// <param name="expression">The syntax representation of the simple assignment expression statement being converted.</param>
+    /// <exception cref="CompilationException">Thrown when the syntax is not supported.</exception>
+    /// <remarks>
+    /// The result of an assignment expression is the value assigned to the left-hand operand.
+    /// The type of the right-hand operand must be the same as the type of the left-hand operand or implicitly convertible to it.
+    /// </remarks>
+    /// <example>
+    /// The assignment operator = is right-associative, that is, an expression of the form
+    /// <c>a = b = c</c> is evaluated as <c>a = (b = c)</c>
+    /// </example>
+    /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator">Assignment operators</seealso>
     private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
     {
         ConvertExpression(model, expression.Right);
@@ -82,7 +100,7 @@ partial class MethodConvert
         {
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             ConvertExpression(model, left.Expression);
-            Call(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
@@ -117,14 +135,40 @@ partial class MethodConvert
                 }
                 break;
             case ILocalSymbol local:
-                AccessSlot(OpCode.STLOC, _localVariables[local]);
+                StLocSlot(local);
                 break;
             case IParameterSymbol parameter:
-                AccessSlot(OpCode.STARG, _parameters[parameter]);
+                StArgSlot(parameter);
                 break;
             case IPropertySymbol property:
-                if (!property.IsStatic) AddInstruction(OpCode.LDARG0);
-                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                // Check if the property is within a constructor and is readonly
+                // C# document here https://learn.microsoft.com/en-us/dotnet/csharp/properties
+                // example of this syntax:
+                // public class Person
+                // {
+                //     public Person(string firstName) => FirstName = firstName;
+                //     // Readonly property
+                //     public string FirstName { get; }
+                // }
+                if (property.SetMethod == null)
+                {
+                    IFieldSymbol[] fields = property.ContainingType.GetAllMembers().OfType<IFieldSymbol>().ToArray();
+                    fields = fields.Where(p => !p.IsStatic).ToArray();
+                    int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                    AccessSlot(OpCode.LDARG, 0);
+                    Push(backingFieldIndex);
+                    AddInstruction(OpCode.ROT);
+                    AddInstruction(OpCode.SETITEM);
+                }
+                else if (property.SetMethod != null)
+                {
+                    if (NeedInstanceConstructor(property.SetMethod)) AddInstruction(OpCode.LDARG0);
+                    CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
+                }
+                else
+                {
+                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Property is readonly and not within a constructor: {property.Name}");
+                }
                 break;
             default:
                 throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
@@ -153,7 +197,7 @@ partial class MethodConvert
                 break;
             case IPropertySymbol property:
                 if (!property.IsStatic) ConvertExpression(model, left.Expression);
-                Call(model, property.SetMethod!, CallingConvention.Cdecl);
+                CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                 break;
             default:
                 throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");

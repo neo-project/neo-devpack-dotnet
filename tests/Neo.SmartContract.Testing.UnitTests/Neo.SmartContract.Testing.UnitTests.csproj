@@ -1,12 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
 		<RootNamespace>Neo.SmartContract.TestEngine.UnitTests</RootNamespace>
+		<IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
-	  <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+		<ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+		<ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
 	</ItemGroup>
 
 </Project>

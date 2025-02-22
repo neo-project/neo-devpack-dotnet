@@ -1,10 +1,21 @@
+// Copyright (C) 2015-2024 The Neo Project.
+//
+// OracleRequestTests.cs file belongs to the neo project and is free
+// software distributed under the MIT software license, see the
+// accompanying file LICENSE in the main directory of the
+// repository or http://www.opensource.org/licenses/mit-license.php
+// for more details.
+//
+// Redistribution and use in source and binary forms with or without
+// modifications are permitted.
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
-using Neo.VM;
+using Neo.SmartContract.Testing.Exceptions;
 using System.Text;
+using Neo.SmartContract.Testing.TestingStandards;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
 {
@@ -14,11 +25,6 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
     [TestClass]
     public class OracleRequestTests : TestBase<OracleRequestTemplate>
     {
-        /// <summary>
-        /// Initialize Test
-        /// </summary>
-        public OracleRequestTests() : base(OracleRequestTemplate.Nef, OracleRequestTemplate.Manifest) { }
-
         [TestMethod]
         public void TestGetResponse()
         {
@@ -30,7 +36,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
         {
             // Check without being oracle
 
-            Assert.ThrowsException<VMUnhandledException>(() => Contract.OnOracleResponse(null, null, null, null));
+            Assert.ThrowsException<TestException>(() => Contract.OnOracleResponse(null, null, null, null));
 
             // Check empty
 
@@ -67,7 +73,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
                      Result = Encoding.UTF8.GetBytes(response),
                 }
             };
-            Assert.ThrowsException<VMUnhandledException>(Engine.Native.Oracle.Finish);
+            Assert.ThrowsException<TestException>(Engine.Native.Oracle.Finish);
 
             // Execute finish
 
