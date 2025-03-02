@@ -71,6 +71,7 @@ namespace Neo.Optimizer
             (nef, manifest, debugInfo) = Peephole.UseNz(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.UseIsNull(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.FoldNotInJmp(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = Peephole.OptimizeStringOperations(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.InitStaticToConst(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = Peephole.RemoveInitialize(nef, manifest, debugInfo);
             (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);

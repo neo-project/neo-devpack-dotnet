@@ -774,4 +774,319 @@ namespace Neo.Optimizer
                 oldAddressToInstruction);
         }
     }
+
+    /// <summary>
+    /// Optimizes string operations by pre-computing constant string operations and
+    /// minimizing expensive OpCodes like CAT (cost: 2048), SUBSTR (cost: 2048), LEFT (cost: 2048), and RIGHT (cost: 2048).
+    /// </summary>
+    /// <param name="nef">Nef file</param>
+    /// <param name="manifest">Manifest</param>
+    /// <param name="debugInfo">Debug information</param>
+    /// <returns></returns>
+    [Strategy(Priority = 1 << 8)]
+    public static (NefFile, ContractManifest, JObject?) OptimizeStringOperations(NefFile nef, ContractManifest manifest, JObject? debugInfo = null)
+    {
+        ContractInBasicBlocks contractInBasicBlocks = new(nef, manifest, debugInfo);
+        InstructionCoverage oldContractCoverage = contractInBasicBlocks.coverage;
+        Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+        (Dictionary<Instruction, Instruction> jumpSourceToTargets,
+            Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets,
+            Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources) =
+            (oldContractCoverage.jumpInstructionSourceToTargets,
+            oldContractCoverage.tryInstructionSourceToTargets,
+            oldContractCoverage.jumpTargetToSources);
+        Dictionary<int, int> oldSequencePointAddressToNew = new();
+        System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
+        int currentAddress = 0;
+        
+        foreach ((int oldStartAddr, List<Instruction> basicBlock) in contractInBasicBlocks.sortedListInstructions)
+        {
+            int oldAddr = oldStartAddr;
+            for (int index = 0; index < basicBlock.Count; index++)
+            {
+                // Pattern 1: PUSHDATA + PUSHDATA + CAT
+                // Optimize to: PUSHDATA (concatenated string)
+                if (index + 2 < basicBlock.Count &&
+                    IsPushData(basicBlock[index].OpCode) &&
+                    IsPushData(basicBlock[index + 1].OpCode) &&
+                    basicBlock[index + 2].OpCode == OpCode.CAT)
+                {
+                    // Extract the two string literals
+                    string? str1 = GetStringFromPushData(basicBlock[index]);
+                    string? str2 = GetStringFromPushData(basicBlock[index + 1]);
+                    
+                    // If both are valid string literals, concatenate them
+                    if (str1 != null && str2 != null)
+                    {
+                        // Concatenate the strings
+                        string concatenated = str1 + str2;
+                        
+                        // Create a new PUSHDATA instruction with the concatenated string
+                        Instruction newPushData = CreatePushDataInstruction(concatenated);
+                        
+                        // Add the new instruction
+                        simplifiedInstructionsToAddress.Add(newPushData, currentAddress);
+                        oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                        currentAddress += newPushData.Size;
+                        
+                        // Skip the original instructions
+                        oldAddr += basicBlock[index].Size + basicBlock[index + 1].Size + basicBlock[index + 2].Size;
+                        index += 2;
+                        
+                        // Retarget any jumps to the first instruction
+                        OptimizedScriptBuilder.RetargetJump(basicBlock[index], newPushData,
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        
+                        continue;
+                    }
+                }
+                
+                // Pattern 2: PUSHDATA + PUSH<n> + PUSH<n> + SUBSTR
+                // Optimize to: PUSHDATA (substring)
+                if (index + 3 < basicBlock.Count &&
+                    IsPushData(basicBlock[index].OpCode) &&
+                    IsPushInt(basicBlock[index + 1].OpCode) &&
+                    IsPushInt(basicBlock[index + 2].OpCode) &&
+                    basicBlock[index + 3].OpCode == OpCode.SUBSTR)
+                {
+                    // Extract the string literal and substring parameters
+                    string? str = GetStringFromPushData(basicBlock[index]);
+                    int? startIndex = GetIntFromPushInt(basicBlock[index + 1]);
+                    int? length = GetIntFromPushInt(basicBlock[index + 2]);
+                    
+                    // If all parameters are valid, compute the substring
+                    if (str != null && startIndex != null && length != null && 
+                        startIndex.Value >= 0 && length.Value >= 0 && 
+                        startIndex.Value + length.Value <= str.Length)
+                    {
+                        // Compute the substring
+                        string substring = str.Substring(startIndex.Value, length.Value);
+                        
+                        // Create a new PUSHDATA instruction with the substring
+                        Instruction newPushData = CreatePushDataInstruction(substring);
+                        
+                        // Add the new instruction
+                        simplifiedInstructionsToAddress.Add(newPushData, currentAddress);
+                        oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                        currentAddress += newPushData.Size;
+                        
+                        // Skip the original instructions
+                        oldAddr += basicBlock[index].Size + basicBlock[index + 1].Size + 
+                                  basicBlock[index + 2].Size + basicBlock[index + 3].Size;
+                        index += 3;
+                        
+                        // Retarget any jumps to the first instruction
+                        OptimizedScriptBuilder.RetargetJump(basicBlock[index], newPushData,
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        
+                        continue;
+                    }
+                }
+                
+                // Pattern 3: PUSHDATA + PUSH<n> + LEFT
+                // Optimize to: PUSHDATA (left substring)
+                if (index + 2 < basicBlock.Count &&
+                    IsPushData(basicBlock[index].OpCode) &&
+                    IsPushInt(basicBlock[index + 1].OpCode) &&
+                    basicBlock[index + 2].OpCode == OpCode.LEFT)
+                {
+                    // Extract the string literal and left parameter
+                    string? str = GetStringFromPushData(basicBlock[index]);
+                    int? length = GetIntFromPushInt(basicBlock[index + 1]);
+                    
+                    // If all parameters are valid, compute the left substring
+                    if (str != null && length != null && length.Value >= 0 && length.Value <= str.Length)
+                    {
+                        // Compute the left substring
+                        string leftSubstring = str.Substring(0, length.Value);
+                        
+                        // Create a new PUSHDATA instruction with the left substring
+                        Instruction newPushData = CreatePushDataInstruction(leftSubstring);
+                        
+                        // Add the new instruction
+                        simplifiedInstructionsToAddress.Add(newPushData, currentAddress);
+                        oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                        currentAddress += newPushData.Size;
+                        
+                        // Skip the original instructions
+                        oldAddr += basicBlock[index].Size + basicBlock[index + 1].Size + basicBlock[index + 2].Size;
+                        index += 2;
+                        
+                        // Retarget any jumps to the first instruction
+                        OptimizedScriptBuilder.RetargetJump(basicBlock[index], newPushData,
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        
+                        continue;
+                    }
+                }
+                
+                // Pattern 4: PUSHDATA + PUSH<n> + RIGHT
+                // Optimize to: PUSHDATA (right substring)
+                if (index + 2 < basicBlock.Count &&
+                    IsPushData(basicBlock[index].OpCode) &&
+                    IsPushInt(basicBlock[index + 1].OpCode) &&
+                    basicBlock[index + 2].OpCode == OpCode.RIGHT)
+                {
+                    // Extract the string literal and right parameter
+                    string? str = GetStringFromPushData(basicBlock[index]);
+                    int? length = GetIntFromPushInt(basicBlock[index + 1]);
+                    
+                    // If all parameters are valid, compute the right substring
+                    if (str != null && length != null && length.Value >= 0 && length.Value <= str.Length)
+                    {
+                        // Compute the right substring
+                        string rightSubstring = str.Substring(str.Length - length.Value, length.Value);
+                        
+                        // Create a new PUSHDATA instruction with the right substring
+                        Instruction newPushData = CreatePushDataInstruction(rightSubstring);
+                        
+                        // Add the new instruction
+                        simplifiedInstructionsToAddress.Add(newPushData, currentAddress);
+                        oldSequencePointAddressToNew.Add(oldAddr, currentAddress);
+                        currentAddress += newPushData.Size;
+                        
+                        // Skip the original instructions
+                        oldAddr += basicBlock[index].Size + basicBlock[index + 1].Size + basicBlock[index + 2].Size;
+                        index += 2;
+                        
+                        // Retarget any jumps to the first instruction
+                        OptimizedScriptBuilder.RetargetJump(basicBlock[index], newPushData,
+                            jumpSourceToTargets, trySourceToTargets, jumpTargetToSources);
+                        
+                        continue;
+                    }
+                }
+                
+                // If no optimization applied, keep the original instruction
+                simplifiedInstructionsToAddress.Add(basicBlock[index], currentAddress);
+                currentAddress += basicBlock[index].Size;
+                oldAddr += basicBlock[index].Size;
+            }
+        }
+        
+        return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
+            simplifiedInstructionsToAddress,
+            jumpSourceToTargets, trySourceToTargets,
+            oldAddressToInstruction, oldSequencePointAddressToNew: oldSequencePointAddressToNew);
+    }
+    
+    // Helper method to check if an OpCode is a PUSHDATA operation
+    private static bool IsPushData(OpCode opCode)
+    {
+        return opCode == OpCode.PUSHDATA1 || opCode == OpCode.PUSHDATA2 || 
+               opCode == OpCode.PUSHDATA4 || opCode == OpCode.PUSHDATA;
+    }
+    
+    // Helper method to check if an OpCode is a PUSH<n> operation
+    private static bool IsPushInt(OpCode opCode)
+    {
+        return (opCode >= OpCode.PUSHM1 && opCode <= OpCode.PUSH16) || 
+               opCode == OpCode.PUSHINT8 || opCode == OpCode.PUSHINT16 || 
+               opCode == OpCode.PUSHINT32 || opCode == OpCode.PUSHINT64 || 
+               opCode == OpCode.PUSHINT128 || opCode == OpCode.PUSHINT256 || 
+               opCode == OpCode.PUSHINT;
+    }
+    
+    // Helper method to extract a string from a PUSHDATA instruction
+    private static string? GetStringFromPushData(Instruction instruction)
+    {
+        if (!IsPushData(instruction.OpCode))
+            return null;
+        
+        try
+        {
+            // Extract the data from the instruction
+            byte[] data;
+            
+            if (instruction.OpCode == OpCode.PUSHDATA)
+            {
+                data = instruction.Operand;
+            }
+            else if (instruction.OpCode == OpCode.PUSHDATA1)
+            {
+                data = instruction.Operand.Skip(1).ToArray(); // Skip the length byte
+            }
+            else if (instruction.OpCode == OpCode.PUSHDATA2)
+            {
+                data = instruction.Operand.Skip(2).ToArray(); // Skip the length bytes
+            }
+            else // PUSHDATA4
+            {
+                data = instruction.Operand.Skip(4).ToArray(); // Skip the length bytes
+            }
+            
+            // Convert the data to a string
+            return System.Text.Encoding.UTF8.GetString(data);
+        }
+        catch
+        {
+            // If there's any error, return null
+            return null;
+        }
+    }
+    
+    // Helper method to extract an integer from a PUSH<n> instruction
+    private static int? GetIntFromPushInt(Instruction instruction)
+    {
+        try
+        {
+            if (instruction.OpCode >= OpCode.PUSHM1 && instruction.OpCode <= OpCode.PUSH16)
+            {
+                if (instruction.OpCode == OpCode.PUSHM1)
+                    return -1;
+                else
+                    return (int)(instruction.OpCode - OpCode.PUSH0);
+            }
+            else if (instruction.OpCode == OpCode.PUSHINT8 || 
+                     instruction.OpCode == OpCode.PUSHINT16 || 
+                     instruction.OpCode == OpCode.PUSHINT32 || 
+                     instruction.OpCode == OpCode.PUSHINT64 || 
+                     instruction.OpCode == OpCode.PUSHINT128 || 
+                     instruction.OpCode == OpCode.PUSHINT256 || 
+                     instruction.OpCode == OpCode.PUSHINT)
+            {
+                // Convert the operand to an integer
+                return (int)new System.Numerics.BigInteger(instruction.Operand);
+            }
+            
+            return null;
+        }
+        catch
+        {
+            // If there's any error, return null
+            return null;
+        }
+    }
+    
+    // Helper method to create a PUSHDATA instruction with a string
+    private static Instruction CreatePushDataInstruction(string str)
+    {
+        byte[] data = System.Text.Encoding.UTF8.GetBytes(str);
+        
+        // Choose the appropriate PUSHDATA opcode based on the data length
+        if (data.Length <= byte.MaxValue)
+        {
+            byte[] pushData1Bytes = new byte[1 + 1 + data.Length];
+            pushData1Bytes[0] = (byte)OpCode.PUSHDATA1;
+            pushData1Bytes[1] = (byte)data.Length;
+            Array.Copy(data, 0, pushData1Bytes, 2, data.Length);
+            return new Script(pushData1Bytes).GetInstruction(0);
+        }
+        else if (data.Length <= ushort.MaxValue)
+        {
+            byte[] pushData2Bytes = new byte[1 + 2 + data.Length];
+            pushData2Bytes[0] = (byte)OpCode.PUSHDATA2;
+            BitConverter.GetBytes((ushort)data.Length).CopyTo(pushData2Bytes, 1);
+            Array.Copy(data, 0, pushData2Bytes, 3, data.Length);
+            return new Script(pushData2Bytes).GetInstruction(0);
+        }
+        else
+        {
+            byte[] pushData4Bytes = new byte[1 + 4 + data.Length];
+            pushData4Bytes[0] = (byte)OpCode.PUSHDATA4;
+            BitConverter.GetBytes(data.Length).CopyTo(pushData4Bytes, 1);
+            Array.Copy(data, 0, pushData4Bytes, 5, data.Length);
+            return new Script(pushData4Bytes).GetInstruction(0);
+        }
+    }
 }
