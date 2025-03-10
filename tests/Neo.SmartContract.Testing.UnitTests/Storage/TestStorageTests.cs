@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2024 The Neo Project.
+// Copyright (C) 2015-2025 The Neo Project.
 //
 // TestStorageTests.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Persistence;
+using Neo.Persistence.Providers;
 using Neo.SmartContract.Testing.Storage;
 using System;
 using System.IO;

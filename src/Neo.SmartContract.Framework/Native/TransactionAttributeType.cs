@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2024 The Neo Project.
+// Copyright (C) 2015-2025 The Neo Project.
 //
 // TransactionAttributeType.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -34,6 +34,11 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Indicates that the transaction conflicts with <see cref="Conflicts.Hash"/>.
         /// </summary>
-        Conflicts = 0x21
+        Conflicts = 0x21,
+
+        /// <summary>
+        /// Indicates that the transaction is aimed to service notary request with <see cref="NotaryAssisted.NKeys" number of keys/>.
+        /// </summary>
+        NotaryAssisted = 0x22
     }
 }

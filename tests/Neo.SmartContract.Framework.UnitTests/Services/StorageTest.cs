@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2024 The Neo Project.
+// Copyright (C) 2015-2025 The Neo Project.
 //
 // StorageTest.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_StorageMap()
         {
-            Assert.AreEqual(456, Contract.SerializeTest(new byte[] { 1, 2, 3 }, 456));
+            Assert.AreEqual(456, Contract.SerializeTest([1, 2, 3], 456));
         }
 
         private void EnsureChanges(byte[] prefix, byte[] key, byte[] value, int count)
@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(count, Engine.Storage.Snapshot.GetChangeSet()
                 .Count(a =>
                     a.Key.Key.Span.SequenceEqual(concat) &&
-                    a.Item.Value.Span.SequenceEqual(value)));
+                    a.Value.Item.Value.Span.SequenceEqual(value)));
         }
 
         private void EnsureChanges(byte[] prefix, byte[] key, int count)
@@ -152,14 +152,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var key = Encoding.UTF8.GetBytes("key");
             var value = Encoding.UTF8.GetBytes("123");
 
-            Assert.AreEqual(true, Contract.TestIndexPut(key, value));
+            Assert.IsTrue(Contract.TestIndexPut(key, value));
             CollectionAssert.AreEqual(value, Contract.TestIndexGet(key));
         }
 
         [TestMethod]
         public void Test_NewGetMethods()
         {
-            Assert.AreEqual(true, Contract.TestNewGetMethods());
+            Assert.IsTrue(Contract.TestNewGetMethods());
         }
 
         [TestMethod]

@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2024 The Neo Project.
+// Copyright (C) 2015-2025 The Neo Project.
 //
 // Contract_WriteInTry.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
@@ -45,7 +45,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
         public static void TryWriteWithVulnerability()
         {
-            try { Delete(); } catch { }
+            try { Delete(); } catch { }  // unsafe
         }
 
         public static void RecursiveTry(int i)
@@ -72,6 +72,41 @@ namespace Neo.Compiler.CSharp.TestContracts
                 Delete();
             }
             finally { }
+        }
+
+        public static void SafeTryWithCatchWithThrowInFinally()
+        {
+            try
+            {
+                try { Write(); }
+                catch { }
+                finally { throw new Exception(); }
+            }
+            catch
+            {
+                try { Write(); }
+                catch { }
+                finally { throw new Exception(); }
+            }
+            finally { ExecutionEngine.Abort(); }
+        }
+
+        public static void UnsafeNestedTryWrite(bool recursive)
+        {
+            try
+            {
+                try { Write(); }
+                finally
+                {
+                    if (recursive)
+                        UnsafeNestedTryWrite(false);
+                }
+                throw new Exception();
+            }
+            // no catch above and is safe
+            // but will be catched below, so the try above is unsafe
+            // for containing write in a nested try
+            catch { }
         }
     }
 }

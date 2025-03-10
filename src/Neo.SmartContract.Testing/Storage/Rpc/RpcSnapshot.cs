@@ -16,7 +16,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Neo.SmartContract.Testing.Storage.Rpc;
 
-internal class RpcSnapshot : ISnapshot
+internal class RpcSnapshot : IStoreSnapshot
 {
     /// <summary>
     /// Return true if the storage has changes
@@ -26,7 +26,7 @@ internal class RpcSnapshot : ISnapshot
     /// <summary>
     /// Store
     /// </summary>
-    public RpcStore Store { get; }
+    public IStore Store { get; }
 
     /// <summary>
     /// Constructor
@@ -51,7 +51,6 @@ internal class RpcSnapshot : ISnapshot
         IsDirty = true;
     }
 
-
     public void Put(byte[] key, byte[] value)
     {
         IsDirty = true;
@@ -69,7 +68,10 @@ internal class RpcSnapshot : ISnapshot
 
     public byte[]? TryGet(byte[] key)
     {
-        return Store.TryGet(key);
+        if (Store.TryGet(key, out var value))
+            return value;
+
+        return null;
     }
 
     public bool Contains(byte[] key)
