@@ -18,7 +18,7 @@
 
 This is the set of development tools for .NET.
 
-For detailed documentation, see [docs.neo.org](https://docs.neo.org/docs/en-us/index.html) and the [NEO whitepaper](https://docs.neo.org/docs/en-us/basic/whitepaper.html).
+For detailed documentation, see [docs.neo.org](https://docs.neo.org/docs/faq/basic.html)) and the [NEO whitepaper](https://docs.neo.org/docs/en-us/basic/whitepaper.html).
 
 # Build
 
