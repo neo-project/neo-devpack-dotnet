@@ -22,10 +22,10 @@ namespace Neo.SmartContract.Framework.Native
     {
         [ContractHash]
         public static extern UInt160 Hash { get; }
-        public static extern bool LockDepositUntil(UInt160 addr, uint till);
+        public static extern bool LockDepositUntil(UInt160 account, uint till);
         public static extern bool Withdraw(UInt160 from, UInt160 to);
-        public static extern BigInteger BalanceOf(UInt160 acc);
-        public static extern uint ExpirationOf(UInt160 acc);
+        public static extern BigInteger BalanceOf(UInt160 account);
+        public static extern uint ExpirationOf(UInt160 account);
         public static extern bool Verify(byte[] sig);
         public static extern uint GetMaxNotValidBeforeDelta();
         public static extern void SetMaxNotValidBeforeDelta(uint value);
