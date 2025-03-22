@@ -39,7 +39,7 @@ namespace NFT
         {
             ExecutionEngine.Assert(Runtime.EntryScriptHash == Runtime.CallingScriptHash);
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
+            var token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
             Map<string, object> map = new()
             {
                 ["name"] = token.Name,
@@ -53,7 +53,7 @@ namespace NFT
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private TokenState GetToken(BigInteger tokenId)
         {
-            TokenState token = (TokenState)StdLib.Deserialize(TokenMap[tokenId.ToString()]);
+            var token = (TokenState)StdLib.Deserialize(TokenMap[tokenId.ToString()]);
             ExecutionEngine.Assert(token is not null, "Token not exists");
             return token;
         }
@@ -90,7 +90,7 @@ namespace NFT
         {
             var rand = credential ^ keyPrefix;
             var value = rand % sourceArray.Length;
-            string output = sourceArray[(int)rand % sourceArray.Length];
+            var output = sourceArray[(int)rand % sourceArray.Length];
             var greatness = rand % 21;
 
             value = rand % _suffixes.Length;
@@ -183,7 +183,7 @@ namespace NFT
         private void MintToken(BigInteger tokenId, UInt160 sender)
         {
             var credential = CheckClaim(tokenId);
-            TokenState token = TokenState.MintLoot(sender, tokenId, credential);
+            var token = TokenState.MintLoot(sender, tokenId, credential);
             Mint(tokenId.ToString(), token);
             TokenIndexMap.Put(tokenId.ToString(), "taken");
         }

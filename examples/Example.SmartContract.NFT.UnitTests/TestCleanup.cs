@@ -19,7 +19,7 @@ namespace Example.SmartContract.NFT.UnitTests
             // Compile
             var compilationContexts = new CompilationEngine(new CompilationOptions
             {
-                Debug = true,
+                Debug = CompilationOptions.DebugType.None,
                 CompilerVersion = "TestingEngine",
                 Optimize = CompilationOptions.OptimizationType.All,
                 Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
