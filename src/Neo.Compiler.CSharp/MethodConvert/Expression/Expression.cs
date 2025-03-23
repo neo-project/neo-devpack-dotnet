@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 extern alias scfx;
+using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Cryptography.ECC;
@@ -46,20 +47,28 @@ internal partial class MethodConvert
 
     private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)
     {
-        var constant = model.GetConstantValue(syntax);
-        var value = constant.Value;
-        if (value == null)
-            return false;
-
-        ITypeSymbol? typeSymbol = GetTypeSymbol(syntaxNode, model);
-
-        if (typeSymbol != null)
+        try
         {
-            value = ConvertComplexConstantTypes(typeSymbol, value, syntax);
-        }
+            var constant = model.GetConstantValue(syntax);
+            var value = constant.Value;
+            if (value == null)
+                return false;
 
-        Push(value);
-        return true;
+            ITypeSymbol? typeSymbol = GetTypeSymbol(syntaxNode, model);
+
+            if (typeSymbol != null)
+            {
+                value = ConvertComplexConstantTypes(typeSymbol, value, syntax);
+            }
+
+            Push(value);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
     }
 
     private void ConvertNonConstantExpression(SemanticModel model, ExpressionSyntax syntax)
