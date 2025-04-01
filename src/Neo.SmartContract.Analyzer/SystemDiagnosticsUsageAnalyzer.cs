@@ -20,7 +20,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SystemDiagnosticsUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC4025";
+        public const string DiagnosticId = "NC4028";
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
