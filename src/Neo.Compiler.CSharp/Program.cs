@@ -46,6 +46,7 @@ namespace Neo.Compiler
                 new Option<bool>("--assembly", "Indicates whether to generate assembly."),
                 new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),
                 new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"),
+                new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"),
                 new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -77,6 +78,10 @@ namespace Neo.Compiler
 
         private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)
         {
+            // Check if the --generate-interface option is present in the command line args
+            options.GenerateContractInterface = context.ParseResult.CommandResult.Children
+                .Any(token => token.Symbol.Name == "generate-interface");
+
             if (paths is null || paths.Length == 0)
             {
                 // catch Unhandled exception: System.Reflection.TargetInvocationException
@@ -383,6 +388,30 @@ namespace Neo.Compiler
                     catch (Exception e) { Console.WriteLine(e); }
                     Console.WriteLine("Finished security analysis.");
                     Console.WriteLine("There can be many false positives in the security analysis. Take it easy.");
+                }
+
+                // Generate contract interface if the option is enabled
+                if (options.GenerateContractInterface)
+                {
+                    var contractHash = context.GetContractHash();
+                    if (contractHash != null)
+                    {
+                        string interfacePath = Path.Combine(outputFolder, $"I{baseName}.cs");
+                        try
+                        {
+                            string interfaceSource = ContractInterfaceGenerator.GenerateInterface(baseName, nef, manifest, contractHash);
+                            File.WriteAllText(interfacePath, interfaceSource);
+                            Console.WriteLine($"Created contract interface: {interfacePath}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.Error.WriteLine($"Error generating contract interface: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Skipping interface generation for {baseName} as no contract hash was found.");
+                    }
                 }
 
                 return 0;
