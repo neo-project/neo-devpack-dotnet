@@ -27,3 +27,4 @@
 | NC4025  | Method   | Error    | EnumMethodsUsageAnalyzer                   |
 | NC4026  | Usage    | Error    | SystemDiagnosticsUsageAnalyzer             |
 | NC4027  | Usage    | Warning  | CatchOnlySystemExceptionAnalyzer           |
+| NC4028  | Usage    | Error    | SystemThreadingUsageAnalyzer               |
