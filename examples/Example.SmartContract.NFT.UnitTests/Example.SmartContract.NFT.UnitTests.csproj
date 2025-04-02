@@ -15,13 +15,13 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0"/>
-        <PackageReference Include="MSTest.TestAdapter" Version="3.5.2"/>
-        <PackageReference Include="MSTest.TestFramework" Version="3.5.2"/>
+        <PackageReference Include="MSTest.TestAdapter" Version="3.8.0"/>
+        <PackageReference Include="MSTest.TestFramework" Version="3.8.0"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj"/>
-        <ProjectReference Include="..\..\tests\Neo.SmartContract.TestEngine\Neo.SmartContract.TestEngine.csproj"/>
+        
         <ProjectReference Include="..\Example.SmartContract.NFT\Example.SmartContract.NFT.csproj"/>
         <ProjectReference Remove="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj"
                           OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>

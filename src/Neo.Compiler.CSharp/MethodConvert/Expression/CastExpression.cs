@@ -52,7 +52,19 @@ internal partial class MethodConvert
             CallMethodWithInstanceExpression(model, method, null, expression.Expression);
             return;
         }
+
+        // Handle null literal expressions: (T)null
+        if (expression.Expression is LiteralExpressionSyntax literal)
+        {
+            if (literal.Kind() == SyntaxKind.NullLiteralExpression)
+            {
+                AddInstruction(OpCode.PUSHNULL);
+                return;
+            }
+        }
+
         ConvertExpression(model, expression.Expression);
+
         switch ((sType.Name, tType.Name))
         {
             case ("ByteString", "ECPoint"):
