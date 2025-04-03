@@ -16,7 +16,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class RoleManagement : SmartContract
+public abstract class RoleManagement(SmartContractInitialize initialize) : SmartContract(initialize)
 {
     #region Compiled data
 
@@ -53,12 +53,6 @@ public abstract class RoleManagement : SmartContract
     /// </summary>
     [DisplayName("designateAsRole")]
     public abstract void DesignateAsRole(Role role, ECPoint[] nodes);
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected RoleManagement(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

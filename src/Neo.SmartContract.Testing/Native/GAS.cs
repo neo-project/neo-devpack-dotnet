@@ -15,7 +15,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class GAS : SmartContract, TestingStandards.INep17Standard
+public abstract class GAS(SmartContractInitialize initialize) : SmartContract(initialize), TestingStandards.INep17Standard
 {
     #region Compiled data
 
@@ -67,12 +67,6 @@ public abstract class GAS : SmartContract, TestingStandards.INep17Standard
     /// </summary>
     [DisplayName("transfer")]
     public abstract bool? Transfer(UInt160? from, UInt160? to, BigInteger? amount, object? data = null);
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected GAS(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }
