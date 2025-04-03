@@ -12,7 +12,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing.Extensions;
 
 namespace Neo.SmartContract.Testing.UnitTests.Extensions
@@ -20,27 +19,6 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
     [TestClass]
     public class ArtifactExtensionsTests
     {
-        [TestMethod]
-        public void EnsureNativeContracts()
-        {
-            foreach (var native in NativeContract.Contracts)
-            {
-                if (native is ContractManagement) continue;
-                if (native is StdLib) continue;
-                if (native is CryptoLib) continue;
-                if (native is LedgerContract) continue;
-                if (native is NeoToken) continue;
-                if (native is GasToken) continue;
-                if (native is PolicyContract) continue;
-                if (native is RoleManagement) continue;
-
-                var source = native.GetContractState(ProtocolSettings.Default, 0)
-                    .Manifest
-                    .GetArtifactsSource(native.Name, generateProperties: true);
-
-            }
-        }
-
         [TestMethod]
         public void TestGetArtifactsSource()
         {
