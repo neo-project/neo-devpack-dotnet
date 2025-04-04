@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             var engine = new TestEngine(false);
 
-            Assert.AreEqual(0, engine.Storage.Store.Seek(System.Array.Empty<byte>(), Persistence.SeekDirection.Forward).Count());
+            Assert.AreEqual(0, engine.Storage.Store.Find([], Persistence.SeekDirection.Forward).Count());
 
             // Initialize native contracts
 
@@ -147,7 +147,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             engine.SetTransactionSigners(TestEngine.GetNewSigner());
 
-            var exception = Assert.ThrowsException<TestException>(() => engine.Native.NEO.RegisterPrice = 123);
+            var exception = Assert.ThrowsExactly<TestException>(() => _ = engine.Native.NEO.RegisterPrice = 123);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
     }
