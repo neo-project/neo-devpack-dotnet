@@ -57,7 +57,7 @@ public class RpcStore : IStore
     #region Rpc calls
 
     // Same logic as MemorySnapshot
-    private static IEnumerable<(byte[] Key, byte[] Value)> Seek(ConcurrentDictionary<byte[], byte[]> innerData, byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
+    private static IEnumerable<(byte[] Key, byte[] Value)> Find(ConcurrentDictionary<byte[], byte[]> innerData, byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
     {
         keyOrPrefix ??= [];
         if (direction == SeekDirection.Backward && keyOrPrefix.Length == 0) yield break;
@@ -72,11 +72,10 @@ public class RpcStore : IStore
             yield return (pair.Key[..], pair.Value[..]);
     }
 
-    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[]? key, SeekDirection direction)
+    public IEnumerable<(byte[] Key, byte[] Value)> Find(byte[]? key, SeekDirection direction)
     {
         // This(IStore.Seek) is different from LevelDbStore, RocksDbStore and MemoryStore.
-        if (key is null)
-            throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(key);
 
         // This(IStore.Seek) is different from LevelDbStore, RocksDbStore and MemoryStore.
         // The following logic has this requirement.
@@ -90,12 +89,12 @@ public class RpcStore : IStore
             ConcurrentDictionary<byte[], byte[]> data = new();
 
             // We ask for 5 bytes because the minimum prefix is one byte
-            foreach (var entry in Seek(key.Take(key.Length == 4 ? 4 : 5).ToArray(), SeekDirection.Forward))
+            foreach (var entry in Find(key.Take(key.Length == 4 ? 4 : 5).ToArray(), SeekDirection.Forward))
             {
                 data.TryAdd(entry.Key, entry.Value);
             }
 
-            foreach (var entry in Seek(data, key, direction))
+            foreach (var entry in Find(data, key, direction))
             {
                 yield return (entry.Key, entry.Value);
             }

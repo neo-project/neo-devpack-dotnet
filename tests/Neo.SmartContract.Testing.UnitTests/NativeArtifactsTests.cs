@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             var engine = new TestEngine(false);
 
-            Assert.AreEqual(0, engine.Storage.Store.Seek([], Persistence.SeekDirection.Forward).Count());
+            Assert.AreEqual(0, engine.Storage.Store.Find([], Persistence.SeekDirection.Forward).Count());
 
             // Initialize native contracts
 

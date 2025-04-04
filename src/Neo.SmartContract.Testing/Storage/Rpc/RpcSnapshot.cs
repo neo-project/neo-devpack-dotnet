@@ -56,9 +56,9 @@ internal class RpcSnapshot : IStoreSnapshot
         IsDirty = true;
     }
 
-    public IEnumerable<(byte[] Key, byte[] Value)> Seek(byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
+    public IEnumerable<(byte[] Key, byte[] Value)> Find(byte[]? keyOrPrefix, SeekDirection direction = SeekDirection.Forward)
     {
-        return Store.Seek(keyOrPrefix, direction);
+        return Store.Find(keyOrPrefix, direction);
     }
 
     public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
