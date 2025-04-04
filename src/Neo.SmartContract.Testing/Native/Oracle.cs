@@ -14,7 +14,7 @@ using System.ComponentModel;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class Oracle : SmartContract, TestingStandards.IVerificable
+public abstract class Oracle(SmartContractInitialize initialize) : SmartContract(initialize), TestingStandards.IVerificable
 {
     #region Compiled data
 
@@ -68,12 +68,6 @@ public abstract class Oracle : SmartContract, TestingStandards.IVerificable
     /// </summary>
     [DisplayName("request")]
     public abstract void Request(string url, string? filter, string callback, object? userData, ulong gasForResponse);
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected Oracle(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

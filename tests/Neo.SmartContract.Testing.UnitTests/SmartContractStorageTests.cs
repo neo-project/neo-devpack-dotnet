@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Testing.UnitTests
     {
         // Defines the prefix used to store the registration price in neo
 
-        private readonly byte[] _registerPricePrefix = new byte[] { 13 };
+        private readonly byte[] _registerPricePrefix = [13];
 
         [TestMethod]
         public void TestAlterStorage()

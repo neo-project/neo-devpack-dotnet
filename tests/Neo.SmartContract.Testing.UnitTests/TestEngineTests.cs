@@ -101,7 +101,7 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             TestEngine engine = new(false);
 
-            Assert.ThrowsException<KeyNotFoundException>(() => engine.FromHash<NEO>(engine.Native.NEO.Hash, true));
+            Assert.ThrowsExactly<KeyNotFoundException>(() => _ = engine.FromHash<NEO>(engine.Native.NEO.Hash, true));
 
             engine.Native.Initialize(false);
 

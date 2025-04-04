@@ -9,7 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 using Neo.Extensions;
-using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Native;
 using Neo.VM;
@@ -18,7 +17,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class Ledger : SmartContract
+public abstract class Ledger(SmartContractInitialize initialize) : SmartContract(initialize)
 {
     #region Compiled data
 
@@ -109,9 +108,4 @@ public abstract class Ledger : SmartContract
 
     #endregion
 
-    #region Constructor for internal use only
-
-    protected Ledger(SmartContractInitialize initialize) : base(initialize) { }
-
-    #endregion
 }

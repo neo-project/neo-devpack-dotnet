@@ -15,7 +15,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class StdLib : SmartContract
+public abstract class StdLib(SmartContractInitialize initialize) : SmartContract(initialize)
 {
     #region Compiled data
 
@@ -73,6 +73,18 @@ public abstract class StdLib : SmartContract
     /// </summary>
     [DisplayName("base64Encode")]
     public abstract string Base64Encode(byte[] data);
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("base64UrlDecode")]
+    public abstract string Base64UrlDecode(string s);
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("base64UrlEncode")]
+    public abstract string Base64UrlEncode(string data);
 
     /// <summary>
     /// Safe method
@@ -151,12 +163,6 @@ public abstract class StdLib : SmartContract
     /// </summary>
     [DisplayName("strLen")]
     public abstract BigInteger StrLen(string str);
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected StdLib(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

@@ -14,12 +14,12 @@ using System.ComponentModel;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class CryptoLib : SmartContract
+public abstract class CryptoLib(SmartContractInitialize initialize) : SmartContract(initialize)
 {
     #region Compiled data
+
     public static Manifest.ContractManifest Manifest { get; } =
         NativeContract.CryptoLib.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
-
 
     #endregion
 
@@ -76,6 +76,12 @@ public abstract class CryptoLib : SmartContract
     /// <summary>
     /// Safe method
     /// </summary>
+    [DisplayName("recoverSecp256K1")]
+    public abstract byte[]? RecoverSecp256K1(byte[] messageHash, byte[] signature);
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
     [DisplayName("ripemd160")]
     public abstract byte[] Ripemd160(byte[] data);
 
@@ -91,11 +97,11 @@ public abstract class CryptoLib : SmartContract
     [DisplayName("verifyWithECDsa")]
     public abstract bool VerifyWithECDsa(byte[] message, byte[] pubkey, byte[] signature, NamedCurveHash curveHash);
 
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected CryptoLib(SmartContractInitialize initialize) : base(initialize) { }
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("verifyWithEd25519")]
+    public abstract bool VerifyWithEd25519(byte[] message, byte[] pubkey, byte[] signature);
 
     #endregion
 }
