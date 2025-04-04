@@ -39,15 +39,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 [
                     new()
                     {
-                        Account = UInt160.Zero,
+                        Account = Witness.Empty.ScriptHash,
                         AllowedContracts = [],
                         AllowedGroups = [],
                         Rules = [],
                         Scopes = WitnessScope.Global
                     }
                 ],
-                Witnesses = [],
-                Script = System.Array.Empty<byte>()
+                Witnesses = [Witness.Empty],
+                Script = new byte[] { (byte)OpCode.RET }
             };
 
             _block = Engine.PersistingBlock.Persist(tx, VMState.HALT);

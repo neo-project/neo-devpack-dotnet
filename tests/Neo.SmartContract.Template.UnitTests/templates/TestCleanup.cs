@@ -57,7 +57,7 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                     Path.Combine(templatePath, "neocontractowner/Ownable.cs")
                 ]);
 
-            Assert.IsTrue(result.Count() == 3 && result.All(u => u.Success), "Error compiling templates");
+            Assert.IsTrue(result.Count == 3 && result.All(u => u.Success), "Error compiling templates");
 
             // Ensure Nep17
 
