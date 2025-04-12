@@ -16,7 +16,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class ContractManagement : SmartContract
+public abstract class ContractManagement(SmartContractInitialize initialize) : SmartContract(initialize)
 {
     #region Compiled data
 
@@ -117,12 +117,6 @@ public abstract class ContractManagement : SmartContract
     /// </summary>
     [DisplayName("update")]
     public abstract void Update(byte[]? nefFile, byte[]? manifest, object? data = null);
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected ContractManagement(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }
