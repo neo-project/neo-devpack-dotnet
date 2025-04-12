@@ -8,7 +8,6 @@ using System.ComponentModel;
 namespace TestContract
 {
     [DisplayName("HelloWorldContract")]
-    [Contract("0xb0674a6ee70ff7c86ab6287a63697d6d445efba7")]
     public class HelloWorldContract : SmartContract
     {
         [ContractHash]
