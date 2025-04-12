@@ -651,28 +651,6 @@ namespace Neo.Compiler
             _capturedStaticFields[symbol] = index;
         }
 
-        internal UInt160? GetContractHash()
-        {
-            foreach (var attribute in _targetContract.GetAttributes())
-            {
-                if (attribute.AttributeClass?.Name == "ContractAttribute")
-                {
-                    if (attribute.ConstructorArguments.Length > 0 &&
-                        attribute.ConstructorArguments[0].Value is string hashString)
-                    {
-                        if (UInt160.TryParse(hashString, out var hash))
-                        {
-                            return hash;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        private void ProcessMembers(INamedTypeSymbol type)
-        {
-            // Implementation of ProcessMembers method
-        }
+        internal UInt160? GetContractHash() => Script.ToScriptHash();
     }
 }

@@ -73,7 +73,10 @@ namespace Neo.Compiler
                     string returnType = ConvertTypeToString(property.getter.ReturnType);
                     string propertyName = GetPropertyName(property.getter.Name);
 
-                    sourceCode.WriteLine($"        {(property.getter.Safe ? "[Safe]" : "")}");
+                    if (property.getter.Safe)
+                    {
+                        sourceCode.WriteLine($"        [Safe]");
+                    }
 
                     if (property.setter != null)
                     {
