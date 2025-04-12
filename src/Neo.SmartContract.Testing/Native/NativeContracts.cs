@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Testing.Native
         public NEO NEO { get; }
 
         /// <summary>
-        /// LedgerContract
+        /// Ledger
         /// </summary>
         public Ledger Ledger { get; }
 

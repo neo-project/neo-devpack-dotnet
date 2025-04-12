@@ -193,7 +193,7 @@ namespace Neo.SmartContract.Testing.Coverage
                         }
                 }
 
-                if (instruction.Operand.Span.TryGetString(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
+                if (instruction.Operand.Span.TryToStrictUtf8String(out var str) && str is not null && HexStringInterpreter.HexRegex.IsMatch(str))
                 {
                     return ret + $" '{str}'";
                 }
