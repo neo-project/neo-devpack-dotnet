@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Hello
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.HelloWorld.UnitTests", "Example.SmartContract.HelloWorld.UnitTests\Example.SmartContract.HelloWorld.UnitTests.csproj", "{A2756E6B-8C10-40FF-BFBF-115B0E53668E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestContract", "TestContract\TestContract.csproj", "{D2B2F1F1-C14B-4935-8A07-1217499F0263}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,5 +127,9 @@ Global
 		{A2756E6B-8C10-40FF-BFBF-115B0E53668E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2756E6B-8C10-40FF-BFBF-115B0E53668E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2756E6B-8C10-40FF-BFBF-115B0E53668E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2B2F1F1-C14B-4935-8A07-1217499F0263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2B2F1F1-C14B-4935-8A07-1217499F0263}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2B2F1F1-C14B-4935-8A07-1217499F0263}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2B2F1F1-C14B-4935-8A07-1217499F0263}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
