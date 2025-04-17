@@ -237,6 +237,17 @@ namespace Neo.Compiler
 
         public ContractManifest CreateManifest()
         {
+            // Check if we need to add the version from the project file
+            string? versionKey = ManifestExtraAttribute.AttributeType[nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractVersionAttribute)];
+            if (!_manifestExtra.ContainsProperty(versionKey))
+            {
+                string? projectVersion = _engine.GetProjectVersionPrefix();
+                if (!string.IsNullOrEmpty(projectVersion))
+                {
+                    _manifestExtra[versionKey] = projectVersion;
+                }
+            }
+
             JObject json = new()
             {
                 ["name"] = ContractName,
