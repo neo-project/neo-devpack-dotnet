@@ -18,3 +18,13 @@ end_of_line = lf
 #indent_style = tab  # TODO
 
 file_header_template = Copyright (C) 2015-2025 The Neo Project.\n\n{fileName} file belongs to the neo project and is free\nsoftware distributed under the MIT software license, see the\naccompanying file LICENSE in the main directory of the\nrepository or http://www.opensource.org/licenses/mit-license.php\nfor more details.\n\nRedistribution and use in source and binary forms with or without\nmodifications are permitted.
+
+###############################
+# Roslyn Analyzer Rules
+###############################
+
+# RS1038: Compiler extensions should not be implemented in assemblies with MSBuild versions lower than 2.0
+dotnet_diagnostic.RS1038.severity = none
+
+# RS1041: Compiler extensions should be implemented in assemblies targeting netstandard2.0
+dotnet_diagnostic.RS1041.severity = none

@@ -15,7 +15,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class Policy : SmartContract
+public abstract class Policy(SmartContractInitialize initialize) : SmartContract(initialize)
 {
     #region Compiled data
 
@@ -78,12 +78,6 @@ public abstract class Policy : SmartContract
     /// </summary>
     [DisplayName("unblockAccount")]
     public abstract bool UnblockAccount(UInt160 account);
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected Policy(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

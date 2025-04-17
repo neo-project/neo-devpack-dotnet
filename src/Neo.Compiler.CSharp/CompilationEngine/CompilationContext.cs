@@ -661,5 +661,7 @@ namespace Neo.Compiler
         {
             _capturedStaticFields[symbol] = index;
         }
+
+        internal UInt160? GetContractHash() => Script.ToScriptHash();
     }
 }

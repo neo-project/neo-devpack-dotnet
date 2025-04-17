@@ -17,7 +17,7 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class NEO : SmartContract, TestingStandards.INep17Standard
+public abstract class NEO(SmartContractInitialize initialize) : SmartContract(initialize), TestingStandards.INep17Standard
 {
     #region Compiled data
 
@@ -114,7 +114,7 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
     /// Safe method
     /// </summary>
     [DisplayName("getAccountState")]
-    public abstract Neo.SmartContract.Native.NeoToken.NeoAccountState GetAccountState(UInt160 account);
+    public abstract NeoToken.NeoAccountState GetAccountState(UInt160 account);
 
     /// <summary>
     /// Safe method
@@ -155,12 +155,6 @@ public abstract class NEO : SmartContract, TestingStandards.INep17Standard
     /// </summary>
     [DisplayName("vote")]
     public abstract bool Vote(UInt160 account, ECPoint? voteTo);
-
-    #endregion
-
-    #region Constructor for internal use only
-
-    protected NEO(SmartContractInitialize initialize) : base(initialize) { }
 
     #endregion
 }

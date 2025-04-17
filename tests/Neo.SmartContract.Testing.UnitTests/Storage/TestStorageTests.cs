@@ -14,7 +14,6 @@ using Neo.Json;
 using Neo.Persistence;
 using Neo.Persistence.Providers;
 using Neo.SmartContract.Testing.Storage;
-using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -70,8 +69,8 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             // empty
 
-            var entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
-            Assert.AreEqual(entries.Length, 0);
+            var entries = store.Store.Find([], SeekDirection.Forward).ToArray();
+            Assert.AreEqual(0, entries.Length);
 
             // simple object
 
@@ -80,8 +79,8 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             store.Import(((JObject)JToken.Parse(json)!)!);
             store.Commit();
 
-            entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
-            Assert.AreEqual(entries.Length, 1);
+            entries = store.Store.Find([], SeekDirection.Forward).ToArray();
+            Assert.AreEqual(1, entries.Length);
 
             Assert.AreEqual("myRawKey", Encoding.ASCII.GetString(entries[0].Key));
             Assert.AreEqual("value", Encoding.ASCII.GetString(entries[0].Value));
@@ -93,8 +92,8 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             store.Import(((JObject)JToken.Parse(json)!)!);
             store.Commit();
 
-            entries = store.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
-            Assert.AreEqual(entries.Length, 2);
+            entries = store.Store.Find([], SeekDirection.Forward).ToArray();
+            Assert.AreEqual(2, entries.Length);
 
             Assert.AreEqual("myRawKey", Encoding.ASCII.GetString(entries[0].Key));
             Assert.AreEqual("value", Encoding.ASCII.GetString(entries[0].Value));
@@ -110,8 +109,8 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             storeCopy.Import(store.Export());
             storeCopy.Commit();
 
-            entries = storeCopy.Store.Seek(Array.Empty<byte>(), SeekDirection.Forward).ToArray();
-            Assert.AreEqual(entries.Length, 2);
+            entries = storeCopy.Store.Find([], SeekDirection.Forward).ToArray();
+            Assert.AreEqual(2, entries.Length);
 
             Assert.AreEqual("myRawKey", Encoding.ASCII.GetString(entries[0].Key));
             Assert.AreEqual("value", Encoding.ASCII.GetString(entries[0].Value));

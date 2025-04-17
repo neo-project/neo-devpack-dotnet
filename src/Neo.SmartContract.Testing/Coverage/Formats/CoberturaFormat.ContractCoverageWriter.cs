@@ -51,27 +51,29 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                 {
                     foreach (var group in DebugInfo.Methods.GroupBy(NamespaceAndFilename))
                     {
-                        WriteClass(writer, group.Key.@namespace, group.Key.filename, group);
+                        foreach (var entry in group.Key)
+                        {
+                            WriteClass(writer, entry.@namespace, entry.filename, group);
+                        }
                     }
                 }
                 writer.WriteEndElement();
                 writer.WriteEndElement();
 
-                (string @namespace, string filename) NamespaceAndFilename(NeoDebugInfo.Method method)
+                IEnumerable<(string @namespace, string filename)> NamespaceAndFilename(NeoDebugInfo.Method method)
                 {
                     var indexes = method.SequencePoints
                         .Select(sp => sp.Document)
                         .Distinct()
                         .ToList();
-                    if (indexes.Count == 1)
+
+                    foreach (var index in indexes)
                     {
-                        var index = indexes[0];
                         if (index >= 0 && index < DebugInfo.Documents.Count)
                         {
-                            return (method.Namespace, DebugInfo.Documents[index]);
+                            yield return (method.Namespace, DebugInfo.Documents[index]);
                         }
                     }
-                    return (method.Namespace, string.Empty);
                 }
             }
 
@@ -87,7 +89,9 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                 // TODO: complexity
                 writer.WriteAttributeString("name", name);
                 if (filename.Length > 0)
-                { writer.WriteAttributeString("filename", filename); }
+                {
+                    writer.WriteAttributeString("filename", filename);
+                }
                 writer.WriteAttributeString("line-rate", $"{lineRate:N4}");
                 writer.WriteAttributeString("branch-rate", $"{branchRate:N4}");
 
