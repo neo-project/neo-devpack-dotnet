@@ -284,8 +284,6 @@ namespace Neo.Compiler
             return Contexts.Select(p => p.Value).ToList();
         }
 
-
-
         /// <summary>
         /// Sort the classes based on their topological dependencies
         /// </summary>
