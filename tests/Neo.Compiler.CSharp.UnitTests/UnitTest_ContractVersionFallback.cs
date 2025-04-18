@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_ContractVersionFallback
     {
-        private string CreateTempProject(string contractCode, string versionPrefix = null)
+        private string CreateTempProject(string contractCode, string? versionPrefix = null)
         {
             string tempPath = Path.GetTempPath();
             string projectDir = Path.Combine(tempPath, Path.GetRandomFileName());
