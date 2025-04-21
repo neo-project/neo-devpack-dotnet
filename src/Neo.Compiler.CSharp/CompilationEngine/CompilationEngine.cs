@@ -475,19 +475,25 @@ namespace Neo.Compiler
         private void ExtractVersionInfo(XDocument projectDocument, string projectDirectory)
         {
             // Try to get Version information directly from the project file
+            // Get the XML namespace if it exists
+            XNamespace ns = projectDocument.Root?.Name.Namespace ?? string.Empty;
+
+            // Check for Version
             ProjectVersion = projectDocument.Root?
-                .Elements("PropertyGroup")
-                .Elements("Version")
+                .Elements(ns + "PropertyGroup")
+                .Elements(ns + "Version")
                 .FirstOrDefault()?.Value;
 
+            // Check for VersionPrefix
             ProjectVersionPrefix = projectDocument.Root?
-                .Elements("PropertyGroup")
-                .Elements("VersionPrefix")
+                .Elements(ns + "PropertyGroup")
+                .Elements(ns + "VersionPrefix")
                 .FirstOrDefault()?.Value;
 
+            // Check for VersionSuffix
             ProjectVersionSuffix = projectDocument.Root?
-                .Elements("PropertyGroup")
-                .Elements("VersionSuffix")
+                .Elements(ns + "PropertyGroup")
+                .Elements(ns + "VersionSuffix")
                 .FirstOrDefault()?.Value;
 
             // If not found in the project file, try to look for Directory.Build.props
@@ -502,12 +508,15 @@ namespace Neo.Compiler
                     {
                         XDocument directoryBuildProps = XDocument.Load(directoryBuildPropsPath);
 
+                        // Get the XML namespace if it exists
+                        ns = directoryBuildProps.Root?.Name.Namespace ?? string.Empty;
+
                         // Check for Version
                         if (string.IsNullOrEmpty(ProjectVersion))
                         {
                             ProjectVersion = directoryBuildProps.Root?
-                                .Elements("PropertyGroup")
-                                .Elements("Version")
+                                .Elements(ns + "PropertyGroup")
+                                .Elements(ns + "Version")
                                 .FirstOrDefault()?.Value;
                         }
 
@@ -515,8 +524,8 @@ namespace Neo.Compiler
                         if (string.IsNullOrEmpty(ProjectVersionPrefix))
                         {
                             ProjectVersionPrefix = directoryBuildProps.Root?
-                                .Elements("PropertyGroup")
-                                .Elements("VersionPrefix")
+                                .Elements(ns + "PropertyGroup")
+                                .Elements(ns + "VersionPrefix")
                                 .FirstOrDefault()?.Value;
                         }
 
@@ -524,8 +533,8 @@ namespace Neo.Compiler
                         if (string.IsNullOrEmpty(ProjectVersionSuffix))
                         {
                             ProjectVersionSuffix = directoryBuildProps.Root?
-                                .Elements("PropertyGroup")
-                                .Elements("VersionSuffix")
+                                .Elements(ns + "PropertyGroup")
+                                .Elements(ns + "VersionSuffix")
                                 .FirstOrDefault()?.Value;
                         }
                     }
