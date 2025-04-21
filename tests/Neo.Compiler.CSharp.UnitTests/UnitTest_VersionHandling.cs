@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Manifest;
+using System;
 using System.IO;
 using System.Xml.Linq;
 
