@@ -111,9 +111,10 @@ public class TestContract : SmartContract
             finally
             {
                 // Clean up
-                if (Directory.Exists(Path.GetDirectoryName(projectFile)))
+                string? projectDir = Path.GetDirectoryName(projectFile);
+                if (projectDir != null && Directory.Exists(projectDir))
                 {
-                    Directory.Delete(Path.GetDirectoryName(projectFile), true);
+                    Directory.Delete(projectDir, true);
                 }
             }
         }
@@ -143,9 +144,10 @@ public class TestContract : SmartContract
             finally
             {
                 // Clean up
-                if (Directory.Exists(Path.GetDirectoryName(projectFile)))
+                string? projectDir = Path.GetDirectoryName(projectFile);
+                if (projectDir != null && Directory.Exists(projectDir))
                 {
-                    Directory.Delete(Path.GetDirectoryName(projectFile), true);
+                    Directory.Delete(projectDir, true);
                 }
             }
         }
@@ -175,9 +177,10 @@ public class TestContract : SmartContract
             finally
             {
                 // Clean up
-                if (Directory.Exists(Path.GetDirectoryName(projectFile)))
+                string? projectDir = Path.GetDirectoryName(projectFile);
+                if (projectDir != null && Directory.Exists(projectDir))
                 {
-                    Directory.Delete(Path.GetDirectoryName(projectFile), true);
+                    Directory.Delete(projectDir, true);
                 }
             }
         }
@@ -211,9 +214,10 @@ public class TestContract : SmartContract
             finally
             {
                 // Clean up
-                if (Directory.Exists(Path.GetDirectoryName(projectFile)))
+                string? projectDir = Path.GetDirectoryName(projectFile);
+                if (projectDir != null && Directory.Exists(projectDir))
                 {
-                    Directory.Delete(Path.GetDirectoryName(projectFile), true);
+                    Directory.Delete(projectDir, true);
                 }
             }
         }

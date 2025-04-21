@@ -34,16 +34,42 @@ namespace Neo.Compiler
         internal CompilationOptions Options { get; private set; } = options;
         private static readonly MetadataReference[] CommonReferences;
         private readonly Dictionary<string, MetadataReference> MetaReferences = new();
+        private string? ProjectVersion;
         private string? ProjectVersionPrefix;
+        private string? ProjectVersionSuffix;
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
 
         /// <summary>
-        /// Gets the VersionPrefix that was extracted from the project
+        /// Gets the version that was extracted from the project
         /// </summary>
-        /// <returns>The VersionPrefix value or null if not found</returns>
-        public string? GetProjectVersionPrefix()
+        /// <returns>The version value based on available version properties</returns>
+        public string? GetProjectVersion()
         {
-            return ProjectVersionPrefix;
+            // If Version is set, use it directly
+            if (!string.IsNullOrEmpty(ProjectVersion))
+            {
+                return ProjectVersion;
+            }
+
+            // If both VersionPrefix and VersionSuffix are set, combine them
+            if (!string.IsNullOrEmpty(ProjectVersionPrefix) && !string.IsNullOrEmpty(ProjectVersionSuffix))
+            {
+                return $"{ProjectVersionPrefix}-{ProjectVersionSuffix}";
+            }
+
+            // If only one of them is set, use that one
+            if (!string.IsNullOrEmpty(ProjectVersionPrefix))
+            {
+                return ProjectVersionPrefix;
+            }
+
+            if (!string.IsNullOrEmpty(ProjectVersionSuffix))
+            {
+                return ProjectVersionSuffix;
+            }
+
+            // No version information found
+            return null;
         }
 
         static CompilationEngine()
@@ -358,8 +384,8 @@ namespace Neo.Compiler
 
             XDocument document = XDocument.Load(csproj);
 
-            // Extract VersionPrefix from the project file or its Directory.Build.props
-            ExtractVersionPrefix(document, Path.GetDirectoryName(csproj)!);
+            // Extract Version information from the project file or its Directory.Build.props
+            ExtractVersionInfo(document, Path.GetDirectoryName(csproj)!);
 
             var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove")
                 .Select(p => p.Value.Contains('*') ? p.Value : Path.GetFullPath(p.Value)).ToArray();
@@ -442,20 +468,32 @@ namespace Neo.Compiler
         }
 
         /// <summary>
-        /// Extracts the VersionPrefix from a project file or its referenced Directory.Build.props
+        /// Extracts the Version information from a project file or its referenced Directory.Build.props
         /// </summary>
         /// <param name="projectDocument">The loaded project document</param>
         /// <param name="projectDirectory">The directory containing the project file</param>
-        private void ExtractVersionPrefix(XDocument projectDocument, string projectDirectory)
+        private void ExtractVersionInfo(XDocument projectDocument, string projectDirectory)
         {
-            // Try to get VersionPrefix directly from the project file
+            // Try to get Version information directly from the project file
+            ProjectVersion = projectDocument.Root?
+                .Elements("PropertyGroup")
+                .Elements("Version")
+                .FirstOrDefault()?.Value;
+
             ProjectVersionPrefix = projectDocument.Root?
                 .Elements("PropertyGroup")
                 .Elements("VersionPrefix")
                 .FirstOrDefault()?.Value;
 
+            ProjectVersionSuffix = projectDocument.Root?
+                .Elements("PropertyGroup")
+                .Elements("VersionSuffix")
+                .FirstOrDefault()?.Value;
+
             // If not found in the project file, try to look for Directory.Build.props
-            if (string.IsNullOrEmpty(ProjectVersionPrefix))
+            if (string.IsNullOrEmpty(ProjectVersion) &&
+                string.IsNullOrEmpty(ProjectVersionPrefix) &&
+                string.IsNullOrEmpty(ProjectVersionSuffix))
             {
                 string? directoryBuildPropsPath = FindDirectoryBuildProps(projectDirectory);
                 if (directoryBuildPropsPath != null)
@@ -463,10 +501,33 @@ namespace Neo.Compiler
                     try
                     {
                         XDocument directoryBuildProps = XDocument.Load(directoryBuildPropsPath);
-                        ProjectVersionPrefix = directoryBuildProps.Root?
-                            .Elements("PropertyGroup")
-                            .Elements("VersionPrefix")
-                            .FirstOrDefault()?.Value;
+
+                        // Check for Version
+                        if (string.IsNullOrEmpty(ProjectVersion))
+                        {
+                            ProjectVersion = directoryBuildProps.Root?
+                                .Elements("PropertyGroup")
+                                .Elements("Version")
+                                .FirstOrDefault()?.Value;
+                        }
+
+                        // Check for VersionPrefix
+                        if (string.IsNullOrEmpty(ProjectVersionPrefix))
+                        {
+                            ProjectVersionPrefix = directoryBuildProps.Root?
+                                .Elements("PropertyGroup")
+                                .Elements("VersionPrefix")
+                                .FirstOrDefault()?.Value;
+                        }
+
+                        // Check for VersionSuffix
+                        if (string.IsNullOrEmpty(ProjectVersionSuffix))
+                        {
+                            ProjectVersionSuffix = directoryBuildProps.Root?
+                                .Elements("PropertyGroup")
+                                .Elements("VersionSuffix")
+                                .FirstOrDefault()?.Value;
+                        }
                     }
                     catch
                     {
@@ -483,22 +544,30 @@ namespace Neo.Compiler
         /// <returns>Path to Directory.Build.props file or null if not found</returns>
         private string? FindDirectoryBuildProps(string directory)
         {
-            // Check if Directory.Build.props exists in the current directory
-            string directoryBuildPropsPath = Path.Combine(directory, "Directory.Build.props");
-            if (File.Exists(directoryBuildPropsPath))
+            try
             {
-                return directoryBuildPropsPath;
-            }
+                // Check if Directory.Build.props exists in the current directory
+                string directoryBuildPropsPath = Path.Combine(directory, "Directory.Build.props");
+                if (File.Exists(directoryBuildPropsPath))
+                {
+                    return directoryBuildPropsPath;
+                }
 
-            // Move up one directory if possible
-            string? parentDirectory = Path.GetDirectoryName(directory);
-            if (parentDirectory != null && parentDirectory != directory)
+                // Move up one directory if possible
+                string? parentDirectory = Path.GetDirectoryName(directory);
+                if (parentDirectory != null && parentDirectory != directory)
+                {
+                    return FindDirectoryBuildProps(parentDirectory);
+                }
+
+                // Not found
+                return null;
+            }
+            catch
             {
-                return FindDirectoryBuildProps(parentDirectory);
+                // Handle any exceptions that might occur during directory traversal
+                return null;
             }
-
-            // Not found
-            return null;
         }
     }
 }

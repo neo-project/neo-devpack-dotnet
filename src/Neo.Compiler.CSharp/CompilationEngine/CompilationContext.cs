@@ -241,7 +241,7 @@ namespace Neo.Compiler
             string? versionKey = ManifestExtraAttribute.AttributeType[nameof(scfx.Neo.SmartContract.Framework.Attributes.ContractVersionAttribute)];
             if (!_manifestExtra.ContainsProperty(versionKey))
             {
-                string? projectVersion = _engine.GetProjectVersionPrefix();
+                string? projectVersion = _engine.GetProjectVersion();
                 if (!string.IsNullOrEmpty(projectVersion))
                 {
                     _manifestExtra[versionKey] = projectVersion;
