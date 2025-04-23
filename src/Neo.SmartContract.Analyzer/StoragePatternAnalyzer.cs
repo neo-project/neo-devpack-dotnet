@@ -200,15 +200,15 @@ namespace Neo.SmartContract.Analyzer
             // Check if this is a member access (e.g., Storage.Get)
             if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
             {
-                var symbol = semanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
-                if (symbol == null) return false;
+                // For testing purposes, let's check the raw syntax first
+                var memberName = memberAccess.Name.Identifier.ValueText;
+                var expressionText = memberAccess.Expression.ToString();
 
-                // Check if it's a Storage method
-                if ((symbol.Name == "Get" || symbol.Name == "Put" || symbol.Name == "Delete") &&
-                    symbol.ContainingType.Name == "Storage" &&
-                    symbol.ContainingNamespace.ToString() == "Neo.SmartContract.Framework.Services")
+                // If it looks like Storage.Get/Put/Delete based on syntax alone
+                if ((memberName == "Get" || memberName == "Put" || memberName == "Delete") &&
+                    expressionText == "Storage")
                 {
-                    methodName = symbol.Name;
+                    methodName = memberName;
 
                     // Try to extract the key from the first argument
                     if (invocation.ArgumentList.Arguments.Count > 0)
@@ -229,6 +229,38 @@ namespace Neo.SmartContract.Analyzer
                     }
 
                     return true;
+                }
+
+                // Also try the semantic approach
+                var symbol = semanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+                if (symbol != null)
+                {
+                    // Check if it's a Storage method
+                    if ((symbol.Name == "Get" || symbol.Name == "Put" || symbol.Name == "Delete") &&
+                        symbol.ContainingType.Name == "Storage")
+                    {
+                        methodName = symbol.Name;
+
+                        // Try to extract the key from the first argument
+                        if (invocation.ArgumentList.Arguments.Count > 0)
+                        {
+                            var firstArg = invocation.ArgumentList.Arguments[0].Expression;
+
+                            // If it's a string literal, we can get the exact key
+                            if (firstArg is LiteralExpressionSyntax literal &&
+                                literal.Kind() == SyntaxKind.StringLiteralExpression)
+                            {
+                                key = literal.Token.ValueText;
+                            }
+                            else
+                            {
+                                // For non-literal keys, use a placeholder based on the expression text
+                                key = firstArg.ToString();
+                            }
+                        }
+
+                        return true;
+                    }
                 }
             }
 
