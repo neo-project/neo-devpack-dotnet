@@ -24,7 +24,6 @@ namespace Neo.Compiler.CSharp.TestContracts
     {
         public static void CheckWitnessAnalysis(UInt160 u)
         {
-            Assert(Runtime.CheckWitness(u));
             ExecutionEngine.Assert(Runtime.CheckWitness(u));
         }
     }

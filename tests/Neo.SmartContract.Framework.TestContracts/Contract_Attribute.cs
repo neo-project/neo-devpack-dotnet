@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public override void Enter()
         {
-            if (!Assert(Runtime.CheckWitness(owner))) throw new System.Exception();
+            if (!Runtime.CheckWitness(owner)) throw new System.Exception();
         }
 
         public override void Exit() { }
