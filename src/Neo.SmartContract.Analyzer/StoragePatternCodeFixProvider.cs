@@ -130,43 +130,82 @@ namespace Neo.SmartContract.Analyzer
                 identicalInvocations.Add(invocation);
             }
 
-            // Find the statement containing the first invocation
-            var firstInvocation = identicalInvocations.OrderBy(i => i.SpanStart).First();
+            // Sort invocations by position
+            identicalInvocations = identicalInvocations.OrderBy(i => i.SpanStart).ToList();
+
+            // Find the first invocation and its containing statement
+            var firstInvocation = identicalInvocations.First();
             var containingStatement = firstInvocation.FirstAncestorOrSelf<StatementSyntax>();
             if (containingStatement == null) return document;
 
-            // Create a local variable declaration
-            var variableDeclaration = SyntaxFactory.LocalDeclarationStatement(
-                SyntaxFactory.VariableDeclaration(
-                    SyntaxFactory.IdentifierName("var"),
-                    SyntaxFactory.SingletonSeparatedList(
-                        SyntaxFactory.VariableDeclarator(
-                            SyntaxFactory.Identifier(variableName),
-                            null,
-                            SyntaxFactory.EqualsValueClause(invocation.WithoutLeadingTrivia())
+            // Check if the first invocation is part of a variable declaration
+            bool isPartOfVariableDeclaration = false;
+            LocalDeclarationStatementSyntax variableDeclarationStatement = null;
+            VariableDeclaratorSyntax variableDeclarator = null;
+            string originalVariableName = null;
+
+            if (containingStatement is LocalDeclarationStatementSyntax localDecl)
+            {
+                variableDeclarationStatement = localDecl;
+                var declarator = localDecl.Declaration.Variables.FirstOrDefault(v =>
+                    v.Initializer?.Value.ToString() == firstInvocation.ToString());
+
+                if (declarator != null)
+                {
+                    isPartOfVariableDeclaration = true;
+                    variableDeclarator = declarator;
+                    originalVariableName = declarator.Identifier.Text;
+                }
+            }
+
+            // Create a new variable declaration or update the existing one
+            StatementSyntax newDeclaration;
+            if (isPartOfVariableDeclaration)
+            {
+                // Use the existing variable name
+                variableName = originalVariableName;
+                newDeclaration = variableDeclarationStatement;
+            }
+            else
+            {
+                // Create a new variable declaration
+                newDeclaration = SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(
+                        SyntaxFactory.IdentifierName("var"),
+                        SyntaxFactory.SingletonSeparatedList(
+                            SyntaxFactory.VariableDeclarator(
+                                SyntaxFactory.Identifier(variableName),
+                                null,
+                                SyntaxFactory.EqualsValueClause(firstInvocation.WithoutLeadingTrivia())
+                            )
                         )
                     )
-                )
-            ).WithLeadingTrivia(invocation.GetLeadingTrivia())
-             .WithAdditionalAnnotations(Formatter.Annotation);
+                ).WithLeadingTrivia(firstInvocation.GetLeadingTrivia())
+                 .WithAdditionalAnnotations(Formatter.Annotation);
+
+                // Insert the new variable declaration before the first statement
+                root = root.InsertNodesBefore(containingStatement, new[] { newDeclaration });
+            }
 
             // Replace the invocation with the variable reference
             var variableReference = SyntaxFactory.IdentifierName(variableName)
                 .WithAdditionalAnnotations(Formatter.Annotation);
 
-            // Insert the variable declaration before the first statement that contains an invocation
-            var newRoot = root.InsertNodesBefore(containingStatement, new[] { variableDeclaration });
-
             // Replace all identical invocations with the variable reference
             var nodesToReplace = new Dictionary<SyntaxNode, SyntaxNode>();
-            foreach (var node in identicalInvocations)
+
+            // Skip the first invocation if it's part of a variable declaration
+            for (int i = isPartOfVariableDeclaration ? 1 : 0; i < identicalInvocations.Count; i++)
             {
-                nodesToReplace.Add(node, variableReference);
+                nodesToReplace.Add(identicalInvocations[i], variableReference);
             }
 
-            newRoot = newRoot.ReplaceNodes(nodesToReplace.Keys, (original, rewritten) => nodesToReplace[original]);
+            if (nodesToReplace.Count > 0)
+            {
+                root = root.ReplaceNodes(nodesToReplace.Keys, (original, rewritten) => nodesToReplace[original]);
+            }
 
-            return document.WithSyntaxRoot(newRoot);
+            return document.WithSyntaxRoot(root);
         }
 
         private bool AreInvocationsEquivalent(InvocationExpressionSyntax invocation1, InvocationExpressionSyntax invocation2, SemanticModel semanticModel)
@@ -241,7 +280,9 @@ namespace Neo.SmartContract.Analyzer
                     SyntaxFactory.IdentifierName("Sha256")
                 ),
                 SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(keyArg)
+                    SyntaxFactory.SingletonSeparatedList(
+                        SyntaxFactory.Argument(keyExpression)
+                    )
                 )
             );
 
@@ -310,13 +351,38 @@ namespace Neo.SmartContract.Analyzer
                 identicalInvocations.Add(invocation);
             }
 
+            // Check if any of the invocations are part of a variable declaration
+            bool isPartOfVariableDeclaration = false;
+            LocalDeclarationStatementSyntax variableDeclarationStatement = null;
+            VariableDeclaratorSyntax variableDeclarator = null;
+            string originalVariableName = null;
+
+            foreach (var inv in identicalInvocations)
+            {
+                var containingStatement = inv.FirstAncestorOrSelf<StatementSyntax>();
+                if (containingStatement is LocalDeclarationStatementSyntax localDecl)
+                {
+                    var declarator = localDecl.Declaration.Variables.FirstOrDefault(v =>
+                        v.Initializer?.Value.ToString() == inv.ToString());
+
+                    if (declarator != null)
+                    {
+                        isPartOfVariableDeclaration = true;
+                        variableDeclarationStatement = localDecl;
+                        variableDeclarator = declarator;
+                        originalVariableName = declarator.Identifier.Text;
+                        break;
+                    }
+                }
+            }
+
             // Create a local variable declaration
             var variableDeclaration = SyntaxFactory.LocalDeclarationStatement(
                 SyntaxFactory.VariableDeclaration(
                     SyntaxFactory.IdentifierName("var"),
                     SyntaxFactory.SingletonSeparatedList(
                         SyntaxFactory.VariableDeclarator(
-                            SyntaxFactory.Identifier(variableName),
+                            SyntaxFactory.Identifier(isPartOfVariableDeclaration ? originalVariableName : variableName),
                             null,
                             SyntaxFactory.EqualsValueClause(invocation.WithoutLeadingTrivia())
                         )
@@ -325,13 +391,13 @@ namespace Neo.SmartContract.Analyzer
             ).WithAdditionalAnnotations(Formatter.Annotation);
 
             // Replace the invocation with the variable reference
-            var variableReference = SyntaxFactory.IdentifierName(variableName)
+            var variableReference = SyntaxFactory.IdentifierName(isPartOfVariableDeclaration ? originalVariableName : variableName)
                 .WithAdditionalAnnotations(Formatter.Annotation);
 
             // Insert the variable declaration before the loop
             var newRoot = root.InsertNodesBefore(loop, new[] { variableDeclaration });
 
-            // Replace all identical invocations with the variable reference
+            // Replace all invocations with the variable reference
             var nodesToReplace = new Dictionary<SyntaxNode, SyntaxNode>();
             foreach (var node in identicalInvocations)
             {
