@@ -42,10 +42,10 @@ namespace Neo.SmartContract.Analyzer
 
             if (node is InvocationExpressionSyntax invocation)
             {
-                // Register code fix for wrapping with Assert
+                // Register code fix for wrapping with ExecutionEngine.Assert
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        title: "Wrap with Assert",
+                        title: "Wrap with ExecutionEngine.Assert",
                         createChangedDocument: c => WrapWithAssertAsync(context.Document, invocation, c),
                         equivalenceKey: "WrapWithAssert"),
                     diagnostic);
@@ -65,9 +65,13 @@ namespace Neo.SmartContract.Analyzer
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             if (root == null) return document;
 
-            // Create Assert(Runtime.CheckWitness(...))
+            // Create ExecutionEngine.Assert(Runtime.CheckWitness(...))
             var assertInvocation = SyntaxFactory.InvocationExpression(
-                SyntaxFactory.IdentifierName("Assert"),
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName("ExecutionEngine"),
+                    SyntaxFactory.IdentifierName("Assert")
+                ),
                 SyntaxFactory.ArgumentList(
                     SyntaxFactory.SingletonSeparatedList(
                         SyntaxFactory.Argument(invocation.WithoutLeadingTrivia())

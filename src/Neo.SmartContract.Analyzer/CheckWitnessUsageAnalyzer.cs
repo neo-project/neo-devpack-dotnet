@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Analyzer
                 // Check if the result is being used properly
                 if (!IsResultVerified(invocation))
                 {
-                    var diagnostic = Diagnostic.Create(Rule, invocation.GetLocation(), "The result of Runtime.CheckWitness(...) should be used in a condition, assigned to a variable, or otherwise utilized");
+                    var diagnostic = Diagnostic.Create(Rule, invocation.GetLocation(), "The result of Runtime.CheckWitness(...) should be used in a condition, assigned to a variable, passed to ExecutionEngine.Assert, or otherwise utilized");
                     context.ReportDiagnostic(diagnostic);
                 }
             }
