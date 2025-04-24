@@ -18,6 +18,8 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     [ContractVersion("v3.6.3")]
     [ContractDescription("This is a test contract.")]
     [ManifestExtra("ExtraKey", "ExtraValue")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_ManifestAttribute : SmartContract
     {
         [NoReentrant]
@@ -31,3 +33,4 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
     }
 }
+
