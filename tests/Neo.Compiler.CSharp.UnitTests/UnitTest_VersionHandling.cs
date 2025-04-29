@@ -203,7 +203,7 @@ public class TestContract : SmartContract
 
             // Create the project file with version information
             XElement propertyGroup = new XElement("PropertyGroup",
-                new XElement("TargetFramework", AppContext.TargetFrameworkName ?? "net9.0"),
+                new XElement("TargetFramework", "net9.0"),
                 new XElement("ImplicitUsings", "enable"),
                 new XElement("Nullable", "enable")
             );

@@ -30,6 +30,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Add NuGet Source
+      run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
     - name: Check format
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
