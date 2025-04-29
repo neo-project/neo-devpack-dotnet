@@ -201,6 +201,16 @@ public class TestContract : SmartContract
             string contractPath = Path.Combine(directory, "TestContract.cs");
             File.WriteAllText(contractPath, contractCode);
 
+            // Create NuGet.config file
+            string nugetConfigContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+  <packageSources>
+    <add key=""nuget.org"" value=""https://api.nuget.org/v3/index.json"" />
+    <add key=""neo"" value=""https://www.myget.org/F/neo/api/v3/index.json"" />
+  </packageSources>
+</configuration>";
+            File.WriteAllText(Path.Combine(directory, "NuGet.config"), nugetConfigContent);
+
             // Create the project file with version information
             XElement propertyGroup = new XElement("PropertyGroup",
                 new XElement("TargetFramework", "net9.0"),
@@ -225,10 +235,13 @@ public class TestContract : SmartContract
             XElement project = new XElement("Project",
                 new XAttribute("Sdk", "Microsoft.NET.Sdk"),
                 propertyGroup,
+                new XElement("PropertyGroup",
+                    new XElement("RestoreSources", "https://api.nuget.org/v3/index.json;https://www.myget.org/F/neo/api/v3/index.json")
+                ),
                 new XElement("ItemGroup",
                     new XElement("PackageReference",
                         new XAttribute("Include", "Neo.SmartContract.Framework"),
-                        new XAttribute("Version", "3.7.4")
+                        new XAttribute("Version", "3.7.4.1-CI00592")
                     )
                 )
             );
