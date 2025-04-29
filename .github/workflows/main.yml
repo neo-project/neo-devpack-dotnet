@@ -30,8 +30,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Add NuGet Source
-      run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
     - name: Check format
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
@@ -55,7 +53,7 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net9.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net9.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
     - name: Build Solution
-      run: dotnet build ./neo-devpack-dotnet.sln
+      run: dotnet build ./neo-devpack-dotnet.sln --source "https://api.nuget.org/v3/index.json;https://www.myget.org/F/neo/api/v3/index.json"
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
     - name: Test Neo.Compiler.CSharp.UnitTests
