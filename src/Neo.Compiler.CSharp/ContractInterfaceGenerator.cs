@@ -13,8 +13,6 @@ using Microsoft.CodeAnalysis;
 using Neo.Extensions;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing.Extensions;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,11 +26,10 @@ namespace Neo.Compiler
         /// Generate an interface for a contract
         /// </summary>
         /// <param name="contractName">Name of the contract</param>
-        /// <param name="nef">NEF file</param>
         /// <param name="manifest">Contract manifest</param>
         /// <param name="contractHash">Contract hash</param>
         /// <returns>The generated interface code</returns>
-        public static string GenerateInterface(string contractName, NefFile nef, ContractManifest manifest, UInt160 contractHash)
+        public static string GenerateInterface(string contractName, ContractManifest manifest, UInt160 contractHash)
         {
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
