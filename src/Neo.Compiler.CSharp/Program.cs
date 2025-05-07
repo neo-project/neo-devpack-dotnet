@@ -29,6 +29,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler
 {
@@ -38,7 +39,7 @@ namespace Neo.Compiler
         {
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
-                new Argument<string[]>("paths", "The path of the project file, project directory or source files."),
+                new Argument<string[]>("paths", "The path of the solution file, project file, project directory or source files."),
                 new Option<string>(["-o", "--output"], "Specifies the output directory."),
                 new Option<string>("--base-name", "Specifies the base name of the output files."),
                 new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."),
@@ -110,10 +111,19 @@ namespace Neo.Compiler
                     context.ExitCode = ProcessDirectory(options, path);
                     return;
                 }
-                if (File.Exists(path) && Path.GetExtension(path).ToLowerInvariant() == ".csproj")
+                if (File.Exists(path))
                 {
-                    context.ExitCode = ProcessCsproj(options, path);
-                    return;
+                    string extension = Path.GetExtension(path).ToLowerInvariant();
+                    if (extension == ".csproj")
+                    {
+                        context.ExitCode = ProcessCsproj(options, path);
+                        return;
+                    }
+                    else if (extension == ".sln")
+                    {
+                        context.ExitCode = ProcessSln(options, path);
+                        return;
+                    }
                 }
             }
             foreach (string path in paths)
@@ -178,10 +188,30 @@ namespace Neo.Compiler
 
         private static int ProcessDirectory(Options options, string path)
         {
+            // First, look for a solution file
+            string? sln = Directory.EnumerateFiles(path, "*.sln", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            if (sln is not null)
+            {
+                Console.WriteLine($"Found solution file: {Path.GetFileName(sln)}");
+                return ProcessSln(options, sln);
+            }
+
+            // If no solution file, look for a project file
             string? csproj = Directory.EnumerateFiles(path, "*.csproj", SearchOption.TopDirectoryOnly).FirstOrDefault();
             if (csproj is not null)
                 return ProcessCsproj(options, csproj);
-            Console.WriteLine($"No .csproj file found in \"{path}\". Searching in sub-directories.");
+
+            // Look for solution files in subdirectories
+            Console.WriteLine($"No .sln or .csproj file found in \"{path}\". Searching in sub-directories.");
+            List<string> slnFiles = Directory.EnumerateFiles(path, "*.sln", SearchOption.AllDirectories).ToList();
+            if (slnFiles.Count > 0)
+            {
+                Console.WriteLine($"Will process {slnFiles.Count} .sln files in sub-directories.");
+                return Enumerable.Max(slnFiles.Select((slnFile) =>
+                    ProcessSln(options, slnFile)));
+            }
+
+            // Look for project files in subdirectories
             List<string> csprojFiles = Directory.EnumerateFiles(path, "*.csproj", SearchOption.AllDirectories).ToList();
             if (csprojFiles.Count > 0)
             {
@@ -203,6 +233,77 @@ namespace Neo.Compiler
         private static int ProcessCsproj(Options options, string path)
         {
             return ProcessOutputs(options, Path.GetDirectoryName(path)!, new CompilationEngine(options).CompileProject(path));
+        }
+
+        private static int ProcessSln(Options options, string path)
+        {
+            try
+            {
+                string solutionDir = Path.GetDirectoryName(path)!;
+                string solutionContent = File.ReadAllText(path);
+
+                // Use regex to find all project references in the solution file
+                var projectRegex = new Regex(@"Project\(""\{[\w-]+\}""\)\s*=\s*""[^""]*"",\s*""([^""]*\.csproj)"",\s*""\{[\w-]+\}""")
+                ;
+                var matches = projectRegex.Matches(solutionContent);
+
+                if (matches.Count == 0)
+                {
+                    Console.Error.WriteLine("No project files found in the solution.");
+                    return 1;
+                }
+
+                Console.WriteLine($"Found {matches.Count} projects in solution {Path.GetFileName(path)}");
+                List<string> projectPaths = new();
+
+                foreach (Match match in matches.Cast<Match>())
+                {
+                    string relativePath = match.Groups[1].Value;
+                    // Replace backslashes with forward slashes for cross-platform compatibility
+                    relativePath = relativePath.Replace('\\', Path.DirectorySeparatorChar);
+                    string fullPath = Path.GetFullPath(Path.Combine(solutionDir, relativePath));
+
+                    if (File.Exists(fullPath))
+                    {
+                        projectPaths.Add(fullPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Project file not found: {fullPath}");
+                    }
+                }
+
+                // Process each project file
+                List<CompilationContext> allContexts = new();
+                foreach (string projectPath in projectPaths)
+                {
+                    try
+                    {
+                        Console.WriteLine($"Compiling project: {Path.GetFileName(projectPath)}");
+                        var contexts = new CompilationEngine(options).CompileProject(projectPath);
+                        allContexts.AddRange(contexts);
+                    }
+                    catch (Exception ex) when (!(ex is FormatException && ex.Message.Contains("No valid neo SmartContract found")))
+                    {
+                        // Only log errors for projects that aren't smart contracts
+                        Console.WriteLine($"Error compiling project {Path.GetFileName(projectPath)}: {ex.Message}");
+                    }
+                }
+
+                if (allContexts.Count == 0)
+                {
+                    Console.Error.WriteLine("No valid Neo smart contracts found in any projects in the solution.");
+                    return 1;
+                }
+
+                return ProcessOutputs(options, solutionDir, allContexts);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Unexpected error processing solution: {ex.Message}");
+                Console.Error.WriteLine(ex.StackTrace);
+                return 1;
+            }
         }
 
         private static int ProcessSources(Options options, string folder, string[] sourceFiles)
@@ -243,7 +344,7 @@ namespace Neo.Compiler
             {
                 string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
                 string path = outputFolder;
-                string baseName = options.BaseName ?? context.ContractName!;
+                string baseName = context.ContractName!;
 
                 NefFile nef;
                 ContractManifest manifest;
