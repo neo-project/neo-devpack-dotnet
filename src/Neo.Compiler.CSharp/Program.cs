@@ -497,10 +497,10 @@ namespace Neo.Compiler
                     var contractHash = context.GetContractHash();
                     if (contractHash != null)
                     {
-                        string interfacePath = Path.Combine(outputFolder, $"I{baseName}.cs");
+                        var interfacePath = Path.Combine(outputFolder, $"I{baseName}.cs");
                         try
                         {
-                            string interfaceSource = ContractInterfaceGenerator.GenerateInterface(baseName, nef, manifest, contractHash);
+                            var interfaceSource = ContractInterfaceGenerator.GenerateInterface(baseName, manifest, contractHash);
                             File.WriteAllText(interfacePath, interfaceSource);
                             Console.WriteLine($"Created contract interface: {interfacePath}");
                         }
