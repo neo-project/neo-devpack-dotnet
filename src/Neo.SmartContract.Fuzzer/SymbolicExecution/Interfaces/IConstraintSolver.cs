@@ -9,11 +9,26 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Interfaces
     public interface IConstraintSolver
     {
         /// <summary>
+        /// Tries to solve the given path constraints.
+        /// </summary>
+        /// <param name="constraints">The path constraints to solve.</param>
+        /// <param name="solution">The solution, if found.</param>
+        /// <returns>True if a solution was found, false otherwise.</returns>
+        bool TrySolve(IEnumerable<PathConstraint> constraints, out Dictionary<string, object> solution);
+
+        /// <summary>
         /// Determines if the specified constraints are satisfiable.
         /// </summary>
         /// <param name="constraints">The constraints to check.</param>
         /// <returns>True if the constraints are satisfiable, false otherwise.</returns>
         bool IsSatisfiable(IEnumerable<PathConstraint> constraints);
+
+        /// <summary>
+        /// Determines if the specified constraints are satisfiable.
+        /// </summary>
+        /// <param name="constraints">The constraints to check.</param>
+        /// <returns>True if the constraints are satisfiable, false otherwise.</returns>
+        bool IsSatisfiable(IEnumerable<object> constraints);
 
         /// <summary>
         /// Solves the specified constraints and returns a model of variable assignments.
@@ -23,10 +38,23 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Interfaces
         Dictionary<string, object> Solve(IEnumerable<PathConstraint> constraints);
 
         /// <summary>
+        /// Solves the specified constraints and returns a model of variable assignments.
+        /// </summary>
+        /// <param name="constraints">The constraints to solve.</param>
+        /// <returns>A dictionary mapping variable names to concrete values that satisfy the constraints.</returns>
+        Dictionary<string, object> Solve(IEnumerable<object> constraints);
+
+        /// <summary>
         /// Updates the solver with new constraints.
         /// </summary>
         /// <param name="constraints">The constraints to update.</param>
         void UpdateConstraints(IEnumerable<PathConstraint> constraints);
+
+        /// <summary>
+        /// Updates the solver with new constraints.
+        /// </summary>
+        /// <param name="constraints">The constraints to update.</param>
+        void UpdateConstraints(IEnumerable<object> constraints);
 
         /// <summary>
         /// Simplifies the given constraints.
@@ -34,5 +62,13 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Interfaces
         /// <param name="constraints">The constraints to simplify.</param>
         /// <returns>Simplified constraints.</returns>
         IEnumerable<PathConstraint> Simplify(IEnumerable<PathConstraint> constraints);
+
+        /// <summary>
+        /// Simplifies the given constraints.
+        /// </summary>
+        /// <param name="constraints">The constraints to simplify.</param>
+        /// <returns>Simplified constraints.</returns>
+        IEnumerable<object> Simplify(IEnumerable<object> constraints);
     }
 }
+

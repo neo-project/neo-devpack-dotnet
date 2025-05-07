@@ -104,13 +104,31 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         /// <returns>True if the map contains the key, false otherwise, or null if unknown.</returns>
         public bool? HasKey(SymbolicValue key)
         {
-            if (key is ConcreteValue)
+            try
             {
-                return _entries.ContainsKey(key);
-            }
+                if (key is ConcreteValue)
+                {
+                    // Check key size to prevent MaxKeySize exception
+                    string keyString = key.ToString() ?? string.Empty;
+                    if (keyString.Length > 64)
+                    {
+                        // Neo VM has a MaxKeySize limit of 64 bytes
+                        // If key is too large, return false instead of throwing an exception
+                        return false;
+                    }
 
-            // If the key is symbolic, we don't know if it's in the map
-            return null;
+                    return _entries.ContainsKey(key);
+                }
+
+                // If the key is symbolic, we don't know if it's in the map
+                return null;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and return null (unknown) to avoid crashing
+                Console.WriteLine($"[DEBUG] Exception in HasKey: {ex.Message}");
+                return null;
+            }
         }
 
         /// <summary>
@@ -134,9 +152,30 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         /// </summary>
         /// <param name="key">The key of the value to set.</param>
         /// <param name="value">The value to set.</param>
-        public void SetItem(SymbolicValue key, SymbolicValue value)
+        /// <returns>True if the key was set, false if the key was too large.</returns>
+        public bool SetItem(SymbolicValue key, SymbolicValue value)
         {
-            _entries[key] = value;
+            try
+            {
+                // Check key size to prevent MaxKeySize exception
+                string keyString = key.ToString() ?? string.Empty;
+                if (keyString.Length > 64)
+                {
+                    // Neo VM has a MaxKeySize limit of 64 bytes
+                    // If key is too large, return false instead of throwing an exception
+                    Console.WriteLine($"[DEBUG] Key size exceeds MaxKeySize (64): {keyString.Length}");
+                    return false;
+                }
+
+                _entries[key] = value;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception and return false to indicate failure
+                Console.WriteLine($"[DEBUG] Exception in SetItem: {ex.Message}");
+                return false;
+            }
         }
 
         /// <summary>
@@ -144,9 +183,10 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         /// </summary>
         /// <param name="key">The key to add.</param>
         /// <param name="value">The value to add.</param>
-        public void Add(SymbolicValue key, SymbolicValue value)
+        /// <returns>True if the key was added, false if the key was too large.</returns>
+        public bool Add(SymbolicValue key, SymbolicValue value)
         {
-            _entries[key] = value;
+            return SetItem(key, value);
         }
 
         /// <summary>

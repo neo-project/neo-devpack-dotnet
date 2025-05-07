@@ -2,6 +2,123 @@
 
 This document covers advanced usage scenarios and techniques for the Neo Smart Contract Fuzzer, helping you get the most out of the tool for complex contracts and specific testing needs.
 
+## Feedback-Guided Fuzzing
+
+Feedback-guided fuzzing uses execution feedback to guide the generation of new test cases. This can significantly improve the efficiency of fuzzing by focusing on inputs that explore new code paths.
+
+### Enabling Feedback-Guided Fuzzing
+
+Feedback-guided fuzzing is enabled by default. You can explicitly enable or disable it:
+
+```bash
+# Enable feedback-guided fuzzing
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --feedback
+
+# Disable feedback-guided fuzzing
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --no-feedback
+```
+
+### Corpus Management
+
+The fuzzer maintains a corpus of interesting test cases that trigger unique behaviors:
+
+```bash
+# Specify a directory for the corpus
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --corpus-dir path/to/corpus
+
+# Limit the corpus size
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --max-corpus-size 1000
+```
+
+### Feedback Metrics
+
+The fuzzer uses various metrics to determine if a test case is interesting:
+
+- **Code Coverage**: Does the test case cover new instructions or branches?
+- **Storage Access**: Does the test case access new storage keys?
+- **Event Emission**: Does the test case trigger new events?
+- **Exception Types**: Does the test case cause new types of exceptions?
+- **Gas Consumption**: Does the test case consume gas in a unique pattern?
+
+## Symbolic Execution
+
+Symbolic execution explores multiple execution paths by treating inputs as symbolic values. This can help find vulnerabilities that are difficult to discover with random fuzzing.
+
+### Enabling Symbolic Execution
+
+Symbolic execution is disabled by default due to its computational cost. You can enable it:
+
+```bash
+# Enable symbolic execution
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --symbolic
+
+# Configure symbolic execution depth
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --symbolic \
+  --symbolic-depth 100 \
+  --symbolic-paths 1000
+```
+
+### Constraint Solving
+
+The symbolic execution engine uses a constraint solver to generate concrete inputs that satisfy path constraints:
+
+```bash
+# Specify a timeout for constraint solving
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --symbolic \
+  --solver-timeout 5000
+```
+
+## Test Case Minimization
+
+Test case minimization reduces the complexity of test cases that trigger issues, making it easier to understand and fix the underlying problems.
+
+### Enabling Test Case Minimization
+
+Test case minimization is enabled by default. You can explicitly enable or disable it:
+
+```bash
+# Enable test case minimization
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --minimize
+
+# Disable test case minimization
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --no-minimize
+```
+
+### Minimization Strategies
+
+The fuzzer uses several strategies to minimize test cases:
+
+- **Parameter Removal**: Removing parameters that don't affect the issue
+- **Value Simplification**: Simplifying complex values (e.g., large integers, long strings)
+- **Delta Debugging**: Systematically reducing the test case while preserving the issue
+
 ## Custom Parameter Generation
 
 ### Defining Custom Generators
@@ -384,7 +501,7 @@ dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.cspro
 
 ### Integration with CI/CD
 
-You can integrate the fuzzer into your CI/CD pipeline:
+You can integrate the fuzzer into your CI/CD pipeline to automatically test contracts during development:
 
 ```yaml
 # Example GitHub Actions workflow
@@ -414,13 +531,53 @@ jobs:
           --manifest src/MyContract/bin/Debug/net9.0/MyContract.manifest.json \
           --output fuzzer-results \
           --iterations 1000 \
-          --coverage
+          --coverage \
+          --report-format junit,json
     - name: Upload Results
       uses: actions/upload-artifact@v2
       with:
         name: fuzzer-results
         path: fuzzer-results
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        files: fuzzer-results/junit-report.xml
 ```
+
+### Continuous Fuzzing
+
+For long-running fuzzing campaigns, you can set up continuous fuzzing:
+
+```bash
+# Run the fuzzer continuously, saving results periodically
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --output fuzzer-results \
+  --continuous \
+  --save-interval 3600 \
+  --max-runtime 86400
+```
+
+This will run the fuzzer for 24 hours, saving results every hour.
+
+### Regression Testing
+
+You can use the fuzzer for regression testing to ensure that new changes don't introduce vulnerabilities:
+
+```bash
+# Run the fuzzer with a fixed seed for reproducibility
+dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
+  --nef path/to/contract.nef \
+  --manifest path/to/contract.manifest.json \
+  --output fuzzer-results \
+  --seed 42 \
+  --iterations 1000 \
+  --report-format junit
+```
+
+Add this to your CI pipeline to catch regressions early.
 
 ### Integration with Security Scanners
 
@@ -447,79 +604,134 @@ You can use the fuzzer programmatically in your own code:
 
 ```csharp
 using Neo.SmartContract.Fuzzer;
+using Neo.SmartContract.Fuzzer.Controller;
 
-// Create a configuration
+// Create a fuzzer configuration
 var config = new FuzzerConfiguration
 {
     NefPath = "path/to/contract.nef",
     ManifestPath = "path/to/contract.manifest.json",
     OutputDirectory = "fuzzer-results",
     IterationsPerMethod = 1000,
-    GasLimit = 20000000,
+    GasLimit = 20_000_000, // 20 GAS
     Seed = 42,
-    EnableCoverage = true
+    EnableFeedbackGuidedFuzzing = true,
+    EnableTestCaseMinimization = true,
+    EnableStaticAnalysis = true,
+    EnableSymbolicExecution = false,
+    ReportFormats = new List<string> { "json", "html" }
 };
 
-// Create and run the fuzzer
-var fuzzer = new SmartContractFuzzer(config);
-var results = fuzzer.Run();
+// Create a fuzzing controller
+var controller = new FuzzingController(config);
 
-// Process the results
-foreach (var methodResult in results.MethodResults)
+// Start the fuzzing process
+await controller.StartAsync();
+
+// Get the fuzzing status
+var status = controller.GetStatus();
+
+// Print the results
+Console.WriteLine($"Total Executions: {status.TotalExecutions}");
+Console.WriteLine($"Successful Executions: {status.SuccessfulExecutions}");
+Console.WriteLine($"Failed Executions: {status.FailedExecutions}");
+Console.WriteLine($"Issues Found: {status.IssuesFound}");
+Console.WriteLine($"Code Coverage: {status.CodeCoverage:P2}");
+Console.WriteLine($"Execution Time: {status.ElapsedTime}");
+
+// Access the issues
+var issues = controller.GetIssues();
+foreach (var issue in issues)
 {
-    Console.WriteLine($"Method: {methodResult.Key}");
-    Console.WriteLine($"Executions: {methodResult.Value.Count}");
-    Console.WriteLine($"Failures: {methodResult.Value.Count(r => r.Exception != null)}");
-}
+    Console.WriteLine($"Issue Type: {issue.IssueType}");
+    Console.WriteLine($"Description: {issue.Description}");
+    Console.WriteLine($"Method: {issue.Method}");
+    Console.WriteLine($"Severity: {issue.Severity}");
 
-// Access coverage information
-var coverage = results.Coverage;
-Console.WriteLine($"Instruction coverage: {coverage.InstructionCoverage}%");
-Console.WriteLine($"Branch coverage: {coverage.BranchCoverage}%");
+    // Access the test case that triggered the issue
+    var testCase = issue.TestCase;
+    Console.WriteLine($"Parameters: {string.Join(", ", testCase.Parameters)}");
 
-// Access vulnerability information
-var vulnerabilities = results.Vulnerabilities;
-foreach (var vulnerability in vulnerabilities)
-{
-    Console.WriteLine($"Vulnerability: {vulnerability.Type}");
-    Console.WriteLine($"Severity: {vulnerability.Severity}");
-    Console.WriteLine($"Location: {vulnerability.Location}");
+    // Access the minimized test case
+    var minimizedTestCase = issue.MinimizedTestCase;
+    if (minimizedTestCase != null)
+    {
+        Console.WriteLine($"Minimized Parameters: {string.Join(", ", minimizedTestCase.Parameters)}");
+    }
 }
 ```
 
 ### Custom Vulnerability Detectors
 
-You can implement custom vulnerability detectors:
+You can implement custom vulnerability detectors to find specific issues in your contracts:
 
 ```csharp
+using Neo.SmartContract.Fuzzer.Detectors;
+using Neo.SmartContract.Fuzzer.Models;
+
 public class CustomVulnerabilityDetector : IVulnerabilityDetector
 {
-    public string Name => "custom-detector";
-    
-    public IEnumerable<Vulnerability> DetectVulnerabilities(ExecutionTrace trace)
+    public string Name => "CustomDetector";
+
+    public List<IssueReport> DetectVulnerabilities(TestCase testCase, ExecutionResult result)
     {
-        // Custom logic to detect vulnerabilities
-        // ...
-        
-        yield return new Vulnerability
+        var issues = new List<IssueReport>();
+
+        // Example: Detect if a method consumes more than 10 GAS
+        if (result.FeeConsumed > 10_000_000)
         {
-            Type = "custom-vulnerability",
-            Severity = Severity.High,
-            Location = "Method: transfer, Offset: 42",
-            Description = "Custom vulnerability description",
-            Recommendation = "Custom vulnerability recommendation"
-        };
+            issues.Add(new IssueReport
+            {
+                IssueType = "High Gas Consumption",
+                Description = $"Method consumed {result.FeeConsumed / 100000000.0} GAS",
+                Severity = "Medium",
+                Method = testCase.MethodName,
+                TestCase = testCase,
+                GasConsumed = result.FeeConsumed
+            });
+        }
+
+        // Example: Detect if a method accesses a specific storage key
+        if (result.StorageChanges?.Any(sc => sc.Key.ToHexString() == "0123456789abcdef") == true)
+        {
+            issues.Add(new IssueReport
+            {
+                IssueType = "Sensitive Storage Access",
+                Description = "Method accesses a sensitive storage key",
+                Severity = "High",
+                Method = testCase.MethodName,
+                TestCase = testCase
+            });
+        }
+
+        return issues;
     }
-}
 ```
 
-Register your custom detector in the configuration:
+To register your custom detector, add it to the fuzzing controller:
+
+```csharp
+// Create a fuzzing controller
+var controller = new FuzzingController(config);
+
+// Register custom vulnerability detector
+controller.RegisterVulnerabilityDetector(new CustomVulnerabilityDetector());
+
+// Start the fuzzing process
+await controller.StartAsync();
+```
+
+Or specify it in the configuration file:
 
 ```json
 {
-  "customDetectors": {
-    "custom-detector": "MyNamespace.CustomVulnerabilityDetector, MyAssembly"
-  }
+  "VulnerabilityDetectors": [
+    {
+      "Name": "CustomDetector",
+      "Type": "MyNamespace.CustomVulnerabilityDetector, MyAssembly",
+      "Enabled": true
+    }
+  ]
 }
 ```
 

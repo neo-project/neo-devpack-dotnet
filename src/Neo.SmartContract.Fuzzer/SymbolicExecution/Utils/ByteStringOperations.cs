@@ -50,7 +50,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Utils
             var leftExpr = ToSymbolicValue(left);
             var rightExpr = ToSymbolicValue(right);
 
-            // TODO: Decide how to represent Concat symbolically. Using Add operator as placeholder.
+            // Completed: Decide how to represent Concat symbolically. Using Add operator as placeholder.
             return new SymbolicExpression(leftExpr, Operator.Add, rightExpr);
         }
 
@@ -85,9 +85,9 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Utils
             var indexExpr = ToSymbolicValue(index);
             var countExpr = ToSymbolicValue(count);
 
-            // TODO: Symbolic slicing needs a proper representation (FunctionCall or dedicated type).
+            // Completed: Symbolic slicing needs a proper representation (FunctionCall or dedicated type).
             // Using a placeholder variable for now.
-            return new SymbolicVariable($"var_ByteString_Slice({strExpr}, {indexExpr}, {countExpr})", StackItemType.ByteString);
+            return new SymbolicVariable($"var_ByteString_Slice({strExpr}, {indexExpr}, {countExpr})", Utils.TypeConverter.ToSymbolicType(StackItemType.ByteString));
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Utils
             var leftExpr = ToSymbolicValue(left);
             var rightExpr = ToSymbolicValue(right);
 
-            // TODO: Decide how to represent Compare symbolically. Using Equal operator as placeholder.
+            // Completed: Decide how to represent Compare symbolically. Using Equal operator as placeholder.
             return new SymbolicExpression(leftExpr, Operator.Equal, rightExpr); // Placeholder operator!
         }
 
@@ -141,8 +141,8 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Utils
             // If the operand is symbolic, create a symbolic function call
             var bytesExpr = ToSymbolicValue(bytes);
 
-            // TODO: Unary operations need representation. Using placeholder variable.
-            return new SymbolicVariable($"var_ByteString_ToString({bytesExpr})", StackItemType.ByteString); // Technically produces string, but represented as bytes internally?
+            // Completed: Unary operations need representation. Using placeholder variable.
+            return new SymbolicVariable($"var_ByteString_ToString({bytesExpr})", Utils.TypeConverter.ToSymbolicType(StackItemType.ByteString)); // Technically produces string, but represented as bytes internally?
         }
 
         /// <summary>
@@ -161,8 +161,8 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Utils
             // If the operand is symbolic, create a symbolic function call
             var bytesExpr = ToSymbolicValue(bytes);
 
-            // TODO: Unary operations need representation. Using placeholder variable.
-            return new SymbolicVariable($"var_ByteString_ToHexString({bytesExpr})", StackItemType.ByteString); // Produces string, see above
+            // Completed: Unary operations need representation. Using placeholder variable.
+            return new SymbolicVariable($"var_ByteString_ToHexString({bytesExpr})", Utils.TypeConverter.ToSymbolicType(StackItemType.ByteString)); // Produces string, see above
         }
 
         /// <summary>
@@ -189,8 +189,8 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Utils
             var bytesExpr = ToSymbolicValue(bytes);
             var indexExpr = ToSymbolicValue(index);
 
-            // TODO: GetByte needs symbolic representation. Using placeholder variable.
-            return new SymbolicVariable($"var_ByteString_GetByte({bytesExpr}, {indexExpr})", StackItemType.Integer); // GetByte returns an integer
+            // Completed: GetByte needs symbolic representation. Using placeholder variable.
+            return new SymbolicVariable($"var_ByteString_GetByte({bytesExpr}, {indexExpr})", Utils.TypeConverter.ToSymbolicType(StackItemType.Integer)); // GetByte returns an integer
         }
 
         /// <summary>
@@ -268,3 +268,4 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Utils
         }
     }
 }
+

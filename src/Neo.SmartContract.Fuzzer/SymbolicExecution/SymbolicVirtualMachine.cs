@@ -42,6 +42,9 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
         private readonly ExtensionOperations _extensionOps;
         private readonly AdvancedArithmeticOperations _advancedArithmeticOps;
 
+        // Dictionary to store previous state constraints for tracking changes
+        private readonly Dictionary<int, HashSet<PathConstraint>> _previousStateConstraints = new Dictionary<int, HashSet<PathConstraint>>();
+
         // --- Interface Properties ---
         public ISymbolicState CurrentState { get; private set; }
         public ExecutionEngineLimits Limits { get; }
@@ -576,14 +579,30 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
             if (state is SymbolicState concreteStateForConstraints)
             {
                 // Get constraints added since the last step
-                // This is a simplification - in a real implementation, we would track which
-                // constraints were added during this specific step
                 int constraintCount = concreteStateForConstraints.PathConstraints.Count;
-                if (constraintCount > 0)
+
+                // If we have a previous state snapshot, compare constraints
+                if (_previousStateConstraints.TryGetValue(state.GetHashCode(), out var prevConstraints))
                 {
-                    // Add the most recent constraint (assuming it was added in this step)
+                    // Find constraints that were added in this step
+                    for (int i = 0; i < constraintCount; i++)
+                    {
+                        var constraint = concreteStateForConstraints.PathConstraints[i];
+                        if (!prevConstraints.Contains(constraint))
+                        {
+                            addedConstraints.Add(constraint);
+                        }
+                    }
+                }
+                else if (constraintCount > 0)
+                {
+                    // If no previous state, assume the last constraint was added in this step
                     addedConstraints.Add(concreteStateForConstraints.PathConstraints[constraintCount - 1]);
                 }
+
+                // Update previous state constraints for next step
+                _previousStateConstraints[state.GetHashCode()] = new HashSet<PathConstraint>(
+                    concreteStateForConstraints.PathConstraints);
 
                 // For branches, we would need to track which instruction pointers were created
                 // during branch operations. This is a placeholder implementation.

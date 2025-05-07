@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
     {
         private readonly byte[] _script;
         private readonly IConstraintSolver _solver;
-        private readonly List<IVulnerabilityDetector> _detectors;
+        private readonly List<ISymbolicVulnerabilityDetector> _detectors;
         private readonly int _maxSteps;
         private readonly SymbolicVirtualMachine _vm;
 
@@ -42,11 +42,11 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
         /// <param name="detectors">The vulnerability detectors to use.</param>
         /// <param name="initialArguments">The initial arguments to place on the stack.</param>
         /// <param name="maxSteps">The maximum number of steps to execute.</param>
-        public SymbolicExecutionEngine(byte[] script, IConstraintSolver solver, IEnumerable<IVulnerabilityDetector>? detectors = null, IEnumerable<SymbolicValue>? initialArguments = null, int maxSteps = 1000)
+        public SymbolicExecutionEngine(byte[] script, IConstraintSolver solver, IEnumerable<ISymbolicVulnerabilityDetector>? detectors = null, IEnumerable<SymbolicValue>? initialArguments = null, int maxSteps = 1000)
         {
             _script = script ?? throw new ArgumentNullException(nameof(script));
             _solver = solver ?? throw new ArgumentNullException(nameof(solver));
-            _detectors = detectors?.ToList() ?? new List<IVulnerabilityDetector>();
+            _detectors = detectors?.ToList() ?? new List<ISymbolicVulnerabilityDetector>();
             _maxSteps = maxSteps;
 
             // Create the VM
@@ -125,7 +125,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 var varName = $"arg{i}";
 
                 // Create a symbolic variable based on the parameter type
-                var symbolicVar = new SymbolicVariable(varName, VM.Types.StackItemType.Any);
+                var symbolicVar = new SymbolicVariable(varName, SymbolicType.Any);
                 result.Add(symbolicVar);
             }
 

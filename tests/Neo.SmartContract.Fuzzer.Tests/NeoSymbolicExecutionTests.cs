@@ -43,10 +43,29 @@ namespace Neo.SmartContract.Fuzzer.Tests
             return true;
         }
 
+        public bool IsSatisfiable(IEnumerable<SymbolicExpression> constraints)
+        {
+            // This is a simplified adapter for testing purposes
+            return true;
+        }
+
         public Dictionary<string, object> Solve(IEnumerable<PathConstraint> constraints)
         {
             // Simplified implementation for testing
             return new Dictionary<string, object>();
+        }
+
+        public Dictionary<string, object> Solve(IEnumerable<SymbolicExpression> constraints)
+        {
+            // Simplified implementation for testing
+            return new Dictionary<string, object>();
+        }
+
+        public bool TrySolve(IEnumerable<PathConstraint> constraints, out Dictionary<string, object> solution)
+        {
+            // Simplified implementation for testing
+            solution = new Dictionary<string, object>();
+            return true;
         }
 
         public IEnumerable<PathConstraint> Simplify(IEnumerable<PathConstraint> constraints)
@@ -55,7 +74,18 @@ namespace Neo.SmartContract.Fuzzer.Tests
             return constraints;
         }
 
+        public IEnumerable<SymbolicExpression> Simplify(IEnumerable<SymbolicExpression> constraints)
+        {
+            // Return the constraints as-is for testing
+            return constraints;
+        }
+
         public void UpdateConstraints(IEnumerable<PathConstraint> constraints)
+        {
+            // No-op for testing
+        }
+
+        public void UpdateConstraints(IEnumerable<SymbolicExpression> constraints)
         {
             // No-op for testing
         }

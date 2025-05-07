@@ -100,7 +100,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
             else
             {
                 // If either operand is symbolic, create a symbolic variable to represent the result
-                var symbolicResult = new SymbolicVariable($"Pow_Result_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Integer);
+                var symbolicResult = new SymbolicVariable($"Pow_Result_{_engine.CurrentState.InstructionPointer}", SymbolicType.Integer);
                 _engine.CurrentState.Push(symbolicResult);
                 LogDebug($"Created symbolic result for POW: {symbolicResult}");
             }
@@ -154,7 +154,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
             else
             {
                 // If the operand is symbolic, create a symbolic variable to represent the result
-                var symbolicResult = new SymbolicVariable($"Sqrt_Result_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Integer);
+                var symbolicResult = new SymbolicVariable($"Sqrt_Result_{_engine.CurrentState.InstructionPointer}", SymbolicType.Integer);
                 _engine.CurrentState.Push(symbolicResult);
                 LogDebug($"Created symbolic result for SQRT: {symbolicResult}");
             }
@@ -227,7 +227,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
             else
             {
                 // If any operand is symbolic, create a symbolic variable to represent the result
-                var symbolicResult = new SymbolicVariable($"ModMul_Result_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Integer);
+                var symbolicResult = new SymbolicVariable($"ModMul_Result_{_engine.CurrentState.InstructionPointer}", SymbolicType.Integer);
                 _engine.CurrentState.Push(symbolicResult);
                 LogDebug($"Created symbolic result for MODMUL: {symbolicResult}");
             }
@@ -300,7 +300,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
             else
             {
                 // If any operand is symbolic, create a symbolic variable to represent the result
-                var symbolicResult = new SymbolicVariable($"ModPow_Result_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Integer);
+                var symbolicResult = new SymbolicVariable($"ModPow_Result_{_engine.CurrentState.InstructionPointer}", SymbolicType.Integer);
                 _engine.CurrentState.Push(symbolicResult);
                 LogDebug($"Created symbolic result for MODPOW: {symbolicResult}");
             }

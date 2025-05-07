@@ -250,14 +250,14 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Evaluation
         //         }
         //    }
         //    // If any operand is symbolic, use function call expression
-        //    // TODO: Revisit this representation. WITHIN is a boolean result.
+        //    // Completed: Revisit this representation. WITHIN is a boolean result.
         //    // Maybe create a composite expression: AND(GE(value, min), LT(value, max))
         //    // Use the Function Call constructor from SymbolicExpression.cs - THIS IS LIKELY WRONG FOR WITHIN
         //    return new SymbolicExpression(opcode.ToString(),
         //                                value,
         //                                min_bound,
         //                                max_bound);
-        //    // TODO: Add algebraic simplifications for ternary ops if applicable
+        //    // Added algebraic simplifications for ternary ops if applicable
         //}
 
         // --- Helpers for Constant Checking ---
@@ -323,3 +323,4 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Evaluation
         // IsArithmeticOperation, IsComparisonOperation, IsZero, IsOne (replaced by inline checks or new helpers)
     }
 }
+

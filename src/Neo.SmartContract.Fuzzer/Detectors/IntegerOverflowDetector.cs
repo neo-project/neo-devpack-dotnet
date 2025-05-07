@@ -99,11 +99,26 @@ namespace Neo.SmartContract.Fuzzer.Detectors
 {
     /// <summary>
     /// Detects potential integer overflow, underflow, division by zero vulnerabilities.
+    ///
+    /// This detector analyzes the execution trace and symbolic state to identify:
+    /// 1. Integer overflow/underflow in arithmetic operations (ADD, SUB, MUL, etc.)
+    /// 2. Division by zero vulnerabilities
+    /// 3. Unsafe shift operations
+    /// 4. Potential integer-related vulnerabilities in symbolic expressions
     /// </summary>
     public class IntegerOverflowDetector : IVulnerabilityDetector
     {
+        // Neo VM integer limits (256-bit integers)
         private static readonly BigInteger MinNeoValue = -BigInteger.Pow(2, 255);
         private static readonly BigInteger MaxNeoValue = BigInteger.Pow(2, 255) - 1;
+
+        // Common integer limits for different sizes
+        private static readonly BigInteger Int32Min = int.MinValue;
+        private static readonly BigInteger Int32Max = int.MaxValue;
+        private static readonly BigInteger Int64Min = long.MinValue;
+        private static readonly BigInteger Int64Max = long.MaxValue;
+        private static readonly BigInteger UInt32Max = uint.MaxValue;
+        private static readonly BigInteger UInt64Max = ulong.MaxValue;
 
         public virtual IEnumerable<VulnerabilityRecord> Detect(SymbolicState finalState, VMState vmState)
         {
@@ -189,7 +204,7 @@ namespace Neo.SmartContract.Fuzzer.Detectors
                         }
                         // Regular case for normal execution
 #endif
-                        else if (stackAfter.Count > 0 && stackAfter[stackAfter.Count - 1] is SymbolicValue result &&
+                        if (stackAfter.Count > 0 && stackAfter[stackAfter.Count - 1] is SymbolicValue result &&
                             step.StackBefore.Count > 1 && step.StackBefore[step.StackBefore.Count - 1] is SymbolicValue top &&
                             step.StackBefore[step.StackBefore.Count - 2] is SymbolicValue second)
                         {
@@ -304,12 +319,102 @@ namespace Neo.SmartContract.Fuzzer.Detectors
 
         private VulnerabilityRecord CreateRecord(SymbolicState state, ExecutionStep step, string description)
         {
+            string remediation = GetRemediationAdvice(step.Instruction.OpCode, description);
+            string severity = GetSeverity(step.Instruction.OpCode, description);
+
             return new VulnerabilityRecord(
                 type: GetType().Name,
                 description: description,
                 triggeringState: state,
-                instructionPointer: state.InstructionPointer
+                instructionPointer: state.InstructionPointer,
+                severity: severity,
+                remediation: remediation
             );
+        }
+
+        /// <summary>
+        /// Gets appropriate remediation advice based on the vulnerability type.
+        /// </summary>
+        private string GetRemediationAdvice(OpCode opCode, string description)
+        {
+            if (description.Contains("Division by Zero"))
+            {
+                return "Add explicit checks to ensure divisors are not zero before performing division operations. " +
+                       "Example: if (divisor != 0) { result = dividend / divisor; } else { /* handle error */ }";
+            }
+
+            if (description.Contains("Overflow") || description.Contains("Underflow"))
+            {
+                switch (opCode)
+                {
+                    case OpCode.ADD:
+                        return "Implement bounds checking before addition operations. " +
+                               "Example: if (a <= MaxValue - b) { result = a + b; } else { /* handle overflow */ }";
+
+                    case OpCode.SUB:
+                        return "Implement bounds checking before subtraction operations. " +
+                               "Example: if (a >= MinValue + b) { result = a - b; } else { /* handle underflow */ }";
+
+                    case OpCode.MUL:
+                        return "Implement bounds checking before multiplication operations. " +
+                               "Example: if (a == 0 || b == 0 || a <= MaxValue / b) { result = a * b; } else { /* handle overflow */ }";
+
+                    case OpCode.INC:
+                        return "Check if the value is less than MaxValue before incrementing. " +
+                               "Example: if (value < MaxValue) { value++; } else { /* handle overflow */ }";
+
+                    case OpCode.DEC:
+                        return "Check if the value is greater than MinValue before decrementing. " +
+                               "Example: if (value > MinValue) { value--; } else { /* handle underflow */ }";
+
+                    case OpCode.NEGATE:
+                        return "Check if the value is not equal to MinValue before negating. " +
+                               "Example: if (value != MinValue) { value = -value; } else { /* handle overflow */ }";
+
+                    case OpCode.ABS:
+                        return "Check if the value is not equal to MinValue before taking the absolute value. " +
+                               "Example: if (value != MinValue) { value = Math.Abs(value); } else { /* handle overflow */ }";
+
+                    default:
+                        return "Implement appropriate bounds checking before arithmetic operations to prevent overflow/underflow.";
+                }
+            }
+
+            if (description.Contains("unsafe") && (opCode == OpCode.SHL || opCode == OpCode.SHR))
+            {
+                return "Validate shift amounts before performing shift operations. " +
+                       "For SHL, ensure shift amount is between 0 and 256. " +
+                       "For SHR, ensure shift amount is between -256 and 256.";
+            }
+
+            return "Implement appropriate validation and bounds checking for integer operations.";
+        }
+
+        /// <summary>
+        /// Gets the severity level based on the vulnerability type.
+        /// </summary>
+        private string GetSeverity(OpCode opCode, string description)
+        {
+            // Division by zero is always high severity
+            if (description.Contains("Division by Zero"))
+            {
+                return "High";
+            }
+
+            // Definite issues are high severity
+            if (description.Contains("Definite"))
+            {
+                return "High";
+            }
+
+            // Potential issues with symbolic operands are medium severity
+            if (description.Contains("Potential") && description.Contains("Symbolic"))
+            {
+                return "Medium";
+            }
+
+            // Default to medium severity for other cases
+            return "Medium";
         }
     }
 }

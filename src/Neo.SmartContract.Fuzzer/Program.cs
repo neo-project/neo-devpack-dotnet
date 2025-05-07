@@ -5,10 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Text.Json;           // Added
-using Neo.VM.Types;               // Added
-using Newtonsoft.Json; // Add this
-using Neo.SmartContract.Manifest; // Added
+using System.Text.Json;
+using Neo.VM.Types;
+using Newtonsoft.Json;
+using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Fuzzer.Logging;
 
 namespace Neo.SmartContract.Fuzzer
 {
@@ -17,47 +18,91 @@ namespace Neo.SmartContract.Fuzzer
         // --- Instance Fields for Options (Removed static) ---
         readonly Option<string> nefOption = new Option<string>("--nef", "Path to the NEF file") { IsRequired = true };
         readonly Option<string> manifestOption = new Option<string>("--manifest", "Path to the contract manifest file") { IsRequired = true };
+        readonly Option<string> sourceOption = new Option<string>("--source", "Path to the source code file (optional)");
         readonly Option<string> outputOption = new Option<string>("--output", () => "fuzzer-output", "Directory to save execution results and logs");
         readonly Option<int> iterationsOption = new Option<int>("--iterations", () => 1000, "Number of fuzzing iterations");
         readonly Option<long> gasLimitOption = new Option<long>("--gas-limit", () => 20_00000000L, "Gas limit per execution"); // Default 20 GAS
         readonly Option<int> seedOption = new Option<int>("--seed", () => Environment.TickCount, "Random seed for reproducibility");
         readonly Option<bool> coverageOption = new Option<bool>("--coverage", () => false, "Enable code coverage measurement");
-        readonly Option<string> coverageFormatOption = new Option<string>("--coverage-format", () => "coz", "Coverage report format (e.g., coz, json)");
+        readonly Option<string> coverageFormatOption = new Option<string>("--coverage-format", () => "html", "Coverage report format (html, json, text)");
         readonly Option<string> methodsOption = new Option<string>("--methods", "Comma-separated list of methods to include in fuzzing (default: all public methods)");
         readonly Option<string> excludeOption = new Option<string>("--exclude", "Comma-separated list of methods to exclude from fuzzing");
         readonly Option<string> configOption = new Option<string>("--config", "Path to fuzzer configuration file");
         readonly Option<string?> replayOption = new Option<string?>("--replay", "Path to a specific input file to replay"); // Nullable string
 
+        // --- New Options ---
+        readonly Option<bool> feedbackOption = new Option<bool>("--feedback", () => true, "Enable feedback-guided fuzzing");
+        readonly Option<bool> staticAnalysisOption = new Option<bool>("--static-analysis", () => true, "Enable static analysis");
+        readonly Option<bool> symbolicOption = new Option<bool>("--symbolic", () => false, "Enable symbolic execution");
+        readonly Option<int> symbolicDepthOption = new Option<int>("--symbolic-depth", () => 100, "Maximum depth for symbolic execution");
+        readonly Option<int> symbolicPathsOption = new Option<int>("--symbolic-paths", () => 1000, "Maximum number of paths to explore in symbolic execution");
+        readonly Option<bool> minimizeOption = new Option<bool>("--minimize", () => true, "Enable test case minimization");
+        readonly Option<string> reportFormatOption = new Option<string>("--report-format", () => "json", "Report format (json, html, markdown, text)");
+        readonly Option<string> engineOption = new Option<string>("--engine", () => "neo-express", "Execution engine to use (neo-express, rpc, in-memory)");
+        readonly Option<string> rpcUrlOption = new Option<string>("--rpc-url", () => "http://localhost:10332", "RPC URL for RPC execution engine");
+        readonly Option<int> maxCorpusSizeOption = new Option<int>("--max-corpus-size", () => 1000, "Maximum number of test cases in corpus");
+
+        /// <summary>
+        /// Initializes the logger with appropriate settings.
+        /// </summary>
+        private static void InitializeLogger()
+        {
+            // Set default log level to Info
+            Logger.LogLevel = Logging.LogLevel.Info;
+
+            // Check if verbose logging is enabled via environment variable
+            string? verboseEnv = Environment.GetEnvironmentVariable("NEO_FUZZER_VERBOSE");
+            if (!string.IsNullOrEmpty(verboseEnv) && (verboseEnv.Equals("1") || verboseEnv.Equals("true", StringComparison.OrdinalIgnoreCase)))
+            {
+                Logger.IsVerbose = true;
+                Logger.LogLevel = Logging.LogLevel.Debug;
+            }
+
+            // No need to set Neo LogLevel as it's not directly compatible
+            // and we're using our own logging system
+        }
+
         static async Task<int> Main(string[] args)
         {
+            // Initialize logger
+            InitializeLogger();
+
             // Refactor: Create instance of Program
             var programInstance = new Program();
 
             var rootCommand = new RootCommand("Neo Smart Contract Fuzzer")
             {
                 // Access options via instance
-                programInstance.nefOption, programInstance.manifestOption, programInstance.outputOption, programInstance.iterationsOption,
-                programInstance.gasLimitOption, programInstance.seedOption, programInstance.coverageOption, programInstance.coverageFormatOption,
-                programInstance.methodsOption, programInstance.excludeOption, programInstance.configOption, programInstance.replayOption
+                programInstance.nefOption, programInstance.manifestOption, programInstance.sourceOption, programInstance.outputOption,
+                programInstance.iterationsOption, programInstance.gasLimitOption, programInstance.seedOption,
+                programInstance.coverageOption, programInstance.coverageFormatOption,
+                programInstance.methodsOption, programInstance.excludeOption, programInstance.configOption, programInstance.replayOption,
+
+                // New options
+                programInstance.feedbackOption, programInstance.staticAnalysisOption, programInstance.symbolicOption,
+                programInstance.symbolicDepthOption, programInstance.symbolicPathsOption, programInstance.minimizeOption,
+                programInstance.reportFormatOption, programInstance.engineOption, programInstance.rpcUrlOption,
+                programInstance.maxCorpusSizeOption
             };
 
             rootCommand.Description = "A tool to perform fuzz testing on Neo smart contracts.";
 
             // Refactor: Call instance Execute method
-            rootCommand.SetHandler((InvocationContext context) =>
+            rootCommand.SetHandler(async (InvocationContext context) =>
             {
-                programInstance.Execute(context);
+                await programInstance.ExecuteAsync(context);
             });
 
             return await rootCommand.InvokeAsync(args);
         }
 
         // Refactor: Remove static from Execute method
-        private void Execute(InvocationContext context)
+        private async Task ExecuteAsync(InvocationContext context)
         {
             // Refactor: Retrieve values using instance options
             var nef = context.ParseResult.GetValueForOption(nefOption)!;
             var manifest = context.ParseResult.GetValueForOption(manifestOption)!;
+            var source = context.ParseResult.GetValueForOption(sourceOption)!;
             var output = context.ParseResult.GetValueForOption(outputOption)!;
             var iterations = context.ParseResult.GetValueForOption(iterationsOption);
             var gasLimit = context.ParseResult.GetValueForOption(gasLimitOption);
@@ -69,16 +114,28 @@ namespace Neo.SmartContract.Fuzzer
             var config = context.ParseResult.GetValueForOption(configOption)!;
             var replay = context.ParseResult.GetValueForOption(replayOption); // Nullable string
 
+            // New options
+            var feedback = context.ParseResult.GetValueForOption(feedbackOption);
+            var staticAnalysis = context.ParseResult.GetValueForOption(staticAnalysisOption);
+            var symbolic = context.ParseResult.GetValueForOption(symbolicOption);
+            var symbolicDepth = context.ParseResult.GetValueForOption(symbolicDepthOption);
+            var symbolicPaths = context.ParseResult.GetValueForOption(symbolicPathsOption);
+            var minimize = context.ParseResult.GetValueForOption(minimizeOption);
+            var reportFormat = context.ParseResult.GetValueForOption(reportFormatOption)!;
+            var engine = context.ParseResult.GetValueForOption(engineOption)!;
+            var rpcUrl = context.ParseResult.GetValueForOption(rpcUrlOption)!;
+            var maxCorpusSize = context.ParseResult.GetValueForOption(maxCorpusSizeOption);
+
             try
             {
                 // --- Replay Logic ---
                 if (!string.IsNullOrEmpty(replay))
                 {
-                    Console.WriteLine($"--- Replay Mode: Executing input file {replay} ---");
+                    Logger.Info($"--- Replay Mode: Executing input file {replay} ---");
 
                     if (!File.Exists(replay))
                     {
-                        Console.WriteLine($"Error: Replay input file not found: {replay}");
+                        Logger.Error($"Replay input file not found: {replay}");
                         return; // Or throw
                     }
 
@@ -86,7 +143,7 @@ namespace Neo.SmartContract.Fuzzer
                     FuzzerConfiguration fuzzerConfig;
                     if (!string.IsNullOrEmpty(config) && File.Exists(config))
                     {
-                        Console.WriteLine($"Loading configuration from {config} for replay context...");
+                        Logger.Info($"Loading configuration from {config} for replay context...");
                         fuzzerConfig = FuzzerConfiguration.LoadFromFile(config);
                         // Ensure NefPath and ManifestPath are set if they were overridden by CLI args originally
                         fuzzerConfig.NefPath = !string.IsNullOrEmpty(nef) ? nef : fuzzerConfig.NefPath;
@@ -94,10 +151,10 @@ namespace Neo.SmartContract.Fuzzer
                     }
                     else // Use default/other CLI args if no config file specified
                     {
-                        Console.WriteLine("Using default/command-line config for replay context...");
+                        Logger.Info("Using default/command-line config for replay context...");
                         if (string.IsNullOrEmpty(nef) || string.IsNullOrEmpty(manifest))
                         {
-                            Console.WriteLine("Error: --nef and --manifest options are required for replay mode if --config is not used.");
+                            Logger.Error("--nef and --manifest options are required for replay mode if --config is not used.");
                             return;
                         }
                         fuzzerConfig = new FuzzerConfiguration
@@ -221,12 +278,23 @@ namespace Neo.SmartContract.Fuzzer
                     {
                         NefPath = nef,
                         ManifestPath = manifest,
+                        SourcePath = source,
                         OutputDirectory = output,
                         IterationsPerMethod = iterations,
                         GasLimit = gasLimit,
                         Seed = seed,
                         EnableCoverage = coverage,
-                        CoverageFormat = coverageFormat
+                        CoverageFormat = coverageFormat,
+                        // New options
+                        EnableFeedbackGuidedFuzzing = feedback,
+                        EnableStaticAnalysis = staticAnalysis,
+                        EnableSymbolicExecution = symbolic,
+                        SymbolicExecutionDepth = symbolicDepth,
+                        SymbolicExecutionPaths = symbolicPaths,
+                        EnableTestCaseMinimization = minimize,
+                        ExecutionEngine = engine,
+                        RpcUrl = rpcUrl,
+                        MaxCorpusSize = maxCorpusSize
                         // PersistStateBetweenCalls & SaveFailingInputsOnly will use their defaults unless set in a config file
                     };
 
@@ -271,22 +339,41 @@ namespace Neo.SmartContract.Fuzzer
                 Console.WriteLine($"Persist State: {mainFuzzerConfig.PersistStateBetweenCalls}");
                 Console.WriteLine($"Save Failing Only: {mainFuzzerConfig.SaveFailingInputsOnly}");
 
-                // Create and run the main fuzzer implementation
-                var fuzzer = new SmartContractFuzzer(mainFuzzerConfig);
-                fuzzer.Run();
+                // New options
+                Console.WriteLine($"Feedback-guided fuzzing: {mainFuzzerConfig.EnableFeedbackGuidedFuzzing}");
+                Console.WriteLine($"Static analysis: {mainFuzzerConfig.EnableStaticAnalysis}");
+                Console.WriteLine($"Symbolic execution: {mainFuzzerConfig.EnableSymbolicExecution}");
+                Console.WriteLine($"Execution engine: {mainFuzzerConfig.ExecutionEngine}");
+                Console.WriteLine($"Coverage-guided fuzzing: {mainFuzzerConfig.EnableCoverageGuidedFuzzing}");
+                Console.WriteLine($"Prioritize branch coverage: {mainFuzzerConfig.PrioritizeBranchCoverage}");
+                Console.WriteLine($"Prioritize path coverage: {mainFuzzerConfig.PrioritizePathCoverage}");
+
+                // Use the new FuzzingController instead of SmartContractFuzzer
+                var controller = new Controller.FuzzingController(mainFuzzerConfig);
+                controller.Start();
+
+                // Wait for completion
+                await controller;
+
+                // Get final status
+                var status = controller.GetStatus();
+                Console.WriteLine($"Total executions: {status.TotalExecutions}");
+                Console.WriteLine($"Successful executions: {status.SuccessfulExecutions}");
+                Console.WriteLine($"Failed executions: {status.FailedExecutions}");
+                Console.WriteLine($"Issues found: {status.IssuesFound}");
+                Console.WriteLine($"Code coverage: {status.CodeCoverage:P2}");
 
                 Console.WriteLine("Fuzzing completed successfully!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
+                Logger.Exception(ex, "An error occurred during fuzzing");
             }
         }
 
         // --- Helper methods for Replay ---
 
-        private string ExtractMethodNameFromReplayPath(string replayPath)
+        private static string ExtractMethodNameFromReplayPath(string replayPath)
         {
             try
             {
@@ -303,7 +390,7 @@ namespace Neo.SmartContract.Fuzzer
         }
 
         // Updated signature and implemented body
-        private StackItem[]? LoadAndDeserializeParameters(string replayPath, ContractMethodDescriptor methodDescriptor)
+        private static StackItem[]? LoadAndDeserializeParameters(string replayPath, ContractMethodDescriptor methodDescriptor)
         {
             try
             {
@@ -312,7 +399,7 @@ namespace Neo.SmartContract.Fuzzer
 
                 if (!document.RootElement.TryGetProperty("Parameters", out JsonElement parametersElement) || parametersElement.ValueKind != JsonValueKind.Array)
                 {
-                    Console.WriteLine($"Error: Could not find 'Parameters' array in JSON file: {replayPath}");
+                    Logger.Error($"Could not find 'Parameters' array in JSON file: {replayPath}");
                     return null;
                 }
 
@@ -326,8 +413,8 @@ namespace Neo.SmartContract.Fuzzer
 
                 if (jsonCount != methodCount)
                 {
-                    string errorMessage = $"Error: Parameter count mismatch in {replayPath}. JSON has {jsonCount}, Manifest expects {methodCount} for method {methodDescriptor.Name}.";
-                    Console.WriteLine(errorMessage);
+                    string errorMessage = $"Parameter count mismatch in {replayPath}. JSON has {jsonCount}, Manifest expects {methodCount} for method {methodDescriptor.Name}.";
+                    Logger.Error(errorMessage);
                     return null;
                 }
 
@@ -343,28 +430,27 @@ namespace Neo.SmartContract.Fuzzer
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error deserializing parameter {i} ('{methodParams[i].Name}') for method {methodDescriptor.Name} from {replayPath}: {ex.Message}");
-                        // Optionally log stack trace ex.ToString()
+                        Logger.Error($"Error deserializing parameter {i} ('{methodParams[i].Name}') for method {methodDescriptor.Name} from {replayPath}: {ex.Message}");
+                        Logger.Verbose(ex.StackTrace ?? "No stack trace available");
                         return null; // Fail fast on parameter deserialization error
                     }
                 }
-                Console.WriteLine($"Successfully loaded and deserialized {stackItems.Length} parameters from {replayPath}");
+                Logger.Info($"Successfully loaded and deserialized {stackItems.Length} parameters from {replayPath}");
                 return stackItems;
             }
             catch (Newtonsoft.Json.JsonException jsonEx)
             {
-                Console.WriteLine($"Error parsing JSON file {replayPath}: {jsonEx.Message}");
+                Logger.Error($"Error parsing JSON file {replayPath}: {jsonEx.Message}");
                 return null;
             }
             catch (IOException ioEx)
             {
-                Console.WriteLine($"Error reading file {replayPath}: {ioEx.Message}");
+                Logger.Error($"Error reading file {replayPath}: {ioEx.Message}");
                 return null;
             }
             catch (Exception ex) // Catch unexpected errors
             {
-                Console.WriteLine($"An unexpected error occurred while loading parameters from {replayPath}: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
+                Logger.Exception(ex, $"An unexpected error occurred while loading parameters from {replayPath}");
                 return null;
             }
         }

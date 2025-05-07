@@ -1,24 +1,45 @@
 using Neo.SmartContract.Fuzzer.SymbolicExecution;
 using Neo.SmartContract.Fuzzer.SymbolicExecution.Types;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Neo.SmartContract.Fuzzer.Detectors
 {
     /// <summary>
     /// Detector for unauthorized access vulnerabilities in Neo N3 smart contracts.
-    /// Identifies sensitive operations that lack proper authentication checks.
+    ///
+    /// This detector identifies sensitive operations that lack proper authentication checks,
+    /// which could allow unauthorized users to perform privileged actions such as:
+    /// - Modifying contract storage
+    /// - Updating contract code
+    /// - Transferring tokens
+    /// - Calling administrative functions
+    ///
+    /// The detector looks for patterns where sensitive operations are performed without
+    /// prior authentication checks (e.g., Runtime.CheckWitness) or with bypassed checks.
     /// </summary>
     public class UnauthorizedAccessDetector : IVulnerabilityDetector
     {
-        // Syscall hash for Runtime.CheckWitness
+        // Syscall hashes for authentication checks
         private static readonly uint CheckWitnessSyscall = 0xbebd4186;    // System.Runtime.CheckWitness
+        private static readonly uint GetCallingScriptHashSyscall = 0x5c5c3df1; // System.Runtime.GetCallingScriptHash
+        private static readonly uint GetExecutingScriptHashSyscall = 0x8e39e5d6; // System.Runtime.GetExecutingScriptHash
 
-        // Syscall hashes for sensitive operations
+        // Syscall hashes for sensitive storage operations
         private static readonly uint StoragePutSyscall = 0x79e2259c;      // System.Storage.Put
         private static readonly uint StorageDeleteSyscall = 0x3a378b3d;    // System.Storage.Delete
+
+        // Syscall hashes for sensitive contract operations
         private static readonly uint ContractUpdateSyscall = 0xc3cddc96;   // System.Contract.Update
+        private static readonly uint ContractDestroySyscall = 0x6a825268;  // System.Contract.Destroy
+
+        // Syscall hashes for sensitive token operations
+        private static readonly uint TransferSyscall = 0x5ce192fb;        // NEP-17 Transfer
+        private static readonly uint MintSyscall = 0x8c146139;            // Mint tokens (placeholder)
+        private static readonly uint BurnSyscall = 0x8c146139;            // Burn tokens (placeholder)
 
         public virtual IEnumerable<VulnerabilityRecord> Detect(SymbolicState finalState, VMState vmState)
         {
@@ -135,10 +156,18 @@ namespace Neo.SmartContract.Fuzzer.Detectors
 
                 if (priorAuthChecks.Count == 0)
                 {
+                    string vulnerabilityType = "UnauthorizedAccess";
+                    string description = $"Potential unauthorized access vulnerability: {op.Type} operation ({op.Description}) without prior authentication check.";
+                    string severity = op.Type.Contains("Contract") || op.Type.Contains("Token") ? "High" : "Medium";
+                    string remediation = GetRemediationAdvice(vulnerabilityType);
+
                     vulnerabilities.Add(new VulnerabilityRecord(
-                        type: "UnauthorizedAccess",
-                        description: $"Potential unauthorized access vulnerability: {op.Type} operation ({op.Description}) without prior authentication check.",
-                        triggeringState: finalState
+                        type: vulnerabilityType,
+                        description: description,
+                        triggeringState: finalState,
+                        instructionPointer: op.Position,
+                        severity: severity,
+                        remediation: remediation
                     ));
                 }
             }
@@ -146,10 +175,18 @@ namespace Neo.SmartContract.Fuzzer.Detectors
             // Check for potential authentication logic flaws
             if (sensitiveOps.Count > 0 && HasPotentialAuthenticationLogicFlaw(executionTrace, authChecks))
             {
+                string vulnerabilityType = "AuthenticationLogicFlaw";
+                string description = "Potential logical flaw in authentication: Execution path contains branches that may bypass authentication checks.";
+                string severity = "High";
+                string remediation = GetRemediationAdvice(vulnerabilityType);
+
                 vulnerabilities.Add(new VulnerabilityRecord(
-                    type: "AuthenticationLogicFlaw",
-                    description: "Potential logical flaw in authentication: Execution path contains branches that may bypass authentication checks.",
-                    triggeringState: finalState
+                    type: vulnerabilityType,
+                    description: description,
+                    triggeringState: finalState,
+                    instructionPointer: null,
+                    severity: severity,
+                    remediation: remediation
                 ));
             }
 
@@ -161,14 +198,157 @@ namespace Neo.SmartContract.Fuzzer.Detectors
         /// </summary>
         private bool IsAuthenticationCheck(ExecutionStep step)
         {
-            // Check if the operation invokes a known authentication syscall or pattern
+            // Skip null instructions
+            if (step?.Instruction == null) return false;
+
             var instruction = step.Instruction;
             var opcode = step.Opcode;
-            // Example: Check for CheckWitness syscall
-            if (opcode == OpCode.SYSCALL && instruction.TokenI32 == CheckWitnessSyscall) return true;
 
-            // Example: Check for specific contract call (requires resolving symbolic target)
-            // if (opcode == OpCode.CALL && IsAuthContractCall(instruction, step.StackBefore)) return true; // Needs Stack info
+            // Check for direct authentication syscalls
+            if (opcode == OpCode.SYSCALL)
+            {
+                uint syscallHash = (uint)instruction.TokenU32;
+
+                // Runtime.CheckWitness is the primary authentication method
+                if (syscallHash == CheckWitnessSyscall)
+                    return true;
+
+                // Getting script hashes can be part of authentication logic
+                if (syscallHash == GetCallingScriptHashSyscall ||
+                    syscallHash == GetExecutingScriptHashSyscall)
+                {
+                    // Check if the result is used in a comparison operation
+                    return IsFollowedByComparisonOp(step);
+                }
+            }
+
+            // Check for common authentication patterns
+            if (IsAuthenticationPattern(step))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the step is followed by a comparison operation, which might indicate authentication logic.
+        /// </summary>
+        private bool IsFollowedByComparisonOp(ExecutionStep step)
+        {
+            // If the instruction is null, we can't analyze it
+            if (step?.Instruction == null)
+                return false;
+
+            // Look at the opcode of the current instruction
+            var opcode = step.Instruction.OpCode;
+
+            // If the current instruction is getting a script hash, check if it's used in a comparison
+            if (opcode == OpCode.SYSCALL &&
+                (step.Instruction.TokenU32 == GetCallingScriptHashSyscall ||
+                 step.Instruction.TokenU32 == GetExecutingScriptHashSyscall))
+            {
+                // Check if we have access to the stack after this instruction
+                if (step.StackAfter != null && step.StackAfter.Count > 0)
+                {
+                    // The script hash should be on top of the stack after the syscall
+                    // Since we don't have direct access to the execution trace through the step,
+                    // we'll make a reasonable assumption that script hashes are typically used for authentication
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determines if an opcode is a comparison operation.
+        /// </summary>
+        private bool IsComparisonOpcode(OpCode opcode)
+        {
+            return opcode == OpCode.EQUAL ||
+                   opcode == OpCode.NOTEQUAL ||
+                   opcode == OpCode.NUMEQUAL ||
+                   opcode == OpCode.NUMNOTEQUAL ||
+                   opcode == OpCode.LT ||
+                   opcode == OpCode.LE ||
+                   opcode == OpCode.GT ||
+                   opcode == OpCode.GE;
+        }
+
+        /// <summary>
+        /// Checks if the step is part of a common authentication pattern.
+        /// </summary>
+        private bool IsAuthenticationPattern(ExecutionStep step)
+        {
+            // Skip null instructions
+            if (step?.Instruction == null)
+                return false;
+
+            // Check for storage access pattern (owner address pattern)
+            if (IsStorageAccessPattern(step))
+                return true;
+
+            // Check for array operations pattern (whitelist pattern)
+            if (IsArrayOperationsPattern(step))
+                return true;
+
+            // Check for signature verification pattern
+            if (IsSignatureVerificationPattern(step))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the step is part of a storage access pattern (owner address pattern).
+        /// </summary>
+        private bool IsStorageAccessPattern(ExecutionStep step)
+        {
+            // Check if this is a Storage.Get syscall
+            if (step.Instruction.OpCode == OpCode.SYSCALL)
+            {
+                // System.Storage.Get
+                if (step.Instruction.TokenU32 == 0x925de831)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the step is part of an array operations pattern (whitelist pattern).
+        /// </summary>
+        private bool IsArrayOperationsPattern(ExecutionStep step)
+        {
+            // Check for array operations
+            if (step.Instruction.OpCode == OpCode.NEWARRAY ||
+                step.Instruction.OpCode == OpCode.PICKITEM)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the step is part of a signature verification pattern.
+        /// </summary>
+        private bool IsSignatureVerificationPattern(ExecutionStep step)
+        {
+            // Check for crypto syscalls
+            if (step.Instruction.OpCode == OpCode.SYSCALL)
+            {
+                uint syscallHash = step.Instruction.TokenU32;
+
+                // Crypto.VerifySignature
+                if (syscallHash == 0x98c08faa) // System.Crypto.VerifySignature
+                    return true;
+
+                // Crypto.VerifyWithECDsa
+                if (syscallHash == 0x78c2de32) // System.Crypto.VerifyWithECDsa
+                    return true;
+            }
 
             return false;
         }
@@ -180,14 +360,19 @@ namespace Neo.SmartContract.Fuzzer.Detectors
         {
             opType = "Unknown";
             description = string.Empty;
+
+            // Skip null instructions
+            if (step?.Instruction == null) return false;
+
             var instruction = step.Instruction;
             var opcode = step.Opcode;
 
-            // Check if the operation invokes a known sensitive syscall or pattern
+            // Check for sensitive syscalls
             if (opcode == OpCode.SYSCALL)
             {
-                uint syscallHash = (uint)instruction.TokenI32;
+                uint syscallHash = (uint)instruction.TokenU32;
 
+                // Storage operations
                 if (syscallHash == StoragePutSyscall)
                 {
                     opType = "StorageWrite";
@@ -202,6 +387,7 @@ namespace Neo.SmartContract.Fuzzer.Detectors
                     return true;
                 }
 
+                // Contract management operations
                 if (syscallHash == ContractUpdateSyscall)
                 {
                     opType = "ContractUpdate";
@@ -209,18 +395,116 @@ namespace Neo.SmartContract.Fuzzer.Detectors
                     return true;
                 }
 
-                // Add other sensitive syscalls (e.g., contract management, token transfers)
+                if (syscallHash == ContractDestroySyscall)
+                {
+                    opType = "ContractDestroy";
+                    description = "System.Contract.Destroy called";
+                    return true;
+                }
+
+                // Token operations
+                if (syscallHash == TransferSyscall)
+                {
+                    opType = "TokenTransfer";
+                    description = "NEP-17 Transfer called";
+                    return true;
+                }
+
+                if (syscallHash == MintSyscall)
+                {
+                    opType = "TokenMint";
+                    description = "Token minting operation";
+                    return true;
+                }
+
+                if (syscallHash == BurnSyscall)
+                {
+                    opType = "TokenBurn";
+                    description = "Token burning operation";
+                    return true;
+                }
             }
 
-            // Check for NEP-17 transfer calls (requires resolving target and method)
-            // if (opcode == OpCode.CALL && IsNep17Transfer(instruction, step.StackBefore)) // Needs Stack info
-            // {
-            //     opType = "Transfer";
-            //     description = "NEP-17 Transfer";
-            //     return true;
-            // }
+            // Check for method calls that might be sensitive
+            if (opcode == OpCode.CALL || opcode == OpCode.CALLA || opcode == OpCode.CALLT)
+            {
+                // Try to extract method name from stack
+                string methodName = ExtractMethodName(step);
+
+                // Check for common sensitive method names
+                if (IsSensitiveMethodName(methodName))
+                {
+                    opType = "SensitiveMethod";
+                    description = $"Call to sensitive method: {methodName}";
+                    return true;
+                }
+            }
 
             return false;
+        }
+
+        /// <summary>
+        /// Extracts the method name from a call operation.
+        /// </summary>
+        private string ExtractMethodName(ExecutionStep step)
+        {
+            if (step.StackBefore == null || step.StackBefore.Count == 0)
+                return "unknown";
+
+            // For CALL and CALLT, the method name is typically the top item on the stack
+            var methodNameObj = step.StackBefore[step.StackBefore.Count - 1];
+
+            // Try to extract the actual method name based on the type
+            if (methodNameObj is ConcreteValue<string> stringMethod)
+            {
+                return stringMethod.Value;
+            }
+            else if (methodNameObj is ConcreteValue<byte[]> byteArrayMethod)
+            {
+                // Try to convert byte array to string
+                try
+                {
+                    return Encoding.UTF8.GetString(byteArrayMethod.Value);
+                }
+                catch
+                {
+                    // If conversion fails, return hex representation
+                    return Convert.ToHexString(byteArrayMethod.Value);
+                }
+            }
+            else if (methodNameObj is SymbolicExecution.SymbolicVariable symVar)
+            {
+                return $"SymVar({symVar.Name})";
+            }
+            else if (methodNameObj is Neo.SmartContract.Fuzzer.SymbolicExecution.Types.SymbolicExpression symExpr)
+            {
+                return $"SymExpr({symExpr})";
+            }
+
+            // For CALLA, the method is determined by the value on the stack
+            // which is an index into the method table
+            if (step.Instruction?.OpCode == OpCode.CALLA && methodNameObj is ConcreteValue<int> intMethod)
+            {
+                return $"Method#{intMethod.Value}";
+            }
+
+            // For any other type, use the ToString representation or a default
+            return methodNameObj?.ToString() ?? "unknown";
+        }
+
+        /// <summary>
+        /// Checks if a method name is considered sensitive.
+        /// </summary>
+        private bool IsSensitiveMethodName(string methodName)
+        {
+            // Check for common sensitive method names
+            string[] sensitiveMethods = new[]
+            {
+                "transfer", "mint", "burn", "withdraw", "update", "upgrade",
+                "setowner", "changeowner", "admin", "authorize", "deploy"
+            };
+
+            return sensitiveMethods.Any(m => methodName.ToLowerInvariant().Contains(m));
         }
 
         /// <summary>
@@ -228,16 +512,79 @@ namespace Neo.SmartContract.Fuzzer.Detectors
         /// </summary>
         private bool HasPotentialAuthenticationLogicFlaw(IList<ExecutionStep> trace, List<int> authCheckPositions)
         {
-            // This is a simplified placeholder implementation
-            // In practice, you would look for specific patterns like:
-            // - Conditional authentication checks
-            // - Authentication checks with potentially exploitable OR conditions
-            // - Authentication checks that might be bypassed
+            // Skip if no authentication checks or trace is too short
+            if (authCheckPositions.Count == 0 || trace.Count < 5)
+                return false;
 
-            // For now, we'll implement a basic heuristic:
-            // If there are jumps or branches around authentication check positions,
-            // it might indicate a potential authentication bypass
+            // Check for conditional authentication patterns
+            if (HasConditionalAuthentication(trace, authCheckPositions))
+                return true;
 
+            // Check for authentication results being ignored
+            if (HasIgnoredAuthenticationResult(trace, authCheckPositions))
+                return true;
+
+            // Check for jumps or branches around authentication checks
+            if (HasJumpsAroundAuthChecks(trace, authCheckPositions))
+                return true;
+
+            // Check for multiple authentication checks with inconsistent handling
+            if (HasInconsistentAuthChecks(trace, authCheckPositions))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if there are conditional authentication checks.
+        /// </summary>
+        private bool HasConditionalAuthentication(IList<ExecutionStep> trace, List<int> authCheckPositions)
+        {
+            // Look for conditional jumps before authentication checks
+            foreach (var authPos in authCheckPositions)
+            {
+                // Look for conditional jumps in the 5 instructions before the auth check
+                for (int i = System.Math.Max(0, authPos - 5); i < authPos; i++)
+                {
+                    if (i < trace.Count && trace[i] != null &&
+                        (trace[i].Opcode == OpCode.JMPIF || trace[i].Opcode == OpCode.JMPIFNOT))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if authentication results are being ignored.
+        /// </summary>
+        private bool HasIgnoredAuthenticationResult(IList<ExecutionStep> trace, List<int> authCheckPositions)
+        {
+            // Look for DROP or POP operations after authentication checks
+            foreach (var authPos in authCheckPositions)
+            {
+                // Skip if this is the last instruction
+                if (authPos >= trace.Count - 1)
+                    continue;
+
+                // Check if the next instruction is DROP
+                var nextOp = trace[authPos + 1]?.Opcode;
+                if (nextOp == OpCode.DROP)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if there are jumps or branches around authentication checks.
+        /// </summary>
+        private bool HasJumpsAroundAuthChecks(IList<ExecutionStep> trace, List<int> authCheckPositions)
+        {
             // Look for jumps or branches near authentication checks
             foreach (var authPos in authCheckPositions)
             {
@@ -245,7 +592,7 @@ namespace Neo.SmartContract.Fuzzer.Detectors
                 for (int i = System.Math.Max(0, authPos - 5); i < authPos; i++)
                 {
                     // Ensure trace[i] exists before accessing properties
-                    if (i < trace.Count && trace[i] != null && IsJumpOrBranch(trace[i].Opcode)) // Use ExecutionStep's Opcode
+                    if (i < trace.Count && trace[i] != null && IsJumpOrBranch(trace[i].Opcode))
                         return true;
                 }
 
@@ -253,9 +600,40 @@ namespace Neo.SmartContract.Fuzzer.Detectors
                 for (int i = authPos + 1; i < System.Math.Min(trace.Count, authPos + 5); i++)
                 {
                     // Ensure trace[i] exists before accessing properties
-                    if (i < trace.Count && trace[i] != null && IsJumpOrBranch(trace[i].Opcode)) // Use ExecutionStep's Opcode
+                    if (i < trace.Count && trace[i] != null && IsJumpOrBranch(trace[i].Opcode))
                         return true;
                 }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if there are multiple authentication checks with inconsistent handling.
+        /// </summary>
+        private bool HasInconsistentAuthChecks(IList<ExecutionStep> trace, List<int> authCheckPositions)
+        {
+            // If there are multiple authentication checks, check if they're handled consistently
+            if (authCheckPositions.Count > 1)
+            {
+                // Look at the instructions following each auth check
+                var followingOps = new List<OpCode>();
+
+                foreach (var authPos in authCheckPositions)
+                {
+                    // Skip if this is the last instruction
+                    if (authPos >= trace.Count - 1)
+                        continue;
+
+                    // Add the next operation to the list
+                    if (trace[authPos + 1] != null)
+                    {
+                        followingOps.Add(trace[authPos + 1].Opcode);
+                    }
+                }
+
+                // If the following operations are different, it might indicate inconsistent handling
+                return followingOps.Count > 1 && followingOps.Distinct().Count() > 1;
             }
 
             return false;
@@ -269,6 +647,38 @@ namespace Neo.SmartContract.Fuzzer.Detectors
             return opcode == VM.OpCode.JMP ||
                    opcode == VM.OpCode.JMPIF ||
                    opcode == VM.OpCode.JMPIFNOT;
+        }
+
+        /// <summary>
+        /// Gets remediation advice for the specified vulnerability type.
+        /// </summary>
+        private string GetRemediationAdvice(string vulnerabilityType)
+        {
+            switch (vulnerabilityType)
+            {
+                case "UnauthorizedAccess":
+                    return "Add proper authentication checks (e.g., Runtime.CheckWitness) before performing sensitive operations. " +
+                           "Ensure that only authorized users can modify contract state or perform administrative functions.";
+
+                case "BypassedWitnessCheck":
+                    return "Ensure that authentication check results are properly validated and enforced. " +
+                           "Use ExecutionEngine.Assert() to verify authentication results and prevent execution from continuing if authentication fails.";
+
+                case "InconsistentWitnessChecks":
+                    return "Ensure consistent handling of authentication checks throughout the contract. " +
+                           "Use a single, well-tested authentication method and apply it consistently to all sensitive operations.";
+
+                case "HardcodedOwnerAddress":
+                    return "Avoid hardcoding addresses in the contract code. " +
+                           "Store owner/admin addresses in contract storage to allow for ownership transfer and better maintainability.";
+
+                case "AuthenticationLogicFlaw":
+                    return "Review and simplify authentication logic to avoid potential bypasses. " +
+                           "Ensure that authentication checks cannot be bypassed through conditional execution or complex logic.";
+
+                default:
+                    return "Implement proper authentication and access control mechanisms to ensure that only authorized users can perform sensitive operations.";
+            }
         }
     }
 }

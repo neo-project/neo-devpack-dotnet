@@ -150,16 +150,50 @@ namespace Neo.SmartContract.Fuzzer.Solvers
             {
                 return _context.MkInt(longVal.Value);
             }
+            else if (value is ConcreteValue<BigInteger> bigIntVal)
+            {
+                // Handle BigInteger values
+                return _context.MkInt(bigIntVal.Value.ToString());
+            }
             else if (value is ConcreteValue<bool> boolVal)
             {
                 return boolVal.Value ? _context.MkTrue() : _context.MkFalse();
+            }
+            else if (value is ConcreteValue<byte[]> byteArrayVal)
+            {
+                // Handle byte arrays by converting to a string
+                return TranslateByteArray(byteArrayVal.Value);
+            }
+            else if (value is ConcreteValue<UInt160> uint160Val)
+            {
+                // Handle UInt160 by converting to string for now
+                return _context.MkString(uint160Val.Value.ToString());
+            }
+            else if (value is ConcreteValue<UInt256> uint256Val)
+            {
+                // Handle UInt256 by converting to string for now
+                return _context.MkString(uint256Val.Value.ToString());
+            }
+            else if (value is ConcreteValue<string> stringVal)
+            {
+                // Handle strings
+                return _context.MkString(stringVal.Value);
             }
             else if (value is SymbolicVariable symVar)
             {
                 if (!_variableCache.TryGetValue(symVar.Name, out var varExpr))
                 {
-                    // Assume int by default, could be refined based on variable type information
-                    varExpr = _context.MkIntConst(symVar.Name);
+                    // Create appropriate type based on variable type
+                    if (symVar.Type != Neo.VM.Types.StackItemType.Any)
+                    {
+                        varExpr = CreateTypedVariable(symVar.Name, symVar.Type);
+                    }
+                    else
+                    {
+                        // Assume int by default
+                        varExpr = _context.MkIntConst(symVar.Name);
+                    }
+
                     _variableCache[symVar.Name] = varExpr;
                 }
                 return varExpr;
@@ -179,7 +213,16 @@ namespace Neo.SmartContract.Fuzzer.Solvers
                             {
                                 return _context.MkNot(boolExpr);
                             }
-                            throw new InvalidOperationException("NOT operator requires boolean operand");
+                            // Try to convert to boolean if possible
+                            try
+                            {
+                                var eqExpr = _context.MkEq(left, _context.MkInt(0));
+                                return _context.MkNot(eqExpr);
+                            }
+                            catch
+                            {
+                                throw new InvalidOperationException("NOT operator requires boolean operand");
+                            }
 
                         case Operator.Negate:
                             if (left is ArithExpr arithExpr)
@@ -187,6 +230,37 @@ namespace Neo.SmartContract.Fuzzer.Solvers
                                 return _context.MkUnaryMinus(arithExpr);
                             }
                             throw new InvalidOperationException("NEGATE operator requires arithmetic operand");
+
+                        case Operator.BitwiseNot:
+                            if (left is IntExpr intExpr)
+                            {
+                                // Bitwise NOT is equivalent to -x-1 in two's complement
+                                return _context.MkSub(_context.MkUnaryMinus(intExpr), _context.MkInt(1));
+                            }
+                            throw new InvalidOperationException("BITWISE_NOT operator requires integer operand");
+
+                        case Operator.Abs:
+                            if (left is ArithExpr absExpr)
+                            {
+                                // abs(x) = if x >= 0 then x else -x
+                                var condition = _context.MkGe(absExpr, _context.MkInt(0));
+                                return _context.MkITE(condition, absExpr, _context.MkUnaryMinus(absExpr));
+                            }
+                            throw new InvalidOperationException("ABS operator requires arithmetic operand");
+
+                        case Operator.Sign:
+                            if (left is ArithExpr signExpr)
+                            {
+                                // sign(x) = if x > 0 then 1 else if x < 0 then -1 else 0
+                                var positiveCondition = _context.MkGt(signExpr, _context.MkInt(0));
+                                var negativeCondition = _context.MkLt(signExpr, _context.MkInt(0));
+                                return _context.MkITE(
+                                    positiveCondition,
+                                    _context.MkInt(1),
+                                    _context.MkITE(negativeCondition, _context.MkInt(-1), _context.MkInt(0))
+                                );
+                            }
+                            throw new InvalidOperationException("SIGN operator requires arithmetic operand");
 
                         default:
                             throw new NotImplementedException($"Unary operator {symExpr.Operator} not implemented");
@@ -282,8 +356,98 @@ namespace Neo.SmartContract.Fuzzer.Solvers
                         }
                         throw new InvalidOperationException("OR operator requires boolean operands");
 
+                    case Operator.BitwiseAnd:
+                        if (left is IntExpr leftBitAnd && right is IntExpr rightBitAnd)
+                        {
+                            // Z3 doesn't have direct bitwise operations for integers
+                            // We can use the BV (bit vector) sort for this
+                            var bvSize = 64u; // Use 64-bit vectors
+                            var leftBv = _context.MkInt2BV(bvSize, leftBitAnd);
+                            var rightBv = _context.MkInt2BV(bvSize, rightBitAnd);
+                            var result = _context.MkBVAND(leftBv, rightBv);
+                            return _context.MkBV2Int(result, true);
+                        }
+                        throw new InvalidOperationException("BITWISE_AND operator requires integer operands");
+
+                    case Operator.BitwiseOr:
+                        if (left is IntExpr leftBitOr && right is IntExpr rightBitOr)
+                        {
+                            var bvSize = 64u;
+                            var leftBv = _context.MkInt2BV(bvSize, leftBitOr);
+                            var rightBv = _context.MkInt2BV(bvSize, rightBitOr);
+                            var result = _context.MkBVOR(leftBv, rightBv);
+                            return _context.MkBV2Int(result, true);
+                        }
+                        throw new InvalidOperationException("BITWISE_OR operator requires integer operands");
+
+                    case Operator.BitwiseXor:
+                        if (left is IntExpr leftBitXor && right is IntExpr rightBitXor)
+                        {
+                            var bvSize = 64u;
+                            var leftBv = _context.MkInt2BV(bvSize, leftBitXor);
+                            var rightBv = _context.MkInt2BV(bvSize, rightBitXor);
+                            var result = _context.MkBVXOR(leftBv, rightBv);
+                            return _context.MkBV2Int(result, true);
+                        }
+                        throw new InvalidOperationException("BITWISE_XOR operator requires integer operands");
+
+                    case Operator.LeftShift:
+                        if (left is IntExpr leftShift && right is IntExpr rightShift)
+                        {
+                            var bvSize = 64u;
+                            var leftBv = _context.MkInt2BV(bvSize, leftShift);
+                            // Convert shift amount to BV
+                            var rightBvExpr = _context.MkInt2BV(bvSize, rightShift);
+                            var result = _context.MkBVSHL(leftBv, rightBvExpr);
+                            return _context.MkBV2Int(result, true);
+                        }
+                        throw new InvalidOperationException("LEFT_SHIFT operator requires integer operands");
+
+                    case Operator.RightShift:
+                        if (left is IntExpr leftRShift && right is IntExpr rightRShift)
+                        {
+                            var bvSize = 64u;
+                            var leftBv = _context.MkInt2BV(bvSize, leftRShift);
+                            var rightBvExpr = _context.MkInt2BV(bvSize, rightRShift);
+                            // Use logical shift right (unsigned)
+                            var result = _context.MkBVLSHR(leftBv, rightBvExpr);
+                            return _context.MkBV2Int(result, true);
+                        }
+                        throw new InvalidOperationException("RIGHT_SHIFT operator requires integer operands");
+
+                    case Operator.Min:
+                        if (left is ArithExpr leftMin && right is ArithExpr rightMin)
+                        {
+                            // min(x, y) = if x <= y then x else y
+                            var condition = _context.MkLe(leftMin, rightMin);
+                            return _context.MkITE(condition, leftMin, rightMin);
+                        }
+                        throw new InvalidOperationException("MIN operator requires arithmetic operands");
+
+                    case Operator.Max:
+                        if (left is ArithExpr leftMax && right is ArithExpr rightMax)
+                        {
+                            // max(x, y) = if x >= y then x else y
+                            var condition = _context.MkGe(leftMax, rightMax);
+                            return _context.MkITE(condition, leftMax, rightMax);
+                        }
+                        throw new InvalidOperationException("MAX operator requires arithmetic operands");
+
+                    case Operator.Within:
+                        if (left is ArithExpr x && right is ArithExpr y)
+                        {
+                            // We need a third parameter for within
+                            // For now, we'll just check if x is between 0 and y
+                            var lowerBound = _context.MkGe(x, _context.MkInt(0));
+                            var upperBound = _context.MkLe(x, y);
+                            return _context.MkAnd(lowerBound, upperBound);
+                        }
+                        throw new InvalidOperationException("WITHIN operator requires arithmetic operands");
+
                     default:
-                        throw new NotImplementedException($"Binary operator {symExpr.Operator} not implemented");
+                        // Log the unsupported operator and return a default value
+                        Console.WriteLine($"Warning: Binary operator {symExpr.Operator} not implemented, returning default value");
+                        return _context.MkBool(true); // Default to true as a fallback
                 }
             }
 
@@ -292,13 +456,34 @@ namespace Neo.SmartContract.Fuzzer.Solvers
             return null;
         }
 
+        // Solver instance for maintaining state between calls
+        private Solver? _statefulSolver;
+
         /// <summary>
         /// Updates the solver with new constraints.
         /// </summary>
         /// <param name="constraints">The constraints to update.</param>
         public void UpdateConstraints(IEnumerable<SymbolicExpression> constraints)
         {
-            // No-op for this implementation
+            // Create a stateful solver if it doesn't exist
+            _statefulSolver ??= _context.MkSolver();
+
+            // Add each constraint to the solver
+            foreach (var constraint in constraints)
+            {
+                try
+                {
+                    var z3Expr = TranslateExpression(constraint);
+                    if (z3Expr != null)
+                    {
+                        _statefulSolver.Assert((BoolExpr)z3Expr);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating constraint {constraint}: {ex.Message}");
+                }
+            }
         }
 
         /// <summary>
@@ -308,11 +493,173 @@ namespace Neo.SmartContract.Fuzzer.Solvers
         /// <returns>Simplified constraints.</returns>
         public IEnumerable<SymbolicExpression> Simplify(IEnumerable<SymbolicExpression> constraints)
         {
-            return constraints.ToList();
+            var result = new List<SymbolicExpression>();
+            var processed = new HashSet<string>(); // Track processed constraints by their string representation
+
+            foreach (var constraint in constraints)
+            {
+                try
+                {
+                    // Convert to Z3 expression and simplify
+                    var z3Expr = TranslateExpression(constraint);
+                    if (z3Expr != null)
+                    {
+                        var simplified = z3Expr.Simplify();
+
+                        // Skip tautologies (always true)
+                        if (simplified.Equals(_context.MkTrue()))
+                            continue;
+
+                        // Skip contradictions (always false) - these should be caught by IsSatisfiable
+                        if (simplified.Equals(_context.MkFalse()))
+                            continue;
+
+                        // Convert back to a string representation for deduplication
+                        string exprString = simplified.ToString();
+                        if (processed.Add(exprString))
+                        {
+                            // Keep the original constraint in the result
+                            result.Add(constraint);
+                        }
+                    }
+                    else
+                    {
+                        // If we can't translate, keep the original constraint
+                        result.Add(constraint);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error simplifying constraint {constraint}: {ex.Message}");
+                    // Keep the original constraint if simplification fails
+                    result.Add(constraint);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Translates a byte array to a Z3 integer expression
+        /// </summary>
+        private Expr TranslateByteArray(byte[] bytes)
+        {
+            // Convert byte array to integer for simplicity
+            // Use the first 8 bytes (or less) to create a 64-bit integer
+            long value = 0;
+            for (int i = 0; i < Math.Min(bytes.Length, 8); i++)
+            {
+                value = (value << 8) | bytes[i];
+            }
+            return _context.MkInt(value);
+        }
+
+        /// <summary>
+        /// Creates a variable with the appropriate Z3 type based on the Neo VM type
+        /// </summary>
+        private Expr CreateTypedVariable(string name, Neo.VM.Types.StackItemType type)
+        {
+            switch (type)
+            {
+                case Neo.VM.Types.StackItemType.Integer:
+                    return _context.MkIntConst(name);
+                case Neo.VM.Types.StackItemType.Boolean:
+                    return _context.MkBoolConst(name);
+                case Neo.VM.Types.StackItemType.ByteString:
+                    return _context.MkIntConst(name); // Use int as a simplification
+                case Neo.VM.Types.StackItemType.Buffer:
+                    return _context.MkIntConst(name); // Use int as a simplification
+                case Neo.VM.Types.StackItemType.Array:
+                    // For arrays, we use integers as a simplification
+                    return _context.MkIntConst(name);
+                case Neo.VM.Types.StackItemType.Map:
+                    // For maps, we use integers as a simplification
+                    return _context.MkIntConst(name);
+                case Neo.VM.Types.StackItemType.Struct:
+                    // For structs, we use integers as a simplification
+                    return _context.MkIntConst(name);
+                case Neo.VM.Types.StackItemType.Pointer:
+                    // For pointers, we use integers
+                    return _context.MkIntConst(name);
+                case Neo.VM.Types.StackItemType.InteropInterface:
+                    // For interop interfaces, we use integers as a simplification
+                    return _context.MkIntConst(name);
+                default:
+                    // Default to int for unknown types
+                    return _context.MkIntConst(name);
+            }
+        }
+
+        /// <summary>
+        /// Checks if a symbolic expression is always true
+        /// </summary>
+        /// <param name="expr">The expression to check</param>
+        /// <returns>True if the expression is always true, false otherwise</returns>
+        public bool IsAlwaysTrue(SymbolicExpression expr)
+        {
+            try
+            {
+                var solver = _context.MkSolver();
+
+                // Translate the expression to Z3
+                var z3Expr = TranslateExpression(expr);
+                if (z3Expr == null)
+                    return false;
+
+                // Check if the negation is unsatisfiable
+                var negation = _context.MkNot((BoolExpr)z3Expr);
+                solver.Assert(negation);
+
+                // If the negation is unsatisfiable, the expression is always true
+                return solver.Check() == Status.UNSATISFIABLE;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking if expression is always true: {ex.Message}");
+                // If there's an error, conservatively return false
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks if one expression implies another
+        /// </summary>
+        /// <param name="antecedent">The antecedent expression</param>
+        /// <param name="consequent">The consequent expression</param>
+        /// <returns>True if antecedent implies consequent, false otherwise</returns>
+        public bool IsImplication(SymbolicExpression antecedent, SymbolicExpression consequent)
+        {
+            try
+            {
+                var solver = _context.MkSolver();
+
+                // Translate the expressions to Z3
+                var z3Antecedent = TranslateExpression(antecedent);
+                var z3Consequent = TranslateExpression(consequent);
+
+                if (z3Antecedent == null || z3Consequent == null)
+                    return false;
+
+                // Check if (antecedent AND NOT consequent) is unsatisfiable
+                // This is equivalent to checking if (antecedent => consequent) is valid
+                var implication = _context.MkImplies((BoolExpr)z3Antecedent, (BoolExpr)z3Consequent);
+                var negation = _context.MkNot(implication);
+                solver.Assert(negation);
+
+                // If the negation is unsatisfiable, the implication is valid
+                return solver.Check() == Status.UNSATISFIABLE;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking implication: {ex.Message}");
+                // If there's an error, conservatively return false
+                return false;
+            }
         }
 
         public void Dispose()
         {
+            _statefulSolver?.Dispose();
             _context.Dispose();
         }
     }

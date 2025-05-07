@@ -257,3 +257,8 @@ paket-files/
 
 # MacOS
 **/.DS_Store
+
+**/FuzzerResults/**
+**/fuzzer-output/**
+**/fuzzer-output
+**/FuzzerResults

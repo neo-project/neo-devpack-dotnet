@@ -21,6 +21,11 @@ namespace Neo.SmartContract.Fuzzer
         public string ManifestPath { get; set; } = string.Empty;
 
         /// <summary>
+        /// Path to the source code file (optional)
+        /// </summary>
+        public string SourcePath { get; set; } = string.Empty;
+
+        /// <summary>
         /// Directory to output fuzzing results
         /// </summary>
         public string OutputDirectory { get; set; } = "fuzzer-output";
@@ -56,6 +61,21 @@ namespace Neo.SmartContract.Fuzzer
         public string CoverageFormat { get; set; } = "html";
 
         /// <summary>
+        /// Whether to enable coverage-guided fuzzing
+        /// </summary>
+        public bool EnableCoverageGuidedFuzzing { get; set; } = true;
+
+        /// <summary>
+        /// Whether to prioritize test cases that increase branch coverage
+        /// </summary>
+        public bool PrioritizeBranchCoverage { get; set; } = true;
+
+        /// <summary>
+        /// Whether to prioritize test cases that increase path coverage
+        /// </summary>
+        public bool PrioritizePathCoverage { get; set; } = true;
+
+        /// <summary>
         /// Whether to persist the blockchain state between method calls within a single fuzzing run.
         /// If false (default), each method call starts with a clean state.
         /// If true, state changes (storage, etc.) are carried over to the next call.
@@ -87,6 +107,61 @@ namespace Neo.SmartContract.Fuzzer
         /// Maximum number of steps to execute during symbolic execution
         /// </summary>
         public int MaxSteps { get; set; } = 10000;
+
+        /// <summary>
+        /// Whether to enable feedback-guided fuzzing
+        /// </summary>
+        public bool EnableFeedbackGuidedFuzzing { get; set; } = true;
+
+        /// <summary>
+        /// Whether to enable static analysis
+        /// </summary>
+        public bool EnableStaticAnalysis { get; set; } = true;
+
+        /// <summary>
+        /// Whether to enable symbolic execution
+        /// </summary>
+        public bool EnableSymbolicExecution { get; set; } = false;
+
+        /// <summary>
+        /// Maximum depth for symbolic execution
+        /// </summary>
+        public int SymbolicExecutionDepth { get; set; } = 100;
+
+        /// <summary>
+        /// Maximum number of paths to explore in symbolic execution
+        /// </summary>
+        public int SymbolicExecutionPaths { get; set; } = 1000;
+
+        /// <summary>
+        /// Whether to enable test case minimization
+        /// </summary>
+        public bool EnableTestCaseMinimization { get; set; } = true;
+
+        /// <summary>
+        /// Report formats (json, html, markdown, text)
+        /// </summary>
+        public List<string> ReportFormats { get; set; } = new List<string> { "json" };
+
+        /// <summary>
+        /// Execution engine to use (neo-express, rpc, in-memory)
+        /// </summary>
+        public string ExecutionEngine { get; set; } = "neo-express";
+
+        /// <summary>
+        /// RPC URL for RPC execution engine
+        /// </summary>
+        public string RpcUrl { get; set; } = "http://localhost:10332";
+
+        /// <summary>
+        /// Maximum number of test cases in corpus
+        /// </summary>
+        public int MaxCorpusSize { get; set; } = 1000;
+
+        /// <summary>
+        /// Maximum execution time in milliseconds for a single method call
+        /// </summary>
+        public int MaxExecutionTimeMs { get; set; } = 10000;
 
         /// <summary>
         /// Load configuration from a JSON file

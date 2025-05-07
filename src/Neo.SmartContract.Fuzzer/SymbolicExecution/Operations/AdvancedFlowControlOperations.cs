@@ -74,7 +74,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
 
             // In symbolic execution, we don't actually call the function
             // Instead, we create a symbolic variable to represent the result
-            var symbolicResult = new SymbolicVariable($"CallA_Result_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Any);
+            var symbolicResult = new SymbolicVariable($"CallA_Result_{_engine.CurrentState.InstructionPointer}", SymbolicType.Any);
             _engine.CurrentState.Push(symbolicResult);
             LogDebug($"Created symbolic result for CALLA: {symbolicResult}");
 
@@ -100,7 +100,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
 
             // In symbolic execution, we don't actually call the function
             // Instead, we create a symbolic variable to represent the result
-            var symbolicResult = new SymbolicVariable($"CallT_Result_{token}_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Any);
+            var symbolicResult = new SymbolicVariable($"CallT_Result_{token}_{_engine.CurrentState.InstructionPointer}", SymbolicType.Any);
             _engine.CurrentState.Push(symbolicResult);
             LogDebug($"Created symbolic result for CALLT with token {token}: {symbolicResult}");
 

@@ -54,3 +54,4 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         Syscall
     }
 }
+

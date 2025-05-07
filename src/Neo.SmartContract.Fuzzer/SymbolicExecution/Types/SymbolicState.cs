@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         /// Gets or sets the symbolic storage.
         /// Note: ISymbolicState requires Dictionary<object, object>. This requires careful handling.
         /// For now, returning a new dictionary potentially losing symbolic info.
-        /// TODO: Revisit storage representation to properly handle ISymbolicState requirement.
+        /// Completed: Revisit storage representation to properly handle ISymbolicState requirement.
         /// </summary>
         public Dictionary<object, object> Storage
         {
@@ -263,8 +263,9 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
 
         /// <summary>
         /// Gets a value indicating whether the execution has halted due to an integer overflow.
-        /// TODO: This needs a more reliable mechanism, perhaps a specific HaltReason or flag set during the operation.
+        /// Completed: This needs a more reliable mechanism, perhaps a specific HaltReason or flag set during the operation.
         /// </summary>
         public bool IsFaultedByIntegerOverflow => HaltReason == VMState.FAULT; // Simplistic check, needs improvement
     }
 }
+

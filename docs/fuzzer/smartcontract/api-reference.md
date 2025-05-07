@@ -4,24 +4,26 @@ This document provides a comprehensive reference for the Neo Smart Contract Fuzz
 
 ## Core Classes
 
-### `SmartContractFuzzer`
+### `FuzzingController`
 
 The main class that orchestrates the fuzzing process.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer
+namespace Neo.SmartContract.Fuzzer.Controller
 {
-    public class SmartContractFuzzer
+    public class FuzzingController
     {
         // Constructors
-        public SmartContractFuzzer(FuzzerConfiguration config);
-        
+        public FuzzingController(FuzzerConfiguration config);
+
         // Methods
-        public void Run();
-        public void DetectVulnerabilities();
-        
-        // Properties
-        public FuzzerConfiguration Configuration { get; }
+        public Task StartAsync(CancellationToken cancellationToken = default);
+        public Task WaitForCompletionAsync(CancellationToken cancellationToken = default);
+        public void Stop();
+        public FuzzingStatus GetStatus();
+        public List<IssueReport> GetIssues();
+        public void RegisterVulnerabilityDetector(IVulnerabilityDetector detector);
+        public void RegisterStaticAnalyzer(IStaticAnalyzer analyzer);
     }
 }
 ```
@@ -36,8 +38,13 @@ namespace Neo.SmartContract.Fuzzer
 
 | Method | Return Type | Description |
 |--------|-------------|-------------|
-| `Run()` | `void` | Runs the fuzzing process |
-| `DetectVulnerabilities()` | `void` | Runs vulnerability detection on the contract |
+| `StartAsync(CancellationToken cancellationToken = default)` | `Task` | Starts the fuzzing process asynchronously |
+| `WaitForCompletionAsync(CancellationToken cancellationToken = default)` | `Task` | Waits for the fuzzing process to complete |
+| `Stop()` | `void` | Stops the fuzzing process |
+| `GetStatus()` | `FuzzingStatus` | Gets the current status of the fuzzing process |
+| `GetIssues()` | `List<IssueReport>` | Gets the issues found during fuzzing |
+| `RegisterVulnerabilityDetector(IVulnerabilityDetector detector)` | `void` | Registers a custom vulnerability detector |
+| `RegisterStaticAnalyzer(IStaticAnalyzer analyzer)` | `void` | Registers a custom static analyzer |
 
 ### `FuzzerConfiguration`
 
@@ -53,21 +60,25 @@ namespace Neo.SmartContract.Fuzzer
         public string ManifestPath { get; set; }
         public string OutputDirectory { get; set; }
         public int IterationsPerMethod { get; set; }
-        public int Iterations { get; set; } // Alias for IterationsPerMethod
         public long GasLimit { get; set; }
-        public int Seed { get; set; }
-        public bool EnableCoverage { get; set; }
-        public string CoverageFormat { get; set; }
+        public int? Seed { get; set; }
+        public bool EnableFeedbackGuidedFuzzing { get; set; }
+        public bool EnableTestCaseMinimization { get; set; }
+        public bool EnableStaticAnalysis { get; set; }
+        public bool EnableSymbolicExecution { get; set; }
+        public int SymbolicExecutionDepth { get; set; }
+        public int SymbolicExecutionPaths { get; set; }
+        public string[] MethodsToFuzz { get; set; }
+        public string[] MethodsToExclude { get; set; }
+        public string ExecutionEngine { get; set; }
+        public string RpcUrl { get; set; }
         public bool PersistStateBetweenCalls { get; set; }
         public bool SaveFailingInputsOnly { get; set; }
-        public List<string> MethodsToFuzz { get; set; }
-        public List<string> MethodsToInclude { get; set; }
-        public List<string> MethodsToExclude { get; set; }
-        public int MaxSteps { get; set; }
-        
+        public List<string> ReportFormats { get; set; }
+
         // Methods
         public static FuzzerConfiguration LoadFromFile(string path);
-        public void SaveToFile(string path);
+        public static FuzzerConfiguration ParseCommandLineArgs(string[] args);
     }
 }
 ```
@@ -79,83 +90,126 @@ namespace Neo.SmartContract.Fuzzer
 | `NefPath` | `string` | `""` | Path to the NEF file |
 | `ManifestPath` | `string` | `""` | Path to the manifest file |
 | `OutputDirectory` | `string` | `"fuzzer-output"` | Directory to save execution results |
-| `IterationsPerMethod` | `int` | `10` | Number of iterations per method |
-| `Iterations` | `int` | `10` | Alias for IterationsPerMethod |
+| `IterationsPerMethod` | `int` | `1000` | Number of iterations per method |
 | `GasLimit` | `long` | `20_000_000` | Gas limit per execution |
-| `Seed` | `int` | Current timestamp | Random seed for reproducibility |
-| `EnableCoverage` | `bool` | `true` | Whether to enable coverage tracking |
-| `CoverageFormat` | `string` | `"html"` | Format for coverage reports |
+| `Seed` | `int?` | `null` | Random seed for reproducibility (null uses current timestamp) |
+| `EnableFeedbackGuidedFuzzing` | `bool` | `true` | Whether to enable feedback-guided fuzzing |
+| `EnableTestCaseMinimization` | `bool` | `true` | Whether to enable test case minimization |
+| `EnableStaticAnalysis` | `bool` | `true` | Whether to enable static analysis |
+| `EnableSymbolicExecution` | `bool` | `false` | Whether to enable symbolic execution |
+| `SymbolicExecutionDepth` | `int` | `100` | Maximum depth for symbolic execution |
+| `SymbolicExecutionPaths` | `int` | `1000` | Maximum number of paths to explore |
+| `MethodsToFuzz` | `string[]` | `null` | Array of methods to fuzz (null means all public methods) |
+| `MethodsToExclude` | `string[]` | `null` | Array of methods to exclude from fuzzing |
+| `ExecutionEngine` | `string` | `"neo-express"` | Execution engine to use (neo-express, rpc, in-memory) |
+| `RpcUrl` | `string` | `"http://localhost:10332"` | RPC URL for RPC execution engine |
 | `PersistStateBetweenCalls` | `bool` | `false` | Whether to persist state between method calls |
 | `SaveFailingInputsOnly` | `bool` | `false` | Whether to save only failing inputs |
-| `MethodsToFuzz` | `List<string>` | `[]` | List of methods to fuzz |
-| `MethodsToInclude` | `List<string>` | `[]` | List of methods to include in vulnerability detection |
-| `MethodsToExclude` | `List<string>` | `[]` | List of methods to exclude from fuzzing |
-| `MaxSteps` | `int` | `10000` | Maximum number of steps to execute |
+| `ReportFormats` | `List<string>` | `["json"]` | List of report formats to generate |
 
 #### Methods
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
 | `LoadFromFile` | `string path` | `FuzzerConfiguration` | Loads configuration from a JSON file |
-| `SaveToFile` | `string path` | `void` | Saves configuration to a JSON file |
+| `ParseCommandLineArgs` | `string[] args` | `FuzzerConfiguration` | Parses command-line arguments into a configuration |
 
-### `ContractExecutor`
+### `IExecutionEngine`
 
-Executes the contract with generated inputs.
+Interface for executing contracts.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer
+namespace Neo.SmartContract.Fuzzer.Execution
 {
-    public class ContractExecutor
+    public interface IExecutionEngine
     {
-        // Constructors
-        public ContractExecutor(byte[] nefBytes, ContractManifest manifest, FuzzerConfiguration config);
-        
         // Methods
-        public ExecutionResult ExecuteMethod(ContractMethodDescriptor method, StackItem[] parameters, int iteration);
-        
-        // Static Methods
-        public static object ConvertStackItemToJson(StackItem item);
-        public static StackItem ConvertJsonElementToStackItem(JsonElement element, ContractParameterType expectedType);
+        ExecutionResult ExecuteMethod(ContractMethodDescriptor method, StackItem[] parameters, int iteration);
+        void Reset();
     }
 }
 ```
-
-#### Constructor Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `nefBytes` | `byte[]` | NEF file bytes |
-| `manifest` | `ContractManifest` | Contract manifest |
-| `config` | `FuzzerConfiguration` | Fuzzer configuration |
 
 #### Methods
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
 | `ExecuteMethod` | `ContractMethodDescriptor method, StackItem[] parameters, int iteration` | `ExecutionResult` | Executes a contract method with the given parameters |
+| `Reset` | None | `void` | Resets the execution engine state |
 
-#### Static Methods
+### `NeoExpressExecutionEngine`
 
-| Method | Parameters | Return Type | Description |
-|--------|------------|-------------|-------------|
-| `ConvertStackItemToJson` | `StackItem item` | `object` | Converts a StackItem to a JSON-serializable object |
-| `ConvertJsonElementToStackItem` | `JsonElement element, ContractParameterType expectedType` | `StackItem` | Converts a JSON element to a StackItem |
-
-### `ParameterGenerator`
-
-Generates parameters for contract methods.
+Implementation of IExecutionEngine that uses Neo Express for execution.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer
+namespace Neo.SmartContract.Fuzzer.Execution
 {
-    public class ParameterGenerator
+    public class NeoExpressExecutionEngine : IExecutionEngine
     {
         // Constructors
-        public ParameterGenerator(int seed);
-        
+        public NeoExpressExecutionEngine(byte[] nefBytes, ContractManifest manifest, FuzzerConfiguration config);
+
         // Methods
-        public StackItem GenerateParameter(ContractParameterType type, int depth);
+        public ExecutionResult ExecuteMethod(ContractMethodDescriptor method, StackItem[] parameters, int iteration);
+        public void Reset();
+    }
+}
+```
+
+### `RpcExecutionEngine`
+
+Implementation of IExecutionEngine that uses a Neo RPC node for execution.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.Execution
+{
+    public class RpcExecutionEngine : IExecutionEngine
+    {
+        // Constructors
+        public RpcExecutionEngine(byte[] nefBytes, ContractManifest manifest, FuzzerConfiguration config);
+
+        // Methods
+        public ExecutionResult ExecuteMethod(ContractMethodDescriptor method, StackItem[] parameters, int iteration);
+        public void Reset();
+    }
+}
+```
+
+### `InMemoryExecutionEngine`
+
+Implementation of IExecutionEngine that executes in-memory for faster testing.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.Execution
+{
+    public class InMemoryExecutionEngine : IExecutionEngine
+    {
+        // Constructors
+        public InMemoryExecutionEngine(byte[] nefBytes, ContractManifest manifest, FuzzerConfiguration config);
+
+        // Methods
+        public ExecutionResult ExecuteMethod(ContractMethodDescriptor method, StackItem[] parameters, int iteration);
+        public void Reset();
+    }
+}
+```
+
+### `InputGenerator`
+
+Generates inputs for contract methods.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.InputGeneration
+{
+    public class InputGenerator
+    {
+        // Constructors
+        public InputGenerator(FeedbackAggregator feedbackAggregator, int seed);
+
+        // Methods
+        public TestCase GenerateTestCase(string methodName);
+        public void AddToCorpus(TestCase testCase, bool isInteresting);
+        public void SetParameterGenerator(string parameterType, IParameterGenerator generator);
     }
 }
 ```
@@ -164,29 +218,80 @@ namespace Neo.SmartContract.Fuzzer
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `feedbackAggregator` | `FeedbackAggregator` | Feedback aggregator for guided fuzzing |
 | `seed` | `int` | Random seed for reproducibility |
 
 #### Methods
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `GenerateParameter` | `ContractParameterType type, int depth` | `StackItem` | Generates a parameter of the specified type |
+| `GenerateTestCase` | `string methodName` | `TestCase` | Generates a test case for the specified method |
+| `AddToCorpus` | `TestCase testCase, bool isInteresting` | `void` | Adds a test case to the corpus if it's interesting |
+| `SetParameterGenerator` | `string parameterType, IParameterGenerator generator` | `void` | Sets a custom parameter generator for a specific type |
 
-### `CoverageTracker`
+### `IParameterGenerator`
 
-Tracks code coverage during fuzzing.
+Interface for custom parameter generators.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer.Coverage
+namespace Neo.SmartContract.Fuzzer.InputGeneration
 {
-    public class CoverageTracker
+    public interface IParameterGenerator
+    {
+        StackItem Generate(Random random);
+    }
+}
+```
+
+#### Methods
+
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `Generate` | `Random random` | `StackItem` | Generates a parameter value |
+
+### `FeedbackAggregator`
+
+Collects and prioritizes feedback to guide the fuzzing process.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.Feedback
+{
+    public class FeedbackAggregator
     {
         // Constructors
-        public CoverageTracker(byte[] nefBytes, ContractManifest manifest, string outputDirectory);
-        
+        public FeedbackAggregator();
+
         // Methods
-        public void TrackExecutionCoverage(ExecutionResult result);
-        public void GenerateReport(string format);
+        public bool AddExecutionFeedback(TestCase testCase, ExecutionResult result);
+        public void AddStaticAnalysisHint(StaticAnalysisHint hint);
+        public Dictionary<string, object> GetCoverageStatistics();
+    }
+}
+```
+
+#### Methods
+
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `AddExecutionFeedback` | `TestCase testCase, ExecutionResult result` | `bool` | Processes execution result and determines if it's interesting |
+| `AddStaticAnalysisHint` | `StaticAnalysisHint hint` | `void` | Adds a static analysis hint |
+| `GetCoverageStatistics` | None | `Dictionary<string, object>` | Returns coverage statistics |
+
+### `TestCaseMinimizer`
+
+Reduces test cases to their minimal form while preserving the issue.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.Minimization
+{
+    public class TestCaseMinimizer
+    {
+        // Constructors
+        public TestCaseMinimizer(IExecutionEngine executor, ContractMethodDescriptor method,
+                                Predicate<ExecutionResult> predicate, int seed);
+
+        // Methods
+        public TestCase Minimize(TestCase testCase);
     }
 }
 ```
@@ -195,18 +300,39 @@ namespace Neo.SmartContract.Fuzzer.Coverage
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `nefBytes` | `byte[]` | NEF file bytes |
-| `manifest` | `ContractManifest` | Contract manifest |
-| `outputDirectory` | `string` | Directory to save coverage reports |
+| `executor` | `IExecutionEngine` | Execution engine |
+| `method` | `ContractMethodDescriptor` | Method descriptor |
+| `predicate` | `Predicate<ExecutionResult>` | Predicate that determines if an execution result exhibits the issue |
+| `seed` | `int` | Random seed for reproducibility |
 
 #### Methods
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `TrackExecutionCoverage` | `ExecutionResult result` | `void` | Tracks coverage for an execution result |
-| `GenerateReport` | `string format` | `void` | Generates a coverage report in the specified format |
+| `Minimize` | `TestCase testCase` | `TestCase` | Minimizes the test case while preserving the predicate |
 
 ## Symbolic Execution
+
+### `ISymbolicExecutionIntegrator`
+
+Interface for symbolic execution integration.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.SymbolicExecution
+{
+    public interface ISymbolicExecutionIntegrator
+    {
+        // Methods
+        List<IssueReport> AnalyzeMethod(ContractMethodDescriptor method);
+    }
+}
+```
+
+#### Methods
+
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `AnalyzeMethod` | `ContractMethodDescriptor method` | `List<IssueReport>` | Analyzes a method using symbolic execution |
 
 ### `SymbolicExecutionEngine`
 
@@ -218,13 +344,13 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
     public class SymbolicExecutionEngine
     {
         // Constructors
-        public SymbolicExecutionEngine(byte[] nefBytes, IConstraintSolver solver, IEnumerable<IVulnerabilityDetector> detectors, IEnumerable<SymbolicVariable> initialVariables, int maxSteps);
-        
+        public SymbolicExecutionEngine(byte[] nefBytes, IConstraintSolver solver, int maxDepth, int maxPaths);
+
         // Methods
-        public SymbolicExecutionResult Execute();
-        
+        public SymbolicExecutionResult Execute(ContractMethodDescriptor method);
+
         // Static Methods
-        public static List<SymbolicVariable> CreateSymbolicArgumentsForMethod(List<string> paramTypes);
+        public static List<SymbolicVariable> CreateSymbolicArgumentsForMethod(ContractMethodDescriptor method);
     }
 }
 ```
@@ -235,21 +361,20 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
 |-----------|------|-------------|
 | `nefBytes` | `byte[]` | NEF file bytes |
 | `solver` | `IConstraintSolver` | Constraint solver |
-| `detectors` | `IEnumerable<IVulnerabilityDetector>` | Vulnerability detectors |
-| `initialVariables` | `IEnumerable<SymbolicVariable>` | Initial symbolic variables |
-| `maxSteps` | `int` | Maximum number of steps to execute |
+| `maxDepth` | `int` | Maximum execution depth |
+| `maxPaths` | `int` | Maximum number of paths to explore |
 
 #### Methods
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `Execute` | None | `SymbolicExecutionResult` | Executes the contract symbolically |
+| `Execute` | `ContractMethodDescriptor method` | `SymbolicExecutionResult` | Executes the method symbolically |
 
 #### Static Methods
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `CreateSymbolicArgumentsForMethod` | `List<string> paramTypes` | `List<SymbolicVariable>` | Creates symbolic arguments for a method |
+| `CreateSymbolicArgumentsForMethod` | `ContractMethodDescriptor method` | `List<SymbolicVariable>` | Creates symbolic arguments for a method |
 
 ### `SymbolicExecutionResult`
 
@@ -318,9 +443,9 @@ namespace Neo.SmartContract.Fuzzer.Detectors
     {
         // Properties
         string Name { get; }
-        
+
         // Methods
-        List<VulnerabilityRecord> DetectVulnerabilities(SymbolicState state, ExecutionPath path);
+        List<IssueReport> DetectVulnerabilities(TestCase testCase, ExecutionResult result);
     }
 }
 ```
@@ -335,23 +460,28 @@ namespace Neo.SmartContract.Fuzzer.Detectors
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `DetectVulnerabilities` | `SymbolicState state, ExecutionPath path` | `List<VulnerabilityRecord>` | Detects vulnerabilities in an execution path |
+| `DetectVulnerabilities` | `TestCase testCase, ExecutionResult result` | `List<IssueReport>` | Detects vulnerabilities in an execution result |
 
-### `VulnerabilityRecord`
+### `IssueReport`
 
-Represents a detected vulnerability.
+Represents a detected issue or vulnerability.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer.Detectors
+namespace Neo.SmartContract.Fuzzer.Models
 {
-    public class VulnerabilityRecord
+    public class IssueReport
     {
         // Properties
-        public string Type { get; set; }
+        public string IssueType { get; set; }
         public string Description { get; set; }
+        public string Severity { get; set; }
+        public string Method { get; set; }
         public string Location { get; set; }
-        public Severity Severity { get; set; }
-        public string Recommendation { get; set; }
+        public string Source { get; set; }
+        public TestCase TestCase { get; set; }
+        public TestCase MinimizedTestCase { get; set; }
+        public long GasConsumed { get; set; }
+        public Dictionary<string, object> Metadata { get; set; }
     }
 }
 ```
@@ -360,28 +490,104 @@ namespace Neo.SmartContract.Fuzzer.Detectors
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `Type` | `string` | Type of vulnerability |
-| `Description` | `string` | Description of the vulnerability |
-| `Location` | `string` | Location of the vulnerability |
-| `Severity` | `Severity` | Severity of the vulnerability |
-| `Recommendation` | `string` | Recommendation for fixing the vulnerability |
+| `IssueType` | `string` | Type of issue |
+| `Description` | `string` | Description of the issue |
+| `Severity` | `string` | Severity of the issue (Low, Medium, High, Critical) |
+| `Method` | `string` | Method where the issue was found |
+| `Location` | `string` | Location of the issue |
+| `Source` | `string` | Source of the issue (Fuzzing, StaticAnalysis, SymbolicExecution) |
+| `TestCase` | `TestCase` | Test case that triggered the issue |
+| `MinimizedTestCase` | `TestCase` | Minimized test case that still triggers the issue |
+| `GasConsumed` | `long` | Gas consumed when the issue was triggered |
+| `Metadata` | `Dictionary<string, object>` | Additional metadata about the issue |
 
-### `Severity`
+### `TestCase`
 
-Enum for vulnerability severity levels.
+Represents a test case for a contract method.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer.Detectors
+namespace Neo.SmartContract.Fuzzer.Models
 {
-    public enum Severity
+    public class TestCase
     {
-        Low,
-        Medium,
-        High,
-        Critical
+        // Properties
+        public string MethodName { get; set; }
+        public StackItem[] Parameters { get; set; }
+        public int Iteration { get; set; }
+        public Dictionary<string, object> Metadata { get; set; }
     }
 }
 ```
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `MethodName` | `string` | Name of the method |
+| `Parameters` | `StackItem[]` | Parameters for the method |
+| `Iteration` | `int` | Iteration number |
+| `Metadata` | `Dictionary<string, object>` | Additional metadata about the test case |
+
+## Static Analysis
+
+### `IStaticAnalyzer`
+
+Interface for static analyzers.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.StaticAnalysis
+{
+    public interface IStaticAnalyzer
+    {
+        // Properties
+        string Name { get; }
+
+        // Methods
+        List<StaticAnalysisHint> Analyze();
+    }
+}
+```
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `Name` | `string` | Name of the analyzer |
+
+#### Methods
+
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `Analyze` | None | `List<StaticAnalysisHint>` | Analyzes the contract and returns hints |
+
+### `StaticAnalysisHint`
+
+Represents a hint from static analysis.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.StaticAnalysis
+{
+    public class StaticAnalysisHint
+    {
+        // Properties
+        public string RiskType { get; set; }
+        public string Description { get; set; }
+        public string Severity { get; set; }
+        public string Location { get; set; }
+        public Dictionary<string, object> Metadata { get; set; }
+    }
+}
+```
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `RiskType` | `string` | Type of risk |
+| `Description` | `string` | Description of the hint |
+| `Severity` | `string` | Severity of the hint (Low, Medium, High, Critical) |
+| `Location` | `string` | Location of the hint |
+| `Metadata` | `Dictionary<string, object>` | Additional metadata about the hint |
 
 ## Constraint Solving
 
@@ -390,7 +596,7 @@ namespace Neo.SmartContract.Fuzzer.Detectors
 Interface for constraint solvers.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Interfaces
+namespace Neo.SmartContract.Fuzzer.SymbolicExecution
 {
     public interface IConstraintSolver
     {
@@ -408,37 +614,67 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Interfaces
 | `IsSatisfiable` | `IEnumerable<SymbolicExpression> constraints` | `bool` | Checks if the constraints are satisfiable |
 | `GetModel` | `IEnumerable<SymbolicExpression> constraints` | `Dictionary<string, object>` | Gets a model that satisfies the constraints |
 
-### `SimpleConstraintSolver`
+## Utility Classes
 
-A simple constraint solver implementation.
+### `Logger`
+
+Utility class for logging.
 
 ```csharp
-namespace Neo.SmartContract.Fuzzer.SymbolicExecution
+namespace Neo.SmartContract.Fuzzer.Logging
 {
-    public class SimpleConstraintSolver : IConstraintSolver
+    public static class Logger
     {
-        // Constructors
-        public SimpleConstraintSolver(int seed);
-        
         // Methods
-        public bool IsSatisfiable(IEnumerable<SymbolicExpression> constraints);
-        public Dictionary<string, object> GetModel(IEnumerable<SymbolicExpression> constraints);
+        public static void Debug(string message);
+        public static void Info(string message);
+        public static void Warning(string message);
+        public static void Error(string message);
+        public static void Exception(Exception ex, string message = null);
+        public static void Verbose(string message);
     }
 }
 ```
-
-#### Constructor Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `seed` | `int` | Random seed for reproducibility |
 
 #### Methods
 
 | Method | Parameters | Return Type | Description |
 |--------|------------|-------------|-------------|
-| `IsSatisfiable` | `IEnumerable<SymbolicExpression> constraints` | `bool` | Checks if the constraints are satisfiable |
-| `GetModel` | `IEnumerable<SymbolicExpression> constraints` | `Dictionary<string, object>` | Gets a model that satisfies the constraints |
+| `Debug` | `string message` | `void` | Logs a debug message |
+| `Info` | `string message` | `void` | Logs an info message |
+| `Warning` | `string message` | `void` | Logs a warning message |
+| `Error` | `string message` | `void` | Logs an error message |
+| `Exception` | `Exception ex, string message = null` | `void` | Logs an exception with an optional message |
+| `Verbose` | `string message` | `void` | Logs a verbose message (only shown when verbose logging is enabled) |
+
+### `MinimizationPredicates`
+
+Utility class with predefined predicates for test case minimization.
+
+```csharp
+namespace Neo.SmartContract.Fuzzer.Minimization
+{
+    public static class MinimizationPredicates
+    {
+        // Methods
+        public static Predicate<ExecutionResult> FailsExecution();
+        public static Predicate<ExecutionResult> FailsWithExceptionMessage(string pattern);
+        public static Predicate<ExecutionResult> ConsumesMoreGasThan(long threshold);
+        public static Predicate<ExecutionResult> AccessesStorage();
+        public static Predicate<ExecutionResult> EmitsEvent(string eventName);
+    }
+}
+```
+
+#### Methods
+
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `FailsExecution` | None | `Predicate<ExecutionResult>` | Returns a predicate that checks if the execution fails |
+| `FailsWithExceptionMessage` | `string pattern` | `Predicate<ExecutionResult>` | Returns a predicate that checks if the execution fails with an exception message matching the pattern |
+| `ConsumesMoreGasThan` | `long threshold` | `Predicate<ExecutionResult>` | Returns a predicate that checks if the execution consumes more gas than the threshold |
+| `AccessesStorage` | None | `Predicate<ExecutionResult>` | Returns a predicate that checks if the execution accesses storage |
+| `EmitsEvent` | `string eventName` | `Predicate<ExecutionResult>` | Returns a predicate that checks if the execution emits an event with the specified name |
 
 ## Symbolic Types
 
@@ -453,7 +689,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
     {
         // Properties
         public string Type { get; }
-        
+
         // Methods
         public abstract SymbolicValue Clone();
         public abstract bool Equals(SymbolicValue other);
@@ -487,7 +723,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
     {
         // Constructors
         public SymbolicVariable(string name, string type);
-        
+
         // Properties
         public string Name { get; }
     }
@@ -518,7 +754,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
     {
         // Constructors
         public SymbolicExpression(SymbolicValue left, Operator op, SymbolicValue right);
-        
+
         // Properties
         public SymbolicValue Left { get; }
         public Operator Op { get; }
@@ -554,7 +790,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
     {
         // Constructors
         public ConcreteValue(T value);
-        
+
         // Properties
         public T Value { get; }
     }
@@ -586,7 +822,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Interfaces
     {
         // Properties
         string Name { get; }
-        
+
         // Methods
         bool HandleOperation(Instruction instruction);
     }
@@ -656,6 +892,110 @@ namespace Neo.SmartContract.Fuzzer
 |--------|------------|-------------|-------------|
 | `Equals` | `byte[] x, byte[] y` | `bool` | Checks if two byte arrays are equal |
 | `GetHashCode` | `byte[] obj` | `int` | Gets the hash code for a byte array |
+
+## Example Usage
+
+Here's a complete example of using the Neo Smart Contract Fuzzer programmatically:
+
+```csharp
+using Neo.SmartContract.Fuzzer;
+using Neo.SmartContract.Fuzzer.Controller;
+using Neo.SmartContract.Fuzzer.Detectors;
+using Neo.SmartContract.Fuzzer.Models;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        // Create a configuration
+        var config = new FuzzerConfiguration
+        {
+            NefPath = "MyContract.nef",
+            ManifestPath = "MyContract.manifest.json",
+            OutputDirectory = "fuzzer-results",
+            IterationsPerMethod = 1000,
+            Seed = 42,
+            EnableFeedbackGuidedFuzzing = true,
+            EnableTestCaseMinimization = true,
+            EnableStaticAnalysis = true,
+            EnableSymbolicExecution = false,
+            GasLimit = 20_000_000, // 20 GAS
+            ReportFormats = new List<string> { "json", "html" }
+        };
+
+        // Create a fuzzing controller
+        var controller = new FuzzingController(config);
+
+        // Register a custom vulnerability detector
+        controller.RegisterVulnerabilityDetector(new CustomDetector());
+
+        // Start the fuzzing process
+        await controller.StartAsync();
+
+        // Wait for completion
+        await controller.WaitForCompletionAsync();
+
+        // Get and display the results
+        var status = controller.GetStatus();
+        Console.WriteLine($"Total Executions: {status.TotalExecutions}");
+        Console.WriteLine($"Successful Executions: {status.SuccessfulExecutions}");
+        Console.WriteLine($"Failed Executions: {status.FailedExecutions}");
+        Console.WriteLine($"Issues Found: {status.IssuesFound}");
+        Console.WriteLine($"Code Coverage: {status.CodeCoverage:P2}");
+        Console.WriteLine($"Execution Time: {status.ElapsedTime}");
+
+        // Get the issues
+        var issues = controller.GetIssues();
+        foreach (var issue in issues)
+        {
+            Console.WriteLine($"Issue: {issue.IssueType} - {issue.Description}");
+            Console.WriteLine($"Method: {issue.Method}");
+            Console.WriteLine($"Severity: {issue.Severity}");
+
+            // Access the test case that triggered the issue
+            var testCase = issue.TestCase;
+            Console.WriteLine($"Parameters: {string.Join(", ", testCase.Parameters)}");
+
+            // Access the minimized test case
+            var minimizedTestCase = issue.MinimizedTestCase;
+            if (minimizedTestCase != null)
+            {
+                Console.WriteLine($"Minimized Parameters: {string.Join(", ", minimizedTestCase.Parameters)}");
+            }
+        }
+    }
+}
+
+// Custom vulnerability detector
+class CustomDetector : IVulnerabilityDetector
+{
+    public string Name => "CustomDetector";
+
+    public List<IssueReport> DetectVulnerabilities(TestCase testCase, ExecutionResult result)
+    {
+        var issues = new List<IssueReport>();
+
+        // Example: Detect if a method consumes more than 10 GAS
+        if (result.FeeConsumed > 10_000_000)
+        {
+            issues.Add(new IssueReport
+            {
+                IssueType = "High Gas Consumption",
+                Description = $"Method consumed {result.FeeConsumed / 100000000.0} GAS",
+                Severity = "Medium",
+                Method = testCase.MethodName,
+                TestCase = testCase,
+                GasConsumed = result.FeeConsumed
+            });
+        }
+
+        return issues;
+    }
+}
+```
 
 ## Conclusion
 

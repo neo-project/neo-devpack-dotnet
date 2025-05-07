@@ -18,6 +18,11 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         public int InstructionPointer { get; }
 
         /// <summary>
+        /// Gets or sets whether this constraint is active.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+
+        /// <summary>
         /// Initializes a new instance of the PathConstraint class.
         /// </summary>
         /// <param name="expression">The symbolic expression representing the constraint.</param>

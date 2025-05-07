@@ -11,6 +11,7 @@ The Neo Smart Contract Fuzzer is a comprehensive testing tool designed to help d
 - [Symbolic Execution](./symbolic-execution.md) - Understanding the symbolic execution engine
 - [Advanced Usage](./advanced-usage.md) - Advanced features and techniques
 - [API Reference](./api-reference.md) - Reference for programmatic usage
+- [Development Plan](./development-plan.md) - Future development roadmap
 
 ## Key Features
 
@@ -20,6 +21,9 @@ The Neo Smart Contract Fuzzer is a comprehensive testing tool designed to help d
 - **Code Coverage Tracking**: Measures and reports code coverage during fuzzing
 - **Detailed Reporting**: Generates comprehensive reports of findings
 - **Configurable**: Highly configurable to suit different testing needs
+- **Feedback-Guided Fuzzing**: Uses execution feedback to guide input generation
+- **Test Case Minimization**: Reduces complex test cases to minimal reproducible examples
+- **Reproducible Testing**: Supports fixed random seeds for reproducible tests
 
 ## Use Cases
 
@@ -27,15 +31,33 @@ The Neo Smart Contract Fuzzer is a comprehensive testing tool designed to help d
 - **Security Auditing**: Identify potential security vulnerabilities
 - **Regression Testing**: Ensure new changes don't introduce bugs
 - **Edge Case Discovery**: Find edge cases that might not be covered by unit tests
+- **Performance Analysis**: Identify gas-intensive operations and optimization opportunities
+- **Continuous Integration**: Integrate into CI/CD pipelines for automated testing
 
 ## Quick Example
 
 ```bash
+# Using the convenience script
+./run-fuzzer.bat --nef path/to/contract.nef --manifest path/to/contract.manifest.json
+
+# Or directly with dotnet
 dotnet run --project src/Neo.SmartContract.Fuzzer/Neo.SmartContract.Fuzzer.csproj \
   --nef path/to/contract.nef \
   --manifest path/to/contract.manifest.json \
   --output fuzzer-results \
   --iterations 1000
+```
+
+## Understanding Results
+
+The fuzzer generates detailed reports in the output directory:
+
+```
+fuzzer-results/
+├── SampleContract/
+│   ├── issues/        # Detailed issue reports
+│   └── report.json    # Summary report
+└── README.md          # Explanation of results
 ```
 
 For more detailed usage instructions, see the [Getting Started](./getting-started.md) guide.

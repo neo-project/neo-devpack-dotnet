@@ -184,23 +184,84 @@ The Neo Smart Contract Fuzzer addresses these challenges through:
 3. **Execution Bounds**: Limiting execution depth and number of states
 4. **Loop Handling**: Unrolling loops a limited number of times or using loop summaries
 
-## Advanced Features
+## Implementation Details
 
-### State Merging
+### Architecture
+
+The symbolic execution engine in the Neo Smart Contract Fuzzer consists of the following components:
+
+1. **SymbolicVirtualMachine**: Executes Neo VM instructions symbolically.
+2. **SymbolicValue**: Represents symbolic values and operations.
+3. **SymbolicConstraint**: Represents constraints on symbolic values.
+4. **ConstraintSolver**: Solves constraints to generate concrete values.
+5. **SymbolicState**: Represents the state of the symbolic execution.
+6. **SymbolicExecutionEngine**: Coordinates the symbolic execution process.
+
+```
+┌─────────────────────────────────────────────────┐
+│ Symbolic Execution Engine                       │
+│                                                 │
+│ ┌─────────────┐     ┌─────────────────────┐     │
+│ │  Symbolic   │     │      Symbolic       │     │
+│ │   Values    │────▶│     Operations      │     │
+│ └─────────────┘     └─────────┬───────────┘     │
+│                               │                 │
+│ ┌─────────────┐     ┌─────────▼───────────┐     │
+│ │  Symbolic   │     │      Symbolic       │     │
+│ │ Constraints │◀────│    Virtual Machine  │     │
+│ └─────────────┘     └─────────┬───────────┘     │
+│                               │                 │
+│ ┌─────────────┐     ┌─────────▼───────────┐     │
+│ │ Constraint  │     │      Symbolic       │     │
+│ │   Solver    │◀────│        State        │     │
+│ └─────────────┘     └─────────────────────┘     │
+└─────────────────────────────────────────────────┘
+```
+
+### Symbolic Values
+
+Symbolic values represent inputs or intermediate results that can take multiple concrete values. The Neo Smart Contract Fuzzer implements several types of symbolic values:
+
+- **SymbolicInteger**: Represents an integer value that can be symbolic or concrete
+- **SymbolicByteArray**: Represents a byte array that can be symbolic or concrete
+- **SymbolicBoolean**: Represents a boolean value that can be symbolic or concrete
+- **SymbolicBinaryExpression**: Represents a binary operation on symbolic values
+
+### Symbolic Operations
+
+The fuzzer supports all Neo VM operations symbolically, including:
+
+- Arithmetic operations (ADD, SUB, MUL, DIV, etc.)
+- Comparison operations (EQUAL, LT, GT, etc.)
+- Logical operations (AND, OR, NOT, etc.)
+- Control flow operations (JMP, JMPIF, CALL, etc.)
+- Storage operations (GET, PUT, DELETE, etc.)
+
+### Constraint Solving
+
+The constraint solver is responsible for determining if a set of constraints is satisfiable and generating concrete values that satisfy the constraints. The Neo Smart Contract Fuzzer includes:
+
+- A simple constraint solver for basic constraints
+- Integration with Z3 for more complex constraints
+- Incremental solving to improve performance
+
+### Advanced Features
+
+#### State Merging
 
 To combat path explosion, the engine can merge similar states:
 - States with similar constraints are combined
 - Differences are tracked using if-then-else expressions
 - This reduces the number of states while preserving precision
 
-### Incremental Solving
+#### Incremental Solving
 
 To improve performance, the engine uses incremental solving:
 - Reuses solver context between similar queries
 - Adds and removes constraints incrementally
 - Caches solver results for common constraints
 
-### Concolic Execution
+#### Concolic Execution
 
 The engine supports concolic execution (concrete + symbolic):
 - Some values are concrete, others are symbolic

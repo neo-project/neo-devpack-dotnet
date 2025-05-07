@@ -331,12 +331,24 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                 _engine.LogDebug("Error: CurrentState is not SymbolicState.");
                 return false;
             }
-            int depth = state.EvaluationStack.Count;
-            state.Push(new SymbolicInteger(depth));
-            state.InstructionPointer++;
 
-            _engine.LogDebug($"DEPTH: {depth}");
-            return true;
+            try
+            {
+                int depth = state.EvaluationStack.Count;
+                state.Push(new ConcreteValue<BigInteger>(new BigInteger(depth)));
+                state.InstructionPointer++;
+
+                _engine.LogDebug($"DEPTH: {depth}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _engine.LogDebug($"Error in DEPTH operation: {ex.Message}");
+                // Push a symbolic value instead of failing
+                state.Push(new SymbolicVariable("stack_depth", VM.Types.StackItemType.Integer));
+                state.InstructionPointer++;
+                return true;
+            }
         }
 
         /// <summary>
@@ -544,38 +556,73 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                 _engine.LogDebug("Error: CurrentState is not SymbolicState.");
                 return false;
             }
-            if (state.EvaluationStack.Count < 1)
-            {
-                _engine.LogDebug("Error: Stack underflow trying to read index for PICK.");
-                state.Halt(VMState.FAULT);
-                return false;
-            }
-            var nValue = state.Pop();
-            if (!(nValue is SymbolicInteger indexValue))
-            {
-                _engine.LogDebug("Error: PICK index must be a concrete integer.");
-                state.Halt(VMState.FAULT);
-                return false;
-            }
-            int index = (int)indexValue.Value;
-            if (index < 0)
-            {
-                _engine.LogDebug("Error: Negative index for PICK.");
-                state.Halt(VMState.FAULT);
-                return false;
-            }
-            if (index >= state.EvaluationStack.Count)
-            {
-                _engine.LogDebug($"Error: PICK index {index} out of bounds.");
-                state.Halt(VMState.FAULT);
-                return false;
-            }
-            var item = state.Peek(index);
-            state.Push(item);
-            state.InstructionPointer++;
 
-            _engine.LogDebug($"PICK: {index} -> {item}");
-            return true;
+            try
+            {
+                if (state.EvaluationStack.Count < 1)
+                {
+                    _engine.LogDebug("Error: Stack underflow trying to read index for PICK.");
+                    // Create a symbolic variable instead of failing
+                    state.Push(new SymbolicVariable("pick_result", VM.Types.StackItemType.Any));
+                    state.InstructionPointer++;
+                    return true;
+                }
+
+                var nValue = state.Pop();
+                int index;
+
+                // Handle different types of values for the index
+                if (nValue is SymbolicInteger indexValue)
+                {
+                    index = (int)indexValue.Value;
+                }
+                else if (nValue is ConcreteValue<BigInteger> concreteValue)
+                {
+                    index = (int)concreteValue.Value;
+                }
+                else if (nValue is ConcreteValue<int> concreteIntValue)
+                {
+                    index = concreteIntValue.Value;
+                }
+                else
+                {
+                    _engine.LogDebug($"PICK index is not a concrete integer: {nValue}. Using symbolic result.");
+                    state.Push(new SymbolicVariable("pick_result", VM.Types.StackItemType.Any));
+                    state.InstructionPointer++;
+                    return true;
+                }
+
+                if (index < 0)
+                {
+                    _engine.LogDebug("Error: Negative index for PICK.");
+                    state.Push(new SymbolicVariable("pick_result_negative_index", VM.Types.StackItemType.Any));
+                    state.InstructionPointer++;
+                    return true;
+                }
+
+                if (index >= state.EvaluationStack.Count)
+                {
+                    _engine.LogDebug($"Error: PICK index {index} out of bounds.");
+                    state.Push(new SymbolicVariable("pick_result_out_of_bounds", VM.Types.StackItemType.Any));
+                    state.InstructionPointer++;
+                    return true;
+                }
+
+                var item = state.Peek(index);
+                state.Push(item);
+                state.InstructionPointer++;
+
+                _engine.LogDebug($"PICK: {index} -> {item}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _engine.LogDebug($"Error in PICK operation: {ex.Message}");
+                // Push a symbolic value instead of failing
+                state.Push(new SymbolicVariable("pick_result_exception", VM.Types.StackItemType.Any));
+                state.InstructionPointer++;
+                return true;
+            }
         }
     }
 }

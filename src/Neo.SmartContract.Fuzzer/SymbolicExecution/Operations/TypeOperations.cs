@@ -162,7 +162,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                     }
                     else
                     {
-                        var symbolicResult = new SymbolicVariable($"Convert_To_Boolean_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Boolean);
+                        var symbolicResult = new SymbolicVariable($"Convert_To_Boolean_{_engine.CurrentState.InstructionPointer}", SymbolicType.Boolean);
                         _engine.CurrentState.Push(symbolicResult);
                         LogDebug($"Created symbolic result for conversion to boolean: {symbolicResult}");
                     }
@@ -198,14 +198,14 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                         }
                         else
                         {
-                            var symbolicResult = new SymbolicVariable($"Convert_String_To_Integer_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Integer);
+                            var symbolicResult = new SymbolicVariable($"Convert_String_To_Integer_{_engine.CurrentState.InstructionPointer}", SymbolicType.Integer);
                             _engine.CurrentState.Push(symbolicResult);
                             LogDebug($"Created symbolic result for conversion of string to integer: {symbolicResult}");
                         }
                     }
                     else
                     {
-                        var symbolicResult = new SymbolicVariable($"Convert_To_Integer_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.Integer);
+                        var symbolicResult = new SymbolicVariable($"Convert_To_Integer_{_engine.CurrentState.InstructionPointer}", SymbolicType.Integer);
                         _engine.CurrentState.Push(symbolicResult);
                         LogDebug($"Created symbolic result for conversion to integer: {symbolicResult}");
                     }
@@ -228,7 +228,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                         }
                         else
                         {
-                            var symbolicResult = new SymbolicVariable($"Convert_Buffer_To_String_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.ByteString);
+                            var symbolicResult = new SymbolicVariable($"Convert_Buffer_To_String_{_engine.CurrentState.InstructionPointer}", SymbolicType.ByteString);
                             _engine.CurrentState.Push(symbolicResult);
                             LogDebug($"Created symbolic result for conversion of buffer to string: {symbolicResult}");
                         }
@@ -250,7 +250,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                     }
                     else
                     {
-                        var symbolicResult = new SymbolicVariable($"Convert_To_String_{_engine.CurrentState.InstructionPointer}", VM.Types.StackItemType.ByteString);
+                        var symbolicResult = new SymbolicVariable($"Convert_To_String_{_engine.CurrentState.InstructionPointer}", SymbolicType.ByteString);
                         _engine.CurrentState.Push(symbolicResult);
                         LogDebug($"Created symbolic result for conversion to string: {symbolicResult}");
                     }
@@ -277,7 +277,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                     break;
 
                 default:
-                    var symbolicVariable = new SymbolicVariable($"Convert_To_{type}_{_engine.CurrentState.InstructionPointer}", type);
+                    var symbolicVariable = new SymbolicVariable($"Convert_To_{type}_{_engine.CurrentState.InstructionPointer}", SymbolicType.Any);
                     _engine.CurrentState.Push(symbolicVariable);
                     LogDebug($"Created symbolic result for conversion to {type}: {symbolicVariable}");
                     break;

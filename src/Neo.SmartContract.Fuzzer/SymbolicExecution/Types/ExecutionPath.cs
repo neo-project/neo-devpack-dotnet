@@ -52,6 +52,21 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         public IReadOnlyDictionary<string, object> SatisfyingInputs { get; }
 
         /// <summary>
+        /// Gets or sets the storage changes made during this execution path.
+        /// </summary>
+        public Dictionary<byte[], byte[]> StorageChanges { get; set; } = new Dictionary<byte[], byte[]>();
+
+        /// <summary>
+        /// Gets or sets the events emitted during this execution path.
+        /// </summary>
+        public List<string> Events { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Gets or sets the vulnerabilities found on this path.
+        /// </summary>
+        public List<SymbolicVulnerability> Vulnerabilities { get; set; } = new List<SymbolicVulnerability>();
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ExecutionPath"/> class.
         /// </summary>
         /// <param name="steps">The execution steps.</param>
@@ -77,6 +92,9 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
             FinalStack = finalStack?.ToList() ?? new List<object>();
             FinalState = finalState ?? new SymbolicState(new ReadOnlyMemory<byte>(new byte[0]));
             SatisfyingInputs = satisfyingInputs ?? new Dictionary<string, object>();
+            StorageChanges = new Dictionary<byte[], byte[]>();
+            Events = new List<string>();
+            Vulnerabilities = new List<SymbolicVulnerability>();
         }
 
         /// <summary>
@@ -124,3 +142,4 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Types
         }
     }
 }
+

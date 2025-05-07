@@ -74,6 +74,18 @@ A tool for disassembling NeoVM bytecode back to readable C# code.
 
 Code analyzers and linting tools to help write secure and efficient contracts.
 
+### Neo.SmartContract.Fuzzer
+
+A comprehensive fuzzing and vulnerability detection tool for Neo smart contracts that combines feedback-guided fuzzing, symbolic execution, and static analysis to find security vulnerabilities. Features include:
+
+- Feedback-guided fuzzing with intelligent input generation
+- Symbolic execution for deep vulnerability detection
+- Static analysis for code-level vulnerabilities
+- Detection of common smart contract vulnerabilities (integer overflow, division by zero, unauthorized access, etc.)
+- Test case minimization for easier debugging
+- Comprehensive reporting of vulnerabilities
+- Code coverage analysis
+
 ### Neo.SmartContract.Template
 
 Project templates for creating new NEO smart contracts with the proper structure and configurations.
@@ -308,6 +320,31 @@ The repository includes various example contracts that demonstrate different fea
 | [SampleRoyaltyNEP11Token](examples/Example.SmartContract.SampleRoyaltyNEP11Token/) | NFT with royalty feature implementation |
 
 Each example comes with corresponding unit tests that demonstrate how to properly test the contract functionality.
+
+### Using the Smart Contract Fuzzer
+
+The Neo Smart Contract Fuzzer can be used to find vulnerabilities in your smart contracts:
+
+```shell
+# Basic fuzzing
+dotnet run --project src/Neo.SmartContract.Fuzzer -- --nef path/to/contract.nef --manifest path/to/contract.manifest.json
+
+# Fuzzing with symbolic execution
+dotnet run --project src/Neo.SmartContract.Fuzzer -- --nef path/to/contract.nef --manifest path/to/contract.manifest.json --enable-symbolic-execution
+
+# Comprehensive analysis
+dotnet run --project src/Neo.SmartContract.Fuzzer -- --nef path/to/contract.nef --manifest path/to/contract.manifest.json --enable-static-analysis --enable-symbolic-execution --iterations 200 --report-formats Markdown,Json,Html
+```
+
+The fuzzer will generate detailed reports of any vulnerabilities found, including:
+- Integer overflow/underflow
+- Division by zero
+- Unauthorized access
+- Storage exhaustion
+- Reentrancy vulnerabilities
+- And many more
+
+For detailed documentation on the fuzzer, see [Neo.SmartContract.Fuzzer/Documentation](src/Neo.SmartContract.Fuzzer/Documentation/).
 
 ## Documentation
 

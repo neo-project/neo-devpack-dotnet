@@ -321,7 +321,11 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
                     var value = _engine.CurrentState.Pop();
                     var key = _engine.CurrentState.Pop();
 
-                    symbolicMap.Add(key, value);
+                    bool success = symbolicMap.Add(key, value);
+                    if (!success)
+                    {
+                        LogDebug($"Failed to add key-value pair to map: key size may exceed MaxKeySize");
+                    }
                 }
 
                 _engine.CurrentState.Push(symbolicMap);
@@ -827,8 +831,8 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution.Operations
             }
             else if (collection is SymbolicMap symbolicMap)
             {
-                symbolicMap.SetItem(key, value);
-                LogDebug($"Set item with key {key} in map");
+                bool success = symbolicMap.SetItem(key, value);
+                LogDebug($"Set item with key {key} in map: {(success ? "success" : "failed - key may exceed MaxKeySize")}");
             }
             else if (collection is SymbolicStruct symbolicStruct && (key is ConcreteValue<int> || key is ConcreteValue<BigInteger>))
             {

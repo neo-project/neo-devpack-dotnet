@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Inc_{value}", value.Type);
+            return new SymbolicVariable($"Inc_{value}", SymbolicType.Integer);
         }
 
         public SymbolicValue Decrement(SymbolicValue value)
@@ -43,7 +43,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Dec_{value}", value.Type);
+            return new SymbolicVariable($"Dec_{value}", SymbolicType.Integer);
         }
 
         public SymbolicValue Negate(SymbolicValue value)
@@ -60,7 +60,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Neg_{value}", value.Type);
+            return new SymbolicVariable($"Neg_{value}", SymbolicType.Integer);
         }
 
         public SymbolicValue Abs(SymbolicValue value)
@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Abs_{value}", value.Type);
+            return new SymbolicVariable($"Abs_{value}", SymbolicType.Integer);
         }
 
         public SymbolicValue Sign(SymbolicValue value)
@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Sign_{value}", StackItemType.Integer);
+            return new SymbolicVariable($"Sign_{value}", SymbolicType.Integer);
         }
 
         public SymbolicValue Not(SymbolicValue value)
@@ -111,7 +111,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Not_{value}", value.Type);
+            return new SymbolicVariable($"Not_{value}", SymbolicType.Integer);
         }
 
         public SymbolicValue IsNonZero(SymbolicValue value)
@@ -132,7 +132,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"IsNonZero_{value}", StackItemType.Boolean);
+            return new SymbolicVariable($"IsNonZero_{value}", SymbolicType.Boolean);
         }
 
         // --- Binary Operations ---
@@ -150,7 +150,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Add_{left}_{right}", StackItemType.Integer);
+            return new SymbolicVariable($"Add_{left}_{right}", SymbolicType.Integer);
         }
 
         public SymbolicValue Subtract(SymbolicValue left, SymbolicValue right)
@@ -167,7 +167,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Sub_{left}_{right}", StackItemType.Integer);
+            return new SymbolicVariable($"Sub_{left}_{right}", SymbolicType.Integer);
         }
 
         public SymbolicValue Multiply(SymbolicValue left, SymbolicValue right)
@@ -184,7 +184,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Mul_{left}_{right}", StackItemType.Integer);
+            return new SymbolicVariable($"Mul_{left}_{right}", SymbolicType.Integer);
         }
 
         public SymbolicValue Divide(SymbolicValue left, SymbolicValue right)
@@ -209,7 +209,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Div_{left}_{right}", StackItemType.Integer);
+            return new SymbolicVariable($"Div_{left}_{right}", SymbolicType.Integer);
         }
 
         public SymbolicValue Modulo(SymbolicValue left, SymbolicValue right)
@@ -234,7 +234,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Mod_{left}_{right}", StackItemType.Integer);
+            return new SymbolicVariable($"Mod_{left}_{right}", SymbolicType.Integer);
         }
 
         public SymbolicValue ShiftLeft(SymbolicValue value, SymbolicValue shiftAmount)
@@ -251,7 +251,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"ShiftLeft_{value}_{shiftAmount}", StackItemType.Integer);
+            return new SymbolicVariable($"ShiftLeft_{value}_{shiftAmount}", SymbolicType.Integer);
         }
 
         public SymbolicValue ShiftRight(SymbolicValue value, SymbolicValue shiftAmount)
@@ -268,7 +268,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"ShiftRight_{value}_{shiftAmount}", StackItemType.Integer);
+            return new SymbolicVariable($"ShiftRight_{value}_{shiftAmount}", SymbolicType.Integer);
         }
 
         public SymbolicValue BoolAnd(SymbolicValue left, SymbolicValue right)
@@ -281,7 +281,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"BoolAnd_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"BoolAnd_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue BoolOr(SymbolicValue left, SymbolicValue right)
@@ -294,7 +294,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"BoolOr_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"BoolOr_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue Equal(SymbolicValue left, SymbolicValue right)
@@ -315,7 +315,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Equal_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"Equal_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue NotEqual(SymbolicValue left, SymbolicValue right)
@@ -336,7 +336,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"NotEqual_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"NotEqual_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue NumericEquals(SymbolicValue left, SymbolicValue right)
@@ -353,7 +353,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"NumericEquals_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"NumericEquals_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue NumericNotEquals(SymbolicValue left, SymbolicValue right)
@@ -370,7 +370,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"NumericNotEquals_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"NumericNotEquals_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue LessThan(SymbolicValue left, SymbolicValue right)
@@ -387,7 +387,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"LessThan_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"LessThan_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue LessThanOrEqual(SymbolicValue left, SymbolicValue right)
@@ -404,7 +404,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"LessThanOrEqual_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"LessThanOrEqual_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue GreaterThan(SymbolicValue left, SymbolicValue right)
@@ -421,7 +421,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"GreaterThan_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"GreaterThan_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue GreaterThanOrEqual(SymbolicValue left, SymbolicValue right)
@@ -438,7 +438,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"GreaterThanOrEqual_{left}_{right}", StackItemType.Boolean);
+            return new SymbolicVariable($"GreaterThanOrEqual_{left}_{right}", SymbolicType.Boolean);
         }
 
         public SymbolicValue Min(SymbolicValue left, SymbolicValue right)
@@ -455,7 +455,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Min_{left}_{right}", StackItemType.Integer);
+            return new SymbolicVariable($"Min_{left}_{right}", SymbolicType.Integer);
         }
 
         public SymbolicValue Max(SymbolicValue left, SymbolicValue right)
@@ -472,7 +472,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Max_{left}_{right}", StackItemType.Integer);
+            return new SymbolicVariable($"Max_{left}_{right}", SymbolicType.Integer);
         }
 
         // --- Ternary Operations ---
@@ -494,7 +494,7 @@ namespace Neo.SmartContract.Fuzzer.SymbolicExecution
                 }
             }
 
-            return new SymbolicVariable($"Within_{value}_{min_bound}_{max_bound}", StackItemType.Boolean);
+            return new SymbolicVariable($"Within_{value}_{min_bound}_{max_bound}", SymbolicType.Boolean);
         }
 
         /// <summary>
