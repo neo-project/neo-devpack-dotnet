@@ -24,6 +24,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit.assert" Version="2.7.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -11,9 +11,15 @@
 
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
+using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Neo Framework Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_StaticStorageMap : SmartContract
     {
         private static StorageMap Data = new(Storage.CurrentContext, "data");
@@ -66,3 +72,4 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 #pragma warning restore CS8604
     }
 }
+
