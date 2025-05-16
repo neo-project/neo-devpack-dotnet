@@ -54,7 +54,7 @@ namespace Inscription
         [Safe]
         public static string GetInscription(UInt160 address)
         {
-            return Storage.Get(Storage.CurrentContext, address);
+            return Storage.Get(Storage.CurrentReadOnlyContext, address);
         }
     }
 }
