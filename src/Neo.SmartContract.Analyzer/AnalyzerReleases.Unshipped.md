@@ -28,3 +28,6 @@
 | NC4026  | Usage    | Error    | SystemDiagnosticsUsageAnalyzer             |
 | NC4027  | Usage    | Warning  | CatchOnlySystemExceptionAnalyzer           |
 | NC4028  | Usage    | Error    | SystemThreadingUsageAnalyzer               |
+| NC5050  | Performance | Warning | StoragePatternAnalyzer - Repeated Access   |
+| NC5051  | Performance | Warning | StoragePatternAnalyzer - Large Key         |
+| NC5052  | Performance | Warning | StoragePatternAnalyzer - Storage In Loop   |

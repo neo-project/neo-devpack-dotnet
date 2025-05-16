@@ -10,6 +10,8 @@
 // modifications are permitted.
 
 using System.Numerics;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
@@ -32,6 +34,11 @@ namespace Neo.Compiler.CSharp.TestContracts
 #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Compiler Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.Compiler.CSharp.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Tuple : SmartContract.Framework.SmartContract
     {
         public static (BigInteger, BigInteger, BigInteger, BigInteger) GetResult()
@@ -51,3 +58,5 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
     }
 }
+
+

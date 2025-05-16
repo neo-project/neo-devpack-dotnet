@@ -12,7 +12,6 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.CodeAnalysis.CSharp.Testing;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Microsoft.CodeAnalysis.Testing;
 
 
@@ -76,7 +75,7 @@ class Program
         [TestMethod]
         public async Task TestAnalyzer()
         {
-            var test = new CSharpAnalyzerTest<CatchOnlySystemExceptionAnalyzer, XUnitVerifier>
+            var test = new CSharpAnalyzerTest<CatchOnlySystemExceptionAnalyzer, DefaultVerifier>
             {
                 TestCode = testCode
             };
@@ -84,14 +83,14 @@ class Program
             test.ExpectedDiagnostics.AddRange([expectedDiagnostic]);
             await test.RunAsync();
 
-            test = new CSharpAnalyzerTest<CatchOnlySystemExceptionAnalyzer, XUnitVerifier>
+            test = new CSharpAnalyzerTest<CatchOnlySystemExceptionAnalyzer, DefaultVerifier>
             {
                 TestCode = codeWithoutExceptionType
             };
             // no ExpectedDiagnostics
             await test.RunAsync();
 
-            test = new CSharpAnalyzerTest<CatchOnlySystemExceptionAnalyzer, XUnitVerifier>
+            test = new CSharpAnalyzerTest<CatchOnlySystemExceptionAnalyzer, DefaultVerifier>
             {
                 TestCode = codeWithCorrectExceptionType
             };
@@ -102,7 +101,7 @@ class Program
         [TestMethod]
         public async Task TestCodeFix()
         {
-            var test = new CSharpCodeFixTest<CatchOnlySystemExceptionAnalyzer, CatchOnlySystemExceptionCodeFixProvider, XUnitVerifier>
+            var test = new CSharpCodeFixTest<CatchOnlySystemExceptionAnalyzer, CatchOnlySystemExceptionCodeFixProvider, DefaultVerifier>
             {
                 TestCode = testCode,
                 FixedCode = fixedCode

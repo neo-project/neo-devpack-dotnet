@@ -18,6 +18,11 @@ using Contract = Neo.SmartContract.Framework.Services.Contract;
 namespace Neo.Compiler.CSharp.TestContracts
 {
     [ContractPermission("*", "*")]
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Compiler Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.Compiler.CSharp.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Storage : SmartContract.Framework.SmartContract
     {
         #region A
@@ -72,3 +77,5 @@ namespace Neo.Compiler.CSharp.TestContracts
         #endregion
     }
 }
+
+

@@ -12,9 +12,15 @@
 using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework.TestContracts
 {
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Neo Framework Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Nullable : SmartContract
     {
         public static bool BigIntegerNullableEqual(BigInteger a, BigInteger? b)
@@ -240,3 +246,4 @@ namespace Neo.SmartContract.Framework.TestContracts
         }
     }
 }
+

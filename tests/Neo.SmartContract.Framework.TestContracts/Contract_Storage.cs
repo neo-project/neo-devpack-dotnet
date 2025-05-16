@@ -9,12 +9,18 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
 
 #pragma warning disable CS8604
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Neo Framework Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Storage : SmartContract
     {
         // There is no main here, it can be auto generation.
@@ -233,3 +239,4 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     }
 #pragma warning restore CS8604
 }
+

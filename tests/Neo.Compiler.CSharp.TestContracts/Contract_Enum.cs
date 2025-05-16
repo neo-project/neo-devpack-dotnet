@@ -12,9 +12,15 @@
 using Neo.SmartContract.Framework.Attributes;
 using System.Collections;
 using System.Numerics;
+using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Compiler Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.Compiler.CSharp.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Enum : SmartContract.Framework.SmartContract
     {
         public enum TestEnum
@@ -79,3 +85,5 @@ namespace Neo.Compiler.CSharp.TestContracts
 #pragma warning restore CS8603
     }
 }
+
+

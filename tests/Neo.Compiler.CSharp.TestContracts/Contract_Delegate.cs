@@ -11,10 +11,16 @@
 
 using System;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Compiler Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.Compiler.CSharp.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Delegate : SmartContract.Framework.SmartContract
     {
         public static int sumFunc(int a, int b)
@@ -42,3 +48,5 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
     }
 }
+
+
