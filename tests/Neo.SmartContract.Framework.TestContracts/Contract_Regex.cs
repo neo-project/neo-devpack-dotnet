@@ -9,8 +9,15 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.SmartContract.Framework.Attributes;
+
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Neo Framework Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Regex : SmartContract
     {
         public static bool TestStartWith()
@@ -54,3 +61,4 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
     }
 }
+

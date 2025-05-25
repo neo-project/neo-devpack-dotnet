@@ -3,7 +3,7 @@
 
     <PropertyGroup>
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
-        <VersionPrefix>3.7.4</VersionPrefix>
+        <VersionPrefix>3.8.1</VersionPrefix>
         <TargetFramework>net9.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>

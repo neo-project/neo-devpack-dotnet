@@ -22,6 +22,7 @@ namespace Neo.SmartContract.Framework.TestContracts
     [ContractVersion("<Version String Here>")]
     [ContractPermission(Permission.Any, Method.Any)]
     [SupportedStandards(NepStandard.Nep26)]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
     public class Contract_SupportedStandard26 : SmartContract, INEP26
     {
         public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null)
@@ -29,3 +30,4 @@ namespace Neo.SmartContract.Framework.TestContracts
         }
     }
 }
+
