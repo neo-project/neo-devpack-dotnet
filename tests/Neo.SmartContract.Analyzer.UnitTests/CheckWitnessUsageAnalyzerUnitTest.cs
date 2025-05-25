@@ -54,15 +54,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             // CS1705 errors
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
@@ -113,15 +113,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             // CS1705 errors
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
@@ -172,15 +172,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             // CS1705 errors
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
@@ -239,15 +239,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             // CS1705 errors
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
@@ -275,15 +275,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             // CS1705 errors
             test.FixedState.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.FixedState.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.FixedState.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
@@ -351,15 +351,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             // CS1705 errors
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
@@ -387,15 +387,15 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             // CS1705 errors
             test.FixedState.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.FixedState.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
             test.FixedState.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1705")
-                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.7.4.0, Culture=neutral, PublicKeyToken=null",
+                .WithArguments("Neo.SmartContract.Framework", "Neo.SmartContract.Framework, Version=3.8.1.0, Culture=neutral, PublicKeyToken=null",
                               "System.Runtime, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a", "System.Runtime",
                               "System.Runtime, Version=4.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"));
 
