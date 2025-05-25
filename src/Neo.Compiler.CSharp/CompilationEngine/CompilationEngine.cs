@@ -126,7 +126,7 @@ namespace Neo.Compiler
         {
             return CompileSources(new CompilationSourceReferences()
             {
-                Packages = [new("Neo.SmartContract.Framework", "3.7.4-*")]
+                Packages = [new("Neo.SmartContract.Framework", "3.8.1-*")]
             },
             sourceFiles);
         }
@@ -376,7 +376,7 @@ namespace Neo.Compiler
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"restore \"{csproj}\" --source \"https://www.myget.org/F/neo/api/v3/index.json\"",
+                Arguments = $"restore \"{csproj}\" --source \"https://www.myget.org/F/neo/api/v3/index.json\" --source \"https://api.nuget.org/v3/index.json\"",
                 WorkingDirectory = folder
             })!.WaitForExit();
 

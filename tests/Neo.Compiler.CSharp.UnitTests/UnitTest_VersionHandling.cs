@@ -213,7 +213,7 @@ public class TestContract : SmartContract
 
             // Create the project file with version information
             XElement propertyGroup = new XElement("PropertyGroup",
-                new XElement("TargetFramework", "net8.0"),
+                new XElement("TargetFramework", "net9.0"),
                 new XElement("ImplicitUsings", "enable"),
                 new XElement("Nullable", "enable")
             );
@@ -241,7 +241,7 @@ public class TestContract : SmartContract
                 new XElement("ItemGroup",
                     new XElement("PackageReference",
                         new XAttribute("Include", "Neo.SmartContract.Framework"),
-                        new XAttribute("Version", "3.7.4")
+                        new XAttribute("Version", "3.8.1")
                     )
                 )
             );
