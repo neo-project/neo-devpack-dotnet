@@ -28,13 +28,14 @@ public class ManifestAttributeTest
     {
         var extra = Contract_ManifestAttribute.Manifest!.Extra;
 
-        Assert.AreEqual(6, extra.Count);
+        Assert.AreEqual(7, extra.Count);
         // ["nef"]["optimizations"]
         // [Author("core-dev")]
         // [Email("dev@neo.org")]
         // [Version("v3.6.3")]
         // [Description("This is a test contract.")]
         // [ManifestExtra("ExtraKey", "ExtraValue")]
+        // [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
         Assert.AreEqual("core-dev", extra["Author"]!.GetString());
         Assert.AreEqual("dev@neo.org", extra["E-mail"]!.GetString());
         Assert.AreEqual("v3.6.3", extra["Version"]!.GetString());
