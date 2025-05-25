@@ -30,7 +30,7 @@ namespace Oracle
         [Safe]
         public static string GetResponse()
         {
-            return Storage.Get(Storage.CurrentContext, "Response");
+            return Storage.Get(Storage.CurrentReadOnlyContext, "Response");
         }
 
         public static void DoRequest()

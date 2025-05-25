@@ -83,7 +83,7 @@ namespace Neo.SmartContract.Template
         // TODO: Replace it with your methods.
         public static string MyMethod()
         {
-            return Storage.Get(Storage.CurrentContext, "Hello");
+            return Storage.Get(Storage.CurrentReadOnlyContext, "Hello");
         }
 
         // This will be executed during deploy
