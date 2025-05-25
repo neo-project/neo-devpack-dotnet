@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class NumericMethodsUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC4045";
+        public const string DiagnosticId = "NC4029";
 
         // Dictionary of numeric types and their unsupported methods
         // Based on the methods implemented in src\Neo.Compiler.CSharp\MethodConvert\System\

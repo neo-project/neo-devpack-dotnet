@@ -42,7 +42,8 @@ namespace Neo.SmartContract.Analyzer
             Category,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: DescriptionUnregisteredEvent);
+            description: DescriptionUnregisteredEvent,
+            customTags: WellKnownDiagnosticTags.CompilationEnd);
 
         private static readonly DiagnosticDescriptor RuleImproperEventDefinition = new(
             DiagnosticIdImproperEventDefinition,

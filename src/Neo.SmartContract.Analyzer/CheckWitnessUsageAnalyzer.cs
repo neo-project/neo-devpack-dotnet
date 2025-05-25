@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class CheckWitnessUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC4029";
+        public const string DiagnosticId = "NC4037";
 
         private static readonly LocalizableString Title = "CheckWitness result should be used";
         private static readonly LocalizableString MessageFormat = "The result of CheckWitness should be used: {0}";

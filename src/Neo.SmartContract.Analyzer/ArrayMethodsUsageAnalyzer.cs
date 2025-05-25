@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ArrayMethodsUsageAnalyzer : DiagnosticAnalyzer
     {
-        public const string DiagnosticId = "NC4042";
+        public const string DiagnosticId = "NC4016";
 
         // Array methods that are not supported in Neo smart contracts
         // Based on the methods implemented in src\Neo.Compiler.CSharp\MethodConvert\System\SystemCall.Array.cs
