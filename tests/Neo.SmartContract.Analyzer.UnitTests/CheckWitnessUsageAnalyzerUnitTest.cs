@@ -48,9 +48,6 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                 .WithSpan(9, 15, 9, 41)
                 .WithArguments("The result of Runtime.CheckWitness(...) should be used in a condition, assigned to a variable, passed to ExecutionEngine.Assert, or otherwise utilized"));
 
-            // Disable compiler diagnostic verification - we only care about our analyzer
-            test.TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;
-
             await test.RunAsync();
         }
 
@@ -75,8 +72,6 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             test.TestCode = sourceCode;
 
             // No analyzer diagnostics expected - CheckWitness is properly used with Assert
-            // Disable compiler diagnostic verification - we only care about our analyzer
-            test.TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;
 
             await test.RunAsync();
         }
@@ -105,8 +100,6 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             test.TestCode = sourceCode;
 
             // No analyzer diagnostics expected - CheckWitness is properly used in if condition
-            // Disable compiler diagnostic verification - we only care about our analyzer
-            test.TestBehaviors |= TestBehaviors.SkipGeneratedCodeCheck;
 
             await test.RunAsync();
         }
