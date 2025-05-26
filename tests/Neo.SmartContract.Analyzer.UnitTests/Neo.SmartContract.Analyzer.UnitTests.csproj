@@ -11,7 +11,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj" />
-		<ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

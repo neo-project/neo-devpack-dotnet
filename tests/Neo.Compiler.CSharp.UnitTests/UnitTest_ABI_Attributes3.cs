@@ -23,7 +23,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAbiAttributes()
         {
             var permissions = new JArray(Contract_ABIAttributes3.Manifest.Permissions.Select(p => p.ToJson()).ToArray()).ToString(false);
-            Assert.AreEqual(@"[{""contract"":""0x01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4"",""methods"":""*""}]", permissions);
+            // When ContractPermission(Permission.Any, Method.Any) is present, it creates a wildcard permission that overrides all others
+            Assert.AreEqual(@"[{""contract"":""*"",""methods"":""*""}]", permissions);
             var trust = Contract_ABIAttributes3.Manifest.Trusts.ToJson(p => p.ToJson());
             Assert.AreEqual(@"[]", trust.ToString(false));
         }
