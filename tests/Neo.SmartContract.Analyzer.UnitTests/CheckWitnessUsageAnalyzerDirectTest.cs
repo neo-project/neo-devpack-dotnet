@@ -40,13 +40,13 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             var compilation = await TestHelper.CreateCompilationAsync(sourceCode);
             var analyzer = new CheckWitnessUsageAnalyzer();
-            
+
             var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
             var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-            
+
             // Filter to only our analyzer diagnostics
             var analyzerDiagnostics = diagnostics.Where(d => d.Id == CheckWitnessUsageAnalyzer.DiagnosticId).ToArray();
-            
+
             Assert.AreEqual(1, analyzerDiagnostics.Length, "Expected exactly one diagnostic from CheckWitnessUsageAnalyzer");
             Assert.AreEqual(CheckWitnessUsageAnalyzer.DiagnosticId, analyzerDiagnostics[0].Id);
             Assert.IsTrue(analyzerDiagnostics[0].GetMessage().Contains("CheckWitness"), "Diagnostic message should mention CheckWitness");
@@ -71,13 +71,13 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             var compilation = await TestHelper.CreateCompilationAsync(sourceCode);
             var analyzer = new CheckWitnessUsageAnalyzer();
-            
+
             var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
             var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-            
+
             // Filter to only our analyzer diagnostics
             var analyzerDiagnostics = diagnostics.Where(d => d.Id == CheckWitnessUsageAnalyzer.DiagnosticId).ToArray();
-            
+
             Assert.AreEqual(0, analyzerDiagnostics.Length, "Expected no diagnostics when CheckWitness is used with Assert");
         }
 
@@ -103,13 +103,13 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             var compilation = await TestHelper.CreateCompilationAsync(sourceCode);
             var analyzer = new CheckWitnessUsageAnalyzer();
-            
+
             var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
             var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-            
+
             // Filter to only our analyzer diagnostics
             var analyzerDiagnostics = diagnostics.Where(d => d.Id == CheckWitnessUsageAnalyzer.DiagnosticId).ToArray();
-            
+
             Assert.AreEqual(0, analyzerDiagnostics.Length, "Expected no diagnostics when CheckWitness is used in if condition");
         }
 
@@ -136,13 +136,13 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             var compilation = await TestHelper.CreateCompilationAsync(sourceCode);
             var analyzer = new CheckWitnessUsageAnalyzer();
-            
+
             var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(analyzer));
             var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-            
+
             // Filter to only our analyzer diagnostics
             var analyzerDiagnostics = diagnostics.Where(d => d.Id == CheckWitnessUsageAnalyzer.DiagnosticId).ToArray();
-            
+
             Assert.AreEqual(0, analyzerDiagnostics.Length, "Expected no diagnostics when CheckWitness result is assigned to variable");
         }
     }
