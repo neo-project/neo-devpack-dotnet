@@ -21,10 +21,23 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Analyzer
 {
+    /// <summary>
+    /// NEP standard enumeration - local copy to avoid framework dependency
+    /// </summary>
+    public enum NepStandard
+    {
+        Nep11,
+        Nep17,
+        Nep24,
+        Nep26,
+        Nep27,
+        Nep29,
+        Nep30
+    }
+
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SupportedStandardsAnalyzer : DiagnosticAnalyzer
     {
