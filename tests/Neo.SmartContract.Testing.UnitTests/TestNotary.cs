@@ -10,7 +10,6 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Testing;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -145,20 +144,10 @@ namespace Neo.SmartContract.Testing.UnitTests
                 "Should return Integer");
         }
 
-        /// <summary>
-        /// Tests integration between the Notary contract and other native contracts.
-        /// </summary>
         [TestMethod]
-        public void TestNotaryIntegrationWithOtherContracts()
+        public void TestNotaryVerify()
         {
-            // Verify other required native contracts are available for integration
-            Assert.IsNotNull(_engine.Native.GAS, "GAS contract should be available");
-            Assert.IsNotNull(_engine.Native.Policy, "Policy contract should be available");
-            Assert.IsNotNull(_engine.Native.RoleManagement, "RoleManagement contract should be available");
-
-            // Verify the Notary contract has a unique hash different from other contracts
-            Assert.AreNotEqual(_engine.Native.Notary.Hash, _engine.Native.GAS.Hash,
-                "Notary and GAS should have different hashes");
+            Assert.IsFalse(_engine.Native.Notary.Verify([1, 2, 3]), "Verify error");
         }
     }
 }
