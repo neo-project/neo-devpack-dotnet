@@ -188,7 +188,7 @@ internal partial class MethodConvert
 
             // If equal:
             // Remove the duplicated inputString from the stack
-            methodConvert.Drop(2);
+            methodConvert.Drop(3);
             // Push enum value
             methodConvert.Push(t.ConstantValue);
             methodConvert.Ret();
@@ -623,7 +623,6 @@ internal partial class MethodConvert
         // Create an array of names
         foreach (IFieldSymbol m in enumMembers.Reverse())          // PACK works in a reversed way
             methodConvert.Push(m.Name);
-        methodConvert.Push(enumMembers.Length);
         methodConvert.Pack(enumMembers.Length);
 
         methodConvert.Ret();

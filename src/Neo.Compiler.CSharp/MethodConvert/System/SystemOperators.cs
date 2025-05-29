@@ -70,13 +70,4 @@ internal partial class MethodConvert
                 return false;
         }
     }
-
-    public static void HandleStringNotEqual(MethodConvert methodConvert, SemanticModel model, BinaryExpressionSyntax expression)
-    {
-        var left = expression.Left;
-        var right = expression.Right;
-        methodConvert.ConvertExpression(model, left);
-        methodConvert.ConvertExpression(model, right);
-        methodConvert.NotEqual();
-    }
 }

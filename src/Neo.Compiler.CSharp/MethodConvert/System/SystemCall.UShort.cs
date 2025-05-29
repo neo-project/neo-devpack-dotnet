@@ -39,7 +39,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
         methodConvert.Dup();                                       // Duplicate result for range check
-        methodConvert.Within(ushort.MinValue, new BigInteger(ushort.MaxValue)); // Check if value is within ushort range
+        methodConvert.Within(ushort.MinValue, ushort.MaxValue); // Check if value is within ushort range
         methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -100,7 +100,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(ushort.MinValue, new BigInteger(ushort.MaxValue)); // Check if value is within ushort range
+        methodConvert.Within(ushort.MinValue, ushort.MaxValue); // Check if value is within ushort range
         methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
