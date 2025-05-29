@@ -21,6 +21,17 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    /// <summary>
+    /// Handles the sbyte.Parse method by converting a string to an sbyte value.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Converts string to integer using StdLib.atoi, then validates it's within sbyte range [-128, 127]
+    /// </remarks>
     private static void HandleSByteParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -28,16 +39,24 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(sbyte.MinValue);
-        methodConvert.Push(sbyte.MaxValue + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                        // Duplicate result for range check
+        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if value is within [-128, 127]
+        methodConvert.Jump(OpCode.JMPIF, endTarget);             // Jump if within range
+        methodConvert.Throw();                                      // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();
     }
 
-    // HandleSByteLeadingZeroCount
+    /// <summary>
+    /// Handles the sbyte.LeadingZeroCount method by counting leading zeros in the binary representation.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: For negative values returns 0, otherwise counts leading zeros by right-shifting until zero
+    /// </remarks>
     private static void HandleSByteLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -47,45 +66,75 @@ internal partial class MethodConvert
         JumpTarget loopStart = new();
         JumpTarget endTarget = new();
         JumpTarget notNegative = new();
-        methodConvert.AddInstruction(OpCode.DUP); // a a
-        methodConvert.AddInstruction(OpCode.PUSH0);// a a 0
-        methodConvert.Jump(OpCode.JMPGE, notNegative); //a
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.AddInstruction(OpCode.PUSH0);
+
+        // Check if value is negative (return 0 for negative values)
+        methodConvert.Dup();                                       // a a
+        methodConvert.Push0();                                     // a a 0
+        methodConvert.Jump(OpCode.JMPGE, notNegative);             // a
+        methodConvert.Drop();
+        methodConvert.Push0();
         methodConvert.Jump(OpCode.JMP, endTarget);
-        notNegative.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Push(0); // count 5 0
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); //0 5
-        methodConvert.AddInstruction(OpCode.DUP);//  0 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0);// 0 5 5 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop); //0 5
-        methodConvert.AddInstruction(OpCode.PUSH1);//0 5 1
-        methodConvert.AddInstruction(OpCode.SHR); //0  5>>1
-        methodConvert.AddInstruction(OpCode.SWAP);//5>>1 0
-        methodConvert.AddInstruction(OpCode.INC);// 5>>1 1
+
+        notNegative.Instruction = methodConvert.Nop();
+
+        // Initialize count to 0
+        methodConvert.Push(0);                                     // value count
+
+        // Loop to count leading zeros
+        loopStart.Instruction = methodConvert.Swap();              // count value
+        methodConvert.Dup();                                       // count value value
+        methodConvert.Push0();                                     // count value value 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // count value
+
+        // Right shift value and increment count
+        methodConvert.Push1();                                     // count value 1
+        methodConvert.ShR();                                       // count (value >> 1)
+        methodConvert.Swap();                                      // (value >> 1) count
+        methodConvert.Inc();                                       // (value >> 1) (count + 1)
         methodConvert.Jump(OpCode.JMP, loopStart);
-        endLoop.Instruction = methodConvert.AddInstruction(OpCode.DROP);
+
+        endLoop.Instruction = methodConvert.Drop();
         methodConvert.Push(8);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Swap();
+        methodConvert.Sub();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
-    // HandleSByteCopySign
+    /// <summary>
+    /// Handles the sbyte.CopySign method by copying the sign from one value to another.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Uses BigInteger CopySign then validates result is within sbyte range
+    /// </remarks>
     private static void HandleSByteCopySign(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
         HandleBigIntegerCopySign(methodConvert, model, symbol, instanceExpression, arguments);
         JumpTarget noOverflowTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Dup();
         methodConvert.Push(sbyte.MaxValue);
         methodConvert.Jump(OpCode.JMPLE, noOverflowTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        noOverflowTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Throw();
+        noOverflowTarget.Instruction = methodConvert.Nop();
     }
 
-    // HandleSByteCreateChecked
+    /// <summary>
+    /// Handles the sbyte.CreateChecked method by creating an sbyte with overflow checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the input value is within sbyte range [-128, 127], throws on overflow
+    /// </remarks>
     private static void HandleSByteCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
@@ -93,16 +142,24 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(sbyte.MinValue);
-        methodConvert.Push(new BigInteger(sbyte.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
+        methodConvert.Dup();
+        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);
         methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
-    // HandleSByteCreateSaturating
+    /// <summary>
+    /// Handles the sbyte.CreateSaturating method by creating an sbyte with saturation on overflow.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Clamps the input value to sbyte range [-128, 127] instead of throwing on overflow
+    /// </remarks>
     private static void HandleSByteCreateSaturating(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
@@ -117,156 +174,217 @@ internal partial class MethodConvert
         var exceptionTarget = new JumpTarget();
         var minTarget = new JumpTarget();
         var maxTarget = new JumpTarget();
-        methodConvert.AddInstruction(OpCode.DUP);// 5 0 10 10
-        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 0
-        methodConvert.AddInstruction(OpCode.DUP);// 5 10 10 0 0
-        methodConvert.AddInstruction(OpCode.ROT);// 5 10 0 0 10
-        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
-        methodConvert.AddInstruction(OpCode.THROW);
-        exceptionTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.ROT);// 10 0 5
-        methodConvert.AddInstruction(OpCode.DUP);// 10 0 5 5
-        methodConvert.AddInstruction(OpCode.ROT);// 10 5 5 0
-        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5 0 0
-        methodConvert.AddInstruction(OpCode.ROT);// 10 5 0 0 5
-        methodConvert.Jump(OpCode.JMPGT, minTarget);// 10 5 0
-        methodConvert.AddInstruction(OpCode.DROP);// 10 5
-        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5
-        methodConvert.AddInstruction(OpCode.ROT);// 5 5 10
-        methodConvert.AddInstruction(OpCode.DUP);// 5 5 10 10
-        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 5
-        methodConvert.Jump(OpCode.JMPLT, maxTarget);// 5 10
-        methodConvert.AddInstruction(OpCode.DROP);
+
+        // Stack manipulation for clamping logic
+        methodConvert.Dup();                                       // value min max max
+        methodConvert.Rot();                                       // value max max min
+        methodConvert.Dup();                                       // value max max min min
+        methodConvert.Rot();                                       // value max min min max
+        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);         // value max min
+        methodConvert.Throw();
+
+        exceptionTarget.Instruction = methodConvert.Nop();
+        methodConvert.Rot();                                       // max min value
+        methodConvert.Dup();                                       // max min value value
+        methodConvert.Rot();                                       // max value value min
+        methodConvert.Dup();                                       // max value value min min
+        methodConvert.Rot();                                       // max value min min value
+        methodConvert.Jump(OpCode.JMPGT, minTarget);               // max value min
+        methodConvert.Drop();                                      // max value
+        methodConvert.Dup();                                       // max value value
+        methodConvert.Rot();                                       // value value max
+        methodConvert.Dup();                                       // value value max max
+        methodConvert.Rot();                                       // value max max value
+        methodConvert.Jump(OpCode.JMPLT, maxTarget);               // value max
+        methodConvert.Drop();
         methodConvert.Jump(OpCode.JMP, endTarget);
-        minTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.REVERSE3);
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.AddInstruction(OpCode.DROP);
+
+        minTarget.Instruction = methodConvert.Nop();
+        methodConvert.Reverse3();
+        methodConvert.Drop();
+        methodConvert.Drop();
         methodConvert.Jump(OpCode.JMP, endTarget);
-        maxTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.DROP);
+
+        maxTarget.Instruction = methodConvert.Nop();
+        methodConvert.Swap();
+        methodConvert.Drop();
         methodConvert.Jump(OpCode.JMP, endTarget);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+
+        endTarget.Instruction = methodConvert.Nop();
     }
 
-    // HandleSByteRotateLeft
+    /// <summary>
+    /// Handles the sbyte.RotateLeft method by rotating bits to the left.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Rotates sbyte bits left by specified amount, handling sign extension properly
+    /// </remarks>
     private static void HandleSByteRotateLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // public static sbyte RotateLeft(sbyte value, int rotateAmount) => (sbyte)((value << (rotateAmount & 7)) | ((byte)value >> ((8 - rotateAmount) & 7)));
+
+        // Algorithm: (sbyte)((value << (rotateAmount & 7)) | ((byte)value >> ((8 - rotateAmount) & 7)))
         var bitWidth = sizeof(sbyte) * 8;
-        methodConvert.Push(bitWidth - 1);  // Push 7 (8-bit - 1)
-        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & 7
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 7)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);    // Ensure SHL result is 8-bit
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
-        methodConvert.Push(bitWidth);  // Push 8
-        methodConvert.AddInstruction(OpCode.SWAP);   // Swap top two elements
-        methodConvert.AddInstruction(OpCode.SUB);    // 8 - rotateAmount
-        methodConvert.Push(bitWidth - 1);  // Push 7
-        methodConvert.AddInstruction(OpCode.AND);    // (8 - rotateAmount) & 7
-        methodConvert.AddInstruction(OpCode.SHR);    // (byte)value >> ((8 - rotateAmount) & 7)
-        methodConvert.AddInstruction(OpCode.OR);
-        methodConvert.AddInstruction(OpCode.DUP);    // Duplicate the result
-        methodConvert.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 7 (0x80)
+
+        // Mask rotation amount to valid range (0-7)
+        methodConvert.Push(bitWidth - 1);                          // Push 7 (8-bit - 1)
+        methodConvert.And();                                       // rotateAmount & 7
+        methodConvert.Swap();
+
+        // Mask value to 8-bit
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
+        methodConvert.And();
+        methodConvert.Swap();
+
+        // Left shift: value << (rotateAmount & 7)
+        methodConvert.ShL();                                       // value << (rotateAmount & 7)
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
+        methodConvert.And();                                       // Ensure SHL result is 8-bit
+
+        // Load original value for right shift part
+        methodConvert.LdArg0();                                    // Load value
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
+        methodConvert.And();
+        methodConvert.LdArg1();                                    // Load rotateAmount
+        methodConvert.Push(bitWidth);                              // Push 8
+        methodConvert.Swap();                                      // Swap top two elements
+        methodConvert.Sub();                                       // 8 - rotateAmount
+        methodConvert.Push(bitWidth - 1);                          // Push 7
+        methodConvert.And();                                       // (8 - rotateAmount) & 7
+        methodConvert.ShR();                                       // (byte)value >> ((8 - rotateAmount) & 7)
+        methodConvert.Or();
+
+        // Handle sign extension for sbyte
+        methodConvert.Dup();                                       // Duplicate the result
+        methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 7 (0x80)
         var endTarget = new JumpTarget();
         methodConvert.Jump(OpCode.JMPLT, endTarget);
-        methodConvert.Push(BigInteger.One << bitWidth); // BigInteger.One << 8 (0x100)
-        methodConvert.AddInstruction(OpCode.SUB);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push(BigInteger.One << bitWidth);             // BigInteger.One << 8 (0x100)
+        methodConvert.Sub();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
-    // HandleSByteRotateRight
+    /// <summary>
+    /// Handles the sbyte.RotateRight method by rotating bits to the right.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Rotates sbyte bits right by specified amount, handling sign extension properly
+    /// </remarks>
     private static void HandleSByteRotateRight(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // public static sbyte RotateRight(sbyte value, int rotateAmount) => (sbyte)(((value & 0xFF) >> (rotateAmount & 7)) | ((value & 0xFF) << ((8 - rotateAmount) & 7)));
+
+        // Algorithm: (sbyte)(((value & 0xFF) >> (rotateAmount & 7)) | ((value & 0xFF) << ((8 - rotateAmount) & 7)))
         var bitWidth = sizeof(sbyte) * 8;
-        methodConvert.Push(bitWidth - 1);  // Push 7 (8-bit - 1)
-        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & 7
+
+        // Mask rotation amount and perform right shift
+        methodConvert.Push(bitWidth - 1);                          // Push 7 (8-bit - 1)
+        methodConvert.And();                                       // rotateAmount & 7
         methodConvert.Push(bitWidth);
-        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.Mod();
         methodConvert.Push(bitWidth);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 7)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);    // Ensure SHL result is 8-bit
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFF (8-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
+        methodConvert.Swap();
+        methodConvert.Sub();
+        methodConvert.Swap();
+
+        // Right shift part for rotation
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
+        methodConvert.And();
+        methodConvert.Swap();
+        methodConvert.ShL();                                       // value << (rotateAmount & 7)
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
+        methodConvert.And();                                       // Ensure SHL result is 8-bit
+
+        // Load original value for left shift part
+        methodConvert.LdArg0();                                    // Load value
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
+        methodConvert.And();
+        methodConvert.LdArg1();                                    // Load rotateAmount
         methodConvert.Push(bitWidth);
-        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.Mod();
         methodConvert.Push(bitWidth);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.Push(bitWidth);  // Push 8
-        methodConvert.AddInstruction(OpCode.SWAP);   // Swap top two elements
-        methodConvert.AddInstruction(OpCode.SUB);    // 8 - rotateAmount
-        methodConvert.Push(bitWidth - 1);  // Push 7
-        methodConvert.AddInstruction(OpCode.AND);    // (8 - rotateAmount) & 7
-        methodConvert.AddInstruction(OpCode.SHR);    // (byte)value >> ((8 - rotateAmount) & 7)
-        methodConvert.AddInstruction(OpCode.OR);
-        methodConvert.AddInstruction(OpCode.DUP);    // Duplicate the result
-        methodConvert.Push(BigInteger.One << (bitWidth - 1)); // Push BigInteger.One << 7 (0x80)
+        methodConvert.Swap();
+        methodConvert.Sub();
+        methodConvert.Push(bitWidth);                              // Push 8
+        methodConvert.Swap();                                      // Swap top two elements
+        methodConvert.Sub();                                       // 8 - rotateAmount
+        methodConvert.Push(bitWidth - 1);                          // Push 7
+        methodConvert.And();                                       // (8 - rotateAmount) & 7
+        methodConvert.ShR();                                       // (byte)value >> ((8 - rotateAmount) & 7)
+        methodConvert.Or();
+
+        // Handle sign extension for sbyte
+        methodConvert.Dup();                                       // Duplicate the result
+        methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 7 (0x80)
         var endTarget = new JumpTarget();
         methodConvert.Jump(OpCode.JMPLT, endTarget);
-        methodConvert.Push(BigInteger.One << bitWidth); // BigInteger.One << 8 (0x100)
-        methodConvert.AddInstruction(OpCode.SUB);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push(BigInteger.One << bitWidth);             // BigInteger.One << 8 (0x100)
+        methodConvert.Sub();
+        endTarget.Instruction = methodConvert.Nop();
     }
 
+    /// <summary>
+    /// Handles the sbyte.PopCount method by counting the number of set bits.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Counts 1-bits by repeatedly checking LSB and right-shifting until value becomes zero
+    /// </remarks>
     private static void HandleSBytePopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        // Determine bit width of int
+
+        // Determine bit width of sbyte
         var bitWidth = sizeof(sbyte) * 8;
 
-        // Mask to ensure the value is treated as a 8-bit unsigned integer
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // 0xFF
-        methodConvert.And(); // value = value & 0xFF
-                             // Initialize count to 0
-        methodConvert.Push(0); // value count
-        methodConvert.Swap(); // count value
+        // Mask to ensure the value is treated as an 8-bit unsigned integer
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // 0xFF
+        methodConvert.And();                                       // value = value & 0xFF
+
+        // Initialize count to 0
+        methodConvert.Push(0);                                     // value count
+        methodConvert.Swap();                                      // count value
+
         // Loop to count the number of 1 bits
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        loopStart.Instruction = methodConvert.Dup(); // count value value
-        methodConvert.Push0(); // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop); // count value
-        methodConvert.Dup(); // count value value
-        methodConvert.Push1(); // count value value 1
-        methodConvert.And(); // count value (value & 1)
-        methodConvert.Rot(); // value (value & 1) count
-        methodConvert.Add(); // value count += (value & 1)
-        methodConvert.Swap(); // count value
-        methodConvert.Push1(); // count value 1
-        methodConvert.ShR(); // count value >>= 1
+
+        loopStart.Instruction = methodConvert.Dup();               // count value value
+        methodConvert.Push0();                                     // count value value 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // count value
+        methodConvert.Dup();                                       // count value value
+        methodConvert.Push1();                                     // count value value 1
+        methodConvert.And();                                       // count value (value & 1)
+        methodConvert.Rot();                                       // value (value & 1) count
+        methodConvert.Add();                                       // value count += (value & 1)
+        methodConvert.Swap();                                      // count value
+        methodConvert.Push1();                                     // count value 1
+        methodConvert.ShR();                                       // count value >>= 1
         methodConvert.Jump(OpCode.JMP, loopStart);
 
-        endLoop.Instruction = methodConvert.Drop(); // Drop the remaining value
+        endLoop.Instruction = methodConvert.Drop();                // Drop the remaining value
     }
 }
