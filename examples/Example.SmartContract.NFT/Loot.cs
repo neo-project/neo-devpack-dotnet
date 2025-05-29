@@ -30,17 +30,17 @@ namespace NFT
     {
         public override string Symbol { [Safe] get => "sLoot"; }
 
-        private static readonly StorageMap TokenIndexMap = new((byte)StoragePrefix.Token);
-        private static readonly StorageMap TokenMap = new(Prefix_Token);
+        private static readonly StorageMap TokenIndexMap = new StorageMap((byte)StoragePrefix.Token);
+        private static readonly StorageMap TokenMap = new StorageMap((byte)StoragePrefix.Token);
         public static event Action<string> EventMsg;
 
         [Safe]
         public override Map<string, object> Properties(ByteString tokenId)
         {
             ExecutionEngine.Assert(Runtime.EntryScriptHash == Runtime.CallingScriptHash);
-            StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            StorageMap tokenMap = new StorageMap(Storage.CurrentContext, (byte)StoragePrefix.Token);
             var token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
-            Map<string, object> map = new()
+            Map<string, object> map = new Map<string, object>()
             {
                 ["name"] = token.Name,
                 ["owner"] = token.Owner,
@@ -54,7 +54,7 @@ namespace NFT
         private TokenState GetToken(BigInteger tokenId)
         {
             var token = (TokenState)StdLib.Deserialize(TokenMap[tokenId.ToString()]);
-            ExecutionEngine.Assert(token is not null, "Token not exists");
+            ExecutionEngine.Assert(token != null, "Token not exists");
             return token;
         }
 
@@ -94,13 +94,13 @@ namespace NFT
             var greatness = rand % 21;
 
             value = rand % _suffixes.Length;
-            if (greatness > 14) output = $"{output} {_suffixes[(int)value]}";
+            if (greatness > 14) output = output + " " + _suffixes[(int)value];
             if (greatness < 19) return output;
             value = rand % _namePrefixes.Length;
             var name0 = _namePrefixes[(int)value];
             value = rand % _nameSuffixes.Length;
             var name1 = _nameSuffixes[(int)value];
-            output = greatness == 19 ? $"\"{name0} {name1}\" {output}" : $"\"{name0} {name1}\" {output} +1";
+            output = greatness == 19 ? "\"" + name0 + " " + name1 + "\" " + output : "\"" + name0 + " " + name1 + "\" " + output + " +1";
             return output;
         }
 
@@ -113,7 +113,7 @@ namespace NFT
                 "<style>.base { fill: white; font-family: serif; font-size: 14px; }</style>" +
                 "<rect width=\"100%\" height=\"100%\" fill=\"black\" />" +
                 "<text x=\"10\" y=\"20\" class=\"base\">";
-            parts[1] = $"{token.Name}";
+            parts[1] = token.Name;
             parts[2] = "</text><text x=\"10\" y=\"40\" class=\"base\">";
             parts[3] = GetWeapon(token.Credential);
             parts[4] = "</text><text x=\"10\" y=\"60\" class=\"base\">";
@@ -132,8 +132,8 @@ namespace NFT
             parts[17] = GetRing(token.Credential);
             parts[18] = "</text></svg>";
 
-            string output = $"{parts[0]} {parts[1]} {parts[2]} {parts[3]} {parts[4]} {parts[5]} {parts[6]} {parts[7]} {parts[8]}";
-            output = $"{output} {parts[9]} {parts[10]} {parts[11]} {parts[12]} {parts[13]} {parts[14]} {parts[15]} {parts[16]} {parts[17]} {parts[18]}";
+            string output = parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[3] + " " + parts[4] + " " + parts[5] + " " + parts[6] + " " + parts[7] + " " + parts[8];
+            output = output + " " + parts[9] + " " + parts[10] + " " + parts[11] + " " + parts[12] + " " + parts[13] + " " + parts[14] + " " + parts[15] + " " + parts[16] + " " + parts[17] + " " + parts[18];
             //string json = StdLib.Base64Encode($"{{\"name\": \"Bag # {tokenId.ToString()}\", \"description\": \"Loot is randomized adventurer gear generated and stored on chain.Stats, images, and other functionality are intentionally omitted for others to interpret.Feel free to use Loot in any way you want.\", \"image\": \"data:image / svg + xml; base64, { StdLib.Base64Encode(output)} \"}}");
             //output = $"data:application/json;base64, {json}";
             return output;
