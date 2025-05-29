@@ -126,7 +126,7 @@ namespace Neo.Compiler
         {
             return CompileSources(new CompilationSourceReferences()
             {
-                Packages = [new("Neo.SmartContract.Framework", "3.7.4-*")]
+                Packages = [new("Neo.SmartContract.Framework", "3.8.1")]
             },
             sourceFiles);
         }
