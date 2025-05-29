@@ -792,7 +792,7 @@ internal partial class MethodConvert
         methodConvert.Push0();                                     // Push 0 for comparison
         methodConvert.Jump(OpCode.JMPEQ, endMethod);               // Return 0 when input is 0
         methodConvert.Push0();                                     // Initialize result to 0
-        //input = 5 > 0; result = 0; 
+        //input = 5 > 0; result = 0;
         //do
         //  result += 1
         //while (input >> result) > 0
@@ -863,10 +863,9 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         // algorithm: (left, right) => (left / right, left % right)
         methodConvert.Dup();                                       // r, l, l
-        methodConvert.Push(2);                                     // r, l, l, 2
         methodConvert.Pick(2);                                     // r, l, l, r
         methodConvert.Div();                                       // r, l, l/r
 
@@ -876,7 +875,6 @@ internal partial class MethodConvert
         // we want:    (l/r) (l%r)
         methodConvert.Reverse3();                                  // l/r, l, r
         methodConvert.Mod();                                       // l/r, l%r
-        methodConvert.Push(2);                                     // l/r, l%r, 2
         methodConvert.Pack(2);                                     // (l/r, l%r) as array
     }
 
@@ -995,41 +993,43 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        // Check if it's a primitive integer type first
-        JumpTarget endIntCheck = new();
-        JumpTarget endMask = new();
-        methodConvert.Dup();                                       // Duplicate value for type checking
-        methodConvert.Push(new BigInteger(int.MinValue) - 1);      // Check if it fits in int range
-        methodConvert.Push(new BigInteger(int.MaxValue) + 1);      // Upper bound for int
-        methodConvert.And();                                       // Check if within int range
-        methodConvert.Jump(OpCode.JMPIFNOT, endIntCheck);          // Jump if not in int range
+        // Check if the value is within int range
+        methodConvert.Dup();
+        methodConvert.Within(int.MinValue, int.MaxValue);
+        var endIntCheck = new JumpTarget();
+        methodConvert.Jump(OpCode.JMPIFNOT, endIntCheck);
 
-        endIntCheck.Instruction = methodConvert.Nop();             // End int check target
+        // If within int range, mask with 0xFFFFFFFF
+        methodConvert.Push(0xFFFFFFFF);
+        methodConvert.And();
+        var endMask = new JumpTarget();
+        methodConvert.Jump(OpCode.JMP, endMask);
 
-        // Apply mask for BigInteger values
-        methodConvert.Push(new BigInteger(long.MaxValue));         // Apply mask for large values
-        endMask.Instruction = methodConvert.Nop();                 // End mask target
+        // If larger than int, throw exception, cause too many check will make the script too long.
+        endIntCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push("Value out of range, must be between int.MinValue and int.MaxValue.");
+        methodConvert.Throw();
+        endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
 
-        // Now count the set bits (same algorithm as other integer types)
         // Initialize count to 0
-        methodConvert.Push(0);                                     // value count
-        methodConvert.Swap();                                      // count value
-        // Loop to count the number of 1 bits
+        methodConvert.Push(0);     // value count
+        methodConvert.Swap();      // count value
+        // Loop to count the number of 1 bit
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        loopStart.Instruction = methodConvert.Dup();               // count value value
-        methodConvert.Push0();                                     // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // count value
-        methodConvert.Dup();                                       // count value value
-        methodConvert.Push1();                                     // count value value 1
-        methodConvert.And();                                       // count value (value & 1)
-        methodConvert.Rot();                                       // value (value & 1) count
-        methodConvert.Add();                                       // value count += (value & 1)
-        methodConvert.Swap();                                      // count value
-        methodConvert.Push1();                                     // count value 1
-        methodConvert.ShR();                                       // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        loopStart.Instruction = methodConvert.Dup();    // count value value
+        methodConvert.Push0();     // count value value 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);     // count value
+        methodConvert.Dup();       // count value value
+        methodConvert.Push1();     // count value value 1
+        methodConvert.And();       // count value (value & 1)
+        methodConvert.Rot();       // value (value & 1) count
+        methodConvert.Add();       // value count += (value & 1)
+        methodConvert.Swap();      // count value
+        methodConvert.Push1();     // count value 1
+        methodConvert.ShR();       // count value >>= 1
+        methodConvert.Jump(OpCode.JMP, loopStart);
 
-        endLoop.Instruction = methodConvert.Drop();                // Drop the remaining value
+        endLoop.Instruction = methodConvert.Drop();     // Drop the remaining value
     }
 }

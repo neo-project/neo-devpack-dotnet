@@ -677,7 +677,6 @@ internal partial class MethodConvert
         // Create an array of values
         foreach (IFieldSymbol m in enumMembers.Reverse())          // PACK works in a reversed way
             methodConvert.Push(m.ConstantValue);
-        methodConvert.Push(enumMembers.Length);
         methodConvert.Pack(enumMembers.Length);
 
         methodConvert.Ret();
