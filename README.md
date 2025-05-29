@@ -80,6 +80,32 @@ Project templates for creating new NEO smart contracts with the proper structure
 
 ## Getting Started
 
+### Quick Start with Binary Releases
+
+For users who want to compile smart contracts without setting up the full development environment, we provide pre-built binary releases of the Neo C# Compiler (nccs).
+
+**Download standalone binaries:**
+- [Latest Release](https://github.com/neo-project/neo-devpack-dotnet/releases/latest)
+- Available for Windows x64, macOS (x64 & Apple Silicon), and Linux x64
+- No .NET SDK installation required
+- Self-contained executables with all dependencies included
+
+**Quick usage:**
+```bash
+# Download and extract the binary for your platform
+# Windows: nccs-windows-x64.zip
+# macOS: nccs-macos-x64.tar.gz or nccs-macos-arm64.tar.gz  
+# Linux: nccs-linux-x64.tar.gz
+
+# Compile a smart contract project
+./nccs path/to/your/contract.csproj
+
+# Or compile source files directly
+./nccs Contract1.cs Contract2.cs
+```
+
+📖 **[Complete Binary Usage Guide](docs/binary-releases.md)**
+
 ### Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/download) 9.0 or later

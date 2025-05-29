@@ -154,6 +154,9 @@ jobs:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
     needs: Test
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_created: ${{ steps.check_tag.outputs.statusCode }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -196,3 +199,64 @@ jobs:
         dotnet nuget push "pub/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${NUGET_TOKEN} --skip-duplicate
       env:
         NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+
+  BuildBinaries:
+    if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
+    needs: Release
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact: nccs-linux-x64.tar.gz
+          - os: macos-latest
+            runtime: osx-x64
+            artifact: nccs-macos-x64.tar.gz
+          - os: macos-latest
+            runtime: osx-arm64
+            artifact: nccs-macos-arm64.tar.gz
+          - os: windows-latest
+            runtime: win-x64
+            artifact: nccs-windows-x64.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Build Binary
+      if: needs.Release.outputs.release_created == '404'
+      run: |
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj \
+          --configuration Release \
+          --runtime ${{ matrix.runtime }} \
+          --self-contained true \
+          --output ./publish/${{ matrix.runtime }} \
+          /p:PublishSingleFile=true \
+          /p:IncludeNativeLibrariesForSelfExtract=true \
+          /p:PublishTrimmed=false
+    - name: Package Binary (Linux/macOS)
+      if: needs.Release.outputs.release_created == '404' && runner.os != 'Windows'
+      run: |
+        cd ./publish/${{ matrix.runtime }}
+        tar -czf ../../${{ matrix.artifact }} nccs
+    - name: Package Binary (Windows)
+      if: needs.Release.outputs.release_created == '404' && runner.os == 'Windows'
+      run: |
+        cd ./publish/${{ matrix.runtime }}
+        Compress-Archive -Path nccs.exe -DestinationPath ../../${{ matrix.artifact }}
+    - name: Upload Release Asset
+      if: needs.Release.outputs.release_created == '404'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.Release.outputs.upload_url }}
+        asset_path: ./${{ matrix.artifact }}
+        asset_name: ${{ matrix.artifact }}
+        asset_content_type: application/octet-stream
