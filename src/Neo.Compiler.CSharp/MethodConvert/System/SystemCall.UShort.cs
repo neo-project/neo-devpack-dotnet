@@ -21,22 +21,41 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    /// <summary>
+    /// Handles the ushort.Parse method by converting a string to a ushort value.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Converts string to integer using StdLib.atoi, then validates it's within ushort range [0, 65535]
+    /// </remarks>
     private static void HandleUShortParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(ushort.MinValue);
-        methodConvert.Push(ushort.MaxValue + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate result for range check
+        methodConvert.Within(ushort.MinValue, new BigInteger(ushort.MaxValue)); // Check if value is within ushort range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // HandleUShortLeadingZeroCount
+    /// <summary>
+    /// Handles the ushort.LeadingZeroCount method by counting leading zeros in the binary representation.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Counts leading zeros by right-shifting until zero (no negative check needed for unsigned values)
+    /// </remarks>
     private static void HandleUShortLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -45,24 +64,34 @@ internal partial class MethodConvert
         JumpTarget endLoop = new();
         JumpTarget loopStart = new();
         JumpTarget endTarget = new();
-        methodConvert.Push(0); // count 5 0
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); //0 5
-        methodConvert.AddInstruction(OpCode.DUP);//  0 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0);// 0 5 5 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop); //0 5
-        methodConvert.AddInstruction(OpCode.PUSH1);//0 5 1
-        methodConvert.AddInstruction(OpCode.SHR); //0  5>>1
-        methodConvert.AddInstruction(OpCode.SWAP);//5>>1 0
-        methodConvert.AddInstruction(OpCode.INC);// 5>>1 1
-        methodConvert.Jump(OpCode.JMP, loopStart);
-        endLoop.Instruction = methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Push(16);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push(0);                                     // Initialize count to 0
+        loopStart.Instruction = methodConvert.Swap();              // Swap count and value
+        methodConvert.Dup();                                       // Duplicate value for zero check
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // Exit loop if value is 0
+        methodConvert.Push1();                                     // Push 1 for right shift
+        methodConvert.ShR();                                       // Right shift value by 1
+        methodConvert.Swap();                                      // Swap value and count
+        methodConvert.Inc();                                       // Increment count
+        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
+        methodConvert.Push(16);                                    // Push 16 (bit width)
+        methodConvert.Swap();                                      // Swap 16 and count
+        methodConvert.Sub();                                       // Calculate 16 - count
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // HandleUShortCreateChecked
+    /// <summary>
+    /// Handles the ushort.CreateChecked method by creating a ushort with overflow checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the input value is within ushort range [0, 65535], throws on overflow
+    /// </remarks>
     private static void HandleUShortCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -70,16 +99,24 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(ushort.MinValue);
-        methodConvert.Push(new BigInteger(ushort.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(ushort.MinValue, new BigInteger(ushort.MaxValue)); // Check if value is within ushort range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // HandleUShortCreateSaturating
+    /// <summary>
+    /// Handles the ushort.CreateSaturating method by creating a ushort with saturation on overflow.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Clamps the input value to ushort range [0, 65535] instead of throwing on overflow
+    /// </remarks>
     private static void HandleUShortCreateSaturating(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
@@ -94,96 +131,127 @@ internal partial class MethodConvert
         var exceptionTarget = new JumpTarget();
         var minTarget = new JumpTarget();
         var maxTarget = new JumpTarget();
-        methodConvert.AddInstruction(OpCode.DUP);// 5 0 10 10
-        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 0
-        methodConvert.AddInstruction(OpCode.DUP);// 5 10 10 0 0
-        methodConvert.AddInstruction(OpCode.ROT);// 5 10 0 0 10
-        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);// 5 10 0
-        methodConvert.AddInstruction(OpCode.THROW);
-        exceptionTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.ROT);// 10 0 5
-        methodConvert.AddInstruction(OpCode.DUP);// 10 0 5 5
-        methodConvert.AddInstruction(OpCode.ROT);// 10 5 5 0
-        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5 0 0
-        methodConvert.AddInstruction(OpCode.ROT);// 10 5 0 0 5
-        methodConvert.Jump(OpCode.JMPGT, minTarget);// 10 5 0
-        methodConvert.AddInstruction(OpCode.DROP);// 10 5
-        methodConvert.AddInstruction(OpCode.DUP);// 10 5 5
-        methodConvert.AddInstruction(OpCode.ROT);// 5 5 10
-        methodConvert.AddInstruction(OpCode.DUP);// 5 5 10 10
-        methodConvert.AddInstruction(OpCode.ROT);// 5 10 10 5
-        methodConvert.Jump(OpCode.JMPLT, maxTarget);// 5 10
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Jump(OpCode.JMP, endTarget);
-        minTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.REVERSE3);
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Jump(OpCode.JMP, endTarget);
-        maxTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Jump(OpCode.JMP, endTarget);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Stack manipulation for clamping logic
+        methodConvert.Rot();                                       // Rotate stack elements
+        methodConvert.Dup();                                       // Duplicate for comparison
+        methodConvert.Rot();                                       // Rotate stack elements
+        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);         // Jump if value < min
+        methodConvert.Throw();                                     // Throw exception for invalid range
+        exceptionTarget.Instruction = methodConvert.Nop();         // Exception handling target
+        methodConvert.Rot();                                       // Rotate stack elements
+        methodConvert.Dup();                                       // Duplicate for comparison
+        methodConvert.Rot();                                       // Rotate stack elements
+        methodConvert.Dup();                                       // Duplicate for comparison
+        methodConvert.Rot();                                       // Rotate stack elements
+        methodConvert.Jump(OpCode.JMPGT, minTarget);               // Jump if value > min threshold
+        methodConvert.Drop();                                      // Drop unnecessary value
+        methodConvert.Dup();                                       // Duplicate for comparison
+        methodConvert.Rot();                                       // Rotate stack elements
+        methodConvert.Dup();                                       // Duplicate for comparison
+        methodConvert.Rot();                                       // Rotate stack elements
+        methodConvert.Jump(OpCode.JMPLT, maxTarget);               // Jump if value < max threshold
+        methodConvert.Drop();                                      // Drop unnecessary value
+        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        minTarget.Instruction = methodConvert.Nop();               // Minimum value target
+        methodConvert.Reverse3();                                  // Reverse top 3 stack elements
+        methodConvert.Drop();                                      // Drop unnecessary value
+        methodConvert.Drop();                                      // Drop unnecessary value
+        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        maxTarget.Instruction = methodConvert.Nop();               // Maximum value target
+        methodConvert.Swap();                                      // Swap top two elements
+        methodConvert.Drop();                                      // Drop unnecessary value
+        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // implement HandleUShortRotateLeft
+    /// <summary>
+    /// Handles the ushort.RotateLeft method by rotating bits to the left.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Rotates ushort bits left by specified amount (no sign extension needed for unsigned values)
+    /// </remarks>
     private static void HandleUShortRotateLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // public static ushort RotateLeft(ushort value, int rotateAmount) => (ushort)((value << (rotateAmount & 15)) | (value >> ((16 - rotateAmount) & 15)));
+        // Algorithm: (ushort)((value << (rotateAmount & 15)) | (value >> ((16 - rotateAmount) & 15)))
         var bitWidth = sizeof(ushort) * 8;
-        methodConvert.Push(bitWidth - 1);  // Push 31 (32-bit - 1)
-        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & 31
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SHL);    // value << (rotateAmount & 31)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);    // Ensure SHL result is 32-bit
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
-        methodConvert.Push(bitWidth);  // Push 32
-        methodConvert.AddInstruction(OpCode.SWAP);   // Swap top two elements
-        methodConvert.AddInstruction(OpCode.SUB);    // 32 - rotateAmount
-        methodConvert.Push(bitWidth - 1);  // Push 31
-        methodConvert.AddInstruction(OpCode.AND);    // (32 - rotateAmount) & 31
-        methodConvert.AddInstruction(OpCode.SHR);    // (uint)value >> ((32 - rotateAmount) & 31)
-        methodConvert.AddInstruction(OpCode.OR);
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // Push 0xFFFFFFFF (32-bit mask)
-        methodConvert.AddInstruction(OpCode.AND);    // Ensure final result is 32-bit
+        methodConvert.Push(bitWidth - 1);                          // Push 15 (16-bit - 1)
+        methodConvert.And();                                       // rotateAmount & 15
+        methodConvert.Swap();                                      // Swap elements
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFF (16-bit mask)
+        methodConvert.And();                                       // Apply mask to value
+        methodConvert.Swap();                                      // Swap elements
+        methodConvert.ShL();                                       // value << (rotateAmount & 15)
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFF (16-bit mask)
+        methodConvert.And();                                       // Ensure SHL result is 16-bit
+        methodConvert.LdArg0();                                    // Load original value
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFF (16-bit mask)
+        methodConvert.And();                                       // Apply mask to original value
+        methodConvert.LdArg1();                                    // Load rotate amount
+        methodConvert.Push(bitWidth);                              // Push 16
+        methodConvert.Swap();                                      // Swap top two elements
+        methodConvert.Sub();                                       // 16 - rotateAmount
+        methodConvert.Push(bitWidth - 1);                          // Push 15
+        methodConvert.And();                                       // (16 - rotateAmount) & 15
+        methodConvert.ShR();                                       // (ushort)value >> ((16 - rotateAmount) & 15)
+        methodConvert.Or();                                        // Combine left and right parts
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFF (16-bit mask)
+        methodConvert.And();                                       // Ensure final result is 16-bit
     }
 
-    // HandleUShortRotateRight
+    /// <summary>
+    /// Handles the ushort.RotateRight method by rotating bits to the right.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Rotates ushort bits right by specified amount (no sign extension needed for unsigned values)
+    /// </remarks>
     private static void HandleUShortRotateRight(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // public static ushort RotateRight(ushort value, int rotateAmount) => (ushort)((value >> (rotateAmount & 15)) | ((ushort)value << ((16 - rotateAmount) & 15)));
+        // Algorithm: (ushort)((value >> (rotateAmount & 15)) | ((ushort)value << ((16 - rotateAmount) & 15)))
         var bitWidth = sizeof(ushort) * 8;
-        methodConvert.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        methodConvert.AddInstruction(OpCode.AND);    // rotateAmount & (bitWidth - 1)
-        methodConvert.AddInstruction(OpCode.SHR);    // value >> (rotateAmount & (bitWidth - 1))
-        methodConvert.AddInstruction(OpCode.LDARG0); // Load value again
-        methodConvert.Push(bitWidth);  // Push bitWidth
-        methodConvert.AddInstruction(OpCode.LDARG1); // Load rotateAmount
-        methodConvert.AddInstruction(OpCode.SUB);    // bitWidth - rotateAmount
-        methodConvert.Push(bitWidth - 1);  // Push (bitWidth - 1)
-        methodConvert.AddInstruction(OpCode.AND);    // (bitWidth - rotateAmount) & (bitWidth - 1)
-        methodConvert.AddInstruction(OpCode.SHL);    // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
-        methodConvert.AddInstruction(OpCode.OR);     // Combine the results with OR
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);  // Push (2^bitWidth - 1) as bitmask
-        methodConvert.AddInstruction(OpCode.AND);    // Ensure final result is bitWidth-bit
+        methodConvert.Push(bitWidth - 1);                          // Push (bitWidth - 1)
+        methodConvert.And();                                       // rotateAmount & (bitWidth - 1)
+        methodConvert.ShR();                                       // value >> (rotateAmount & (bitWidth - 1))
+        methodConvert.LdArg0();                                    // Load value again
+        methodConvert.Push(bitWidth);                              // Push bitWidth
+        methodConvert.LdArg1();                                    // Load rotateAmount
+        methodConvert.Sub();                                       // bitWidth - rotateAmount
+        methodConvert.Push(bitWidth - 1);                          // Push (bitWidth - 1)
+        methodConvert.And();                                       // (bitWidth - rotateAmount) & (bitWidth - 1)
+        methodConvert.ShL();                                       // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
+        methodConvert.Or();                                        // Combine the results with OR
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push (2^bitWidth - 1) as bitmask
+        methodConvert.And();                                       // Ensure final result is bitWidth-bit
     }
 
+    /// <summary>
+    /// Handles the ushort.PopCount method by counting the number of set bits.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Counts 1-bits by repeatedly checking LSB and right-shifting until value becomes zero
+    /// </remarks>
     private static void HandleUShortPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -195,28 +263,28 @@ internal partial class MethodConvert
         var bitWidth = sizeof(ushort) * 8;
 
         // Mask to ensure the value is treated as a 16-bit unsigned integer
-        methodConvert.Push((BigInteger.One << bitWidth) - 1); // 0xFFFF
-        methodConvert.And(); // value = value & 0xFFFF
+        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // 0xFFFF
+        methodConvert.And();                                       // value = value & 0xFFFF
 
         // Initialize count to 0
-        methodConvert.Push(0); // value count
-        methodConvert.Swap(); // count value
+        methodConvert.Push(0);                                     // value count
+        methodConvert.Swap();                                      // count value
         // Loop to count the number of 1 bits
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        loopStart.Instruction = methodConvert.Dup(); // count value value
-        methodConvert.Push0(); // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop); // count value
-        methodConvert.Dup(); // count value value
-        methodConvert.Push1(); // count value value 1
-        methodConvert.And(); // count value (value & 1)
-        methodConvert.Rot(); // value (value & 1) count
-        methodConvert.Add(); // value count += (value & 1)
-        methodConvert.Swap(); // count value
-        methodConvert.Push1(); // count value 1
-        methodConvert.ShR(); // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);
+        loopStart.Instruction = methodConvert.Dup();               // count value value
+        methodConvert.Push0();                                     // count value value 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // count value
+        methodConvert.Dup();                                       // count value value
+        methodConvert.Push1();                                     // count value value 1
+        methodConvert.And();                                       // count value (value & 1)
+        methodConvert.Rot();                                       // value (value & 1) count
+        methodConvert.Add();                                       // value count += (value & 1)
+        methodConvert.Swap();                                      // count value
+        methodConvert.Push1();                                     // count value 1
+        methodConvert.ShR();                                       // count value >>= 1
+        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
 
-        endLoop.Instruction = methodConvert.Drop(); // Drop the remaining value
+        endLoop.Instruction = methodConvert.Drop();                // Drop the remaining value
     }
 }

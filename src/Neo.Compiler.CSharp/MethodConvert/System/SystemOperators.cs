@@ -35,19 +35,19 @@ internal partial class MethodConvert
             case "string.operator ==(string, string)":
                 ConvertExpression(model, arguments[0]);
                 ConvertExpression(model, arguments[1]);
-                AddInstruction(OpCode.EQUAL);
+                Equal();
                 return true;
             //Handles cases of inequality operator (!=), comparing whether two objects are not equal.
             case "object.operator !=(object, object)":
                 ConvertExpression(model, arguments[0]);
                 ConvertExpression(model, arguments[1]);
-                AddInstruction(OpCode.NOTEQUAL);
+                NotEqual();
                 return true;
             //Handles cases of string concatenation operator (+), concatenating two strings into one.
             case "string.operator +(string, string)":
                 ConvertExpression(model, arguments[0]);
                 ConvertExpression(model, arguments[1]);
-                AddInstruction(OpCode.CAT);
+                Cat();
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
             //Handles cases of string concatenation operator (+), concatenating a string with an object.
@@ -55,7 +55,7 @@ internal partial class MethodConvert
             case "string.operator +(string, object)":
                 ConvertExpression(model, arguments[0]);
                 ConvertObjectToString(model, arguments[1]);
-                AddInstruction(OpCode.CAT);
+                Cat();
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
             //Handles cases of string concatenation operator (+), concatenating an object with a string.
@@ -63,11 +63,20 @@ internal partial class MethodConvert
             case "string.operator +(object, string)":
                 ConvertObjectToString(model, arguments[0]);
                 ConvertExpression(model, arguments[1]);
-                AddInstruction(OpCode.CAT);
+                Cat();
                 ChangeType(VM.Types.StackItemType.ByteString);
                 return true;
             default:
                 return false;
         }
+    }
+
+    public static void HandleStringNotEqual(MethodConvert methodConvert, SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        var left = expression.Left;
+        var right = expression.Right;
+        methodConvert.ConvertExpression(model, left);
+        methodConvert.ConvertExpression(model, right);
+        methodConvert.NotEqual();
     }
 }
