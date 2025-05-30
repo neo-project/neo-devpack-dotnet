@@ -29,7 +29,7 @@ UInt160 scriptHash;     // 20-byte script hash (addresses)
 UInt256 transactionHash; // 32-byte transaction hash
 ECPoint publicKey;      // Elliptic curve point (public keys)
 ByteString data;        // Immutable byte array
-BigInteger amount;      // Arbitrary precision integer
+BigInteger amount;      // 256 bit precision integer
 ```
 
 ## 12.2 Native Contract Reference
