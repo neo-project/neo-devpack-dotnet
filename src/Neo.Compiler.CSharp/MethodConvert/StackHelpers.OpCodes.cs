@@ -1332,15 +1332,6 @@ partial class MethodConvert
     /// Terminates execution with a custom error message from the stack.
     /// </summary>
     /// <returns>The ABORTMSG instruction that was added.</returns>
-    private Instruction Abortmsg()
-    {
-        return AddInstruction(OpCode.ABORTMSG);
-    }
-
-    /// <summary>
-    /// Terminates execution with a custom error message from the stack.
-    /// </summary>
-    /// <returns>The ABORTMSG instruction that was added.</returns>
     private Instruction AbortMsg()
     {
         return AddInstruction(OpCode.ABORTMSG);
@@ -1350,7 +1341,7 @@ partial class MethodConvert
     /// Asserts a condition with a custom error message from the stack.
     /// </summary>
     /// <returns>The ASSERTMSG instruction that was added.</returns>
-    private Instruction Assertmsg()
+    private Instruction AssertMsg()
     {
         return AddInstruction(OpCode.ASSERTMSG);
     }
