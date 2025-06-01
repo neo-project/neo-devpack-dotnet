@@ -40,10 +40,10 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
         methodConvert.Dup();                                        // Duplicate result for range check
-        methodConvert.Within(short.MinValue, new BigInteger(short.MaxValue)); // Check if value is within short range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.Within(short.MinValue, short.MaxValue);       // Check if value is within short range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
+        methodConvert.Throw();                                      // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();                // End target
     }
 
     /// <summary>
