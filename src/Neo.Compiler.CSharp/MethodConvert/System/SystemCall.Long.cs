@@ -299,11 +299,11 @@ internal partial class MethodConvert
         methodConvert.Or();                                        // Combine left and right parts
         methodConvert.Dup();                                       // Duplicate the result
         methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 63 (0x8000000000000000)
-        var endTarget2 = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPLT, endTarget2);              // Jump if result < 0x8000000000000000
+        var endTarget = new JumpTarget();
+        methodConvert.Jump(OpCode.JMPLT, endTarget);               // Jump if result < 0x8000000000000000
         methodConvert.Push(BigInteger.One << bitWidth);            // BigInteger.One << 64 (0x10000000000000000)
         methodConvert.Sub();                                       // Apply sign extension
-        endTarget2.Instruction = methodConvert.Nop();              // End target
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
     /// <summary>
