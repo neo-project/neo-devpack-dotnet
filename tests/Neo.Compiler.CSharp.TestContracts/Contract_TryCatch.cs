@@ -430,7 +430,7 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             string result = "NoException";
             try { throw new System.Exception(); }
-            catch (UncatchableException e) { result += e; }
+            catch (System.Exception e) { result += e; }
             return result;
         }
     }
