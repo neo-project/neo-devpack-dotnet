@@ -236,12 +236,13 @@ public class TestContract : SmartContract
                 new XAttribute("Sdk", "Microsoft.NET.Sdk"),
                 propertyGroup,
                 new XElement("PropertyGroup",
+                    new XElement("TargetFramework", "net9.0"),
                     new XElement("RestoreSources", "https://api.nuget.org/v3/index.json;https://www.myget.org/F/neo/api/v3/index.json")
                 ),
                 new XElement("ItemGroup",
                     new XElement("PackageReference",
                         new XAttribute("Include", "Neo.SmartContract.Framework"),
-                        new XAttribute("Version", "3.7.4.1-CI00592")
+                        new XAttribute("Version", "3.8.1")
                     )
                 )
             );
