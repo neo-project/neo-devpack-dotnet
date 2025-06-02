@@ -270,8 +270,8 @@ internal partial class MethodConvert
             ConvertExpression(model, ExtractExpression(arguments![0]));
             Jump(OpCode.JMPIF_L, continueExecution);
             ConvertExpression(model, ExtractExpression(arguments[1]));
-            AddInstruction(OpCode.ABORTMSG);
-            continueExecution.Instruction = AddInstruction(OpCode.NOP);
+            AbortMsg();
+            continueExecution.Instruction = Nop();
             return true;
         }
 
@@ -284,7 +284,7 @@ internal partial class MethodConvert
             if (arguments is not null)
                 PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.Cdecl);
             ConvertExpression(model, instanceExpression!);
-            AddInstruction(OpCode.CALLA);
+            CallA();
             return true;
         }
 

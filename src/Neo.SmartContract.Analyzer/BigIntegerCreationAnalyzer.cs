@@ -96,12 +96,7 @@ namespace Neo.SmartContract.Analyzer
                                              .WithTrailingTrivia(objectCreation.GetTrailingTrivia());
 
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var editor = new SyntaxEditor(root!, document.Project.Solution.Workspace);
-#pragma warning restore CS0618 // Type or member is obsolete
-            editor.ReplaceNode(objectCreation, newExpression);
-
-            var newRoot = editor.GetChangedRoot();
+            var newRoot = root!.ReplaceNode(objectCreation, newExpression);
             return document.WithSyntaxRoot(newRoot);
         }
     }
