@@ -21,6 +21,13 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    /// <summary>
+    /// Gets the module symbol for error reporting purposes.
+    /// </summary>
+    /// <param name="symbol">The symbol to get the module for</param>
+    /// <param name="symbolInfo">Symbol information for error messages</param>
+    /// <returns>The module symbol</returns>
+    /// <exception cref="CompilationException">Thrown when module metadata is not available</exception>
     private static IModuleSymbol GetSymbolMetadataModule(ISymbol symbol, string symbolInfo)
     {
         var metadata = symbol.Locations.FirstOrDefault()?.MetadataModule;
@@ -29,6 +36,17 @@ internal partial class MethodConvert
         return metadata;
     }
 
+    /// <summary>
+    /// Handles the Enum.Parse method by parsing a string representation into an enum value.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Iterates through enum members, compares string names, returns matching value or throws
+    /// </remarks>
     private static void HandleEnumParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -67,13 +85,13 @@ internal partial class MethodConvert
         foreach (var t in enumMembers)
         {
             // Duplicate inputString
-            methodConvert.Dup();                      // Stack: [type, inputString,inputString]
+            methodConvert.Dup();                                   // Stack: [type, inputString,inputString]
 
             // Push enum name
-            methodConvert.Push(t.Name);  // Stack: [type, inputString,inputString, enumName]
+            methodConvert.Push(t.Name);                            // Stack: [type, inputString,inputString, enumName]
 
             // Equal comparison
-            methodConvert.Equal();                    // Stack: [type,inputString, isEqual]
+            methodConvert.Equal();                                 // Stack: [type,inputString, isEqual]
 
             var nextCheck = new JumpTarget();
             // If not equal, discard duplicated inputString and proceed to next
@@ -81,12 +99,12 @@ internal partial class MethodConvert
 
             // If equal:
             // Push enum value
-            methodConvert.Push(t.ConstantValue); // Stack: [type, inputString, enumValue]
+            methodConvert.Push(t.ConstantValue);                   // Stack: [type, inputString, enumValue]
             methodConvert.Reverse3();
             methodConvert.Drop(2);
-            methodConvert.AddInstruction(OpCode.RET);
+            methodConvert.Ret();
 
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
@@ -96,6 +114,17 @@ internal partial class MethodConvert
         methodConvert.Throw();
     }
 
+    /// <summary>
+    /// Handles the Enum.Parse method with case-insensitive parsing support.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Similar to Parse but with optional case-insensitive string comparison using uppercase conversion
+    /// </remarks>
     private static void HandleEnumParseIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -134,24 +163,24 @@ internal partial class MethodConvert
         var ignoreCase = new JumpTarget();
         var ignoreCase2 = new JumpTarget();
         methodConvert.JumpIfNot(ignoreCase);
-        ConvertToUpper(methodConvert);            // Convert inputString to upper case
+        ConvertToUpper(methodConvert);                             // Convert inputString to upper case
         ignoreCase.Instruction = methodConvert.Nop();
         foreach (var t in enumMembers)
         {
             // Duplicate inputString
-            methodConvert.Dup();                      // Stack: [..., inputString, inputString]
-            methodConvert.AddInstruction(OpCode.LDARG1);
+            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
+            methodConvert.LdArg1();
             methodConvert.JumpIfNot(ignoreCase2);
             JumpTarget endCase = new JumpTarget();
             // Push enum name
-            methodConvert.Push(t.Name.ToUpper());               // Stack: [..., inputString, inputString, enumName]
+            methodConvert.Push(t.Name.ToUpper());                  // Stack: [..., inputString, inputString, enumName]
             methodConvert.Jump(endCase);
             ignoreCase2.Instruction = methodConvert.Nop();
             methodConvert.Push(t.Name);
             endCase.Instruction = methodConvert.Nop();
 
             // Equal comparison
-            methodConvert.Equal();                    // Stack: [..., inputString, isEqual]
+            methodConvert.Equal();                                 // Stack: [..., inputString, isEqual]
 
             var nextCheck = new JumpTarget();
             // If not equal, discard duplicated inputString and proceed to next
@@ -162,9 +191,9 @@ internal partial class MethodConvert
             methodConvert.Drop(3);
             // Push enum value
             methodConvert.Push(t.ConstantValue);
-            methodConvert.AddInstruction(OpCode.RET);
+            methodConvert.Ret();
 
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
@@ -174,6 +203,17 @@ internal partial class MethodConvert
         methodConvert.Throw();
     }
 
+    /// <summary>
+    /// Handles the Enum.TryParse method with case-insensitive parsing and out parameter support.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Attempts to parse enum with case-insensitive option, stores result in out parameter
+    /// </remarks>
     private static void HandleEnumTryParseIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -217,24 +257,24 @@ internal partial class MethodConvert
         methodConvert.JumpIfNot(ignoreCase);
         methodConvert.Swap();
         methodConvert.Drop();
-        ConvertToUpper(methodConvert);            // Convert inputString to upper case
+        ConvertToUpper(methodConvert);                             // Convert inputString to upper case
         ignoreCase.Instruction = methodConvert.Nop();
         foreach (var t in enumMembers)
         {
             // Duplicate inputString
-            methodConvert.Dup();                      // Stack: [..., inputString, inputString]
-            methodConvert.AddInstruction(OpCode.LDARG1);
+            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
+            methodConvert.LdArg1();
             methodConvert.JumpIfNot(ignoreCase2);
             JumpTarget endCase = new JumpTarget();
             // Push enum name
-            methodConvert.Push(t.Name.ToUpper());               // Stack: [..., inputString, inputString, enumName]
+            methodConvert.Push(t.Name.ToUpper());                  // Stack: [..., inputString, inputString, enumName]
             methodConvert.Jump(endCase);
             ignoreCase2.Instruction = methodConvert.Nop();
             methodConvert.Push(t.Name);
             endCase.Instruction = methodConvert.Nop();
 
             // Equal comparison
-            methodConvert.Equal();                    // Stack: [..., inputString, isEqual]
+            methodConvert.Equal();                                 // Stack: [..., inputString, isEqual]
 
             var nextCheck = new JumpTarget();
             // If not equal, discard duplicated inputString and proceed to next
@@ -249,9 +289,9 @@ internal partial class MethodConvert
             methodConvert.AccessSlot(OpCode.STSFLD, index);
             // Push true to indicate success
             methodConvert.Push(true);
-            methodConvert.AddInstruction(OpCode.RET);
+            methodConvert.Ret();
 
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
@@ -262,9 +302,20 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.STSFLD, index);
         // Push false to indicate failure
         methodConvert.Push(false);
-        methodConvert.AddInstruction(OpCode.RET);
+        methodConvert.Ret();
     }
 
+    /// <summary>
+    /// Handles the Enum.IsDefined method by checking if a string name exists in the enum.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Iterates through enum members, compares names, returns true if found
+    /// </remarks>
     private static void HandleEnumIsDefinedByName(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -302,26 +353,37 @@ internal partial class MethodConvert
 
         foreach (var t in enumMembers)
         {
-            methodConvert.Dup();                      // Duplicate input name
-            methodConvert.Push(t.Name);               // Push enum name
-            methodConvert.Equal();                    // Compare strings
+            methodConvert.Dup();                                   // Duplicate input name
+            methodConvert.Push(t.Name);                            // Push enum name
+            methodConvert.Equal();                                 // Compare strings
 
             var nextCheck = new JumpTarget();
-            methodConvert.JumpIfNot(nextCheck);       // If not equal, check next
+            methodConvert.JumpIfNot(nextCheck);                    // If not equal, check next
 
-            methodConvert.Drop();                     // Remove the duplicated input name
-            methodConvert.Push(true);                 // Push true (enum name is defined)
-            methodConvert.AddInstruction(OpCode.RET); // Return true
+            methodConvert.Drop();                                  // Remove the duplicated input name
+            methodConvert.Push(true);                              // Push true (enum name is defined)
+            methodConvert.Ret();                                   // Return true
 
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
-        methodConvert.Drop();                         // Remove the input name
-        methodConvert.Push(false);                    // Push false (enum name is not defined)
-        methodConvert.AddInstruction(OpCode.RET);     // Return false
+        methodConvert.Drop();                                      // Remove the input name
+        methodConvert.Push(false);                                 // Push false (enum name is not defined)
+        methodConvert.Ret();                                       // Return false
     }
 
+    /// <summary>
+    /// Handles the Enum.GetName method by returning the name for a given enum value.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Iterates through enum members, compares values, returns matching name or null
+    /// </remarks>
     private static void HandleEnumGetName(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -343,26 +405,37 @@ internal partial class MethodConvert
 
         foreach (var t in enumMembers)
         {
-            methodConvert.Dup();                      // Duplicate input value
-            methodConvert.Push(t.ConstantValue);      // Push enum value
-            methodConvert.Equal();                    // Compare values
+            methodConvert.Dup();                                   // Duplicate input value
+            methodConvert.Push(t.ConstantValue);                   // Push enum value
+            methodConvert.Equal();                                 // Compare values
 
             var nextCheck = new JumpTarget();
-            methodConvert.JumpIfNot(nextCheck);       // If not equal, check next
+            methodConvert.JumpIfNot(nextCheck);                    // If not equal, check next
 
-            methodConvert.Drop();                     // Remove the duplicated input value
-            methodConvert.Push(t.Name);               // Push enum name
-            methodConvert.AddInstruction(OpCode.RET); // Return enum name
+            methodConvert.Drop();                                  // Remove the duplicated input value
+            methodConvert.Push(t.Name);                            // Push enum name
+            methodConvert.Ret();                                   // Return enum name
 
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
-        methodConvert.Drop();                         // Remove the input value
-        methodConvert.AddInstruction(OpCode.PUSHNULL);                     // Push null (no matching enum name)
-        methodConvert.AddInstruction(OpCode.RET);     // Return null
+        methodConvert.Drop();                                      // Remove the input value
+        methodConvert.PushNull();                                  // Push null (no matching enum name)
+        methodConvert.Ret();                                       // Return null
     }
 
+    /// <summary>
+    /// Handles the Enum.GetName method with explicit type parameter.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Similar to GetName but uses explicit type from typeof argument
+    /// </remarks>
     private static void HandleEnumGetNameWithType(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -400,26 +473,37 @@ internal partial class MethodConvert
 
         foreach (var t in enumMembers)
         {
-            methodConvert.Dup();                      // Duplicate input value
-            methodConvert.Push(t.ConstantValue);      // Push enum value
-            methodConvert.Equal();                    // Compare values
+            methodConvert.Dup();                                   // Duplicate input value
+            methodConvert.Push(t.ConstantValue);                   // Push enum value
+            methodConvert.Equal();                                 // Compare values
 
             var nextCheck = new JumpTarget();
-            methodConvert.JumpIfNot(nextCheck);       // If not equal, check next
+            methodConvert.JumpIfNot(nextCheck);                    // If not equal, check next
 
-            methodConvert.Drop(2);                     // Remove the duplicated input value
-            methodConvert.Push(t.Name);               // Push enum name
-            methodConvert.AddInstruction(OpCode.RET); // Return enum name
+            methodConvert.Drop(2);                                 // Remove the duplicated input value
+            methodConvert.Push(t.Name);                            // Push enum name
+            methodConvert.Ret();                                   // Return enum name
 
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
-        methodConvert.Drop(2);                         // Remove the input value
-        methodConvert.AddInstruction(OpCode.PUSHNULL);                     // Push null (no matching enum name)
-        methodConvert.AddInstruction(OpCode.RET);     // Return null
+        methodConvert.Drop(2);                                     // Remove the input value
+        methodConvert.PushNull();                                  // Push null (no matching enum name)
+        methodConvert.Ret();                                       // Return null
     }
 
+    /// <summary>
+    /// Handles the Enum.TryParse method by attempting to parse a string into an enum value.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Attempts to parse enum name, stores result in out parameter, returns success flag
+    /// </remarks>
     private static void HandleEnumTryParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -462,34 +546,45 @@ internal partial class MethodConvert
         methodConvert.Drop();
         foreach (var t in enumMembers)
         {
-            methodConvert.Dup();                      // Stack: [..., inputString, inputString]
-            methodConvert.Push(t.Name);               // Stack: [..., inputString, inputString, enumName]
+            methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
+            methodConvert.Push(t.Name);                            // Stack: [..., inputString, inputString, enumName]
 
             // Equal comparison
-            methodConvert.Equal();                    // Stack: [..., inputString, isEqual]
+            methodConvert.Equal();                                 // Stack: [..., inputString, isEqual]
 
             JumpTarget nextCheck = new();
             methodConvert.JumpIfNot(nextCheck);
 
             // If equal:
-            methodConvert.Drop(2);                     // Remove the inputString
-            methodConvert.Push(t.ConstantValue);      // Stack: [..., enumValue]
-            methodConvert.AccessSlot(OpCode.STSFLD, index); // Store enum value in out parameter
-            methodConvert.Push(true);                 // Stack: [..., true]
+            methodConvert.Drop(2);                                 // Remove the inputString
+            methodConvert.Push(t.ConstantValue);                   // Stack: [..., enumValue]
+            methodConvert.AccessSlot(OpCode.STSFLD, index);        // Store enum value in out parameter
+            methodConvert.Push(true);                              // Stack: [..., true]
             methodConvert.Ret();
 
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
-        methodConvert.Drop(2);                         // Remove the inputString
-        methodConvert.Push(0);                        // Default enum value
-        methodConvert.AccessSlot(OpCode.STSFLD, index); // Store default value in out parameter
-        methodConvert.Push(false);                    // Success flag set to false
+        methodConvert.Drop(2);                                     // Remove the inputString
+        methodConvert.Push(0);                                     // Default enum value
+        methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store default value in out parameter
+        methodConvert.Push(false);                                 // Success flag set to false
 
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = methodConvert.Nop();
     }
 
+    /// <summary>
+    /// Handles the Enum.GetNames method by returning all enum member names as an array.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Pushes all enum names onto stack then packs them into an array
+    /// </remarks>
     private static void HandleEnumGetNames(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -526,14 +621,24 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         // Create an array of names
-        foreach (IFieldSymbol m in enumMembers.Reverse())  // PACK works in a reversed way
+        foreach (IFieldSymbol m in enumMembers.Reverse())          // PACK works in a reversed way
             methodConvert.Push(m.Name);
-        methodConvert.Push(enumMembers.Length);
-        methodConvert.AddInstruction(OpCode.PACK);
+        methodConvert.Pack(enumMembers.Length);
 
-        methodConvert.AddInstruction(OpCode.RET);
+        methodConvert.Ret();
     }
 
+    /// <summary>
+    /// Handles the Enum.GetValues method by returning all enum member values as an array.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Pushes all enum constant values onto stack then packs them into an array
+    /// </remarks>
     private static void HandleEnumGetValues(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -570,14 +675,24 @@ internal partial class MethodConvert
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
         // Create an array of values
-        foreach (IFieldSymbol m in enumMembers.Reverse())  // PACK works in a reversed way
+        foreach (IFieldSymbol m in enumMembers.Reverse())          // PACK works in a reversed way
             methodConvert.Push(m.ConstantValue);
-        methodConvert.Push(enumMembers.Length);
-        methodConvert.AddInstruction(OpCode.PACK);
+        methodConvert.Pack(enumMembers.Length);
 
-        methodConvert.AddInstruction(OpCode.RET);
+        methodConvert.Ret();
     }
 
+    /// <summary>
+    /// Handles the Enum.IsDefined method by checking if a value or name exists in the enum.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Determines if checking by name or value, iterates through enum members for matches
+    /// </remarks>
     private static void HandleEnumIsDefined(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -625,7 +740,7 @@ internal partial class MethodConvert
 
         foreach (var t in enumMembers)
         {
-            methodConvert.Dup();                      // Duplicate value to compare
+            methodConvert.Dup();                                   // Duplicate value to compare
             if (isName)
             {
                 methodConvert.Push(t.Name);
@@ -636,20 +751,20 @@ internal partial class MethodConvert
             }
 
             // Equal comparison
-            methodConvert.Equal();                    // Stack: [..., isEqual]
+            methodConvert.Equal();                                 // Stack: [..., isEqual]
 
             var nextCheck = new JumpTarget();
             methodConvert.JumpIfNot(nextCheck);
 
             // If equal, set result to true
             methodConvert.Drop();
-            methodConvert.Drop();                     // Remove the false
-            methodConvert.Push(true);                 // Set result to true
+            methodConvert.Drop();                                  // Remove the false
+            methodConvert.Push(true);                              // Set result to true
             methodConvert.Ret();
-            nextCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+            nextCheck.Instruction = methodConvert.Nop();
         }
         methodConvert.Drop();
-        methodConvert.Drop(); // Remove the duplicated value
+        methodConvert.Drop();                                      // Remove the duplicated value
         methodConvert.Push(false);
     }
 }

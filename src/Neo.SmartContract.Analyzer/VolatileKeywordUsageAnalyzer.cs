@@ -87,16 +87,11 @@ namespace Neo.SmartContract.Analyzer
         private static async Task<Document> RemoveVolatileKeywordAsync(Document document, FieldDeclarationSyntax fieldDecl, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var editor = new SyntaxEditor(root!, document.Project.Solution.Workspace);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             var newModifiers = fieldDecl.Modifiers.Where(m => !m.IsKind(SyntaxKind.VolatileKeyword));
             var newFieldDecl = fieldDecl.WithModifiers(SyntaxFactory.TokenList(newModifiers));
 
-            editor.ReplaceNode(fieldDecl, newFieldDecl);
-
-            var newRoot = editor.GetChangedRoot();
+            var newRoot = root!.ReplaceNode(fieldDecl, newFieldDecl);
             return document.WithSyntaxRoot(newRoot);
         }
     }
