@@ -16,6 +16,10 @@ using Neo.SmartContract.Framework.Services;
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     [ContractPermission(Permission.Any, Method.Any)]
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Neo Framework Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
     public class Contract_Create : SmartContract
     {
         public static string OldContract()
@@ -53,3 +57,4 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
     }
 }
+

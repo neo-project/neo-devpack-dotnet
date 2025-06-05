@@ -15,6 +15,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     [ManifestExtra("Author", "Neo")]
     [ManifestExtra("E-mail", "dev@neo.org")]
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Neo Framework Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.SmartContract.Framework.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_ExtraAttribute : SmartContract
     {
         public static object Main2(string method, object[] args)
@@ -23,3 +28,4 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
     }
 }
+

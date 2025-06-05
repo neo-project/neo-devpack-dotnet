@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>Neo.Compiler.CSharp.UnitTests</RootNamespace>
 		<Nullable>enable</Nullable>

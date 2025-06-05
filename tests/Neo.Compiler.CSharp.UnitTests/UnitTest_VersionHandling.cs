@@ -241,7 +241,7 @@ public class TestContract : SmartContract
                 new XElement("ItemGroup",
                     new XElement("PackageReference",
                         new XAttribute("Include", "Neo.SmartContract.Framework"),
-                        new XAttribute("Version", "3.7.4.1-CI00592")
+                        new XAttribute("Version", "3.8.1")
                     )
                 )
             );

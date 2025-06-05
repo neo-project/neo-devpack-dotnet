@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         {
             var extra = Contract_ExtraAttribute.Manifest.Extra;
 
-            Assert.AreEqual("Neo", extra["Author"]?.GetString());
+            Assert.AreEqual("core-dev", extra["Author"]?.GetString());
             Assert.AreEqual("dev@neo.org", extra["E-mail"]?.GetString());
         }
     }

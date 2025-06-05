@@ -7,7 +7,7 @@ on:
 
 env:
   DOTNET_VERSION: 9.0.300
-  DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
+  DOTNET_TEST_PARAMETERS: --no-build --framework net9.0 /p:CollectCoverage=true -l "console;verbosity=detailed"
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
   COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage-join/
   COVERLET_MERGE_WITH: /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json
@@ -53,7 +53,20 @@ jobs:
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net9.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net9.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
     - name: Build Solution
-      run: dotnet build ./neo-devpack-dotnet.sln
+      run: |
+        dotnet build ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+        dotnet build ./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj
+        dotnet build ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
+        dotnet build ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj
+        dotnet build ./src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj
+        dotnet build ./tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj
+        dotnet build ./tests/Neo.SmartContract.Framework.UnitTests/Neo.SmartContract.Framework.UnitTests.csproj
+        dotnet build ./tests/Neo.SmartContract.Testing.UnitTests/Neo.SmartContract.Testing.UnitTests.csproj
+        dotnet build ./tests/Neo.SmartContract.Template.UnitTests/Neo.SmartContract.Template.UnitTests.csproj
+        dotnet build ./tests/Neo.SmartContract.Analyzer.UnitTests/Neo.SmartContract.Analyzer.UnitTests.csproj
+        dotnet build ./tests/Neo.Compiler.CSharp.TestContracts/Neo.Compiler.CSharp.TestContracts.csproj
+        dotnet build ./tests/Neo.SmartContract.Framework.TestContracts/Neo.SmartContract.Framework.TestContracts.csproj
     - name: Add package coverlet.msbuild
       run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
     - name: Test Neo.Compiler.CSharp.UnitTests

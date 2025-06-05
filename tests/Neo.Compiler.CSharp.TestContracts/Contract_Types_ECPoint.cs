@@ -14,6 +14,11 @@ using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
+    [ContractAuthor("core-dev", "dev@neo.org")]
+    [ContractVersion("0.0.1")]
+    [ContractDescription("Compiler Test Contract")]
+    [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/tests/Neo.Compiler.CSharp.TestContracts")]
+    [ContractPermission(Permission.Any, Method.Any)]
     public class Contract_Types_ECPoint : SmartContract.Framework.SmartContract
     {
         [PublicKey("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
@@ -37,3 +42,5 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
     }
 }
+
+
