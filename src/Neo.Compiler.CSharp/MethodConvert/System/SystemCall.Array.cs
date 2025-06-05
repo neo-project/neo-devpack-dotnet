@@ -21,12 +21,25 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
-    private static void HandleArrayReverse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    /// <summary>
+    /// Handles the Array.Reverse method for reversing elements in an array.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Uses VM REVERSEITEMS instruction to reverse array elements in-place
+    /// </remarks>
+    private static void HandleArrayReverse(MethodConvert methodConvert, SemanticModel model,
+        IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.REVERSEITEMS);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        methodConvert.ReverseItems();                               // Reverse array elements in-place
     }
 }
