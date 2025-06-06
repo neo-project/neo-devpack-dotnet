@@ -86,9 +86,8 @@ namespace Neo.SmartContract.Analyzer
         private static async Task<Document> CastDoubleToLong(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-#pragma warning disable CS0618 // Type or member is obsolete
-            var editor = new SyntaxEditor(root!, document.Project.Solution.Workspace);
-#pragma warning restore CS0618 // Type or member is obsolete
+
+            var newDeclaration = declaration;
 
             foreach (var variable in declaration.Variables)
             {
@@ -106,8 +105,9 @@ namespace Neo.SmartContract.Analyzer
                     if (isDoubleType || (isVarType && IsPotentialDoubleInitializer(initializer.Value)))
                     {
                         // Change the type to long for double types or var declarations presumed to be double
-                        var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));
-                        editor.ReplaceNode(declaration.Type, newType);
+                        var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))
+                            .WithTriviaFrom(declaration.Type);
+                        newDeclaration = newDeclaration.WithType(newType);
 
                         // Check if the initializer value is a cast expression and specifically cast to double
                         if (initializer.Value is CastExpressionSyntax castExpression &&
@@ -117,7 +117,8 @@ namespace Neo.SmartContract.Analyzer
                             // Replace double cast with long cast
                             updatedExpression = SyntaxFactory.CastExpression(
                                 SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
-                                castExpression.Expression);
+                                castExpression.Expression
+                            ).WithTriviaFrom(castExpression);
                         }
                         else if (initializer.Value is LiteralExpressionSyntax literalExpression &&
                                  literalExpression.Kind() == SyntaxKind.NumericLiteralExpression)
@@ -126,7 +127,8 @@ namespace Neo.SmartContract.Analyzer
                             var literalValue = double.Parse(literalExpression.Token.ValueText);
                             updatedExpression = SyntaxFactory.CastExpression(
                                 SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
-                                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literalValue)));
+                                SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literalValue))
+                            ).WithTriviaFrom(literalExpression);
                         }
 
                         var newInitializer = SyntaxFactory.EqualsValueClause(updatedExpression)
@@ -134,12 +136,13 @@ namespace Neo.SmartContract.Analyzer
                             .WithTrailingTrivia(initializer.GetTrailingTrivia());
 
                         var newVariable = variable.WithInitializer(newInitializer);
-                        editor.ReplaceNode(variable, newVariable);
+                        var oldVariable = newDeclaration.Variables[declaration.Variables.IndexOf(variable)];
+                        newDeclaration = newDeclaration.ReplaceNode(oldVariable, newVariable);
                     }
                 }
             }
 
-            var newRoot = editor.GetChangedRoot();
+            var newRoot = root!.ReplaceNode(declaration, newDeclaration);
             return document.WithSyntaxRoot(newRoot);
         }
 
