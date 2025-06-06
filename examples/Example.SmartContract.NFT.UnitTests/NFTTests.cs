@@ -9,13 +9,6 @@ namespace Example.SmartContract.NFT.UnitTests
     public class NFTTests : TestBase<SampleLootNFT>
     {
 
-        [TestInitialize]
-        public void TestSetup()
-        {
-            var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-            TestBaseSetup(nef, manifest);
-        }
-
         [TestMethod]
         public void TestClaim()
         {
