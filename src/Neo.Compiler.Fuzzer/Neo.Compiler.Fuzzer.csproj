@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Neo.Compiler.Fuzzer</RootNamespace>
+    <AssemblyName>Neo.Compiler.Fuzzer</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Akka" Version="1.5.36" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\neo\src\Neo.VM\Neo.VM.csproj" />
+    <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+    <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Templates\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="SkipSmartContractTesting" BeforeTargets="Build">
+    <ItemGroup>
+      <ProjectReference Remove="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup>
+    <MSBuildWarningsAsMessages>MSB3243</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+
+</Project>
