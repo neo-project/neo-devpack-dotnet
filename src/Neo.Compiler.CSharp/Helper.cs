@@ -410,5 +410,135 @@ namespace Neo.Compiler
                 }
             }
         }
+
+        /// <summary>
+        /// Ensures that the source code contains 'using System;' directive.
+        /// If it doesn't exist, it will be automatically added at the top of the file.
+        /// </summary>
+        /// <param name="sourceContent">The source code content</param>
+        /// <returns>Modified source code with 'using System;' directive</returns>
+        public static string EnsureUsingSystemExists(string sourceContent)
+        {
+            if (HasUsingSystem(sourceContent))
+                return sourceContent;
+
+            return InjectUsingSystem(sourceContent);
+        }
+
+        /// <summary>
+        /// Checks if the source code already contains a 'using System;' directive.
+        /// </summary>
+        /// <param name="sourceContent">The source code content</param>
+        /// <returns>True if 'using System;' is present, false otherwise</returns>
+        public static bool HasUsingSystem(string sourceContent)
+        {
+            if (string.IsNullOrWhiteSpace(sourceContent))
+                return false;
+
+            // Convert to lines for easier processing
+            var lines = sourceContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                var trimmedLine = line.Trim();
+
+                // Skip empty lines and comments
+                if (string.IsNullOrEmpty(trimmedLine) ||
+                    trimmedLine.StartsWith("//") ||
+                    trimmedLine.StartsWith("/*"))
+                    continue;
+
+                // Check for various forms of using System
+                if (trimmedLine.Equals("using System;", StringComparison.OrdinalIgnoreCase) ||
+                    trimmedLine.StartsWith("using System ", StringComparison.OrdinalIgnoreCase) ||
+                    trimmedLine.Equals("global using System;", StringComparison.OrdinalIgnoreCase) ||
+                    trimmedLine.StartsWith("global using System ", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                // If we hit a non-using directive (like namespace, class, etc.), stop searching
+                if (!trimmedLine.StartsWith("using ", StringComparison.OrdinalIgnoreCase) &&
+                    !trimmedLine.StartsWith("global using ", StringComparison.OrdinalIgnoreCase) &&
+                    !trimmedLine.StartsWith("#") && // compiler directives
+                    !trimmedLine.StartsWith("[") && // attributes
+                    trimmedLine.Length > 0)
+                {
+                    break;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Injects 'using System;' at the appropriate location in the source code.
+        /// </summary>
+        /// <param name="sourceContent">The original source code content</param>
+        /// <returns>Source code with 'using System;' injected</returns>
+        public static string InjectUsingSystem(string sourceContent)
+        {
+            if (string.IsNullOrWhiteSpace(sourceContent))
+                return "using System;\n" + sourceContent;
+
+            var lines = sourceContent.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
+            var insertIndex = 0;
+            var foundUsingBlock = false;
+
+            // Find the appropriate position to insert 'using System;'
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var trimmedLine = lines[i].Trim();
+
+                // Skip empty lines and comments at the beginning
+                if (string.IsNullOrEmpty(trimmedLine) ||
+                    trimmedLine.StartsWith("//") ||
+                    trimmedLine.StartsWith("/*") ||
+                    trimmedLine.StartsWith("#")) // compiler directives
+                {
+                    insertIndex = i + 1;
+                    continue;
+                }
+
+                // If we find any using directive, we're in the using block
+                if (trimmedLine.StartsWith("using ", StringComparison.OrdinalIgnoreCase) ||
+                    trimmedLine.StartsWith("global using ", StringComparison.OrdinalIgnoreCase))
+                {
+                    foundUsingBlock = true;
+                    // Insert at the beginning of the using block
+                    if (insertIndex > i)
+                        insertIndex = i;
+                    break;
+                }
+
+                // If we hit something that's not a using directive and we haven't found any usings
+                if (!foundUsingBlock && trimmedLine.Length > 0)
+                {
+                    // Insert before this line
+                    insertIndex = i;
+                    break;
+                }
+            }
+
+            // Create the new content
+            var newLines = new List<string>();
+
+            // Add lines before the insertion point
+            for (int i = 0; i < insertIndex; i++)
+            {
+                newLines.Add(lines[i]);
+            }
+
+            // Add the using System directive
+            newLines.Add("using System;");
+
+            // Add the remaining lines
+            for (int i = insertIndex; i < lines.Length; i++)
+            {
+                newLines.Add(lines[i]);
+            }
+
+            return string.Join(Environment.NewLine, newLines);
+        }
     }
 }

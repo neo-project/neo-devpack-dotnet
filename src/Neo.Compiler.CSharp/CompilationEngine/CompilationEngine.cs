@@ -116,7 +116,12 @@ namespace Neo.Compiler
 
         public List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references)
         {
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p =>
+            {
+                string sourceContent = File.ReadAllText(p);
+                string modifiedContent = Helper.EnsureUsingSystemExists(sourceContent);
+                return CSharpSyntaxTree.ParseText(modifiedContent, options: Options.GetParseOptions(), path: p);
+            });
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
             Compilation = CSharpCompilation.Create(null, syntaxTrees, references, compilationOptions);
             return CompileProjectContracts(Compilation);
@@ -415,7 +420,12 @@ namespace Neo.Compiler
                 MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, compilationOptions);
                 if (reference is not null) references.Add(reference);
             }
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p =>
+            {
+                string sourceContent = File.ReadAllText(p);
+                string modifiedContent = Helper.EnsureUsingSystemExists(sourceContent);
+                return CSharpSyntaxTree.ParseText(modifiedContent, options: Options.GetParseOptions(), path: p);
+            });
             return CSharpCompilation.Create(assets["project"]!["restore"]!["projectName"]!.GetString(), syntaxTrees, references, compilationOptions);
         }
 
@@ -449,7 +459,12 @@ namespace Neo.Compiler
                         else
                         {
                             string assemblyName = Path.GetDirectoryName(name)!;
-                            IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, namePath, p)).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), path: p));
+                            IEnumerable<SyntaxTree> st = files.OrderBy(p => p).Select(p => Path.Combine(packagesPath, namePath, p)).Select(p =>
+                            {
+                                string sourceContent = File.ReadAllText(p);
+                                string modifiedContent = Helper.EnsureUsingSystemExists(sourceContent);
+                                return CSharpSyntaxTree.ParseText(modifiedContent, path: p);
+                            });
                             CSharpCompilation cr = CSharpCompilation.Create(assemblyName, st, CommonReferences, compilationOptions);
                             reference = cr.ToMetadataReference();
                         }
