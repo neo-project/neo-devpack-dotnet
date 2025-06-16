@@ -32,11 +32,8 @@ namespace Neo.SmartContract.Framework
         protected const byte Prefix_Token = 0x03;
         protected const byte Prefix_AccountToken = 0x04;
 
-        public sealed override byte Decimals
-        {
-            [Safe]
-            get => 0;
-        }
+        [Safe]
+        public sealed override byte Decimals => 0;
 
         [Safe]
         public static UInt160 OwnerOf(ByteString tokenId)
