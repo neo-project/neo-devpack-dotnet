@@ -21,37 +21,103 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    /// <summary>
+    /// Handles the BigInteger.One property by pushing the value 1 onto the stack.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Simply pushes the constant value 1 onto the evaluation stack
+    /// </remarks>
     private static void HandleBigIntegerOne(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         methodConvert.Push(1);
     }
 
+    /// <summary>
+    /// Handles the BigInteger.MinusOne property by pushing the value -1 onto the stack.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Simply pushes the constant value -1 onto the evaluation stack
+    /// </remarks>
     private static void HandleBigIntegerMinusOne(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         methodConvert.Push(-1);
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Zero property by pushing the value 0 onto the stack.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Simply pushes the constant value 0 onto the evaluation stack
+    /// </remarks>
     private static void HandleBigIntegerZero(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         methodConvert.Push(0);
     }
 
+    /// <summary>
+    /// Handles the BigInteger.IsZero property by checking if the value equals zero.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Compares the BigInteger value with 0 using numeric equality
+    /// </remarks>
     private static void HandleBigIntegerIsZero(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.NumEqual();                                  // Check if value equals 0
     }
 
+    /// <summary>
+    /// Handles the BigInteger.IsOne property by checking if the value equals one.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Compares the BigInteger value with 1 using numeric equality
+    /// </remarks>
     private static void HandleBigIntegerIsOne(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.Push(1);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.NumEqual();                                  // Check if value equals 1
     }
 
+    /// <summary>
+    /// Handles the BigInteger.IsEven property by checking if the value is even.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Performs modulo 2 operation and checks if result is zero (even number)
+    /// </remarks>
     private static void HandleBigIntegerIsEven(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -59,78 +125,183 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Push(2);
-        methodConvert.AddInstruction(OpCode.MOD);
-        methodConvert.AddInstruction(OpCode.NOT);  // BigInteger GetBoolean() => !value.IsZero;
-        //methodConvert.Push(1);
-        //methodConvert.AddInstruction(OpCode.AND);
-        //methodConvert.Push(0);
-        //methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.Mod();                                       // Calculate value % 2
+        methodConvert.Not();                                       // BigInteger GetBoolean() => !value.IsZero;
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Sign property by returning the sign of the BigInteger.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Returns -1 for negative, 0 for zero, 1 for positive values
+    /// </remarks>
     private static void HandleBigIntegerSign(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.AddInstruction(OpCode.SIGN);
+        methodConvert.Sign();                                      // Get sign of value
     }
 
-
+    /// <summary>
+    /// Handles the BigInteger.Pow method by raising a BigInteger to a power.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Calculates base^exponent using the POW VM instruction
+    /// </remarks>
     private static void HandleBigIntegerPow(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.POW);
+        methodConvert.Pow();                                       // Calculate base^exponent
     }
 
+    /// <summary>
+    /// Handles the BigInteger.ModPow method by computing modular exponentiation.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Calculates (base^exponent) % modulus efficiently using the MODPOW VM instruction
+    /// </remarks>
     private static void HandleBigIntegerModPow(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.MODPOW);
+        methodConvert.ModPow();                                    // Calculate (base^exponent) % modulus
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Add method by adding two BigInteger values.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Performs addition of two BigInteger values using the ADD VM instruction
+    /// </remarks>
     private static void HandleBigIntegerAdd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.ADD);
+        methodConvert.Add();                                       // Add two values
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Subtract method by subtracting one BigInteger from another.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Performs subtraction of two BigInteger values using the SUB VM instruction
+    /// </remarks>
     private static void HandleBigIntegerSubtract(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.SUB);
+        methodConvert.Sub();                                       // Subtract second from first
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Negate method by negating a BigInteger value.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Changes the sign of a BigInteger value using the NEGATE VM instruction
+    /// </remarks>
     private static void HandleBigIntegerNegate(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.NEGATE);
+        methodConvert.Negate();                                    // Negate the value
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Multiply method by multiplying two BigInteger values.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Performs multiplication of two BigInteger values using the MUL VM instruction
+    /// </remarks>
     private static void HandleBigIntegerMultiply(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.MUL);
+        methodConvert.Mul();                                       // Multiply two values
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Divide method by dividing one BigInteger by another.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Performs integer division of two BigInteger values using the DIV VM instruction
+    /// </remarks>
     private static void HandleBigIntegerDivide(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.DIV);
+        methodConvert.Div();                                       // Divide first by second
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Remainder method by computing the remainder of division.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Computes the remainder of dividing one BigInteger by another using the MOD VM instruction
+    /// </remarks>
     private static void HandleBigIntegerRemainder(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        methodConvert.AddInstruction(OpCode.MOD);
+        methodConvert.Mod();                                       // Calculate remainder
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Compare method by comparing two BigInteger values.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Returns -1 if left &lt; right, 0 if left = right, 1 if left &gt; right
+    /// </remarks>
     private static void HandleBigIntegerCompare(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -138,29 +309,51 @@ internal partial class MethodConvert
         // if left < right return -1;
         // if left = right return 0;
         // if left > right return 1;
-        methodConvert.AddInstruction(OpCode.SUB);
-        methodConvert.AddInstruction(OpCode.SIGN);
+        methodConvert.Sub();                                       // Calculate left - right
+        methodConvert.Sign();                                      // Get sign of difference
     }
 
+    /// <summary>
+    /// Handles the BigInteger.GreatestCommonDivisor method by computing the GCD of two BigInteger values.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Uses Euclidean algorithm to find GCD by repeatedly applying modulo operation
+    /// </remarks>
     private static void HandleBigIntegerGreatestCommonDivisor(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         JumpTarget gcdTarget = new()
         {
-            Instruction = methodConvert.AddInstruction(OpCode.DUP)
+            Instruction = methodConvert.Dup()                      // Duplicate for loop check
         };
-        methodConvert.AddInstruction(OpCode.REVERSE3);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.MOD);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.PUSH0);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
-        methodConvert.Jump(OpCode.JMPIFNOT, gcdTarget);
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.AddInstruction(OpCode.ABS);
+        methodConvert.Reverse3();                                  // Rearrange stack for GCD algorithm
+        methodConvert.Swap();                                      // Swap top two elements
+        methodConvert.Mod();                                       // Calculate modulo
+        methodConvert.Dup();                                       // Duplicate result
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.NumEqual();                                  // Check if remainder is 0
+        methodConvert.Jump(OpCode.JMPIFNOT, gcdTarget);            // Continue loop if not 0
+        methodConvert.Drop();                                      // Drop the zero remainder
+        methodConvert.Abs();                                       // Return absolute value
     }
 
+    /// <summary>
+    /// Handles the BigInteger.ToByteArray method by converting BigInteger to byte array.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Converts the BigInteger to its byte array representation using type conversion
+    /// </remarks>
     private static void HandleBigIntegerToByteArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -168,6 +361,17 @@ internal partial class MethodConvert
         methodConvert.ChangeType(VM.Types.StackItemType.Buffer);
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Parse method by converting a string to BigInteger.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Optimizes constant strings or uses StdLib.atoi for runtime parsing
+    /// </remarks>
     private static void HandleBigIntegerParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -193,162 +397,277 @@ internal partial class MethodConvert
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
     }
 
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to various integer types with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within sbyte range [-128, 127], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerExplicitConversion(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(sbyte.MinValue);
-        methodConvert.Push(sbyte.MaxValue + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to sbyte
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to sbyte with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within sbyte range [-128, 127], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToSByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(sbyte.MinValue);
-        methodConvert.Push(sbyte.MaxValue + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to byte
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to byte with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within byte range [0, 255], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(byte.MinValue);
-        methodConvert.Push(byte.MaxValue + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(byte.MinValue, byte.MaxValue);     // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to short
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to short with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within short range [-32768, 32767], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(short.MinValue);
-        methodConvert.Push(short.MaxValue + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(short.MinValue, short.MaxValue);    // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to ushort
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to ushort with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within ushort range [0, 65535], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToUShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(ushort.MinValue);
-        methodConvert.Push(ushort.MaxValue + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(ushort.MinValue, ushort.MaxValue);   // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to int
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to int with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within int range [-2147483648, 2147483647], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(int.MinValue);
-        methodConvert.Push(new BigInteger(int.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(int.MinValue, int.MaxValue);         // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to uint
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to uint with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within uint range [0, 4294967295], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToUInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(uint.MinValue);
-        methodConvert.Push(new BigInteger(uint.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for range check
+        methodConvert.Within(uint.MinValue, uint.MaxValue);         // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to long
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to long with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within long range [-9223372036854775808, 9223372036854775807], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToLong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(long.MinValue);
-        methodConvert.Push(new BigInteger(long.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate result for range check
+        methodConvert.Within(long.MinValue, long.MaxValue);         // Check if within range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
+        methodConvert.Throw();                                     // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // Handler for explicit conversion of BigInteger to ulong
+    /// <summary>
+    /// Handles explicit conversion of BigInteger to ulong with range checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Validates the BigInteger is within ulong range [0, 18446744073709551615], throws on overflow
+    /// </remarks>
     private static void HandleBigIntegerToULong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.Push(ulong.MinValue);
-        methodConvert.Push(new BigInteger(ulong.MaxValue) + 1);
-        methodConvert.AddInstruction(OpCode.WITHIN);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.AddInstruction(OpCode.THROW);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                                     // Duplicate value for range check
+        methodConvert.Within(ulong.MinValue, ulong.MaxValue);                 // Check if within ulong range
+        methodConvert.Jump(OpCode.JMPIF, endTarget);                          // Jump if within range
+        methodConvert.Throw();                                                   // Throw if out of range
+        endTarget.Instruction = methodConvert.Nop();                             // End target
     }
 
-    // Handler for implicit conversion of various types to BigInteger
+    /// <summary>
+    /// Handles implicit conversion of various types to BigInteger.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Direct conversion without range checking since all primitive types fit in BigInteger
+    /// </remarks>
     private static void HandleToBigInteger(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Max method by returning the larger of two BigInteger values.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Compares two BigInteger values and returns the larger one using the MAX VM instruction
+    /// </remarks>
     private static void HandleBigIntegerMax(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.MAX);
+        methodConvert.Max();                                       // Return maximum of two values
     }
 
+    /// <summary>
+    /// Handles the BigInteger.Min method by returning the smaller of two BigInteger values.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Compares two BigInteger values and returns the smaller one using the MIN VM instruction
+    /// </remarks>
     private static void HandleBigIntegerMin(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.MIN);
+        methodConvert.Min();                                       // Return minimum of two values
     }
 
-    // HandleBigIntegerIsOdd
+    /// <summary>
+    /// Handles the BigInteger.IsOdd property by checking if the value is odd.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Performs modulo 2 operation and checks if result is non-zero (odd number)
+    /// </remarks>
     private static void HandleBigIntegerIsOdd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -356,57 +675,65 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Push(2);
-        methodConvert.AddInstruction(OpCode.MOD);
-        methodConvert.AddInstruction(OpCode.NZ);
-        //methodConvert.Push(1);
-        //methodConvert.AddInstruction(OpCode.AND);
-        //methodConvert.Push(0);
-        //methodConvert.AddInstruction(OpCode.NUMNOTEQUAL);
+        methodConvert.Mod();                                       // Calculate value % 2
+        methodConvert.Nz();                                        // Check if non-zero (odd)
     }
 
-    // HandleBigIntegerIsNegative
+    /// <summary>
+    /// Handles the BigInteger.IsNegative property by checking if the value is negative.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Compares the BigInteger value with 0 to check if it's negative
+    /// </remarks>
     private static void HandleBigIntegerIsNegative(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        //methodConvert.AddInstruction(OpCode.SIGN);
         methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.LT);
-        // The following is cheaper than methodConvert.AddInstruction(OpCode.LT);
-        //JumpTarget isNegative = new();
-        //JumpTarget end = new();
-        //methodConvert.Jump(OpCode.JMPLT, isNegative);
-        //methodConvert.AddInstruction(OpCode.PUSHF);
-        //methodConvert.Jump(OpCode.JMP, end);
-        //isNegative.Instruction = methodConvert.AddInstruction(OpCode.PUSHT);
-        //end.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Lt();                                        // Check if value < 0
     }
 
-    // HandleBigIntegerIsPositive
+    /// <summary>
+    /// Handles the BigInteger.IsPositive property by checking if the value is positive or zero.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Compares the BigInteger value with 0 to check if it's greater than or equal to 0
+    /// </remarks>
     private static void HandleBigIntegerIsPositive(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        //methodConvert.AddInstruction(OpCode.SIGN);
         methodConvert.Push(0);
-        methodConvert.AddInstruction(OpCode.GE);
-        // The following is cheaper than methodConvert.AddInstruction(OpCode.GE);
-        //JumpTarget isPositive = new();
-        //JumpTarget end = new();
-        //methodConvert.Jump(OpCode.JMPGE, isPositive);
-        //methodConvert.AddInstruction(OpCode.PUSHF);
-        //methodConvert.Jump(OpCode.JMP, end);
-        //isPositive.Instruction = methodConvert.AddInstruction(OpCode.PUSHT);
-        //end.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Ge();                                        // Check if value >= 0
         // GE instead of GT, because C# BigInteger works like that
         // https://github.com/dotnet/runtime/blob/5535e31a712343a63f5d7d796cd874e563e5ac14/src/libraries/System.Runtime.Numerics/src/System/Numerics/BigInteger.cs#L4098C13-L4098C37
     }
 
-    //HandleBigIntegerIsPow2
+    /// <summary>
+    /// Handles the BigInteger.IsPow2 property by checking if the value is a power of 2.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Uses the formula (n &amp; (n-1) == 0) and (n != 0) to check if value is a power of 2
+    /// </remarks>
     private static void HandleBigIntegerIsPow2(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -418,26 +745,36 @@ internal partial class MethodConvert
         JumpTarget endTrue = new();
         JumpTarget endTarget = new();
         JumpTarget nonZero = new();
-        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Dup();                                       // Duplicate value for zero check
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPNE, nonZero);                 // Jump if non-zero
+        methodConvert.Drop();                                      // Drop the value if zero
+        methodConvert.Jump(OpCode.JMP, endFalse);                  // Return false for zero
+        nonZero.Instruction = methodConvert.Nop();                 // Non-zero target
+        methodConvert.Dup();                                       // Duplicate value
+        methodConvert.Dec();                                       // Decrement (n-1)
+        methodConvert.And();                                       // Calculate n & (n-1)
         methodConvert.Push(0);
-        methodConvert.Jump(OpCode.JMPNE, nonZero);
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Jump(OpCode.JMP, endFalse);
-        nonZero.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.DUP);
-        methodConvert.AddInstruction(OpCode.DEC);
-        methodConvert.AddInstruction(OpCode.AND);
-        methodConvert.Push(0);
-        methodConvert.Jump(OpCode.JMPEQ, endTrue);
-        endFalse.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Jump(OpCode.JMPEQ, endTrue);                 // Jump if result is 0
+        endFalse.Instruction = methodConvert.Nop();                // False case target
         methodConvert.Push(false);
-        methodConvert.Jump(OpCode.JMP, endTarget);
-        endTrue.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        endTrue.Instruction = methodConvert.Nop();                 // True case target
         methodConvert.Push(true);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // HandleBigIntegerLog2
+    /// <summary>
+    /// Handles the BigInteger.Log2 method by calculating the logarithm base 2.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Counts the number of bits needed to represent the value minus 1
+    /// </remarks>
     private static void HandleBigIntegerLog2(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -446,34 +783,44 @@ internal partial class MethodConvert
 
         JumpTarget nonNegativeTarget = new();
         JumpTarget endMethod = new();
-        methodConvert.AddInstruction(OpCode.DUP);// 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
-        methodConvert.Jump(OpCode.JMPGE, nonNegativeTarget); // 5
-        methodConvert.AddInstruction(OpCode.THROW);
-        nonNegativeTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.DUP);// 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0); // 5 5 0
-        methodConvert.Jump(OpCode.JMPEQ, endMethod); // 0  // return 0 when input is 0
-        methodConvert.AddInstruction(OpCode.PUSH0);// 5 0
-        //input = 5 > 0; result = 0; 
+        methodConvert.Dup();                                       // Duplicate value for negative check
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPGE, nonNegativeTarget);       // Jump if value >= 0
+        methodConvert.Throw();                                     // Throw if negative
+        nonNegativeTarget.Instruction = methodConvert.Nop();       // Non-negative target
+        methodConvert.Dup();                                       // Duplicate value for zero check
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPEQ, endMethod);               // Return 0 when input is 0
+        methodConvert.Push0();                                     // Initialize result to 0
+        //input = 5 > 0; result = 0;
         //do
         //  result += 1
         //while (input >> result) > 0
         //result -= 1
         JumpTarget loopStart = new();
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.NOP); // 5 0
-        methodConvert.AddInstruction(OpCode.INC);// 5 1
-        methodConvert.AddInstruction(OpCode.OVER);// 5 1 5
-        methodConvert.AddInstruction(OpCode.OVER);// 5 1 5 1
-        methodConvert.AddInstruction(OpCode.SHR); // 5 1 5>>1
-        methodConvert.AddInstruction(OpCode.PUSH0); // 5 1 5>>1 0
-        methodConvert.Jump(OpCode.JMPGT, loopStart); // 5 1
-        methodConvert.AddInstruction(OpCode.NIP); // 1
-        methodConvert.AddInstruction(OpCode.DEC); // 0
-        endMethod.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        loopStart.Instruction = methodConvert.Nop();               // Loop start target
+        methodConvert.Inc();                                       // Increment result
+        methodConvert.Over();                                      // Copy input to top
+        methodConvert.Over();                                      // Copy result to top
+        methodConvert.ShR();                                       // Right shift input by result
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPGT, loopStart);               // Continue loop if result > 0
+        methodConvert.Nip();                                       // Remove the input, keep result
+        methodConvert.Dec();                                       // Decrement result by 1
+        endMethod.Instruction = methodConvert.Nop();               // End method target
     }
 
-    // HandleBigIntegerCopySign
+    /// <summary>
+    /// Handles the BigInteger.CopySign method by copying the sign from one value to another.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Returns value with absolute value of first argument and sign of second argument
+    /// </remarks>
     private static void HandleBigIntegerCopySign(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
@@ -488,17 +835,27 @@ internal partial class MethodConvert
         // if a==0 return 0
         // if b==0 return abs(a)
         // return value has abs(value)==abs(a), sign(value)==sign(b)
-        methodConvert.AddInstruction(OpCode.PUSH0); // a b 0
-        methodConvert.Jump(OpCode.JMPLT, negativeTarget); // a
-        methodConvert.AddInstruction(OpCode.ABS);   // abs(a)
-        methodConvert.Jump(OpCode.JMP, endTarget);  // abs(a)
-        negativeTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.AddInstruction(OpCode.ABS);   // abs(a)
-        methodConvert.AddInstruction(OpCode.NEGATE);// -abs(a)
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPLT, negativeTarget);          // Jump if b < 0
+        methodConvert.Abs();                                       // Return abs(a) if b >= 0
+        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        negativeTarget.Instruction = methodConvert.Nop();          // Negative target
+        methodConvert.Abs();                                       // Get abs(a)
+        methodConvert.Negate();                                    // Return -abs(a) if b < 0
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
-    // HandleMathBigIntegerDivRem
+    /// <summary>
+    /// Handles the Math.BigInteger.DivRem method by computing both quotient and remainder.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Computes both quotient and remainder in a single operation, returns as tuple
+    /// </remarks>
     private static void HandleMathBigIntegerDivRem(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
@@ -507,26 +864,31 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        // r, l -> l/r, l%r
-        // Perform division
-        methodConvert.AddInstruction(OpCode.DUP); // r, l, l
-        methodConvert.Push(2);
-        methodConvert.AddInstruction(OpCode.PICK);// r, l, l, r
-        methodConvert.AddInstruction(OpCode.DIV);  // r, l, l/r
-        // For types that is restricted by range, there should be l/r <= MaxValue
-        // However it's only possible to get l/r == MaxValue + 1 when l/r > MaxValue
-        // and it's impossible to get l/r < MinValue
-        // Therefore we ignore this case; l/r <= MaxValue is not checked
+        // algorithm: (left, right) => (left / right, left % right)
+        methodConvert.Dup();                                       // r, l, l
+        methodConvert.Pick(2);                                     // r, l, l, r
+        methodConvert.Div();                                       // r, l, l/r
 
-        // Calculate remainder
-        methodConvert.AddInstruction(OpCode.REVERSE3);  // l/r, l, r
-        methodConvert.AddInstruction(OpCode.MOD);  // l/r, l%r
-        methodConvert.AddInstruction(OpCode.PUSH2);
-        methodConvert.AddInstruction(OpCode.PACK);
-        // It's impossible to get l%r out of range
+        // next, compute left % right
+        // we need: l % r
+        // the stack is: r l (l/r)
+        // we want:    (l/r) (l%r)
+        methodConvert.Reverse3();                                  // l/r, l, r
+        methodConvert.Mod();                                       // l/r, l%r
+        methodConvert.Pack(2);                                     // (l/r, l%r) as array
     }
 
-    //implement HandleBigIntegerLeadingZeroCount
+    /// <summary>
+    /// Handles the BigInteger.LeadingZeroCount method by counting leading zeros in the binary representation.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: For negative values returns 0, otherwise counts leading zeros by right-shifting until zero
+    /// </remarks>
     private static void HandleBigIntegerLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -534,53 +896,96 @@ internal partial class MethodConvert
         JumpTarget endLoop = new();
         JumpTarget loopStart = new();
         JumpTarget endTarget = new();
-        methodConvert.AddInstruction(OpCode.DUP); // a a
-        methodConvert.AddInstruction(OpCode.PUSH0);// a a 0
         JumpTarget notNegative = new();
-        methodConvert.Jump(OpCode.JMPGE, notNegative); //a
-        methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.AddInstruction(OpCode.PUSH0);
-        methodConvert.Jump(OpCode.JMP, endTarget);
-        notNegative.Instruction = methodConvert.AddInstruction(OpCode.NOP);
-        methodConvert.Push(0); // count 5 0
-        loopStart.Instruction = methodConvert.AddInstruction(OpCode.SWAP); //0 5
-        methodConvert.AddInstruction(OpCode.DUP);//  0 5 5
-        methodConvert.AddInstruction(OpCode.PUSH0);// 0 5 5 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop); //0 5
-        methodConvert.AddInstruction(OpCode.PUSH1);//0 5 1
-        methodConvert.AddInstruction(OpCode.SHR); //0  5>>1
-        methodConvert.AddInstruction(OpCode.SWAP);//5>>1 0
-        methodConvert.AddInstruction(OpCode.INC);// 5>>1 1
-        methodConvert.Jump(OpCode.JMP, loopStart);
-        endLoop.Instruction = methodConvert.AddInstruction(OpCode.DROP);
-        methodConvert.Push(256);
-        methodConvert.AddInstruction(OpCode.SWAP);
-        methodConvert.AddInstruction(OpCode.SUB);
-        endTarget.Instruction = methodConvert.AddInstruction(OpCode.NOP);
+        methodConvert.Dup();                                       // Duplicate value for negative check
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPGE, notNegative);             // Jump if value >= 0
+        methodConvert.Drop();                                      // Drop negative value
+        methodConvert.Push0();                                     // Return 0 for negative values
+        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        notNegative.Instruction = methodConvert.Nop();             // Target for non-negative values
+        methodConvert.Push(0);                                     // Initialize count to 0
+        loopStart.Instruction = methodConvert.Swap();              // Swap count and value
+        methodConvert.Dup();                                       // Duplicate value for zero check
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // Exit loop if value is 0
+        methodConvert.Push1();                                     // Push 1 for right shift
+        methodConvert.ShR();                                       // Right shift value by 1
+        methodConvert.Swap();                                      // Swap value and count
+        methodConvert.Inc();                                       // Increment count
+        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
+        methodConvert.Push(256);                                   // Push 256 (estimated bit width)
+        methodConvert.Swap();                                      // Swap 256 and count
+        methodConvert.Sub();                                       // Calculate 256 - count
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
+    /// <summary>
+    /// Handles the BigInteger.CreateChecked method by creating a BigInteger with overflow checking.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Direct conversion since BigInteger can represent any integer value without overflow
+    /// </remarks>
     private static void HandleBigIntegerCreatedChecked(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
     }
 
+    /// <summary>
+    /// Handles the BigInteger.CreateSaturating method by creating a BigInteger with saturation.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Direct conversion since BigInteger can represent any integer value without saturation
+    /// </remarks>
     private static void HandleBigIntegerCreateSaturating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
     }
+
+    /// <summary>
+    /// Handles the BigInteger.Equals method by comparing two BigInteger values for equality.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Compares two BigInteger values using numeric equality
+    /// </remarks>
     private static void HandleBigIntegerEquals(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.AddInstruction(OpCode.NUMEQUAL);
+        methodConvert.NumEqual();                                  // Check numeric equality
     }
 
+    /// <summary>
+    /// Handles the BigInteger.PopCount method by counting the number of set bits.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Counts 1-bits by repeatedly checking LSB and right-shifting until value becomes zero
+    /// </remarks>
     private static void HandleBigIntegerPopCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -589,14 +994,14 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
         // Check if the value is within int range
-        methodConvert.AddInstruction(OpCode.DUP);
+        methodConvert.Dup();
         methodConvert.Within(int.MinValue, int.MaxValue);
         var endIntCheck = new JumpTarget();
         methodConvert.Jump(OpCode.JMPIFNOT, endIntCheck);
 
         // If within int range, mask with 0xFFFFFFFF
         methodConvert.Push(0xFFFFFFFF);
-        methodConvert.AddInstruction(OpCode.AND);
+        methodConvert.And();
         var endMask = new JumpTarget();
         methodConvert.Jump(OpCode.JMP, endMask);
 
@@ -607,24 +1012,24 @@ internal partial class MethodConvert
         endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
 
         // Initialize count to 0
-        methodConvert.Push(0); // value count
-        methodConvert.Swap(); // count value
+        methodConvert.Push(0);     // value count
+        methodConvert.Swap();      // count value
         // Loop to count the number of 1 bit
         JumpTarget loopStart = new();
         JumpTarget endLoop = new();
-        loopStart.Instruction = methodConvert.Dup(); // count value value
-        methodConvert.Push0(); // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop); // count value
-        methodConvert.Dup(); // count value value
-        methodConvert.Push1(); // count value value 1
-        methodConvert.And(); // count value (value & 1)
-        methodConvert.Rot(); // value (value & 1) count
-        methodConvert.Add(); // value count += (value & 1)
-        methodConvert.Swap(); // count value
-        methodConvert.Push1(); // count value 1
-        methodConvert.ShR(); // count value >>= 1
+        loopStart.Instruction = methodConvert.Dup();    // count value value
+        methodConvert.Push0();     // count value value 0
+        methodConvert.Jump(OpCode.JMPEQ, endLoop);     // count value
+        methodConvert.Dup();       // count value value
+        methodConvert.Push1();     // count value value 1
+        methodConvert.And();       // count value (value & 1)
+        methodConvert.Rot();       // value (value & 1) count
+        methodConvert.Add();       // value count += (value & 1)
+        methodConvert.Swap();      // count value
+        methodConvert.Push1();     // count value 1
+        methodConvert.ShR();       // count value >>= 1
         methodConvert.Jump(OpCode.JMP, loopStart);
 
-        endLoop.Instruction = methodConvert.Drop(); // Drop the remaining value
+        endLoop.Instruction = methodConvert.Drop();     // Drop the remaining value
     }
 }
