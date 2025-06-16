@@ -28,8 +28,17 @@ namespace Neo.Compiler.ABI
             : base(symbol, symbol.GetDisplayName(true), symbol.Parameters.Select(p => p.ToAbiParameter()).ToArray())
         {
             Symbol = symbol;
-            Safe = symbol.GetAttributes().Any(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute));
+            Safe = GetSafeAttribute(symbol) != null;
             ReturnType = symbol.ReturnType.GetContractParameterType();
+        }
+
+        private static AttributeData? GetSafeAttribute(IMethodSymbol symbol)
+        {
+            AttributeData? attribute = symbol.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute));
+            if (attribute != null) return attribute;
+            if (symbol.MethodKind == MethodKind.PropertyGet && symbol.AssociatedSymbol is IPropertySymbol property)
+                return property.GetAttributes().FirstOrDefault(p => p.AttributeClass!.Name == nameof(scfx::Neo.SmartContract.Framework.Attributes.SafeAttribute));
+            return null;
         }
     }
 }
