@@ -1,0 +1,20 @@
+{
+  "NefPath": "TestData/SampleToken.nef",
+  "ManifestPath": "TestData/SampleToken.manifest.json",
+  "OutputDirectory": "TestOutput",
+  "IterationsPerMethod": 5,
+  "RandomSeed": 12345,
+  "GasLimit": 20000000,
+  "SaveInputsAndResults": true,
+  "EnableCoverage": true,
+  "CoverageFormat": "html",
+  "CoverageOutput": "coverage",
+  "IncludeMethods": [],
+  "ExcludeMethods": ["destroy", "update"],
+  "EnableEnhancedParameterGeneration": true,
+  "EnableBoundaryValueTesting": true,
+  "EnableEdgeCaseGeneration": true,
+  "EnableEnhancedReporting": true,
+  "EnableVulnerabilityDetection": true,
+  "ReportFormats": ["Markdown", "Json", "Html"]
+}
