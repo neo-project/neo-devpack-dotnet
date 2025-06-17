@@ -28,6 +28,8 @@ public class RpcStore : IStore
 {
     private int _id = 0;
 
+    public event IStore.OnNewSnapshotDelegate? OnNewSnapshot;
+
     /// <summary>
     /// Event raised when a new snapshot is created
     /// </summary>
