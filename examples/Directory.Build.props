@@ -17,6 +17,7 @@
         <Company>The Neo N3 Contract Examples Project</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     </PropertyGroup>
 
