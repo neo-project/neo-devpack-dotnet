@@ -48,7 +48,7 @@ namespace Neo.SmartContract.Framework.Attributes
     /// }
     /// </code>
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false)]
     public class SafeAttribute : Attribute
     {
     }
