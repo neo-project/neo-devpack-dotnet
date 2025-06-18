@@ -208,7 +208,7 @@ internal partial class MethodConvert
                 ConvertTypeOfExpression(model, expression);
                 break;
             default:
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
+                throw CompilationException.UnsupportedSyntax(syntax, $"Unsupported expression syntax '{syntax.GetType().Name}'. Consider using supported expressions: assignments, method calls, operators, or literal values.");
         }
     }
 
