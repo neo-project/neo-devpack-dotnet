@@ -396,7 +396,7 @@ internal partial class MethodConvert
 
         int index = Array.IndexOf(virtualMethods, symbol);
         if (index < 0)
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {symbol.OriginalDefinition}.");
+            throw CompilationException.UnsupportedSyntax(symbol, $"Virtual method '{symbol.Name}' cannot be found in the virtual method table. This may indicate an issue with method overriding or inheritance.");
 
         AddInstruction(OpCode.DUP);
         Push(fields.Length);

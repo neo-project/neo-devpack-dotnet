@@ -166,7 +166,7 @@ partial class MethodConvert
     {
         if (arguments is null) return;
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw CompilationException.UnsupportedSyntax(symbol, "Out parameters in TryParse methods must be captured in a static field. Ensure the out parameter is assigned to a static field before calling TryParse.");
 
         // Drop the out parameter since it's not needed
         // We use the static field to store the result
@@ -217,7 +217,7 @@ partial class MethodConvert
     {
         if (arguments is null) return;
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw CompilationException.UnsupportedSyntax(symbol, "Out parameters in TryParse methods must be captured in a static field. Ensure the out parameter is assigned to a static field before calling TryParse.");
 
         JumpTarget endTarget = new();
 
@@ -256,7 +256,7 @@ partial class MethodConvert
     {
         if (arguments is null) return;
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw CompilationException.UnsupportedSyntax(symbol, "Out parameters in TryParse methods must be captured in a static field. Ensure the out parameter is assigned to a static field before calling TryParse.");
 
         JumpTarget trueTarget = new();
         JumpTarget falseTarget = new();

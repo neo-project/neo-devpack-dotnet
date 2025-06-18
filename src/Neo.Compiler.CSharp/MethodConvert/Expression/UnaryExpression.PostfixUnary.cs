@@ -51,7 +51,7 @@ internal partial class MethodConvert
                 ConvertExpression(model, expression.Operand);
                 break;
             default:
-                throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}");
+                throw CompilationException.UnsupportedSyntax(expression.OperatorToken, $"Postfix unary operator '{expression.OperatorToken.ValueText}' is not supported. Supported operators are: ++, --, and ! (null-forgiving).");
         }
     }
 
@@ -69,7 +69,7 @@ internal partial class MethodConvert
                 ConvertMemberAccessPostIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported postfix unary expression: {expression}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Postfix increment/decrement can only be applied to element access, identifiers, or member access expressions. Found: {expression.Operand.GetType().Name}");
         }
     }
 
@@ -123,7 +123,7 @@ internal partial class MethodConvert
                 ConvertPropertyIdentifierNamePostIncrementOrDecrementExpression(model, operatorToken, property);
                 break;
             default:
-                throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(operand, $"Postfix increment/decrement cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -200,7 +200,7 @@ internal partial class MethodConvert
                 ConvertPropertyMemberAccessPostIncrementOrDecrementExpression(model, operatorToken, operand, property);
                 break;
             default:
-                throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(operand, $"Postfix increment/decrement cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 

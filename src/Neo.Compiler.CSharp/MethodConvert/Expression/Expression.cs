@@ -293,7 +293,7 @@ internal partial class MethodConvert
             "UInt32" => (uint.MinValue, uint.MaxValue, 0xffffffff),
             "UInt64" => (ulong.MinValue, ulong.MaxValue, 0xffffffffffffffff),
             //"Boolean" => (0, 1, 0x01),
-            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type: {type}")
+            _ => throw CompilationException.UnsupportedSyntax(type, $"Integer type '{type.Name}' is not supported for range checking. Supported integer types are: SByte, Int16, Int32, Int64, Byte, UInt16, UInt32, UInt64, Char, and BigInteger.")
         };
 
         JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();

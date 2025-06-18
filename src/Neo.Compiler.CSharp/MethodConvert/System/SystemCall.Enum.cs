@@ -247,7 +247,7 @@ internal partial class MethodConvert
         }
 
         if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[3], out var index))
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+            throw CompilationException.UnsupportedSyntax(symbol, "Out parameters in Enum.TryParse must be captured in a static field. Ensure the out parameter is assigned to a static field before calling TryParse.");
 
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
@@ -513,7 +513,7 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
         if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[2], out var index))
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+            throw CompilationException.UnsupportedSyntax(symbol, "Out parameters in Enum.TryParse must be captured in a static field. Ensure the out parameter is assigned to a static field before calling TryParse.");
 
         // Get the enum type from the first argument (typeof(enum))
         ITypeSymbol? enumTypeSymbol = null;

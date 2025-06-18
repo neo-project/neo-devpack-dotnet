@@ -59,7 +59,7 @@ internal partial class MethodConvert
                     AccessSlot(OpCode.STSFLD, backingFieldIndex);
                     break;
                 default:
-                    throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
+                    throw CompilationException.UnsupportedSyntax(Symbol, $"Property accessor '{Symbol.MethodKind}' is not supported. Only PropertyGet and PropertySet accessors are allowed.");
             }
         }
         else
@@ -88,7 +88,7 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.SETITEM);
                     break;
                 default:
-                    throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
+                    throw CompilationException.UnsupportedSyntax(Symbol, $"Property accessor '{Symbol.MethodKind}' is not supported. Only PropertyGet and PropertySet accessors are allowed.");
             }
         }
     }
@@ -113,7 +113,7 @@ internal partial class MethodConvert
             }
             else
             {
-                throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unknown StorageBacked constructor: {Symbol}");
+                throw CompilationException.UnsupportedSyntax(Symbol, $"StoredAttribute constructor argument must be either a byte or a string. Found: {attribute.ConstructorArguments[0].Value?.GetType().Name ?? "null"}");
             }
         }
         return key;

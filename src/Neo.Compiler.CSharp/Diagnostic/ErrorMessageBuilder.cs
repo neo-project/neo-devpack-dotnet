@@ -33,18 +33,18 @@ namespace Neo.Compiler
         {
             var location = syntax.GetLocation();
             var syntaxType = syntax.IsNode ? syntax.AsNode()!.GetType().Name : syntax.AsToken().ValueText;
-            
+
             var message = baseMessage ?? $"Unsupported {syntaxType} syntax";
-            
+
             if (location != null && location.SourceTree != null)
             {
                 var lineSpan = location.GetLineSpan();
                 var lineNumber = lineSpan.StartLinePosition.Line + 1;
                 var column = lineSpan.StartLinePosition.Character + 1;
                 var fileName = System.IO.Path.GetFileName(location.SourceTree.FilePath);
-                
+
                 message += $" at {fileName}:{lineNumber}:{column}";
-                
+
                 // Add code snippet if available
                 var sourceText = location.SourceTree.GetText();
                 if (sourceText != null && lineSpan.StartLinePosition.Line < sourceText.Lines.Count)
@@ -56,14 +56,14 @@ namespace Neo.Compiler
                     }
                 }
             }
-            
+
             // Add suggestions based on syntax type
             var suggestions = GetSyntaxSuggestions(syntax);
             if (!string.IsNullOrEmpty(suggestions))
             {
                 message += $". {suggestions}";
             }
-            
+
             return message;
         }
 
@@ -78,12 +78,12 @@ namespace Neo.Compiler
         {
             var typeName = type?.ToDisplayString() ?? "unknown";
             var message = $"Invalid type '{typeName}'";
-            
+
             if (!string.IsNullOrEmpty(context))
             {
                 message += $" in {context}";
             }
-            
+
             var location = syntax.GetLocation();
             if (location != null)
             {
@@ -91,14 +91,14 @@ namespace Neo.Compiler
                 var fileName = System.IO.Path.GetFileName(location.SourceTree?.FilePath);
                 message += $" at {fileName}:{lineSpan.StartLinePosition.Line + 1}:{lineSpan.StartLinePosition.Character + 1}";
             }
-            
+
             // Add suggestions for supported types
             var supportedTypes = GetSupportedTypeSuggestions(type);
             if (!string.IsNullOrEmpty(supportedTypes))
             {
                 message += $". Consider using: {supportedTypes}";
             }
-            
+
             return message;
         }
 
@@ -112,19 +112,19 @@ namespace Neo.Compiler
         public static string BuildFileOperationMessage(string operation, string filePath, Exception? innerException = null)
         {
             var message = $"Failed to {operation} file '{filePath}'";
-            
+
             if (innerException != null)
             {
                 message += $": {innerException.Message}";
             }
-            
+
             // Add helpful suggestions based on the type of operation
             var suggestions = GetFileOperationSuggestions(operation, filePath, innerException);
             if (!string.IsNullOrEmpty(suggestions))
             {
                 message += $". {suggestions}";
             }
-            
+
             return message;
         }
 
@@ -138,7 +138,7 @@ namespace Neo.Compiler
         public static string BuildMethodErrorMessage(SyntaxNodeOrToken syntax, string methodName, string issue)
         {
             var message = $"Method '{methodName}': {issue}";
-            
+
             var location = syntax.GetLocation();
             if (location != null)
             {
@@ -146,7 +146,7 @@ namespace Neo.Compiler
                 var fileName = System.IO.Path.GetFileName(location.SourceTree?.FilePath);
                 message += $" at {fileName}:{lineSpan.StartLinePosition.Line + 1}";
             }
-            
+
             return message;
         }
 
@@ -159,19 +159,19 @@ namespace Neo.Compiler
             {
                 return syntax.AsNode() switch
                 {
-                    PredefinedTypeSyntax predefined when predefined.Keyword.ValueText == "float" || predefined.Keyword.ValueText == "double" => 
+                    PredefinedTypeSyntax predefined when predefined.Keyword.ValueText == "float" || predefined.Keyword.ValueText == "double" =>
                         "Consider using decimal or BigInteger for precise calculations",
                     InterfaceDeclarationSyntax => "Use abstract classes instead of interfaces",
                     UnsafeStatementSyntax => "Remove unsafe code blocks - NEO VM doesn't support unsafe operations",
                     PointerTypeSyntax => "Use arrays or references instead of pointers",
                     FixedStatementSyntax => "Use regular variable declarations instead of fixed statements",
                     LockStatementSyntax => "Remove lock statements - NEO contracts are single-threaded",
-                    UsingStatementSyntax when syntax.AsNode() is UsingStatementSyntax u && u.Declaration != null => 
+                    UsingStatementSyntax when syntax.AsNode() is UsingStatementSyntax u && u.Declaration != null =>
                         "Consider manual resource management or try-finally blocks",
                     _ => ""
                 };
             }
-            
+
             return "";
         }
 
@@ -181,9 +181,9 @@ namespace Neo.Compiler
         private static string GetSupportedTypeSuggestions(ITypeSymbol? type)
         {
             if (type == null) return "";
-            
+
             var typeName = type.Name.ToLowerInvariant();
-            
+
             return typeName switch
             {
                 "float" or "double" => "int, BigInteger, or decimal",
@@ -192,7 +192,7 @@ namespace Neo.Compiler
                 "tuple" => "custom struct or class",
                 "nullable" => "direct type usage with null checks",
                 _ when type.TypeKind == TypeKind.Interface => "abstract class or concrete implementation",
-                _ when type.IsReferenceType && type.TypeKind == TypeKind.Class => 
+                _ when type.IsReferenceType && type.TypeKind == TypeKind.Class =>
                     "struct, primitive types, or Neo framework types",
                 _ => ""
             };

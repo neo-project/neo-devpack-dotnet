@@ -62,8 +62,8 @@ internal partial class MethodConvert
                 ConvertTupleAssignment(model, left);
                 break;
             default:
-                throw new CompilationException(expression.Left, DiagnosticId.SyntaxNotSupported,
-                    $"Unsupported assignment: {expression.Left}");
+                throw CompilationException.UnsupportedSyntax(expression.Left,
+                    $"Assignment can only be performed on declarations, element access, identifiers, member access, or tuple expressions. Found: {expression.Left.GetType().Name}");
         }
     }
 
@@ -71,7 +71,7 @@ internal partial class MethodConvert
     {
         ITypeSymbol type = model.GetTypeInfo(left).Type!;
         if (!type.IsValueType)
-            throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment type: {type}");
+            throw CompilationException.UnsupportedSyntax(left, $"Declaration assignments in tuples must be value types. Found: {type.Name}. Consider using a different assignment pattern.");
         AddInstruction(OpCode.UNPACK);
         AddInstruction(OpCode.DROP);
         foreach (VariableDesignationSyntax variable in ((ParenthesizedVariableDesignationSyntax)left.Designation).Variables)
@@ -87,7 +87,7 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.DROP);
                     break;
                 default:
-                    throw new CompilationException(variable, DiagnosticId.SyntaxNotSupported, $"Unsupported designation: {variable}");
+                    throw CompilationException.UnsupportedSyntax(variable, $"Variable designation type '{variable.GetType().Name}' is not supported. Only single variable and discard designations are allowed.");
             }
         }
     }
@@ -167,11 +167,11 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Property is readonly and not within a constructor: {property.Name}");
+                    throw CompilationException.UnsupportedSyntax(left, $"Cannot assign to readonly property '{property.Name}' outside of a constructor. Make the property settable or perform the assignment in a constructor.");
                 }
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Cannot assign to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, properties, and discard symbols are supported.");
         }
     }
 
@@ -200,7 +200,7 @@ internal partial class MethodConvert
                 CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Cannot assign to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, properties, and discard symbols are supported.");
         }
     }
 
@@ -224,7 +224,7 @@ internal partial class MethodConvert
                             AddInstruction(OpCode.DROP);
                             break;
                         default:
-                            throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported designation: {argument}");
+                            throw CompilationException.UnsupportedSyntax(argument, $"Tuple assignment designation type '{declaration.Designation.GetType().Name}' is not supported. Only single variable and discard designations are allowed.");
                     }
                     break;
                 case IdentifierNameSyntax identifier:
@@ -234,7 +234,7 @@ internal partial class MethodConvert
                     ConvertMemberAccessAssignment(model, memberAccess);
                     break;
                 default:
-                    throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment: {argument}");
+                    throw CompilationException.UnsupportedSyntax(argument, $"Tuple assignment element type '{argument.Expression.GetType().Name}' is not supported. Only declarations, identifiers, and member access expressions are allowed.");
             }
         }
     }
