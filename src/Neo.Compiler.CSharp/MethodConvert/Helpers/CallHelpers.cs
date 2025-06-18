@@ -167,7 +167,7 @@ internal partial class MethodConvert
                         StLocSlot(local);
                         break;
                     default:
-                        throw new CompilationException(sync, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {sync}");
+                        throw CompilationException.UnsupportedSyntax(sync, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
                 }
             }
         });
@@ -201,7 +201,7 @@ internal partial class MethodConvert
                 ProcessOutIdentifier(model, parameter, identifierName);
                 break;
             default:
-                throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {argument}");
+                throw CompilationException.UnsupportedSyntax(argument, $"Unsupported out parameter syntax '{argument.GetType().Name}'. Use 'out var variable' or 'out existingVariable'.");
         }
     }
 
@@ -234,7 +234,7 @@ internal partial class MethodConvert
                 StArgSlot(parameter);
                 break;
             default:
-                throw new CompilationException(identifierName, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {identifierName}");
+                throw CompilationException.UnsupportedSyntax(identifierName, $"Unsupported identifier '{identifierName.Identifier.ValueText}' in out parameter. Use a variable name or discard ('_').");
         }
     }
 
@@ -309,7 +309,7 @@ internal partial class MethodConvert
                         StLocSlot(local);
                         break;
                     default:
-                        throw new CompilationException(sync, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {sync}");
+                        throw CompilationException.UnsupportedSyntax(sync, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
                 }
             }
         });
