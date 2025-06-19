@@ -204,13 +204,18 @@ jobs:
     - name: Create release
       if: steps.check_tag.outputs.statusCode == '404'
       id: create_release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.version }}
-        release_name: ${{ steps.get_version.outputs.version }}
-        prerelease: ${{ contains(steps.get_version.outputs.version, '-') }}
+      run: |
+        PRERELEASE_FLAG=""
+        if [[ "${{ steps.get_version.outputs.version }}" == *"-"* ]]; then
+          PRERELEASE_FLAG="--prerelease"
+        fi
+        
+        gh release create ${{ steps.get_version.outputs.version }} \
+          --title "${{ steps.get_version.outputs.version }}" \
+          --generate-notes \
+          $PRERELEASE_FLAG
     - name: Setup .NET Core
       if: steps.check_tag.outputs.statusCode == '404'
       uses: actions/setup-dotnet@v4
