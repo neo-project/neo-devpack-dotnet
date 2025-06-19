@@ -28,7 +28,7 @@ namespace NFT
             Owner = owner;
             TokenId = tokenId;
             Credential = credential;
-            Name = "N3 Secure Loot #" + TokenId;
+            Name = $"N3 Secure Loot #{TokenId}";
         }
 
         public void OwnerOnly()

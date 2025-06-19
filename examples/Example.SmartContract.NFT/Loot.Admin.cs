@@ -37,7 +37,7 @@ namespace NFT
         /// Security requirement:
         /// The prefix should be unique in the contract: checked globally.
         /// </summary>
-        private static readonly StorageMap OwnerMap = new StorageMap(Storage.CurrentContext, (byte)StoragePrefix.Owner);
+        private static readonly StorageMap OwnerMap = new(Storage.CurrentContext, (byte)StoragePrefix.Owner);
 
         public static bool Verify() => Runtime.CheckWitness(GetOwner());
 
