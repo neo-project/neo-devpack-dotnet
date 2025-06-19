@@ -49,7 +49,7 @@ namespace Neo.Optimizer
             {
                 StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
                 if (attribute is null) continue;
-                
+
                 // Validate method signature
                 if (method.ReturnType != typeof((NefFile, ContractManifest, JObject?)) ||
                     method.GetParameters().Length != 3 ||
@@ -59,12 +59,12 @@ namespace Neo.Optimizer
                 {
                     continue; // Skip methods with incorrect signature
                 }
-                
+
                 string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
                 strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
                 orderedStrategies.Add((method, attribute));
             }
-            
+
             // Sort strategies by priority (highest priority first)
             orderedStrategies.Sort((a, b) => b.attribute.Priority.CompareTo(a.attribute.Priority));
         }
