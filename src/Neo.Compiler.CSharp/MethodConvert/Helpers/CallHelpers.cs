@@ -167,7 +167,7 @@ internal partial class MethodConvert
                         StLocSlot(local);
                         break;
                     default:
-                        throw CompilationException.UnsupportedSyntax(sync, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
+                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
                 }
             }
         });
@@ -309,7 +309,7 @@ internal partial class MethodConvert
                         StLocSlot(local);
                         break;
                     default:
-                        throw CompilationException.UnsupportedSyntax(sync, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
+                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
                 }
             }
         });
@@ -396,7 +396,7 @@ internal partial class MethodConvert
 
         int index = Array.IndexOf(virtualMethods, symbol);
         if (index < 0)
-            throw CompilationException.UnsupportedSyntax(symbol, $"Virtual method '{symbol.Name}' cannot be found in the virtual method table. This may indicate an issue with method overriding or inheritance.");
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Virtual method '{symbol.Name}' not found in type '{symbol.ContainingType.Name}'. Ensure the method is properly declared as virtual or override.");
 
         AddInstruction(OpCode.DUP);
         Push(fields.Length);
