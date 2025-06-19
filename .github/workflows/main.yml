@@ -292,9 +292,11 @@ jobs:
         mkdir -p ./src/Neo.Compiler.CSharp/bin/Release/net9.0/
         
         # Copy pre-built Release artifacts if available, otherwise build from source
-        if [ -d "./release-build" ]; then
+        if [ -d "./release-build" ] && [ "$(ls -A ./release-build 2>/dev/null)" ]; then
           echo "Using pre-built Release artifacts from Test job..."
-          cp -r ./release-build/* ./src/Neo.Compiler.CSharp/bin/Release/net9.0/ || true
+          cp -r ./release-build/* ./src/Neo.Compiler.CSharp/bin/Release/net9.0/
+        else
+          echo "No pre-built artifacts found, will build from source"
         fi
         
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj \
