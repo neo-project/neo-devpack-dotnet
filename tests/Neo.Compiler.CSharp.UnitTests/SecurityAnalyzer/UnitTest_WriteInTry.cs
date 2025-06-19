@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.AreEqual(v.vulnerabilities.Count, 2);
             v.GetWarningInfo(print: false);
         }
-        
+
         [TestMethod]
         public void Test_WriteInTryWithEnhancedDiagnostics()
         {
@@ -58,17 +58,17 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             WriteInTryAnalzyer.WriteInTryVulnerability v =
                 WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest, null);
             Assert.AreEqual(v.vulnerabilities.Count, 2);
-            
+
             // Test that warning message contains enhanced diagnostic information
             string warningInfo = v.GetWarningInfo(print: false);
-            
+
             // Verify enhanced diagnostic format
             Assert.IsTrue(warningInfo.Contains("[SEC] Writing storage in `try` block is risky"));
             Assert.IsTrue(warningInfo.Contains("Recommendation:"));
             Assert.IsTrue(warningInfo.Contains("writes may not be properly reverted on exceptions"));
             Assert.IsTrue(warningInfo.Contains("Try block addresses:"));
             Assert.IsTrue(warningInfo.Contains("Write instruction addresses:"));
-            
+
             // Message should be more detailed than just addresses
             Assert.IsTrue(warningInfo.Length > 150, "Enhanced diagnostic message should be more detailed than simple address listing");
         }

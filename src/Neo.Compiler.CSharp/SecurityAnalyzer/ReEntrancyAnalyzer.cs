@@ -54,7 +54,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             public string GetWarningInfo(bool print = false)
             {
                 if (vulnerabilityPairs.Count <= 0) return "";
-                
+
                 // Parse debug info if available
                 NeoDebugInfo? debugInfo = null;
                 if (DebugInfo != null)
@@ -69,14 +69,14 @@ namespace Neo.Compiler.SecurityAnalyzer
                         // Fallback to address-only warnings if debug info parsing fails
                     }
                 }
-                
+
                 StringBuilder result = new();
                 foreach ((BasicBlock callBlock, HashSet<BasicBlock> writeBlocks) in vulnerabilityPairs)
                 {
                     StringBuilder additional = new();
                     additional.AppendLine($"[SEC] Potential Re-entrancy vulnerability detected");
                     additional.AppendLine($"  Issue: Contract calls external code before writing to storage, allowing potential re-entrancy attacks");
-                    
+
                     // Add source location information for contract calls
                     additional.AppendLine($"  External contract calls:");
                     foreach (int callAddr in callOtherContractInstructions[callBlock])
@@ -100,7 +100,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                             additional.AppendLine($"    At instruction address: {callAddr}");
                         }
                     }
-                    
+
                     // Add source location information for storage writes
                     additional.AppendLine($"  Storage writes that occur after external calls:");
                     foreach (BasicBlock writeBlock in writeBlocks)
@@ -127,10 +127,10 @@ namespace Neo.Compiler.SecurityAnalyzer
                             }
                         }
                     }
-                    
+
                     additional.AppendLine($"  Recommendation: Perform all storage writes before making external contract calls, or use reentrancy guards");
                     additional.AppendLine();
-                    
+
                     if (print)
                         Console.Write(additional.ToString());
                     result.Append(additional);
@@ -209,7 +209,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             }
             return new(vulnerabilityPairs, callOtherContractInstructions, writeStorageInstructions, debugInfo);
         }
-        
+
         /// <summary>
         /// Represents source code location information for diagnostic messages
         /// </summary>
@@ -220,7 +220,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             public int Column { get; set; }
             public string? CodeSnippet { get; set; }
         }
-        
+
         /// <summary>
         /// Gets source code location information for an instruction address
         /// </summary>
@@ -239,7 +239,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                         .Where(sp => sp.Address <= instructionAddress)
                         .OrderByDescending(sp => sp.Address)
                         .FirstOrDefault();
-                    
+
                     if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
                     {
                         var fileName = debugInfo.Documents[sequencePoint.Document];

@@ -40,7 +40,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             {
                 StringBuilder result = new();
                 if (vulnerabilities.Count <= 0) return result.ToString();
-                
+
                 // Parse debug info if available
                 NeoDebugInfo? debugInfo = null;
                 if (DebugInfo != null)
@@ -55,7 +55,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                         // Fallback to address-only warnings if debug info parsing fails
                     }
                 }
-                
+
                 foreach ((BasicBlock b, HashSet<int> tryAddr) in vulnerabilities)
                 {
                     int a = b.startAddr;
@@ -68,10 +68,10 @@ namespace Neo.Compiler.SecurityAnalyzer
                             writeAddrs.Add(a);
                         a += i.Size;
                     }
-                    
+
                     StringBuilder additional = new();
                     additional.AppendLine($"[SEC] Writing storage in `try` block is risky - writes may not be properly reverted on exceptions");
-                    
+
                     // Add source location information if available
                     if (debugInfo != null)
                     {
@@ -89,7 +89,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                                 additional.AppendLine($"  At instruction address: {writeAddr}");
                             }
                         }
-                        
+
                         additional.AppendLine($"  Try block addresses: {{{string.Join(", ", tryAddr)}}}");
                     }
                     else
@@ -98,10 +98,10 @@ namespace Neo.Compiler.SecurityAnalyzer
                         additional.AppendLine($"  Try block addresses: {{{string.Join(", ", tryAddr)}}}");
                         additional.AppendLine($"  Write instruction addresses: {string.Join(", ", writeAddrs)}");
                     }
-                    
+
                     additional.AppendLine($"  Recommendation: Ensure storage writes are properly handled in catch/finally blocks or avoid writing in try blocks");
                     additional.AppendLine();
-                    
+
                     if (print)
                         Console.Write(additional.ToString());
                     result.Append(additional);
@@ -173,7 +173,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             }
             return new(result, debugInfo);
         }
-        
+
         /// <summary>
         /// Represents source code location information for diagnostic messages
         /// </summary>
@@ -184,7 +184,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             public int Column { get; set; }
             public string? CodeSnippet { get; set; }
         }
-        
+
         /// <summary>
         /// Gets source code location information for an instruction address
         /// </summary>
@@ -203,7 +203,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                         .Where(sp => sp.Address <= instructionAddress)
                         .OrderByDescending(sp => sp.Address)
                         .FirstOrDefault();
-                    
+
                     if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
                     {
                         var fileName = debugInfo.Documents[sequencePoint.Document];
