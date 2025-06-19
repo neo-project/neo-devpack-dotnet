@@ -71,7 +71,10 @@
     </ItemGroup>
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent" Condition="'$(IsTestProject)' != 'true'">
-        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
+        <PropertyGroup>
+            <NccsProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj</NccsProject>
+        </PropertyGroup>
+        <Exec Command="dotnet run --project &quot;$(NccsProject)&quot; -- &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
     </Target>
 
     <!-- Smart Contract Artifact Generation Target -->
@@ -83,6 +86,7 @@
             <ArtifactClassName>Sample$(ContractName.Replace('Example.SmartContract.', ''))</ArtifactClassName>
             <NefFilePath>$(OutputPath)$(AssemblyName).nef</NefFilePath>
             <ManifestFilePath>$(OutputPath)$(AssemblyName).manifest.json</ManifestFilePath>
+            <NccsProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj</NccsProject>
         </PropertyGroup>
         
         <!-- Generate artifact using nccs with additional parameters if unit test project exists -->
@@ -90,7 +94,7 @@
         <MakeDir Directories="$(TestingArtifactsDir)" Condition="Exists('$(UnitTestProjectDir)') AND !Exists('$(TestingArtifactsDir)')" />
         
         <!-- Use nccs to generate artifacts for unit tests -->
-        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source" 
+        <Exec Command="dotnet run --project &quot;$(NccsProject)&quot; -- &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source" 
               ContinueOnError="true" 
               Condition="Exists('$(UnitTestProjectDir)')" />
     </Target>
