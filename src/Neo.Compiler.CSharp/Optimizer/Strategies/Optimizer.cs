@@ -33,6 +33,7 @@ namespace Neo.Optimizer
             var assembly = Assembly.GetExecutingAssembly();
             foreach (Type type in assembly.GetTypes())
                 RegisterStrategies(type);
+            DiscoverAndOrderStrategies(assembly);
             foreach (FieldInfo field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 OperandSizeAttribute? attribute = field.GetCustomAttribute<OperandSizeAttribute>();
@@ -69,6 +70,34 @@ namespace Neo.Optimizer
             orderedStrategies.Sort((a, b) => b.attribute.Priority.CompareTo(a.attribute.Priority));
         }
 
+        private static void DiscoverAndOrderStrategies(Assembly assembly)
+        {
+            var strategyMethods = new List<(MethodInfo method, StrategyAttribute attribute)>();
+
+            foreach (Type type in assembly.GetTypes())
+            {
+                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                {
+                    var attribute = method.GetCustomAttribute<StrategyAttribute>();
+                    if (attribute != null)
+                    {
+                        // Verify method signature matches expected optimization strategy signature
+                        var parameters = method.GetParameters();
+                        if (parameters.Length == 3 &&
+                            parameters[0].ParameterType == typeof(NefFile) &&
+                            parameters[1].ParameterType == typeof(ContractManifest) &&
+                            parameters[2].ParameterType == typeof(JObject))
+                        {
+                            strategyMethods.Add((method, attribute));
+                        }
+                    }
+                }
+            }
+
+            // Order by priority (higher priority first)
+            orderedStrategies.AddRange(strategyMethods.OrderByDescending(s => s.attribute.Priority));
+        }
+
         public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
         {
             if (!optimizationType.HasFlag(CompilationOptions.OptimizationType.Experimental))
@@ -90,9 +119,8 @@ namespace Neo.Optimizer
                 }
                 catch (Exception ex)
                 {
-                    // Log the error but continue with other optimizations
-                    // In a production environment, you might want to use a proper logging framework
-                    Console.WriteLine($"Warning: Optimization strategy '{method.Name}' failed: {ex.Message}");
+                    // Log warning but continue with other optimizations
+                    System.Diagnostics.Debug.WriteLine($"Warning: Optimization strategy '{method.Name}' failed: {ex.Message}");
                 }
             }
             return (nef, manifest, debugInfo);
