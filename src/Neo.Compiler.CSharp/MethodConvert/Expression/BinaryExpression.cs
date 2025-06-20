@@ -90,7 +90,7 @@ internal partial class MethodConvert
             "<=" => (OpCode.LE, false),
             ">" => (OpCode.GT, false),
             ">=" => (OpCode.GE, false),
-            _ => throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}")
+            _ => throw CompilationException.UnsupportedSyntax(expression.OperatorToken, $"Unsupported binary operator '{expression.OperatorToken.ValueText}'. Supported operators: +, -, *, /, %, <<, >>, |, &, ^, ==, !=, <, <=, >, >=, &&, ||")
         };
 
         if (expression.OperatorToken.ValueText == "/")

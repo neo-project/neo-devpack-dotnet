@@ -111,7 +111,7 @@ namespace Neo.Compiler
                         }
                         break;
                     default:
-                        throw new CompilationException(label, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {label}");
+                        throw CompilationException.UnsupportedSyntax(label, $"Unsupported switch label type '{label.GetType().Name}'. Use 'case value:' or 'default:' labels.");
                 }
             }
             RemoveAnonymousVariable(anonymousIndex);
@@ -126,7 +126,7 @@ namespace Neo.Compiler
             PopSwitchLabels();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in switch statement handling. This is a compiler bug that should be reported.");
         }
     }
 }

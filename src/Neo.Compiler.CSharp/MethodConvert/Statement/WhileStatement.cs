@@ -60,7 +60,7 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in while statement handling. This is a compiler bug that should be reported.");
         }
     }
 }
