@@ -31,30 +31,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_StrategyDiscovery()
         {
-            // Use reflection to verify that strategies are discovered and ordered correctly
-            var optimizerType = typeof(OptimizerClass);
-            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
-            Assert.IsNotNull(field, "orderedStrategies field should exist");
-
-            // Get the private field value
-            var orderedStrategies = field.GetValue(null) as System.Collections.Generic.List<(MethodInfo method, StrategyAttribute attribute)>;
-            Assert.IsNotNull(orderedStrategies, "orderedStrategies should be initialized");
-            Assert.IsTrue(orderedStrategies.Count > 0, "Should discover optimization strategies");
-
-            // Verify priority ordering (higher priority first)
-            for (int i = 0; i < orderedStrategies.Count - 1; i++)
-            {
-                Assert.IsTrue(orderedStrategies[i].attribute.Priority >= orderedStrategies[i + 1].attribute.Priority,
-                    $"Strategies should be ordered by priority (descending). " +
-                    $"Strategy '{orderedStrategies[i].method.Name}' (priority {orderedStrategies[i].attribute.Priority}) " +
-                    $"should have higher or equal priority than '{orderedStrategies[i + 1].method.Name}' " +
-                    $"(priority {orderedStrategies[i + 1].attribute.Priority})");
-            }
-        }
-
-        [TestMethod]
-        public void Test_StrategyAttributeDiscovery()
-        {
             // Test that the optimizer can discover strategies with StrategyAttribute
             var strategyMethods = GetStrategyMethods();
 
@@ -68,6 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.IsNotNull(method, $"Method should not be null");
             }
         }
+
 
         [TestMethod]
         public void Test_StrategyPriorityOrdering()
