@@ -310,8 +310,8 @@ internal partial class MethodConvert
             // check if the argument is a discard
             var argument = arguments[parameter.Ordinal];
             if (argument is not ArgumentSyntax syntax || syntax.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
-                throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported,
-                    $"In method {Symbol.Name}, unsupported out argument: {argument}");
+                throw CompilationException.UnsupportedSyntax(argument,
+                    $"In method '{Symbol.Name}', out parameter must be a discard '_'. Neo VM does not support out parameters. Use discard syntax: 'out _'");
             LdArgSlot(parameter);
         }
     }
@@ -330,7 +330,7 @@ internal partial class MethodConvert
                     ConvertExpression(model, ex);
                     return;
                 default:
-                    throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {argument}");
+                    throw CompilationException.UnsupportedSyntax(argument, $"Unsupported argument syntax '{argument.GetType().Name}'. Use regular expression arguments or omit for default values.");
             }
         }
         Push(parameter.ExplicitDefaultValue);
@@ -342,7 +342,7 @@ internal partial class MethodConvert
         {
             ArgumentSyntax argument => argument.Expression,
             ExpressionSyntax exp => exp,
-            _ => throw new CompilationException(node, DiagnosticId.SyntaxNotSupported, $"Unsupported argument: {node}"),
+            _ => throw CompilationException.UnsupportedSyntax(node, $"Unsupported argument node type '{node.GetType().Name}'. Expected ArgumentSyntax or ExpressionSyntax."),
         };
     }
     #endregion
