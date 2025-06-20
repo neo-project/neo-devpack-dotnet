@@ -151,39 +151,6 @@ namespace Neo.Compiler
         }
 
         /// <summary>
-        /// Creates an enhanced error message for unexpected compiler errors with context and hints.
-        /// </summary>
-        /// <param name="context">Contextual description of what the compiler was doing</param>
-        /// <param name="exception">The unexpected exception</param>
-        /// <returns>Enhanced error message with context and follow-up guidance</returns>
-        public static string BuildUnexpectedErrorMessage(string context, Exception exception)
-        {
-            var safeContext = string.IsNullOrWhiteSpace(context) ? "processing input" : context.Trim();
-            var message = $"Unexpected error while {safeContext}: {exception.GetType().Name}";
-
-            if (!string.IsNullOrWhiteSpace(exception.Message))
-            {
-                message += $": {exception.Message}";
-            }
-
-            var stackTrace = exception.StackTrace;
-            if (!string.IsNullOrWhiteSpace(stackTrace))
-            {
-                var firstFrame = stackTrace
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                    .FirstOrDefault();
-
-                if (!string.IsNullOrWhiteSpace(firstFrame))
-                {
-                    message += $" (top frame {firstFrame.Trim()})";
-                }
-            }
-
-            message += ". This typically indicates a compiler bug. Re-run with detailed logging and report the stack trace if it persists.";
-            return message;
-        }
-
-        /// <summary>
         /// Gets syntax-specific suggestions for unsupported features.
         /// </summary>
         private static string GetSyntaxSuggestions(SyntaxNodeOrToken syntax)

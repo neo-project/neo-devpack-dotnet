@@ -62,8 +62,6 @@ internal partial class MethodConvert
 
     private void RemoveLocalVariable(ILocalSymbol symbol)
     {
-        if (HasRefBinding(symbol))
-            RemoveRefBinding(symbol);
         if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
             _localVariables.Remove(symbol);
     }
@@ -95,12 +93,7 @@ internal partial class MethodConvert
             return AccessSlot(OpCode.LDSFLD, staticIndex);
         }
         // local parameter in current method
-        // Roslyn may hand us reduced symbols (e.g. through record synthesized members) that differ from
-        // the ones we stored when we registered the signature. Fall back to the original definition before
-        // giving up so record-generated accessors continue to function.
-        if (!_parameters.TryGetValue(parameter, out var index) &&
-            !_parameters.TryGetValue(parameter.OriginalDefinition, out index))
-            throw new KeyNotFoundException(parameter.ToDisplayString());
+        var index = _parameters[parameter];
         return AccessSlot(OpCode.LDARG, index);
     }
 
@@ -127,11 +120,7 @@ internal partial class MethodConvert
             return AccessSlot(OpCode.STSFLD, staticIndex);
         }
         // local parameter in current method
-        // Same rationale as above: prefer the current symbol, but allow the original definition as a
-        // fallback for record-generated methods where the parameter symbol instance differs.
-        if (!_parameters.TryGetValue(parameter, out var index) &&
-            !_parameters.TryGetValue(parameter.OriginalDefinition, out index))
-            throw new KeyNotFoundException(parameter.ToDisplayString());
+        var index = _parameters[parameter];
         return AccessSlot(OpCode.STARG, index);
     }
 
@@ -143,9 +132,6 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the load operation.</returns>
     private Instruction LdLocSlot(ILocalSymbol local)
     {
-        if (TryGetRefBinding(local, out RefBinding binding))
-            return LoadRefBinding(binding);
-
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
             //using created static fields
@@ -173,9 +159,6 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the store operation.</returns>
     private Instruction StLocSlot(ILocalSymbol local)
     {
-        if (TryGetRefBinding(local, out RefBinding binding))
-            return StoreRefBinding(binding);
-
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
             //using created static fields
@@ -218,7 +201,6 @@ internal partial class MethodConvert
     {
         // 1. Process named arguments
         var namedArguments = ProcessNamedArguments(model, arguments);
-        var argumentMap = MapArgumentsToParameters(model, symbol, arguments);
 
         // 2. Determine parameter order based on calling convention
         var parameters = DetermineParameterOrder(symbol, callingConvention);
@@ -226,16 +208,6 @@ internal partial class MethodConvert
         // 3. Process each parameter
         foreach (var parameter in parameters)
         {
-            if (IsByRef(parameter.RefKind))
-            {
-                if (!argumentMap.TryGetValue(parameter, out var argument))
-                    throw new CompilationException(DiagnosticId.SyntaxNotSupported,
-                        $"Missing argument for by-ref parameter '{parameter.Name}'.");
-
-                ProcessByRefArgument(model, symbol, parameter, argument);
-                continue;
-            }
-
             // a. Named Arguments
             // Example: MethodCall(paramName: value)
             if (TryProcessNamedArgument(model, namedArguments, parameter))
@@ -247,6 +219,13 @@ internal partial class MethodConvert
                 // Example: MethodCall(1, 2, 3, 4, 5)
                 // Where method signature is: void MethodCall(params int[] numbers)
                 ProcessParamsArgument(model, arguments, parameter);
+            }
+            else if (parameter.RefKind == RefKind.Out)
+            {
+                // c. Out Arguments
+                // Example: MethodCall(Out value)
+                // Where method signature is: void MethodCall(Out int value)
+                ProcessOutArgument(model, symbol, arguments, parameter);
             }
             else
             {
@@ -318,6 +297,23 @@ internal partial class MethodConvert
         }
         Push(arguments.Count - parameter.Ordinal);
         AddInstruction(OpCode.PACK);
+    }
+
+    private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    {
+        try
+        {
+            LdArgSlot(parameter);
+        }
+        catch
+        {
+            // check if the argument is a discard
+            var argument = arguments[parameter.Ordinal];
+            if (argument is not ArgumentSyntax syntax || syntax.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
+                throw CompilationException.UnsupportedSyntax(argument,
+                    $"In method '{Symbol.Name}', out parameter must be a discard '_'. Neo VM does not support out parameters. Use discard syntax: 'out _'");
+            LdArgSlot(parameter);
+        }
     }
 
     private void ProcessRegularArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
