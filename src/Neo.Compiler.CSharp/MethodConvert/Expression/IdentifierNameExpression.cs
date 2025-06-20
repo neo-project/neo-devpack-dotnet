@@ -91,7 +91,7 @@ internal partial class MethodConvert
                 Push(true);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Unsupported identifier '{expression.Identifier.ValueText}' of type '{symbol.GetType().Name}'. Use supported symbols: variables, parameters, properties, constants, or type names.");
         }
     }
 }

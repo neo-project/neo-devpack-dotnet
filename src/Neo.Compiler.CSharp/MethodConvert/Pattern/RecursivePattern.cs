@@ -40,7 +40,7 @@ internal partial class MethodConvert
                     }
                     else
                     {
-                        throw new CompilationException(subpattern, DiagnosticId.SyntaxNotSupported, $"Unsupported property or field: {subpattern.NameColon.Name}");
+                        throw CompilationException.UnsupportedSyntax(subpattern, $"Recursive pattern can only match properties, not '{propertySymbol.GetType().Name}'. Ensure '{subpattern.NameColon.Name.ToString()}' is a property with a getter.");
                     }
                     object? constantValue = model.GetConstantValue(constantPattern.Expression).Value;
                     Push(constantValue);
@@ -48,13 +48,13 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    throw new CompilationException(subpattern, DiagnosticId.SyntaxNotSupported, $"Unsupported subpattern: {subpattern}");
+                    throw CompilationException.UnsupportedSyntax(subpattern, $"Recursive patterns currently only support constant pattern matching. Found: {subpattern.Pattern?.GetType().Name ?? "null"}. Use syntax like '{{ PropertyName: constantValue }}'.");
                 }
             }
         }
         else
         {
-            throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
+            throw CompilationException.UnsupportedSyntax(pattern, "Recursive patterns must include a property pattern clause. Use syntax like 'Type { Property: value }' or '{ Property: value }'.");
         }
     }
 }

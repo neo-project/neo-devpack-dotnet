@@ -92,7 +92,7 @@ internal partial class MethodConvert
                 //  var t = (o1, o2);
                 //  if (t is (int, string)) { }
                 //}
-                throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
+                throw CompilationException.UnsupportedSyntax(pattern, $"Pattern type '{pattern.GetType().Name}' is not supported. Supported patterns are: binary (and/or), constant, declaration, discard (_), relational, type, unary (not), parenthesized, and recursive patterns.");
         }
     }
 }

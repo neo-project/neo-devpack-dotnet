@@ -64,9 +64,7 @@ namespace Neo.Compiler
                 }
                 if (breakTarget == null)
                     // break is not handled
-                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Cannot find what to break. " +
-                        $"If not syntax error, this is probably a compiler bug. " +
-                        $"Check whether the compiler is leaving out a push into {nameof(_generalStatementStack)}.");
+                    throw CompilationException.UnsupportedSyntax(syntax, "Break statement must be inside a loop (for, while, do-while, foreach) or switch statement. If this appears to be valid code, it may indicate a compiler bug.");
 
                 foreach (StatementContext sc in visitedTry)
                     // start from the most external try

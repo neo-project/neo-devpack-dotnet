@@ -82,9 +82,7 @@ namespace Neo.Compiler
                 }
                 if (gotoTarget == null)
                     // goto is not handled
-                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Cannot find what to continue. " +
-                        $"If not syntax error, this is probably a compiler bug. " +
-                        $"Check whether the compiler is leaving out a push into {nameof(_generalStatementStack)}.");
+                    throw CompilationException.UnsupportedSyntax(syntax, $"Cannot find the target label '{label.Name}' for goto statement. Ensure the label is defined within the same method and is reachable from this location.");
 
                 foreach (StatementContext sc in visitedTry)
                     // start from the most external try
@@ -143,9 +141,9 @@ namespace Neo.Compiler
                 }
                 if (gotoTarget == null)
                     // goto is not handled
-                    throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Cannot find what to goto. " +
-                        $"If not syntax error, this is probably a compiler bug. " +
-                        $"Check whether the compiler is leaving out a push into {nameof(_generalStatementStack)}.");
+                    throw CompilationException.UnsupportedSyntax(syntax, syntax.CaseOrDefaultKeyword.IsKind(SyntaxKind.DefaultKeyword)
+                        ? "Cannot find 'default' label in switch statement for 'goto default'."
+                        : $"Cannot find matching case label for 'goto case {syntax.Expression}' in switch statement.");
 
                 foreach (StatementContext sc in visitedTry)
                     // start from the most external try

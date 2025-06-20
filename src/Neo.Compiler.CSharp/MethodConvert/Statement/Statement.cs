@@ -49,7 +49,7 @@ namespace Neo.Compiler
             public JumpTarget AddEndTry(JumpTarget target)
             {
                 if (StatementSyntax is not TryStatementSyntax)
-                    throw new CompilationException(StatementSyntax, DiagnosticId.SyntaxNotSupported, $"Can only append ENDTRY for TryStatement. Got {typeof(StatementSyntax)} {StatementSyntax}. This is a compiler bug.");
+                    throw CompilationException.UnsupportedSyntax(StatementSyntax, $"Can only append ENDTRY for TryStatement. Got {StatementSyntax.GetType().Name}. This is a compiler bug.");
                 AdditionalEndTryTargetToInstruction ??= [];
                 if (AdditionalEndTryTargetToInstruction.TryGetValue(target, out JumpTarget? existingEndTry))
                     return existingEndTry;
@@ -180,7 +180,7 @@ namespace Neo.Compiler
                     ConvertWhileStatement(model, syntax);
                     break;
                 default:
-                    throw new CompilationException(statement, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {statement}");
+                    throw CompilationException.UnsupportedSyntax(statement, $"Unsupported statement type '{statement.GetType().Name}'. Use supported statements: if, while, for, try-catch, switch, return, or expression statements.");
             }
         }
     }

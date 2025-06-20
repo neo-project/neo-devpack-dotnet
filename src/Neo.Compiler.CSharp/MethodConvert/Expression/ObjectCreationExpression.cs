@@ -103,7 +103,7 @@ internal partial class MethodConvert
         foreach (ExpressionSyntax e in expression.Initializer.Expressions)
         {
             if (e is not AssignmentExpressionSyntax ae)
-                throw new CompilationException(expression.Initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {expression.Initializer}");
+                throw CompilationException.UnsupportedSyntax(expression.Initializer, $"Unsupported object initializer syntax. Use assignment expressions like '{{ Field = value, Property = value }}' for object initialization.");
             ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
             if (symbol is not IFieldSymbol field)
                 return false;
@@ -164,7 +164,7 @@ internal partial class MethodConvert
             else
             {
                 // Handle empty collection case if necessary
-                throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, "Cannot determine item type from an empty collection initializer.");
+                throw CompilationException.UnsupportedSyntax(initializer, "Cannot determine item type from empty collection initializer. Add at least one element or specify the type explicitly.");
             }
 
             AddInstruction(OpCode.DROP);
@@ -203,7 +203,7 @@ internal partial class MethodConvert
         foreach (ExpressionSyntax e in initializer.Expressions)
         {
             if (e is not AssignmentExpressionSyntax ae)
-                throw new CompilationException(initializer, DiagnosticId.SyntaxNotSupported, $"Unsupported initializer: {initializer}");
+                throw CompilationException.UnsupportedSyntax(initializer, $"Unsupported collection initializer syntax. Use assignment expressions like '{{ item1, item2 }}' for collections or '{{ key = value }}' for dictionaries.");
             ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
             switch (symbol)
             {
@@ -249,7 +249,7 @@ internal partial class MethodConvert
                     }
                     break;
                 default:
-                    throw new CompilationException(ae.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                    throw CompilationException.UnsupportedSyntax(ae.Left, $"Unsupported member '{symbol.Name}' in object initializer. Only fields and properties can be initialized.");
             }
         }
     }
@@ -257,7 +257,7 @@ internal partial class MethodConvert
     private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
     {
         if (expression.ArgumentList!.Arguments.Count != 1)
-            throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported delegate: {expression}");
+            throw CompilationException.UnsupportedSyntax(expression, $"Delegate constructor requires exactly one argument. Use 'new Action(MethodName)' or similar patterns.");
         IMethodSymbol symbol = (IMethodSymbol)model.GetSymbolInfo(expression.ArgumentList.Arguments[0].Expression).Symbol!;
         if (!symbol.IsStatic)
             throw new CompilationException(expression, DiagnosticId.NonStaticDelegate, $"Unsupported delegate: {symbol}");

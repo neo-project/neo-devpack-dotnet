@@ -167,7 +167,7 @@ internal partial class MethodConvert
                         StLocSlot(local);
                         break;
                     default:
-                        throw new CompilationException(sync, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {sync}");
+                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
                 }
             }
         });
@@ -201,7 +201,7 @@ internal partial class MethodConvert
                 ProcessOutIdentifier(model, parameter, identifierName);
                 break;
             default:
-                throw new CompilationException(argument, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {argument}");
+                throw CompilationException.UnsupportedSyntax(argument, $"Unsupported out parameter syntax '{argument.GetType().Name}'. Use 'out var variable' or 'out existingVariable'.");
         }
     }
 
@@ -234,7 +234,7 @@ internal partial class MethodConvert
                 StArgSlot(parameter);
                 break;
             default:
-                throw new CompilationException(identifierName, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {identifierName}");
+                throw CompilationException.UnsupportedSyntax(identifierName, $"Unsupported identifier '{identifierName.Identifier.ValueText}' in out parameter. Use a variable name or discard ('_').");
         }
     }
 
@@ -309,7 +309,7 @@ internal partial class MethodConvert
                         StLocSlot(local);
                         break;
                     default:
-                        throw new CompilationException(sync, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {sync}");
+                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
                 }
             }
         });
@@ -396,7 +396,7 @@ internal partial class MethodConvert
 
         int index = Array.IndexOf(virtualMethods, symbol);
         if (index < 0)
-            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {symbol.OriginalDefinition}.");
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Virtual method '{symbol.Name}' not found in type '{symbol.ContainingType.Name}'. Ensure the method is properly declared as virtual or override.");
 
         AddInstruction(OpCode.DUP);
         Push(fields.Length);

@@ -62,7 +62,7 @@ internal partial class MethodConvert
                 ConvertMemberAccessCoalesceAssignment(model, left, expression.Right);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported coalesce assignment: {expression}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Coalesce assignment (??=) can only be used with element access, identifiers, or member access expressions. Found: {expression.Left.GetType().Name}");
         }
     }
 
@@ -130,7 +130,7 @@ internal partial class MethodConvert
                 ConvertPropertyIdentifierNameCoalesceAssignment(model, property, right);
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Coalesce assignment (??=) cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -146,7 +146,7 @@ internal partial class MethodConvert
                 ConvertPropertyMemberAccessCoalesceAssignment(model, left, right, property);
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Coalesce assignment (??=) cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 

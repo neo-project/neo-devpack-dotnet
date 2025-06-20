@@ -50,7 +50,7 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {expression}");
+            throw CompilationException.UnsupportedSyntax(expression, $"Unsupported literal expression type. Use supported literals: numbers, strings, booleans, null, or default expressions.");
         }
     }
 
@@ -72,7 +72,7 @@ internal partial class MethodConvert
         var type = model.GetTypeInfo(expression).Type;
         if (type == null)
         {
-            throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, "Cannot determine type for default expression");
+            throw CompilationException.UnsupportedSyntax(expression, "Cannot determine type for default expression. Ensure the expression has a clear type context.");
         }
 
         switch (type.SpecialType)
@@ -117,7 +117,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported type for default expression: {type}");
+                    throw CompilationException.UnsupportedSyntax(expression, $"Unsupported type '{type}' for default expression. Use supported types: primitives, strings, or custom structs.");
                 }
                 break;
         }

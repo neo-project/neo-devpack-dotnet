@@ -13,8 +13,8 @@ namespace NFT
 {
     public partial class Loot
     {
-        private static readonly string[] _weapons =
-        [
+        private static readonly string[] _weapons = new string[]
+        {
             "Warhammer",
             "Quarterstaff",
             "Maul",
@@ -33,10 +33,10 @@ namespace NFT
             "Chronicle",
             "Tome",
             "Book"
-        ];
+        };
 
-        private static readonly string[] _chestArmor =
-        [
+        private static readonly string[] _chestArmor = new string[]
+        {
             "Divine Robe",
             "Silk Robe",
             "Linen Robe",
@@ -52,10 +52,10 @@ namespace NFT
             "Plate Mail",
             "Chain Mail",
             "Ring Mail"
-        ];
+        };
 
-        private static readonly string[] _headArmor =
-        [
+        private static readonly string[] _headArmor = new string[]
+        {
             "Ancient Helm",
             "Ornate Helm",
             "Great Helm",
@@ -71,10 +71,10 @@ namespace NFT
             "Silk Hood",
             "Linen Hood",
             "Hood"
-        ];
+        };
 
-        private static readonly string[] _waistArmor =
-        [
+        private static readonly string[] _waistArmor = new string[]
+        {
             "Ornate Belt",
             "War Belt",
             "Plated Belt",
@@ -90,10 +90,10 @@ namespace NFT
             "Wool Sash",
             "Linen Sash",
             "Sash"
-        ];
+        };
 
-        private static readonly string[] _footArmor =
-        [
+        private static readonly string[] _footArmor = new string[]
+        {
             "Holy Greaves",
             "Ornate Greaves",
             "Greaves",
@@ -109,10 +109,10 @@ namespace NFT
             "Wool Shoes",
             "Linen Shoes",
             "Shoes"
-        ];
+        };
 
-        private static readonly string[] _handArmor =
-        [
+        private static readonly string[] _handArmor = new string[]
+        {
             "Holy Gauntlets",
             "Ornate Gauntlets",
             "Gauntlets",
@@ -128,26 +128,26 @@ namespace NFT
             "Wool Gloves",
             "Linen Gloves",
             "Gloves"
-        ];
+        };
 
-        private static readonly string[] _necklaces =
-        [
+        private static readonly string[] _necklaces = new string[]
+        {
             "Necklace",
             "Amulet",
             "Pendant"
-        ];
+        };
 
-        private static readonly string[] _rings =
-        [
+        private static readonly string[] _rings = new string[]
+        {
             "Gold Ring",
             "Silver Ring",
             "Bronze Ring",
             "Platinum Ring",
             "Titanium Ring"
-        ];
+        };
 
-        private static readonly string[] _suffixes =
-        [
+        private static readonly string[] _suffixes = new string[]
+        {
             "of Power",
             "of Giants",
             "of Titans",
@@ -164,10 +164,10 @@ namespace NFT
             "of Detection",
             "of Reflection",
             "of the Twins"
-        ];
+        };
 
-        private static readonly string[] _namePrefixes =
-        [
+        private static readonly string[] _namePrefixes = new string[]
+        {
             "Agony", "Apocalypse", "Armageddon", "Beast", "Behemoth", "Blight", "Blood", "Bramble",
             "Brimstone", "Brood", "Carrion", "Cataclysm", "Chimeric", "Corpse", "Corruption", "Damnation",
             "Death", "Demon", "Dire", "Dragon", "Dread", "Doom", "Dusk", "Eagle", "Empyrean", "Fate", "Foe",
@@ -176,10 +176,10 @@ namespace NFT
             "Pandemonium", "Phoenix", "Plague", "Rage", "Rapture", "Rune", "Skull", "Sol", "Soul", "Sorrow",
             "Spirit", "Storm", "Tempest", "Torment", "Vengeance", "Victory", "Viper", "Vortex", "Woe", "Wrath",
             "Light's", "Shimmering"
-        ];
+        };
 
-        private static readonly string[] _nameSuffixes =
-        [
+        private static readonly string[] _nameSuffixes = new string[]
+        {
             "Bane",
             "Root",
             "Bite",
@@ -198,6 +198,6 @@ namespace NFT
             "Form",
             "Sun",
             "Moon"
-        ];
+        };
     }
 }

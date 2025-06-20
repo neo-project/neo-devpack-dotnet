@@ -87,7 +87,7 @@ internal partial class MethodConvert
                 CallInstanceMethod(model, symbol, true, arguments);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported expression: {expression}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Unsupported invocation expression '{expression.GetType().Name}'. Use supported patterns: method calls, property access, or delegate invocations.");
         }
     }
 

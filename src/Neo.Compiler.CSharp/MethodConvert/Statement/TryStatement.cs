@@ -114,7 +114,7 @@ namespace Neo.Compiler
             endTarget.Instruction = AddInstruction(OpCode.NOP);
             _tryStack.Pop();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in try-catch-finally handling. This is a compiler bug that should be reported.");
         }
     }
 }

@@ -98,7 +98,7 @@ internal partial class MethodConvert
                 ConvertRecordPropertyInitMethod(parameter);
                 break;
             default:
-                throw new CompilationException(SyntaxNode, DiagnosticId.SyntaxNotSupported, $"Unsupported method body:{SyntaxNode}");
+                throw CompilationException.UnsupportedSyntax(SyntaxNode, $"Method body type '{SyntaxNode.GetType().Name}' is not supported. Only standard method bodies, expression bodies, accessor bodies, arrow expressions, record constructors, and parameter property initializers are supported.");
         }
         // Set _initSlot to true for non-inline methods
         // This ensures that regular methods will have the INITSLOT instruction added
