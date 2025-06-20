@@ -119,9 +119,8 @@ namespace Neo.Optimizer
                 }
                 catch (Exception ex)
                 {
-                    // Log the error but continue with other optimizations
-                    // In a production environment, you might want to use a proper logging framework
-                    Console.WriteLine($"Warning: Optimization strategy '{method.Name}' failed: {ex.Message}");
+                    // Log warning but continue with other optimizations
+                    System.Diagnostics.Debug.WriteLine($"Warning: Optimization strategy '{method.Name}' failed: {ex.Message}");
                 }
             }
             return (nef, manifest, debugInfo);
