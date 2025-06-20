@@ -45,7 +45,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
         }
 
-
         [TestMethod]
         public void Test_StrategyPriorityOrdering()
         {
