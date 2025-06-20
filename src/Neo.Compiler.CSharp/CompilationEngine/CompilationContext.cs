@@ -565,7 +565,7 @@ namespace Neo.Compiler
                     && (MethodImplOptions)p.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
             {
                 if (export)
-                    throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: Can not set contract interface {symbol.Name} as inline.");
+                    throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Cannot set contract interface '{symbol.Name}' as inline. Remove [MethodImpl(MethodImplOptions.AggressiveInlining)] attribute from contract interface methods.");
                 return;
             }
 

@@ -59,7 +59,7 @@ internal partial class MethodConvert
                 AccessSlot(OpCode.STLOC, index);
                 break;
             default:
-                throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
+                throw CompilationException.UnsupportedSyntax(pattern, $"Declaration pattern designation type '{pattern.Designation.GetType().Name}' is not supported. Only single variable (e.g., 'string message') and discard (e.g., 'string _') designations are allowed.");
         }
     }
 }
