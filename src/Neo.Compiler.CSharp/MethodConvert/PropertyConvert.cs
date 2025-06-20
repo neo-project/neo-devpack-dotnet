@@ -59,7 +59,7 @@ internal partial class MethodConvert
                     AccessSlot(OpCode.STSFLD, backingFieldIndex);
                     break;
                 default:
-                    throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
+                    throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported property accessor '{Symbol.MethodKind}' for property '{Symbol.AssociatedSymbol?.Name}'. Only PropertyGet and PropertySet accessors are supported.");
             }
         }
         else
@@ -88,7 +88,7 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.SETITEM);
                     break;
                 default:
-                    throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported accessor: {Symbol}");
+                    throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported property accessor '{Symbol.MethodKind}' for property '{Symbol.AssociatedSymbol?.Name}'. Only PropertyGet and PropertySet accessors are supported.");
             }
         }
     }
@@ -113,7 +113,7 @@ internal partial class MethodConvert
             }
             else
             {
-                throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unknown StorageBacked constructor: {Symbol}");
+                throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Invalid StorageBacked attribute constructor for property '{Symbol.AssociatedSymbol?.Name}'. Use StorageBacked() with no parameters, or provide a byte or string key.");
             }
         }
         return key;

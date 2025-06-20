@@ -86,7 +86,7 @@ internal partial class MethodConvert
                 CallMethodWithInstanceExpression(model, property.GetMethod!, instanceExpression);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Unsupported member access '{symbol.Name}' of type '{symbol.GetType().Name}'. Use supported members: fields, properties, constants, or enum values.");
         }
     }
 
@@ -126,7 +126,7 @@ internal partial class MethodConvert
                 CallMethodWithConvention(model, property.GetMethod!);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Unsupported member access '{symbol.Name}' of type '{symbol.GetType().Name}'. Use supported members: fields, properties, constants, or enum values.");
         }
     }
 }
