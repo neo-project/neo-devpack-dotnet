@@ -6,12 +6,6 @@ namespace Example.SmartContract.NEP17.UnitTests
     [TestClass]
     public class NEP17Tests : TestBase<SampleNep17Token>
     {
-        [TestInitialize]
-        public void TestSetup()
-        {
-            var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-            TestBaseSetup(nef, manifest);
-        }
 
         [TestMethod]
         public void Test()
