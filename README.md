@@ -287,6 +287,17 @@ public void TestGasConsumption()
 4. Implement the TestSetup method to compile and initialize the contract
 5. Write test methods for each contract feature or scenario
 
+## Security
+
+Security is paramount when developing smart contracts. We provide comprehensive security guidance:
+
+- **[Security Best Practices Guide](docs/security/security-best-practices.md)** - Essential security principles and patterns
+- **[Common Vulnerabilities](docs/security/common-vulnerabilities.md)** - Known attack vectors and prevention strategies
+- **[Deployment Security Checklist](docs/security/deployment-checklist.md)** - Pre-deployment security verification
+- **[Gas Optimization Security](docs/security/gas-security.md)** - Security considerations for gas-efficient code
+
+Always review these security guidelines before deploying contracts to mainnet.
+
 ## Examples
 
 The repository includes various example contracts that demonstrate different features and capabilities in the `examples` directory:
