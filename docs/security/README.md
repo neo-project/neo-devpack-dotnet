@@ -12,6 +12,7 @@ This directory contains comprehensive security documentation for developing secu
 
 ### Advanced Security Topics
 - **[Storage Security](storage-security.md)** - Secure data storage, encryption, and access control patterns
+- **[Runtime and Randomness Security](runtime-and-randomness.md)** - Neo-specific runtime security and secure random number generation
 - **[Gas Optimization Security](gas-security.md)** - Security considerations for gas-efficient code and DoS prevention
 - **[Security Testing Guide](security-testing.md)** - Comprehensive testing frameworks and vulnerability assessment
 
