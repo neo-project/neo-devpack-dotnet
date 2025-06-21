@@ -1,141 +1,55 @@
-# Neo Smart Contract Security Best Practices
+# Neo Smart Contract Security Implementation Guide
 
-This guide outlines essential security practices for developing secure smart contracts on the Neo N3 blockchain using C# and the Neo DevPack.
+Practical implementation patterns for the core security principles outlined in the [Security Overview](security-overview.md).
 
 ## Table of Contents
 
-- [Core Security Principles](#core-security-principles)
-- [Input Validation](#input-validation)
-- [Access Control](#access-control)
-- [State Management](#state-management)
-- [External Interactions](#external-interactions)
-- [Error Handling](#error-handling)
-- [Gas Considerations](#gas-considerations)
-- [Testing and Auditing](#testing-and-auditing)
+- [Input Validation Patterns](#input-validation-patterns)
+- [Secure State Management](#secure-state-management)
+- [External Interaction Safety](#external-interaction-safety)
+- [Error Handling Strategies](#error-handling-strategies)
+- [Security Implementation Examples](#security-implementation-examples)
 
-## Core Security Principles
+## Input Validation Patterns
 
-### 1. Defense in Depth
-
-Implement multiple layers of security controls rather than relying on a single mechanism.
+### Comprehensive Input Validation Framework
 
 ```csharp
-public class SecureContract : SmartContract
+public static class InputValidator
 {
-    // Multiple validation layers
-    public static bool TransferTokens(UInt160 from, UInt160 to, BigInteger amount)
+    public static void ValidateAddress(UInt160 address, string paramName = "address")
     {
-        // Layer 1: Parameter validation
-        Assert(from != null && to != null, "Invalid addresses");
-        Assert(amount > 0, "Amount must be positive");
-        
-        // Layer 2: Authorization check
-        Assert(Runtime.CheckWitness(from), "Unauthorized transfer");
-        
-        // Layer 3: Business logic validation
-        Assert(GetBalance(from) >= amount, "Insufficient balance");
-        
-        // Layer 4: State consistency check
-        return ExecuteTransfer(from, to, amount);
+        Assert(address != null && address.IsValid, $"Invalid {paramName}");
+    }
+    
+    public static void ValidateAmount(BigInteger amount, BigInteger max = 0, string paramName = "amount")
+    {
+        Assert(amount > 0, $"{paramName} must be positive");
+        if (max > 0) Assert(amount <= max, $"{paramName} exceeds maximum");
+    }
+    
+    public static void ValidateString(string input, int maxLength = 1024, bool allowEmpty = false)
+    {
+        if (!allowEmpty) Assert(!string.IsNullOrEmpty(input), "Input cannot be empty");
+        if (input != null) Assert(input.Length <= maxLength, "Input too long");
+    }
+    
+    public static void ValidateArray<T>(T[] array, int maxLength = 100)
+    {
+        Assert(array != null && array.Length > 0, "Array required");
+        Assert(array.Length <= maxLength, "Array too large");
     }
 }
-```
 
-### 2. Fail-Safe Defaults
-
-Design systems to fail securely when unexpected conditions occur.
-
-```csharp
-public static bool WithdrawFunds(UInt160 user, BigInteger amount)
+// Usage example
+public static bool ProcessUserData(UInt160 user, string data, BigInteger amount)
 {
-    // Fail-safe: Default to rejection
-    if (!IsValidUser(user) || amount <= 0)
-        return false;
-    
-    // Explicit checks before proceeding
-    if (GetBalance(user) < amount)
-        return false;
-        
-    return ProcessWithdrawal(user, amount);
-}
-```
-
-### 3. Principle of Least Privilege
-
-Grant only the minimum permissions necessary for functionality.
-
-```csharp
-[DisplayName("SecureVault")]
-public class SecureVault : SmartContract
-{
-    // Separate roles with minimal required permissions
-    private const byte ADMIN_ROLE = 1;
-    private const byte OPERATOR_ROLE = 2;
-    private const byte USER_ROLE = 3;
-    
-    [Safe]
-    public static bool CanPerformAction(UInt160 user, byte requiredRole)
-    {
-        byte userRole = GetUserRole(user);
-        return userRole <= requiredRole; // Lower numbers = higher privileges
-    }
-}
-```
-
-## Input Validation
-
-### Always Validate External Inputs
-
-Never trust external data without thorough validation.
-
-```csharp
-public static bool SetUserData(UInt160 user, string data)
-{
-    // Null and empty checks
-    Assert(user != null && user.IsValid, "Invalid user address");
-    Assert(!string.IsNullOrEmpty(data), "Data cannot be empty");
-    
-    // Length validation
-    Assert(data.Length <= 1024, "Data too long");
-    
-    // Content validation
-    Assert(IsValidDataFormat(data), "Invalid data format");
-    
-    // Authorization
+    InputValidator.ValidateAddress(user, "user");
+    InputValidator.ValidateString(data, 512);
+    InputValidator.ValidateAmount(amount, MAX_TOKEN_AMOUNT);
     Assert(Runtime.CheckWitness(user), "Unauthorized");
     
-    Storage.Put(Storage.CurrentContext, user, data);
-    return true;
-}
-
-private static bool IsValidDataFormat(string data)
-{
-    // Implement specific validation logic
-    return data.All(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c));
-}
-```
-
-### Numeric Input Validation
-
-Prevent integer overflow/underflow and validate ranges.
-
-```csharp
-public static bool SafeAdd(BigInteger a, BigInteger b)
-{
-    // Check for overflow before operation
-    if (a > 0 && b > BigInteger.Parse("115792089237316195423570985008687907853269984665640564039457584007913129639935") - a)
-        throw new Exception("Integer overflow");
-    
-    if (a < 0 && b < BigInteger.Parse("-115792089237316195423570985008687907853269984665640564039457584007913129639935") - a)
-        throw new Exception("Integer underflow");
-        
-    return a + b;
-}
-
-public static bool ValidateAmount(BigInteger amount)
-{
-    const BigInteger MAX_SUPPLY = 100_000_000_00000000; // Example: 100M tokens with 8 decimals
-    return amount > 0 && amount <= MAX_SUPPLY;
+    return ProcessData(user, data, amount);
 }
 ```
 

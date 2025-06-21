@@ -17,13 +17,9 @@ Arithmetic operations in smart contracts require special attention to prevent in
 
 ## Arithmetic Security Fundamentals
 
-### Common Arithmetic Vulnerabilities
+This guide focuses on implementing safe arithmetic operations in Neo smart contracts using practical patterns and comprehensive validation techniques.
 
-1. **Integer Overflow** - Result exceeds maximum value
-2. **Integer Underflow** - Result goes below minimum value (for unsigned types)
-3. **Division by Zero** - Dividing by zero causes exceptions
-4. **Precision Loss** - Rounding errors in financial calculations
-5. **Wrap-Around Attacks** - Exploiting overflow/underflow behavior
+> **Foundation**: Review [Common Vulnerabilities](common-vulnerabilities.md#integer-overflowunderflow) for basic overflow concepts before implementing these patterns.
 
 ### Neo N3 BigInteger Characteristics
 

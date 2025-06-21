@@ -16,14 +16,9 @@ Access control is fundamental to smart contract security. This guide provides co
 
 ## Overview
 
-Access control in Neo smart contracts revolves around the `Runtime.CheckWitness()` function, which verifies cryptographic signatures. Proper access control ensures that only authorized entities can perform privileged operations.
+This guide provides comprehensive access control implementation patterns for Neo smart contracts, focusing on practical code examples and advanced authorization mechanisms.
 
-### Core Principles
-
-1. **Principle of Least Privilege** - Grant minimum necessary permissions
-2. **Defense in Depth** - Multiple layers of authorization checks
-3. **Fail-Safe Defaults** - Deny access by default
-4. **Separation of Duties** - Distribute critical permissions across multiple entities
+> **Foundation**: Review [Security Overview](security-overview.md) for core security principles before implementing these patterns.
 
 ## Basic Access Control Patterns
 

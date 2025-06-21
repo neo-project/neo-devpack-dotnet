@@ -1,6 +1,8 @@
 # Storage Security for Neo Smart Contracts
 
-Storage security is critical in smart contract development. This guide provides comprehensive patterns and best practices for secure data storage and retrieval in Neo N3 smart contracts.
+Comprehensive guide for implementing secure data storage patterns in Neo N3 smart contracts with advanced key management, encryption, and access control.
+
+> **Foundation**: Review [Common Vulnerabilities](common-vulnerabilities.md#storage-manipulation) for basic storage security concepts.
 
 ## Table of Contents
 
@@ -57,13 +59,9 @@ public class SecureStorageContract : SmartContract
 }
 ```
 
-### Storage Security Principles
+### Advanced Storage Patterns
 
-1. **Data Isolation** - Separate different types of data using prefixes
-2. **Access Control** - Restrict storage operations based on permissions
-3. **Data Integrity** - Protect against unauthorized modifications
-4. **Privacy Protection** - Encrypt sensitive data when necessary
-5. **Audit Trail** - Maintain logs of storage operations
+This guide focuses on production-ready storage security implementations including encryption, data isolation, integrity protection, and comprehensive audit systems.
 
 ## Key Management Patterns
 

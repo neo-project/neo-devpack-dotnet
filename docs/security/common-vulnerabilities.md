@@ -15,604 +15,146 @@ This document outlines the most common security vulnerabilities found in Neo sma
 
 ## Reentrancy Attacks
 
-Reentrancy occurs when an external contract calls back into your contract before the first function call is finished, potentially leading to unexpected behavior.
+Reentrancy occurs when external contracts call back into your contract before state updates complete.
 
-### ❌ Vulnerable Code
-
-```csharp
-public class VulnerableContract : SmartContract
-{
-    public static bool Withdraw(UInt160 user, BigInteger amount)
-    {
-        BigInteger balance = GetBalance(user);
-        
-        // Vulnerable: External call before state update
-        if (NotifyExternalContract(user, amount))
-        {
-            // State change happens after external call
-            SetBalance(user, balance - amount);
-            return true;
-        }
-        return false;
-    }
-    
-    private static bool NotifyExternalContract(UInt160 user, BigInteger amount)
-    {
-        // This could call back into Withdraw() before state is updated
-        return Contract.Call(user, "onWithdraw", CallFlags.All, amount) != null;
-    }
-}
-```
-
-### ✅ Secure Code
-
-```csharp
-public class SecureContract : SmartContract
-{
-    private static readonly ByteString LOCK_KEY = "withdrawal_lock";
-    
-    public static bool Withdraw(UInt160 user, BigInteger amount)
-    {
-        // Reentrancy guard
-        Assert(!IsLocked(), "Withdrawal in progress");
-        SetLock(true);
-        
-        try
-        {
-            BigInteger balance = GetBalance(user);
-            Assert(balance >= amount, "Insufficient balance");
-            
-            // Update state FIRST
-            SetBalance(user, balance - amount);
-            
-            // External calls AFTER state changes
-            NotifyExternalContract(user, amount);
-            
-            return true;
-        }
-        finally
-        {
-            SetLock(false);
-        }
-    }
-    
-    private static bool IsLocked()
-    {
-        return Storage.Get(Storage.CurrentContext, LOCK_KEY) != null;
-    }
-    
-    private static void SetLock(bool locked)
-    {
-        if (locked)
-            Storage.Put(Storage.CurrentContext, LOCK_KEY, 1);
-        else
-            Storage.Delete(Storage.CurrentContext, LOCK_KEY);
-    }
-}
-```
+### Key Vulnerability
+- External calls before state changes
+- Recursive function calls
+- State inconsistency
 
 ### Prevention Strategies
-
-1. **Checks-Effects-Interactions Pattern**: Always update state before external calls
+1. **Checks-Effects-Interactions Pattern**: Update state before external calls
 2. **Reentrancy Guards**: Use locks to prevent recursive calls
-3. **Pull Over Push**: Let users withdraw funds rather than automatically sending them
+3. **Pull Over Push**: Let users withdraw rather than automatically sending
+
+> **Implementation**: See [Security Best Practices](security-best-practices.md#reentrancy-protection) for complete code examples.
 
 ## Integer Overflow/Underflow
 
-Neo smart contracts use `BigInteger` which can handle large numbers, but you still need to validate ranges and prevent unexpected arithmetic operations.
+While Neo uses `BigInteger`, you must still validate ranges and prevent unexpected arithmetic operations.
 
-### ❌ Vulnerable Code
+### Key Vulnerabilities
+- Unchecked arithmetic operations
+- Missing range validation
+- Business logic bypass through overflow
 
-```csharp
-public class VulnerableArithmetic : SmartContract
-{
-    public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
-    {
-        BigInteger fromBalance = GetBalance(from);
-        BigInteger toBalance = GetBalance(to);
-        
-        // Vulnerable: No overflow check for addition
-        SetBalance(from, fromBalance - amount);
-        SetBalance(to, toBalance + amount); // Could overflow
-        
-        return true;
-    }
-    
-    public static bool CalculateReward(BigInteger baseAmount, BigInteger multiplier)
-    {
-        // Vulnerable: No check for extremely large results
-        return baseAmount * multiplier;
-    }
-}
-```
+### Prevention Strategies
+1. **Range Validation**: Set maximum values for business logic
+2. **Safe Arithmetic**: Check for overflow before operations
+3. **Input Validation**: Validate all numeric inputs
 
-### ✅ Secure Code
-
-```csharp
-public class SecureArithmetic : SmartContract
-{
-    private static readonly BigInteger MAX_SUPPLY = BigInteger.Parse("100000000000000000000000000"); // Example max
-    
-    public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
-    {
-        Assert(amount > 0 && amount <= MAX_SUPPLY, "Invalid amount");
-        
-        BigInteger fromBalance = GetBalance(from);
-        BigInteger toBalance = GetBalance(to);
-        
-        Assert(fromBalance >= amount, "Insufficient balance");
-        
-        // Check for overflow before addition
-        Assert(toBalance <= MAX_SUPPLY - amount, "Balance overflow");
-        
-        SetBalance(from, fromBalance - amount);
-        SetBalance(to, toBalance + amount);
-        
-        return true;
-    }
-    
-    public static BigInteger SafeAdd(BigInteger a, BigInteger b)
-    {
-        Assert(a >= 0 && b >= 0, "Negative values not allowed");
-        Assert(a <= MAX_SUPPLY - b, "Addition overflow");
-        return a + b;
-    }
-    
-    public static BigInteger SafeMultiply(BigInteger a, BigInteger b)
-    {
-        if (a == 0 || b == 0) return 0;
-        
-        Assert(a <= MAX_SUPPLY / b, "Multiplication overflow");
-        return a * b;
-    }
-}
-```
+> **Implementation**: See [Safe Arithmetic Operations](safe-arithmetic.md) for comprehensive safe math patterns.
 
 ## Access Control Bypass
 
-Improper access control implementation can allow unauthorized users to perform privileged operations.
+Improper access control allows unauthorized users to perform privileged operations.
 
-### ❌ Vulnerable Code
+### Key Vulnerabilities
+- Using `Runtime.ScriptContainer.Sender` instead of `Runtime.CheckWitness()`
+- Missing role validation
+- Insufficient multi-signature verification
+- Weak permission hierarchies
 
-```csharp
-public class VulnerableAccess : SmartContract
-{
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
-    
-    public static bool AdminFunction()
-    {
-        // Vulnerable: Only checks transaction sender, not witness
-        if (Runtime.ScriptContainer.Sender == OWNER)
-        {
-            return PerformAdminAction();
-        }
-        return false;
-    }
-    
-    public static bool ModeratorFunction(UInt160 user)
-    {
-        // Vulnerable: No role verification
-        if (user != null)
-        {
-            return PerformModeratorAction();
-        }
-        return false;
-    }
-}
-```
+### Prevention Strategies
+1. **Always use `Runtime.CheckWitness()`** for cryptographic verification
+2. **Implement proper role-based access control**
+3. **Use multi-signature for critical operations**
+4. **Validate all authorization parameters**
 
-### ✅ Secure Code
-
-```csharp
-public class SecureAccess : SmartContract
-{
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
-    
-    public static bool AdminFunction()
-    {
-        // Secure: Check witness (cryptographic proof)
-        Assert(Runtime.CheckWitness(OWNER), "Unauthorized: Owner only");
-        return PerformAdminAction();
-    }
-    
-    public static bool ModeratorFunction(UInt160 user)
-    {
-        // Secure: Verify both role and witness
-        Assert(user != null && user.IsValid, "Invalid user");
-        Assert(Runtime.CheckWitness(user), "Unauthorized: Invalid signature");
-        Assert(HasRole(user, "moderator"), "Unauthorized: Moderator role required");
-        
-        return PerformModeratorAction();
-    }
-    
-    private static bool HasRole(UInt160 user, string role)
-    {
-        StorageMap roles = new(Storage.CurrentContext, "roles");
-        return roles.Get(user + role) != null;
-    }
-    
-    // Multi-signature support for critical operations
-    public static bool CriticalAdminFunction(UInt160[] signers)
-    {
-        const int REQUIRED_SIGS = 3;
-        Assert(signers.Length >= REQUIRED_SIGS, $"Minimum {REQUIRED_SIGS} signatures required");
-        
-        foreach (var signer in signers)
-        {
-            Assert(IsAuthorizedAdmin(signer), "Unauthorized signer");
-            Assert(Runtime.CheckWitness(signer), "Invalid signature");
-        }
-        
-        return PerformCriticalAction();
-    }
-}
-```
+> **Implementation**: See [Access Control Patterns](access-control-patterns.md) for comprehensive RBAC and multi-sig implementations.
 
 ## Unchecked External Calls
 
-External contract calls can fail or behave unexpectedly, and your contract should handle these scenarios gracefully.
+External contract calls can fail or behave unexpectedly without proper error handling.
 
-### ❌ Vulnerable Code
+### Key Vulnerabilities
+- Assuming external calls always succeed
+- Not validating call results
+- Missing exception handling
+- Continuing execution after failures
 
-```csharp
-public class VulnerableExternalCalls : SmartContract
-{
-    public static bool ProcessPayment(UInt160 token, UInt160 recipient, BigInteger amount)
-    {
-        // Vulnerable: Assumes external call always succeeds
-        Contract.Call(token, "transfer", CallFlags.All, Runtime.ExecutingScriptHash, recipient, amount);
-        
-        // Continues execution assuming transfer succeeded
-        UpdatePaymentRecord(recipient, amount);
-        return true;
-    }
-    
-    public static bool BatchTransfer(UInt160[] recipients, BigInteger[] amounts)
-    {
-        for (int i = 0; i < recipients.Length; i++)
-        {
-            // Vulnerable: One failure doesn't stop execution
-            Contract.Call(TokenContract, "transfer", CallFlags.All, recipients[i], amounts[i]);
-        }
-        return true; // Always returns true regardless of failures
-    }
-}
-```
+### Prevention Strategies
+1. **Always check return values** from external calls
+2. **Implement proper exception handling**
+3. **Use contract whitelisting** for trusted interactions
+4. **Validate all inputs** before external calls
 
-### ✅ Secure Code
-
-```csharp
-public class SecureExternalCalls : SmartContract
-{
-    public static bool ProcessPayment(UInt160 token, UInt160 recipient, BigInteger amount)
-    {
-        // Validate inputs
-        Assert(token != null && recipient != null, "Invalid addresses");
-        Assert(amount > 0, "Invalid amount");
-        Assert(IsWhitelistedToken(token), "Token not whitelisted");
-        
-        try
-        {
-            // Check result of external call
-            var result = Contract.Call(token, "transfer", CallFlags.All, 
-                Runtime.ExecutingScriptHash, recipient, amount);
-            
-            bool success = result != null && (bool)result;
-            
-            if (success)
-            {
-                UpdatePaymentRecord(recipient, amount);
-                OnPaymentProcessed(recipient, amount);
-                return true;
-            }
-            else
-            {
-                OnPaymentFailed(recipient, amount, "Transfer failed");
-                return false;
-            }
-        }
-        catch (Exception ex)
-        {
-            OnPaymentFailed(recipient, amount, "External call exception");
-            return false;
-        }
-    }
-    
-    public static bool BatchTransfer(UInt160[] recipients, BigInteger[] amounts)
-    {
-        Assert(recipients.Length == amounts.Length, "Array length mismatch");
-        Assert(recipients.Length <= 50, "Batch too large"); // Prevent gas issues
-        
-        bool[] results = new bool[recipients.Length];
-        int successCount = 0;
-        
-        for (int i = 0; i < recipients.Length; i++)
-        {
-            try
-            {
-                var result = Contract.Call(TokenContract, "transfer", CallFlags.All, 
-                    recipients[i], amounts[i]);
-                results[i] = result != null && (bool)result;
-                if (results[i]) successCount++;
-            }
-            catch
-            {
-                results[i] = false;
-            }
-        }
-        
-        // Emit detailed results
-        OnBatchTransferCompleted(successCount, recipients.Length, results);
-        
-        // Return true only if all transfers succeeded
-        return successCount == recipients.Length;
-    }
-    
-    private static bool IsWhitelistedToken(UInt160 token)
-    {
-        StorageMap whitelist = new(Storage.CurrentContext, "token_whitelist");
-        return whitelist.Get(token) != null;
-    }
-    
-    [DisplayName("PaymentProcessed")]
-    public static event Action<UInt160, BigInteger> OnPaymentProcessed;
-    
-    [DisplayName("PaymentFailed")]
-    public static event Action<UInt160, BigInteger, string> OnPaymentFailed;
-    
-    [DisplayName("BatchTransferCompleted")]
-    public static event Action<int, int, bool[]> OnBatchTransferCompleted;
-}
-```
+> **Implementation**: See [Security Best Practices](security-best-practices.md#safe-contract-calls) for complete external call patterns.
 
 ## Storage Manipulation
 
-Improper storage handling can lead to data corruption or unauthorized access to sensitive information.
+Improper storage handling can lead to data corruption or unauthorized access.
 
-### ❌ Vulnerable Code
+### Key Vulnerabilities
+- Direct key usage enabling collision attacks
+- Missing access control on sensitive data
+- Bulk operations without proper validation
+- Lack of data isolation and namespacing
 
-```csharp
-public class VulnerableStorage : SmartContract
-{
-    public static bool SetUserData(UInt160 user, string key, ByteString data)
-    {
-        // Vulnerable: Direct key usage allows collision attacks
-        Storage.Put(Storage.CurrentContext, key, data);
-        return true;
-    }
-    
-    public static ByteString GetSensitiveData(string identifier)
-    {
-        // Vulnerable: No access control on sensitive data
-        return Storage.Get(Storage.CurrentContext, "sensitive_" + identifier);
-    }
-    
-    public static bool DeleteUserAccount(UInt160 user)
-    {
-        // Vulnerable: Bulk deletion without proper checks
-        Storage.Delete(Storage.CurrentContext, user);
-        return true;
-    }
-}
-```
+### Prevention Strategies
+1. **Use namespaced storage keys** to prevent collisions
+2. **Implement access control** for sensitive data
+3. **Validate all storage operations** with proper authorization
+4. **Use storage contexts** for data isolation
 
-### ✅ Secure Code
-
-```csharp
-public class SecureStorage : SmartContract
-{
-    private static readonly byte[] NAMESPACE_USER = new byte[] { 0x01 };
-    private static readonly byte[] NAMESPACE_ADMIN = new byte[] { 0x02 };
-    private static readonly byte[] NAMESPACE_SENSITIVE = new byte[] { 0x03 };
-    
-    public static bool SetUserData(UInt160 user, string key, ByteString data)
-    {
-        Assert(Runtime.CheckWitness(user), "Unauthorized");
-        Assert(!string.IsNullOrEmpty(key) && key.Length <= 64, "Invalid key");
-        Assert(data.Length <= 1024, "Data too large");
-        
-        // Secure: Use namespaced keys to prevent collisions
-        ByteString storageKey = CreateUserKey(user, key);
-        Storage.Put(Storage.CurrentContext, storageKey, data);
-        
-        OnUserDataUpdated(user, key);
-        return true;
-    }
-    
-    public static ByteString GetSensitiveData(UInt160 requester, string identifier)
-    {
-        // Secure: Access control for sensitive data
-        Assert(HasAdminAccess(requester), "Unauthorized: Admin access required");
-        Assert(Runtime.CheckWitness(requester), "Invalid signature");
-        
-        ByteString key = CreateSensitiveKey(identifier);
-        ByteString data = Storage.Get(Storage.CurrentContext, key);
-        
-        OnSensitiveDataAccessed(requester, identifier);
-        return data;
-    }
-    
-    public static bool DeleteUserAccount(UInt160 user, UInt160 admin)
-    {
-        Assert(Runtime.CheckWitness(admin), "Admin signature required");
-        Assert(HasAdminAccess(admin), "Unauthorized: Admin access required");
-        Assert(Runtime.CheckWitness(user), "User consent required");
-        
-        // Secure: Selective deletion with audit trail
-        string[] userKeys = GetUserKeys(user);
-        foreach (string key in userKeys)
-        {
-            ByteString storageKey = CreateUserKey(user, key);
-            Storage.Delete(Storage.CurrentContext, storageKey);
-        }
-        
-        OnUserAccountDeleted(user, admin);
-        return true;
-    }
-    
-    private static ByteString CreateUserKey(UInt160 user, string key)
-    {
-        return NAMESPACE_USER.Concat(user).Concat(Encoding.UTF8.GetBytes(key));
-    }
-    
-    private static ByteString CreateSensitiveKey(string identifier)
-    {
-        ByteString hash = CryptoLib.Sha256(Encoding.UTF8.GetBytes(identifier));
-        return NAMESPACE_SENSITIVE.Concat(hash);
-    }
-    
-    private static bool HasAdminAccess(UInt160 user)
-    {
-        StorageMap admins = new(Storage.CurrentContext, "admins");
-        return admins.Get(user) != null;
-    }
-    
-    [DisplayName("UserDataUpdated")]
-    public static event Action<UInt160, string> OnUserDataUpdated;
-    
-    [DisplayName("SensitiveDataAccessed")]
-    public static event Action<UInt160, string> OnSensitiveDataAccessed;
-    
-    [DisplayName("UserAccountDeleted")]
-    public static event Action<UInt160, UInt160> OnUserAccountDeleted;
-}
-```
+> **Implementation**: See [Storage Security](storage-security.md) for comprehensive secure storage patterns.
 
 ## Gas Limit Issues
 
-Poorly designed contracts can consume excessive gas or hit gas limits, causing transactions to fail.
+Poorly designed contracts can consume excessive gas or hit limits, causing DoS.
 
-### ❌ Vulnerable Code
+### Key Vulnerabilities
+- Unbounded loops and iterations
+- Unlimited array/storage operations
+- Complex operations without batching
+- Missing gas consumption limits
 
-```csharp
-public class GasVulnerable : SmartContract
-{
-    public static bool ProcessLargeArray(UInt160[] users)
-    {
-        // Vulnerable: No limit on array size
-        for (int i = 0; i < users.Length; i++)
-        {
-            // Complex operation for each user
-            ProcessComplexUserOperation(users[i]);
-        }
-        return true;
-    }
-    
-    public static string[] GetAllUsers()
-    {
-        // Vulnerable: Could return massive arrays
-        List<string> allUsers = new List<string>();
-        
-        // Iterating through potentially unlimited storage
-        var iterator = Storage.Find(Storage.CurrentContext, "user_", FindOptions.None);
-        while (iterator.Next())
-        {
-            allUsers.Add(iterator.Value);
-        }
-        
-        return allUsers.ToArray();
-    }
-}
-```
+### Prevention Strategies
+1. **Implement batching** for large operations
+2. **Set maximum limits** on array sizes and iterations
+3. **Use pagination** for data retrieval
+4. **Optimize algorithm complexity**
 
-### ✅ Secure Code
+> **Implementation**: See [Gas Security](gas-security.md) for detailed gas optimization and DoS prevention patterns.
 
-```csharp
-public class GasEfficient : SmartContract
-{
-    private const int MAX_BATCH_SIZE = 50;
-    private const int MAX_RESULTS = 100;
-    
-    public static bool ProcessBatchedArray(UInt160[] users, int batchIndex)
-    {
-        Assert(users.Length <= MAX_BATCH_SIZE, $"Batch size cannot exceed {MAX_BATCH_SIZE}");
-        Assert(batchIndex >= 0, "Invalid batch index");
-        
-        for (int i = 0; i < users.Length; i++)
-        {
-            if (!ProcessSingleUserEfficiently(users[i]))
-            {
-                OnUserProcessingFailed(users[i], batchIndex, i);
-                return false;
-            }
-        }
-        
-        OnBatchProcessed(batchIndex, users.Length);
-        return true;
-    }
-    
-    public static string[] GetUsersPaginated(int offset, int limit)
-    {
-        Assert(offset >= 0, "Invalid offset");
-        Assert(limit > 0 && limit <= MAX_RESULTS, $"Limit must be 1-{MAX_RESULTS}");
-        
-        List<string> users = new List<string>();
-        int currentIndex = 0;
-        int collected = 0;
-        
-        var iterator = Storage.Find(Storage.CurrentContext, "user_", FindOptions.None);
-        while (iterator.Next() && collected < limit)
-        {
-            if (currentIndex >= offset)
-            {
-                users.Add(iterator.Value);
-                collected++;
-            }
-            currentIndex++;
-        }
-        
-        return users.ToArray();
-    }
-    
-    // Gas-efficient single operations
-    private static bool ProcessSingleUserEfficiently(UInt160 user)
-    {
-        // Simplified, gas-efficient processing
-        ByteString userData = Storage.Get(Storage.CurrentContext, "user_" + user);
-        if (userData != null)
-        {
-            // Minimal processing to save gas
-            UpdateUserTimestamp(user);
-            return true;
-        }
-        return false;
-    }
-    
-    private static void UpdateUserTimestamp(UInt160 user)
-    {
-        // Efficient timestamp update
-        Storage.Put(Storage.CurrentContext, "timestamp_" + user, Runtime.Time);
-    }
-    
-    [DisplayName("BatchProcessed")]
-    public static event Action<int, int> OnBatchProcessed;
-    
-    [DisplayName("UserProcessingFailed")]
-    public static event Action<UInt160, int, int> OnUserProcessingFailed;
-}
-```
+## Timestamp Dependencies
 
-## Prevention Best Practices
+Using block timestamps for critical logic can introduce vulnerabilities due to miner manipulation.
 
-### General Security Checklist
+### Key Vulnerabilities
+- Direct timestamp comparisons for critical logic
+- Weak randomness using timestamps
+- Time-sensitive operations without tolerance
 
-1. **Input Validation**: Always validate all external inputs
-2. **Access Control**: Implement proper authorization checks
-3. **State Management**: Update state before external calls
-4. **Error Handling**: Handle failures gracefully
-5. **Gas Optimization**: Design for efficient gas usage
-6. **Testing**: Comprehensive security testing
-7. **Auditing**: Regular security audits
-8. **Monitoring**: Event logging for security monitoring
+### Prevention Strategies
+1. **Use time windows** instead of exact timestamps
+2. **Implement tolerance ranges** for time-sensitive operations
+3. **Avoid timestamps for randomness**
+4. **Use block numbers** for rough time estimation
 
-### Code Review Guidelines
+## Front-Running Attacks
 
-- Review all external interactions
-- Verify access control mechanisms
-- Check for potential race conditions
-- Validate all arithmetic operations
-- Ensure proper error handling
-- Test edge cases and failure scenarios
-- Verify gas efficiency
+Transaction ordering manipulation can allow attackers to profit from observing pending transactions.
 
-Remember: Security is not a one-time implementation but an ongoing process that requires constant vigilance and updates as new threats emerge.
+### Key Vulnerabilities
+- Predictable transaction outcomes
+- Price-sensitive operations without protection
+- Public transaction data exploitation
+
+### Prevention Strategies
+1. **Use commit-reveal schemes** for sensitive operations
+2. **Implement transaction ordering protection**
+3. **Add randomization** to reduce predictability
+4. **Use batch processing** to reduce front-running opportunities
+
+## Prevention Summary
+
+### Security Checklist
+- ✅ Validate all inputs and access controls
+- ✅ Use proper state management patterns
+- ✅ Implement comprehensive error handling
+- ✅ Apply gas optimization with security in mind
+- ✅ Test all vulnerability scenarios
+- ✅ Conduct regular security audits
+
+> **Next Steps**: Review specific implementation patterns in the dedicated security guides linked above.

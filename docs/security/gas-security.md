@@ -1,6 +1,8 @@
 # Gas Optimization Security Considerations
 
-This guide addresses the important relationship between gas optimization and security in Neo smart contracts, highlighting how to optimize for efficiency without compromising security.
+Advanced patterns for optimizing gas consumption while maintaining security, including DoS prevention, economic attack mitigation, and performance optimization techniques.
+
+> **Foundation**: Review [Common Vulnerabilities](common-vulnerabilities.md#gas-limit-issues) for basic gas security concepts.
 
 ## Table of Contents
 
@@ -21,12 +23,9 @@ Gas optimization is crucial for user experience and cost efficiency, but it must
 - **State inconsistency** from partial execution due to gas limits
 - **Front-running opportunities** in gas-sensitive operations
 
-### Gas Security Principles
+### Advanced Gas Security Patterns
 
-1. **Predictable Gas Usage**: Operations should have predictable and bounded gas consumption
-2. **Graceful Degradation**: Contracts should handle gas limit scenarios gracefully
-3. **Economic Security**: Gas costs should not make the contract economically unusable
-4. **No Gas Griefing**: Prevent attackers from causing excessive gas consumption
+This guide provides production-ready implementations for gas-efficient secure operations, focusing on complex scenarios and optimization techniques.
 
 ## Common Gas-Related Security Issues
 

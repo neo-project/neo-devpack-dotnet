@@ -4,20 +4,23 @@ This directory contains comprehensive security documentation for developing secu
 
 ## Documentation Structure
 
-### Core Security Guides
-- **[Security Best Practices](security-best-practices.md)** - Essential security principles and patterns for Neo smart contracts
-- **[Common Vulnerabilities](common-vulnerabilities.md)** - Known attack vectors and comprehensive prevention strategies
-- **[Access Control Patterns](access-control-patterns.md)** - Secure permission systems, RBAC, and multi-signature implementations
-- **[Safe Arithmetic Operations](safe-arithmetic.md)** - Preventing integer overflow, underflow, and mathematical vulnerabilities
+Each document provides unique value and focuses on specific security aspects:
 
-### Advanced Security Topics
-- **[Storage Security](storage-security.md)** - Secure data storage, encryption, and access control patterns
-- **[Runtime and Randomness Security](runtime-and-randomness.md)** - Neo-specific runtime security and secure random number generation
-- **[Gas Optimization Security](gas-security.md)** - Security considerations for gas-efficient code and DoS prevention
-- **[Security Testing Guide](security-testing.md)** - Comprehensive testing frameworks and vulnerability assessment
+### Quick Start
+- **[Security Overview](security-overview.md)** - Essential security principles, quick reference, and navigation hub
+- **[Security Best Practices](security-best-practices.md)** - Ready-to-use implementation patterns with practical code examples
+- **[Common Vulnerabilities](common-vulnerabilities.md)** - Vulnerability identification guide with prevention strategies
 
-### Deployment and Operations
-- **[Deployment Security Checklist](deployment-checklist.md)** - Complete pre-deployment security verification process
+### Implementation Guides
+- **[Access Control Patterns](access-control-patterns.md)** - Complete RBAC, multi-signature, and permission systems
+- **[Safe Arithmetic Operations](safe-arithmetic.md)** - Comprehensive safe math operations and overflow protection
+- **[Storage Security](storage-security.md)** - Advanced data storage, encryption, and key management
+- **[Runtime and Randomness Security](runtime-and-randomness.md)** - Neo-specific runtime patterns and secure RNG
+- **[Gas Optimization Security](gas-security.md)** - Performance optimization without compromising security
+
+### Validation and Deployment
+- **[Security Testing Guide](security-testing.md)** - Comprehensive testing frameworks and methodologies
+- **[Deployment Security Checklist](deployment-checklist.md)** - Complete pre-deployment verification process
 
 ## Quick Start Security Checklist
 
