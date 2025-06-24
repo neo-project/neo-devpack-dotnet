@@ -304,18 +304,22 @@ namespace Neo.SmartContract.Framework.Services
             return StdLib.Deserialize(value);
         }
 
-        public BigInteger Increase(byte[] key) => Increase((ByteString)key);
-        public BigInteger Increase(ByteString key)
+        public BigInteger Increase(byte[] key) => Increase((ByteString)key, BigInteger.One);
+        public BigInteger Increase(ByteString key) => Increase(key, BigInteger.One);
+        public BigInteger Increase(byte[] key, BigInteger amount) => Increase((ByteString)key, amount);
+        public BigInteger Increase(ByteString key, BigInteger amount)
         {
-            var i = GetIntegerOrZero(key) + 1;
+            var i = GetIntegerOrZero(key) + amount;
             Put(key, i);
             return i;
         }
 
-        public BigInteger Decrease(byte[] key) => Decrease((ByteString)key);
-        public BigInteger Decrease(ByteString key)
+        public BigInteger Decrease(byte[] key) => Decrease((ByteString)key, BigInteger.One);
+        public BigInteger Decrease(ByteString key) => Decrease(key, BigInteger.One);
+        public BigInteger Decrease(byte[] key, BigInteger amount) => Decrease((ByteString)key, amount);
+        public BigInteger Decrease(ByteString key, BigInteger amount)
         {
-            var i = GetIntegerOrZero(key) - 1;
+            var i = GetIntegerOrZero(key) - amount;
             if (i == 0)
             {
                 Delete(key);
