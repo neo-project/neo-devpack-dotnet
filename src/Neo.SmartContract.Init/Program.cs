@@ -12,12 +12,12 @@ class Program
     static async Task<int> Main(string[] args)
     {
         var rootCommand = new RootCommand("NEO Smart Contract Project Initializer");
-        
+
         // Add commands
         rootCommand.AddCommand(new NewCommand());
         rootCommand.AddCommand(new ListCommand());
         rootCommand.AddCommand(new AddCommand());
-        
+
         // Add global options
         var verboseOption = new Option<bool>(
             new[] { "--verbose", "-v" },

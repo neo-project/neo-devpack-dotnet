@@ -25,7 +25,7 @@ public class AddCommand : Command
         this.SetHandler(async (string component, string path) =>
         {
             var projectService = new ProjectService();
-            
+
             await AnsiConsole.Status()
                 .StartAsync($"Adding {component} to project...", async ctx =>
                 {

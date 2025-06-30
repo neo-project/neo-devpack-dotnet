@@ -84,13 +84,13 @@ public class NewCommand : Command
             .StartAsync(async ctx =>
             {
                 var task = ctx.AddTask("[green]Creating project...[/]");
-                
+
                 await projectService.CreateProject(config, force, (progress, message) =>
                 {
                     task.Value = progress;
                     task.Description = message;
                 });
-                
+
                 task.Value = 100;
                 task.Description = "[green]Project created successfully![/]";
             });
@@ -99,7 +99,7 @@ public class NewCommand : Command
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine($"[bold green]✓[/] Project [bold]{config.Name}[/] created successfully!");
         AnsiConsole.WriteLine();
-        
+
         // Display next steps
         var panel = new Panel(new Markup($@"[bold]Next steps:[/]
 
@@ -118,7 +118,7 @@ public class NewCommand : Command
 For more information, see the [link]https://github.com/neo-project/neo-devpack-dotnet/blob/master/docs/getting-started.md[/]"))
             .Header("[bold]Get Started[/]")
             .BorderColor(Color.Green);
-        
+
         AnsiConsole.Write(panel);
     }
 
@@ -142,7 +142,7 @@ For more information, see the [link]https://github.com/neo-project/neo-devpack-d
                 .Title("[bold]Select a template:[/]")
                 .AddChoices(templates.Select(t => $"{t.Id} - {t.Description}"))
                 .HighlightStyle(new Style(Color.Green)));
-        
+
         config.Template = templateChoice.Split(" - ")[0];
 
         // Author information

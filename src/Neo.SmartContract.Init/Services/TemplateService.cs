@@ -21,8 +21,8 @@ public class TemplateService
 
     public ProjectTemplate GetTemplate(string id)
     {
-        return _templates.TryGetValue(id, out var template) 
-            ? template 
+        return _templates.TryGetValue(id, out var template)
+            ? template
             : throw new ArgumentException($"Template '{id}' not found");
     }
 

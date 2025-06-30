@@ -24,7 +24,7 @@ public class ProjectService
         ValidateConfig(config);
 
         var projectPath = Path.Combine(config.OutputPath, config.Name);
-        
+
         progressCallback(10, "Creating project directory...");
         if (Directory.Exists(projectPath) && !force)
         {
@@ -350,7 +350,7 @@ services:
 
         var projectFile = projectFiles[0];
         var content = await File.ReadAllTextAsync(projectFile);
-        
+
         if (!content.Contains("Neo.SmartContract.Analyzer"))
         {
             var analyzerReference = @"
