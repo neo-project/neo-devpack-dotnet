@@ -30,5 +30,6 @@ namespace Neo.Compiler
         public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.None;
         public bool SecurityAnalysis { get; set; } = false;
         public bool GenerateContractInterface { get; set; } = false;
+        public bool GeneratePlugin { get; set; } = false;
     }
 }
