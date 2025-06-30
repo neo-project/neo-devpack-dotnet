@@ -469,6 +469,373 @@ public class GasEfficientSecurity : SmartContract
 }
 ```
 
+## Oracle Security
+
+### Secure Oracle Integration
+
+Oracle services provide external data to smart contracts but introduce security risks. Here's how to use them safely:
+
+```csharp
+public class SecureOracleContract : SmartContract
+{
+    // Whitelist trusted oracle sources
+    private static readonly string[] TRUSTED_SOURCES = new[]
+    {
+        "https://api.trusted-provider.com",
+        "https://secure-oracle.example.com"
+    };
+    
+    // Track pending oracle requests
+    private const string ORACLE_REQUEST_PREFIX = "oracle_request_";
+    
+    public static bool RequestOracleData(string url, string filter, BigInteger requestId)
+    {
+        // Validate oracle source
+        Assert(IsWhitelistedSource(url), "Untrusted oracle source");
+        
+        // Validate request parameters
+        Assert(url.Length <= 256, "URL too long");
+        Assert(!string.IsNullOrEmpty(filter), "Filter required");
+        Assert(requestId > 0, "Invalid request ID");
+        
+        // Check for duplicate requests
+        var requestKey = ORACLE_REQUEST_PREFIX + requestId;
+        Assert(Storage.Get(Storage.CurrentContext, requestKey) == null, 
+               "Duplicate request");
+        
+        // Store request details for validation
+        var request = new OracleRequest
+        {
+            Url = url,
+            Filter = filter,
+            Timestamp = Runtime.Time,
+            Requester = Runtime.CallingScriptHash
+        };
+        
+        Storage.Put(Storage.CurrentContext, requestKey, StdLib.Serialize(request));
+        
+        // Make oracle request with callback
+        Oracle.Request(url, filter, "oracleCallback", requestId, Oracle.MinimumResponseGas);
+        
+        OnOracleRequested(requestId, url);
+        return true;
+    }
+    
+    public static void OracleCallback(string url, BigInteger requestId, 
+                                     OracleResponseCode code, string result)
+    {
+        // Verify callback is from Oracle contract
+        Assert(Runtime.CallingScriptHash == Oracle.Hash, "Invalid oracle callback");
+        
+        // Retrieve and validate request
+        var requestKey = ORACLE_REQUEST_PREFIX + requestId;
+        var requestData = Storage.Get(Storage.CurrentContext, requestKey);
+        Assert(requestData != null, "Unknown oracle request");
+        
+        var request = (OracleRequest)StdLib.Deserialize(requestData);
+        Assert(request.Url == url, "URL mismatch");
+        
+        // Check response code
+        if (code != OracleResponseCode.Success)
+        {
+            OnOracleFailed(requestId, code);
+            Storage.Delete(Storage.CurrentContext, requestKey);
+            return;
+        }
+        
+        // Validate response format
+        Assert(IsValidResponse(result), "Invalid oracle response format");
+        
+        // Process the data with additional validation
+        ProcessOracleData(requestId, result);
+        
+        // Clean up
+        Storage.Delete(Storage.CurrentContext, requestKey);
+        OnOracleSuccess(requestId, result);
+    }
+    
+    private static bool IsWhitelistedSource(string url)
+    {
+        foreach (var trusted in TRUSTED_SOURCES)
+        {
+            if (url.StartsWith(trusted))
+                return true;
+        }
+        return false;
+    }
+    
+    private static bool IsValidResponse(string result)
+    {
+        // Implement response format validation
+        // Example: Check JSON structure, data types, ranges
+        try
+        {
+            var data = StdLib.JsonDeserialize(result);
+            return data != null;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    [DisplayName("OracleRequested")]
+    public static event Action<BigInteger, string> OnOracleRequested;
+    
+    [DisplayName("OracleSuccess")]
+    public static event Action<BigInteger, string> OnOracleSuccess;
+    
+    [DisplayName("OracleFailed")]
+    public static event Action<BigInteger, OracleResponseCode> OnOracleFailed;
+    
+    private struct OracleRequest
+    {
+        public string Url;
+        public string Filter;
+        public uint Timestamp;
+        public UInt160 Requester;
+    }
+}
+```
+
+### Oracle Security Best Practices
+
+1. **Always whitelist oracle sources** - Never accept arbitrary URLs
+2. **Validate all responses** - Check format, ranges, and data types
+3. **Implement timeouts** - Clean up stale requests
+4. **Rate limit requests** - Prevent spam and DoS
+5. **Handle failures gracefully** - Don't let oracle failures break your contract
+
+## Secure Randomness
+
+### Using Runtime.GetRandom Safely
+
+NEO provides `Runtime.GetRandom()` for randomness, but it must be used carefully:
+
+```csharp
+public class SecureRandomContract : SmartContract
+{
+    // IMPORTANT: Never use randomness for critical security decisions
+    // like access control or fund distribution
+    
+    public static BigInteger GetSecureRandom(BigInteger min, BigInteger max)
+    {
+        Assert(max > min, "Invalid range");
+        Assert(max - min <= BigInteger.Pow(10, 18), "Range too large");
+        
+        // Add nonce for better distribution
+        var nonce = GetAndIncrementNonce();
+        
+        // Get random value
+        var random = Runtime.GetRandom();
+        
+        // Combine with block information for additional entropy
+        var blockHash = Ledger.GetBlock(Ledger.CurrentIndex).Hash;
+        var combined = CryptoLib.Sha256(random + nonce + blockHash);
+        
+        // Convert to BigInteger and scale to range
+        var value = new BigInteger(combined);
+        var scaled = (value % (max - min)) + min;
+        
+        return scaled < 0 ? -scaled : scaled;
+    }
+    
+    // Lottery with commit-reveal pattern
+    public static bool StartLottery()
+    {
+        var lotteryId = GetNextLotteryId();
+        
+        // Set commit phase deadline
+        var commitDeadline = Runtime.Time + 3600; // 1 hour
+        var revealDeadline = commitDeadline + 3600; // 2 hours total
+        
+        SaveLottery(lotteryId, commitDeadline, revealDeadline);
+        OnLotteryStarted(lotteryId, commitDeadline);
+        
+        return true;
+    }
+    
+    public static bool CommitEntry(BigInteger lotteryId, ByteString commitment)
+    {
+        var lottery = GetLottery(lotteryId);
+        Assert(Runtime.Time < lottery.CommitDeadline, "Commit phase ended");
+        
+        var participant = Runtime.CallingScriptHash;
+        Assert(!HasCommitted(lotteryId, participant), "Already committed");
+        
+        // Store commitment
+        SaveCommitment(lotteryId, participant, commitment);
+        
+        return true;
+    }
+    
+    public static bool RevealEntry(BigInteger lotteryId, BigInteger number, BigInteger nonce)
+    {
+        var lottery = GetLottery(lotteryId);
+        Assert(Runtime.Time >= lottery.CommitDeadline, "Still in commit phase");
+        Assert(Runtime.Time < lottery.RevealDeadline, "Reveal phase ended");
+        
+        var participant = Runtime.CallingScriptHash;
+        var commitment = GetCommitment(lotteryId, participant);
+        Assert(commitment != null, "No commitment found");
+        
+        // Verify commitment matches
+        var hash = CryptoLib.Sha256(number + nonce);
+        Assert(hash == commitment, "Invalid reveal");
+        
+        // Store revealed number
+        SaveReveal(lotteryId, participant, number);
+        
+        return true;
+    }
+    
+    public static UInt160 DrawWinner(BigInteger lotteryId)
+    {
+        var lottery = GetLottery(lotteryId);
+        Assert(Runtime.Time >= lottery.RevealDeadline, "Reveal phase not ended");
+        Assert(!lottery.WinnerDrawn, "Winner already drawn");
+        
+        // Collect all revealed entries
+        var entries = GetRevealedEntries(lotteryId);
+        Assert(entries.Length > 0, "No valid entries");
+        
+        // Combine all revealed numbers with block data
+        BigInteger combined = 0;
+        foreach (var entry in entries)
+        {
+            combined += entry.Number;
+        }
+        
+        // Add block randomness
+        var blockRandom = Runtime.GetRandom();
+        var finalRandom = (combined + new BigInteger(blockRandom)) % entries.Length;
+        
+        // Select winner
+        var winner = entries[(int)finalRandom].Participant;
+        lottery.WinnerDrawn = true;
+        lottery.Winner = winner;
+        SaveLottery(lotteryId, lottery);
+        
+        OnWinnerDrawn(lotteryId, winner);
+        return winner;
+    }
+    
+    private static BigInteger GetAndIncrementNonce()
+    {
+        const string NONCE_KEY = "random_nonce";
+        var nonce = Storage.Get(Storage.CurrentContext, NONCE_KEY) ?? 0;
+        Storage.Put(Storage.CurrentContext, NONCE_KEY, nonce + 1);
+        return (BigInteger)nonce;
+    }
+    
+    [DisplayName("LotteryStarted")]
+    public static event Action<BigInteger, uint> OnLotteryStarted;
+    
+    [DisplayName("WinnerDrawn")]
+    public static event Action<BigInteger, UInt160> OnWinnerDrawn;
+}
+```
+
+### Randomness Best Practices
+
+1. **Never use for security-critical decisions** - Randomness can be influenced by validators
+2. **Implement commit-reveal schemes** - For fair random selection
+3. **Combine multiple entropy sources** - Block data, user input, nonces
+4. **Add time delays** - Prevent manipulation of block production
+5. **Use deterministic alternatives** - When possible, avoid randomness entirely
+
+## Denial of Service Protection
+
+### Rate Limiting and DoS Prevention
+
+```csharp
+public class DoSProtectedContract : SmartContract
+{
+    private const int MAX_CALLS_PER_BLOCK = 10;
+    private const int MAX_CALLS_PER_USER = 5;
+    private const BigInteger MAX_ARRAY_SIZE = 100;
+    private const BigInteger MAX_COMPUTATION_COST = 1000;
+    
+    // Rate limiting per user
+    public static bool RateLimitedOperation(UInt160 user, object[] params)
+    {
+        Assert(Runtime.CheckWitness(user), "Unauthorized");
+        
+        // Check array size limits
+        Assert(params.Length <= MAX_ARRAY_SIZE, "Input too large");
+        
+        // Check per-block rate limit
+        var blockCalls = GetBlockCallCount();
+        Assert(blockCalls < MAX_CALLS_PER_BLOCK, "Block rate limit exceeded");
+        
+        // Check per-user rate limit
+        var userCalls = GetUserCallCount(user, Ledger.CurrentIndex);
+        Assert(userCalls < MAX_CALLS_PER_USER, "User rate limit exceeded");
+        
+        // Increment counters
+        IncrementBlockCallCount();
+        IncrementUserCallCount(user);
+        
+        // Check computational cost
+        var cost = EstimateComputationCost(params);
+        Assert(cost <= MAX_COMPUTATION_COST, "Operation too expensive");
+        
+        return ProcessOperation(user, params);
+    }
+    
+    // Prevent storage exhaustion
+    public static bool StoreUserData(UInt160 user, ByteString data)
+    {
+        Assert(Runtime.CheckWitness(user), "Unauthorized");
+        
+        // Limit data size
+        Assert(data.Length <= 1024, "Data too large");
+        
+        // Check user storage quota
+        var currentUsage = GetUserStorageUsage(user);
+        var newUsage = currentUsage + data.Length;
+        Assert(newUsage <= MAX_USER_STORAGE, "Storage quota exceeded");
+        
+        // Charge for storage
+        var storageFee = CalculateStorageFee(data.Length);
+        Assert(ChargeUser(user, storageFee), "Insufficient balance for storage");
+        
+        // Store data
+        Storage.Put(Storage.CurrentContext, GetUserDataKey(user), data);
+        UpdateUserStorageUsage(user, newUsage);
+        
+        return true;
+    }
+    
+    // Circuit breaker pattern
+    private static bool CircuitBreaker(string operation)
+    {
+        var errorCount = GetRecentErrorCount(operation);
+        
+        if (errorCount > ERROR_THRESHOLD)
+        {
+            var lastReset = GetLastCircuitReset(operation);
+            var timeSinceReset = Runtime.Time - lastReset;
+            
+            // Keep circuit open for cooldown period
+            if (timeSinceReset < CIRCUIT_COOLDOWN)
+            {
+                OnCircuitOpen(operation);
+                return false;
+            }
+            
+            // Reset circuit
+            ResetCircuit(operation);
+        }
+        
+        return true;
+    }
+    
+    [DisplayName("CircuitOpen")]
+    public static event Action<string> OnCircuitOpen;
+}
+```
+
 ## Testing and Auditing
 
 ### Security Testing Framework

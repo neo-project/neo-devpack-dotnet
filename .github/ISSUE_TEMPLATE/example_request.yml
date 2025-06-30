@@ -1,0 +1,154 @@
+name: 💡 Example Request
+description: Request a new example or improvement to existing examples
+title: "[Example]: "
+labels: ["example", "enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve our examples! Please provide details about what you'd like to see.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Request Type
+      description: What type of example request is this?
+      options:
+        - New example
+        - Improve existing example
+        - Fix broken example
+        - Add test to example
+        - Add documentation to example
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Example Category
+      description: Which category would this example belong to?
+      options:
+        - Beginner
+        - Intermediate
+        - Advanced
+        - Token Standards (NEP-17, NEP-11)
+        - Specialized (DeFi, Gaming, DAO)
+        - Other/New Category
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Example Description
+      description: Describe the example you'd like to see or the improvement needed
+      placeholder: |
+        What should this example demonstrate?
+        What problem would it solve for developers?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty Level
+      description: What difficulty level should this example target?
+      options:
+        - ⭐☆☆☆☆ Beginner
+        - ⭐⭐☆☆☆ Beginner-Intermediate
+        - ⭐⭐⭐☆☆ Intermediate
+        - ⭐⭐⭐⭐☆ Advanced
+        - ⭐⭐⭐⭐⭐ Expert
+    validations:
+      required: true
+
+  - type: textarea
+    id: concepts
+    attributes:
+      label: Key Concepts
+      description: What key concepts should this example teach?
+      placeholder: |
+        - Smart contract storage
+        - Event handling
+        - Token transfers
+        - etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_cases
+    attributes:
+      label: Real-World Use Cases
+      description: What real-world use cases would this example help with?
+      placeholder: |
+        - Building a DeFi protocol
+        - Creating an NFT marketplace
+        - Implementing governance
+        - etc.
+
+  - type: textarea
+    id: features
+    attributes:
+      label: Required Features
+      description: What specific features should the example include?
+      placeholder: |
+        - Multi-signature support
+        - Oracle integration
+        - Upgrade mechanism
+        - etc.
+
+  - type: textarea
+    id: existing
+    attributes:
+      label: Existing Example (if applicable)
+      description: If this is about improving an existing example, which one?
+      placeholder: Path to existing example or link
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Learning Context
+      description: Where would this fit in the learning journey?
+      placeholder: |
+        - Prerequisites: What should developers know first?
+        - Follow-up: What should they learn next?
+        - Related examples: What other examples complement this?
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Reference Resources
+      description: Any reference materials, tutorials, or existing implementations?
+      placeholder: |
+        - Links to similar examples in other blockchains
+        - Academic papers
+        - Existing implementations
+        - etc.
+
+  - type: checkboxes
+    id: commitment
+    attributes:
+      label: Contribution
+      description: Would you be willing to help create this example?
+      options:
+        - label: I would like to contribute to implementing this example
+          required: false
+        - label: I can provide code review and feedback
+          required: false
+        - label: I can help with documentation and testing
+          required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing examples and issues to ensure this is not a duplicate
+          required: true
+        - label: This example would benefit the broader NEO developer community
+          required: true
+        - label: I understand that example requests are implemented based on community priority
+          required: true

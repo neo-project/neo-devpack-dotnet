@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "The Neo Project",
+  "classifications": ["Neo", "SmartContract", "Blockchain", "NFT", "NEP-11"],
+  "identity": "Neo.SmartContract.Template.NEP11",
+  "name": "NEO Smart Contract (NEP-11 NFT)",
+  "shortName": "neonep11",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "Company.SmartContract",
+  "preferNameDirectory": true,
+  "guids": [
+    "0B814718-84B2-4B82-8F7F-7B4C70C4A492"
+  ],
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!skipRestore)",
+          "exclude": [
+            "**/[Bb]in/**",
+            "**/[Oo]bj/**",
+            ".template.config/**/*",
+            "**/*.filelist",
+            "**/*.user",
+            "**/*.lock.json"
+          ]
+        }
+      ]
+    }
+  ],
+  "symbols": {
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "If specified, skips the automatic restore of the project on create.",
+      "defaultValue": "false"
+    },
+    "Framework": {
+      "type": "parameter",
+      "description": "The target framework for the project.",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "net9.0",
+          "description": "Target net9.0"
+        }
+      ],
+      "replaces": "net9.0",
+      "defaultValue": "net9.0"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "Nep11Contract.csproj"
+    }
+  ],
+  "postActions": [
+    {
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages required by this project.",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

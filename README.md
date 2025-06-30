@@ -32,6 +32,10 @@
 
 NEO DevPack for .NET is a comprehensive suite of development tools for building smart contracts and decentralized applications (dApps) on the NEO blockchain platform using .NET. This toolkit enables developers to write, compile, test, and deploy smart contracts using C# and other .NET languages.
 
+### 🚀 Quick Start
+
+New to NEO smart contract development? Check out our **[Getting Started Guide](docs/getting-started.md)** for a step-by-step tutorial that will have you writing your first contract in under 30 minutes!
+
 ## Components
 
 The NEO DevPack for .NET consists of several key components:
@@ -78,6 +82,23 @@ Code analyzers and linting tools to help write secure and efficient contracts.
 
 Project templates for creating new NEO smart contracts with the proper structure and configurations.
 
+**Available Templates:**
+- **Basic Contract** - Simple smart contract with ownership and storage
+- **NEP-17 Token** - Fungible token standard implementation  
+- **NEP-11 NFT** - Non-fungible token standard implementation
+- **Oracle Contract** - Integration with NEO Oracle service
+- **Multi-Signature** - Multi-signature wallet implementation
+- **DAO Governance** - Decentralized autonomous organization
+
+### Neo.SmartContract.Init
+
+A CLI tool for quickly scaffolding new NEO smart contract projects:
+
+- Interactive project creation wizard
+- Multiple project templates (Basic, NEP-17, NEP-11, Oracle, MultiSig, DAO)
+- Automatic setup of testing, CI/CD, Docker, and VS Code configurations
+- Add components to existing projects
+
 ## Getting Started
 
 ### Prerequisites
@@ -108,7 +129,22 @@ dotnet test
 
 ## Usage
 
-### Creating a New Smart Contract
+### Quick Start with Neo Init CLI
+
+The easiest way to create a new smart contract project is using the Neo Init CLI:
+
+```shell
+# Install the CLI tool
+dotnet tool install -g Neo.SmartContract.Init
+
+# Create a new project
+neo-init new MyContract --template nep17
+
+# Or use interactive mode
+neo-init new --interactive
+```
+
+### Creating a New Smart Contract Manually
 
 1. Create a new class library project targeting .NET 9.0 or later
 2. Add a reference to the Neo.SmartContract.Framework package
@@ -300,25 +336,26 @@ Always review these security guidelines before deploying contracts to mainnet.
 
 ## Examples
 
-The repository includes various example contracts that demonstrate different features and capabilities in the `examples` directory:
+The repository includes a comprehensive collection of smart contract examples organized by difficulty and use case. Check out the [examples directory](examples/) with our structured learning path:
 
-| Example | Description |
-|---------|-------------|
-| [HelloWorld](examples/Example.SmartContract.HelloWorld/) | Basic contract example |
-| [NEP-17](examples/Example.SmartContract.NEP17/) | Token standard implementation |
-| [NEP-11](examples/Example.SmartContract.NFT/) | NFT standard implementation |
-| [Storage](examples/Example.SmartContract.Storage/) | Persistent storage example |
-| [Events](examples/Example.SmartContract.Event/) | Event notification example |
-| [Contract Calls](examples/Example.SmartContract.ContractCall/) | Inter-contract calls |
-| [Exception](examples/Example.SmartContract.Exception/) | Error handling examples |
-| [ZKP](examples/Example.SmartContract.ZKP/) | Zero-knowledge proof implementation examples |
-| [Inscription](examples/Example.SmartContract.Inscription/) | Blockchain inscription examples |
-| [Oracle](examples/Example.SmartContract.Oracle/) | Oracle service interaction examples |
-| [Modifier](examples/Example.SmartContract.Modifier/) | Method modifier usage examples |
-| [Transfer](examples/Example.SmartContract.Transfer/) | Asset transfer examples |
-| [SampleRoyaltyNEP11Token](examples/Example.SmartContract.SampleRoyaltyNEP11Token/) | NFT with royalty feature implementation |
+### 📚 Learning Path Overview
 
-Each example comes with corresponding unit tests that demonstrate how to properly test the contract functionality.
+| Category | Difficulty | Examples | Focus |
+|----------|------------|----------|-------|
+| [🟢 Beginner](examples/01-beginner/) | ⭐☆☆☆☆ | HelloWorld, Storage, Events, Exception | Core concepts |
+| [🟡 Intermediate](examples/02-intermediate/) | ⭐⭐⭐☆☆ | Modifier, ContractCall, Transfer | Advanced patterns |
+| [🔴 Advanced](examples/03-advanced/) | ⭐⭐⭐⭐☆ | Oracle, ZKP, Inscription | Complex features |
+| [💰 Token Standards](examples/04-token-standards/) | ⭐⭐⭐☆☆ | NEP-17, NEP-11, Royalty NFT | Standard compliance |
+| [🔧 Specialized](examples/05-specialized/) | ⭐⭐⭐⭐⭐ | DeFi, Gaming, DAO | Real-world apps |
+
+### 🎯 Recommended Learning Journey
+
+1. **Start** with [Getting Started Guide](docs/getting-started.md)
+2. **Follow** the [Learning Path](examples/LEARNING_PATH.md)
+3. **Practice** with hands-on examples
+4. **Build** your own projects
+
+Each example includes complete source code, comprehensive unit tests, and detailed documentation to help you master NEO smart contract development.
 
 ## Documentation
 
@@ -329,15 +366,37 @@ For detailed documentation on NEO smart contract development with .NET:
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
+We welcome contributions from the community! There are many ways to contribute:
+
+- 🐛 Report bugs and issues
+- 💡 Suggest new features or improvements
+- 📚 Improve documentation
+- 💻 Submit code changes
+- 🎓 Create examples and tutorials
+
+### Quick Start for Contributors
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add your feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Create a new Pull Request
+3. Make your changes with tests and documentation
+4. Submit a pull request using our templates
 
-Please ensure that your code follows the existing coding style and includes appropriate tests and documentation.
+### Detailed Guidelines
+
+Please read our [Contributing Guide](CONTRIBUTING.md) for detailed information on:
+
+- Development setup and workflow
+- Code style and standards
+- Testing requirements
+- Pull request process
+- Creating examples
+- Security considerations
+
+### Getting Help
+
+- 💬 [Discord Community](https://discord.gg/rvZFQ5382k) - Join #smart-contracts channel
+- 📋 [GitHub Issues](https://github.com/neo-project/neo-devpack-dotnet/issues) - Report bugs or request features
+- 💭 [GitHub Discussions](https://github.com/neo-project/neo-devpack-dotnet/discussions) - Ask questions and share ideas
 
 ## License
 

@@ -1,0 +1,128 @@
+name: 🚀 Feature Request
+description: Suggest a new feature or enhancement for the NEO DevPack
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please provide as much detail as possible.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: A brief summary of the feature you'd like to see
+      placeholder: Summarize the feature in one or two sentences...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the motivation?
+      placeholder: |
+        Is your feature request related to a problem? Please describe.
+        A clear and concise description of what the problem is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: |
+        A clear and concise description of what you want to happen.
+        How should this feature work?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component would this feature affect?
+      options:
+        - Neo.SmartContract.Framework
+        - Neo.Compiler.CSharp
+        - Neo.SmartContract.Testing
+        - Neo.SmartContract.Analyzer
+        - Neo.SmartContract.Template
+        - Neo.SmartContract.Init
+        - Neo.Disassembler.CSharp
+        - Examples
+        - Documentation
+        - New Component
+        - Multiple Components
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve my workflow
+        - High - Critical for my use case
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Describe any alternative solutions or features you've considered
+      placeholder: What other approaches could solve this problem?
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Usage Examples
+      description: Provide examples of how this feature would be used
+      render: csharp
+      placeholder: |
+        // Example of how the feature would be used
+        var result = NewFeature.DoSomething();
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+      description: What are the benefits of implementing this feature?
+      placeholder: |
+        - Improved developer experience
+        - Better performance
+        - Enhanced security
+        - etc.
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Ideas
+      description: If you have ideas about how this could be implemented, share them here
+      placeholder: Any thoughts on implementation approach, API design, etc.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or examples about the feature request
+      placeholder: Any additional information that might help...
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: This feature would benefit the broader NEO developer community
+          required: true
+        - label: I understand this is a suggestion and not a guarantee of implementation
+          required: true

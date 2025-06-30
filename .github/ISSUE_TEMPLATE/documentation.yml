@@ -1,0 +1,114 @@
+name: 📚 Documentation Issue
+description: Report an issue with documentation or suggest improvements
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Please provide details about the issue.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Documentation Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect information
+        - Outdated content
+        - Unclear explanation
+        - Typo/Grammar
+        - Example doesn't work
+        - Broken link
+        - Suggestion for improvement
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is this documentation located? (URL or file path)
+      placeholder: "https://github.com/neo-project/neo-devpack-dotnet/blob/master/docs/..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Describe the documentation issue in detail
+      placeholder: |
+        What's wrong with the current documentation?
+        What information is missing or incorrect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Documentation
+      description: What should the documentation say or include?
+      placeholder: |
+        How should this be documented?
+        What information would be helpful?
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: How does this documentation issue affect users?
+      placeholder: |
+        - Confuses new developers
+        - Prevents completing tutorial
+        - Makes feature hard to discover
+        - etc.
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who is the primary audience for this documentation?
+      options:
+        - Beginners
+        - Intermediate developers
+        - Advanced developers
+        - Contributors
+        - All developers
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Content
+      description: If you have a suggestion for the content, please share it
+      render: markdown
+      placeholder: |
+        ## Suggested documentation content
+        
+        Provide your suggested content here...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the documentation issue
+      placeholder: Screenshots, related issues, etc.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have checked that this documentation issue still exists
+          required: true
+        - label: I am willing to help improve this documentation if guidance is provided
+          required: false
