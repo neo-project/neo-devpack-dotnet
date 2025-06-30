@@ -1,15 +1,15 @@
 # Neo N3 Smart Contract Plugin Generation
 
-The Neo smart contract compiler (`nccs`) now supports automatic generation of Neo N3 plugins that provide RPC interfaces for interacting with compiled smart contracts.
+The Neo smart contract compiler (`nccs`) now supports automatic generation of Neo N3 plugins that provide CLI commands for interacting with compiled smart contracts through neo-cli.
 
 ## Overview
 
 When you compile a smart contract with the `--generate-plugin` option, the compiler will generate a complete Neo N3 plugin project that:
 
-- Provides RPC methods for each public contract method
+- Provides CLI commands for each public contract method
 - Handles parameter parsing and type conversion
-- Integrates with the Neo node's RPC server
-- Includes a contract wrapper for easy invocation
+- Integrates with neo-cli console
+- Includes a contract wrapper for direct invocation
 
 ## Usage
 
@@ -33,11 +33,11 @@ The generated plugin consists of several components:
 - Initializes the contract wrapper and RPC methods
 - Handles plugin lifecycle (configuration, system loading, disposal)
 
-### 2. RPC Methods Class (`MyContractRpcMethods.cs`)
-- Defines RPC method handlers for each contract method
+### 2. CLI Commands Class (`MyContractCommands.cs`)
+- Defines CLI command handlers for each contract method
 - Handles parameter parsing and validation
-- Formats results for RPC responses
-- Provides error handling
+- Displays results in the console
+- Provides help and error handling
 
 ### 3. Contract Wrapper Class (`MyContractWrapper.cs`)
 - Provides strongly-typed async methods for contract invocation
@@ -78,16 +78,17 @@ public class HelloWorld : SmartContract
 }
 ```
 
-The generated plugin will provide RPC methods:
-- `helloworld_sayhello` - Returns "Hello, World!"
-- `helloworld_setmessage` - Sets a message in storage
+The generated plugin will provide CLI commands:
+- `helloworld sayhello` - Returns "Hello, World!"
+- `helloworld setmessage <message>` - Sets a message in storage
 
-## RPC Method Naming Convention
+## CLI Command Structure
 
-RPC methods are named using the pattern: `{contractname}_{methodname}`
+Commands follow the pattern: `{contractname} {methodname} [parameters]`
 - Contract name is converted to lowercase
 - Method name is converted to lowercase
-- Example: `SampleStorage.TestPutByte` → `samplestorage_testputbyte`
+- Parameters are passed as space-separated arguments
+- Example: `helloworld setmessage "Hello, Neo!"`
 
 ## Using the Generated Plugin
 
@@ -106,55 +107,60 @@ RPC methods are named using the pattern: `{contractname}_{methodname}`
 
 4. Restart your Neo node to load the plugin
 
-5. Call the RPC methods:
-   ```bash
-   curl -X POST http://localhost:20332 \
-     -H "Content-Type: application/json" \
-     -d '{"jsonrpc":"2.0","method":"helloworld_sayhello","params":[],"id":1}'
+5. Use the CLI commands in neo-cli:
+   ```
+   neo> helloworld sayhello
+   neo> helloworld setmessage "Hello, Neo!"
+   neo> helloworld help
    ```
 
 ## Type Mapping
 
 The plugin generator automatically maps Neo smart contract types to .NET types:
 
-| Contract Type | .NET Type | RPC Format |
+| Contract Type | .NET Type | CLI Format |
 |--------------|-----------|------------|
-| Integer | BigInteger | String (decimal) |
-| String | string | String |
+| Integer | BigInteger | Decimal number |
+| String | string | Quoted string |
 | ByteArray | byte[] | Base64 string |
-| Hash160 | UInt160 | Hex string |
-| Hash256 | UInt256 | Hex string |
+| Hash160 | UInt160 | Hex string (0x...) |
+| Hash256 | UInt256 | Hex string (0x...) |
 | PublicKey | ECPoint | Hex string |
-| Boolean | bool | Boolean |
-| Array | object[] | JSON array |
+| Boolean | bool | true/false |
+| Array | object[] | Space-separated values |
 
 ## Advanced Features
 
 ### Safe Methods
-Methods marked with the `[Safe]` attribute are read-only and don't modify blockchain state. The plugin correctly identifies these methods and sets the appropriate RPC metadata.
+Methods marked with the `[Safe]` attribute are read-only and don't modify blockchain state. The plugin displays this information in the help output with a `[SAFE]` indicator.
 
 ### Parameter Validation
-The generated RPC handlers include parameter validation and provide detailed error messages for invalid inputs.
+The generated CLI handlers include parameter validation and provide detailed error messages for invalid inputs, including usage instructions.
 
-### Async Execution
-All contract invocations are performed asynchronously to avoid blocking the RPC server.
+### Interactive Help
+Each generated plugin includes comprehensive help commands that show:
+- Available methods with their parameters
+- Parameter types and requirements
+- Contract hash information
+- Safe method indicators
 
 ### Error Handling
 The plugin provides comprehensive error handling, including:
 - Contract execution failures
 - Parameter parsing errors
 - Type conversion errors
+- Usage validation
 
 ## Limitations
 
-- The plugin requires the RpcServer plugin to be installed and running
 - Generated plugins currently support basic types; complex nested structures may require manual adjustments
-- Transaction signing and fee calculation must be handled by the RPC client
+- Transaction signing must be handled by the wallet integration in neo-cli
+- Array parameters need to be handled carefully with proper escaping
 
 ## Future Enhancements
 
 Planned improvements include:
-- Support for event subscriptions
-- Automatic transaction building for state-changing methods
-- Integration with wallet plugins for signing
+- Support for complex parameter types
+- Integration with wallet commands for automatic signing
 - Support for batch operations
+- Enhanced parameter input validation

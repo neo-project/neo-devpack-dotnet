@@ -45,8 +45,8 @@ namespace Neo.Compiler
             // Generate configuration file
             GenerateConfigurationFile(pluginName, contractHash, pluginPath);
 
-            // Generate RPC methods file
-            GenerateRpcMethodsFile(pluginName, contractName, manifest, contractHash, pluginPath);
+            // Generate CLI commands file
+            GenerateCliCommandsFile(pluginName, contractName, manifest, contractHash, pluginPath);
 
             // Generate contract wrapper file
             GenerateContractWrapperFile(pluginName, contractName, manifest, contractHash, pluginPath);
@@ -63,25 +63,19 @@ namespace Neo.Compiler
             sourceCode.WriteLine("// Contract Hash: " + contractHash.ToString());
             sourceCode.WriteLine();
             sourceCode.WriteLine("using System;");
-            sourceCode.WriteLine("using System.Threading.Tasks;");
             sourceCode.WriteLine("using Neo;");
+            sourceCode.WriteLine("using Neo.ConsoleService;");
             sourceCode.WriteLine("using Neo.Plugins;");
-            sourceCode.WriteLine("using Neo.Network.P2P.Payloads;");
-            sourceCode.WriteLine("using Neo.Persistence;");
-            sourceCode.WriteLine("using Neo.SmartContract;");
-            sourceCode.WriteLine("using Neo.SmartContract.Native;");
-            sourceCode.WriteLine("using Neo.VM;");
-            sourceCode.WriteLine("using Neo.Wallets;");
             sourceCode.WriteLine();
             sourceCode.WriteLine($"namespace Neo.Plugins.{pluginName}");
             sourceCode.WriteLine("{");
             sourceCode.WriteLine($"    public class {pluginName} : Plugin");
             sourceCode.WriteLine("    {");
             sourceCode.WriteLine($"        public override string Name => \"{pluginName}\";");
-            sourceCode.WriteLine($"        public override string Description => \"Plugin for interacting with {contractName} contract\";");
+            sourceCode.WriteLine($"        public override string Description => \"CLI plugin for interacting with {contractName} contract\";");
             sourceCode.WriteLine();
             sourceCode.WriteLine("        private NeoSystem _system;");
-            sourceCode.WriteLine($"        private {contractName}RpcMethods _rpcMethods;");
+            sourceCode.WriteLine($"        private {contractName}Commands _{contractName.ToLower()}Commands;");
             sourceCode.WriteLine($"        private {contractName}Wrapper _contractWrapper;");
             sourceCode.WriteLine();
             sourceCode.WriteLine($"        public {pluginName}()");
@@ -97,19 +91,18 @@ namespace Neo.Compiler
             sourceCode.WriteLine("        {");
             sourceCode.WriteLine("            _system = system;");
             sourceCode.WriteLine($"            _contractWrapper = new {contractName}Wrapper(system);");
-            sourceCode.WriteLine($"            _rpcMethods = new {contractName}RpcMethods(this, _contractWrapper);");
+            sourceCode.WriteLine($"            _{contractName.ToLower()}Commands = new {contractName}Commands(_contractWrapper);");
             sourceCode.WriteLine();
-            sourceCode.WriteLine("            // RPC method registration will be handled by RpcServer plugin if available");
-            sourceCode.WriteLine($"            Log($\"{{Name}}: Initialized for {contractName} contract\", LogLevel.Info);");
+            sourceCode.WriteLine("            // Register CLI commands");
+            sourceCode.WriteLine($"            ConsoleHelper.RegisterCommand(\"{contractName.ToLower()}\", _{contractName.ToLower()}Commands.Handle);");
+            sourceCode.WriteLine();
+            sourceCode.WriteLine($"            Log($\"{{Name}}: CLI commands registered for {contractName} contract\", LogLevel.Info);");
             sourceCode.WriteLine("        }");
             sourceCode.WriteLine();
             sourceCode.WriteLine("        public override void Dispose()");
             sourceCode.WriteLine("        {");
             sourceCode.WriteLine("            // Cleanup if needed");
             sourceCode.WriteLine("        }");
-            sourceCode.WriteLine();
-            sourceCode.WriteLine($"        public {contractName}Wrapper GetContractWrapper() => _contractWrapper;");
-            sourceCode.WriteLine($"        public {contractName}RpcMethods GetRpcMethods() => _rpcMethods;");
             sourceCode.WriteLine("    }");
             sourceCode.WriteLine("}");
 
@@ -131,7 +124,6 @@ namespace Neo.Compiler
             sourceCode.WriteLine();
             sourceCode.WriteLine("  <ItemGroup>");
             sourceCode.WriteLine("    <ProjectReference Include=\"../../neo/src/Neo/Neo.csproj\" />");
-            sourceCode.WriteLine("    <ProjectReference Include=\"../../neo/src/Plugins/RpcServer/RpcServer.csproj\" />");
             sourceCode.WriteLine("  </ItemGroup>");
             sourceCode.WriteLine();
             sourceCode.WriteLine("  <ItemGroup>");
@@ -152,173 +144,198 @@ namespace Neo.Compiler
                     ["Network"] = 860833102, // Default to Neo TestNet
                     ["MaxGasPerTransaction"] = 50_00000000L, // 50 GAS
                     ["DefaultAccount"] = "" // Will be set by user
-                },
-                ["Dependency"] = new JArray("RpcServer")
+                }
             };
 
             File.WriteAllText(Path.Combine(pluginPath, $"{pluginName}.json"), config.ToString(true));
         }
 
-        private static void GenerateRpcMethodsFile(string pluginName, string contractName, ContractManifest manifest, UInt160 contractHash, string pluginPath)
+        private static void GenerateCliCommandsFile(string pluginName, string contractName, ContractManifest manifest, UInt160 contractHash, string pluginPath)
         {
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder) { NewLine = "\n" };
 
-            sourceCode.WriteLine($"// RPC methods for {contractName}");
+            sourceCode.WriteLine($"// CLI commands for {contractName}");
             sourceCode.WriteLine();
             sourceCode.WriteLine("using System;");
             sourceCode.WriteLine("using System.Linq;");
             sourceCode.WriteLine("using System.Numerics;");
-            sourceCode.WriteLine("using System.Threading.Tasks;");
-            sourceCode.WriteLine("using Neo.Json;");
-            sourceCode.WriteLine("using Neo.Network.RPC;");
+            sourceCode.WriteLine("using Neo;");
+            sourceCode.WriteLine("using Neo.ConsoleService;");
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
             sourceCode.WriteLine("using Neo.SmartContract;");
-            sourceCode.WriteLine("using Neo.SmartContract.Native;");
-            sourceCode.WriteLine("using Neo.VM;");
             sourceCode.WriteLine("using Neo.VM.Types;");
-            sourceCode.WriteLine("using Neo.Wallets;");
             sourceCode.WriteLine();
             sourceCode.WriteLine($"namespace Neo.Plugins.{pluginName}");
             sourceCode.WriteLine("{");
-            sourceCode.WriteLine($"    public class {contractName}RpcMethods");
+            sourceCode.WriteLine($"    public class {contractName}Commands");
             sourceCode.WriteLine("    {");
-            sourceCode.WriteLine($"        private readonly {pluginName} _plugin;");
             sourceCode.WriteLine($"        private readonly {contractName}Wrapper _wrapper;");
             sourceCode.WriteLine();
-            sourceCode.WriteLine($"        public {contractName}RpcMethods({pluginName} plugin, {contractName}Wrapper wrapper)");
+            sourceCode.WriteLine($"        public {contractName}Commands({contractName}Wrapper wrapper)");
             sourceCode.WriteLine("        {");
-            sourceCode.WriteLine("            _plugin = plugin;");
             sourceCode.WriteLine("            _wrapper = wrapper;");
             sourceCode.WriteLine("        }");
             sourceCode.WriteLine();
-            sourceCode.WriteLine("        public JObject[] GetRpcMethods()");
+            sourceCode.WriteLine("        public void Handle(string[] args)");
             sourceCode.WriteLine("        {");
-            sourceCode.WriteLine("            var methods = new System.Collections.Generic.List<JObject>();");
+            sourceCode.WriteLine("            if (args.Length == 0)");
+            sourceCode.WriteLine("            {");
+            sourceCode.WriteLine("                ShowHelp();");
+            sourceCode.WriteLine("                return;");
+            sourceCode.WriteLine("            }");
             sourceCode.WriteLine();
+            sourceCode.WriteLine("            try");
+            sourceCode.WriteLine("            {");
+            sourceCode.WriteLine("                string command = args[0].ToLower();");
+            sourceCode.WriteLine("                string[] parameters = args.Skip(1).ToArray();");
+            sourceCode.WriteLine();
+            sourceCode.WriteLine("                switch (command)");
+            sourceCode.WriteLine("                {");
 
-            // Register each contract method as an RPC method
+            // Generate case statements for each contract method
             foreach (var method in manifest.Abi.Methods.Where(m => !m.Name.StartsWith('_')))
             {
-                string rpcMethodName = $"{contractName.ToLower()}_{method.Name.ToLower()}";
-                sourceCode.WriteLine($"            methods.Add(new JObject");
-                sourceCode.WriteLine("            {");
-                sourceCode.WriteLine($"                [\"name\"] = \"{rpcMethodName}\",");
-                sourceCode.WriteLine($"                [\"handler\"] = (Func<JArray, Task<JToken>>){method.Name}RpcHandler,");
-
-                var parameters = new JArray();
-                foreach (var param in method.Parameters)
-                {
-                    parameters.Add(new JObject
-                    {
-                        ["name"] = param.Name,
-                        ["type"] = param.Type.ToString()
-                    });
-                }
-                sourceCode.WriteLine($"                [\"parameters\"] = {parameters.ToString(false)},");
-                sourceCode.WriteLine($"                [\"returntype\"] = \"{method.ReturnType}\",");
-                sourceCode.WriteLine($"                [\"safe\"] = {method.Safe.ToString().ToLower()}");
-                sourceCode.WriteLine("            });");
-                sourceCode.WriteLine();
+                sourceCode.WriteLine($"                    case \"{method.Name.ToLower()}\":");
+                sourceCode.WriteLine($"                        Handle{method.Name}(parameters);");
+                sourceCode.WriteLine("                        break;");
             }
 
-            sourceCode.WriteLine("            return methods.ToArray();");
+            sourceCode.WriteLine("                    case \"help\":");
+            sourceCode.WriteLine("                    case \"--help\":");
+            sourceCode.WriteLine("                    case \"-h\":");
+            sourceCode.WriteLine("                        ShowHelp();");
+            sourceCode.WriteLine("                        break;");
+            sourceCode.WriteLine("                    default:");
+            sourceCode.WriteLine($"                        ConsoleHelper.Warning($\"Unknown command: {{command}}\");");
+            sourceCode.WriteLine("                        ShowHelp();");
+            sourceCode.WriteLine("                        break;");
+            sourceCode.WriteLine("                }");
+            sourceCode.WriteLine("            }");
+            sourceCode.WriteLine("            catch (Exception ex)");
+            sourceCode.WriteLine("            {");
+            sourceCode.WriteLine($"                ConsoleHelper.Error($\"Error executing command: {{ex.Message}}\");");
+            sourceCode.WriteLine("            }");
             sourceCode.WriteLine("        }");
             sourceCode.WriteLine();
 
-            // Generate RPC handler methods
+            // Generate method handlers for each contract method
             foreach (var method in manifest.Abi.Methods.Where(m => !m.Name.StartsWith('_')))
             {
-                GenerateRpcHandlerMethod(sourceCode, contractName, method);
+                GenerateCliMethodHandler(sourceCode, method);
             }
 
-            // Add helper methods
-            sourceCode.WriteLine("        private object ParseParameter(JToken token, string paramName, ContractParameterType type)");
+            // Generate help method
+            sourceCode.WriteLine("        private void ShowHelp()");
+            sourceCode.WriteLine("        {");
+            sourceCode.WriteLine($"            ConsoleHelper.Info(\"{contractName} Contract Commands:\");");
+            sourceCode.WriteLine("            ConsoleHelper.Info(\"\");");
+
+            foreach (var method in manifest.Abi.Methods.Where(m => !m.Name.StartsWith('_')))
+            {
+                string paramsList = string.Join(" ", method.Parameters.Select(p => $"<{p.Name}:{p.Type}>"));
+                string safeIndicator = method.Safe ? " [SAFE]" : "";
+                sourceCode.WriteLine($"            ConsoleHelper.Info(\"  {method.Name.ToLower()} {paramsList}{safeIndicator}\");");
+            }
+
+            sourceCode.WriteLine("            ConsoleHelper.Info(\"\");");
+            sourceCode.WriteLine($"            ConsoleHelper.Info(\"Contract Hash: {contractHash}\");");
+            sourceCode.WriteLine("        }");
+            sourceCode.WriteLine();
+
+            // Generate parameter parsing helper methods
+            sourceCode.WriteLine("        private object ParseParameter(string value, ContractParameterType type)");
             sourceCode.WriteLine("        {");
             sourceCode.WriteLine("            try");
             sourceCode.WriteLine("            {");
             sourceCode.WriteLine("                return type switch");
             sourceCode.WriteLine("                {");
-            sourceCode.WriteLine("                    ContractParameterType.Boolean => token.GetBoolean(),");
-            sourceCode.WriteLine("                    ContractParameterType.Integer => BigInteger.Parse(token.GetString()),");
-            sourceCode.WriteLine("                    ContractParameterType.String => token.GetString(),");
-            sourceCode.WriteLine("                    ContractParameterType.ByteArray => Convert.FromBase64String(token.GetString()),");
-            sourceCode.WriteLine("                    ContractParameterType.Hash160 => UInt160.Parse(token.GetString()),");
-            sourceCode.WriteLine("                    ContractParameterType.Hash256 => UInt256.Parse(token.GetString()),");
-            sourceCode.WriteLine("                    ContractParameterType.PublicKey => ECPoint.Parse(token.GetString(), ECCurve.Secp256r1),");
-            sourceCode.WriteLine("                    ContractParameterType.Array => ((JArray)token).Select(t => ParseParameter(t, paramName, ContractParameterType.Any)).ToArray(),");
-            sourceCode.WriteLine("                    _ => token");
+            sourceCode.WriteLine("                    ContractParameterType.Boolean => bool.Parse(value),");
+            sourceCode.WriteLine("                    ContractParameterType.Integer => BigInteger.Parse(value),");
+            sourceCode.WriteLine("                    ContractParameterType.String => value,");
+            sourceCode.WriteLine("                    ContractParameterType.ByteArray => Convert.FromBase64String(value),");
+            sourceCode.WriteLine("                    ContractParameterType.Hash160 => UInt160.Parse(value),");
+            sourceCode.WriteLine("                    ContractParameterType.Hash256 => UInt256.Parse(value),");
+            sourceCode.WriteLine("                    ContractParameterType.PublicKey => ECPoint.Parse(value, ECCurve.Secp256r1),");
+            sourceCode.WriteLine("                    _ => value");
             sourceCode.WriteLine("                };");
             sourceCode.WriteLine("            }");
             sourceCode.WriteLine("            catch (Exception ex)");
             sourceCode.WriteLine("            {");
-            sourceCode.WriteLine($"                throw new ArgumentException($\"Invalid parameter '{{paramName}}': {{ex.Message}}\");");
+            sourceCode.WriteLine($"                throw new ArgumentException($\"Invalid parameter value '{{value}}' for type {{type}}: {{ex.Message}}\");");
             sourceCode.WriteLine("            }");
             sourceCode.WriteLine("        }");
             sourceCode.WriteLine();
-            sourceCode.WriteLine("        private JToken FormatResult(object result)");
+            sourceCode.WriteLine("        private void DisplayResult(object result)");
             sourceCode.WriteLine("        {");
-            sourceCode.WriteLine("            if (result == null) return JToken.Null;");
-            sourceCode.WriteLine("            if (result is BigInteger bi) return bi.ToString();");
-            sourceCode.WriteLine("            if (result is byte[] bytes) return Convert.ToBase64String(bytes);");
-            sourceCode.WriteLine("            if (result is UInt160 hash160) return hash160.ToString();");
-            sourceCode.WriteLine("            if (result is UInt256 hash256) return hash256.ToString();");
-            sourceCode.WriteLine("            if (result is ECPoint point) return point.ToString();");
-            sourceCode.WriteLine("            if (result is object[] array) return new JArray(array.Select(FormatResult));");
-            sourceCode.WriteLine("            return JToken.FromObject(result);");
-            sourceCode.WriteLine("        }");
-            sourceCode.WriteLine();
-            sourceCode.WriteLine("        private JObject CreateErrorResponse(string message)");
-            sourceCode.WriteLine("        {");
-            sourceCode.WriteLine("            return new JObject");
+            sourceCode.WriteLine("            if (result == null)");
             sourceCode.WriteLine("            {");
-            sourceCode.WriteLine("                [\"error\"] = new JObject");
-            sourceCode.WriteLine("                {");
-            sourceCode.WriteLine("                    [\"code\"] = -32602,");
-            sourceCode.WriteLine("                    [\"message\"] = message");
-            sourceCode.WriteLine("                }");
+            sourceCode.WriteLine("                ConsoleHelper.Info(\"Result: null\");");
+            sourceCode.WriteLine("                return;");
+            sourceCode.WriteLine("            }");
+            sourceCode.WriteLine();
+            sourceCode.WriteLine("            string output = result switch");
+            sourceCode.WriteLine("            {");
+            sourceCode.WriteLine("                BigInteger bi => bi.ToString(),");
+            sourceCode.WriteLine("                byte[] bytes => Convert.ToBase64String(bytes),");
+            sourceCode.WriteLine("                UInt160 hash160 => hash160.ToString(),");
+            sourceCode.WriteLine("                UInt256 hash256 => hash256.ToString(),");
+            sourceCode.WriteLine("                ECPoint point => point.ToString(),");
+            sourceCode.WriteLine("                bool b => b.ToString(),");
+            sourceCode.WriteLine("                string s => s,");
+            sourceCode.WriteLine("                _ => result.ToString()");
             sourceCode.WriteLine("            };");
+            sourceCode.WriteLine();
+            sourceCode.WriteLine($"            ConsoleHelper.Info($\"Result: {{output}}\");");
             sourceCode.WriteLine("        }");
 
             sourceCode.WriteLine("    }");
             sourceCode.WriteLine("}");
 
-            File.WriteAllText(Path.Combine(pluginPath, $"{contractName}RpcMethods.cs"), builder.ToString());
+            File.WriteAllText(Path.Combine(pluginPath, $"{contractName}Commands.cs"), builder.ToString());
         }
 
-        private static void GenerateRpcHandlerMethod(StringWriter sourceCode, string contractName, ContractMethodDescriptor method)
+        private static void GenerateCliMethodHandler(StringWriter sourceCode, ContractMethodDescriptor method)
         {
-            sourceCode.WriteLine($"        private async Task<JToken> {method.Name}RpcHandler(JArray @params)");
+            sourceCode.WriteLine($"        private async void Handle{method.Name}(string[] parameters)");
             sourceCode.WriteLine("        {");
-            sourceCode.WriteLine("            try");
-            sourceCode.WriteLine("            {");
+            sourceCode.WriteLine($"            // {method.Name}: {(method.Safe ? "Safe method" : "State-changing method")}");
 
-            // Parse parameters
             if (method.Parameters.Length > 0)
             {
-                sourceCode.WriteLine("                // Parse parameters");
+                sourceCode.WriteLine($"            if (parameters.Length != {method.Parameters.Length})");
+                sourceCode.WriteLine("            {");
+                string paramsList = string.Join(" ", method.Parameters.Select(p => $"<{p.Name}:{p.Type}>"));
+                sourceCode.WriteLine($"                ConsoleHelper.Error($\"Usage: {method.Name.ToLower()} {paramsList}\");");
+                sourceCode.WriteLine("                return;");
+                sourceCode.WriteLine("            }");
+                sourceCode.WriteLine();
+                sourceCode.WriteLine("            try");
+                sourceCode.WriteLine("            {");
+
+                // Parse parameters
                 for (int i = 0; i < method.Parameters.Length; i++)
                 {
                     var param = method.Parameters[i];
-                    sourceCode.WriteLine($"                var {param.Name} = ParseParameter(@params[{i}], \"{param.Name}\", ContractParameterType.{param.Type});");
+                    sourceCode.WriteLine($"                var {param.Name} = ({ConvertTypeToString(param.Type)})ParseParameter(parameters[{i}], ContractParameterType.{param.Type});");
                 }
-                sourceCode.WriteLine();
 
-                // Call wrapper method with parameters
+                sourceCode.WriteLine();
                 string parameters = string.Join(", ", method.Parameters.Select(p => p.Name));
                 sourceCode.WriteLine($"                var result = await _wrapper.{method.Name}Async({parameters});");
             }
             else
             {
-                // Call wrapper method without parameters
+                sourceCode.WriteLine("            try");
+                sourceCode.WriteLine("            {");
                 sourceCode.WriteLine($"                var result = await _wrapper.{method.Name}Async();");
             }
 
-            sourceCode.WriteLine("                return FormatResult(result);");
+            sourceCode.WriteLine("                DisplayResult(result);");
             sourceCode.WriteLine("            }");
             sourceCode.WriteLine("            catch (Exception ex)");
             sourceCode.WriteLine("            {");
-            sourceCode.WriteLine("                return CreateErrorResponse(ex.Message);");
+            sourceCode.WriteLine($"                ConsoleHelper.Error($\"Error calling {method.Name}: {{ex.Message}}\");");
             sourceCode.WriteLine("            }");
             sourceCode.WriteLine("        }");
             sourceCode.WriteLine();
@@ -337,13 +354,9 @@ namespace Neo.Compiler
             sourceCode.WriteLine("using System.Threading.Tasks;");
             sourceCode.WriteLine("using Neo;");
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
-            sourceCode.WriteLine("using Neo.Network.P2P.Payloads;");
-            sourceCode.WriteLine("using Neo.Network.RPC;");
             sourceCode.WriteLine("using Neo.SmartContract;");
-            sourceCode.WriteLine("using Neo.SmartContract.Native;");
             sourceCode.WriteLine("using Neo.VM;");
             sourceCode.WriteLine("using Neo.VM.Types;");
-            sourceCode.WriteLine("using Neo.Wallets;");
             sourceCode.WriteLine();
             sourceCode.WriteLine($"namespace Neo.Plugins.{pluginName}");
             sourceCode.WriteLine("{");
