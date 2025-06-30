@@ -205,7 +205,7 @@ namespace Neo.Compiler
                 sourceCode.WriteLine("            {");
                 sourceCode.WriteLine($"                [\"name\"] = \"{rpcMethodName}\",");
                 sourceCode.WriteLine($"                [\"handler\"] = (Func<JArray, Task<JToken>>){method.Name}RpcHandler,");
-                
+
                 var parameters = new JArray();
                 foreach (var param in method.Parameters)
                 {

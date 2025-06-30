@@ -83,7 +83,7 @@ namespace Neo.Compiler
             // Check if the --generate-interface option is present in the command line args
             options.GenerateContractInterface = context.ParseResult.CommandResult.Children
                 .Any(token => token.Symbol.Name == "generate-interface");
-            
+
             // Check if the --generate-plugin option is present in the command line args
             options.GeneratePlugin = context.ParseResult.CommandResult.Children
                 .Any(token => token.Symbol.Name == "generate-plugin");
