@@ -140,7 +140,7 @@ namespace Neo.SmartContract.Framework
         {
             OnTransfer(from, to, 1, tokenId);
             if (to is not null && ContractManagement.GetContract(to) is not null)
-                Contract.Call(to, "onNEP11Payment", CallFlags.All, from, 1, tokenId, data!);
+                Contract.Call(to, "onNEP11Payment", CallFlags.All, from, 1, tokenId, data);
         }
     }
 }
