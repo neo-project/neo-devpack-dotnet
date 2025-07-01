@@ -13,10 +13,10 @@ namespace Neo.SmartContract.Framework.Native
 {
     public class Signer
     {
-        public UInt160 Account;
+        public UInt160 Account = null!;
         public WitnessScope Scopes;
-        public UInt160[] AllowedContracts;
-        public ECPoint[] AllowedGroups;
-        public WitnessRule[] Rules;
+        public UInt160[] AllowedContracts = null!;
+        public ECPoint[] AllowedGroups = null!;
+        public WitnessRule[] Rules = null!;
     }
 }
