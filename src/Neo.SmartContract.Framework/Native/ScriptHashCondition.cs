@@ -13,6 +13,6 @@ namespace Neo.SmartContract.Framework.Native
 {
     public class ScriptHashCondition : WitnessCondition
     {
-        public UInt160 Hash;
+        public UInt160 Hash = null!;
     }
 }

@@ -23,10 +23,10 @@ namespace Neo.SmartContract.Framework
     public abstract class Nep11Token<TokenState> : TokenContract
         where TokenState : Nep11TokenState
     {
-        public delegate void OnTransferDelegate(UInt160 from, UInt160 to, BigInteger amount, ByteString tokenId);
+        public delegate void OnTransferDelegate(UInt160? from, UInt160? to, BigInteger amount, ByteString tokenId);
 
         [DisplayName("Transfer")]
-        public static event OnTransferDelegate OnTransfer;
+        public static event OnTransferDelegate OnTransfer = null!;
 
         protected const byte Prefix_TokenId = 0x02;
         protected const byte Prefix_Token = 0x03;
@@ -49,7 +49,7 @@ namespace Neo.SmartContract.Framework
         public virtual Map<string, object> Properties(ByteString tokenId)
         {
             var tokenMap = new StorageMap(Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
+            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]!);
             return new Map<string, object>()
             {
                 ["name"] = token.Name
@@ -77,7 +77,7 @@ namespace Neo.SmartContract.Framework
             if (to is null || !to.IsValid)
                 throw new Exception("The argument \"to\" is invalid.");
             var tokenMap = new StorageMap(Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
+            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]!);
             UInt160 from = token.Owner;
             if (!Runtime.CheckWitness(from)) return false;
             if (from != to)
@@ -100,8 +100,8 @@ namespace Neo.SmartContract.Framework
         {
             StorageContext context = Storage.CurrentContext;
             byte[] key = new byte[] { Prefix_TokenId };
-            ByteString id = Storage.Get(context, key);
-            Storage.Put(context, key, (BigInteger)id + 1);
+            ByteString? id = Storage.Get(context, key);
+            Storage.Put(context, key, (BigInteger)(id ?? ByteString.Empty) + 1);
             if (id is not null) salt += id;
             return CryptoLib.Sha256(salt);
         }
@@ -118,7 +118,7 @@ namespace Neo.SmartContract.Framework
         protected static void Burn(ByteString tokenId)
         {
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
+            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]!);
             tokenMap.Delete(tokenId);
             UpdateBalance(token.Owner, tokenId, -1);
             TotalSupply--;
@@ -136,7 +136,7 @@ namespace Neo.SmartContract.Framework
                 accountMap.Delete(key);
         }
 
-        protected static void PostTransfer(UInt160 from, UInt160 to, ByteString tokenId, object data)
+        protected static void PostTransfer(UInt160? from, UInt160? to, ByteString tokenId, object? data)
         {
             OnTransfer(from, to, 1, tokenId);
             if (to is not null && ContractManagement.GetContract(to) is not null)
