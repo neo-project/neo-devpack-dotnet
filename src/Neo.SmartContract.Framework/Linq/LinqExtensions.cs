@@ -253,7 +253,7 @@ namespace Neo.SmartContract.Framework.Linq
         /// <exception cref="ArgumentNullException">source is null.</exception>
         public static bool Contains<T>(this IEnumerable<T> source, T value)
         {
-            return Any(source, s => s.Equals(value));
+            return Any(source, s => s!.Equals(value));
         }
 
         /// <summary>
