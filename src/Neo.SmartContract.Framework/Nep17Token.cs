@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework
         public delegate void OnTransferDelegate(UInt160? from, UInt160? to, BigInteger amount);
 
         [DisplayName("Transfer")]
-        public static event OnTransferDelegate OnTransfer;
+        public static event OnTransferDelegate OnTransfer = null!;
 
         public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data)
         {
