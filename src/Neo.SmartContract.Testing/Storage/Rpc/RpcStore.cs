@@ -28,6 +28,10 @@ public class RpcStore : IStore
 {
     private int _id = 0;
 
+    /// <summary>
+    /// Event raised when a new snapshot is created
+    /// </summary>
+    public event IStore.OnNewSnapshotDelegate? OnNewSnapshot;
 
     /// <summary>
     /// Url
@@ -54,6 +58,7 @@ public class RpcStore : IStore
     public IStoreSnapshot GetSnapshot()
     {
         var snapshot = new RpcSnapshot(this);
+        OnNewSnapshot?.Invoke(this, snapshot);
         return snapshot;
     }
     public bool Contains(byte[] key) => TryGet(key) != null;
