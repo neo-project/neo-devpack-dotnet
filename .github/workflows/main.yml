@@ -20,6 +20,8 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
+    outputs:
+      build_artifacts_available: ${{ steps.build_artifacts.outputs.available }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -30,6 +32,15 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Cache .NET Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.nuget/packages
+          ~/.dotnet
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-
     - name: Check format
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
@@ -90,6 +101,21 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         format: lcov
         file: ${{ github.workspace }}/coverage/lcov.info
+    - name: Build Release Artifacts for Binary Distribution
+      id: build_artifacts
+      run: |
+        echo "Building Release configuration for binary distribution..."
+        dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj \
+          --configuration Release \
+          --output ./release-build
+        echo "available=true" >> $GITHUB_OUTPUT
+    - name: Upload Release Build Artifacts
+      if: steps.build_artifacts.outputs.available == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-build-artifacts
+        path: ./release-build
+        retention-days: 1
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
@@ -154,6 +180,10 @@ jobs:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
     needs: Test
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_created: ${{ steps.check_tag.outputs.statusCode }}
+      version: ${{ steps.get_version.outputs.version }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -164,20 +194,28 @@ jobs:
       id: get_version
       run: |
         sudo apt install xmlstarlet
-        find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('::set-output name=version::v',//i:VersionPrefix/text())" | xargs echo
+        VERSION=$(find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "//i:VersionPrefix/text()")
+        echo "version=v${VERSION}" >> $GITHUB_OUTPUT
     - name: Check tag
       id: check_tag
-      run: curl -s -I ${{ format('https://github.com/{0}/releases/tag/{1}', github.repository, steps.get_version.outputs.version) }} | head -n 1 | cut -d$' ' -f2 | xargs printf "::set-output name=statusCode::%s" | xargs echo
+      run: |
+        STATUS_CODE=$(curl -s -I ${{ format('https://github.com/{0}/releases/tag/{1}', github.repository, steps.get_version.outputs.version) }} | head -n 1 | cut -d$' ' -f2)
+        echo "statusCode=${STATUS_CODE}" >> $GITHUB_OUTPUT
     - name: Create release
       if: steps.check_tag.outputs.statusCode == '404'
       id: create_release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.version }}
-        release_name: ${{ steps.get_version.outputs.version }}
-        prerelease: ${{ contains(steps.get_version.outputs.version, '-') }}
+      run: |
+        PRERELEASE_FLAG=""
+        if [[ "${{ steps.get_version.outputs.version }}" == *"-"* ]]; then
+          PRERELEASE_FLAG="--prerelease"
+        fi
+        
+        gh release create ${{ steps.get_version.outputs.version }} \
+          --title "${{ steps.get_version.outputs.version }}" \
+          --generate-notes \
+          $PRERELEASE_FLAG
     - name: Setup .NET Core
       if: steps.check_tag.outputs.statusCode == '404'
       uses: actions/setup-dotnet@v4
@@ -196,3 +234,94 @@ jobs:
         dotnet nuget push "pub/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${NUGET_TOKEN} --skip-duplicate
       env:
         NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+
+  BuildBinaries:
+    if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
+    needs: [Test, Release]
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact: nccs-linux-x64.tar.gz
+          - os: macos-latest
+            runtime: osx-x64
+            artifact: nccs-macos-x64.tar.gz
+          - os: macos-latest
+            runtime: osx-arm64
+            artifact: nccs-macos-arm64.tar.gz
+          - os: windows-latest
+            runtime: win-x64
+            artifact: nccs-windows-x64.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout (Sparse)
+      if: needs.Release.outputs.release_created == '404'
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+        sparse-checkout-cone-mode: false
+        fetch-depth: 1
+    - name: Download Release Build Artifacts
+      if: needs.Release.outputs.release_created == '404' && needs.Test.outputs.build_artifacts_available == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: release-build-artifacts
+        path: ./release-build
+    - name: Setup .NET Core
+      if: needs.Release.outputs.release_created == '404'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Cache .NET Dependencies
+      if: needs.Release.outputs.release_created == '404'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.nuget/packages
+          ~/.dotnet
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-
+    - name: Publish Platform Binary
+      if: needs.Release.outputs.release_created == '404'
+      shell: bash
+      run: |
+        # Create output directory structure
+        mkdir -p ./src/Neo.Compiler.CSharp/bin/Release/net9.0/
+        
+        # Copy pre-built Release artifacts if available, otherwise build from source
+        if [ -d "./release-build" ] && [ "$(ls -A ./release-build 2>/dev/null)" ]; then
+          echo "Using pre-built Release artifacts from Test job..."
+          cp -r ./release-build/* ./src/Neo.Compiler.CSharp/bin/Release/net9.0/
+        else
+          echo "No pre-built artifacts found, will build from source"
+        fi
+        
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj \
+          --configuration Release \
+          --runtime ${{ matrix.runtime }} \
+          --self-contained true \
+          --output ./publish/${{ matrix.runtime }} \
+          /p:PublishSingleFile=true \
+          /p:IncludeNativeLibrariesForSelfExtract=true \
+          /p:PublishTrimmed=false
+    - name: Package Binary (Linux/macOS)
+      if: needs.Release.outputs.release_created == '404' && runner.os != 'Windows'
+      run: |
+        cd ./publish/${{ matrix.runtime }}
+        tar -czf ../../${{ matrix.artifact }} nccs
+    - name: Package Binary (Windows)
+      if: needs.Release.outputs.release_created == '404' && runner.os == 'Windows'
+      run: |
+        cd ./publish/${{ matrix.runtime }}
+        Compress-Archive -Path nccs.exe -DestinationPath ../../${{ matrix.artifact }}
+    - name: Upload Release Asset
+      if: needs.Release.outputs.release_created == '404'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload ${{ needs.Release.outputs.version }} \
+          ./${{ matrix.artifact }} \
+          --clobber
