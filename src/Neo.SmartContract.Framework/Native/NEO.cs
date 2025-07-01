@@ -34,8 +34,8 @@ namespace Neo.SmartContract.Framework.Native
 
         public static extern bool RegisterCandidate(ECPoint pubkey);
         public static extern bool UnRegisterCandidate(ECPoint pubkey);
-        public static extern bool Vote(UInt160 account, ECPoint voteTo);
-        public static bool Unvote(UInt160 account) => Vote(account, null!);
+        public static extern bool Vote(UInt160 account, ECPoint? voteTo);
+        public static bool Unvote(UInt160 account) => Vote(account, null);
         public static extern (ECPoint, BigInteger)[] GetCandidates();
         public static extern Iterator<(ECPoint, BigInteger)> GetAllCandidates();
         public static extern BigInteger GetCandidateVote(ECPoint pubkey);
