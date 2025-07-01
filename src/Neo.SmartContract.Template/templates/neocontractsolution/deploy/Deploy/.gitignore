@@ -1,0 +1,16 @@
+# Deployment records - contain contract addresses
+.deployments/
+
+# Wallet files - contain private keys
+*.json
+*.wallet
+*.db3
+
+# Build outputs
+bin/
+obj/
+
+# Allow configuration template files
+!appsettings*.json
+!wallets/.gitignore
+!wallets/README.md
