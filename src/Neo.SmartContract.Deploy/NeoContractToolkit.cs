@@ -1,8 +1,14 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Neo;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
+using Neo.SmartContract.Deploy.Services;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Deploy;
 
@@ -12,6 +18,7 @@ namespace Neo.SmartContract.Deploy;
 /// </summary>
 public class NeoContractToolkit
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly IContractCompiler _compiler;
     private readonly IContractDeployer _deployer;
     private readonly IContractInvoker _invoker;
@@ -23,6 +30,7 @@ public class NeoContractToolkit
     /// Create a new instance of the toolkit
     /// </summary>
     public NeoContractToolkit(
+        IServiceProvider serviceProvider,
         IContractCompiler compiler,
         IContractDeployer deployer,
         IContractInvoker invoker,
@@ -30,6 +38,7 @@ public class NeoContractToolkit
         IConfiguration configuration,
         ILogger<NeoContractToolkit> logger)
     {
+        _serviceProvider = serviceProvider;
         _compiler = compiler;
         _deployer = deployer;
         _invoker = invoker;
@@ -238,4 +247,175 @@ public class NeoContractToolkit
     {
         return _walletManager.GetAccount(accountAddress);
     }
+
+    #region Multi-Contract Deployment
+
+    /// <summary>
+    /// Deploy multiple contracts with dependency resolution
+    /// </summary>
+    /// <param name="requests">List of contract deployment requests</param>
+    /// <param name="baseOptions">Base deployment options</param>
+    /// <returns>Multi-contract deployment result</returns>
+    public async Task<MultiContractDeploymentResult> DeployMultipleContractsAsync(
+        List<ContractDeploymentRequest> requests,
+        DeploymentOptions baseOptions)
+    {
+        var multiDeploymentService = _serviceProvider.GetRequiredService<MultiContractDeploymentService>();
+        return await multiDeploymentService.DeployContractsAsync(requests, baseOptions);
+    }
+
+    /// <summary>
+    /// Deploy multiple contracts in parallel (where dependencies allow)
+    /// </summary>
+    /// <param name="requests">List of contract deployment requests</param>
+    /// <param name="baseOptions">Base deployment options</param>
+    /// <param name="maxParallelism">Maximum number of contracts to deploy in parallel</param>
+    /// <returns>Multi-contract deployment result</returns>
+    public async Task<MultiContractDeploymentResult> DeployMultipleContractsParallelAsync(
+        List<ContractDeploymentRequest> requests,
+        DeploymentOptions baseOptions,
+        int maxParallelism = 5)
+    {
+        var multiDeploymentService = _serviceProvider.GetRequiredService<MultiContractDeploymentService>();
+        return await multiDeploymentService.DeployContractsParallelAsync(requests, baseOptions, maxParallelism);
+    }
+
+    /// <summary>
+    /// Update multiple contracts
+    /// </summary>
+    /// <param name="requests">List of contract update requests</param>
+    /// <param name="baseOptions">Base deployment options</param>
+    /// <returns>Multi-contract deployment result</returns>
+    public async Task<MultiContractDeploymentResult> UpdateMultipleContractsAsync(
+        List<ContractUpdateRequest> requests,
+        DeploymentOptions baseOptions)
+    {
+        var multiDeploymentService = _serviceProvider.GetRequiredService<MultiContractDeploymentService>();
+        return await multiDeploymentService.UpdateContractsAsync(requests, baseOptions);
+    }
+
+    /// <summary>
+    /// Deploy contracts from a JSON manifest file
+    /// </summary>
+    /// <param name="manifestPath">Path to deployment manifest JSON file</param>
+    /// <param name="baseOptions">Base deployment options</param>
+    /// <returns>Multi-contract deployment result</returns>
+    public async Task<MultiContractDeploymentResult> DeployFromManifestAsync(
+        string manifestPath,
+        DeploymentOptions baseOptions)
+    {
+        _logger.LogInformation("Loading deployment manifest from {Path}", manifestPath);
+        
+        var manifestJson = await File.ReadAllTextAsync(manifestPath);
+        var manifest = System.Text.Json.JsonSerializer.Deserialize<DeploymentManifest>(manifestJson);
+        
+        if (manifest == null || manifest.Contracts == null || !manifest.Contracts.Any())
+        {
+            throw new InvalidOperationException("Invalid or empty deployment manifest");
+        }
+
+        var requests = manifest.Contracts.Select(c => new ContractDeploymentRequest
+        {
+            Name = c.Name,
+            SourcePath = c.SourcePath,
+            NefPath = c.NefPath,
+            ManifestPath = c.ManifestPath,
+            OutputDirectory = c.OutputDirectory,
+            Dependencies = c.Dependencies ?? new List<string>(),
+            GenerateDebugInfo = c.GenerateDebugInfo,
+            Optimize = c.Optimize,
+            GasLimit = c.GasLimit,
+            InitialParameters = c.InitialParameters,
+            InjectDependencies = c.InjectDependencies,
+            FailureMode = c.FailureMode,
+            PostDeploymentActions = c.PostDeploymentActions?.Select(a => new PostDeploymentAction
+            {
+                Method = a.Method,
+                Parameters = a.Parameters ?? new List<object>(),
+                Required = a.Required
+            }).ToList()
+        }).ToList();
+
+        return await DeployMultipleContractsAsync(requests, baseOptions);
+    }
+
+    /// <summary>
+    /// Create a deployment manifest template
+    /// </summary>
+    /// <param name="outputPath">Path to save the manifest template</param>
+    public async Task CreateDeploymentManifestTemplateAsync(string outputPath)
+    {
+        var template = new DeploymentManifest
+        {
+            Version = "1.0",
+            Description = "Multi-contract deployment manifest",
+            Contracts = new List<ContractManifestEntry>
+            {
+                new ContractManifestEntry
+                {
+                    Name = "ExampleContract",
+                    SourcePath = "src/ExampleContract.cs",
+                    Dependencies = new List<string>(),
+                    GenerateDebugInfo = true,
+                    Optimize = true,
+                    GasLimit = 50000000,
+                    InitialParameters = new List<object> { "param1", 123 },
+                    PostDeploymentActions = new List<ManifestPostDeploymentAction>
+                    {
+                        new ManifestPostDeploymentAction
+                        {
+                            Method = "initialize",
+                            Parameters = new List<object> { "value" },
+                            Required = true
+                        }
+                    }
+                }
+            }
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(template, new System.Text.Json.JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        await File.WriteAllTextAsync(outputPath, json);
+        _logger.LogInformation("Deployment manifest template created at {Path}", outputPath);
+    }
+
+    #endregion
+
+    #region Nested Classes for Manifest
+
+    private class DeploymentManifest
+    {
+        public string Version { get; set; } = "1.0";
+        public string Description { get; set; } = "";
+        public List<ContractManifestEntry> Contracts { get; set; } = new();
+    }
+
+    private class ContractManifestEntry
+    {
+        public string Name { get; set; } = "";
+        public string? SourcePath { get; set; }
+        public string? NefPath { get; set; }
+        public string? ManifestPath { get; set; }
+        public string? OutputDirectory { get; set; }
+        public List<string> Dependencies { get; set; } = new();
+        public bool GenerateDebugInfo { get; set; }
+        public bool Optimize { get; set; } = true;
+        public long GasLimit { get; set; } = 50000000;
+        public List<object>? InitialParameters { get; set; }
+        public bool InjectDependencies { get; set; }
+        public DeploymentFailureMode FailureMode { get; set; } = DeploymentFailureMode.Continue;
+        public List<ManifestPostDeploymentAction>? PostDeploymentActions { get; set; }
+    }
+
+    private class ManifestPostDeploymentAction
+    {
+        public string Method { get; set; } = "";
+        public List<object> Parameters { get; set; } = new();
+        public bool Required { get; set; } = true;
+    }
+
+    #endregion
 }

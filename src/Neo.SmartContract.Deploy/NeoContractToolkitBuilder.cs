@@ -151,6 +151,9 @@ public class NeoContractToolkitBuilder
 
         // Add the main toolkit
         _services.AddTransient<NeoContractToolkit>();
+        
+        // Add multi-contract deployment service
+        _services.AddTransient<MultiContractDeploymentService>();
 
         // Build service provider and return toolkit
         var serviceProvider = _services.BuildServiceProvider();
