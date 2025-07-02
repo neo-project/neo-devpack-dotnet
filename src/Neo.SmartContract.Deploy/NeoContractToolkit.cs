@@ -315,10 +315,10 @@ public class NeoContractToolkit
         DeploymentOptions baseOptions)
     {
         _logger.LogInformation("Loading deployment manifest from {Path}", manifestPath);
-        
+
         var manifestJson = await File.ReadAllTextAsync(manifestPath);
         var manifest = System.Text.Json.JsonSerializer.Deserialize<DeploymentManifest>(manifestJson);
-        
+
         if (manifest == null || manifest.Contracts == null || !manifest.Contracts.Any())
         {
             throw new InvalidOperationException("Invalid or empty deployment manifest");

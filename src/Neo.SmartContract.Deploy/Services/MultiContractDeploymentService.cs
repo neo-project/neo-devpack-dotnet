@@ -97,7 +97,7 @@ public class MultiContractDeploymentService
                 {
                     _deployedContracts[request.Name] = deploymentInfo;
                     result.SuccessfulDeployments.Add(deploymentInfo);
-                    _logger.LogInformation("Successfully deployed {Name} at {Hash}", 
+                    _logger.LogInformation("Successfully deployed {Name} at {Hash}",
                         request.Name, deploymentInfo.ContractHash);
 
                     // Execute post-deployment actions
@@ -113,7 +113,7 @@ public class MultiContractDeploymentService
                         ContractName = request.Name,
                         Reason = deploymentInfo.ErrorMessage ?? "Unknown error"
                     });
-                    _logger.LogError("Failed to deploy {Name}: {Error}", 
+                    _logger.LogError("Failed to deploy {Name}: {Error}",
                         request.Name, deploymentInfo.ErrorMessage);
                 }
             }
@@ -136,7 +136,7 @@ public class MultiContractDeploymentService
         }
 
         result.TotalContracts = requests.Count;
-        _logger.LogInformation("Multi-contract deployment completed. Success: {Success}, Failed: {Failed}", 
+        _logger.LogInformation("Multi-contract deployment completed. Success: {Success}, Failed: {Failed}",
             result.SuccessfulDeployments.Count, result.FailedDeployments.Count);
 
         return result;
@@ -153,14 +153,14 @@ public class MultiContractDeploymentService
         var result = new MultiContractDeploymentResult();
         var dependencyLevels = GroupByDependencyLevel(requests);
 
-        _logger.LogInformation("Starting parallel multi-contract deployment across {Levels} dependency levels", 
+        _logger.LogInformation("Starting parallel multi-contract deployment across {Levels} dependency levels",
             dependencyLevels.Count);
 
         foreach (var level in dependencyLevels.OrderBy(l => l.Key))
         {
             _logger.LogInformation("Deploying level {Level} contracts in parallel", level.Key);
-            
-            var levelTasks = level.Value.Select(request => 
+
+            var levelTasks = level.Value.Select(request =>
                 DeployContractAsync(request, baseOptions)).ToList();
 
             // Deploy contracts at the same level in parallel
@@ -252,7 +252,7 @@ public class MultiContractDeploymentService
         try
         {
             var deploymentOptions = CreateDeploymentOptions(baseOptions, request, _deployedContracts);
-            
+
             CompiledContract compiledContract;
             if (!string.IsNullOrEmpty(request.SourcePath))
             {
@@ -272,7 +272,7 @@ public class MultiContractDeploymentService
             }
 
             var result = await _deployer.DeployAsync(compiledContract, deploymentOptions);
-            
+
             if (result.Success && request.PostDeploymentActions?.Any() == true)
             {
                 await ExecutePostDeploymentActions(result, request.PostDeploymentActions);
@@ -330,7 +330,7 @@ public class MultiContractDeploymentService
         {
             try
             {
-                _logger.LogInformation("Executing post-deployment action: {Method} on {Contract}", 
+                _logger.LogInformation("Executing post-deployment action: {Method} on {Contract}",
                     action.Method, deployment.ContractName);
 
                 // This would use IContractInvoker in a real implementation

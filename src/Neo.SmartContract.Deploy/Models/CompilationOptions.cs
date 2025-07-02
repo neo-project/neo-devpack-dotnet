@@ -14,7 +14,7 @@ public class CompilationOptions
     /// - A .cs source file for single-file compilation (legacy support)
     /// </remarks>
     public string SourcePath { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Gets or sets the project file path when compiling from a project
     /// </summary>

@@ -39,7 +39,7 @@ public class ContractDeployerService : IContractDeployer
     {
         if (contract == null) throw new ArgumentNullException(nameof(contract));
         if (options == null) throw new ArgumentNullException(nameof(options));
-        
+
         var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
         if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
         {
@@ -202,7 +202,7 @@ public class ContractDeployerService : IContractDeployer
         if (contract == null) throw new ArgumentNullException(nameof(contract));
         if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
         if (options == null) throw new ArgumentNullException(nameof(options));
-        
+
         var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
         if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
         {

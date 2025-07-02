@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Deploy.Models
         /// Supports contract references using {{ContractName}} syntax
         /// </summary>
         public object[]? InitParams { get; set; }
-        
+
         /// <summary>
         /// List of contract dependencies (contract names that must be deployed first)
         /// </summary>

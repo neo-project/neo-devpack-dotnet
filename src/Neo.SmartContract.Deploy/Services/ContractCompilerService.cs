@@ -33,8 +33,8 @@ public class ContractCompilerService : IContractCompiler
         // Determine the compilation path (prefer ProjectPath over SourcePath)
         var compilationPath = !string.IsNullOrEmpty(options.ProjectPath) ? options.ProjectPath : options.SourcePath;
         var isProjectCompilation = compilationPath.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
-        
-        _logger.LogInformation("Compiling contract from {Path} (Project: {IsProject})", 
+
+        _logger.LogInformation("Compiling contract from {Path} (Project: {IsProject})",
             compilationPath, isProjectCompilation);
 
         if (!File.Exists(compilationPath))
@@ -70,7 +70,7 @@ public class ContractCompilerService : IContractCompiler
             // Compile the contract using the compiler engine
             var compiler = new Neo.Compiler.CompilationEngine(compileOptions);
             List<CompilationContext> results;
-            
+
             if (isProjectCompilation)
             {
                 // Compile from project

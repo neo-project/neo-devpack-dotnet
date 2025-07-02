@@ -57,7 +57,7 @@ public class DeploymentOptions
     /// Whether to use Neo Express for local development
     /// </summary>
     public bool UseNeoExpress { get; set; } = false;
-    
+
     /// <summary>
     /// Initial parameters to pass to contract constructor
     /// </summary>
