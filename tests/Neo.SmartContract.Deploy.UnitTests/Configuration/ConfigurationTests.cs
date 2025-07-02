@@ -17,7 +17,7 @@ public class ConfigurationTests : TestBase
 
         // Assert
         Assert.NotNull(toolkit);
-        
+
         // Verify configuration is accessible (this tests that NeoContractToolkitBuilder properly sets up IConfiguration)
         var networkConfig = Configuration.GetSection("Network").Get<NetworkConfiguration>();
         Assert.NotNull(networkConfig);
@@ -79,7 +79,7 @@ public class ConfigurationTests : TestBase
 
         var baseConfigPath = Path.Combine(testDir, "appsettings.json");
         var testNetConfigPath = Path.Combine(testDir, "appsettings.TestNet.json");
-        
+
         File.WriteAllText(baseConfigPath, baseConfig);
         File.WriteAllText(testNetConfigPath, testNetConfig);
 
@@ -95,7 +95,7 @@ public class ConfigurationTests : TestBase
             // Assert
             var networkConfig = configuration.GetSection("Network").Get<NetworkConfiguration>();
             Assert.NotNull(networkConfig);
-            
+
             // TestNet config should override base config
             Assert.Equal("https://rpc10.n3.neotracker.io:443", networkConfig.RpcUrl);
             Assert.Equal("testnet", networkConfig.Network);
@@ -113,7 +113,7 @@ public class ConfigurationTests : TestBase
         // Arrange
         var toolkit = CreateToolkit();
         var testWalletPath = Path.Combine(Path.GetTempPath(), "config-test.wallet.json");
-        
+
         // Create test wallet with known password "123456" (using the standard test wallet)
         var walletJson = @"{
   ""name"": null,
@@ -152,9 +152,9 @@ public class ConfigurationTests : TestBase
             // Act & Assert - This should use configuration for wallet loading
             await toolkit.LoadWalletAsync(testWalletPath, "123456");
             var account = toolkit.GetDeployerAccount();
-            
+
             Assert.NotNull(account);
-            
+
             // This should use configuration for network operations
             // Note: We can't test actual network calls in unit tests, but we can verify
             // that the configuration is being used by the services

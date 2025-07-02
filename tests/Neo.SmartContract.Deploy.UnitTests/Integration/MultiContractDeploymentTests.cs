@@ -61,14 +61,14 @@ public class MultiContractDeploymentTests : TestBase
                 var result = await toolkit.CompileAndDeployAsync(compilationOptions, deploymentOptions);
                 Assert.True(result.Success, $"Failed to deploy {contractName}");
                 Assert.NotEqual(UInt160.Zero, result.ContractHash);
-                
+
                 deploymentResults.Add(result);
             }
 
             // Verify all contracts are deployed
             Assert.Equal(3, deploymentResults.Count);
             Assert.All(deploymentResults, result => Assert.True(result.Success));
-            
+
             // Verify each contract has unique hash
             var uniqueHashes = deploymentResults.Select(r => r.ContractHash).Distinct().Count();
             Assert.Equal(3, uniqueHashes);
@@ -303,7 +303,7 @@ public class MultiContractDeploymentTests : TestBase
 
             // Attempt to deploy all contracts
             var deploymentErrors = new List<string>();
-            
+
             foreach (var contractPath in contractPaths)
             {
                 try
@@ -317,7 +317,7 @@ public class MultiContractDeploymentTests : TestBase
                     };
 
                     var result = await toolkit.CompileAndDeployAsync(compilationOptions, deploymentOptions);
-                    
+
                     if (result.Success)
                     {
                         successfulDeployments.Add(result);
@@ -744,8 +744,8 @@ namespace Contracts
 
     private string GenerateGovernanceContract(string name, Dictionary<string, ContractDeploymentInfo> deployedContracts)
     {
-        var tokenHash = deployedContracts.ContainsKey("Token") 
-            ? deployedContracts["Token"].ContractHash.ToString() 
+        var tokenHash = deployedContracts.ContainsKey("Token")
+            ? deployedContracts["Token"].ContractHash.ToString()
             : "UInt160.Zero";
 
         return $@"

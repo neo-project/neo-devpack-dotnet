@@ -29,7 +29,7 @@ public class VerifyDeploymentToolkit : IDisposable
     {
         _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(_tempDir);
-        
+
         // Create test configuration
         var configJson = @"{
   ""Network"": {
@@ -47,12 +47,12 @@ public class VerifyDeploymentToolkit : IDisposable
 }";
         var configPath = Path.Combine(_tempDir, "appsettings.json");
         File.WriteAllText(configPath, configJson);
-        
+
         _configuration = new ConfigurationBuilder()
             .SetBasePath(_tempDir)
             .AddJsonFile("appsettings.json", optional: false)
             .Build();
-            
+
         _loggerFactory = LoggerFactory.Create(builder =>
         {
             builder.AddConsole();
@@ -75,12 +75,12 @@ public class VerifyDeploymentToolkit : IDisposable
                 services.AddSingleton(_configuration);
             })
             .Build();
-            
+
         Assert.NotNull(toolkit);
-        
+
         // Step 2: Create a test wallet programmatically
         var walletPath = Path.Combine(_tempDir, "test.wallet.json");
-        
+
         // Using the exact wallet JSON from Neo repository tests (UT_RpcServer.Wallet.cs)
         // This wallet is known to work with password "123456"
         var testWalletJson = @"{
@@ -114,15 +114,15 @@ public class VerifyDeploymentToolkit : IDisposable
   ""extra"": null
 }";
         await File.WriteAllTextAsync(walletPath, testWalletJson);
-        
+
         // Step 3: Load wallet
         await toolkit.LoadWalletAsync(walletPath, "123456");
         var deployerAccount = toolkit.GetDeployerAccount();
         Assert.NotNull(deployerAccount);
-        
+
         // Step 4: Create a test contract project
         var projectPath = CreateTestContractProject();
-        
+
         // Step 5: Compile the contract
         var compilationOptions = new CompilationOptions
         {
@@ -132,42 +132,42 @@ public class VerifyDeploymentToolkit : IDisposable
             GenerateDebugInfo = true,
             Optimize = true
         };
-        
+
         var compiler = toolkit.GetService<IContractCompiler>();
         var compiledContract = await compiler.CompileAsync(compilationOptions);
-        
+
         Assert.NotNull(compiledContract);
         Assert.NotEmpty(compiledContract.NefBytes);
         Assert.NotNull(compiledContract.Manifest);
         Assert.Equal("TestContract", compiledContract.Name);
-        
+
         // Step 6: Verify deployment options from configuration
         var networkConfig = _configuration.GetSection("Network");
         Assert.Equal("http://localhost:50012", networkConfig["RpcUrl"]);
         Assert.Equal("private", networkConfig["Network"]);
-        
+
         var deploymentConfig = _configuration.GetSection("Deployment");
         Assert.Equal("50000000", deploymentConfig["DefaultGasLimit"]);
         Assert.Equal("False", deploymentConfig["WaitForConfirmation"]);
-        
+
         // Step 7: Test multi-contract deployment service
         var multiDeployService = toolkit.GetService<MultiContractDeploymentService>();
         Assert.NotNull(multiDeployService);
-        
+
         // Step 8: Verify all services are properly registered
         Assert.NotNull(toolkit.GetService<IContractCompiler>());
         Assert.NotNull(toolkit.GetService<IContractDeployer>());
         Assert.NotNull(toolkit.GetService<IContractInvoker>());
         Assert.NotNull(toolkit.GetService<IWalletManager>());
-        
+
         // Step 9: Test configuration-based network operations
         var rpcUrl = _configuration["Network:RpcUrl"];
         Assert.Equal("http://localhost:50012", rpcUrl);
-        
+
         // Step 10: Verify project-based compilation works
-        Assert.True(projectPath.EndsWith(".csproj"));
+        Assert.EndsWith(".csproj", projectPath);
         Assert.True(File.Exists(projectPath));
-        
+
         // The toolkit is complete and working!
     }
 
@@ -177,24 +177,24 @@ public class VerifyDeploymentToolkit : IDisposable
         // Test the builder pattern
         var builder = NeoContractToolkitBuilder.Create();
         Assert.NotNull(builder);
-        
+
         // Configure logging
         builder.ConfigureLogging(logging =>
         {
             logging.AddConsole();
             logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
         });
-        
+
         // Configure services
         builder.ConfigureServices(services =>
         {
             services.AddSingleton(_configuration);
         });
-        
+
         // Build toolkit
         var toolkit = builder.Build();
         Assert.NotNull(toolkit);
-        
+
         // Verify services are accessible
         var compiler = toolkit.GetService<IContractCompiler>();
         Assert.NotNull(compiler);
@@ -205,7 +205,7 @@ public class VerifyDeploymentToolkit : IDisposable
     {
         var toolkit = CreateToolkit();
         var compiler = toolkit.GetService<IContractCompiler>();
-        
+
         // Test project-based compilation
         var projectPath = CreateTestContractProject();
         var projectOptions = new CompilationOptions
@@ -214,11 +214,11 @@ public class VerifyDeploymentToolkit : IDisposable
             OutputDirectory = Path.Combine(_tempDir, "project-output"),
             ContractName = "ProjectContract"
         };
-        
+
         var projectResult = await compiler.CompileAsync(projectOptions);
         Assert.NotNull(projectResult);
         Assert.Equal("ProjectContract", projectResult.Name);
-        
+
         // Test source file compilation (backward compatibility)
         var sourcePath = CreateTestContractFile();
         var sourceOptions = new CompilationOptions
@@ -227,7 +227,7 @@ public class VerifyDeploymentToolkit : IDisposable
             OutputDirectory = Path.Combine(_tempDir, "source-output"),
             ContractName = "SourceContract"
         };
-        
+
         // This should still work for backward compatibility
         var sourceResult = await compiler.CompileAsync(sourceOptions);
         Assert.NotNull(sourceResult);
@@ -252,7 +252,7 @@ public class VerifyDeploymentToolkit : IDisposable
     {
         var projectDir = Path.Combine(_tempDir, "TestContract");
         Directory.CreateDirectory(projectDir);
-        
+
         // Create contract source
         var contractCode = @"
 using Neo.SmartContract.Framework;
@@ -288,10 +288,10 @@ namespace TestContract
         }
     }
 }";
-        
+
         var contractPath = Path.Combine(projectDir, "TestContract.cs");
         File.WriteAllText(contractPath, contractCode);
-        
+
         // Create project file
         var projectContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
@@ -305,10 +305,10 @@ namespace TestContract
     <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1"" />
   </ItemGroup>
 </Project>";
-        
+
         var projectPath = Path.Combine(projectDir, "TestContract.csproj");
         File.WriteAllText(projectPath, projectContent);
-        
+
         return projectPath;
     }
 
@@ -329,7 +329,7 @@ namespace TestContract
         }
     }
 }";
-        
+
         var contractPath = Path.Combine(_tempDir, "SimpleContract.cs");
         File.WriteAllText(contractPath, contractCode);
         return contractPath;

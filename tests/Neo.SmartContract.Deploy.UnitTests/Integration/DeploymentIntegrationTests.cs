@@ -65,17 +65,17 @@ public class DeploymentIntegrationTests : TestBase
 
             // Step 2: Test contract invocation - call a read-only method
             var getValue = await toolkit.CallContractAsync<int>(
-                deploymentResult.ContractHash, 
+                deploymentResult.ContractHash,
                 "getValue");
-            
+
             Assert.Equal(42, getValue);
 
             // Step 3: Test contract invocation - call method with parameters
             var testResult = await toolkit.CallContractAsync<string>(
-                deploymentResult.ContractHash, 
-                "testMethod", 
+                deploymentResult.ContractHash,
+                "testMethod",
                 "World");
-            
+
             Assert.Equal("Hello World", testResult);
 
             // Step 4: Send a transaction to invoke a method
@@ -101,7 +101,7 @@ public class DeploymentIntegrationTests : TestBase
                     Directory.Delete(projectDir, true);
             }
             catch { /* Ignore cleanup errors */ }
-            
+
             try
             {
                 if (Directory.Exists(outputDir))
@@ -145,7 +145,7 @@ public class DeploymentIntegrationTests : TestBase
             // Step 1: Compile first to get artifacts
             var compilerService = new Neo.SmartContract.Deploy.Services.ContractCompilerService(
                 LoggerFactory.CreateLogger<Neo.SmartContract.Deploy.Services.ContractCompilerService>());
-            
+
             var compiledContract = await compilerService.CompileAsync(compilationOptions);
 
             // Step 2: Deploy from artifacts
@@ -161,9 +161,9 @@ public class DeploymentIntegrationTests : TestBase
 
             // Verify deployed contract works
             var getValue = await toolkit.CallContractAsync<int>(
-                deploymentResult.ContractHash, 
+                deploymentResult.ContractHash,
                 "getValue");
-            
+
             Assert.Equal(42, getValue);
         }
         finally
@@ -234,9 +234,9 @@ public class DeploymentIntegrationTests : TestBase
 
             // Step 4: Verify updated contract behavior
             var newValue = await toolkit.CallContractAsync<int>(
-                updateResult.ContractHash, 
+                updateResult.ContractHash,
                 "getValue");
-            
+
             Assert.Equal(100, newValue); // Updated return value
         }
         finally
@@ -245,14 +245,14 @@ public class DeploymentIntegrationTests : TestBase
             var originalProjectDir = new DirectoryInfo(Path.GetDirectoryName(originalProjectPath)!).Parent!.FullName;
             if (Directory.Exists(originalProjectDir))
                 Directory.Delete(originalProjectDir, true);
-            
+
             if (updatedProjectPath != null)
             {
                 var updatedProjectDir = new DirectoryInfo(Path.GetDirectoryName(updatedProjectPath)!).Parent!.FullName;
                 if (Directory.Exists(updatedProjectDir))
                     Directory.Delete(updatedProjectDir, true);
             }
-            
+
             if (Directory.Exists(outputDir))
                 Directory.Delete(outputDir, true);
         }

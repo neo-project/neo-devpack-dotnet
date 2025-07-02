@@ -37,7 +37,7 @@ public abstract class TestBase : IDisposable
 
         // Initialize test engine (equivalent to Neo Express)
         Engine = new TestEngine();
-        
+
         // Create test wallet and accounts
         SetupTestEnvironment();
     }
@@ -127,7 +127,7 @@ namespace TestContract
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-    
+
     protected string CreateTestContractProject(string contractName = "TestContract", string contractCode = null)
     {
         if (contractCode == null)
@@ -170,11 +170,11 @@ namespace " + contractName + @"
 
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), contractName);
         Directory.CreateDirectory(tempDir);
-        
+
         // Create the contract source file
         var contractPath = Path.Combine(tempDir, $"{contractName}.cs");
         File.WriteAllText(contractPath, contractCode);
-        
+
         // Create the project file
         var projectContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
@@ -192,13 +192,13 @@ namespace " + contractName + @"
     <Message Text=""Smart contract build completed"" Importance=""high"" />
   </Target>
 </Project>";
-        
+
         var projectPath = Path.Combine(tempDir, $"{contractName}.csproj");
         File.WriteAllText(projectPath, projectContent);
-        
+
         return projectPath;
     }
-    
+
     protected async Task CreateTestWalletFile(string walletPath)
     {
         // For now, use the exact same wallet format as the working unit tests

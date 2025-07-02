@@ -48,7 +48,7 @@ public class ContractCompilerServiceTests : TestBase
         Assert.NotNull(result.Manifest);
         Assert.True(File.Exists(result.NefFilePath));
         Assert.True(File.Exists(result.ManifestFilePath));
-        
+
         // Verify manifest contains expected methods
         Assert.Contains(result.Manifest.Abi.Methods, m => m.Name == "testMethod");
         Assert.Contains(result.Manifest.Abi.Methods, m => m.Name == "getValue");
@@ -154,7 +154,7 @@ namespace TestContract
         File.WriteAllText(manifestPath, @"{""name"": ""TestContract""}");
 
         // Act & Assert
-        await Assert.ThrowsAsync<FileNotFoundException>(() => 
+        await Assert.ThrowsAsync<FileNotFoundException>(() =>
             _compilerService.LoadAsync("/non/existent/file.nef", manifestPath));
 
         // Cleanup
@@ -169,7 +169,7 @@ namespace TestContract
         File.WriteAllBytes(nefPath, new byte[] { 0x4E, 0x45, 0x46, 0x33 }); // NEF magic
 
         // Act & Assert
-        await Assert.ThrowsAsync<FileNotFoundException>(() => 
+        await Assert.ThrowsAsync<FileNotFoundException>(() =>
             _compilerService.LoadAsync(nefPath, "/non/existent/manifest.json"));
 
         // Cleanup

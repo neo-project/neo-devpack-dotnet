@@ -22,7 +22,7 @@ public class WalletManagerServiceTests : TestBase
         _mockLogger = new Mock<ILogger<WalletManagerService>>();
         _walletService = new WalletManagerService(_mockLogger.Object);
         _testWalletPath = Path.Combine(Path.GetTempPath(), "test-wallet.json");
-        
+
         CreateTestWallet();
     }
 
@@ -50,7 +50,7 @@ public class WalletManagerServiceTests : TestBase
     public async Task LoadWalletAsync_WithNonExistentFile_ShouldThrowFileNotFoundException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<FileNotFoundException>(() => 
+        await Assert.ThrowsAsync<FileNotFoundException>(() =>
             _walletService.LoadWalletAsync("/non/existent/wallet.json", "password"));
     }
 
@@ -58,7 +58,7 @@ public class WalletManagerServiceTests : TestBase
     public async Task LoadWalletAsync_WithInvalidPassword_ShouldThrowWalletException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => 
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
             _walletService.LoadWalletAsync(_testWalletPath, "wrongpassword"));
     }
 
@@ -94,7 +94,7 @@ public class WalletManagerServiceTests : TestBase
         await _walletService.LoadWalletAsync(_testWalletPath, "123456");
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => 
+        Assert.Throws<ArgumentException>(() =>
             _walletService.GetAccount("NNonExistentAddressXXXXXXXXXXXXXXXXXX"));
     }
 
@@ -113,13 +113,13 @@ public class WalletManagerServiceTests : TestBase
             SystemFee = 1000000,
             NetworkFee = 1000000,
             ValidUntilBlock = 2000000,
-            Signers = new[] 
-            { 
-                new Signer 
-                { 
-                    Account = signerAccount, 
-                    Scopes = WitnessScope.CalledByEntry 
-                } 
+            Signers = new[]
+            {
+                new Signer
+                {
+                    Account = signerAccount,
+                    Scopes = WitnessScope.CalledByEntry
+                }
             },
             Attributes = System.Array.Empty<TransactionAttribute>(),
             Script = new byte[] { 0x40, 0x41, 0x9F, 0x00, 0x00, 0x00 }, // Simple script
@@ -149,13 +149,13 @@ public class WalletManagerServiceTests : TestBase
             SystemFee = 1000000,
             NetworkFee = 1000000,
             ValidUntilBlock = 2000000,
-            Signers = new[] 
-            { 
-                new Signer 
-                { 
-                    Account = invalidSigner, 
-                    Scopes = WitnessScope.CalledByEntry 
-                } 
+            Signers = new[]
+            {
+                new Signer
+                {
+                    Account = invalidSigner,
+                    Scopes = WitnessScope.CalledByEntry
+                }
             },
             Attributes = System.Array.Empty<TransactionAttribute>(),
             Script = new byte[] { 0x40, 0x41, 0x9F, 0x00, 0x00, 0x00 },
@@ -163,7 +163,7 @@ public class WalletManagerServiceTests : TestBase
         };
 
         // Act & Assert
-        await Assert.ThrowsAsync<WalletException>(() => 
+        await Assert.ThrowsAsync<WalletException>(() =>
             _walletService.SignTransactionAsync(transaction, invalidSigner));
     }
 

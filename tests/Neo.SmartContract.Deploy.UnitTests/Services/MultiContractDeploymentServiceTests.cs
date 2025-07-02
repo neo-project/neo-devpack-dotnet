@@ -27,7 +27,7 @@ public class MultiContractDeploymentServiceTests : TestBase
         _mockLogger = new Mock<ILogger<ContractDeployerService>>();
         _mockWalletManager = new Mock<IWalletManager>();
         _deployerService = new ContractDeployerService(_mockLogger.Object, _mockWalletManager.Object, Configuration);
-        
+
         _mockCompilerLogger = new Mock<ILogger<ContractCompilerService>>();
         _compilerService = new ContractCompilerService(_mockCompilerLogger.Object);
     }
@@ -38,11 +38,11 @@ public class MultiContractDeploymentServiceTests : TestBase
         // Arrange
         var deploymentOrder = new List<string>();
         var compiledContracts = CreateMockCompiledContracts(3);
-        
+
         var deployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
         _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(deployerAccount);
         _mockWalletManager.Setup(x => x.SignTransactionAsync(It.IsAny<Neo.Network.P2P.Payloads.Transaction>(), It.IsAny<UInt160?>()))
-            .Callback<Neo.Network.P2P.Payloads.Transaction, UInt160?>((tx, account) => 
+            .Callback<Neo.Network.P2P.Payloads.Transaction, UInt160?>((tx, account) =>
             {
                 // Track deployment order based on transaction creation
                 deploymentOrder.Add($"Contract{deploymentOrder.Count + 1}");
@@ -61,7 +61,7 @@ public class MultiContractDeploymentServiceTests : TestBase
                 deploymentAttempts++;
                 var result = await _deployerService.DeployAsync(contract, deploymentOptions);
                 deploymentResults.Add(result);
-                
+
                 // Track order based on result (even if failed)
                 if (!deploymentOrder.Contains(contract.Name))
                 {
@@ -81,7 +81,7 @@ public class MultiContractDeploymentServiceTests : TestBase
         // Assert - we should have attempted to deploy all 3 contracts
         Assert.Equal(3, deploymentAttempts);
         Assert.Equal(3, compiledContracts.Count);
-        
+
         // Since the actual deployment fails early, we can't test the transaction signing order
         // Instead, verify that we attempted to deploy all contracts in sequence
         Assert.True(deploymentAttempts > 0);
@@ -112,7 +112,7 @@ public class MultiContractDeploymentServiceTests : TestBase
             // Verify all dependencies are deployed
             foreach (var dep in dependencies)
             {
-                Assert.True(deployedContracts.ContainsKey(dep), 
+                Assert.True(deployedContracts.ContainsKey(dep),
                     $"Dependency {dep} must be deployed before {contract.Name}");
             }
 
@@ -151,10 +151,10 @@ public class MultiContractDeploymentServiceTests : TestBase
 
         var deployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
         _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(deployerAccount);
-        
+
         var callCount = 0;
         _mockWalletManager.Setup(x => x.SignTransactionAsync(It.IsAny<Neo.Network.P2P.Payloads.Transaction>(), It.IsAny<UInt160?>()))
-            .Callback<Neo.Network.P2P.Payloads.Transaction, UInt160?>((tx, account) => 
+            .Callback<Neo.Network.P2P.Payloads.Transaction, UInt160?>((tx, account) =>
             {
                 callCount++;
                 if (callCount == 2) // Fail on second contract
@@ -182,7 +182,7 @@ public class MultiContractDeploymentServiceTests : TestBase
         // Assert
         Assert.Equal(4, results.Count);
         Assert.Equal(4, results.Count(r => !r.success)); // All 4 fail due to network connectivity
-        
+
         // We can't test the specific signing failure because all contracts fail earlier
         // Just verify all contracts were attempted
         Assert.Equal(4, results.Count(r => !string.IsNullOrEmpty(r.error)));
@@ -207,7 +207,7 @@ public class MultiContractDeploymentServiceTests : TestBase
                     ContractName = Path.GetFileNameWithoutExtension(path)
                 };
 
-                compilationTasks.Add(Task.Run(async () => 
+                compilationTasks.Add(Task.Run(async () =>
                 {
                     try
                     {
@@ -259,7 +259,7 @@ public class MultiContractDeploymentServiceTests : TestBase
             if (deployedContracts[i].shouldRollback)
             {
                 rollbackOrder.Add(deployedContracts[i].name);
-                
+
                 // In real scenario, would call contract destroy method
                 // For testing, just track the order
             }
@@ -338,8 +338,8 @@ public class MultiContractDeploymentServiceTests : TestBase
         }
 
         // Valid mock contract
-        var nefBytes = new byte[] 
-        { 
+        var nefBytes = new byte[]
+        {
             0x4E, 0x45, 0x46, 0x33, // NEF3 magic
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -402,7 +402,7 @@ public class MultiContractDeploymentServiceTests : TestBase
     private List<string> CreateMultipleTestContractFiles(int count)
     {
         var paths = new List<string>();
-        
+
         for (int i = 1; i <= count; i++)
         {
             var contractCode = $@"

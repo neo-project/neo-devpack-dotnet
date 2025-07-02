@@ -61,7 +61,7 @@ public class ContractDeployerServiceTests : TestBase
         // Arrange
         var compiledContract = CreateMockCompiledContract();
         var deploymentOptions = CreateDeploymentOptions();
-        
+
         // Setup wallet manager mock
         var deployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
         _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(deployerAccount);
@@ -70,7 +70,7 @@ public class ContractDeployerServiceTests : TestBase
 
         // Act
         var result = await _deployerService.DeployAsync(compiledContract, deploymentOptions);
-        
+
         // Assert
         Assert.NotNull(result);
         Assert.False(result.Success); // Should fail due to network connectivity
@@ -85,7 +85,7 @@ public class ContractDeployerServiceTests : TestBase
         var compiledContract = CreateMockCompiledContract();
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
         var deploymentOptions = CreateDeploymentOptions();
-        
+
         // Setup wallet manager mock
         var deployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
         _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(deployerAccount);
@@ -94,7 +94,7 @@ public class ContractDeployerServiceTests : TestBase
 
         // Act
         var result = await _deployerService.UpdateAsync(compiledContract, contractHash, deploymentOptions);
-        
+
         // Assert
         Assert.NotNull(result);
         Assert.False(result.Success); // Should fail due to network connectivity
@@ -109,7 +109,7 @@ public class ContractDeployerServiceTests : TestBase
         var deploymentOptions = CreateDeploymentOptions();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => 
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
             _deployerService.DeployAsync(null!, deploymentOptions));
     }
 
@@ -121,7 +121,7 @@ public class ContractDeployerServiceTests : TestBase
         var deploymentOptions = CreateDeploymentOptions();
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => 
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
             _deployerService.UpdateAsync(null!, contractHash, deploymentOptions));
     }
 
@@ -131,10 +131,10 @@ public class ContractDeployerServiceTests : TestBase
         // Arrange
         var compiledContract = CreateMockCompiledContract();
         var deploymentOptions = CreateDeploymentOptions();
-        
+
         // Remove DeployerAccount from options to force wallet manager usage
         deploymentOptions.DeployerAccount = null;
-        
+
         // Setup wallet manager to throw exception
         _mockWalletManager.Setup(x => x.GetAccount(null)).Throws(new InvalidOperationException("Wallet not loaded"));
 
@@ -150,8 +150,8 @@ public class ContractDeployerServiceTests : TestBase
     private CompiledContract CreateMockCompiledContract()
     {
         // Create a simple test NEF file content
-        var nefBytes = new byte[] 
-        { 
+        var nefBytes = new byte[]
+        {
             0x4E, 0x45, 0x46, 0x33, // NEF3 magic
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

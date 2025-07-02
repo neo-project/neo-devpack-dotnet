@@ -32,9 +32,9 @@ public class ContractInvokerServiceTests : TestBase
 
         // Act & Assert
         // This will likely fail due to network connectivity, but we're testing the service structure
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => 
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
             _invokerService.CallAsync<string>(contractHash, method, parameters));
-        
+
         Assert.NotNull(exception);
     }
 
@@ -45,16 +45,16 @@ public class ContractInvokerServiceTests : TestBase
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
         var method = "testMethod";
         var parameters = new object[] { "test input" };
-        
+
         // Setup wallet manager mock
         var signerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
         _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(signerAccount);
 
         // Act & Assert
         // This will likely fail due to network connectivity, but we're testing the service structure
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => 
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
             _invokerService.SendAsync(contractHash, method, parameters));
-        
+
         Assert.NotNull(exception);
     }
 
@@ -82,9 +82,9 @@ public class ContractInvokerServiceTests : TestBase
         var method = "getValue";
 
         // Act & Assert
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => 
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
             _invokerService.CallAsync<int>(contractHash, method));
-        
+
         Assert.NotNull(exception);
     }
 
@@ -94,15 +94,15 @@ public class ContractInvokerServiceTests : TestBase
         // Arrange
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
         var method = "getValue";
-        
+
         // Setup wallet manager mock
         var signerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
         _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(signerAccount);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => 
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
             _invokerService.SendAsync(contractHash, method));
-        
+
         Assert.NotNull(exception);
     }
 
@@ -113,7 +113,7 @@ public class ContractInvokerServiceTests : TestBase
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<Exception>(() => 
+        await Assert.ThrowsAnyAsync<Exception>(() =>
             _invokerService.CallAsync<string>(contractHash, null!, "param"));
     }
 
@@ -122,13 +122,13 @@ public class ContractInvokerServiceTests : TestBase
     {
         // Arrange
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
-        
+
         // Setup wallet manager mock
         var signerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
         _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(signerAccount);
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<Exception>(() => 
+        await Assert.ThrowsAnyAsync<Exception>(() =>
             _invokerService.SendAsync(contractHash, null!, "param"));
     }
 
@@ -138,19 +138,19 @@ public class ContractInvokerServiceTests : TestBase
         // Arrange
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
         var method = "complexMethod";
-        var parameters = new object[] 
-        { 
-            "string param", 
-            42, 
-            true, 
+        var parameters = new object[]
+        {
+            "string param",
+            42,
+            true,
             new byte[] { 0x01, 0x02, 0x03 },
             UInt160.Parse("0x1234567890123456789012345678901234567890")
         };
 
         // Act & Assert
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => 
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
             _invokerService.CallAsync<string>(contractHash, method, parameters));
-        
+
         Assert.NotNull(exception);
     }
 
@@ -160,14 +160,14 @@ public class ContractInvokerServiceTests : TestBase
         // Arrange
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
         var method = "testMethod";
-        
+
         // Setup wallet manager to throw exception
         _mockWalletManager.Setup(x => x.GetAccount(null)).Throws(new InvalidOperationException("Wallet not loaded"));
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             _invokerService.SendAsync(contractHash, method, "param"));
-        
+
         Assert.Contains("Wallet not loaded", exception.Message);
     }
 }
