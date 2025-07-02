@@ -8,8 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Neo Smart Contract Deployment Toolkit - using local project reference -->
-    <ProjectReference Include="../../../../../Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj" />
+    <!-- Neo Smart Contract Deployment Toolkit -->
+    <PackageReference Include="Neo.SmartContract.Deploy" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
