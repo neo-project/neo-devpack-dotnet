@@ -38,7 +38,7 @@ public static class DeploymentExamples
         logger.LogInformation("Deploying Oracle Contract...");
         var oracleOptions = new CompilationOptions
         {
-            SourcePath = "../../src/Oracle/OracleContract.cs",
+            ProjectPath = "../../src/Oracle/Oracle.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "Oracle"
         };
@@ -49,7 +49,7 @@ public static class DeploymentExamples
         logger.LogInformation("Deploying Token Contract...");
         var tokenOptions = new CompilationOptions
         {
-            SourcePath = "../../src/Token/TokenContract.cs",
+            ProjectPath = "../../src/Token/Token.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "DeFiToken"
         };
@@ -68,7 +68,7 @@ public static class DeploymentExamples
         logger.LogInformation("Deploying Lending Pool Contract...");
         var lendingOptions = new CompilationOptions
         {
-            SourcePath = "../../src/LendingPool/LendingPoolContract.cs",
+            ProjectPath = "../../src/LendingPool/LendingPool.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "LendingPool"
         };
@@ -92,7 +92,7 @@ public static class DeploymentExamples
         logger.LogInformation("Deploying Governance Contract...");
         var govOptions = new CompilationOptions
         {
-            SourcePath = "../../src/Governance/GovernanceContract.cs",
+            ProjectPath = "../../src/Governance/Governance.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "Governance"
         };
@@ -165,7 +165,7 @@ public static class DeploymentExamples
         logger.LogInformation("Deploying NFT Contract...");
         var nftOptions = new CompilationOptions
         {
-            SourcePath = "../../src/NFT/NFTContract.cs",
+            ProjectPath = "../../src/NFT/NFT.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "NFTCollection"
         };
@@ -187,7 +187,7 @@ public static class DeploymentExamples
         logger.LogInformation("Deploying Marketplace Contract...");
         var marketOptions = new CompilationOptions
         {
-            SourcePath = "../../src/Marketplace/MarketplaceContract.cs",
+            ProjectPath = "../../src/Marketplace/Marketplace.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "NFTMarketplace"
         };
@@ -207,7 +207,7 @@ public static class DeploymentExamples
         logger.LogInformation("Deploying Royalty Registry...");
         var royaltyOptions = new CompilationOptions
         {
-            SourcePath = "../../src/Royalty/RoyaltyRegistry.cs",
+            ProjectPath = "../../src/Royalty/Royalty.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "RoyaltyRegistry"
         };
@@ -341,7 +341,7 @@ public static class DeploymentExamples
                 
                 var compilationOptions = new CompilationOptions
                 {
-                    SourcePath = $"../../src/{name}/{name}.cs",
+                    ProjectPath = $"../../src/{name}/{name}.csproj",
                     OutputDirectory = "bin/contracts",
                     ContractName = name
                 };

@@ -8,6 +8,8 @@ using Neo.SmartContract.Deploy.Exceptions;
 using Neo.SmartContract.Manifest;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.SmartContract.Deploy.Services;
 
@@ -24,15 +26,20 @@ public class ContractCompilerService : IContractCompiler
     }
 
     /// <summary>
-    /// Compile a smart contract from source code
+    /// Compile a smart contract from source code or project
     /// </summary>
     public async Task<CompiledContract> CompileAsync(Models.CompilationOptions options)
     {
-        _logger.LogInformation("Compiling contract from {SourcePath}", options.SourcePath);
+        // Determine the compilation path (prefer ProjectPath over SourcePath)
+        var compilationPath = !string.IsNullOrEmpty(options.ProjectPath) ? options.ProjectPath : options.SourcePath;
+        var isProjectCompilation = compilationPath.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
+        
+        _logger.LogInformation("Compiling contract from {Path} (Project: {IsProject})", 
+            compilationPath, isProjectCompilation);
 
-        if (!File.Exists(options.SourcePath))
+        if (!File.Exists(compilationPath))
         {
-            throw new FileNotFoundException($"Source file not found: {options.SourcePath}");
+            throw new FileNotFoundException($"File not found: {compilationPath}");
         }
 
         // Ensure output directory exists
@@ -40,7 +47,17 @@ public class ContractCompilerService : IContractCompiler
 
         try
         {
-            var contractName = options.ContractName ?? Path.GetFileNameWithoutExtension(options.SourcePath);
+            string contractName;
+            if (isProjectCompilation)
+            {
+                // For project compilation, use project name
+                contractName = options.ContractName ?? Path.GetFileNameWithoutExtension(compilationPath);
+            }
+            else
+            {
+                // For source file compilation, use source file name
+                contractName = options.ContractName ?? Path.GetFileNameWithoutExtension(compilationPath);
+            }
 
             // Use Neo.Compiler.CSharp to compile
             var compileOptions = new Neo.Compiler.CompilationOptions
@@ -52,11 +69,22 @@ public class ContractCompilerService : IContractCompiler
 
             // Compile the contract using the compiler engine
             var compiler = new Neo.Compiler.CompilationEngine(compileOptions);
-            var results = compiler.CompileSources(options.SourcePath);
+            List<CompilationContext> results;
+            
+            if (isProjectCompilation)
+            {
+                // Compile from project
+                results = compiler.CompileProject(compilationPath);
+            }
+            else
+            {
+                // Compile from source file
+                results = compiler.CompileSources(compilationPath);
+            }
 
             if (results.Count == 0)
             {
-                throw new CompilationException(options.SourcePath, new[] { "No compilation results produced" });
+                throw new CompilationException(compilationPath, new[] { "No compilation results produced" });
             }
 
             var firstResult = results[0];
@@ -65,7 +93,7 @@ public class ContractCompilerService : IContractCompiler
             if (!firstResult.Success)
             {
                 var errors = firstResult.Diagnostics.Select(d => d.ToString()).ToList();
-                throw new CompilationException(options.SourcePath, errors);
+                throw new CompilationException(compilationPath, errors);
             }
 
             // Create compilation results
@@ -98,7 +126,7 @@ public class ContractCompilerService : IContractCompiler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to compile contract from {SourcePath}", options.SourcePath);
+            _logger.LogError(ex, "Failed to compile contract from {Path}", compilationPath);
             throw;
         }
     }

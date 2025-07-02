@@ -68,14 +68,14 @@ public class ContractDeployerServiceTests : TestBase
         _mockWalletManager.Setup(x => x.SignTransactionAsync(It.IsAny<Neo.Network.P2P.Payloads.Transaction>(), It.IsAny<UInt160?>()))
             .Returns(Task.CompletedTask);
 
-        // Act & Assert
-        // This test will likely fail due to network connectivity in test environment
-        // but we're testing the service structure and error handling
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => 
-            _deployerService.DeployAsync(compiledContract, deploymentOptions));
+        // Act
+        var result = await _deployerService.DeployAsync(compiledContract, deploymentOptions);
         
-        // Verify that we get a deployment result with error information
-        Assert.NotNull(exception);
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success); // Should fail due to network connectivity
+        Assert.NotNull(result.ErrorMessage);
+        Assert.NotEmpty(result.ErrorMessage);
     }
 
     [Fact]
@@ -92,13 +92,14 @@ public class ContractDeployerServiceTests : TestBase
         _mockWalletManager.Setup(x => x.SignTransactionAsync(It.IsAny<Neo.Network.P2P.Payloads.Transaction>(), It.IsAny<UInt160?>()))
             .Returns(Task.CompletedTask);
 
-        // Act & Assert
-        // This test will likely fail due to network connectivity in test environment
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => 
-            _deployerService.UpdateAsync(compiledContract, contractHash, deploymentOptions));
+        // Act
+        var result = await _deployerService.UpdateAsync(compiledContract, contractHash, deploymentOptions);
         
-        // Verify that we get an appropriate error
-        Assert.NotNull(exception);
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success); // Should fail due to network connectivity
+        Assert.NotNull(result.ErrorMessage);
+        Assert.NotEmpty(result.ErrorMessage);
     }
 
     [Fact]
@@ -130,6 +131,9 @@ public class ContractDeployerServiceTests : TestBase
         // Arrange
         var compiledContract = CreateMockCompiledContract();
         var deploymentOptions = CreateDeploymentOptions();
+        
+        // Remove DeployerAccount from options to force wallet manager usage
+        deploymentOptions.DeployerAccount = null;
         
         // Setup wallet manager to throw exception
         _mockWalletManager.Setup(x => x.GetAccount(null)).Throws(new InvalidOperationException("Wallet not loaded"));

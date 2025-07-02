@@ -6,6 +6,7 @@ using Neo.SmartContract.Deploy;
 using Neo.SmartContract.Testing;
 using System;
 using System.IO;
+using System.ComponentModel;
 
 namespace Neo.SmartContract.Deploy.UnitTests;
 
@@ -70,6 +71,7 @@ public abstract class TestBase : IDisposable
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
 
 namespace TestContract
 {
@@ -78,13 +80,13 @@ namespace TestContract
     [ManifestExtra(""Version"", ""1.0.0"")]
     public class TestContract : SmartContract
     {
-        [DisplayName(""TestMethod"")]
+        [DisplayName(""testMethod"")]
         public static string TestMethod(string input)
         {
             return ""Hello "" + input;
         }
 
-        [DisplayName(""GetValue"")]
+        [DisplayName(""getValue"")]
         public static int GetValue()
         {
             return 42;
@@ -95,7 +97,7 @@ namespace TestContract
             if (!update)
             {
                 // Initialization logic for new deployment
-                Storage.Put(Storage.CurrentContext, ""initialized"", true);
+                Storage.Put(Storage.CurrentContext, ""initialized"", 1);
             }
         }
     }
@@ -124,5 +126,114 @@ namespace TestContract
     {
         Dispose(true);
         GC.SuppressFinalize(this);
+    }
+    
+    protected string CreateTestContractProject(string contractName = "TestContract", string contractCode = null)
+    {
+        if (contractCode == null)
+        {
+            contractCode = @"
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
+
+namespace " + contractName + @"
+{
+    [ManifestExtra(""Author"", ""Neo"")]
+    [ManifestExtra(""Description"", ""Test Contract"")]
+    [ManifestExtra(""Version"", ""1.0.0"")]
+    public class " + contractName + @" : SmartContract
+    {
+        [DisplayName(""TestMethod"")]
+        public static string TestMethod(string input)
+        {
+            return ""Hello "" + input;
+        }
+
+        [DisplayName(""GetValue"")]
+        public static int GetValue()
+        {
+            return 42;
+        }
+
+        public static void _deploy(object data, bool update)
+        {
+            if (!update)
+            {
+                Storage.Put(Storage.CurrentContext, ""initialized"", 1);
+            }
+        }
+    }
+}";
+        }
+
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), contractName);
+        Directory.CreateDirectory(tempDir);
+        
+        // Create the contract source file
+        var contractPath = Path.Combine(tempDir, $"{contractName}.cs");
+        File.WriteAllText(contractPath, contractCode);
+        
+        // Create the project file
+        var projectContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>{contractName}</RootNamespace>
+    <AssemblyName>{contractName}</AssemblyName>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1"" />
+  </ItemGroup>
+
+  <Target Name=""PostBuild"" AfterTargets=""PostBuildEvent"">
+    <Message Text=""Smart contract build completed"" Importance=""high"" />
+  </Target>
+</Project>";
+        
+        var projectPath = Path.Combine(tempDir, $"{contractName}.csproj");
+        File.WriteAllText(projectPath, projectContent);
+        
+        return projectPath;
+    }
+    
+    protected async Task CreateTestWalletFile(string walletPath)
+    {
+        // For now, use the exact same wallet format as the working unit tests
+        // We'll create a wallet that uses a well-known format but will transfer
+        // GAS from the consensus node during the test
+        var walletJson = @"{
+  ""name"": null,
+  ""version"": ""1.0"",
+  ""scrypt"": {
+    ""n"": 16384,
+    ""r"": 8,
+    ""p"": 8
+  },
+  ""accounts"": [
+    {
+      ""address"": ""NVizn8DiExdmnpTQfjiVY3dox8uXg3Vrxv"",
+      ""label"": null,
+      ""isDefault"": false,
+      ""lock"": false,
+      ""key"": ""6PYPMrsCJ3D4AXJCFWYT2WMSBGF7dLoaNipW14t4UFAkZw3Z9vQRQV1bEU"",
+      ""contract"": {
+        ""script"": ""DCEDaR+FVb8lOdiMZ/wCHLiI+zuf17YuGFReFyHQhB80yMpBVuezJw=="",
+        ""parameters"": [
+          {
+            ""name"": ""signature"",
+            ""type"": ""Signature""
+          }
+        ],
+        ""deployed"": false
+      },
+      ""extra"": null
+    }
+  ],
+  ""extra"": null
+}";
+        await File.WriteAllTextAsync(walletPath, walletJson);
     }
 }

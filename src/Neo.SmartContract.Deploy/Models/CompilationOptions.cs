@@ -6,13 +6,23 @@ namespace Neo.SmartContract.Deploy.Models;
 public class CompilationOptions
 {
     /// <summary>
-    /// Gets or sets the path to the source file (.cs) containing the smart contract code
+    /// Gets or sets the path to the contract project file (.csproj) or source file (.cs)
     /// </summary>
     /// <remarks>
-    /// This should be an absolute or relative path to a C# source file that contains
-    /// a class inheriting from SmartContract.
+    /// This should be an absolute or relative path to either:
+    /// - A .csproj file for compiling an entire contract project (recommended)
+    /// - A .cs source file for single-file compilation (legacy support)
     /// </remarks>
     public string SourcePath { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the project file path when compiling from a project
+    /// </summary>
+    /// <remarks>
+    /// This property is preferred over SourcePath for project-based compilation.
+    /// When set, SourcePath is ignored.
+    /// </remarks>
+    public string? ProjectPath { get; set; }
 
     /// <summary>
     /// Gets or sets the output directory where compiled artifacts (NEF and manifest) will be saved

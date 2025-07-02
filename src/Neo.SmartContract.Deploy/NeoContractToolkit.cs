@@ -248,6 +248,16 @@ public class NeoContractToolkit
         return _walletManager.GetAccount(accountAddress);
     }
 
+    /// <summary>
+    /// Get a service from the dependency injection container
+    /// </summary>
+    /// <typeparam name="T">Service type</typeparam>
+    /// <returns>Service instance</returns>
+    public T GetService<T>() where T : notnull
+    {
+        return _serviceProvider.GetRequiredService<T>();
+    }
+
     #region Multi-Contract Deployment
 
     /// <summary>

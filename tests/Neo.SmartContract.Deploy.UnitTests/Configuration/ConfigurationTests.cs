@@ -37,7 +37,7 @@ public class ConfigurationTests : TestBase
         Assert.Equal("private", networkConfig.Network);
         Assert.NotNull(networkConfig.Wallet);
         Assert.Equal("test.wallet.json", networkConfig.Wallet.WalletPath);
-        Assert.Equal("test", networkConfig.Wallet.Password);
+        Assert.Equal("123456", networkConfig.Wallet.Password);
     }
 
     [Fact]
@@ -114,30 +114,43 @@ public class ConfigurationTests : TestBase
         var toolkit = CreateToolkit();
         var testWalletPath = Path.Combine(Path.GetTempPath(), "config-test.wallet.json");
         
-        // Create test wallet
+        // Create test wallet with known password "123456" (using the standard test wallet)
         var walletJson = @"{
-  ""name"": ""config-test-wallet"",
+  ""name"": null,
   ""version"": ""1.0"",
-  ""scrypt"": { ""n"": 16384, ""r"": 8, ""p"": 8 },
-  ""accounts"": [{
-    ""address"": ""NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB"",
-    ""label"": ""test-account"",
-    ""isDefault"": true,
-    ""lock"": false,
-    ""key"": ""6PYL2NWjJRudDyQE7xD99vPkgDDQ4jiqPF6LVyeCbnYUAe8DhCvKp6vL3C"",
-    ""contract"": {
-      ""script"": ""DCEDeK2z93hJM8m7kM7BpRJGK4tO6cMVZZkXnxRm6aJ8lBsLQZVEDXg="",
-      ""parameters"": [{ ""name"": ""signature"", ""type"": ""Signature"" }],
-      ""deployed"": false
+  ""scrypt"": {
+    ""n"": 16384,
+    ""r"": 8,
+    ""p"": 8
+  },
+  ""accounts"": [
+    {
+      ""address"": ""NVizn8DiExdmnpTQfjiVY3dox8uXg3Vrxv"",
+      ""label"": null,
+      ""isDefault"": false,
+      ""lock"": false,
+      ""key"": ""6PYPMrsCJ3D4AXJCFWYT2WMSBGF7dLoaNipW14t4UFAkZw3Z9vQRQV1bEU"",
+      ""contract"": {
+        ""script"": ""DCEDaR+FVb8lOdiMZ/wCHLiI+zuf17YuGFReFyHQhB80yMpBVuezJw=="",
+        ""parameters"": [
+          {
+            ""name"": ""signature"",
+            ""type"": ""Signature""
+          }
+        ],
+        ""deployed"": false
+      },
+      ""extra"": null
     }
-  }]
+  ],
+  ""extra"": null
 }";
         await File.WriteAllTextAsync(testWalletPath, walletJson);
 
         try
         {
             // Act & Assert - This should use configuration for wallet loading
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
             var account = toolkit.GetDeployerAccount();
             
             Assert.NotNull(account);

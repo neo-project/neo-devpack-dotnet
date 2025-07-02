@@ -75,7 +75,7 @@ class Program
         // Step 1: Define compilation options
         var compilationOptions = new CompilationOptions
         {
-            SourcePath = "../../src/MyContract/MyContract.cs",
+            ProjectPath = "../../src/MyContract/MyContract.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "MyContract",
             GenerateDebugInfo = true,
@@ -142,7 +142,7 @@ class Program
         Console.WriteLine("=== Deploying Token Contract ===");
         var tokenCompilation = new CompilationOptions
         {
-            SourcePath = "../../src/TokenContract/TokenContract.cs",
+            ProjectPath = "../../src/TokenContract/TokenContract.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "TokenContract"
         };
@@ -162,7 +162,7 @@ class Program
         Console.WriteLine("=== Deploying Vault Contract ===");
         var vaultCompilation = new CompilationOptions
         {
-            SourcePath = "../../src/VaultContract/VaultContract.cs",
+            ProjectPath = "../../src/VaultContract/VaultContract.csproj",
             OutputDirectory = "bin/contracts",
             ContractName = "VaultContract"
         };
@@ -215,7 +215,7 @@ class Program
         // New version compilation options
         var compilationOptions = new CompilationOptions
         {
-            SourcePath = "../../src/MyContract/MyContract.cs", // Updated source
+            ProjectPath = "../../src/MyContract/MyContract.csproj", // Updated project
             OutputDirectory = "bin/contracts",
             ContractName = "MyContract",
             GenerateDebugInfo = true,

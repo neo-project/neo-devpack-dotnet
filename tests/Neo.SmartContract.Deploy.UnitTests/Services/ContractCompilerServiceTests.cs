@@ -9,6 +9,7 @@ using Xunit;
 
 namespace Neo.SmartContract.Deploy.UnitTests.Services;
 
+[Collection("Sequential")]
 public class ContractCompilerServiceTests : TestBase
 {
     private readonly ContractCompilerService _compilerService;

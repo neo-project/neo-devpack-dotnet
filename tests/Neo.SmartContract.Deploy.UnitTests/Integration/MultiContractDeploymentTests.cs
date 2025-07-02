@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Neo;
 using Neo.SmartContract.Deploy;
 using Neo.SmartContract.Deploy.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,12 +32,12 @@ public class MultiContractDeploymentTests : TestBase
 
         try
         {
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
 
-            // Create multiple test contracts
-            contractPaths.Add(CreateTestContract("TokenContract", "MyToken", 1000000));
-            contractPaths.Add(CreateTestContract("NFTContract", "MyNFT", 10000));
-            contractPaths.Add(CreateTestContract("DexContract", "MyDex", 500000));
+            // Create multiple test contract projects
+            contractPaths.Add(CreateTestContractProject("TokenContract", GenerateTokenContractCode("MyToken", 1000000)));
+            contractPaths.Add(CreateTestContractProject("NFTContract", GenerateTokenContractCode("MyNFT", 10000)));
+            contractPaths.Add(CreateTestContractProject("DexContract", GenerateTokenContractCode("MyDex", 500000)));
 
             // Deploy all contracts
             foreach (var (contractPath, index) in contractPaths.Select((path, i) => (path, i)))
@@ -44,7 +45,7 @@ public class MultiContractDeploymentTests : TestBase
                 var contractName = Path.GetFileNameWithoutExtension(contractPath);
                 var compilationOptions = new CompilationOptions
                 {
-                    SourcePath = contractPath,
+                    ProjectPath = contractPath,
                     OutputDirectory = Path.Combine(outputDir, contractName),
                     ContractName = contractName,
                     GenerateDebugInfo = true
@@ -52,7 +53,7 @@ public class MultiContractDeploymentTests : TestBase
 
                 var deploymentOptions = new DeploymentOptions
                 {
-                    DeployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688"),
+                    DeployerAccount = toolkit.GetDeployerAccount(),
                     GasLimit = 50_000_000,
                     WaitForConfirmation = false
                 };
@@ -85,8 +86,9 @@ public class MultiContractDeploymentTests : TestBase
             // Cleanup
             foreach (var path in contractPaths)
             {
-                if (Directory.Exists(Path.GetDirectoryName(path)))
-                    Directory.Delete(Path.GetDirectoryName(path)!, true);
+                var projectDir = new DirectoryInfo(Path.GetDirectoryName(path)!).Parent!.FullName;
+                if (Directory.Exists(projectDir))
+                    Directory.Delete(projectDir, true);
             }
             Directory.Delete(outputDir, true);
         }
@@ -107,22 +109,22 @@ public class MultiContractDeploymentTests : TestBase
 
         try
         {
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
 
             // Step 1: Deploy Registry contract first (no dependencies)
-            var registryPath = CreateRegistryContract();
+            var registryPath = CreateRegistryContractProject();
             contractPaths["Registry"] = registryPath;
 
             var registryCompilationOptions = new CompilationOptions
             {
-                SourcePath = registryPath,
+                ProjectPath = registryPath,
                 OutputDirectory = Path.Combine(outputDir, "Registry"),
                 ContractName = "Registry"
             };
 
             var deploymentOptions = new DeploymentOptions
             {
-                DeployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688"),
+                DeployerAccount = toolkit.GetDeployerAccount(),
                 GasLimit = 50_000_000,
                 WaitForConfirmation = false
             };
@@ -131,12 +133,12 @@ public class MultiContractDeploymentTests : TestBase
             Assert.True(registryResult.Success, "Failed to deploy Registry contract");
 
             // Step 2: Deploy Token contract with Registry dependency
-            var tokenPath = CreateTokenWithRegistryContract(registryResult.ContractHash);
+            var tokenPath = CreateTokenWithRegistryContractProject(registryResult.ContractHash);
             contractPaths["Token"] = tokenPath;
 
             var tokenCompilationOptions = new CompilationOptions
             {
-                SourcePath = tokenPath,
+                ProjectPath = tokenPath,
                 OutputDirectory = Path.Combine(outputDir, "Token"),
                 ContractName = "Token"
             };
@@ -145,12 +147,12 @@ public class MultiContractDeploymentTests : TestBase
             Assert.True(tokenResult.Success, "Failed to deploy Token contract");
 
             // Step 3: Deploy Exchange contract with both Registry and Token dependencies
-            var exchangePath = CreateExchangeContract(registryResult.ContractHash, tokenResult.ContractHash);
+            var exchangePath = CreateExchangeContractProject(registryResult.ContractHash, tokenResult.ContractHash);
             contractPaths["Exchange"] = exchangePath;
 
             var exchangeCompilationOptions = new CompilationOptions
             {
-                SourcePath = exchangePath,
+                ProjectPath = exchangePath,
                 OutputDirectory = Path.Combine(outputDir, "Exchange"),
                 ContractName = "Exchange"
             };
@@ -186,8 +188,9 @@ public class MultiContractDeploymentTests : TestBase
             // Cleanup
             foreach (var path in contractPaths.Values)
             {
-                if (Directory.Exists(Path.GetDirectoryName(path)))
-                    Directory.Delete(Path.GetDirectoryName(path)!, true);
+                var projectDir = new DirectoryInfo(Path.GetDirectoryName(path)!).Parent!.FullName;
+                if (Directory.Exists(projectDir))
+                    Directory.Delete(projectDir, true);
             }
             Directory.Delete(outputDir, true);
         }
@@ -208,7 +211,7 @@ public class MultiContractDeploymentTests : TestBase
 
         try
         {
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
 
             // Load and parse deployment manifest
             var manifest = await LoadDeploymentManifest(manifestPath);
@@ -218,11 +221,11 @@ public class MultiContractDeploymentTests : TestBase
             // Deploy contracts in order specified in manifest
             foreach (var contractDef in manifest.Contracts)
             {
-                var contractPath = CreateContractFromDefinition(contractDef, deployedContracts);
+                var contractPath = CreateContractProjectFromDefinition(contractDef, deployedContracts);
 
                 var compilationOptions = new CompilationOptions
                 {
-                    SourcePath = contractPath,
+                    ProjectPath = contractPath,
                     OutputDirectory = Path.Combine(outputDir, contractDef.Name),
                     ContractName = contractDef.Name,
                     GenerateDebugInfo = contractDef.EnableDebug
@@ -230,7 +233,7 @@ public class MultiContractDeploymentTests : TestBase
 
                 var deploymentOptions = new DeploymentOptions
                 {
-                    DeployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688"),
+                    DeployerAccount = toolkit.GetDeployerAccount(),
                     GasLimit = contractDef.GasLimit,
                     WaitForConfirmation = false,
                     InitialParameters = contractDef.InitialParameters
@@ -241,8 +244,9 @@ public class MultiContractDeploymentTests : TestBase
 
                 deployedContracts[contractDef.Name] = result;
 
-                // Cleanup temp contract file
-                Directory.Delete(Path.GetDirectoryName(contractPath)!, true);
+                // Cleanup temp contract project
+                var projectDir = new DirectoryInfo(Path.GetDirectoryName(contractPath)!).Parent!.FullName;
+                Directory.Delete(projectDir, true);
             }
 
             // Verify all contracts from manifest are deployed
@@ -282,17 +286,17 @@ public class MultiContractDeploymentTests : TestBase
 
         try
         {
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
 
-            // Create contracts, one with intentional compilation error
-            contractPaths.Add(CreateTestContract("Contract1", "First", 1000));
-            contractPaths.Add(CreateTestContract("Contract2", "Second", 2000));
-            contractPaths.Add(CreateInvalidContract()); // This will fail compilation
-            contractPaths.Add(CreateTestContract("Contract4", "Fourth", 4000));
+            // Create contract projects, one with intentional compilation error
+            contractPaths.Add(CreateTestContractProject("Contract1", GenerateTokenContractCode("First", 1000)));
+            contractPaths.Add(CreateTestContractProject("Contract2", GenerateTokenContractCode("Second", 2000)));
+            contractPaths.Add(CreateInvalidContractProject()); // This will fail compilation
+            contractPaths.Add(CreateTestContractProject("Contract4", GenerateTokenContractCode("Fourth", 4000)));
 
             var deploymentOptions = new DeploymentOptions
             {
-                DeployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688"),
+                DeployerAccount = toolkit.GetDeployerAccount(),
                 GasLimit = 50_000_000,
                 WaitForConfirmation = false
             };
@@ -307,7 +311,7 @@ public class MultiContractDeploymentTests : TestBase
                     var contractName = Path.GetFileNameWithoutExtension(contractPath);
                     var compilationOptions = new CompilationOptions
                     {
-                        SourcePath = contractPath,
+                        ProjectPath = contractPath,
                         OutputDirectory = Path.Combine(outputDir, contractName),
                         ContractName = contractName
                     };
@@ -346,8 +350,9 @@ public class MultiContractDeploymentTests : TestBase
             // Cleanup
             foreach (var path in contractPaths)
             {
-                if (Directory.Exists(Path.GetDirectoryName(path)))
-                    Directory.Delete(Path.GetDirectoryName(path)!, true);
+                var projectDir = new DirectoryInfo(Path.GetDirectoryName(path)!).Parent!.FullName;
+                if (Directory.Exists(projectDir))
+                    Directory.Delete(projectDir, true);
             }
             Directory.Delete(outputDir, true);
         }
@@ -355,20 +360,21 @@ public class MultiContractDeploymentTests : TestBase
 
     #region Helper Methods
 
-    private string CreateTestContract(string className, string name, int initialSupply)
+    private string GenerateTokenContractCode(string name, int initialSupply)
     {
-        var contractCode = $@"
+        return $@"
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace TestContracts
 {{
     [ManifestExtra(""Author"", ""Neo"")]
     [ManifestExtra(""Description"", ""{name} Contract"")]
-    public class {className} : SmartContract
+    public class TokenContract : SmartContract
     {{
         private const string NameKey = ""name"";
         private const string SupplyKey = ""supply"";
@@ -383,7 +389,7 @@ namespace TestContracts
         public static BigInteger GetSupply()
         {{
             var supply = Storage.Get(Storage.CurrentContext, SupplyKey);
-            return supply?.ToBigInteger() ?? 0;
+            return supply != null ? (BigInteger)supply : 0;
         }}
 
         public static void _deploy(object data, bool update)
@@ -396,21 +402,16 @@ namespace TestContracts
         }}
     }}
 }}";
-
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var contractPath = Path.Combine(tempDir, $"{className}.cs");
-        File.WriteAllText(contractPath, contractCode);
-        return contractPath;
     }
 
-    private string CreateRegistryContract()
+    private string CreateRegistryContractProject()
     {
         var contractCode = @"
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using Neo;
+using System.ComponentModel;
 
 namespace RegistryContract
 {
@@ -453,14 +454,10 @@ namespace RegistryContract
     }
 }";
 
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var contractPath = Path.Combine(tempDir, "Registry.cs");
-        File.WriteAllText(contractPath, contractCode);
-        return contractPath;
+        return CreateTestContractProject("Registry", contractCode);
     }
 
-    private string CreateTokenWithRegistryContract(UInt160 registryHash)
+    private string CreateTokenWithRegistryContractProject(UInt160 registryHash)
     {
         var contractCode = $@"
 using Neo.SmartContract.Framework;
@@ -468,6 +465,7 @@ using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using Neo;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace TokenContract
@@ -498,20 +496,17 @@ namespace TokenContract
     }}
 }}";
 
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var contractPath = Path.Combine(tempDir, "Token.cs");
-        File.WriteAllText(contractPath, contractCode);
-        return contractPath;
+        return CreateTestContractProject("Token", contractCode);
     }
 
-    private string CreateExchangeContract(UInt160 registryHash, UInt160 tokenHash)
+    private string CreateExchangeContractProject(UInt160 registryHash, UInt160 tokenHash)
     {
         var contractCode = $@"
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using Neo;
+using System.ComponentModel;
 
 namespace ExchangeContract
 {{
@@ -549,14 +544,10 @@ namespace ExchangeContract
     }}
 }}";
 
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var contractPath = Path.Combine(tempDir, "Exchange.cs");
-        File.WriteAllText(contractPath, contractCode);
-        return contractPath;
+        return CreateTestContractProject("Exchange", contractCode);
     }
 
-    private string CreateInvalidContract()
+    private string CreateInvalidContractProject()
     {
         // Intentionally invalid contract for testing error handling
         var contractCode = @"
@@ -578,11 +569,7 @@ namespace InvalidContract
     }
 }";
 
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var contractPath = Path.Combine(tempDir, "Invalid.cs");
-        File.WriteAllText(contractPath, contractCode);
-        return contractPath;
+        return CreateTestContractProject("Invalid", contractCode);
     }
 
     private string CreateDeploymentManifest(string outputDir)
@@ -640,7 +627,7 @@ namespace InvalidContract
         return System.Text.Json.JsonSerializer.Deserialize<DeploymentManifest>(json)!;
     }
 
-    private string CreateContractFromDefinition(ContractDefinition definition, Dictionary<string, ContractDeploymentInfo> deployedContracts)
+    private string CreateContractProjectFromDefinition(ContractDefinition definition, Dictionary<string, ContractDeploymentInfo> deployedContracts)
     {
         // Generate contract code based on type
         var contractCode = definition.Type switch
@@ -651,11 +638,7 @@ namespace InvalidContract
             _ => throw new NotSupportedException($"Contract type {definition.Type} not supported")
         };
 
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var contractPath = Path.Combine(tempDir, $"{definition.Name}.cs");
-        File.WriteAllText(contractPath, contractCode);
-        return contractPath;
+        return CreateTestContractProject(definition.Name, contractCode);
     }
 
     private string GenerateStorageContract(string name)
@@ -664,6 +647,7 @@ namespace InvalidContract
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
 
 namespace Contracts
 {{
@@ -697,6 +681,7 @@ namespace Contracts
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Contracts
@@ -717,7 +702,8 @@ namespace Contracts
         [DisplayName(""balanceOf"")]
         public static BigInteger BalanceOf(UInt160 account)
         {{
-            return Storage.Get(Storage.CurrentContext, account)?.ToBigInteger() ?? 0;
+            var balance = Storage.Get(Storage.CurrentContext, account);
+            return balance != null ? (BigInteger)balance : 0;
         }}
 
         [DisplayName(""transfer"")]
@@ -767,6 +753,7 @@ using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using Neo;
+using System.ComponentModel;
 
 namespace Contracts
 {{
@@ -788,7 +775,7 @@ namespace Contracts
         public static int GetVotingPeriod()
         {{
             var period = Storage.Get(Storage.CurrentContext, VotingPeriodKey);
-            return period?.ToInteger() ?? 86400; // Default 24 hours
+            return period != null ? (int)period : 86400; // Default 24 hours
         }}
 
         [DisplayName(""createProposal"")]
@@ -811,40 +798,6 @@ namespace Contracts
 }}";
     }
 
-    private async Task CreateTestWalletFile(string walletPath)
-    {
-        var walletJson = @"{
-  ""name"": ""test-wallet"",
-  ""version"": ""1.0"",
-  ""scrypt"": {
-    ""n"": 16384,
-    ""r"": 8,
-    ""p"": 8
-  },
-  ""accounts"": [
-    {
-      ""address"": ""NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB"",
-      ""label"": ""test-account"",
-      ""isDefault"": true,
-      ""lock"": false,
-      ""key"": ""6PYL2NWjJRudDyQE7xD99vPkgDDQ4jiqPF6LVyeCbnYUAe8DhCvKp6vL3C"",
-      ""contract"": {
-        ""script"": ""DCEDeK2z93hJM8m7kM7BpRJGK4tO6cMVZZkXnxRm6aJ8lBsLQZVEDXg="",
-        ""parameters"": [
-          {
-            ""name"": ""signature"",
-            ""type"": ""Signature""
-          }
-        ],
-        ""deployed"": false
-      },
-      ""extra"": null
-    }
-  ],
-  ""extra"": null
-}";
-        await File.WriteAllTextAsync(walletPath, walletJson);
-    }
 
     #endregion
 

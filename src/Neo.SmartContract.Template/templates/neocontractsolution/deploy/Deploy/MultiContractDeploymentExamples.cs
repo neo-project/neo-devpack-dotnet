@@ -35,7 +35,7 @@ public static class MultiContractDeploymentExamples
             new ContractDeploymentRequest
             {
                 Name = "Registry",
-                SourcePath = "../src/Registry/Registry.cs",
+                ProjectPath = "../src/Registry/Registry.csproj",
                 OutputDirectory = "./artifacts/registry",
                 Dependencies = new List<string>(),
                 GenerateDebugInfo = true
@@ -44,7 +44,7 @@ public static class MultiContractDeploymentExamples
             new ContractDeploymentRequest
             {
                 Name = "MyToken",
-                SourcePath = "../src/MyToken/MyToken.cs",
+                ProjectPath = "../src/MyToken/MyToken.csproj",
                 OutputDirectory = "./artifacts/token",
                 Dependencies = new List<string> { "Registry" },
                 GenerateDebugInfo = true,
@@ -55,7 +55,7 @@ public static class MultiContractDeploymentExamples
             new ContractDeploymentRequest
             {
                 Name = "Exchange",
-                SourcePath = "../src/Exchange/Exchange.cs",
+                ProjectPath = "../src/Exchange/Exchange.csproj",
                 OutputDirectory = "./artifacts/exchange",
                 Dependencies = new List<string> { "Registry", "MyToken" },
                 GenerateDebugInfo = true,
@@ -106,7 +106,7 @@ public static class MultiContractDeploymentExamples
   ""contracts"": [
     {
       ""name"": ""PriceOracle"",
-      ""sourcePath"": ""../src/Oracle/PriceOracle.cs"",
+      ""projectPath"": ""../src/Oracle/PriceOracle.csproj"",
       ""dependencies"": [],
       ""generateDebugInfo"": true,
       ""gasLimit"": 30000000,
@@ -123,7 +123,7 @@ public static class MultiContractDeploymentExamples
     },
     {
       ""name"": ""GovernanceToken"",
-      ""sourcePath"": ""../src/Token/GovernanceToken.cs"",
+      ""projectPath"": ""../src/Token/GovernanceToken.csproj"",
       ""dependencies"": [],
       ""generateDebugInfo"": true,
       ""gasLimit"": 50000000,
@@ -131,7 +131,7 @@ public static class MultiContractDeploymentExamples
     },
     {
       ""name"": ""LendingPool"",
-      ""sourcePath"": ""../src/Lending/LendingPool.cs"",
+      ""projectPath"": ""../src/Lending/LendingPool.csproj"",
       ""dependencies"": [""PriceOracle"", ""GovernanceToken""],
       ""generateDebugInfo"": true,
       ""gasLimit"": 80000000,
@@ -139,7 +139,7 @@ public static class MultiContractDeploymentExamples
     },
     {
       ""name"": ""StakingRewards"",
-      ""sourcePath"": ""../src/Staking/StakingRewards.cs"",
+      ""projectPath"": ""../src/Staking/StakingRewards.csproj"",
       ""dependencies"": [""GovernanceToken"", ""LendingPool""],
       ""generateDebugInfo"": true,
       ""gasLimit"": 60000000,
@@ -191,31 +191,31 @@ public static class MultiContractDeploymentExamples
             new ContractDeploymentRequest
             {
                 Name = "Oracle",
-                SourcePath = "../src/Oracle/Oracle.cs",
+                ProjectPath = "../src/Oracle/Oracle.csproj",
                 OutputDirectory = "./artifacts/oracle"
             },
             new ContractDeploymentRequest
             {
                 Name = "Random",
-                SourcePath = "../src/Random/Random.cs",
+                ProjectPath = "../src/Random/Random.csproj",
                 OutputDirectory = "./artifacts/random"
             },
             new ContractDeploymentRequest
             {
                 Name = "Storage",
-                SourcePath = "../src/Storage/Storage.cs",
+                ProjectPath = "../src/Storage/Storage.csproj",
                 OutputDirectory = "./artifacts/storage"
             },
             new ContractDeploymentRequest
             {
                 Name = "Events",
-                SourcePath = "../src/Events/Events.cs",
+                ProjectPath = "../src/Events/Events.csproj",
                 OutputDirectory = "./artifacts/events"
             },
             new ContractDeploymentRequest
             {
                 Name = "Timer",
-                SourcePath = "../src/Timer/Timer.cs",
+                ProjectPath = "../src/Timer/Timer.csproj",
                 OutputDirectory = "./artifacts/timer"
             }
         };
@@ -250,21 +250,21 @@ public static class MultiContractDeploymentExamples
             new ContractDeploymentRequest
             {
                 Name = "TokenA",
-                SourcePath = "../src/TokenA/TokenA.cs",
+                ProjectPath = "../src/TokenA/TokenA.csproj",
                 OutputDirectory = "./artifacts/tokenA",
                 FailureMode = DeploymentFailureMode.StopOnError
             },
             new ContractDeploymentRequest
             {
                 Name = "TokenB",
-                SourcePath = "../src/TokenB/TokenB.cs",
+                ProjectPath = "../src/TokenB/TokenB.csproj",
                 OutputDirectory = "./artifacts/tokenB",
                 FailureMode = DeploymentFailureMode.StopOnError
             },
             new ContractDeploymentRequest
             {
                 Name = "AMM", // This might fail if TokenA or TokenB deployment fails
-                SourcePath = "../src/AMM/AMM.cs",
+                ProjectPath = "../src/AMM/AMM.csproj",
                 OutputDirectory = "./artifacts/amm",
                 Dependencies = new List<string> { "TokenA", "TokenB" },
                 InjectDependencies = true,
@@ -307,15 +307,15 @@ public static class MultiContractDeploymentExamples
         
         foreach (var contract in previousDeployment.SuccessfulDeployments)
         {
-            // Check if update source exists
-            var updateSourcePath = $"../src/{contract.ContractName}/{contract.ContractName}.v2.cs";
-            if (File.Exists(updateSourcePath))
+            // Check if update project exists
+            var updateProjectPath = $"../src/{contract.ContractName}/{contract.ContractName}.csproj";
+            if (File.Exists(updateProjectPath))
             {
                 updateRequests.Add(new ContractUpdateRequest
                 {
                     Name = contract.ContractName,
                     ContractHash = contract.ContractHash,
-                    SourcePath = updateSourcePath,
+                    ProjectPath = updateProjectPath,
                     GenerateDebugInfo = true,
                     Optimize = true
                 });
@@ -354,7 +354,7 @@ public static class MultiContractDeploymentExamples
             new ContractDeploymentRequest
             {
                 Name = "SimpleToken",
-                SourcePath = "../src/SimpleToken/SimpleToken.cs",
+                ProjectPath = "../src/SimpleToken/SimpleToken.csproj",
                 OutputDirectory = "./artifacts/token",
                 GenerateDebugInfo = true
             }

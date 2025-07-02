@@ -37,6 +37,9 @@ public class ContractDeployerService : IContractDeployer
     /// </summary>
     public async Task<ContractDeploymentInfo> DeployAsync(CompiledContract contract, DeploymentOptions options, object[]? initParams = null)
     {
+        if (contract == null) throw new ArgumentNullException(nameof(contract));
+        if (options == null) throw new ArgumentNullException(nameof(options));
+        
         var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
         if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
         {
@@ -82,8 +85,8 @@ public class ContractDeployerService : IContractDeployer
 
             var script = sb.ToArray();
 
-            // Get deployer account from wallet manager
-            var deployerAccount = _walletManager.GetAccount();
+            // Get deployer account from options or wallet manager
+            var deployerAccount = options.DeployerAccount ?? _walletManager.GetAccount();
 
             // Create signer
             var signer = new Signer
@@ -196,6 +199,10 @@ public class ContractDeployerService : IContractDeployer
     /// </summary>
     public async Task<ContractDeploymentInfo> UpdateAsync(CompiledContract contract, UInt160 contractHash, DeploymentOptions options)
     {
+        if (contract == null) throw new ArgumentNullException(nameof(contract));
+        if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
+        if (options == null) throw new ArgumentNullException(nameof(options));
+        
         var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
         if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
         {
@@ -232,8 +239,8 @@ public class ContractDeployerService : IContractDeployer
 
             var script = sb.ToArray();
 
-            // Get deployer account from wallet manager
-            var deployerAccount = _walletManager.GetAccount();
+            // Get deployer account from options or wallet manager
+            var deployerAccount = options.DeployerAccount ?? _walletManager.GetAccount();
 
             // Create signer
             var signer = new Signer

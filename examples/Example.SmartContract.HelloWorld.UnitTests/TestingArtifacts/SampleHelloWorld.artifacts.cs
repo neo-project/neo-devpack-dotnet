@@ -16,7 +16,7 @@ public abstract class SampleHelloWorld(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Optimization: "Basic"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM05lby5Db21waWxlci5DU2hhcnAgMy44LjErODk2ZjU2ZGIzZmM4YjU5OGU3YmExYTM1ODE4OGRiYzNmZmYuLi4AAAAAABIMDUhlbGxvLCBXb3JsZCEiAkA+VJV6").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM05lby5Db21waWxlci5DU2hhcnAgMy44LjErN2JiNGNiYjc3NTY2YTBiZDJmYmZiNDkwMDYxNjA4NWJiMDguLi4AAAAAABIMDUhlbGxvLCBXb3JsZCEiAkDSN/Ko").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 

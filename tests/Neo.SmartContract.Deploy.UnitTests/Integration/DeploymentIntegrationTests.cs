@@ -4,6 +4,7 @@ using Neo;
 using Neo.SmartContract.Deploy;
 using Neo.SmartContract.Deploy.Models;
 using Neo.SmartContract.Testing;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
@@ -20,7 +21,7 @@ public class DeploymentIntegrationTests : TestBase
     {
         // Arrange
         var toolkit = CreateToolkit();
-        var contractPath = CreateTestContract();
+        var projectPath = CreateTestContractProject();
         var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(outputDir);
 
@@ -28,29 +29,29 @@ public class DeploymentIntegrationTests : TestBase
         var testWalletPath = Path.Combine(outputDir, "test.wallet.json");
         await CreateTestWalletFile(testWalletPath);
 
-        // Set up compilation options
+        // Set up compilation options for project compilation
         var compilationOptions = new CompilationOptions
         {
-            SourcePath = contractPath,
+            ProjectPath = projectPath,
             OutputDirectory = outputDir,
             ContractName = "TestContract",
             GenerateDebugInfo = true,
             Optimize = true
         };
 
-        // Set up deployment options
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688"), // Example account
-            GasLimit = 50_000_000,
-            WaitForConfirmation = false // Skip confirmation in tests
-        };
-
         try
         {
-            // Load test wallet
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            // Load test wallet first
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
             var deployerAccount = toolkit.GetDeployerAccount();
+
+            // Set up deployment options after loading wallet
+            var deploymentOptions = new DeploymentOptions
+            {
+                DeployerAccount = deployerAccount,
+                GasLimit = 50_000_000,
+                WaitForConfirmation = false // Skip confirmation in tests
+            };
             Assert.NotNull(deployerAccount);
 
             // Step 1: Compile and deploy the contract
@@ -92,8 +93,21 @@ public class DeploymentIntegrationTests : TestBase
         finally
         {
             // Cleanup
-            Directory.Delete(Path.GetDirectoryName(contractPath)!, true);
-            Directory.Delete(outputDir, true);
+            try
+            {
+                // Clean up the project directory (go up two levels from .csproj file)
+                var projectDir = new DirectoryInfo(Path.GetDirectoryName(projectPath)!).Parent?.FullName;
+                if (projectDir != null && Directory.Exists(projectDir))
+                    Directory.Delete(projectDir, true);
+            }
+            catch { /* Ignore cleanup errors */ }
+            
+            try
+            {
+                if (Directory.Exists(outputDir))
+                    Directory.Delete(outputDir, true);
+            }
+            catch { /* Ignore cleanup errors */ }
         }
     }
 
@@ -102,7 +116,7 @@ public class DeploymentIntegrationTests : TestBase
     {
         // Arrange
         var toolkit = CreateToolkit();
-        var contractPath = CreateTestContract();
+        var projectPath = CreateTestContractProject();
         var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(outputDir);
 
@@ -112,21 +126,21 @@ public class DeploymentIntegrationTests : TestBase
         // First compile to get artifacts
         var compilationOptions = new CompilationOptions
         {
-            SourcePath = contractPath,
+            ProjectPath = projectPath,
             OutputDirectory = outputDir,
             ContractName = "TestContract"
         };
 
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688"), // Example account
-            GasLimit = 50_000_000,
-            WaitForConfirmation = false
-        };
-
         try
         {
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
+
+            var deploymentOptions = new DeploymentOptions
+            {
+                DeployerAccount = toolkit.GetDeployerAccount(),
+                GasLimit = 50_000_000,
+                WaitForConfirmation = false
+            };
 
             // Step 1: Compile first to get artifacts
             var compilerService = new Neo.SmartContract.Deploy.Services.ContractCompilerService(
@@ -154,9 +168,12 @@ public class DeploymentIntegrationTests : TestBase
         }
         finally
         {
-            // Cleanup
-            Directory.Delete(Path.GetDirectoryName(contractPath)!, true);
-            Directory.Delete(outputDir, true);
+            // Cleanup project directory (go up two levels from project file)
+            var projectDir = new DirectoryInfo(Path.GetDirectoryName(projectPath)!).Parent!.FullName;
+            if (Directory.Exists(projectDir))
+                Directory.Delete(projectDir, true);
+            if (Directory.Exists(outputDir))
+                Directory.Delete(outputDir, true);
         }
     }
 
@@ -165,7 +182,7 @@ public class DeploymentIntegrationTests : TestBase
     {
         // Arrange
         var toolkit = CreateToolkit();
-        var originalContractPath = CreateTestContract();
+        var originalProjectPath = CreateTestContractProject();
         var outputDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(outputDir);
 
@@ -174,31 +191,32 @@ public class DeploymentIntegrationTests : TestBase
 
         var compilationOptions = new CompilationOptions
         {
-            SourcePath = originalContractPath,
+            ProjectPath = originalProjectPath,
             OutputDirectory = outputDir,
             ContractName = "TestContract"
         };
 
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688"), // Example account
-            GasLimit = 50_000_000,
-            WaitForConfirmation = false
-        };
-
+        string? updatedProjectPath = null;
         try
         {
-            await toolkit.LoadWalletAsync(testWalletPath, "test");
+            await toolkit.LoadWalletAsync(testWalletPath, "123456");
+
+            var deploymentOptions = new DeploymentOptions
+            {
+                DeployerAccount = toolkit.GetDeployerAccount(),
+                GasLimit = 50_000_000,
+                WaitForConfirmation = false
+            };
 
             // Step 1: Deploy original contract
             var originalDeployment = await toolkit.CompileAndDeployAsync(compilationOptions, deploymentOptions);
             Assert.True(originalDeployment.Success);
 
             // Step 2: Create updated contract
-            var updatedContractPath = CreateUpdatedTestContract();
+            updatedProjectPath = CreateUpdatedTestContractProject();
             var updateCompilationOptions = new CompilationOptions
             {
-                SourcePath = updatedContractPath,
+                ProjectPath = updatedProjectPath,
                 OutputDirectory = outputDir,
                 ContractName = "TestContract"
             };
@@ -220,25 +238,34 @@ public class DeploymentIntegrationTests : TestBase
                 "getValue");
             
             Assert.Equal(100, newValue); // Updated return value
-
-            // Cleanup updated contract
-            Directory.Delete(Path.GetDirectoryName(updatedContractPath)!, true);
         }
         finally
         {
             // Cleanup
-            Directory.Delete(Path.GetDirectoryName(originalContractPath)!, true);
-            Directory.Delete(outputDir, true);
+            var originalProjectDir = new DirectoryInfo(Path.GetDirectoryName(originalProjectPath)!).Parent!.FullName;
+            if (Directory.Exists(originalProjectDir))
+                Directory.Delete(originalProjectDir, true);
+            
+            if (updatedProjectPath != null)
+            {
+                var updatedProjectDir = new DirectoryInfo(Path.GetDirectoryName(updatedProjectPath)!).Parent!.FullName;
+                if (Directory.Exists(updatedProjectDir))
+                    Directory.Delete(updatedProjectDir, true);
+            }
+            
+            if (Directory.Exists(outputDir))
+                Directory.Delete(outputDir, true);
         }
     }
 
-    private string CreateUpdatedTestContract()
+    private string CreateUpdatedTestContractProject()
     {
         // Create an updated version of the test contract with different return value
         var contractCode = @"
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
 
 namespace TestContract
 {
@@ -274,46 +301,7 @@ namespace TestContract
     }
 }";
 
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(tempDir);
-        var contractPath = Path.Combine(tempDir, "TestContract.cs");
-        File.WriteAllText(contractPath, contractCode);
-        return contractPath;
+        return CreateTestContractProject("TestContract", contractCode);
     }
 
-    private async Task CreateTestWalletFile(string walletPath)
-    {
-        // Create a simple test wallet
-        var walletJson = @"{
-  ""name"": ""test-wallet"",
-  ""version"": ""1.0"",
-  ""scrypt"": {
-    ""n"": 16384,
-    ""r"": 8,
-    ""p"": 8
-  },
-  ""accounts"": [
-    {
-      ""address"": ""NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB"",
-      ""label"": ""test-account"",
-      ""isDefault"": true,
-      ""lock"": false,
-      ""key"": ""6PYL2NWjJRudDyQE7xD99vPkgDDQ4jiqPF6LVyeCbnYUAe8DhCvKp6vL3C"",
-      ""contract"": {
-        ""script"": ""DCEDeK2z93hJM8m7kM7BpRJGK4tO6cMVZZkXnxRm6aJ8lBsLQZVEDXg="",
-        ""parameters"": [
-          {
-            ""name"": ""signature"",
-            ""type"": ""Signature""
-          }
-        ],
-        ""deployed"": false
-      },
-      ""extra"": null
-    }
-  ],
-  ""extra"": null
-}";
-        await File.WriteAllTextAsync(walletPath, walletJson);
-    }
 }
