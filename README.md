@@ -316,27 +316,6 @@ For detailed documentation on NEO smart contract development with .NET:
 - [NEO Official Documentation](https://docs.neo.org/)
 - [NEO Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html)
 
-## Testing
-
-The project includes comprehensive unit and integration tests. For detailed testing instructions, see [docs/TESTING.md](docs/TESTING.md).
-
-### Quick Start
-
-```bash
-# Run all unit tests (no setup required)
-dotnet test --filter "FullyQualifiedName!~Integration"
-
-# Run all tests including integration tests
-./start-neo-express.sh  # Start Neo Express first
-./run-tests.sh          # Run all tests
-```
-
-### Test Results
-
-- **Unit Tests**: 96% pass rate (48/50 tests)
-- **Integration Tests**: 100% pass rate with Neo Express
-- **Overall**: 89% without Neo Express, 100% with Neo Express
-
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
