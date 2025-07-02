@@ -1,78 +1,67 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Neo.SmartContract.Deploy.Configuration;
+using Microsoft.Extensions.Logging;
+using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Services;
-using Neo.SmartContract.Deploy.Steps;
-using Neo.SmartContract.Deploy.Utilities;
 
-namespace Neo.SmartContract.Deploy
+namespace Neo.SmartContract.Deploy;
+
+/// <summary>
+/// Extension methods for service collection to register deployment services
+/// </summary>
+public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Extension methods for registering deployment services
+    /// Add Neo contract deployment services to the service collection
     /// </summary>
-    public static class ServiceCollectionExtensions
+    /// <param name="services">Service collection</param>
+    /// <returns>Service collection for chaining</returns>
+    public static IServiceCollection AddNeoContractDeployment(this IServiceCollection services)
     {
-        /// <summary>
-        /// Add Neo smart contract deployment services
-        /// </summary>
-        public static IServiceCollection AddNeoDeploymentServices(this IServiceCollection services, IConfiguration configuration)
+        // Register core services
+        services.AddTransient<IContractCompiler, ContractCompilerService>();
+        services.AddTransient<IContractDeployer, ContractDeployerService>();
+        services.AddTransient<IContractInvoker, ContractInvokerService>();
+        services.AddTransient<IWalletManager, WalletManagerService>();
+
+        // Register main toolkit
+        services.AddTransient<NeoContractToolkit>();
+
+        // Add logging
+        services.AddLogging(builder =>
         {
-            // Configuration - network options now include wallet configuration
-            services.Configure<DeploymentOptions>(configuration.GetSection("Deployment"));
-            services.Configure<NetworkOptions>(configuration.GetSection("Network"));
+            builder.AddConsole();
+        });
 
-            // Core services (always required)
-            services.AddSingleton<IBlockchainService, BlockchainService>();
-            services.AddSingleton<IWalletService, WalletService>();
-            services.AddSingleton<IContractLoader, ContractLoader>();
-            services.AddSingleton<IDeploymentService, DeploymentService>();
-            services.AddSingleton<IDeploymentRecordService, DeploymentRecordService>();
-            services.AddSingleton<IContractUpdateService, ContractUpdateService>();
+        return services;
+    }
 
-            // Utilities
-            services.AddSingleton<IContractInvoker, ContractInvoker>();
-
-            return services;
-        }
-
-        /// <summary>
-        /// Add Neo Express support for local development (optional)
-        /// </summary>
-        public static IServiceCollection AddNeoExpressSupport(this IServiceCollection services, IConfiguration configuration)
-        {
-            // Neo Express configuration
-            services.Configure<NeoExpressOptions>(configuration.GetSection("NeoExpress"));
-            
-            // Neo Express services
-            services.AddSingleton<INeoExpressService, NeoExpressService>();
-            
-            // Replace wallet service with Neo Express version when enabled
-            var useNeoExpress = configuration.GetValue<bool>("Deployment:UseNeoExpress");
-            if (useNeoExpress)
+    /// <summary>
+    /// Create a default toolkit instance with console logging
+    /// </summary>
+    /// <returns>Configured toolkit instance</returns>
+    public static NeoContractToolkit CreateDefaultToolkit()
+    {
+        return NeoContractToolkitBuilder.Create()
+            .ConfigureLogging(builder =>
             {
-                services.AddSingleton<IWalletService, NeoExpressWalletService>();
-            }
+                builder.AddConsole();
+                builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+            })
+            .Build();
+    }
 
-            return services;
-        }
-
-        /// <summary>
-        /// Add Neo Express setup step
-        /// </summary>
-        public static IServiceCollection AddNeoExpressSetup(this IServiceCollection services)
-        {
-            services.AddTransient<IDeploymentStep, NeoExpressSetupStep>();
-            return services;
-        }
-
-        /// <summary>
-        /// Add a deployment step
-        /// </summary>
-        public static IServiceCollection AddDeploymentStep<TStep>(this IServiceCollection services)
-            where TStep : class, IDeploymentStep
-        {
-            services.AddTransient<IDeploymentStep, TStep>();
-            return services;
-        }
+    /// <summary>
+    /// Create a toolkit instance with debug logging
+    /// </summary>
+    /// <returns>Configured toolkit instance with debug logging</returns>
+    public static NeoContractToolkit CreateDebugToolkit()
+    {
+        return NeoContractToolkitBuilder.Create()
+            .ConfigureLogging(builder =>
+            {
+                builder.AddConsole();
+                builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
+            })
+            .Build();
     }
 }

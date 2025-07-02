@@ -8,14 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Deploy" Version="3.8.1-*" />
+    <!-- Neo Smart Contract Deployment Toolkit - using local project reference -->
+    <ProjectReference Include="../../../../../Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.*.json">
+    <!-- Example wallet files that users can create -->
+    <None Update="wallets/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

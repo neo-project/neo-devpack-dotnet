@@ -1,15 +1,33 @@
-# Neo.SmartContract.Deploy
+# Neo Smart Contract Deployment Toolkit
 
-A comprehensive deployment toolkit for Neo N3 smart contracts, providing infrastructure for deploying, initializing, and managing smart contracts.
+A comprehensive deployment toolkit for Neo N3 smart contracts, providing infrastructure for compiling, deploying, initializing, and managing smart contracts.
 
 ## Features
 
-- **Modular Deployment System**: Step-based deployment process for complex scenarios
-- **Wallet Management**: Secure wallet handling with environment variable support
-- **Transaction Management**: Automatic gas estimation and transaction confirmation
-- **Multi-Contract Support**: Deploy multiple contracts with dependencies
-- **Configuration**: Environment-based configuration (Development, TestNet, MainNet)
-- **Utilities**: Contract invocation helpers and deployment utilities
+### Two Deployment Approaches
+
+#### 1. Compile-and-Deploy Approach
+- Specify compilation options for each contract
+- Compile contracts from source code
+- Deploy compiled contracts to the network
+- Get deployment results with contract addresses
+- Invoke deployed contracts for setup and initialization
+
+#### 2. Artifact-based Deploy Approach
+- Use pre-compiled NEF and manifest files
+- Deploy artifacts directly to the network
+- Skip compilation step for faster deployment
+- Ideal for production deployments with CI/CD pipelines
+
+### Core Capabilities
+
+- **Contract Compilation**: Compile smart contracts from C# source code with customizable options
+- **Contract Deployment**: Deploy contracts to Neo N3 networks with transaction management
+- **Contract Updates**: Update existing contracts with new versions
+- **Contract Invocation**: Invoke contract methods for setup, initialization, and data retrieval
+- **Wallet Management**: Integrate with Neo wallets for transaction signing
+- **Multi-contract Support**: Deploy multiple contracts with dependencies in sequence
+- **Network Awareness**: Support for different Neo networks (MainNet, TestNet, Private)
 
 ## Installation
 
@@ -19,109 +37,94 @@ dotnet add package Neo.SmartContract.Deploy
 
 ## Quick Start
 
-### 1. Configure Services
+### Basic Usage
 
 ```csharp
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 using Neo.SmartContract.Deploy;
+using Neo.SmartContract.Deploy.Contracts;
 
-var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
-    .AddEnvironmentVariables()
-    .Build();
+// Create toolkit instance
+var toolkit = ServiceCollectionExtensions.CreateDefaultToolkit();
 
-var services = new ServiceCollection();
+// Load wallet for signing transactions
+await toolkit.LoadWalletAsync("path/to/wallet.json", "password");
+var deployerAccount = toolkit.GetDeployerAccount();
 
-// Add deployment services
-services.AddNeoDeploymentServices(configuration);
+// Approach 1: Compile and deploy from source
+var compilationOptions = new CompilationOptions
+{
+    SourcePath = "MyContract.cs",
+    OutputDirectory = "bin/contracts",
+    ContractName = "MyContract"
+};
 
-// Add deployment steps
-services.AddDeploymentStep<MyContractDeploymentStep>();
+var deploymentOptions = new DeploymentOptions
+{
+    RpcUrl = "http://localhost:10332",
+    DeployerAccount = deployerAccount,
+    GasLimit = 50_000_000 // 0.5 GAS
+};
 
-var serviceProvider = services.BuildServiceProvider();
+var result = await toolkit.CompileAndDeployAsync(compilationOptions, deploymentOptions);
+Console.WriteLine($"Contract deployed: {result.ContractHash}");
+
+// Initialize the deployed contract
+var invocationOptions = new InvocationOptions
+{
+    RpcUrl = "http://localhost:10332",
+    SignerAccount = deployerAccount,
+    GasLimit = 20_000_000 // 0.2 GAS
+};
+
+await toolkit.InvokeContractAsync(
+    result.ContractHash,
+    "initialize",
+    new object[] { "setup parameter" },
+    invocationOptions
+);
 ```
 
-### 2. Create a Deployment Step
+### Artifact-based Deployment
 
 ```csharp
-using Neo.SmartContract.Deploy.Steps;
-
-public class MyContractDeploymentStep : BaseDeploymentStep
-{
-    public MyContractDeploymentStep(ILogger<MyContractDeploymentStep> logger) 
-        : base(logger) { }
-
-    public override string Name => "Deploy MyContract";
-    public override int Order => 10;
-
-    public override async Task<bool> ExecuteAsync(DeploymentContext context)
-    {
-        // Load contract
-        var contract = await context.ContractLoader.LoadContractAsync("MyContract");
-        
-        // Deploy contract
-        var result = await context.DeploymentService.DeployContractAsync(
-            contract.Name,
-            contract.NefBytes,
-            contract.Manifest
-        );
-
-        if (!result.Success)
-        {
-            Logger.LogError("Failed to deploy contract: {Error}", result.ErrorMessage);
-            return false;
-        }
-
-        // Store deployed contract hash
-        context.DeployedContracts[contract.Name] = result.Hash!;
-        
-        // Initialize contract
-        await context.DeploymentService.InvokeContractAsync(
-            result.Hash!,
-            "initialize"
-        );
-
-        return true;
-    }
-}
+// Approach 2: Deploy from pre-compiled artifacts
+var result = await toolkit.DeployFromArtifactsAsync(
+    "MyContract.nef",
+    "MyContract.manifest.json",
+    deploymentOptions
+);
 ```
 
-### 3. Configure appsettings.json
-
-```json
-{
-  "Network": {
-    "RpcUrl": "http://localhost:10332",
-    "Network": "private"
-  },
-  "Wallet": {
-    "WalletPath": "wallet.json",
-    "DefaultAccount": null
-  },
-  "Deployment": {
-    "WaitForConfirmation": true,
-    "ConfirmationRetries": 30,
-    "ConfirmationDelaySeconds": 5,
-    "ContractsPath": "contracts"
-  }
-}
-```
-
-### 4. Deploy Contracts
+### Multiple Contracts with Dependencies
 
 ```csharp
-var deploymentService = serviceProvider.GetRequiredService<IDeploymentService>();
-var result = await deploymentService.DeployAllAsync();
+// Deploy Token Contract first
+var tokenResult = await toolkit.CompileAndDeployAsync(tokenOptions, deploymentOptions);
 
-if (result.Success)
-{
-    Console.WriteLine("Deployment successful!");
-    foreach (var contract in result.DeployedContracts)
-    {
-        Console.WriteLine($"{contract.Name}: {contract.Hash}");
-    }
-}
+// Deploy Governance Contract
+var govResult = await toolkit.CompileAndDeployAsync(govOptions, deploymentOptions);
+
+// Initialize Governance with Token reference
+await toolkit.InvokeContractAsync(
+    govResult.ContractHash,
+    "initialize",
+    new object[] { tokenResult.ContractHash }, // Pass token hash as dependency
+    invocationOptions
+);
+
+// Deploy Main Contract that depends on both
+var mainResult = await toolkit.CompileAndDeployAsync(mainOptions, deploymentOptions);
+
+// Initialize Main Contract with both dependencies
+await toolkit.InvokeContractAsync(
+    mainResult.ContractHash,
+    "initialize",
+    new object[] { 
+        tokenResult.ContractHash,
+        govResult.ContractHash 
+    },
+    invocationOptions
+);
 ```
 
 ## Advanced Usage
