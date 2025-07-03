@@ -77,7 +77,7 @@ namespace DeploymentExample.Deploy
                 // The contract's _deploy method expects the owner address
                 var deploymentInfo = await toolkit.Deploy(
                     "../../src/DeploymentExample.Contract/DeploymentExample.Contract.csproj",
-                    new object[] { deployerAddress } // Pass deployer as initial owner
+                    new object[] { deployerAddress.ToString() } // Pass deployer as initial owner
                 );
 
                 Console.WriteLine("\n=== Deployment Successful! ===");
