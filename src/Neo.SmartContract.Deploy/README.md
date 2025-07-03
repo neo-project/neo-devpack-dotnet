@@ -254,7 +254,7 @@ For production deployments, use:
        "UseNeoExpress": true  // Set to true only if you want to use Neo Express
      },
      "NeoExpress": {
-       "ConfigFile": "default.neo-express",
+       "ConfigFile": "neo-express.json",
        "AutoStart": true,
        "AutoCreate": true,
        "EnableCheckpoints": true,
