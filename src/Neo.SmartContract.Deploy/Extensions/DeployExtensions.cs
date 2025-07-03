@@ -49,12 +49,12 @@ public static class DeployExtensions
     {
         // Temporarily disable wait for confirmation
         Environment.SetEnvironmentVariable("Deployment__WaitForConfirmation", "false");
-        
+
         var result = await toolkit.Deploy(path, initParams);
-        
+
         // Re-enable
         Environment.SetEnvironmentVariable("Deployment__WaitForConfirmation", null);
-        
+
         return result.Success ? result.TransactionHash : null;
     }
 }

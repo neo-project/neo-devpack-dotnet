@@ -42,7 +42,7 @@ public class SimpleToolkit
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
             builder.AddJsonFile($"appsettings.{environment}.json", optional: true);
         }
-        
+
         builder.AddEnvironmentVariables();
         _configuration = builder.Build();
 
@@ -71,28 +71,28 @@ public class SimpleToolkit
     public SimpleToolkit SetNetwork(string network)
     {
         _currentNetwork = network.ToLowerInvariant();
-        
+
         // Update configuration based on network
         var configSection = _configuration.GetSection("Network");
-        
+
         switch (_currentNetwork)
         {
             case "mainnet":
                 Environment.SetEnvironmentVariable("Network__RpcUrl", "https://rpc10.n3.nspcc.ru:10331");
                 Environment.SetEnvironmentVariable("Network__Network", "mainnet");
                 break;
-                
+
             case "testnet":
                 Environment.SetEnvironmentVariable("Network__RpcUrl", "https://rpc10.n3.neotracker.io:443");
                 Environment.SetEnvironmentVariable("Network__Network", "testnet");
                 break;
-                
+
             case "local":
             case "private":
                 Environment.SetEnvironmentVariable("Network__RpcUrl", "http://localhost:50012");
                 Environment.SetEnvironmentVariable("Network__Network", "private");
                 break;
-                
+
             default:
                 // Assume it's a custom RPC URL
                 if (network.StartsWith("http"))
@@ -116,7 +116,7 @@ public class SimpleToolkit
 
         // Determine if it's a project or source file
         var isProject = path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
-        
+
         var compilationOptions = new CompilationOptions
         {
             ProjectPath = isProject ? path : null,
@@ -134,9 +134,9 @@ public class SimpleToolkit
         };
 
         _logger.LogInformation($"Deploying {compilationOptions.ContractName}...");
-        
+
         var result = await _toolkit.CompileAndDeployAsync(compilationOptions, deploymentOptions);
-        
+
         if (result.Success)
         {
             _logger.LogInformation($"✅ Contract deployed: {result.ContractHash}");
@@ -165,9 +165,9 @@ public class SimpleToolkit
         };
 
         _logger.LogInformation($"Deploying from artifacts...");
-        
+
         var result = await _toolkit.DeployFromArtifactsAsync(nefPath, manifestPath, deploymentOptions);
-        
+
         if (result.Success)
         {
             _logger.LogInformation($"✅ Contract deployed: {result.ContractHash}");
@@ -195,7 +195,7 @@ public class SimpleToolkit
     public async Task<UInt256> Invoke(string contractHashOrAddress, string method, params object[] args)
     {
         await EnsureWalletLoaded();
-        
+
         var contractHash = ParseContractHash(contractHashOrAddress);
         return await _toolkit.InvokeContractAsync(contractHash, method, args);
     }
@@ -209,7 +209,7 @@ public class SimpleToolkit
 
         var contractHash = ParseContractHash(contractHashOrAddress);
         var isProject = path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
-        
+
         var compilationOptions = new CompilationOptions
         {
             ProjectPath = isProject ? path : null,
@@ -226,9 +226,9 @@ public class SimpleToolkit
         };
 
         _logger.LogInformation($"Updating contract {contractHash}...");
-        
+
         var result = await _toolkit.CompileAndUpdateAsync(compilationOptions, contractHash, deploymentOptions);
-        
+
         if (result.Success)
         {
             _logger.LogInformation($"✅ Contract updated: {result.ContractHash}");
@@ -268,7 +268,7 @@ public class SimpleToolkit
         // Call GAS token contract
         var gasHash = UInt160.Parse("0xd2a4cff31913016155e38e474a2c06d08be276cf");
         var balance = await Call<System.Numerics.BigInteger>(gasHash.ToString(), "balanceOf", account);
-        
+
         // GAS has 8 decimals
         return (decimal)balance / 100_000_000m;
     }
@@ -347,7 +347,7 @@ public class SimpleToolkit
                 return address.ToScriptHash(53);
             if (address.StartsWith("A")) // Legacy
                 return address.ToScriptHash(23);
-            
+
             // Default to N3
             return address.ToScriptHash(53);
         }
