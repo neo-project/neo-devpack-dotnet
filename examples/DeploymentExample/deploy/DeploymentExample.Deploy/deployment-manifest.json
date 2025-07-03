@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "description": "Example deployment manifest for ExampleContract",
+  "contracts": [
+    {
+      "name": "ExampleContract",
+      "projectPath": "../../src/DeploymentExample.Contract/DeploymentExample.Contract.csproj",
+      "dependencies": [],
+      "deploymentParameters": [],
+      "postDeploymentActions": [
+        {
+          "method": "getInfo",
+          "parameters": [],
+          "required": false,
+          "description": "Verify contract deployment by calling getInfo"
+        }
+      ]
+    }
+  ]
+}
