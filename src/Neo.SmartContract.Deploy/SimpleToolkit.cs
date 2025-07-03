@@ -234,7 +234,7 @@ public class SimpleToolkit
         // Compile first
         var compiler = _serviceProvider.GetRequiredService<IContractCompiler>();
         var compiled = await compiler.CompileAsync(compilationOptions);
-        
+
         // Then update
         var updateService = _serviceProvider.GetRequiredService<IContractUpdateService>();
         var updateResult = await updateService.UpdateContractAsync(
@@ -244,7 +244,7 @@ public class SimpleToolkit
             compiled.Manifest,
             null,
             null);
-        
+
         var result = new ContractDeploymentInfo
         {
             Success = updateResult.Success,

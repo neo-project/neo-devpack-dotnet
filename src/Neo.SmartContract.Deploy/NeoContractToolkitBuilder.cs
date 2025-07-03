@@ -18,7 +18,7 @@ public class NeoContractToolkitBuilder
     private bool _useCustomDeployer = false;
     private bool _useCustomInvoker = false;
     private bool _useCustomWalletManager = false;
-    
+
     /// <summary>
     /// Gets the service provider after Build() is called
     /// </summary>
@@ -159,10 +159,10 @@ public class NeoContractToolkitBuilder
 
         // Add multi-contract deployment service
         _services.AddTransient<MultiContractDeploymentService>();
-        
+
         // Add contract update service
         _services.AddTransient<IContractUpdateService, ContractUpdateService>();
-        
+
         // Add deployment record service  
         _services.AddTransient<IDeploymentRecordService, DeploymentRecordService>();
 

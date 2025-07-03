@@ -247,7 +247,7 @@ public class NeoContractToolkit
     {
         return _walletManager.GetAccount(accountAddress);
     }
-    
+
     /// <summary>
     /// Get a service from the service provider
     /// </summary>
