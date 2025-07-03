@@ -12,31 +12,31 @@ public static class DeployExtensions
     /// <summary>
     /// Create a deployment toolkit for MainNet
     /// </summary>
-    public static SimpleToolkit MainNet(string? configPath = null)
+    public static DeploymentToolkit MainNet(string? configPath = null)
     {
-        return new SimpleToolkit(configPath).SetNetwork("mainnet");
+        return new DeploymentToolkit(configPath).SetNetwork("mainnet");
     }
 
     /// <summary>
     /// Create a deployment toolkit for TestNet
     /// </summary>
-    public static SimpleToolkit TestNet(string? configPath = null)
+    public static DeploymentToolkit TestNet(string? configPath = null)
     {
-        return new SimpleToolkit(configPath).SetNetwork("testnet");
+        return new DeploymentToolkit(configPath).SetNetwork("testnet");
     }
 
     /// <summary>
     /// Create a deployment toolkit for local/private network
     /// </summary>
-    public static SimpleToolkit Local(string? configPath = null)
+    public static DeploymentToolkit Local(string? configPath = null)
     {
-        return new SimpleToolkit(configPath).SetNetwork("local");
+        return new DeploymentToolkit(configPath).SetNetwork("local");
     }
 
     /// <summary>
     /// Deploy and wait for confirmation with a simple one-liner
     /// </summary>
-    public static async Task<UInt160?> QuickDeploy(this SimpleToolkit toolkit, string path, params object[] initParams)
+    public static async Task<UInt160?> QuickDeploy(this DeploymentToolkit toolkit, string path, params object[] initParams)
     {
         var result = await toolkit.Deploy(path, initParams);
         return result.Success ? result.ContractHash : null;
@@ -45,7 +45,7 @@ public static class DeployExtensions
     /// <summary>
     /// Deploy and return the transaction hash without waiting
     /// </summary>
-    public static async Task<UInt256?> QuickDeployNoWait(this SimpleToolkit toolkit, string path, params object[] initParams)
+    public static async Task<UInt256?> QuickDeployNoWait(this DeploymentToolkit toolkit, string path, params object[] initParams)
     {
         // Temporarily disable wait for confirmation
         Environment.SetEnvironmentVariable("Deployment__WaitForConfirmation", "false");
@@ -67,15 +67,15 @@ public static class Deploy
     /// <summary>
     /// Deploy to MainNet
     /// </summary>
-    public static SimpleToolkit ToMainNet => DeployExtensions.MainNet();
+    public static DeploymentToolkit ToMainNet => DeployExtensions.MainNet();
 
     /// <summary>
     /// Deploy to TestNet
     /// </summary>
-    public static SimpleToolkit ToTestNet => DeployExtensions.TestNet();
+    public static DeploymentToolkit ToTestNet => DeployExtensions.TestNet();
 
     /// <summary>
     /// Deploy to local network
     /// </summary>
-    public static SimpleToolkit ToLocal => DeployExtensions.Local();
+    public static DeploymentToolkit ToLocal => DeployExtensions.Local();
 }

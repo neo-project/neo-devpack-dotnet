@@ -11,10 +11,10 @@ namespace SampleToken.Deploy
     {
         static async Task Main(string[] args)
         {
-            // Check if user wants simple mode
-            if (args.Length > 0 && args[0] == "--simple")
+            // Check if user wants streamlined mode
+            if (args.Length > 0 && args[0] == "--streamlined")
             {
-                await SimpleDeployment();
+                await StreamlinedDeployment();
                 return;
             }
 
@@ -23,16 +23,16 @@ namespace SampleToken.Deploy
         }
 
         /// <summary>
-        /// Ultra-simple deployment using SimpleToolkit
+        /// Streamlined deployment using DeploymentToolkit
         /// </summary>
-        static async Task SimpleDeployment()
+        static async Task StreamlinedDeployment()
         {
-            Console.WriteLine("=== Simple Token Deployment ===\n");
+            Console.WriteLine("=== Streamlined Token Deployment ===\n");
 
             try
             {
                 // Create toolkit - auto-loads config from appsettings.json
-                var toolkit = new SimpleToolkit();
+                var toolkit = new DeploymentToolkit();
                 
                 // Set network based on environment or default to testnet
                 var network = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.ToLower() ?? "testnet";

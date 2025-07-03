@@ -1,4 +1,4 @@
-# Neo Smart Contract Deploy - Simple Examples
+# Neo Smart Contract Deploy - Quick Start Examples
 
 ## One-Line Deployment
 
@@ -19,7 +19,7 @@ var contractHash = await Deploy.ToLocal.QuickDeploy("MyContract.csproj");
 ## Basic Usage (3 lines)
 
 ```csharp
-var toolkit = new SimpleToolkit();
+var toolkit = new DeploymentToolkit();
 toolkit.SetNetwork("testnet");
 var result = await toolkit.Deploy("MyContract.csproj");
 ```
@@ -27,7 +27,7 @@ var result = await toolkit.Deploy("MyContract.csproj");
 ## With Initialization Parameters
 
 ```csharp
-var toolkit = new SimpleToolkit().SetNetwork("testnet");
+var toolkit = new DeploymentToolkit().SetNetwork("testnet");
 var owner = await toolkit.GetDeployerAccount();
 var result = await toolkit.Deploy("Token.csproj", new object[] { owner, 1000000 });
 ```
@@ -35,21 +35,21 @@ var result = await toolkit.Deploy("Token.csproj", new object[] { owner, 1000000 
 ## Deploy from Source File
 
 ```csharp
-var toolkit = new SimpleToolkit().SetNetwork("local");
+var toolkit = new DeploymentToolkit().SetNetwork("local");
 var result = await toolkit.Deploy("MyContract.cs");
 ```
 
 ## Deploy Pre-compiled Contract
 
 ```csharp
-var toolkit = new SimpleToolkit().SetNetwork("testnet");
+var toolkit = new DeploymentToolkit().SetNetwork("testnet");
 var result = await toolkit.DeployArtifacts("contract.nef", "contract.manifest.json");
 ```
 
 ## Call Contract Methods
 
 ```csharp
-var toolkit = new SimpleToolkit().SetNetwork("mainnet");
+var toolkit = new DeploymentToolkit().SetNetwork("mainnet");
 
 // Read-only call
 var name = await toolkit.Call<string>("0x1234...abcd", "getName");
@@ -61,14 +61,14 @@ var txHash = await toolkit.Invoke("0x1234...abcd", "transfer", from, to, amount)
 ## Update Contract
 
 ```csharp
-var toolkit = new SimpleToolkit().SetNetwork("testnet");
+var toolkit = new DeploymentToolkit().SetNetwork("testnet");
 var result = await toolkit.Update("0x1234...abcd", "UpdatedContract.csproj");
 ```
 
 ## Check Balance
 
 ```csharp
-var toolkit = new SimpleToolkit().SetNetwork("mainnet");
+var toolkit = new DeploymentToolkit().SetNetwork("mainnet");
 var balance = await toolkit.GetGasBalance(); // Get deployer's GAS balance
 var balance2 = await toolkit.GetGasBalance("NXXXxxxXXXxxx..."); // Get specific address balance
 ```
@@ -85,7 +85,7 @@ export NEO_WALLET_PASSWORD="your-password"
 Then just:
 
 ```csharp
-var result = await new SimpleToolkit().SetNetwork("testnet").Deploy("Contract.csproj");
+var result = await new DeploymentToolkit().SetNetwork("testnet").Deploy("Contract.csproj");
 ```
 
 ## Minimal appsettings.json

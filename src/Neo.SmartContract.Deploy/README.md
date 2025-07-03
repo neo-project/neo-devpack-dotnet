@@ -7,7 +7,7 @@ A comprehensive deployment toolkit for Neo N3 smart contracts, providing infrast
 Deploy a contract in just 2 lines:
 
 ```csharp
-var toolkit = new SimpleToolkit().SetNetwork("testnet");
+var toolkit = new DeploymentToolkit().SetNetwork("testnet");
 var contractHash = await toolkit.Deploy("MyContract.csproj");
 ```
 
@@ -59,7 +59,7 @@ dotnet add package Neo.SmartContract.Deploy
 ```csharp
 using Neo.SmartContract.Deploy;
 
-var toolkit = new SimpleToolkit().SetNetwork("testnet");
+var toolkit = new DeploymentToolkit().SetNetwork("testnet");
 var result = await toolkit.Deploy("MyContract.csproj");
 var deployerAccount = toolkit.GetDeployerAccount();
 

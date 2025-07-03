@@ -1,7 +1,7 @@
 using Neo.SmartContract.Deploy;
 
 // Create toolkit - automatically loads configuration from appsettings.json
-var toolkit = new SimpleToolkit();
+var toolkit = new DeploymentToolkit();
 
 // Set network (mainnet, testnet, local, or custom RPC URL)
 toolkit.SetNetwork("testnet");

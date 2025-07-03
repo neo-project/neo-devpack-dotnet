@@ -14,22 +14,22 @@ using System.Threading.Tasks;
 namespace Neo.SmartContract.Deploy;
 
 /// <summary>
-/// Simplified deployment toolkit with automatic configuration
+/// Streamlined deployment toolkit providing a simplified API for Neo smart contract deployment with automatic configuration
 /// </summary>
-public class SimpleToolkit
+public class DeploymentToolkit
 {
     private readonly NeoContractToolkit _toolkit;
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<SimpleToolkit> _logger;
+    private readonly ILogger<DeploymentToolkit> _logger;
     private bool _walletLoaded = false;
     private string? _currentNetwork = null;
 
     /// <summary>
-    /// Create a new SimpleToolkit instance with automatic configuration
+    /// Create a new DeploymentToolkit instance with automatic configuration
     /// </summary>
     /// <param name="configPath">Optional path to configuration file. Defaults to appsettings.json in current directory</param>
-    public SimpleToolkit(string? configPath = null)
+    public DeploymentToolkit(string? configPath = null)
     {
         // Build configuration
         var builder = new ConfigurationBuilder()
@@ -63,7 +63,7 @@ public class SimpleToolkit
 
         _toolkit = toolkitBuilder.Build();
         _serviceProvider = toolkitBuilder.ServiceProvider!;
-        _logger = _toolkit.GetService<ILogger<SimpleToolkit>>()!;
+        _logger = _toolkit.GetService<ILogger<DeploymentToolkit>>()!;
 
         // Auto-load wallet if configured
         _ = LoadWalletIfConfigured();
@@ -72,7 +72,7 @@ public class SimpleToolkit
     /// <summary>
     /// Set the network to use (mainnet, testnet, or custom RPC URL)
     /// </summary>
-    public SimpleToolkit SetNetwork(string network)
+    public DeploymentToolkit SetNetwork(string network)
     {
         _currentNetwork = network.ToLowerInvariant();
 
