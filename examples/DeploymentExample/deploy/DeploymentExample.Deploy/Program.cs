@@ -1,6 +1,9 @@
 using Neo;
 using Neo.SmartContract.Deploy;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Threading.Tasks;
+using System.Numerics;
 
 namespace DeploymentExample.Deploy;
 
@@ -69,7 +72,7 @@ class Program
         // Deploy the contract with the deployer as initial owner
         var deploymentResult = await toolkit.Deploy(
             "../../src/DeploymentExample.Contract/DeploymentExample.Contract.csproj",
-            deployerAddress // Pass deployer as owner during deployment
+            new object[] { deployerAddress } // Pass deployer as owner during deployment
         );
         
         Console.WriteLine($"Contract deployed!");
@@ -92,20 +95,20 @@ class Program
         
         // 1. Get contract info (read-only call)
         Console.WriteLine("\n1. Getting contract info...");
-        var info = await toolkit.Call<string>(contractHash, "getInfo");
+        var info = await toolkit.Call<object>(contractHash.ToString(), "getInfo");
         Console.WriteLine($"   Contract Info: {info}");
         
         // 2. Get current counter value
         Console.WriteLine("\n2. Getting counter value...");
-        var counter = await toolkit.Call<System.Numerics.BigInteger>(
-            contractHash, 
+        var counter = await toolkit.Call<BigInteger>(
+            contractHash.ToString(), 
             "getCounter"
         );
         Console.WriteLine($"   Current Counter: {counter}");
         
         // 3. Increment counter (state-changing transaction)
         Console.WriteLine("\n3. Incrementing counter...");
-        var txHash = await toolkit.Invoke(contractHash, "increment");
+        var txHash = await toolkit.Invoke(contractHash.ToString(), "increment");
         Console.WriteLine($"   Transaction: {txHash}");
         
         // Wait a moment for the transaction to be processed
@@ -113,16 +116,16 @@ class Program
         await Task.Delay(5000);
         
         // Get updated counter value
-        var newCounter = await toolkit.Call<System.Numerics.BigInteger>(
-            contractHash,
+        var newCounter = await toolkit.Call<BigInteger>(
+            contractHash.ToString(),
             "getCounter"
         );
         Console.WriteLine($"   New Counter: {newCounter}");
         
         // 4. Test multiply function
         Console.WriteLine("\n4. Testing multiply function...");
-        var result = await toolkit.Call<System.Numerics.BigInteger>(
-            contractHash,
+        var result = await toolkit.Call<BigInteger>(
+            contractHash.ToString(),
             "multiply",
             7, 6
         );
@@ -130,7 +133,7 @@ class Program
         
         // 5. Get owner
         Console.WriteLine("\n5. Getting contract owner...");
-        var owner = await toolkit.Call<string>(contractHash, "getOwner");
+        var owner = await toolkit.Call<string>(contractHash.ToString(), "getOwner");
         Console.WriteLine($"   Owner: {owner}");
         
         Console.WriteLine("\n=== All tests completed successfully! ===");

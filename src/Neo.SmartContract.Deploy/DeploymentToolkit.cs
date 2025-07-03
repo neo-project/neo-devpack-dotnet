@@ -317,23 +317,23 @@ public class DeploymentToolkit
         };
 
         _logger.LogInformation($"Deploying contracts from manifest: {manifestPath}");
-        
+
         var result = await _toolkit.DeployFromManifestAsync(manifestPath, deploymentOptions);
-        
+
         // Convert MultiContractDeploymentResult to simplified dictionary
         var deploymentMap = new Dictionary<string, ContractDeploymentInfo>();
-        
+
         foreach (var deployment in result.SuccessfulDeployments)
         {
             deploymentMap[deployment.ContractName] = deployment;
         }
-        
+
         if (result.FailedDeployments.Any())
         {
             var failures = string.Join(", ", result.FailedDeployments.Select(f => $"{f.ContractName}: {f.Reason}"));
             _logger.LogWarning($"Some deployments failed: {failures}");
         }
-        
+
         return deploymentMap;
     }
 
@@ -347,7 +347,7 @@ public class DeploymentToolkit
         var contractHash = ParseAddress(contractHashOrAddress);
         var deployer = _serviceProvider.GetRequiredService<IContractDeployer>();
         var rpcUrl = GetCurrentRpcUrl();
-        
+
         return await deployer.ContractExistsAsync(contractHash, rpcUrl);
     }
 
@@ -457,7 +457,7 @@ public class DeploymentToolkit
                 return network.RpcUrl;
             }
         }
-        
+
         // Fallback to default RPC URL
         return _configuration["Network:RpcUrl"] ?? "http://localhost:10332";
     }
