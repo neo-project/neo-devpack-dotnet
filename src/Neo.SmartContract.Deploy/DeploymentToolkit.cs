@@ -300,6 +300,69 @@ public class DeploymentToolkit
         return (decimal)balance / 100_000_000m;
     }
 
+    /// <summary>
+    /// Deploy multiple contracts from a manifest file
+    /// </summary>
+    /// <param name="manifestPath">Path to the deployment manifest JSON file</param>
+    /// <returns>Dictionary of contract names to deployment information</returns>
+    public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifest(string manifestPath)
+    {
+        await EnsureWalletLoaded();
+
+        var deploymentOptions = new DeploymentOptions
+        {
+            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
+            GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
+            WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true)
+        };
+
+        _logger.LogInformation($"Deploying contracts from manifest: {manifestPath}");
+        
+        var result = await _toolkit.DeployFromManifestAsync(manifestPath, deploymentOptions);
+        
+        // Convert MultiContractDeploymentResult to simplified dictionary
+        var deploymentMap = new Dictionary<string, ContractDeploymentInfo>();
+        
+        foreach (var deployment in result.SuccessfulDeployments)
+        {
+            deploymentMap[deployment.ContractName] = deployment;
+        }
+        
+        if (result.FailedDeployments.Any())
+        {
+            var failures = string.Join(", ", result.FailedDeployments.Select(f => $"{f.ContractName}: {f.Reason}"));
+            _logger.LogWarning($"Some deployments failed: {failures}");
+        }
+        
+        return deploymentMap;
+    }
+
+    /// <summary>
+    /// Check if a contract exists at the given address
+    /// </summary>
+    /// <param name="contractHashOrAddress">Contract hash or address</param>
+    /// <returns>True if contract exists, false otherwise</returns>
+    public async Task<bool> ContractExists(string contractHashOrAddress)
+    {
+        var contractHash = ParseAddress(contractHashOrAddress);
+        var deployer = _serviceProvider.GetRequiredService<IContractDeployer>();
+        var rpcUrl = GetCurrentRpcUrl();
+        
+        return await deployer.ContractExistsAsync(contractHash, rpcUrl);
+    }
+
+    /// <summary>
+    /// Deploy contract from pre-compiled artifacts
+    /// </summary>
+    /// <param name="nefPath">Path to .nef file</param>
+    /// <param name="manifestPath">Path to .manifest.json file</param>
+    /// <param name="initParams">Optional initialization parameters</param>
+    /// <returns>Deployment information</returns>
+    public async Task<ContractDeploymentInfo> DeployFromArtifacts(string nefPath, string manifestPath, object[]? initParams = null)
+    {
+        return await DeployArtifacts(nefPath, manifestPath, initParams);
+    }
+
     #region Private Methods
 
     private async Task LoadWalletIfConfigured()
@@ -382,6 +445,21 @@ public class DeploymentToolkit
         {
             throw new ArgumentException($"Invalid address: {address}");
         }
+    }
+
+    private string GetCurrentRpcUrl()
+    {
+        if (!string.IsNullOrEmpty(_currentNetwork))
+        {
+            var networks = _configuration.GetSection("Network:Networks").Get<Dictionary<string, NetworkConfiguration>>();
+            if (networks != null && networks.TryGetValue(_currentNetwork, out var network))
+            {
+                return network.RpcUrl;
+            }
+        }
+        
+        // Fallback to default RPC URL
+        return _configuration["Network:RpcUrl"] ?? "http://localhost:10332";
     }
 
     #endregion

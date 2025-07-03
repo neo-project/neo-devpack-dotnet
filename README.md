@@ -78,6 +78,18 @@ Code analyzers and linting tools to help write secure and efficient contracts.
 
 Project templates for creating new NEO smart contracts with the proper structure and configurations.
 
+### Neo.SmartContract.Deploy
+
+A comprehensive deployment toolkit that simplifies the process of deploying smart contracts to NEO networks. Features include:
+
+- Simplified API for contract deployment
+- Automatic wallet and configuration management
+- Support for multiple networks (MainNet, TestNet, local)
+- Contract compilation and deployment in one step
+- Multi-contract deployment from manifest files
+- Contract update capabilities
+- Integration with Neo Express for local development
+
 ## Getting Started
 
 ### Prerequisites
