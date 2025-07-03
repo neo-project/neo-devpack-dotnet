@@ -5,8 +5,10 @@ using Neo;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
 using Neo.SmartContract.Deploy.Services;
+using Neo.Wallets;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Deploy;
@@ -17,6 +19,7 @@ namespace Neo.SmartContract.Deploy;
 public class SimpleToolkit
 {
     private readonly NeoContractToolkit _toolkit;
+    private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
     private readonly ILogger<SimpleToolkit> _logger;
     private bool _walletLoaded = false;
@@ -51,7 +54,7 @@ public class SimpleToolkit
             .ConfigureLogging(logging =>
             {
                 logging.AddConsole();
-                logging.SetMinimumLevel(LogLevel.Information);
+                logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
             })
             .ConfigureServices(services =>
             {
@@ -59,6 +62,7 @@ public class SimpleToolkit
             });
 
         _toolkit = toolkitBuilder.Build();
+        _serviceProvider = toolkitBuilder.ServiceProvider!;
         _logger = _toolkit.GetService<ILogger<SimpleToolkit>>()!;
 
         // Auto-load wallet if configured
@@ -127,10 +131,10 @@ public class SimpleToolkit
 
         var deploymentOptions = new DeploymentOptions
         {
-            ContractName = compilationOptions.ContractName,
+            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
             WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true),
-            InitializationParams = initParams
+            InitialParameters = initParams?.ToList()
         };
 
         _logger.LogInformation($"Deploying {compilationOptions.ContractName}...");
@@ -158,10 +162,10 @@ public class SimpleToolkit
 
         var deploymentOptions = new DeploymentOptions
         {
-            ContractName = Path.GetFileNameWithoutExtension(nefPath),
+            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
             WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true),
-            InitializationParams = initParams
+            InitialParameters = initParams?.ToList()
         };
 
         _logger.LogInformation($"Deploying from artifacts...");
@@ -220,14 +224,34 @@ public class SimpleToolkit
 
         var deploymentOptions = new DeploymentOptions
         {
-            ContractName = compilationOptions.ContractName,
+            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
             WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true)
         };
 
         _logger.LogInformation($"Updating contract {contractHash}...");
 
-        var result = await _toolkit.CompileAndUpdateAsync(compilationOptions, contractHash, deploymentOptions);
+        // Compile first
+        var compiler = _serviceProvider.GetRequiredService<IContractCompiler>();
+        var compiled = await compiler.CompileAsync(compilationOptions);
+        
+        // Then update
+        var updateService = _serviceProvider.GetRequiredService<IContractUpdateService>();
+        var updateResult = await updateService.UpdateContractAsync(
+            compilationOptions.ContractName,
+            _currentNetwork ?? "custom",
+            compiled.NefBytes,
+            compiled.Manifest,
+            null,
+            null);
+        
+        var result = new ContractDeploymentInfo
+        {
+            Success = updateResult.Success,
+            ContractHash = contractHash,
+            TransactionHash = updateResult.TransactionHash,
+            ErrorMessage = updateResult.ErrorMessage
+        };
 
         if (result.Success)
         {
@@ -247,7 +271,10 @@ public class SimpleToolkit
     public async Task<UInt160> GetDeployerAccount()
     {
         await EnsureWalletLoaded();
-        return _toolkit.GetDeployerAccount();
+        var account = _toolkit.GetDeployerAccount();
+        if (account == null || account == UInt160.Zero)
+            throw new InvalidOperationException("No deployer account configured");
+        return account;
     }
 
     /// <summary>
@@ -344,12 +371,12 @@ public class SimpleToolkit
         {
             // Try common address versions
             if (address.StartsWith("N")) // N3
-                return address.ToScriptHash(53);
+                return address.ToScriptHash((byte)53);
             if (address.StartsWith("A")) // Legacy
-                return address.ToScriptHash(23);
+                return address.ToScriptHash((byte)23);
 
             // Default to N3
-            return address.ToScriptHash(53);
+            return address.ToScriptHash((byte)53);
         }
         catch
         {
