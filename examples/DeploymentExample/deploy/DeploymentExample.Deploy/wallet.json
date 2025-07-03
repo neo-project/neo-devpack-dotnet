@@ -1,0 +1,32 @@
+{
+  "name": "DeploymentExampleWallet",
+  "version": "1.0",
+  "scrypt": {
+    "n": 16384,
+    "r": 8,
+    "p": 8
+  },
+  "accounts": [
+    {
+      "address": "NVHSu5u2BgL3CDdJ3GkALBnGmHCpvCXfVj",
+      "label": "Deployer",
+      "isDefault": true,
+      "lock": false,
+      "key": "6PYKwZ9VgZHwKKwQbvBzDqzwt9Vz9p8LnBhJgJMFGXG4jqafP5JubCg8vT",
+      "contract": {
+        "script": "0c21031a6c6fbbdf02ca351745fa86b9ba5a9452d785ac4f7fc2b7548ca2a46c4fcf4a4156e7b327",
+        "parameters": [
+          {
+            "name": "signature",
+            "type": "Signature"
+          }
+        ],
+        "deployed": false
+      },
+      "extra": null
+    }
+  ],
+  "extra": {
+    "Note": "This is a sample wallet. In production, generate your own wallet with 'neo-express wallet create'"
+  }
+}
