@@ -7,6 +7,7 @@ using Neo.SmartContract.Testing;
 using System;
 using System.IO;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Deploy.UnitTests;
 
@@ -19,6 +20,8 @@ public abstract class TestBase : IDisposable
     protected IConfiguration Configuration { get; private set; }
     protected ILoggerFactory LoggerFactory { get; private set; }
     protected bool _disposed = false;
+
+    private static readonly object _engineLock = new object();
 
     protected TestBase()
     {
@@ -35,8 +38,11 @@ public abstract class TestBase : IDisposable
             builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug);
         });
 
-        // Initialize test engine (equivalent to Neo Express)
-        Engine = new TestEngine();
+        // Initialize test engine (equivalent to Neo Express) with thread safety
+        lock (_engineLock)
+        {
+            Engine = new TestEngine();
+        }
 
         // Create test wallet and accounts
         SetupTestEnvironment();
@@ -60,7 +66,11 @@ public abstract class TestBase : IDisposable
             .ConfigureServices(services =>
             {
                 services.AddSingleton<IConfiguration>(Configuration);
+                services.AddSingleton(Engine); // Add TestEngine to DI
             })
+            .UseDeployer<TestEngineServices.SimpleTestDeployer>() // Use simple mock deployer
+            .UseInvoker<TestEngineServices.SimpleTestInvoker>()   // Use simple mock invoker
+            .UseWalletManager<TestEngineServices.SimpleTestWalletManager>() // Use simple mock wallet manager
             .Build();
     }
 

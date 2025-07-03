@@ -108,9 +108,9 @@ public class ContractDeployerService : IContractDeployer
             {
                 // The deploy method returns the contract state, we need to extract the hash
                 var deployResult = invokeResult.Stack[0];
-                if (deployResult is Neo.VM.Types.Array array && array.Count > 0)
+                if (deployResult is Neo.VM.Types.Array array && array.Count >= 5)
                 {
-                    contractHash = new UInt160(array[1].GetSpan()); // Hash is second element
+                    contractHash = new UInt160(array[2].GetSpan()); // Hash is at index 2 in ContractState array
                 }
                 else
                 {

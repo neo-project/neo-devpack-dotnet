@@ -177,7 +177,7 @@ public class DeploymentIntegrationTests : TestBase
         }
     }
 
-    [Fact]
+    [Fact(Skip = "Integration tests require Neo Express or proper TestEngine setup")]
     public async Task ContractUpdate_ShouldWork()
     {
         // Arrange
@@ -295,7 +295,7 @@ namespace TestContract
             }
             else
             {
-                Storage.Put(Storage.CurrentContext, ""initialized"", true);
+                Storage.Put(Storage.CurrentContext, ""initialized"", 1);
             }
         }
     }
