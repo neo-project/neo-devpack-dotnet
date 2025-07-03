@@ -2,6 +2,23 @@
 
 A comprehensive deployment toolkit for Neo N3 smart contracts, providing infrastructure for compiling, deploying, initializing, and managing smart contracts.
 
+## 🚀 Super Simple API
+
+Deploy a contract in just 2 lines:
+
+```csharp
+var toolkit = new SimpleToolkit().SetNetwork("testnet");
+var contractHash = await toolkit.Deploy("MyContract.csproj");
+```
+
+That's it! The toolkit automatically handles:
+- ✅ Configuration loading from appsettings.json
+- ✅ Wallet loading (from config or environment variables)
+- ✅ Network selection (mainnet/testnet/local/custom)
+- ✅ Contract compilation
+- ✅ Transaction signing and sending
+- ✅ Deployment verification
+
 ## Features
 
 ### Two Deployment Approaches
@@ -37,17 +54,13 @@ dotnet add package Neo.SmartContract.Deploy
 
 ## Quick Start
 
-### Basic Usage
+### Simplest Usage (3 lines!)
 
 ```csharp
 using Neo.SmartContract.Deploy;
-using Neo.SmartContract.Deploy.Contracts;
 
-// Create toolkit instance
-var toolkit = ServiceCollectionExtensions.CreateDefaultToolkit();
-
-// Load wallet for signing transactions
-await toolkit.LoadWalletAsync("path/to/wallet.json", "password");
+var toolkit = new SimpleToolkit().SetNetwork("testnet");
+var result = await toolkit.Deploy("MyContract.csproj");
 var deployerAccount = toolkit.GetDeployerAccount();
 
 // Approach 1: Compile and deploy from source

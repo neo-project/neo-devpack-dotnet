@@ -11,6 +11,77 @@ namespace SampleToken.Deploy
     {
         static async Task Main(string[] args)
         {
+            // Check if user wants simple mode
+            if (args.Length > 0 && args[0] == "--simple")
+            {
+                await SimpleDeployment();
+                return;
+            }
+
+            // Otherwise use the full-featured deployment
+            await FullDeployment();
+        }
+
+        /// <summary>
+        /// Ultra-simple deployment using SimpleToolkit
+        /// </summary>
+        static async Task SimpleDeployment()
+        {
+            Console.WriteLine("=== Simple Token Deployment ===\n");
+
+            try
+            {
+                // Create toolkit - auto-loads config from appsettings.json
+                var toolkit = new SimpleToolkit();
+                
+                // Set network based on environment or default to testnet
+                var network = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.ToLower() ?? "testnet";
+                toolkit.SetNetwork(network);
+                
+                Console.WriteLine($"Network: {network}");
+                
+                // Get deployer account
+                var owner = await toolkit.GetDeployerAccount();
+                Console.WriteLine($"Deployer: {owner.ToAddress(53)}");
+                
+                // Deploy the contract with owner initialization
+                var contractPath = "../../src/SampleToken.Contract/SampleToken.Contract.csproj";
+                var result = await toolkit.Deploy(contractPath, new object[] { owner });
+                
+                if (result.Success)
+                {
+                    Console.WriteLine($"\n✅ Contract deployed!");
+                    Console.WriteLine($"   Hash: {result.ContractHash}");
+                    Console.WriteLine($"   Transaction: {result.TransactionHash}");
+                    
+                    // Verify deployment
+                    var name = await toolkit.Call<string>(result.ContractHash.ToString(), "getName");
+                    var symbol = await toolkit.Call<string>(result.ContractHash.ToString(), "getSymbol");
+                    var totalSupply = await toolkit.Call<BigInteger>(result.ContractHash.ToString(), "totalSupply");
+                    
+                    Console.WriteLine($"\n   Token: {name} ({symbol})");
+                    Console.WriteLine($"   Total Supply: {totalSupply}");
+                    
+                    // Check GAS balance
+                    var gasBalance = await toolkit.GetGasBalance();
+                    Console.WriteLine($"   Deployer GAS: {gasBalance}");
+                }
+                else
+                {
+                    Console.WriteLine($"\n❌ Deployment failed: {result.ErrorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n❌ Error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Full-featured deployment with detailed configuration
+        /// </summary>
+        static async Task FullDeployment()
+        {
             Console.WriteLine("=== Sample Token Deployment ===");
             Console.WriteLine();
 
