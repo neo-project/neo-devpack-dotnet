@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
+using Neo.Json;
 using Neo.SmartContract.Deploy.Interfaces;
 using System;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Deploy.Services;
@@ -19,7 +19,7 @@ public class DeploymentRecordService : IDeploymentRecordService
     {
         _logger = logger;
         _recordsPath = Path.Combine(Directory.GetCurrentDirectory(), ".deployments");
-        
+
         // Ensure directory exists
         if (!Directory.Exists(_recordsPath))
         {
@@ -33,12 +33,9 @@ public class DeploymentRecordService : IDeploymentRecordService
         {
             var fileName = $"{contractName}.{network}.json";
             var filePath = Path.Combine(_recordsPath, fileName);
-            
-            var json = JsonSerializer.Serialize(record, new JsonSerializerOptions 
-            { 
-                WriteIndented = true 
-            });
-            
+
+            // For now, use a simple JSON representation
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(record, Newtonsoft.Json.Formatting.Indented);
             await File.WriteAllTextAsync(filePath, json);
             _logger.LogInformation($"Saved deployment record for {contractName} on {network}");
         }
@@ -55,14 +52,14 @@ public class DeploymentRecordService : IDeploymentRecordService
         {
             var fileName = $"{contractName}.{network}.json";
             var filePath = Path.Combine(_recordsPath, fileName);
-            
+
             if (!File.Exists(filePath))
             {
                 return null;
             }
-            
+
             var json = await File.ReadAllTextAsync(filePath);
-            return JsonSerializer.Deserialize<T>(json);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
         }
         catch (Exception ex)
         {

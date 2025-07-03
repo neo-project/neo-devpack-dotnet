@@ -51,9 +51,9 @@ public class ContractUpdateService : IContractUpdateService
             // TODO: Implement actual update logic
             // This would involve calling the contract's update method
             // For now, returning a placeholder result
-            
+
             _logger.LogWarning("Contract update not fully implemented yet");
-            
+
             return new ContractUpdateResult
             {
                 Success = false,

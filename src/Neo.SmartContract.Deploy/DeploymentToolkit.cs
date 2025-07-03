@@ -241,7 +241,7 @@ public class DeploymentToolkit
             compilationOptions.ContractName,
             _currentNetwork ?? "custom",
             compiled.NefBytes,
-            compiled.Manifest,
+            compiled.Manifest.ToJson().ToString(),
             null,
             null);
 

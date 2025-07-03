@@ -117,7 +117,7 @@ public class DeploymentToolkitTests : TestBase
     {
         // Arrange
         var toolkit = new DeploymentToolkit();
-        
+
         // Clear wallet environment variables
         Environment.SetEnvironmentVariable("NEO_WALLET_PATH", null);
         Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", null);
@@ -148,7 +148,7 @@ public class DeploymentToolkitTests : TestBase
     {
         // Arrange
         var toolkit = new DeploymentToolkit();
-        
+
         // Clear wallet environment variables
         Environment.SetEnvironmentVariable("NEO_WALLET_PATH", null);
         Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", null);
