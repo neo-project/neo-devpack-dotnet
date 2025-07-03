@@ -150,7 +150,7 @@ namespace Neo.Compiler
 <Project Sdk=""Microsoft.NET.Sdk"">
 
     <PropertyGroup>
-        <TargetFramework>{AppContext.TargetFrameworkName!}</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>

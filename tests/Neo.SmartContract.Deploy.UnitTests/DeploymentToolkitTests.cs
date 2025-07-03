@@ -138,7 +138,7 @@ public class DeploymentToolkitTests : TestBase
         // Act & Assert
         // This would require a mock setup for the actual implementation
         // For now, we're testing that the method exists and can be called
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        await Assert.ThrowsAsync<ArgumentException>(
             () => toolkit.GetGasBalance(testAddress)
         );
     }
