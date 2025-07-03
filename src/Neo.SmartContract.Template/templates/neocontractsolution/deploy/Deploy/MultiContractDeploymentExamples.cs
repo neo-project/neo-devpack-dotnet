@@ -1,482 +1,348 @@
 using Neo;
 using Neo.SmartContract.Deploy;
-using Neo.SmartContract.Deploy.Models;
-using Neo.SmartContract.Deploy.Services;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace NeoContractSolution.Deploy;
 
 /// <summary>
-/// Examples of multi-contract deployment scenarios
+/// Examples of multi-contract deployment scenarios using the simplified toolkit
 /// </summary>
 public static class MultiContractDeploymentExamples
 {
     /// <summary>
-    /// Example 1: Deploy multiple contracts with dependencies
+    /// Example 1: Deploy multiple contracts with dependencies using manifest
     /// </summary>
-    public static async Task DeployMultipleContractsWithDependencies(NeoContractToolkit toolkit)
+    public static async Task DeployWithManifest(DeploymentToolkit toolkit)
     {
-        // Define deployment options
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = toolkit.GetDeployerAccount(),
-            GasLimit = 50_000_000,
-            WaitForConfirmation = true
-        };
-
-        // Define contracts to deploy
-        var deploymentRequests = new List<ContractDeploymentRequest>
-        {
-            // Base registry contract (no dependencies)
-            new ContractDeploymentRequest
-            {
-                Name = "Registry",
-                ProjectPath = "../src/Registry/Registry.csproj",
-                OutputDirectory = "./artifacts/registry",
-                Dependencies = new List<string>(),
-                GenerateDebugInfo = true
-            },
-            // Token contract (depends on Registry)
-            new ContractDeploymentRequest
-            {
-                Name = "MyToken",
-                ProjectPath = "../src/MyToken/MyToken.csproj",
-                OutputDirectory = "./artifacts/token",
-                Dependencies = new List<string> { "Registry" },
-                GenerateDebugInfo = true,
-                InitialParameters = new List<object> { "MyToken", "MTK", 8, 1000000 },
-                InjectDependencies = true
-            },
-            // Exchange contract (depends on Registry and MyToken)
-            new ContractDeploymentRequest
-            {
-                Name = "Exchange",
-                ProjectPath = "../src/Exchange/Exchange.csproj",
-                OutputDirectory = "./artifacts/exchange",
-                Dependencies = new List<string> { "Registry", "MyToken" },
-                GenerateDebugInfo = true,
-                InjectDependencies = true,
-                PostDeploymentActions = new List<PostDeploymentAction>
-                {
-                    new PostDeploymentAction
-                    {
-                        Method = "initialize",
-                        Parameters = new List<object> { 100 }, // 1% fee
-                        Required = true
-                    }
-                }
-            }
-        };
-
-        // Deploy all contracts
-        var result = await toolkit.DeployMultipleContractsAsync(deploymentRequests, deploymentOptions);
-
-        Console.WriteLine($"Deployment complete:");
-        Console.WriteLine($"Total contracts: {result.TotalContracts}");
-        Console.WriteLine($"Successful: {result.SuccessfulDeployments.Count}");
-        Console.WriteLine($"Failed: {result.FailedDeployments.Count}");
-
-        foreach (var success in result.SuccessfulDeployments)
-        {
-            Console.WriteLine($"  ✓ {success.ContractName}: {success.ContractHash}");
-        }
-
-        foreach (var failure in result.FailedDeployments)
-        {
-            Console.WriteLine($"  ✗ {failure.ContractName}: {failure.Reason}");
-        }
-    }
-
-    /// <summary>
-    /// Example 2: Deploy contracts from manifest file
-    /// </summary>
-    public static async Task DeployFromManifest(NeoContractToolkit toolkit)
-    {
-        // Create a manifest template first (one-time setup)
-        await toolkit.CreateDeploymentManifestTemplateAsync("deployment-manifest.json");
+        Console.WriteLine("=== Deploying Multi-Contract System from Manifest ===");
         
-        // Create a custom manifest for DeFi protocol
-        var manifestContent = @"{
-  ""version"": ""1.0"",
-  ""description"": ""DeFi Protocol Deployment"",
-  ""contracts"": [
-    {
-      ""name"": ""PriceOracle"",
-      ""projectPath"": ""../src/Oracle/PriceOracle.csproj"",
-      ""dependencies"": [],
-      ""generateDebugInfo"": true,
-      ""gasLimit"": 30000000,
-      ""postDeploymentActions"": [
-        {
-          ""method"": ""setInitialPrices"",
-          ""parameters"": [
-            [""NEO"", 10000],
-            [""GAS"", 2000]
-          ],
-          ""required"": true
-        }
-      ]
-    },
-    {
-      ""name"": ""GovernanceToken"",
-      ""projectPath"": ""../src/Token/GovernanceToken.csproj"",
-      ""dependencies"": [],
-      ""generateDebugInfo"": true,
-      ""gasLimit"": 50000000,
-      ""initialParameters"": [""DeFi Gov"", ""DGOV"", 8, 10000000]
-    },
-    {
-      ""name"": ""LendingPool"",
-      ""projectPath"": ""../src/Lending/LendingPool.csproj"",
-      ""dependencies"": [""PriceOracle"", ""GovernanceToken""],
-      ""generateDebugInfo"": true,
-      ""gasLimit"": 80000000,
-      ""injectDependencies"": true
-    },
-    {
-      ""name"": ""StakingRewards"",
-      ""projectPath"": ""../src/Staking/StakingRewards.csproj"",
-      ""dependencies"": [""GovernanceToken"", ""LendingPool""],
-      ""generateDebugInfo"": true,
-      ""gasLimit"": 60000000,
-      ""injectDependencies"": true,
-      ""postDeploymentActions"": [
-        {
-          ""method"": ""setRewardRate"",
-          ""parameters"": [1000],
-          ""required"": true
-        }
-      ]
-    }
-  ]
-}";
-
-        await File.WriteAllTextAsync("defi-deployment-manifest.json", manifestContent);
-
-        // Load and deploy from manifest
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = toolkit.GetDeployerAccount(),
-            GasLimit = 50_000_000,
-            WaitForConfirmation = true
-        };
-
-        var result = await toolkit.DeployFromManifestAsync("defi-deployment-manifest.json", deploymentOptions);
+        // Deploy all contracts defined in the manifest
+        var results = await toolkit.DeployFromManifest("deployment-manifest.json");
         
-        Console.WriteLine($"Manifest deployment complete: {result.AllSuccessful}");
+        Console.WriteLine($"\nDeployed {results.Count} contracts:");
+        foreach (var (name, info) in results)
+        {
+            Console.WriteLine($"  {name}: {info.ContractHash}");
+        }
         
         // Save deployment results for future reference
-        await SaveDeploymentResults(result, "defi-deployment-results.json");
+        await SaveDeploymentResults(results, "deployment-results.json");
     }
 
     /// <summary>
-    /// Example 3: Parallel deployment of independent contracts
+    /// Example 2: Deploy contracts in specific order with cross-references
     /// </summary>
-    public static async Task DeployContractsInParallel(NeoContractToolkit toolkit)
+    public static async Task DeployWithCrossReferences(DeploymentToolkit toolkit)
     {
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = toolkit.GetDeployerAccount(),
-            GasLimit = 30_000_000,
-            WaitForConfirmation = false // Don't wait for each individually
-        };
-
-        // Define independent contracts (no cross-dependencies)
-        var deploymentRequests = new List<ContractDeploymentRequest>
-        {
-            new ContractDeploymentRequest
-            {
-                Name = "Oracle",
-                ProjectPath = "../src/Oracle/Oracle.csproj",
-                OutputDirectory = "./artifacts/oracle"
-            },
-            new ContractDeploymentRequest
-            {
-                Name = "Random",
-                ProjectPath = "../src/Random/Random.csproj",
-                OutputDirectory = "./artifacts/random"
-            },
-            new ContractDeploymentRequest
-            {
-                Name = "Storage",
-                ProjectPath = "../src/Storage/Storage.csproj",
-                OutputDirectory = "./artifacts/storage"
-            },
-            new ContractDeploymentRequest
-            {
-                Name = "Events",
-                ProjectPath = "../src/Events/Events.csproj",
-                OutputDirectory = "./artifacts/events"
-            },
-            new ContractDeploymentRequest
-            {
-                Name = "Timer",
-                ProjectPath = "../src/Timer/Timer.csproj",
-                OutputDirectory = "./artifacts/timer"
-            }
-        };
-
-        // Deploy in parallel with max 3 concurrent deployments
-        var result = await toolkit.DeployMultipleContractsParallelAsync(
-            deploymentRequests, 
-            deploymentOptions, 
-            maxParallelism: 3);
-
-        Console.WriteLine($"Parallel deployment completed!");
-        Console.WriteLine($"Deployed {result.SuccessfulDeployments.Count} contracts in parallel");
+        Console.WriteLine("=== Deploying Contracts with Cross-References ===");
+        
+        var deployedContracts = new Dictionary<string, UInt160>();
+        
+        // 1. Deploy Registry (base contract)
+        Console.WriteLine("\n1. Deploying Registry...");
+        var registryResult = await toolkit.Deploy("../../src/Registry/Registry.csproj");
+        deployedContracts["Registry"] = registryResult.ContractHash;
+        Console.WriteLine($"   Registry: {registryResult.ContractHash}");
+        
+        // 2. Deploy Token and register it
+        Console.WriteLine("\n2. Deploying Token...");
+        var tokenResult = await toolkit.Deploy("../../src/Token/Token.csproj");
+        deployedContracts["Token"] = tokenResult.ContractHash;
+        
+        // Initialize token
+        await toolkit.Invoke(
+            tokenResult.ContractHash,
+            "initialize",
+            "MyToken", "MTK", 8, 1000000_00000000L
+        );
+        
+        // Register token in registry
+        await toolkit.Invoke(
+            registryResult.ContractHash,
+            "registerContract",
+            "Token",
+            tokenResult.ContractHash
+        );
+        Console.WriteLine($"   Token: {tokenResult.ContractHash} (registered)");
+        
+        // 3. Deploy Exchange with token reference
+        Console.WriteLine("\n3. Deploying Exchange...");
+        var exchangeResult = await toolkit.Deploy("../../src/Exchange/Exchange.csproj");
+        deployedContracts["Exchange"] = exchangeResult.ContractHash;
+        
+        // Initialize exchange with token reference
+        await toolkit.Invoke(
+            exchangeResult.ContractHash,
+            "initialize",
+            tokenResult.ContractHash,
+            300 // 3% fee
+        );
+        
+        // Register exchange in registry
+        await toolkit.Invoke(
+            registryResult.ContractHash,
+            "registerContract",
+            "Exchange",
+            exchangeResult.ContractHash
+        );
+        Console.WriteLine($"   Exchange: {exchangeResult.ContractHash} (initialized with token)");
+        
+        // 4. Configure permissions
+        Console.WriteLine("\n4. Configuring permissions...");
+        await toolkit.Invoke(
+            tokenResult.ContractHash,
+            "addTrustedContract",
+            exchangeResult.ContractHash
+        );
+        Console.WriteLine("   Token trusts Exchange");
+        
+        Console.WriteLine("\n=== Deployment Complete ===");
+        Console.WriteLine("All contracts deployed and configured!");
+        
+        // Save the deployment info
+        await SaveDeploymentMap(deployedContracts, "contract-addresses.json");
     }
 
     /// <summary>
-    /// Example 4: Deploy with rollback on failure
+    /// Example 3: Deploy contracts for different environments
     /// </summary>
-    public static async Task DeployWithRollback(NeoContractToolkit toolkit)
+    public static async Task DeployForEnvironment(DeploymentToolkit toolkit, string environment)
     {
-        var deploymentOptions = new DeploymentOptions
+        Console.WriteLine($"=== Deploying to {environment} ===");
+        
+        // Set network based on environment
+        switch (environment.ToLower())
         {
-            DeployerAccount = toolkit.GetDeployerAccount(),
-            GasLimit = 50_000_000,
-            WaitForConfirmation = true
-        };
-
-        // Track deployed contracts for potential rollback
-        var deployedContracts = new List<ContractDeploymentInfo>();
-
-        var deploymentRequests = new List<ContractDeploymentRequest>
+            case "production":
+                toolkit.SetNetwork("mainnet");
+                break;
+            case "staging":
+                toolkit.SetNetwork("testnet");
+                break;
+            default:
+                toolkit.SetNetwork("local");
+                break;
+        }
+        
+        // Deploy contracts
+        var contracts = new Dictionary<string, ContractDeploymentInfo>();
+        
+        // Deploy core contracts
+        Console.WriteLine("\nDeploying core contracts...");
+        contracts["Oracle"] = await toolkit.Deploy("../../src/Oracle/Oracle.csproj");
+        contracts["Token"] = await toolkit.Deploy("../../src/Token/Token.csproj");
+        contracts["Governance"] = await toolkit.Deploy("../../src/Governance/Governance.csproj");
+        
+        // Initialize contracts based on environment
+        if (environment.ToLower() == "production")
         {
-            new ContractDeploymentRequest
-            {
-                Name = "TokenA",
-                ProjectPath = "../src/TokenA/TokenA.csproj",
-                OutputDirectory = "./artifacts/tokenA",
-                FailureMode = DeploymentFailureMode.StopOnError
-            },
-            new ContractDeploymentRequest
-            {
-                Name = "TokenB",
-                ProjectPath = "../src/TokenB/TokenB.csproj",
-                OutputDirectory = "./artifacts/tokenB",
-                FailureMode = DeploymentFailureMode.StopOnError
-            },
-            new ContractDeploymentRequest
-            {
-                Name = "AMM", // This might fail if TokenA or TokenB deployment fails
-                ProjectPath = "../src/AMM/AMM.csproj",
-                OutputDirectory = "./artifacts/amm",
-                Dependencies = new List<string> { "TokenA", "TokenB" },
-                InjectDependencies = true,
-                FailureMode = DeploymentFailureMode.RollbackOnError
-            }
-        };
-
-        try
+            // Production initialization
+            await toolkit.Invoke(
+                contracts["Token"].ContractHash,
+                "initialize",
+                "Production Token", "PROD", 8, 100000000_00000000L
+            );
+        }
+        else
         {
-            var result = await toolkit.DeployMultipleContractsAsync(deploymentRequests, deploymentOptions);
+            // Test initialization with smaller values
+            await toolkit.Invoke(
+                contracts["Token"].ContractHash,
+                "initialize",
+                "Test Token", "TEST", 8, 1000000_00000000L
+            );
+        }
+        
+        // Save environment-specific deployment
+        var filename = $"deployment-{environment.ToLower()}.json";
+        await SaveDeploymentResults(
+            contracts.ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
+            filename
+        );
+        
+        Console.WriteLine($"\nDeployment saved to: {filename}");
+    }
+
+    /// <summary>
+    /// Example 4: Update multiple existing contracts
+    /// </summary>
+    public static async Task UpdateMultipleContracts(DeploymentToolkit toolkit)
+    {
+        Console.WriteLine("=== Updating Multiple Contracts ===");
+        
+        // Load previous deployment
+        var previousDeployment = await LoadDeploymentMap("contract-addresses.json");
+        
+        var updateCount = 0;
+        var failedUpdates = new List<string>();
+        
+        foreach (var (name, hashString) in previousDeployment)
+        {
+            var contractHash = UInt160.Parse(hashString);
+            Console.WriteLine($"\nChecking {name} at {contractHash}...");
             
-            if (!result.AllSuccessful)
+            if (await toolkit.ContractExists(contractHash))
             {
-                Console.WriteLine("Deployment failed. Rolling back...");
-                
-                // In a real scenario, you would call destroy methods on deployed contracts
-                foreach (var deployed in result.SuccessfulDeployments.Reverse())
+                try
                 {
-                    Console.WriteLine($"Would rollback: {deployed.ContractName}");
-                    // await toolkit.InvokeContractAsync(deployed.ContractHash, "destroy", new object[0]);
+                    Console.WriteLine($"  Updating {name}...");
+                    var projectPath = $"../../src/{name}/{name}.csproj";
+                    
+                    if (File.Exists(projectPath))
+                    {
+                        var updateResult = await toolkit.Update(contractHash, projectPath);
+                        Console.WriteLine($"  ✓ {name} updated successfully!");
+                        updateCount++;
+                        
+                        // Run migration if needed
+                        try
+                        {
+                            await toolkit.Invoke(contractHash, "migrate", "v2.0");
+                            Console.WriteLine($"  ✓ Migration completed");
+                        }
+                        catch
+                        {
+                            // Migration method might not exist
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"  ⚠ Project file not found: {projectPath}");
+                        failedUpdates.Add($"{name}: Project file not found");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  ✗ Failed to update {name}: {ex.Message}");
+                    failedUpdates.Add($"{name}: {ex.Message}");
                 }
             }
+            else
+            {
+                Console.WriteLine($"  ⚠ Contract not found on network");
+                failedUpdates.Add($"{name}: Not found on network");
+            }
         }
-        catch (Exception ex)
+        
+        Console.WriteLine($"\n=== Update Summary ===");
+        Console.WriteLine($"Successfully updated: {updateCount}");
+        Console.WriteLine($"Failed: {failedUpdates.Count}");
+        
+        if (failedUpdates.Count > 0)
         {
-            Console.WriteLine($"Critical failure: {ex.Message}");
-            // Perform rollback logic
+            Console.WriteLine("\nFailed updates:");
+            foreach (var failure in failedUpdates)
+            {
+                Console.WriteLine($"  - {failure}");
+            }
         }
     }
 
     /// <summary>
-    /// Example 5: Update multiple contracts
+    /// Example 5: Deploy contracts from CI/CD artifacts
     /// </summary>
-    public static async Task UpdateMultipleContracts(NeoContractToolkit toolkit)
+    public static async Task DeployFromArtifacts(DeploymentToolkit toolkit)
     {
-        // Load existing deployment results
-        var previousDeployment = await LoadDeploymentResults("defi-deployment-results.json");
+        Console.WriteLine("=== Deploying from Build Artifacts ===");
         
-        var updateRequests = new List<ContractUpdateRequest>();
+        var artifactPath = Environment.GetEnvironmentVariable("BUILD_ARTIFACTS_PATH") ?? "./artifacts";
+        var deployedContracts = new Dictionary<string, ContractDeploymentInfo>();
         
-        foreach (var contract in previousDeployment.SuccessfulDeployments)
+        // Define contracts to deploy from artifacts
+        var contracts = new[]
         {
-            // Check if update project exists
-            var updateProjectPath = $"../src/{contract.ContractName}/{contract.ContractName}.csproj";
-            if (File.Exists(updateProjectPath))
-            {
-                updateRequests.Add(new ContractUpdateRequest
-                {
-                    Name = contract.ContractName,
-                    ContractHash = contract.ContractHash,
-                    ProjectPath = updateProjectPath,
-                    GenerateDebugInfo = true,
-                    Optimize = true
-                });
-            }
-        }
-
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = toolkit.GetDeployerAccount(),
-            GasLimit = 60_000_000,
-            WaitForConfirmation = true
+            ("Core", "core-contract"),
+            ("API", "api-contract"),
+            ("Admin", "admin-contract")
         };
-
-        var result = await toolkit.UpdateMultipleContractsAsync(updateRequests, deploymentOptions);
         
-        Console.WriteLine($"Updated {result.SuccessfulDeployments.Count} contracts");
-        foreach (var failure in result.FailedDeployments)
+        foreach (var (name, artifactName) in contracts)
         {
-            Console.WriteLine($"Failed to update {failure.ContractName}: {failure.Reason}");
-        }
-    }
-
-    /// <summary>
-    /// Example 6: Deploy contracts for different networks
-    /// </summary>
-    public static async Task DeployToMultipleNetworks(NeoContractToolkit toolkit)
-    {
-        var networks = new[]
-        {
-            ("TestNet", "https://testnet1.neo.org:20331"),
-            ("PrivateNet", "http://localhost:10332")
-        };
-
-        var deploymentRequests = new List<ContractDeploymentRequest>
-        {
-            new ContractDeploymentRequest
-            {
-                Name = "SimpleToken",
-                ProjectPath = "../src/SimpleToken/SimpleToken.csproj",
-                OutputDirectory = "./artifacts/token",
-                GenerateDebugInfo = true
-            }
-        };
-
-        foreach (var (networkName, rpcUrl) in networks)
-        {
-            Console.WriteLine($"Deploying to {networkName}...");
+            var nefPath = Path.Combine(artifactPath, $"{artifactName}.nef");
+            var manifestPath = Path.Combine(artifactPath, $"{artifactName}.manifest.json");
             
-            // Load network-specific wallet
-            await toolkit.LoadWalletAsync($"wallets/{networkName.ToLower()}.wallet.json", "password");
-            
-            var deploymentOptions = new DeploymentOptions
+            if (File.Exists(nefPath) && File.Exists(manifestPath))
             {
-                DeployerAccount = toolkit.GetDeployerAccount(),
-                GasLimit = 50_000_000,
-                WaitForConfirmation = true
-            };
-
-            try
-            {
-                var result = await toolkit.DeployMultipleContractsAsync(deploymentRequests, deploymentOptions);
-                
-                // Save network-specific deployment results
-                await SaveDeploymentResults(result, $"deployment-{networkName.ToLower()}.json");
-                
-                Console.WriteLine($"Deployed to {networkName}: {result.AllSuccessful}");
+                Console.WriteLine($"\nDeploying {name} from artifacts...");
+                var result = await toolkit.DeployFromArtifacts(nefPath, manifestPath);
+                deployedContracts[name] = result;
+                Console.WriteLine($"  ✓ {name}: {result.ContractHash}");
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Failed to deploy to {networkName}: {ex.Message}");
+                Console.WriteLine($"\n⚠ Artifacts not found for {name}");
+                Console.WriteLine($"  Expected: {nefPath}");
+                Console.WriteLine($"  Expected: {manifestPath}");
             }
         }
+        
+        // Initialize contracts after deployment
+        if (deployedContracts.ContainsKey("Core"))
+        {
+            await toolkit.Invoke(
+                deployedContracts["Core"].ContractHash,
+                "initialize",
+                Environment.GetEnvironmentVariable("BUILD_VERSION") ?? "1.0.0"
+            );
+        }
+        
+        Console.WriteLine($"\n=== Artifact Deployment Complete ===");
+        Console.WriteLine($"Deployed {deployedContracts.Count} contracts from artifacts");
+        
+        // Save deployment for release notes
+        await SaveDeploymentResults(deployedContracts, $"release-{DateTime.UtcNow:yyyyMMdd-HHmmss}.json");
     }
 
     /// <summary>
-    /// Helper method to save deployment results
+    /// Helper: Save deployment results to JSON file
     /// </summary>
-    private static async Task SaveDeploymentResults(MultiContractDeploymentResult result, string filename)
+    private static async Task SaveDeploymentResults(Dictionary<string, ContractDeploymentInfo> contracts, string filename)
     {
-        var deploymentRecord = new
+        var record = new
         {
-            Timestamp = DateTime.UtcNow,
-            TotalContracts = result.TotalContracts,
-            Successful = result.SuccessfulDeployments.Select(d => new
+            timestamp = DateTime.UtcNow,
+            network = "current",
+            contracts = contracts.Select(kvp => new
             {
-                d.ContractName,
-                ContractHash = d.ContractHash.ToString(),
-                TransactionHash = d.TransactionHash.ToString(),
-                d.GasConsumed
-            }),
-            Failed = result.FailedDeployments.Select(f => new
-            {
-                f.ContractName,
-                f.Reason
+                name = kvp.Key,
+                contractHash = kvp.Value.ContractHash.ToString(),
+                transactionHash = kvp.Value.TransactionHash.ToString(),
+                blockIndex = kvp.Value.BlockIndex,
+                gasConsumed = kvp.Value.GasConsumed
             })
         };
+        
+        var json = JsonSerializer.Serialize(record, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(filename, json);
+        Console.WriteLine($"Deployment results saved to: {filename}");
+    }
 
-        var json = System.Text.Json.JsonSerializer.Serialize(deploymentRecord, new System.Text.Json.JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
-
+    /// <summary>
+    /// Helper: Save simple contract address map
+    /// </summary>
+    private static async Task SaveDeploymentMap(Dictionary<string, UInt160> contracts, string filename)
+    {
+        var map = contracts.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value.ToString()
+        );
+        
+        var json = JsonSerializer.Serialize(map, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(filename, json);
     }
 
     /// <summary>
-    /// Helper method to load previous deployment results
+    /// Helper: Load contract address map
     /// </summary>
-    private static async Task<MultiContractDeploymentResult> LoadDeploymentResults(string filename)
+    private static async Task<Dictionary<string, string>> LoadDeploymentMap(string filename)
     {
-        var json = await File.ReadAllTextAsync(filename);
-        var record = System.Text.Json.JsonSerializer.Deserialize<DeploymentRecord>(json);
+        if (!File.Exists(filename))
+        {
+            throw new FileNotFoundException($"Deployment file not found: {filename}");
+        }
         
-        var result = new MultiContractDeploymentResult
-        {
-            TotalContracts = record.TotalContracts
-        };
-
-        foreach (var success in record.Successful)
-        {
-            result.SuccessfulDeployments.Add(new ContractDeploymentInfo
-            {
-                Success = true,
-                ContractName = success.ContractName,
-                ContractHash = UInt160.Parse(success.ContractHash),
-                TransactionHash = UInt256.Parse(success.TransactionHash),
-                GasConsumed = success.GasConsumed
-            });
-        }
-
-        foreach (var failed in record.Failed)
-        {
-            result.FailedDeployments.Add(new FailedDeployment
-            {
-                ContractName = failed.ContractName,
-                Reason = failed.Reason
-            });
-        }
-
-        return result;
-    }
-
-    private class DeploymentRecord
-    {
-        public DateTime Timestamp { get; set; }
-        public int TotalContracts { get; set; }
-        public List<SuccessRecord> Successful { get; set; } = new();
-        public List<FailedRecord> Failed { get; set; } = new();
-    }
-
-    private class SuccessRecord
-    {
-        public string ContractName { get; set; } = "";
-        public string ContractHash { get; set; } = "";
-        public string TransactionHash { get; set; } = "";
-        public long GasConsumed { get; set; }
-    }
-
-    private class FailedRecord
-    {
-        public string ContractName { get; set; } = "";
-        public string Reason { get; set; } = "";
+        var json = await File.ReadAllTextAsync(filename);
+        return JsonSerializer.Deserialize<Dictionary<string, string>>(json) 
+            ?? new Dictionary<string, string>();
     }
 }

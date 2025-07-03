@@ -1,244 +1,221 @@
 # Neo Smart Contract Deployment Project
 
-This project is where you write explicit C# code to deploy your Neo N3 smart contracts using the Neo Smart Contract Deployment Toolkit.
+This project uses the Neo Smart Contract Deployment Toolkit to deploy your Neo N3 smart contracts with a simplified API.
 
 ## Overview
 
-This is NOT a command-line tool. This is YOUR deployment program where you write C# code to:
+Deploy your Neo smart contracts with just a few lines of code:
 
-- Compile contracts from source code
-- Deploy contracts in a specific order
-- Initialize contracts with parameters
-- Set up dependencies between contracts
-- Update existing contracts
-- Handle complex deployment scenarios
-
-You control everything through explicit C# code in `Program.cs`.
+```csharp
+var toolkit = new DeploymentToolkit();
+var result = await toolkit.Deploy("path/to/contract.csproj");
+```
 
 ## Getting Started
 
-### 1. Prepare Your Wallet
+### 1. Configure Your Environment
+
+Edit `appsettings.json` to configure your deployment environment:
+
+```json
+{
+  "Network": {
+    "DefaultNetwork": "testnet",
+    "Networks": {
+      "mainnet": {
+        "RpcUrl": "http://seed1.neo.org:10332"
+      },
+      "testnet": {
+        "RpcUrl": "http://seed1.testnet.neo.org:20332"
+      },
+      "local": {
+        "RpcUrl": "http://localhost:50012"
+      }
+    },
+    "Wallet": {
+      "Path": "wallets/deployment.json",
+      "Password": "your-password"
+    }
+  }
+}
+```
+
+### 2. Prepare Your Wallet
 
 Create a wallet directory and place your NEP-6 wallet file there:
 
 ```bash
 mkdir wallets
-cp /path/to/your/wallet.json wallets/development.json
-```
-
-### 2. Configure Your Deployment
-
-Edit `Program.cs` to configure your deployment:
-
-```csharp
-// Load your wallet
-await toolkit.LoadWalletAsync("wallets/development.json", "your-password");
-
-// Configure compilation options
-var compilationOptions = new CompilationOptions
-{
-    SourcePath = "../../src/MyContract/MyContract.cs",
-    OutputDirectory = "bin/contracts",
-    ContractName = "MyContract"
-};
-
-// Configure deployment options
-var deploymentOptions = new DeploymentOptions
-{
-    RpcUrl = "http://localhost:10332", // Your Neo node RPC
-    DeployerAccount = deployerAccount,
-    GasLimit = 50_000_000 // 0.5 GAS
-};
+cp /path/to/your/wallet.json wallets/deployment.json
 ```
 
 ### 3. Run Your Deployment
 
 ```bash
-# Run your deployment program
+# Deploy to default network (from appsettings.json)
 dotnet run
+
+# Deploy to specific network
+dotnet run mainnet
+dotnet run testnet
+dotnet run local
 ```
 
-That's it! Your C# code in `Program.cs` controls everything.
-
-## Deployment Scenarios
+## Deployment Examples
 
 ### Simple Contract Deployment
 
 ```csharp
-// Compile and deploy
-var result = await toolkit.CompileAndDeployAsync(compilationOptions, deploymentOptions);
-Console.WriteLine($"Contract deployed: {result.ContractHash}");
+// Deploy a contract
+var result = await toolkit.Deploy("../../src/MyContract/MyContract.csproj");
 
 // Initialize the contract
-await toolkit.InvokeContractAsync(
-    result.ContractHash,
-    "initialize",
-    new object[] { "parameter1", 123 },
-    invocationOptions
-);
+await toolkit.Invoke(result.ContractHash, "initialize", "param1", 123);
 ```
 
 ### Multiple Contracts with Dependencies
 
 ```csharp
 // Deploy Token Contract
-var tokenResult = await toolkit.CompileAndDeployAsync(tokenOptions, deploymentOptions);
+var token = await toolkit.Deploy("../../src/Token/Token.csproj");
 
-// Deploy Governance Contract
-var govResult = await toolkit.CompileAndDeployAsync(govOptions, deploymentOptions);
+// Deploy Vault Contract
+var vault = await toolkit.Deploy("../../src/Vault/Vault.csproj");
 
-// Initialize Governance with Token dependency
-await toolkit.InvokeContractAsync(
-    govResult.ContractHash,
-    "setTokenContract",
-    new object[] { tokenResult.ContractHash },
-    invocationOptions
-);
+// Set up dependencies
+await toolkit.Invoke(vault.ContractHash, "setToken", token.ContractHash);
 ```
 
-### Deploy from Artifacts
+### Deploy from Manifest
 
-```csharp
-// Deploy from pre-compiled files
-var result = await toolkit.DeployFromArtifactsAsync(
-    "bin/contracts/MyContract.nef",
-    "bin/contracts/MyContract.manifest.json",
-    deploymentOptions
-);
+Create a `deployment-manifest.json` file:
+
+```json
+{
+  "contracts": [
+    {
+      "name": "Token",
+      "projectPath": "../../src/Token/Token.csproj",
+      "deploymentParameters": ["MyToken", "MTK", 8, 1000000]
+    },
+    {
+      "name": "Vault",
+      "projectPath": "../../src/Vault/Vault.csproj",
+      "dependencies": ["Token"],
+      "postDeploymentActions": [
+        {
+          "method": "initialize",
+          "parameters": []
+        }
+      ]
+    }
+  ]
+}
 ```
 
-## Contract Updates
-
-To update an existing contract:
+Then deploy all contracts:
 
 ```csharp
-// Check if contract exists
+var results = await toolkit.DeployFromManifest("deployment-manifest.json");
+```
+
+### Contract Updates
+
+```csharp
+// Update an existing contract
 var contractHash = UInt160.Parse("0x...");
-if (await toolkit.ContractExistsAsync(contractHash, rpcUrl))
+var result = await toolkit.Update(contractHash, "../../src/MyContract/MyContract.csproj");
+
+// Run migration
+await toolkit.Invoke(contractHash, "migrate", "v2.0");
+```
+
+## Advanced Features
+
+### Custom Network Configuration
+
+```csharp
+// Use custom RPC endpoint
+toolkit.SetNetwork("https://custom-rpc.example.com:10332");
+```
+
+### Check Contract Existence
+
+```csharp
+if (await toolkit.ContractExists(contractHash))
 {
-    // Update the contract
-    var updateResult = await toolkit.UpdateContractAsync(
-        contractHash,
-        compilationOptions,
-        deploymentOptions
-    );
+    // Contract exists, update it
+    await toolkit.Update(contractHash, projectPath);
+}
+else
+{
+    // Deploy new contract
+    await toolkit.Deploy(projectPath);
 }
 ```
 
-## Writing Your Deployment Logic
-
-### Modify Program.cs
-
-The `Program.cs` file contains example deployment methods. Modify the `Main` method to call your deployment logic:
+### Get Gas Balance
 
 ```csharp
-static async Task<int> Main(string[] args)
-{
-    // ... initialization code ...
-    
-    // Call YOUR deployment methods here:
-    await DeployMyProtocol(toolkit, deployerAccount, rpcUrl);
-    
-    // Or deploy from artifacts:
-    await DeployFromCompiledArtifacts(toolkit, deployerAccount, rpcUrl);
-    
-    // Or update contracts:
-    await UpdateMyContracts(toolkit, deployerAccount, rpcUrl);
-}
+var balance = await toolkit.GetGasBalance();
+Console.WriteLine($"GAS Balance: {balance}");
 ```
 
-### Custom Deployment Example
+### Call Read-Only Methods
 
 ```csharp
-static async Task DeployMyProtocol(NeoContractToolkit toolkit, UInt160 deployerAccount, string rpcUrl)
-{
-    var deployOptions = new DeploymentOptions
-    {
-        RpcUrl = rpcUrl,
-        DeployerAccount = deployerAccount,
-        GasLimit = 100_000_000
-    };
-
-    // Deploy contracts in order
-    var oracleHash = await DeployContract(toolkit, "Oracle", deployOptions);
-    var tokenHash = await DeployContract(toolkit, "Token", deployOptions);
-    var vaultHash = await DeployContract(toolkit, "Vault", deployOptions);
-    
-    // Initialize with dependencies
-    await InitializeVault(toolkit, vaultHash, tokenHash, oracleHash, deployOptions.RpcUrl);
-    
-    // Save deployment info
-    SaveDeploymentInfo(oracleHash, tokenHash, vaultHash);
-}
+// Call contract method without creating transaction
+var result = await toolkit.Call<string>(contractHash, "getName");
+Console.WriteLine($"Contract name: {result}");
 ```
 
-## Advanced Usage
+## Security Best Practices
 
-### Using the Builder Pattern
-
-```csharp
-var toolkit = NeoContractToolkitBuilder.Create()
-    .ConfigureLogging(builder =>
-    {
-        builder.AddConsole();
-        builder.SetMinimumLevel(LogLevel.Debug);
-    })
-    .UseCompiler<MyCustomCompiler>()  // Optional: custom implementations
-    .UseDeployer<MyCustomDeployer>()
-    .Build();
-```
-
-### Environment-Specific Deployments
-
-```csharp
-var environment = Environment.GetEnvironmentVariable("DEPLOY_ENV") ?? "development";
-
-var (rpcUrl, walletPath) = environment switch
-{
-    "production" => ("https://rpc.n3.neotube.io:8080", "wallets/mainnet.json"),
-    "staging" => ("https://rpc.t5.n3.neotube.io:8080", "wallets/testnet.json"),
-    _ => ("http://localhost:10332", "wallets/development.json")
-};
-```
-
-### Deployment Records
-
-Keep track of your deployments:
-
-```csharp
-public class DeploymentRecord
-{
-    public string Network { get; set; }
-    public DateTime DeployedAt { get; set; }
-    public Dictionary<string, UInt160> Contracts { get; set; }
-}
-
-static void SaveDeploymentRecord(string network, Dictionary<string, UInt160> contracts)
-{
-    var record = new DeploymentRecord
-    {
-        Network = network,
-        DeployedAt = DateTime.UtcNow,
-        Contracts = contracts
-    };
-    
-    var json = JsonSerializer.Serialize(record, new JsonSerializerOptions { WriteIndented = true });
-    File.WriteAllText($"deployments/{network}.json", json);
-}
-```
-
-## Security Notes
-
-- **Never commit wallet files** to version control
-- **Use environment variables** for sensitive data like passwords
+- **Never commit wallet files** or passwords to version control
+- **Use environment variables** for sensitive configuration:
+  ```bash
+  export NEO_WALLET_PASSWORD="your-password"
+  ```
 - **Test on TestNet** before deploying to MainNet
 - **Verify contract hashes** after deployment
 
+## Deployment Workflow
+
+1. **Development**: Deploy to local Neo Express
+2. **Testing**: Deploy to TestNet
+3. **Production**: Deploy to MainNet
+
+Example environment-specific deployment:
+
+```csharp
+var environment = args.Length > 0 ? args[0] : "local";
+toolkit.SetNetwork(environment);
+
+Console.WriteLine($"Deploying to {environment}...");
+var result = await toolkit.Deploy("../../src/MyContract/MyContract.csproj");
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Insufficient GAS**: Ensure your wallet has enough GAS for deployment
+2. **Contract Already Exists**: Use `Update` instead of `Deploy`
+3. **Network Connection**: Verify RPC endpoint is accessible
+
+### Debug Mode
+
+Enable detailed logging in `Program.cs`:
+
+```csharp
+var toolkit = new DeploymentToolkit();
+// Logging is configured in appsettings.json
+```
+
 ## Next Steps
 
-1. Customize the deployment logic in `Program.cs`
-2. Add your contract source files to the `src/` directory
-3. Configure network endpoints for your target environment
-4. Run the deployment and monitor the results
+1. Modify `Program.cs` to implement your deployment logic
+2. Update `appsettings.json` with your network configuration
+3. Run the deployment and monitor the results
 
 For more information, see the [Neo Smart Contract Deployment Toolkit documentation](https://github.com/neo-project/neo-devpack-dotnet).

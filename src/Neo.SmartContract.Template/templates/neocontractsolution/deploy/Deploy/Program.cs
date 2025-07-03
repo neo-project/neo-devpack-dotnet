@@ -1,7 +1,6 @@
 using Neo;
 using Neo.SmartContract.Deploy;
-using Neo.SmartContract.Deploy.Contracts;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace NeoContractSolution.Deploy;
 
@@ -23,21 +22,17 @@ class Program
     {
         try
         {
-            // Create the deployment toolkit
-            var toolkit = NeoContractToolkitBuilder.Create()
-                .ConfigureLogging(builder =>
-                {
-                    builder.AddConsole();
-                    builder.SetMinimumLevel(LogLevel.Information);
-                })
-                .Build();
+            // Create the deployment toolkit with simplified API
+            // Configuration is loaded automatically from appsettings.json
+            var toolkit = new DeploymentToolkit();
 
-            // Load wallet from configuration
-            await toolkit.LoadWalletFromConfigurationAsync();
-            var deployerAccount = toolkit.GetDeployerAccount();
+            // Select network based on configuration or override
+            if (args.Length > 0)
+            {
+                toolkit.SetNetwork(args[0]); // e.g., "mainnet", "testnet", "local"
+            }
 
             Console.WriteLine("Starting Neo Smart Contract Deployment");
-            Console.WriteLine($"Deployer Account: {deployerAccount}");
             Console.WriteLine();
             
             // ========================================
@@ -45,13 +40,16 @@ class Program
             // ========================================
             
             // Example 1: Deploy a single contract
-            await DeploySingleContract(toolkit, deployerAccount);
+            await DeploySingleContract(toolkit);
             
             // Example 2: Deploy multiple contracts with dependencies
-            // await DeployMultipleContracts(toolkit, deployerAccount);
+            // await DeployMultipleContracts(toolkit);
             
             // Example 3: Update existing contract
-            // await UpdateExistingContract(toolkit, deployerAccount);
+            // await UpdateExistingContract(toolkit);
+            
+            // Example 4: Deploy from manifest file
+            // await DeployFromManifest(toolkit);
 
             Console.WriteLine();
             Console.WriteLine("Deployment completed successfully!");
@@ -68,126 +66,64 @@ class Program
     /// <summary>
     /// Example: Deploy a single contract
     /// </summary>
-    static async Task DeploySingleContract(NeoContractToolkit toolkit, UInt160 deployerAccount)
+    static async Task DeploySingleContract(DeploymentToolkit toolkit)
     {
         Console.WriteLine("=== Deploying MyContract ===");
         
-        // Step 1: Define compilation options
-        var compilationOptions = new CompilationOptions
-        {
-            ProjectPath = "../../src/MyContract/MyContract.csproj",
-            OutputDirectory = "bin/contracts",
-            ContractName = "MyContract",
-            GenerateDebugInfo = true,
-            Optimize = true
-        };
-
-        // Step 2: Define deployment options (network settings from configuration)
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = deployerAccount,
-            GasLimit = 50_000_000 // 0.5 GAS
-        };
-
-        // Step 3: Compile and deploy
-        var deploymentResult = await toolkit.CompileAndDeployAsync(compilationOptions, deploymentOptions);
+        // Deploy the contract - simple one-liner!
+        var deploymentResult = await toolkit.Deploy("../../src/MyContract/MyContract.csproj");
         
         Console.WriteLine($"Contract deployed!");
         Console.WriteLine($"  Contract Hash: {deploymentResult.ContractHash}");
         Console.WriteLine($"  Transaction: {deploymentResult.TransactionHash}");
         Console.WriteLine($"  Block: {deploymentResult.BlockIndex}");
         
-        // Step 4: Initialize the contract (network settings from configuration)
-        var invocationOptions = new InvocationOptions
-        {
-            SignerAccount = deployerAccount,
-            GasLimit = 20_000_000 // 0.2 GAS
-        };
-
-        var initResult = await toolkit.InvokeContractAsync(
+        // Initialize the contract with parameters
+        var txHash = await toolkit.Invoke(
             deploymentResult.ContractHash,
             "initialize",
-            new object[] { "Production v1.0" },
-            invocationOptions
+            "Production v1.0"
         );
 
-        if (initResult.State == Neo.VM.VMState.HALT)
-        {
-            Console.WriteLine("Contract initialized successfully!");
-        }
-        else
-        {
-            throw new Exception($"Contract initialization failed: {initResult.Exception}");
-        }
+        Console.WriteLine($"Contract initialized! Transaction: {txHash}");
     }
 
     /// <summary>
     /// Example: Deploy multiple contracts with dependencies
     /// </summary>
-    static async Task DeployMultipleContracts(NeoContractToolkit toolkit, UInt160 deployerAccount)
+    static async Task DeployMultipleContracts(DeploymentToolkit toolkit)
     {
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = deployerAccount,
-            GasLimit = 100_000_000 // 1 GAS per contract
-        };
-
-        var invocationOptions = new InvocationOptions
-        {
-            SignerAccount = deployerAccount,
-            GasLimit = 20_000_000 // 0.2 GAS
-        };
-
         // Deploy Token Contract first
         Console.WriteLine("=== Deploying Token Contract ===");
-        var tokenCompilation = new CompilationOptions
-        {
-            ProjectPath = "../../src/TokenContract/TokenContract.csproj",
-            OutputDirectory = "bin/contracts",
-            ContractName = "TokenContract"
-        };
-        
-        var tokenResult = await toolkit.CompileAndDeployAsync(tokenCompilation, deploymentOptions);
+        var tokenResult = await toolkit.Deploy("../../src/TokenContract/TokenContract.csproj");
         Console.WriteLine($"Token Contract: {tokenResult.ContractHash}");
         
-        // Initialize token
-        await toolkit.InvokeContractAsync(
+        // Initialize token with parameters
+        await toolkit.Invoke(
             tokenResult.ContractHash,
             "initialize",
-            new object[] { "MyToken", "MTK", 8, 1000000_00000000L },
-            invocationOptions
+            "MyToken", "MTK", 8, 1000000_00000000L
         );
 
         // Deploy Vault Contract that depends on Token
         Console.WriteLine("=== Deploying Vault Contract ===");
-        var vaultCompilation = new CompilationOptions
-        {
-            ProjectPath = "../../src/VaultContract/VaultContract.csproj",
-            OutputDirectory = "bin/contracts",
-            ContractName = "VaultContract"
-        };
-        
-        var vaultResult = await toolkit.CompileAndDeployAsync(vaultCompilation, deploymentOptions);
+        var vaultResult = await toolkit.Deploy("../../src/VaultContract/VaultContract.csproj");
         Console.WriteLine($"Vault Contract: {vaultResult.ContractHash}");
         
         // Initialize vault with token dependency
-        await toolkit.InvokeContractAsync(
+        await toolkit.Invoke(
             vaultResult.ContractHash,
             "initialize",
-            new object[] { 
-                tokenResult.ContractHash,  // Pass token contract hash
-                1000,                      // Min deposit amount
-                86400                      // Lock period (1 day)
-            },
-            invocationOptions
+            tokenResult.ContractHash,  // Pass token contract hash
+            1000,                      // Min deposit amount
+            86400                      // Lock period (1 day)
         );
 
         // Configure token to trust vault
-        await toolkit.InvokeContractAsync(
+        await toolkit.Invoke(
             tokenResult.ContractHash,
             "addTrustedContract",
-            new object[] { vaultResult.ContractHash },
-            invocationOptions
+            vaultResult.ContractHash
         );
 
         Console.WriteLine();
@@ -199,7 +135,7 @@ class Program
     /// <summary>
     /// Example: Update an existing contract
     /// </summary>
-    static async Task UpdateExistingContract(NeoContractToolkit toolkit, UInt160 deployerAccount)
+    static async Task UpdateExistingContract(DeploymentToolkit toolkit)
     {
         // The contract hash of the deployed contract you want to update
         var existingContractHash = UInt160.Parse("0x1234567890abcdef1234567890abcdef12345678");
@@ -207,32 +143,15 @@ class Program
         Console.WriteLine($"=== Updating Contract {existingContractHash} ===");
         
         // Check if contract exists
-        if (!await toolkit.ContractExistsAsync(existingContractHash))
+        if (!await toolkit.ContractExists(existingContractHash))
         {
             throw new Exception("Contract not found on network");
         }
 
-        // New version compilation options
-        var compilationOptions = new CompilationOptions
-        {
-            ProjectPath = "../../src/MyContract/MyContract.csproj", // Updated project
-            OutputDirectory = "bin/contracts",
-            ContractName = "MyContract",
-            GenerateDebugInfo = true,
-            Optimize = true
-        };
-
-        var deploymentOptions = new DeploymentOptions
-        {
-            DeployerAccount = deployerAccount,
-            GasLimit = 60_000_000 // 0.6 GAS for updates
-        };
-
-        // Update the contract
-        var updateResult = await toolkit.UpdateContractAsync(
+        // Update the contract with new version
+        var updateResult = await toolkit.Update(
             existingContractHash,
-            compilationOptions,
-            deploymentOptions
+            "../../src/MyContract/MyContract.csproj" // Updated project
         );
 
         Console.WriteLine($"Contract updated!");
@@ -240,19 +159,30 @@ class Program
         Console.WriteLine($"  Block: {updateResult.BlockIndex}");
         
         // Run any post-update migration if needed
-        var invocationOptions = new InvocationOptions
-        {
-            SignerAccount = deployerAccount,
-            GasLimit = 20_000_000
-        };
-
-        await toolkit.InvokeContractAsync(
+        await toolkit.Invoke(
             existingContractHash,
             "migrate",
-            new object[] { "v2.0" },
-            invocationOptions
+            "v2.0"
         );
         
         Console.WriteLine("Migration completed!");
+    }
+
+    /// <summary>
+    /// Example: Deploy from manifest file
+    /// </summary>
+    static async Task DeployFromManifest(DeploymentToolkit toolkit)
+    {
+        Console.WriteLine("=== Deploying from Manifest ===");
+        
+        // Deploy all contracts defined in the manifest
+        var results = await toolkit.DeployFromManifest("deployment-manifest.json");
+        
+        Console.WriteLine();
+        Console.WriteLine("Deployment Summary:");
+        foreach (var result in results)
+        {
+            Console.WriteLine($"  {result.Key}: {result.Value.ContractHash}");
+        }
     }
 }
