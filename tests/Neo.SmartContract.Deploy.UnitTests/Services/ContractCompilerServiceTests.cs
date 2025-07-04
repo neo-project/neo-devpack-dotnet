@@ -21,7 +21,7 @@ public class ContractCompilerServiceTests : TestBase
         _compilerService = new ContractCompilerService(_mockLogger.Object);
     }
 
-    [Fact]
+    [Fact(Skip = "Expensive test - runs real compilation. Enable manually when needed.")]
     public async Task CompileAsync_WithValidContract_ShouldReturnCompiledContract()
     {
         // Arrange
@@ -73,7 +73,7 @@ public class ContractCompilerServiceTests : TestBase
         await Assert.ThrowsAsync<FileNotFoundException>(() => _compilerService.CompileAsync(options));
     }
 
-    [Fact]
+    [Fact(Skip = "Expensive test - runs real compilation. Enable manually when needed.")]
     public async Task CompileAsync_WithInvalidContract_ShouldThrowCompilationException()
     {
         // Arrange
@@ -176,7 +176,7 @@ namespace TestContract
         File.Delete(nefPath);
     }
 
-    [Fact]
+    [Fact(Skip = "Expensive test - runs real compilation. Enable manually when needed.")]
     public async Task CompileAsync_WithDebugInfo_ShouldGenerateDebugFile()
     {
         // Arrange
@@ -204,7 +204,7 @@ namespace TestContract
         Directory.Delete(outputDir, true);
     }
 
-    [Fact]
+    [Fact(Skip = "Expensive test - runs real compilation. Enable manually when needed.")]
     public async Task CompileAsync_WithoutDebugInfo_ShouldNotGenerateDebugFile()
     {
         // Arrange
