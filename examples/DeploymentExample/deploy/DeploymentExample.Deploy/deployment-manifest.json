@@ -1,20 +1,56 @@
 {
   "version": "1.0",
-  "description": "Example deployment manifest for ExampleContract",
+  "description": "Multi-contract deployment manifest for Token, NFT, and Governance ecosystem",
   "contracts": [
     {
-      "name": "ExampleContract",
-      "projectPath": "../../src/DeploymentExample.Contract/DeploymentExample.Contract.csproj",
+      "name": "TokenContract",
+      "sourcePath": "../../src/DeploymentExample.Contract/TokenContract.cs",
       "dependencies": [],
-      "deploymentParameters": [],
+      "generateDebugInfo": true,
+      "optimize": true,
+      "gasLimit": 100000000,
+      "initialParameters": ["@deployer"],
+      "postDeploymentActions": []
+    },
+    {
+      "name": "NFTContract", 
+      "sourcePath": "../../src/DeploymentExample.Contract/NFTContract.cs",
+      "dependencies": ["TokenContract"],
+      "generateDebugInfo": true,
+      "optimize": true,
+      "gasLimit": 100000000,
+      "initialParameters": ["@deployer", "@TokenContract", 1000000000],
+      "injectDependencies": true,
+      "postDeploymentActions": []
+    },
+    {
+      "name": "GovernanceContract",
+      "sourcePath": "../../src/DeploymentExample.Contract/GovernanceContract.cs", 
+      "dependencies": ["TokenContract"],
+      "generateDebugInfo": true,
+      "optimize": true,
+      "gasLimit": 100000000,
+      "initialParameters": ["@deployer", "@TokenContract"],
+      "injectDependencies": true,
       "postDeploymentActions": [
         {
-          "method": "getInfo",
-          "parameters": [],
-          "required": false,
-          "description": "Verify contract deployment by calling getInfo"
+          "method": "createProposal",
+          "parameters": [1, "@NFTContract", "Add NFT contract to governance"],
+          "required": false
         }
       ]
     }
-  ]
+  ],
+  "deploymentOrder": ["TokenContract", "NFTContract", "GovernanceContract"],
+  "networkOverrides": {
+    "testnet": {
+      "gasPrice": 200000000,
+      "validUntilBlockOffset": 200
+    },
+    "mainnet": {
+      "gasPrice": 500000000,
+      "validUntilBlockOffset": 500,
+      "requireConfirmation": true
+    }
+  }
 }

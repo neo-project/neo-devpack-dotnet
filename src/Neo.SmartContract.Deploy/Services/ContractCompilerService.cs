@@ -1,15 +1,15 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Neo.Compiler;
 using Neo.Extensions;
 using Neo.IO;
+using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Deploy.Exceptions;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
-using Neo.SmartContract.Deploy.Exceptions;
-using Neo.SmartContract.Manifest;
-using System.Text.Json;
-using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Neo.SmartContract.Deploy.Services;
 

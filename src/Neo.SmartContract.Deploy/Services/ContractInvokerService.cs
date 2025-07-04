@@ -1,3 +1,6 @@
+using System;
+using System.Numerics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Neo;
@@ -5,10 +8,11 @@ using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.Network.RPC;
 using Neo.SmartContract;
+using Neo.VM;
+using Neo.SmartContract.Deploy.Exceptions;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
-using Neo.VM;
-using System.Numerics;
+using Neo.SmartContract.Deploy.Shared;
 
 namespace Neo.SmartContract.Deploy.Services;
 
@@ -20,58 +24,52 @@ public class ContractInvokerService : IContractInvoker
     private readonly ILogger<ContractInvokerService> _logger;
     private readonly IWalletManager _walletManager;
     private readonly IConfiguration _configuration;
+    private readonly IRpcClientFactory _rpcClientFactory;
+    private readonly TransactionBuilder _transactionBuilder;
+    private readonly TransactionConfirmationService _confirmationService;
 
-    public ContractInvokerService(ILogger<ContractInvokerService> logger, IWalletManager walletManager, IConfiguration configuration)
+    public ContractInvokerService(
+        ILogger<ContractInvokerService> logger,
+        IWalletManager walletManager,
+        IConfiguration configuration,
+        IRpcClientFactory rpcClientFactory,
+        TransactionBuilder transactionBuilder,
+        TransactionConfirmationService confirmationService)
     {
         _logger = logger;
         _walletManager = walletManager;
         _configuration = configuration;
+        _rpcClientFactory = rpcClientFactory;
+        _transactionBuilder = transactionBuilder;
+        _confirmationService = confirmationService;
     }
 
     /// <summary>
     /// Call a contract method without sending a transaction
     /// </summary>
+    /// <param name="contractHash">Contract hash</param>
+    /// <param name="method">Method name</param>
+    /// <param name="parameters">Method parameters</param>
+    /// <returns>Method return value</returns>
+    /// <exception cref="ArgumentNullException">Thrown when required parameters are null</exception>
+    /// <exception cref="ContractInvocationException">Thrown when invocation fails</exception>
     public async Task<T?> CallAsync<T>(UInt160 contractHash, string method, params object[] parameters)
     {
+        if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
+        if (string.IsNullOrWhiteSpace(method)) throw new ArgumentException("Method name cannot be empty", nameof(method));
+
         try
         {
-            var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
-            if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
-            {
-                throw new InvalidOperationException("Network configuration not found. Please check appsettings.json");
-            }
+            var client = _rpcClientFactory.CreateClient();
 
-            var client = new RpcClient(new Uri(networkConfig.RpcUrl));
+            // Build contract call script using helper
+            var script = ScriptBuilderHelper.BuildContractCallScript(contractHash, method, parameters);
 
-            using var sb = new ScriptBuilder();
-
-            // Build parameters array
-            if (parameters != null && parameters.Length > 0)
-            {
-                for (int i = parameters.Length - 1; i >= 0; i--)
-                {
-                    sb.EmitPush(parameters[i]);
-                }
-                sb.EmitPush(parameters.Length);
-                sb.Emit(OpCode.PACK);
-            }
-            else
-            {
-                sb.Emit(OpCode.NEWARRAY0);
-            }
-
-            // Call contract method
-            sb.EmitPush(method);
-            sb.EmitPush(contractHash);
-            sb.EmitPush(CallFlags.All);
-            sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
-
-            var script = sb.ToArray();
             var result = await client.InvokeScriptAsync(script);
 
             if (result.State != VMState.HALT)
             {
-                throw new Exception($"Script execution failed: {result.Exception}");
+                throw new ContractInvocationException(contractHash, method, result.Exception ?? "Script execution failed");
             }
 
             if (result.Stack.Length == 0)
@@ -81,54 +79,38 @@ public class ContractInvokerService : IContractInvoker
 
             return ConvertStackItem<T>(result.Stack[0]);
         }
+        catch (ContractInvocationException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to call {Method} on {Contract}", method, contractHash);
-            throw;
+            throw new ContractInvocationException(contractHash, method, $"Failed to call contract method: {ex.Message}");
         }
     }
 
     /// <summary>
     /// Send a transaction to invoke a contract method
     /// </summary>
+    /// <param name="contractHash">Contract hash</param>
+    /// <param name="method">Method name</param>
+    /// <param name="parameters">Method parameters</param>
+    /// <returns>Transaction hash</returns>
+    /// <exception cref="ArgumentNullException">Thrown when required parameters are null</exception>
+    /// <exception cref="ContractInvocationException">Thrown when invocation fails</exception>
     public async Task<UInt256> SendAsync(UInt160 contractHash, string method, params object[] parameters)
     {
+        if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
+        if (string.IsNullOrWhiteSpace(method)) throw new ArgumentException("Method name cannot be empty", nameof(method));
+
         try
         {
-            var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
-            if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
-            {
-                throw new InvalidOperationException("Network configuration not found. Please check appsettings.json");
-            }
-
-            var client = new RpcClient(new Uri(networkConfig.RpcUrl));
-
+            var client = _rpcClientFactory.CreateClient();
             var signerAccount = _walletManager.GetAccount();
 
-            using var sb = new ScriptBuilder();
-
-            // Build parameters array
-            if (parameters != null && parameters.Length > 0)
-            {
-                for (int i = parameters.Length - 1; i >= 0; i--)
-                {
-                    sb.EmitPush(parameters[i]);
-                }
-                sb.EmitPush(parameters.Length);
-                sb.Emit(OpCode.PACK);
-            }
-            else
-            {
-                sb.Emit(OpCode.NEWARRAY0);
-            }
-
-            // Call contract method
-            sb.EmitPush(method);
-            sb.EmitPush(contractHash);
-            sb.EmitPush(CallFlags.All);
-            sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
-
-            var script = sb.ToArray();
+            // Build contract call script using helper
+            var script = ScriptBuilderHelper.BuildContractCallScript(contractHash, method, parameters);
 
             // Create signer
             var signer = new Signer
@@ -141,7 +123,7 @@ public class ContractInvokerService : IContractInvoker
             var testResult = await client.InvokeScriptAsync(script, signer);
             if (testResult.State != VMState.HALT)
             {
-                throw new Exception($"Contract invocation test failed: {testResult.Exception}");
+                throw new ContractInvocationException(contractHash, method, testResult.Exception ?? "Contract invocation test failed");
             }
 
             // Get current block count
@@ -150,23 +132,16 @@ public class ContractInvokerService : IContractInvoker
             // Get deployment configuration
             var deploymentConfig = _configuration.GetSection("Deployment").Get<DeploymentConfiguration>() ?? new DeploymentConfiguration();
 
-            // Create transaction
-            var gasConsumed = testResult.GasConsumed;
-            var networkFee = deploymentConfig.DefaultNetworkFee;
-            var validUntilBlock = blockCount + deploymentConfig.ValidUntilBlockOffset;
-
-            var tx = new Transaction
+            // Create transaction using builder
+            var txOptions = new TransactionBuildOptions
             {
-                Version = 0,
-                Nonce = (uint)new Random().Next(),
-                SystemFee = gasConsumed,
-                NetworkFee = networkFee,
-                ValidUntilBlock = validUntilBlock,
-                Signers = new[] { signer },
-                Attributes = Array.Empty<TransactionAttribute>(),
+                Sender = signerAccount,
                 Script = script,
-                Witnesses = Array.Empty<Witness>()
+                SystemFee = testResult.GasConsumed,
+                NetworkFee = deploymentConfig.DefaultNetworkFee,
+                ValidUntilBlock = blockCount + deploymentConfig.ValidUntilBlockOffset
             };
+            var tx = _transactionBuilder.Build(txOptions);
 
             // Sign transaction using wallet manager
             await _walletManager.SignTransactionAsync(tx, signerAccount);
@@ -177,46 +152,40 @@ public class ContractInvokerService : IContractInvoker
             _logger.LogInformation("Transaction sent: {TxId}", txHash);
             return txHash;
         }
+        catch (ContractInvocationException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send {Method} to {Contract}", method, contractHash);
-            throw;
+            throw new ContractInvocationException(contractHash, method, $"Failed to invoke contract method: {ex.Message}");
         }
     }
 
     /// <summary>
     /// Wait for transaction confirmation
     /// </summary>
+    /// <param name="txHash">Transaction hash</param>
+    /// <param name="maxRetries">Maximum retry attempts</param>
+    /// <param name="delaySeconds">Delay between retries in seconds</param>
+    /// <returns>True if confirmed, false otherwise</returns>
+    /// <exception cref="ArgumentNullException">Thrown when txHash is null</exception>
     public async Task<bool> WaitForConfirmationAsync(UInt256 txHash, int maxRetries = 30, int delaySeconds = 5)
     {
-        var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
-        if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
+        if (txHash == null) throw new ArgumentNullException(nameof(txHash));
+
+        var client = _rpcClientFactory.CreateClient();
+
+        var options = new TransactionConfirmationOptions
         {
-            throw new InvalidOperationException("Network configuration not found. Please check appsettings.json");
-        }
+            Timeout = TimeSpan.FromSeconds(maxRetries * delaySeconds),
+            PollingInterval = TimeSpan.FromSeconds(delaySeconds),
+            MaxAttempts = maxRetries
+        };
 
-        var client = new RpcClient(new Uri(networkConfig.RpcUrl));
-
-        for (int i = 0; i < maxRetries; i++)
-        {
-            try
-            {
-                var tx = await client.GetRawTransactionAsync(txHash.ToString());
-                if (tx != null)
-                {
-                    _logger.LogInformation("Transaction {TxId} confirmed", txHash);
-                    return true;
-                }
-            }
-            catch { }
-
-            await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
-        }
-
-        _logger.LogWarning("Transaction {TxId} not confirmed after {Retries} retries", txHash, maxRetries);
-        return false;
+        return await _confirmationService.WaitForConfirmationAsync(client, txHash, options);
     }
-
 
     private T? ConvertStackItem<T>(Neo.VM.Types.StackItem item)
     {
@@ -246,6 +215,10 @@ public class ContractInvokerService : IContractInvoker
         if (type == typeof(UInt256))
             return (T)(object)new UInt256(item.GetSpan());
 
-        throw new NotSupportedException($"Type {type} is not supported");
+        // Handle object type (return raw stack item)
+        if (type == typeof(object))
+            return (T)(object)item;
+
+        throw new NotSupportedException($"Type {type} is not supported for stack item conversion");
     }
 }

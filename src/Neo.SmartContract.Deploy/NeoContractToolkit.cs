@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -5,10 +10,6 @@ using Neo;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
 using Neo.SmartContract.Deploy.Services;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Deploy;
 

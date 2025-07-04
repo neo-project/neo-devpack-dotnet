@@ -10,8 +10,14 @@ namespace DeploymentExample.Deploy;
 /// <summary>
 /// Neo Smart Contract Deployment Example
 /// 
-/// This example demonstrates how to deploy and interact with the ExampleContract
+/// This example demonstrates how to deploy and interact with contracts
 /// using the simplified deployment toolkit API.
+/// 
+/// Usage:
+///   dotnet run                    -- Deploy single example contract
+///   dotnet run multi              -- Deploy multiple interrelated contracts
+///   dotnet run test <addresses>   -- Test deployed contracts
+///   dotnet run manifest           -- Deploy from manifest file
 /// </summary>
 class Program
 {
@@ -23,25 +29,82 @@ class Program
             // Configuration is loaded automatically from appsettings.json
             var toolkit = new DeploymentToolkit();
 
-            // Select network based on command line argument or default
-            if (args.Length > 0)
-            {
-                toolkit.SetNetwork(args[0]); // e.g., "mainnet", "testnet", "local"
-            }
+            // Parse command line arguments
+            var command = args.Length > 0 ? args[0].ToLower() : "single";
+            var network = args.Length > 1 ? args[1] : "local";
+            
+            // Set network
+            toolkit.SetNetwork(network);
 
             Console.WriteLine("=== NEO Smart Contract Deployment Example ===");
+            Console.WriteLine($"Network: {network}");
+            Console.WriteLine($"Mode: {command}");
             Console.WriteLine();
-            
-            // Deploy the example contract
-            await DeployExampleContract(toolkit);
+
+            switch (command)
+            {
+                case "single":
+                    // Deploy single example contract
+                    await DeployExampleContract(toolkit);
+                    break;
+                    
+                case "multi":
+                    // Deploy multiple contracts with dependencies
+                    var multiDeployer = new MultiContractDeployer(toolkit);
+                    var results = await multiDeployer.DeployAllContracts();
+                    
+                    // Test the deployed contracts
+                    var tester = new MultiContractTester(toolkit);
+                    await tester.RunAllTests(results);
+                    break;
+                    
+                case "manifest":
+                    // Deploy from manifest file
+                    var manifestDeployer = new MultiContractDeployer(toolkit);
+                    await manifestDeployer.DeployFromManifest("deployment-manifest.json");
+                    break;
+                    
+                case "test":
+                    // Test existing contracts
+                    if (args.Length < 4)
+                    {
+                        Console.WriteLine("Usage: dotnet run test <token_hash> <nft_hash> <gov_hash>");
+                        return 1;
+                    }
+                    
+                    var testResults = new DeploymentResults
+                    {
+                        TokenContract = new Neo.SmartContract.Deploy.Models.ContractDeploymentInfo 
+                        { 
+                            ContractHash = UInt160.Parse(args[1]) 
+                        },
+                        NFTContract = new Neo.SmartContract.Deploy.Models.ContractDeploymentInfo 
+                        { 
+                            ContractHash = UInt160.Parse(args[2]) 
+                        },
+                        GovernanceContract = new Neo.SmartContract.Deploy.Models.ContractDeploymentInfo 
+                        { 
+                            ContractHash = UInt160.Parse(args[3]) 
+                        }
+                    };
+                    
+                    var contractTester = new MultiContractTester(toolkit);
+                    await contractTester.RunAllTests(testResults);
+                    break;
+                    
+                default:
+                    Console.WriteLine($"Unknown command: {command}");
+                    Console.WriteLine("Available commands: single, multi, manifest, test");
+                    return 1;
+            }
             
             Console.WriteLine();
-            Console.WriteLine("Deployment completed successfully!");
+            Console.WriteLine("Operation completed successfully!");
             return 0;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Deployment failed: {ex.Message}");
+            Console.Error.WriteLine($"Operation failed: {ex.Message}");
             Console.Error.WriteLine($"Stack trace: {ex.StackTrace}");
             return 1;
         }

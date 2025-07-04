@@ -1,9 +1,12 @@
+using System;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
 using Neo.SmartContract.Deploy.Services;
+using Neo.SmartContract.Deploy.Shared;
 
 namespace Neo.SmartContract.Deploy;
 
@@ -117,6 +120,11 @@ public class NeoContractToolkitBuilder
             .Build();
 
         _services.AddSingleton<IConfiguration>(configuration);
+
+        // Add shared utilities
+        _services.AddSingleton<IRpcClientFactory, RpcClientFactory>();
+        _services.AddTransient<TransactionBuilder>();
+        _services.AddTransient<TransactionConfirmationService>();
 
         // Add default implementations if not customized
         if (!_useCustomCompiler)

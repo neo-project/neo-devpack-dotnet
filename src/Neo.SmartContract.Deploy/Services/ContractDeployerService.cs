@@ -1,18 +1,21 @@
+using System;
+using System.Numerics;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Neo;
+using Neo.Cryptography.ECC;
 using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.Network.RPC;
 using Neo.SmartContract;
 using Neo.SmartContract.Native;
-using Neo.SmartContract.Deploy.Interfaces;
-using Neo.SmartContract.Deploy.Models;
-using Neo.SmartContract.Deploy.Exceptions;
 using Neo.VM;
 using Neo.Wallets;
-using Neo.Cryptography.ECC;
-using System.Numerics;
+using Neo.SmartContract.Deploy.Exceptions;
+using Neo.SmartContract.Deploy.Interfaces;
+using Neo.SmartContract.Deploy.Models;
+using Neo.SmartContract.Deploy.Shared;
 
 namespace Neo.SmartContract.Deploy.Services;
 
@@ -24,66 +27,56 @@ public class ContractDeployerService : IContractDeployer
     private readonly ILogger<ContractDeployerService> _logger;
     private readonly IWalletManager _walletManager;
     private readonly IConfiguration _configuration;
+    private readonly IRpcClientFactory _rpcClientFactory;
+    private readonly TransactionBuilder _transactionBuilder;
+    private readonly TransactionConfirmationService _confirmationService;
 
-    public ContractDeployerService(ILogger<ContractDeployerService> logger, IWalletManager walletManager, IConfiguration configuration)
+    public ContractDeployerService(
+        ILogger<ContractDeployerService> logger,
+        IWalletManager walletManager,
+        IConfiguration configuration,
+        IRpcClientFactory rpcClientFactory,
+        TransactionBuilder transactionBuilder,
+        TransactionConfirmationService confirmationService)
     {
         _logger = logger;
         _walletManager = walletManager;
         _configuration = configuration;
+        _rpcClientFactory = rpcClientFactory;
+        _transactionBuilder = transactionBuilder;
+        _confirmationService = confirmationService;
     }
 
     /// <summary>
     /// Deploy a compiled contract
     /// </summary>
+    /// <param name="contract">Compiled contract to deploy</param>
+    /// <param name="options">Deployment options</param>
+    /// <param name="initParams">Initialization parameters</param>
+    /// <returns>Deployment result</returns>
+    /// <exception cref="ArgumentNullException">Thrown when required parameters are null</exception>
+    /// <exception cref="ContractDeploymentException">Thrown when deployment fails</exception>
     public async Task<ContractDeploymentInfo> DeployAsync(CompiledContract contract, DeploymentOptions options, object[]? initParams = null)
     {
         if (contract == null) throw new ArgumentNullException(nameof(contract));
         if (options == null) throw new ArgumentNullException(nameof(options));
 
-        var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
-        if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
-        {
-            throw new InvalidOperationException("Network configuration not found. Please check appsettings.json");
-        }
-
-        _logger.LogInformation("Deploying contract {ContractName} to network {RpcUrl}",
-            contract.Name, networkConfig.RpcUrl);
+        _logger.LogInformation("Deploying contract {ContractName}", contract.Name);
 
         try
         {
-            // Create RPC client
-            var client = new RpcClient(new Uri(networkConfig.RpcUrl));
+            // Create RPC client using factory
+            var client = _rpcClientFactory.CreateClient();
 
             // Get current block count for ValidUntilBlock
             var blockCount = await client.GetBlockCountAsync();
 
-            // Create deployment script
-            using var sb = new ScriptBuilder();
-
-            // Add initialization parameters if provided
-            if (initParams != null && initParams.Length > 0)
-            {
-                for (int i = initParams.Length - 1; i >= 0; i--)
-                {
-                    sb.EmitPush(initParams[i]);
-                }
-                sb.EmitPush(initParams.Length);
-                sb.Emit(OpCode.PACK);
-            }
-            else
-            {
-                sb.Emit(OpCode.NEWARRAY0);
-            }
-
-            // Deploy contract using ContractManagement.Deploy
-            sb.EmitPush(contract.ManifestBytes);
-            sb.EmitPush(contract.NefBytes);
-            sb.EmitPush("deploy");
-            sb.EmitPush(NativeContract.ContractManagement.Hash);
-            sb.EmitPush(CallFlags.All);
-            sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
-
-            var script = sb.ToArray();
+            // Create deployment script using helper
+            var script = ScriptBuilderHelper.BuildDeploymentScript(
+                contract.NefBytes,
+                contract.ManifestBytes,
+                null, // No initialization method at deployment
+                initParams);
 
             // Get deployer account from options or wallet manager
             var deployerAccount = options.DeployerAccount ?? _walletManager.GetAccount();
@@ -129,23 +122,16 @@ public class ContractDeployerService : IContractDeployer
             // Get deployment configuration
             var deploymentConfig = _configuration.GetSection("Deployment").Get<DeploymentConfiguration>() ?? new DeploymentConfiguration();
 
-            // Create transaction
-            var gasConsumed = invokeResult.GasConsumed;
-            var networkFee = deploymentConfig.DefaultNetworkFee;
-            var validUntilBlock = blockCount + deploymentConfig.ValidUntilBlockOffset;
-
-            var tx = new Transaction
+            // Create transaction using builder
+            var txOptions = new TransactionBuildOptions
             {
-                Version = 0,
-                Nonce = (uint)new Random().Next(),
-                SystemFee = gasConsumed,
-                NetworkFee = networkFee,
-                ValidUntilBlock = validUntilBlock,
-                Signers = new[] { signer },
-                Attributes = Array.Empty<TransactionAttribute>(),
+                Sender = deployerAccount,
                 Script = script,
-                Witnesses = Array.Empty<Witness>()
+                SystemFee = invokeResult.GasConsumed,
+                NetworkFee = deploymentConfig.DefaultNetworkFee,
+                ValidUntilBlock = blockCount + deploymentConfig.ValidUntilBlockOffset
             };
+            var tx = _transactionBuilder.Build(txOptions);
 
             // Sign transaction using wallet manager
             await _walletManager.SignTransactionAsync(tx, deployerAccount);
@@ -156,7 +142,12 @@ public class ContractDeployerService : IContractDeployer
             // Wait for confirmation if requested
             if (deploymentConfig.WaitForConfirmation)
             {
-                await WaitForTransactionConfirmationAsync(client, txHash, deploymentConfig);
+                var confirmOptions = new TransactionConfirmationOptions
+                {
+                    Timeout = TimeSpan.FromSeconds(deploymentConfig.ConfirmationRetries * deploymentConfig.ConfirmationDelaySeconds),
+                    PollingInterval = TimeSpan.FromSeconds(deploymentConfig.ConfirmationDelaySeconds)
+                };
+                await _confirmationService.WaitForConfirmationAsync(client, txHash, confirmOptions);
             }
 
             // Get network magic from version info
@@ -171,7 +162,7 @@ public class ContractDeployerService : IContractDeployer
                 BlockIndex = blockCount,
                 NetworkMagic = networkMagic,
                 DeployedAt = DateTime.UtcNow,
-                GasConsumed = gasConsumed,
+                GasConsumed = invokeResult.GasConsumed,
                 Success = true
             };
 
@@ -197,27 +188,27 @@ public class ContractDeployerService : IContractDeployer
     /// <summary>
     /// Update an existing contract
     /// </summary>
+    /// <param name="contract">New contract version</param>
+    /// <param name="contractHash">Hash of contract to update</param>
+    /// <param name="options">Deployment options</param>
+    /// <returns>Update result</returns>
+    /// <exception cref="ArgumentNullException">Thrown when required parameters are null</exception>
+    /// <exception cref="ContractDeploymentException">Thrown when update fails</exception>
     public async Task<ContractDeploymentInfo> UpdateAsync(CompiledContract contract, UInt160 contractHash, DeploymentOptions options)
     {
         if (contract == null) throw new ArgumentNullException(nameof(contract));
         if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
         if (options == null) throw new ArgumentNullException(nameof(options));
 
-        var networkConfig = _configuration.GetSection("Network").Get<NetworkConfiguration>();
-        if (networkConfig == null || string.IsNullOrEmpty(networkConfig.RpcUrl))
-        {
-            throw new InvalidOperationException("Network configuration not found. Please check appsettings.json");
-        }
-
         _logger.LogInformation("Updating contract {ContractHash} with new version", contractHash);
 
         try
         {
-            // Create RPC client
-            var client = new RpcClient(new Uri(networkConfig.RpcUrl));
+            // Create RPC client using factory
+            var client = _rpcClientFactory.CreateClient();
 
             // Check if contract exists
-            var exists = await ContractExistsAsync(contractHash, networkConfig.RpcUrl);
+            var exists = await ContractExistsAsync(contractHash, _rpcClientFactory.GetRpcUrl());
             if (!exists)
             {
                 throw new ContractDeploymentException(contract.Name, $"Contract {contractHash} does not exist on the network");
@@ -226,18 +217,11 @@ public class ContractDeployerService : IContractDeployer
             // Get current block count for ValidUntilBlock
             var blockCount = await client.GetBlockCountAsync();
 
-            // Create update script using ContractManagement.Update
-            using var sb = new ScriptBuilder();
-
-            // Update contract parameters
-            sb.EmitPush(contract.ManifestBytes);
-            sb.EmitPush(contract.NefBytes);
-            sb.EmitPush("update");
-            sb.EmitPush(contractHash);
-            sb.EmitPush(CallFlags.All);
-            sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
-
-            var script = sb.ToArray();
+            // Create update script using helper
+            var script = ScriptBuilderHelper.BuildUpdateScript(
+                contractHash,
+                contract.NefBytes,
+                contract.ManifestBytes);
 
             // Get deployer account from options or wallet manager
             var deployerAccount = options.DeployerAccount ?? _walletManager.GetAccount();
@@ -259,23 +243,16 @@ public class ContractDeployerService : IContractDeployer
             // Get deployment configuration
             var deploymentConfig = _configuration.GetSection("Deployment").Get<DeploymentConfiguration>() ?? new DeploymentConfiguration();
 
-            // Create transaction
-            var gasConsumed = invokeResult.GasConsumed;
-            var networkFee = deploymentConfig.DefaultNetworkFee;
-            var validUntilBlock = blockCount + deploymentConfig.ValidUntilBlockOffset;
-
-            var tx = new Transaction
+            // Create transaction using builder
+            var txOptions = new TransactionBuildOptions
             {
-                Version = 0,
-                Nonce = (uint)new Random().Next(),
-                SystemFee = gasConsumed,
-                NetworkFee = networkFee,
-                ValidUntilBlock = validUntilBlock,
-                Signers = new[] { signer },
-                Attributes = Array.Empty<TransactionAttribute>(),
+                Sender = deployerAccount,
                 Script = script,
-                Witnesses = Array.Empty<Witness>()
+                SystemFee = invokeResult.GasConsumed,
+                NetworkFee = deploymentConfig.DefaultNetworkFee,
+                ValidUntilBlock = blockCount + deploymentConfig.ValidUntilBlockOffset
             };
+            var tx = _transactionBuilder.Build(txOptions);
 
             // Sign transaction using wallet manager
             await _walletManager.SignTransactionAsync(tx, deployerAccount);
@@ -286,7 +263,12 @@ public class ContractDeployerService : IContractDeployer
             // Wait for confirmation if requested
             if (deploymentConfig.WaitForConfirmation)
             {
-                await WaitForTransactionConfirmationAsync(client, txHash, deploymentConfig);
+                var confirmOptions = new TransactionConfirmationOptions
+                {
+                    Timeout = TimeSpan.FromSeconds(deploymentConfig.ConfirmationRetries * deploymentConfig.ConfirmationDelaySeconds),
+                    PollingInterval = TimeSpan.FromSeconds(deploymentConfig.ConfirmationDelaySeconds)
+                };
+                await _confirmationService.WaitForConfirmationAsync(client, txHash, confirmOptions);
             }
 
             // Get network magic from version info
@@ -301,7 +283,7 @@ public class ContractDeployerService : IContractDeployer
                 BlockIndex = blockCount,
                 NetworkMagic = networkMagic,
                 DeployedAt = DateTime.UtcNow,
-                GasConsumed = gasConsumed,
+                GasConsumed = invokeResult.GasConsumed,
                 Success = true
             };
 
@@ -327,8 +309,17 @@ public class ContractDeployerService : IContractDeployer
     /// <summary>
     /// Check if a contract exists on the network
     /// </summary>
+    /// <param name="contractHash">Contract hash to check</param>
+    /// <param name="rpcUrl">RPC URL to connect to</param>
+    /// <returns>True if contract exists, false otherwise</returns>
+    /// <exception cref="ArgumentNullException">Thrown when contractHash is null</exception>
+    /// <exception cref="ArgumentException">Thrown when rpcUrl is empty</exception>
+    /// <exception cref="ContractDeploymentException">Thrown when check fails</exception>
     public async Task<bool> ContractExistsAsync(UInt160 contractHash, string rpcUrl)
     {
+        if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
+        if (string.IsNullOrWhiteSpace(rpcUrl)) throw new ArgumentException("RPC URL cannot be empty", nameof(rpcUrl));
+
         _logger.LogInformation("Checking if contract {ContractHash} exists on {RpcUrl}", contractHash, rpcUrl);
 
         try
@@ -343,29 +334,7 @@ public class ContractDeployerService : IContractDeployer
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to check contract existence for {ContractHash}", contractHash);
-            return false;
+            throw new ContractDeploymentException("Contract", $"Failed to check contract existence: {ex.Message}", ex);
         }
     }
-
-    private async Task WaitForTransactionConfirmationAsync(RpcClient client, UInt256 txHash, DeploymentConfiguration deploymentConfig)
-    {
-        for (int i = 0; i < deploymentConfig.ConfirmationRetries; i++)
-        {
-            try
-            {
-                var tx = await client.GetRawTransactionAsync(txHash.ToString());
-                if (tx != null)
-                {
-                    _logger.LogInformation("Transaction {TxHash} confirmed", txHash);
-                    return;
-                }
-            }
-            catch { }
-
-            await Task.Delay(TimeSpan.FromSeconds(deploymentConfig.ConfirmationDelaySeconds));
-        }
-
-        throw new ContractDeploymentException("Transaction", $"Transaction {txHash} was not confirmed after {deploymentConfig.ConfirmationRetries} attempts");
-    }
-
 }

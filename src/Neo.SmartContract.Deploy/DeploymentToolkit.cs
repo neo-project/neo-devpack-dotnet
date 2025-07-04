@@ -1,29 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Neo;
+using Neo.Wallets;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
 using Neo.SmartContract.Deploy.Services;
-using Neo.Wallets;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using Neo.SmartContract.Deploy.Shared;
 
 namespace Neo.SmartContract.Deploy;
 
 /// <summary>
 /// Streamlined deployment toolkit providing a simplified API for Neo smart contract deployment with automatic configuration
 /// </summary>
-public class DeploymentToolkit
+public class DeploymentToolkit : IDisposable
 {
+    private const string GAS_CONTRACT_HASH = "0xd2a4cff31913016155e38e474a2c06d08be276cf";
+    private const decimal GAS_DECIMALS = 100_000_000m;
+    private const string MAINNET_RPC_URL = "https://rpc10.n3.nspcc.ru:10331";
+    private const string TESTNET_RPC_URL = "https://rpc10.n3.neotracker.io:443";
+    private const string LOCAL_RPC_URL = "http://localhost:50012";
+    private const string DEFAULT_RPC_URL = "http://localhost:10332";
+
     private readonly NeoContractToolkit _toolkit;
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfiguration _configuration;
     private readonly ILogger<DeploymentToolkit> _logger;
-    private bool _walletLoaded = false;
-    private string? _currentNetwork = null;
+    private readonly SemaphoreSlim _walletLock = new SemaphoreSlim(1, 1);
+    private volatile bool _walletLoaded = false;
+    private volatile string? _currentNetwork = null;
+    private bool _disposed = false;
 
     /// <summary>
     /// Create a new DeploymentToolkit instance with automatic configuration
@@ -72,8 +84,13 @@ public class DeploymentToolkit
     /// <summary>
     /// Set the network to use (mainnet, testnet, or custom RPC URL)
     /// </summary>
+    /// <param name="network">Network name or RPC URL</param>
+    /// <returns>This instance for chaining</returns>
+    /// <exception cref="ArgumentException">Thrown when network is invalid</exception>
     public DeploymentToolkit SetNetwork(string network)
     {
+        if (string.IsNullOrWhiteSpace(network))
+            throw new ArgumentException("Network cannot be null or empty", nameof(network));
         _currentNetwork = network.ToLowerInvariant();
 
         // Update configuration based on network
@@ -82,18 +99,18 @@ public class DeploymentToolkit
         switch (_currentNetwork)
         {
             case "mainnet":
-                Environment.SetEnvironmentVariable("Network__RpcUrl", "https://rpc10.n3.nspcc.ru:10331");
+                Environment.SetEnvironmentVariable("Network__RpcUrl", MAINNET_RPC_URL);
                 Environment.SetEnvironmentVariable("Network__Network", "mainnet");
                 break;
 
             case "testnet":
-                Environment.SetEnvironmentVariable("Network__RpcUrl", "https://rpc10.n3.neotracker.io:443");
+                Environment.SetEnvironmentVariable("Network__RpcUrl", TESTNET_RPC_URL);
                 Environment.SetEnvironmentVariable("Network__Network", "testnet");
                 break;
 
             case "local":
             case "private":
-                Environment.SetEnvironmentVariable("Network__RpcUrl", "http://localhost:50012");
+                Environment.SetEnvironmentVariable("Network__RpcUrl", LOCAL_RPC_URL);
                 Environment.SetEnvironmentVariable("Network__Network", "private");
                 break;
 
@@ -114,8 +131,18 @@ public class DeploymentToolkit
     /// <summary>
     /// Deploy a contract from source code or project
     /// </summary>
+    /// <param name="path">Path to contract project (.csproj) or source file</param>
+    /// <param name="initParams">Optional initialization parameters</param>
+    /// <returns>Deployment information</returns>
+    /// <exception cref="ArgumentException">Thrown when path is invalid</exception>
+    /// <exception cref="FileNotFoundException">Thrown when file does not exist</exception>
     public async Task<ContractDeploymentInfo> Deploy(string path, object[]? initParams = null)
     {
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentException("Path cannot be null or empty", nameof(path));
+
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"Contract file not found: {path}", path);
         await EnsureWalletLoaded();
 
         // Determine if it's a project or source file
@@ -156,8 +183,25 @@ public class DeploymentToolkit
     /// <summary>
     /// Deploy a pre-compiled contract from NEF and manifest files
     /// </summary>
+    /// <param name="nefPath">Path to NEF file</param>
+    /// <param name="manifestPath">Path to manifest file</param>
+    /// <param name="initParams">Optional initialization parameters</param>
+    /// <returns>Deployment information</returns>
+    /// <exception cref="ArgumentException">Thrown when paths are invalid</exception>
+    /// <exception cref="FileNotFoundException">Thrown when files do not exist</exception>
     public async Task<ContractDeploymentInfo> DeployArtifacts(string nefPath, string manifestPath, object[]? initParams = null)
     {
+        if (string.IsNullOrWhiteSpace(nefPath))
+            throw new ArgumentException("NEF path cannot be null or empty", nameof(nefPath));
+
+        if (string.IsNullOrWhiteSpace(manifestPath))
+            throw new ArgumentException("Manifest path cannot be null or empty", nameof(manifestPath));
+
+        if (!File.Exists(nefPath))
+            throw new FileNotFoundException($"NEF file not found: {nefPath}", nefPath);
+
+        if (!File.Exists(manifestPath))
+            throw new FileNotFoundException($"Manifest file not found: {manifestPath}", manifestPath);
         await EnsureWalletLoaded();
 
         var deploymentOptions = new DeploymentOptions
@@ -187,8 +231,19 @@ public class DeploymentToolkit
     /// <summary>
     /// Call a contract method (read-only)
     /// </summary>
+    /// <typeparam name="T">Return type</typeparam>
+    /// <param name="contractHashOrAddress">Contract hash or address</param>
+    /// <param name="method">Method name</param>
+    /// <param name="args">Method arguments</param>
+    /// <returns>Method return value</returns>
+    /// <exception cref="ArgumentException">Thrown when parameters are invalid</exception>
     public async Task<T> Call<T>(string contractHashOrAddress, string method, params object[] args)
     {
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        if (string.IsNullOrWhiteSpace(method))
+            throw new ArgumentException("Method name cannot be null or empty", nameof(method));
         var contractHash = ParseContractHash(contractHashOrAddress);
         return await _toolkit.CallContractAsync<T>(contractHash, method, args);
     }
@@ -196,8 +251,18 @@ public class DeploymentToolkit
     /// <summary>
     /// Invoke a contract method (state-changing transaction)
     /// </summary>
+    /// <param name="contractHashOrAddress">Contract hash or address</param>
+    /// <param name="method">Method name</param>
+    /// <param name="args">Method arguments</param>
+    /// <returns>Transaction hash</returns>
+    /// <exception cref="ArgumentException">Thrown when parameters are invalid</exception>
     public async Task<UInt256> Invoke(string contractHashOrAddress, string method, params object[] args)
     {
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        if (string.IsNullOrWhiteSpace(method))
+            throw new ArgumentException("Method name cannot be null or empty", nameof(method));
         await EnsureWalletLoaded();
 
         var contractHash = ParseContractHash(contractHashOrAddress);
@@ -207,8 +272,21 @@ public class DeploymentToolkit
     /// <summary>
     /// Update an existing contract
     /// </summary>
+    /// <param name="contractHashOrAddress">Contract hash or address to update</param>
+    /// <param name="path">Path to new contract project or source</param>
+    /// <returns>Update result</returns>
+    /// <exception cref="ArgumentException">Thrown when parameters are invalid</exception>
+    /// <exception cref="FileNotFoundException">Thrown when file does not exist</exception>
     public async Task<ContractDeploymentInfo> Update(string contractHashOrAddress, string path)
     {
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentException("Path cannot be null or empty", nameof(path));
+
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"Contract file not found: {path}", path);
         await EnsureWalletLoaded();
 
         var contractHash = ParseContractHash(contractHashOrAddress);
@@ -268,6 +346,8 @@ public class DeploymentToolkit
     /// <summary>
     /// Get the default deployer account
     /// </summary>
+    /// <returns>Deployer account script hash</returns>
+    /// <exception cref="InvalidOperationException">Thrown when no deployer account is configured</exception>
     public async Task<UInt160> GetDeployerAccount()
     {
         await EnsureWalletLoaded();
@@ -280,6 +360,9 @@ public class DeploymentToolkit
     /// <summary>
     /// Get the current balance of an account
     /// </summary>
+    /// <param name="address">Account address (null for default deployer)</param>
+    /// <returns>GAS balance</returns>
+    /// <exception cref="ArgumentException">Thrown when address is invalid</exception>
     public async Task<decimal> GetGasBalance(string? address = null)
     {
         UInt160 account;
@@ -293,11 +376,11 @@ public class DeploymentToolkit
         }
 
         // Call GAS token contract
-        var gasHash = UInt160.Parse("0xd2a4cff31913016155e38e474a2c06d08be276cf");
+        var gasHash = UInt160.Parse(GAS_CONTRACT_HASH);
         var balance = await Call<System.Numerics.BigInteger>(gasHash.ToString(), "balanceOf", account);
 
         // GAS has 8 decimals
-        return (decimal)balance / 100_000_000m;
+        return (decimal)balance / GAS_DECIMALS;
     }
 
     /// <summary>
@@ -305,8 +388,15 @@ public class DeploymentToolkit
     /// </summary>
     /// <param name="manifestPath">Path to the deployment manifest JSON file</param>
     /// <returns>Dictionary of contract names to deployment information</returns>
+    /// <exception cref="ArgumentException">Thrown when manifestPath is invalid</exception>
+    /// <exception cref="FileNotFoundException">Thrown when manifest file does not exist</exception>
     public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifest(string manifestPath)
     {
+        if (string.IsNullOrWhiteSpace(manifestPath))
+            throw new ArgumentException("Manifest path cannot be null or empty", nameof(manifestPath));
+
+        if (!File.Exists(manifestPath))
+            throw new FileNotFoundException($"Manifest file not found: {manifestPath}", manifestPath);
         await EnsureWalletLoaded();
 
         var deploymentOptions = new DeploymentOptions
@@ -342,8 +432,11 @@ public class DeploymentToolkit
     /// </summary>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
     /// <returns>True if contract exists, false otherwise</returns>
+    /// <exception cref="ArgumentException">Thrown when contractHashOrAddress is invalid</exception>
     public async Task<bool> ContractExists(string contractHashOrAddress)
     {
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
         var contractHash = ParseAddress(contractHashOrAddress);
         var deployer = _serviceProvider.GetRequiredService<IContractDeployer>();
         var rpcUrl = GetCurrentRpcUrl();
@@ -351,24 +444,16 @@ public class DeploymentToolkit
         return await deployer.ContractExistsAsync(contractHash, rpcUrl);
     }
 
-    /// <summary>
-    /// Deploy contract from pre-compiled artifacts
-    /// </summary>
-    /// <param name="nefPath">Path to .nef file</param>
-    /// <param name="manifestPath">Path to .manifest.json file</param>
-    /// <param name="initParams">Optional initialization parameters</param>
-    /// <returns>Deployment information</returns>
-    public async Task<ContractDeploymentInfo> DeployFromArtifacts(string nefPath, string manifestPath, object[]? initParams = null)
-    {
-        return await DeployArtifacts(nefPath, manifestPath, initParams);
-    }
 
     #region Private Methods
 
     private async Task LoadWalletIfConfigured()
     {
+        await _walletLock.WaitAsync();
         try
         {
+            if (_walletLoaded) return;
+
             var walletPath = _configuration["Wallet:Path"];
             var walletPassword = _configuration["Wallet:Password"];
 
@@ -384,12 +469,21 @@ public class DeploymentToolkit
         {
             _logger.LogWarning($"Failed to auto-load wallet: {ex.Message}");
         }
+        finally
+        {
+            _walletLock.Release();
+        }
     }
 
     private async Task EnsureWalletLoaded()
     {
-        if (!_walletLoaded)
+        if (_walletLoaded) return;
+
+        await _walletLock.WaitAsync();
+        try
         {
+            if (_walletLoaded) return; // Double-check after acquiring lock
+
             // Try to load from environment variables
             var walletPath = Environment.GetEnvironmentVariable("NEO_WALLET_PATH");
             var walletPassword = Environment.GetEnvironmentVariable("NEO_WALLET_PASSWORD");
@@ -406,6 +500,10 @@ public class DeploymentToolkit
                     "No wallet loaded. Set wallet configuration in appsettings.json or " +
                     "NEO_WALLET_PATH and NEO_WALLET_PASSWORD environment variables.");
             }
+        }
+        finally
+        {
+            _walletLock.Release();
         }
     }
 
@@ -430,6 +528,9 @@ public class DeploymentToolkit
 
     private UInt160 ParseAddress(string address)
     {
+        if (string.IsNullOrWhiteSpace(address))
+            throw new ArgumentException("Address cannot be null or empty", nameof(address));
+
         try
         {
             // Try common address versions
@@ -441,9 +542,9 @@ public class DeploymentToolkit
             // Default to N3
             return address.ToScriptHash((byte)53);
         }
-        catch
+        catch (Exception ex)
         {
-            throw new ArgumentException($"Invalid address: {address}");
+            throw new ArgumentException($"Invalid address format: {address}", nameof(address), ex);
         }
     }
 
@@ -459,7 +560,58 @@ public class DeploymentToolkit
         }
 
         // Fallback to default RPC URL
-        return _configuration["Network:RpcUrl"] ?? "http://localhost:10332";
+        return _configuration["Network:RpcUrl"] ?? DEFAULT_RPC_URL;
+    }
+
+    #endregion
+
+    #region IDisposable Implementation
+
+    /// <summary>
+    /// Dispose of the toolkit and its resources
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Protected dispose method
+    /// </summary>
+    /// <param name="disposing">True if disposing managed resources</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                // Dispose managed resources
+                if (_serviceProvider is IDisposable disposableProvider)
+                {
+                    disposableProvider.Dispose();
+                }
+
+                // Clear any cached RPC clients if using RpcClientFactory
+                if (_serviceProvider != null)
+                {
+                    try
+                    {
+                        var rpcFactory = _serviceProvider.GetService(typeof(IRpcClientFactory)) as RpcClientFactory;
+                        rpcFactory?.ClearPool();
+                    }
+                    catch
+                    {
+                        // Ignore errors during disposal
+                    }
+                }
+
+                // Dispose of the semaphore
+                _walletLock?.Dispose();
+            }
+
+            _disposed = true;
+        }
     }
 
     #endregion

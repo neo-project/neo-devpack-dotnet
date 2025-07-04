@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Neo;
 using Neo.Network.P2P.Payloads;
 
@@ -13,6 +15,8 @@ public interface IWalletManager
     /// </summary>
     /// <param name="walletPath">Path to wallet file</param>
     /// <param name="password">Wallet password</param>
+    /// <exception cref="System.IO.FileNotFoundException">Thrown when wallet file not found</exception>
+    /// <exception cref="Neo.SmartContract.Deploy.Exceptions.WalletException">Thrown when wallet loading fails</exception>
     Task LoadWalletAsync(string walletPath, string password);
 
     /// <summary>
@@ -20,6 +24,8 @@ public interface IWalletManager
     /// </summary>
     /// <param name="accountAddress">Account address (optional - uses default if not specified)</param>
     /// <returns>Account script hash</returns>
+    /// <exception cref="System.InvalidOperationException">Thrown when no wallet is loaded</exception>
+    /// <exception cref="System.ArgumentException">Thrown when account not found</exception>
     UInt160 GetAccount(string? accountAddress = null);
 
     /// <summary>
@@ -27,6 +33,8 @@ public interface IWalletManager
     /// </summary>
     /// <param name="transaction">Transaction to sign</param>
     /// <param name="account">Account to sign with (optional - uses default if not specified)</param>
+    /// <exception cref="System.InvalidOperationException">Thrown when no wallet is loaded</exception>
+    /// <exception cref="Neo.SmartContract.Deploy.Exceptions.WalletException">Thrown when signing fails</exception>
     Task SignTransactionAsync(Transaction transaction, UInt160? account = null);
 
     /// <summary>

@@ -6,6 +6,7 @@ using Neo.SmartContract.Deploy.Models;
 using Neo.SmartContract.Deploy.Services;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Exceptions;
+using Neo.SmartContract.Deploy.Shared;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,10 @@ public class MultiContractDeploymentServiceTests : TestBase
     private readonly ContractDeployerService _deployerService;
     private readonly Mock<ILogger<ContractDeployerService>> _mockLogger;
     private readonly Mock<IWalletManager> _mockWalletManager;
+    private readonly Mock<IRpcClientFactory> _mockRpcClientFactory;
+    private readonly TransactionBuilder _transactionBuilder;
+    private readonly Mock<ILogger<TransactionConfirmationService>> _mockConfirmationLogger;
+    private readonly TransactionConfirmationService _confirmationService;
     private readonly ContractCompilerService _compilerService;
     private readonly Mock<ILogger<ContractCompilerService>> _mockCompilerLogger;
 
@@ -26,7 +31,18 @@ public class MultiContractDeploymentServiceTests : TestBase
     {
         _mockLogger = new Mock<ILogger<ContractDeployerService>>();
         _mockWalletManager = new Mock<IWalletManager>();
-        _deployerService = new ContractDeployerService(_mockLogger.Object, _mockWalletManager.Object, Configuration);
+        _mockRpcClientFactory = new Mock<IRpcClientFactory>();
+        _transactionBuilder = new TransactionBuilder();
+        _mockConfirmationLogger = new Mock<ILogger<TransactionConfirmationService>>();
+        _confirmationService = new TransactionConfirmationService(_mockConfirmationLogger.Object);
+
+        _deployerService = new ContractDeployerService(
+            _mockLogger.Object,
+            _mockWalletManager.Object,
+            Configuration,
+            _mockRpcClientFactory.Object,
+            _transactionBuilder,
+            _confirmationService);
 
         _mockCompilerLogger = new Mock<ILogger<ContractCompilerService>>();
         _compilerService = new ContractCompilerService(_mockCompilerLogger.Object);

@@ -4,6 +4,7 @@ using Moq;
 using Neo;
 using Neo.SmartContract.Deploy.Services;
 using Neo.SmartContract.Deploy.Interfaces;
+using Neo.SmartContract.Deploy.Shared;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,12 +15,27 @@ public class ContractInvokerServiceTests : TestBase
     private readonly ContractInvokerService _invokerService;
     private readonly Mock<ILogger<ContractInvokerService>> _mockLogger;
     private readonly Mock<IWalletManager> _mockWalletManager;
+    private readonly Mock<IRpcClientFactory> _mockRpcClientFactory;
+    private readonly TransactionBuilder _transactionBuilder;
+    private readonly Mock<ILogger<TransactionConfirmationService>> _mockConfirmationLogger;
+    private readonly TransactionConfirmationService _confirmationService;
 
     public ContractInvokerServiceTests()
     {
         _mockLogger = new Mock<ILogger<ContractInvokerService>>();
         _mockWalletManager = new Mock<IWalletManager>();
-        _invokerService = new ContractInvokerService(_mockLogger.Object, _mockWalletManager.Object, Configuration);
+        _mockRpcClientFactory = new Mock<IRpcClientFactory>();
+        _transactionBuilder = new TransactionBuilder();
+        _mockConfirmationLogger = new Mock<ILogger<TransactionConfirmationService>>();
+        _confirmationService = new TransactionConfirmationService(_mockConfirmationLogger.Object);
+
+        _invokerService = new ContractInvokerService(
+            _mockLogger.Object,
+            _mockWalletManager.Object,
+            Configuration,
+            _mockRpcClientFactory.Object,
+            _transactionBuilder,
+            _confirmationService);
     }
 
     [Fact]

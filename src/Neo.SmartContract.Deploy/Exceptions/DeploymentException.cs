@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Neo.SmartContract.Deploy.Exceptions;
 
 /// <summary>
@@ -6,10 +10,21 @@ namespace Neo.SmartContract.Deploy.Exceptions;
 public class DeploymentException : Exception
 {
     /// <summary>
+    /// Error code for categorizing exceptions
+    /// </summary>
+    public string ErrorCode { get; }
+
+    /// <summary>
+    /// Additional context data
+    /// </summary>
+    public object? Context { get; }
+
+    /// <summary>
     /// Creates a new deployment exception
     /// </summary>
     public DeploymentException() : base()
     {
+        ErrorCode = "GENERAL_ERROR";
     }
 
     /// <summary>
@@ -18,6 +33,7 @@ public class DeploymentException : Exception
     /// <param name="message">Error message</param>
     public DeploymentException(string message) : base(message)
     {
+        ErrorCode = "GENERAL_ERROR";
     }
 
     /// <summary>
@@ -27,6 +43,33 @@ public class DeploymentException : Exception
     /// <param name="innerException">Inner exception</param>
     public DeploymentException(string message, Exception innerException) : base(message, innerException)
     {
+        ErrorCode = "GENERAL_ERROR";
+    }
+
+    /// <summary>
+    /// Creates a new deployment exception with error code and context
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="errorCode">Error code</param>
+    /// <param name="context">Additional context</param>
+    public DeploymentException(string message, string errorCode, object? context = null) : base(message)
+    {
+        ErrorCode = errorCode;
+        Context = context;
+    }
+
+    /// <summary>
+    /// Creates a new deployment exception with inner exception, error code, and context
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="innerException">Inner exception</param>
+    /// <param name="errorCode">Error code</param>
+    /// <param name="context">Additional context</param>
+    public DeploymentException(string message, Exception innerException, string errorCode, object? context = null)
+        : base(message, innerException)
+    {
+        ErrorCode = errorCode;
+        Context = context;
     }
 }
 
@@ -130,7 +173,7 @@ public class WalletException : DeploymentException
     /// Creates a new wallet exception
     /// </summary>
     /// <param name="message">Error message</param>
-    public WalletException(string message) : base(message)
+    public WalletException(string message) : base(message, "WALLET_ERROR")
     {
     }
 
@@ -139,7 +182,65 @@ public class WalletException : DeploymentException
     /// </summary>
     /// <param name="message">Error message</param>
     /// <param name="innerException">Inner exception</param>
-    public WalletException(string message, Exception innerException) : base(message, innerException)
+    public WalletException(string message, Exception innerException) : base(message, innerException, "WALLET_ERROR")
     {
+    }
+}
+
+/// <summary>
+/// Exception thrown when network configuration is invalid
+/// </summary>
+public class NetworkConfigurationException : DeploymentException
+{
+    /// <summary>
+    /// Creates a new network configuration exception
+    /// </summary>
+    /// <param name="message">Error message</param>
+    public NetworkConfigurationException(string message) : base(message, "NETWORK_CONFIG_ERROR")
+    {
+    }
+
+    /// <summary>
+    /// Creates a new network configuration exception with inner exception
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="innerException">Inner exception</param>
+    public NetworkConfigurationException(string message, Exception innerException)
+        : base(message, innerException, "NETWORK_CONFIG_ERROR")
+    {
+    }
+}
+
+/// <summary>
+/// Exception thrown when contract update fails
+/// </summary>
+public class ContractUpdateException : DeploymentException
+{
+    /// <summary>
+    /// Gets the contract hash being updated
+    /// </summary>
+    public UInt160? ContractHash { get; }
+
+    /// <summary>
+    /// Creates a new contract update exception
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="contractHash">Contract hash being updated</param>
+    public ContractUpdateException(string message, UInt160? contractHash = null)
+        : base(message, "UPDATE_ERROR")
+    {
+        ContractHash = contractHash;
+    }
+
+    /// <summary>
+    /// Creates a new contract update exception with inner exception
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="innerException">Inner exception</param>
+    /// <param name="contractHash">Contract hash being updated</param>
+    public ContractUpdateException(string message, Exception innerException, UInt160? contractHash = null)
+        : base(message, innerException, "UPDATE_ERROR")
+    {
+        ContractHash = contractHash;
     }
 }

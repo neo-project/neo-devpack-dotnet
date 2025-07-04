@@ -6,6 +6,7 @@ using Neo.SmartContract.Deploy.Models;
 using Neo.SmartContract.Deploy.Services;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Exceptions;
+using Neo.SmartContract.Deploy.Shared;
 using Neo.SmartContract.Manifest;
 using System.IO;
 using System.Threading.Tasks;
@@ -18,12 +19,27 @@ public class ContractDeployerServiceTests : TestBase
     private readonly ContractDeployerService _deployerService;
     private readonly Mock<ILogger<ContractDeployerService>> _mockLogger;
     private readonly Mock<IWalletManager> _mockWalletManager;
+    private readonly Mock<IRpcClientFactory> _mockRpcClientFactory;
+    private readonly TransactionBuilder _transactionBuilder;
+    private readonly Mock<ILogger<TransactionConfirmationService>> _mockConfirmationLogger;
+    private readonly TransactionConfirmationService _confirmationService;
 
     public ContractDeployerServiceTests()
     {
         _mockLogger = new Mock<ILogger<ContractDeployerService>>();
         _mockWalletManager = new Mock<IWalletManager>();
-        _deployerService = new ContractDeployerService(_mockLogger.Object, _mockWalletManager.Object, Configuration);
+        _mockRpcClientFactory = new Mock<IRpcClientFactory>();
+        _transactionBuilder = new TransactionBuilder();
+        _mockConfirmationLogger = new Mock<ILogger<TransactionConfirmationService>>();
+        _confirmationService = new TransactionConfirmationService(_mockConfirmationLogger.Object);
+
+        _deployerService = new ContractDeployerService(
+            _mockLogger.Object,
+            _mockWalletManager.Object,
+            Configuration,
+            _mockRpcClientFactory.Object,
+            _transactionBuilder,
+            _confirmationService);
     }
 
     [Fact]
@@ -42,17 +58,15 @@ public class ContractDeployerServiceTests : TestBase
     }
 
     [Fact]
-    public async Task ContractExistsAsync_WithInvalidRpcUrl_ShouldReturnFalse()
+    public async Task ContractExistsAsync_WithInvalidRpcUrl_ShouldThrowException()
     {
         // Arrange
         var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
         var invalidRpcUrl = "http://invalid-url:99999";
 
-        // Act
-        var exists = await _deployerService.ContractExistsAsync(contractHash, invalidRpcUrl);
-
-        // Assert
-        Assert.False(exists);
+        // Act & Assert
+        await Assert.ThrowsAsync<ContractDeploymentException>(() =>
+            _deployerService.ContractExistsAsync(contractHash, invalidRpcUrl));
     }
 
     [Fact]
