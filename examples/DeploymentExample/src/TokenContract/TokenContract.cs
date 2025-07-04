@@ -1,4 +1,3 @@
-using Neo;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -23,7 +22,7 @@ namespace DeploymentExample.Contract
         private const string TOKEN_NAME = "Example Token";
         private const string TOKEN_SYMBOL = "EXT";
         private const byte DECIMALS = 8;
-        private const BigInteger TOTAL_SUPPLY = 100_000_000_00000000; // 100 million with 8 decimals
+        private static readonly BigInteger TOTAL_SUPPLY = 100_000_000_00000000; // 100 million with 8 decimals
 
         // Storage keys
         private const byte PREFIX_BALANCE = 0x10;
@@ -170,7 +169,7 @@ namespace DeploymentExample.Contract
             // Call onNEP17Payment if recipient is a contract
             if (ContractManagement.GetContract(to) != null)
             {
-                Contract.Call(to, "onNEP17Payment", CallFlags.All, from, amount, data);
+                Neo.SmartContract.Framework.Services.Contract.Call(to, "onNEP17Payment", CallFlags.All, from, amount, data);
             }
 
             return true;

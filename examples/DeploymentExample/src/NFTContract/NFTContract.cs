@@ -1,4 +1,3 @@
-using Neo;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -196,7 +195,7 @@ namespace DeploymentExample.Contract
             // Call onNEP11Payment if recipient is a contract
             if (ContractManagement.GetContract(to) != null)
             {
-                Contract.Call(to, "onNEP11Payment", CallFlags.All, from, 1, tokenId, data);
+                Neo.SmartContract.Framework.Services.Contract.Call(to, "onNEP11Payment", CallFlags.All, from, 1, tokenId, data);
             }
 
             return true;
@@ -219,7 +218,7 @@ namespace DeploymentExample.Contract
             if (tokenContract != UInt160.Zero)
             {
                 var mintPrice = GetMintPrice();
-                var paymentSuccess = (bool)Contract.Call(tokenContract, "transfer", CallFlags.All, 
+                var paymentSuccess = (bool)Neo.SmartContract.Framework.Services.Contract.Call(tokenContract, "transfer", CallFlags.All, 
                     minter, GetOwner(), mintPrice, "NFT mint payment");
                 if (!paymentSuccess)
                 {
@@ -255,10 +254,10 @@ namespace DeploymentExample.Contract
             // Update next token ID
             Storage.Put(Storage.CurrentContext, nextIdKey, tokenId + 1);
 
-            OnTransfer(UInt160.Zero, minter, 1, tokenIdBytes);
-            OnMinted(minter, tokenIdBytes, tokenURI);
+            OnTransfer(UInt160.Zero, minter, 1, (ByteString)tokenIdBytes);
+            OnMinted(minter, (ByteString)tokenIdBytes, tokenURI);
 
-            return tokenIdBytes;
+            return (ByteString)tokenIdBytes;
         }
 
         /// <summary>

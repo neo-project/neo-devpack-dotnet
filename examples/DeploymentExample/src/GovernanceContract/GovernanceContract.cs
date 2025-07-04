@@ -1,4 +1,3 @@
-using Neo;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
@@ -29,7 +28,7 @@ namespace DeploymentExample.Contract
         private const byte PREFIX_VOTING_PERIOD = 0x37;
 
         // Default values
-        private const BigInteger DEFAULT_VOTING_THRESHOLD = 51; // 51%
+        private static readonly BigInteger DEFAULT_VOTING_THRESHOLD = 51; // 51%
         private const ulong DEFAULT_VOTING_PERIOD = 7 * 24 * 3600; // 7 days in seconds
 
         // Proposal types
@@ -335,7 +334,7 @@ namespace DeploymentExample.Contract
 
             try
             {
-                Contract.Call(targetContract, method, CallFlags.All, args);
+                Neo.SmartContract.Framework.Services.Contract.Call(targetContract, method, CallFlags.All, args);
                 return true;
             }
             catch
@@ -371,7 +370,7 @@ namespace DeploymentExample.Contract
             }
 
             // Voting power is based on token balance
-            return (BigInteger)Contract.Call(tokenContract, "balanceOf", CallFlags.ReadOnly, account);
+            return (BigInteger)Neo.SmartContract.Framework.Services.Contract.Call(tokenContract, "balanceOf", CallFlags.ReadOnly, account);
         }
 
         /// <summary>

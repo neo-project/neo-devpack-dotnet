@@ -16,7 +16,7 @@ namespace DeploymentExample.Deploy;
 /// Usage:
 ///   dotnet run                    -- Deploy single example contract
 ///   dotnet run multi              -- Deploy multiple interrelated contracts
-///   dotnet run test <addresses>   -- Test deployed contracts
+///   dotnet run test token_hash nft_hash gov_hash -- Test deployed contracts
 ///   dotnet run manifest           -- Deploy from manifest file
 /// </summary>
 class Program
@@ -55,13 +55,17 @@ class Program
                     
                     // Test the deployed contracts
                     var tester = new MultiContractTester(toolkit);
-                    await tester.RunAllTests(results);
+                    await tester.TestDeployedContracts(results);
                     break;
                     
                 case "manifest":
                     // Deploy from manifest file
-                    var manifestDeployer = new MultiContractDeployer(toolkit);
-                    await manifestDeployer.DeployFromManifest("deployment-manifest.json");
+                    var manifestResults = await toolkit.DeployFromManifest("deployment-manifest.json");
+                    Console.WriteLine($"Deployed {manifestResults.Count} contracts from manifest");
+                    foreach (var kvp in manifestResults)
+                    {
+                        Console.WriteLine($"  {kvp.Key}: {kvp.Value.ContractHash}");
+                    }
                     break;
                     
                 case "test":
@@ -74,22 +78,14 @@ class Program
                     
                     var testResults = new DeploymentResults
                     {
-                        TokenContract = new Neo.SmartContract.Deploy.Models.ContractDeploymentInfo 
-                        { 
-                            ContractHash = UInt160.Parse(args[1]) 
-                        },
-                        NFTContract = new Neo.SmartContract.Deploy.Models.ContractDeploymentInfo 
-                        { 
-                            ContractHash = UInt160.Parse(args[2]) 
-                        },
-                        GovernanceContract = new Neo.SmartContract.Deploy.Models.ContractDeploymentInfo 
-                        { 
-                            ContractHash = UInt160.Parse(args[3]) 
-                        }
+                        Success = true,
+                        TokenContract = UInt160.Parse(args[1]),
+                        NFTContract = UInt160.Parse(args[2]),
+                        GovernanceContract = UInt160.Parse(args[3])
                     };
                     
                     var contractTester = new MultiContractTester(toolkit);
-                    await contractTester.RunAllTests(testResults);
+                    await contractTester.TestDeployedContracts(testResults);
                     break;
                     
                 default:
