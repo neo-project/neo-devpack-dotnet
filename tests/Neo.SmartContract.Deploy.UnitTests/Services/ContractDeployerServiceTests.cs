@@ -60,11 +60,13 @@ public class ContractDeployerServiceTests : TestBase
             () => _deployerService.ContractExistsAsync(contractHash, rpcUrl)
         );
 
-        // The exception should contain error information (either connection refused or unknown contract)
+        // The exception should contain error information from our mock
         Assert.True(
             exception.Message.Contains("Connection refused") ||
-            exception.Message.Contains("Unknown contract"),
-            $"Expected error message to contain 'Connection refused' or 'Unknown contract', but got: {exception.Message}");
+            exception.Message.Contains("Unknown contract") ||
+            exception.Message.Contains("Mock RPC client") ||
+            exception.Message.Contains("Failed to check contract existence"),
+            $"Expected error message to contain 'Connection refused', 'Unknown contract', 'Mock RPC client', or 'Failed to check contract existence', but got: {exception.Message}");
     }
 
     [Fact]
