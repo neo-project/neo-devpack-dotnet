@@ -79,7 +79,13 @@ public class ContractDeployerService : IContractDeployer
                 initParams);
 
             // Get deployer account from options or wallet manager
-            var deployerAccount = options.DeployerAccount ?? _walletManager.GetAccount();
+            var deployerAccount = options.DeployerAccount;
+            if (deployerAccount == null)
+            {
+                if (!_walletManager.IsWalletLoaded)
+                    throw new InvalidOperationException("Wallet not loaded. Please load a wallet before deployment.");
+                deployerAccount = _walletManager.GetAccount();
+            }
 
             // Create signer
             var signer = new Signer

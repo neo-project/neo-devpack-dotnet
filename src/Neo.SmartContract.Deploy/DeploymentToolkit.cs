@@ -141,9 +141,10 @@ public class DeploymentToolkit : IDisposable
         if (string.IsNullOrWhiteSpace(path))
             throw new ArgumentException("Path cannot be null or empty", nameof(path));
 
+        await EnsureWalletLoaded();
+
         if (!File.Exists(path))
             throw new FileNotFoundException($"Contract file not found: {path}", path);
-        await EnsureWalletLoaded();
 
         // Determine if it's a project or source file
         var isProject = path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
