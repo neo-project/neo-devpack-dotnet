@@ -330,7 +330,7 @@ public class ContractDeployerService : IContractDeployer
 
         try
         {
-            var client = new RpcClient(new Uri(rpcUrl));
+            var client = _rpcClientFactory.CreateClient();
 
             // Try to get contract state
             var contractState = await client.GetContractStateAsync(contractHash.ToString());

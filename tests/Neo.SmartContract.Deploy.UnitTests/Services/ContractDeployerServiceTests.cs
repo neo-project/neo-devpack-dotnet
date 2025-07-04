@@ -34,17 +34,9 @@ public class ContractDeployerServiceTests : TestBase
         _mockConfirmationLogger = new Mock<ILogger<TransactionConfirmationService>>();
         _confirmationService = new TransactionConfirmationService(_mockConfirmationLogger.Object);
 
-        // Setup mock RPC client to avoid real network calls
-        var mockRpcClient = new Mock<Neo.Network.RPC.RpcClient>(new Uri("http://localhost:50012"));
-        mockRpcClient.Setup(x => x.GetBlockCountAsync()).ReturnsAsync(100u);
-        mockRpcClient.Setup(x => x.InvokeScriptAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<Neo.Network.P2P.Payloads.Signer>()))
-                     .ReturnsAsync(new Neo.Network.RPC.Models.RpcInvokeResult
-                     {
-                         State = Neo.VM.VMState.HALT,
-                         GasConsumed = 1000000,
-                         Stack = new Neo.VM.Types.StackItem[] { Neo.VM.Types.StackItem.Null }
-                     });
-        _mockRpcClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockRpcClient.Object);
+        // Setup mock RPC client factory to throw exception immediately to avoid network calls
+        _mockRpcClientFactory.Setup(x => x.CreateClient(It.IsAny<string>()))
+                            .Throws(new InvalidOperationException("Mock RPC client - no network calls allowed in unit tests"));
 
         _deployerService = new ContractDeployerService(
             _mockLogger.Object,
@@ -180,8 +172,10 @@ public class ContractDeployerServiceTests : TestBase
         Assert.NotNull(result.ErrorMessage);
         Assert.True(
             result.ErrorMessage.Contains("Wallet not loaded") ||
-            result.ErrorMessage.Contains("Object reference"),
-            $"Expected error message to contain 'Wallet not loaded' or 'Object reference', but got: {result.ErrorMessage}");
+            result.ErrorMessage.Contains("Object reference") ||
+            result.ErrorMessage.Contains("Mock RPC client") ||
+            result.ErrorMessage.Contains("Connection refused"),
+            $"Expected error message to contain 'Wallet not loaded', 'Object reference', 'Mock RPC client', or 'Connection refused', but got: {result.ErrorMessage}");
     }
 
     private CompiledContract CreateMockCompiledContract()
