@@ -7,7 +7,7 @@ using Xunit;
 
 namespace TokenContract.Tests;
 
-public class TokenContractTests : TestBase<TokenContract>
+public class TokenContractTests : SmartContractTestBase<DeploymentExample.Contract.TokenContract>
 {
     [Fact]
     public void TestSymbol()

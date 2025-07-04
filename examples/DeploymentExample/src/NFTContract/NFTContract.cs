@@ -48,31 +48,54 @@ namespace DeploymentExample.Contract
         {
             if (!update)
             {
-                var args = (object[])data;
-                var owner = (UInt160)args[0];
-                var tokenContract = args.Length > 1 ? (UInt160)args[1] : UInt160.Zero;
-                var mintPrice = args.Length > 2 ? (BigInteger)args[2] : 10_00000000; // 10 tokens default
-                
-                if (!owner.IsValid || owner.IsZero)
-                {
-                    throw new Exception("Invalid owner address");
-                }
-                
-                // Set contract owner
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_OWNER }, owner);
-                
-                // Set token contract for payments
-                if (tokenContract.IsValid && !tokenContract.IsZero)
-                {
-                    Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_TOKEN_CONTRACT }, tokenContract);
-                }
-                
-                // Set mint price
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_MINT_PRICE }, mintPrice);
-                
-                // Initialize token ID counter
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_NEXT_TOKEN_ID }, 1);
+                // Minimal deployment - just mark as deployed
+                Storage.Put(Storage.CurrentContext, "deployed", 1);
             }
+        }
+        
+        /// <summary>
+        /// Initialize the NFT contract after deployment
+        /// </summary>
+        [DisplayName("initialize")]
+        public static bool Initialize(UInt160 owner, UInt160 tokenContract, BigInteger mintPrice)
+        {
+            // Check if already initialized
+            var initialized = Storage.Get(Storage.CurrentContext, "initialized");
+            if (initialized != null && initialized.Length > 0)
+            {
+                throw new Exception("Already initialized");
+            }
+            
+            if (!owner.IsValid || owner.IsZero)
+            {
+                throw new Exception("Invalid owner address");
+            }
+            
+            if (!Runtime.CheckWitness(owner))
+            {
+                throw new Exception("No authorization");
+            }
+            
+            // Set contract owner
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_OWNER }, owner);
+            
+            // Set token contract for payments
+            if (tokenContract.IsValid && !tokenContract.IsZero)
+            {
+                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_TOKEN_CONTRACT }, tokenContract);
+            }
+            
+            // Set mint price (default to 10 tokens if not specified)
+            var price = mintPrice > 0 ? mintPrice : 10_00000000;
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_MINT_PRICE }, price);
+            
+            // Initialize token ID counter
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_NEXT_TOKEN_ID }, 1);
+            
+            // Mark as initialized
+            Storage.Put(Storage.CurrentContext, "initialized", 1);
+            
+            return true;
         }
 
         /// <summary>

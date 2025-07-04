@@ -7,7 +7,7 @@ using Xunit;
 
 namespace GovernanceContract.Tests;
 
-public class GovernanceContractTests : TestBase<GovernanceContract>
+public class GovernanceContractTests : SmartContractTestBase<DeploymentExample.Contract.GovernanceContract>
 {
     [Fact]
     public void TestInitialize()

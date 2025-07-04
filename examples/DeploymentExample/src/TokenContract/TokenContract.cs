@@ -48,29 +48,46 @@ namespace DeploymentExample.Contract
         {
             if (!update)
             {
-                var args = (object[])data;
-                var owner = (UInt160)args[0];
-                var governanceContract = args.Length > 1 ? (UInt160)args[1] : UInt160.Zero;
-                
-                if (!owner.IsValid || owner.IsZero)
-                {
-                    throw new Exception("Invalid owner address");
-                }
-                
-                // Set contract owner
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_OWNER }, owner);
-                
-                // Set governance contract if provided
-                if (governanceContract.IsValid && !governanceContract.IsZero)
-                {
-                    Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_GOVERNANCE }, governanceContract);
-                }
-                
-                // Mint initial supply to owner
-                var key = Helper.Concat(new byte[] { PREFIX_BALANCE }, owner);
-                Storage.Put(Storage.CurrentContext, key, TOTAL_SUPPLY);
-                OnTransfer(UInt160.Zero, owner, TOTAL_SUPPLY);
+                // Minimal deployment - just mark as deployed
+                Storage.Put(Storage.CurrentContext, "deployed", 1);
             }
+        }
+        
+        /// <summary>
+        /// Initialize the token contract after deployment
+        /// </summary>
+        [DisplayName("initialize")]
+        public static bool Initialize(UInt160 owner)
+        {
+            // Check if already initialized
+            var initialized = Storage.Get(Storage.CurrentContext, "initialized");
+            if (initialized != null && initialized.Length > 0)
+            {
+                throw new Exception("Already initialized");
+            }
+            
+            if (!owner.IsValid || owner.IsZero)
+            {
+                throw new Exception("Invalid owner address");
+            }
+            
+            if (!Runtime.CheckWitness(owner))
+            {
+                throw new Exception("No authorization");
+            }
+            
+            // Set contract owner
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_OWNER }, owner);
+            
+            // Mint initial supply to owner
+            var key = Helper.Concat(new byte[] { PREFIX_BALANCE }, owner);
+            Storage.Put(Storage.CurrentContext, key, TOTAL_SUPPLY);
+            
+            // Mark as initialized
+            Storage.Put(Storage.CurrentContext, "initialized", 1);
+            
+            OnTransfer(UInt160.Zero, owner, TOTAL_SUPPLY);
+            return true;
         }
 
         /// <summary>

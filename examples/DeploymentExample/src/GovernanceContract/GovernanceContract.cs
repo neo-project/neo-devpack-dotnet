@@ -59,31 +59,54 @@ namespace DeploymentExample.Contract
         {
             if (!update)
             {
-                var args = (object[])data;
-                var owner = (UInt160)args[0];
-                var tokenContract = args.Length > 1 ? (UInt160)args[1] : UInt160.Zero;
-                
-                if (!owner.IsValid || owner.IsZero)
-                {
-                    throw new Exception("Invalid owner address");
-                }
-                
-                // Set contract owner
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_OWNER }, owner);
-                
-                // Set token contract for voting power
-                if (tokenContract.IsValid && !tokenContract.IsZero)
-                {
-                    Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_TOKEN_CONTRACT }, tokenContract);
-                }
-                
-                // Set default voting parameters
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_VOTING_THRESHOLD }, DEFAULT_VOTING_THRESHOLD);
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_VOTING_PERIOD }, DEFAULT_VOTING_PERIOD);
-                
-                // Initialize proposal ID counter
-                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_NEXT_PROPOSAL_ID }, 1);
+                // Minimal deployment - just mark as deployed
+                Storage.Put(Storage.CurrentContext, "deployed", 1);
             }
+        }
+        
+        /// <summary>
+        /// Initialize the governance contract after deployment
+        /// </summary>
+        [DisplayName("initialize")]
+        public static bool Initialize(UInt160 owner, UInt160 tokenContract)
+        {
+            // Check if already initialized
+            var initialized = Storage.Get(Storage.CurrentContext, "initialized");
+            if (initialized != null && initialized.Length > 0)
+            {
+                throw new Exception("Already initialized");
+            }
+            
+            if (!owner.IsValid || owner.IsZero)
+            {
+                throw new Exception("Invalid owner address");
+            }
+            
+            if (!Runtime.CheckWitness(owner))
+            {
+                throw new Exception("No authorization");
+            }
+            
+            // Set contract owner
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_OWNER }, owner);
+            
+            // Set token contract for voting power
+            if (tokenContract.IsValid && !tokenContract.IsZero)
+            {
+                Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_TOKEN_CONTRACT }, tokenContract);
+            }
+            
+            // Set default voting parameters
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_VOTING_THRESHOLD }, DEFAULT_VOTING_THRESHOLD);
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_VOTING_PERIOD }, DEFAULT_VOTING_PERIOD);
+            
+            // Initialize proposal ID counter
+            Storage.Put(Storage.CurrentContext, new byte[] { PREFIX_NEXT_PROPOSAL_ID }, 1);
+            
+            // Mark as initialized
+            Storage.Put(Storage.CurrentContext, "initialized", 1);
+            
+            return true;
         }
 
         /// <summary>

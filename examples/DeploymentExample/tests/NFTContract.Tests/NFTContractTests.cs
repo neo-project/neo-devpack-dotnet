@@ -7,7 +7,7 @@ using Xunit;
 
 namespace NFTContract.Tests;
 
-public class NFTContractTests : TestBase<NFTContract>
+public class NFTContractTests : SmartContractTestBase<DeploymentExample.Contract.NFTContract>
 {
     [Fact]
     public void TestSymbol()
