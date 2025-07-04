@@ -159,7 +159,15 @@ public class ContractDeployerServiceTests : TestBase
         var deploymentOptions = CreateDeploymentOptions();
 
         // Remove DeployerAccount from options to force wallet manager usage
-        deploymentOptions.DeployerAccount = null;
+        deploymentOptions = new DeploymentOptions
+        {
+            GasLimit = deploymentOptions.GasLimit,
+            WaitForConfirmation = deploymentOptions.WaitForConfirmation,
+            DefaultNetworkFee = deploymentOptions.DefaultNetworkFee,
+            ValidUntilBlockOffset = deploymentOptions.ValidUntilBlockOffset,
+            ConfirmationRetries = deploymentOptions.ConfirmationRetries,
+            ConfirmationDelaySeconds = deploymentOptions.ConfirmationDelaySeconds
+        };
 
         // Setup wallet manager to indicate wallet is not loaded
         _mockWalletManager.Setup(x => x.IsWalletLoaded).Returns(false);

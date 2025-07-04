@@ -32,7 +32,18 @@ public interface IContractUpdateService
 /// </summary>
 public class ContractUpdateResult
 {
+    /// <summary>
+    /// Gets or sets whether the update was successful
+    /// </summary>
     public bool Success { get; set; }
+
+    /// <summary>
+    /// Gets or sets the transaction hash of the update
+    /// </summary>
     public UInt256? TransactionHash { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error message if the update failed
+    /// </summary>
     public string? ErrorMessage { get; set; }
 }

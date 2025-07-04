@@ -322,7 +322,7 @@ public class MultiContractDeploymentService
         return options;
     }
 
-    private async Task ExecutePostDeploymentActions(
+    private Task ExecutePostDeploymentActions(
         ContractDeploymentInfo deployment,
         List<PostDeploymentAction> actions)
     {
@@ -344,6 +344,8 @@ public class MultiContractDeploymentService
                     throw;
             }
         }
+
+        return Task.CompletedTask;
     }
 
     private List<ContractDeploymentRequest> SortByDependencies(List<ContractDeploymentRequest> requests)

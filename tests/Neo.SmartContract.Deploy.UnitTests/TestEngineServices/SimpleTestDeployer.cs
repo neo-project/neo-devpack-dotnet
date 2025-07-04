@@ -25,7 +25,7 @@ public class SimpleTestDeployer : IContractDeployer
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
-    public async Task<ContractDeploymentInfo> DeployAsync(CompiledContract contract, DeploymentOptions options, object[]? initParams = null)
+    public Task<ContractDeploymentInfo> DeployAsync(CompiledContract contract, DeploymentOptions options, object[]? initParams = null)
     {
         _logger.LogInformation("Mock deploying contract {ContractName}", contract.Name);
 
@@ -40,7 +40,7 @@ public class SimpleTestDeployer : IContractDeployer
         // Generate a mock transaction hash
         var txHash = new UInt256(Guid.NewGuid().ToByteArray().Concat(Guid.NewGuid().ToByteArray()).ToArray());
 
-        return new ContractDeploymentInfo
+        var result = new ContractDeploymentInfo
         {
             ContractName = contract.Name,
             ContractHash = contractHash,
@@ -51,9 +51,11 @@ public class SimpleTestDeployer : IContractDeployer
             NetworkMagic = 0,
             GasConsumed = 1000000
         };
+
+        return Task.FromResult(result);
     }
 
-    public async Task<ContractDeploymentInfo> UpdateAsync(CompiledContract contract, UInt160 contractHash, DeploymentOptions options)
+    public Task<ContractDeploymentInfo> UpdateAsync(CompiledContract contract, UInt160 contractHash, DeploymentOptions options)
     {
         _logger.LogInformation("Mock updating contract {ContractName} at {ContractHash}", contract.Name, contractHash);
 
@@ -71,7 +73,7 @@ public class SimpleTestDeployer : IContractDeployer
         // Generate a mock transaction hash
         var txHash = new UInt256(Guid.NewGuid().ToByteArray().Concat(Guid.NewGuid().ToByteArray()).ToArray());
 
-        return new ContractDeploymentInfo
+        var result = new ContractDeploymentInfo
         {
             ContractName = contract.Name,
             ContractHash = contractHash,
@@ -82,11 +84,13 @@ public class SimpleTestDeployer : IContractDeployer
             NetworkMagic = 0,
             GasConsumed = 500000
         };
+
+        return Task.FromResult(result);
     }
 
-    public async Task<bool> ContractExistsAsync(UInt160 contractHash, string rpcUrl)
+    public Task<bool> ContractExistsAsync(UInt160 contractHash, string rpcUrl)
     {
         // For testing, just return true for non-zero hashes
-        return contractHash != UInt160.Zero;
+        return Task.FromResult(contractHash != UInt160.Zero);
     }
 }

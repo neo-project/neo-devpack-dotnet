@@ -25,34 +25,41 @@ public class SimpleTestInvoker : IContractInvoker
         _updatedContracts[contractHash] = true;
     }
 
-    public async Task<T?> CallAsync<T>(UInt160 contractHash, string method, params object[] parameters)
+    public Task<T?> CallAsync<T>(UInt160 contractHash, string method, params object[] parameters)
     {
         _logger.LogDebug("Mock calling contract {ContractHash} method {Method}", contractHash, method);
 
         // Return mock values based on method name for testing
         var methodLower = method.ToLowerInvariant();
 
+        T? result;
         if (methodLower == "getvalue")
         {
             // Return different value if contract was updated
             if (_updatedContracts.ContainsKey(contractHash))
             {
-                return (T)(object)100;
+                result = (T)(object)100;
             }
-            return (T)(object)42;
+            else
+            {
+                result = (T)(object)42;
+            }
         }
         else if (methodLower == "testmethod")
         {
             if (parameters.Length > 0 && parameters[0] is string input)
             {
-                return (T)(object)$"Hello {input}";
+                result = (T)(object)$"Hello {input}";
             }
-            return (T)(object)"Hello World";
+            else
+            {
+                result = (T)(object)"Hello World";
+            }
         }
         else if (methodLower == "getname")
         {
             // For multi-contract tests, return a name
-            return (T)(object)"MyContract";
+            result = (T)(object)"MyContract";
         }
         else if (methodLower == "getregisteredcontract")
         {
@@ -60,40 +67,47 @@ public class SimpleTestInvoker : IContractInvoker
             if (parameters.Length > 0 && parameters[0] is string)
             {
                 // Return the contract hash passed as the second deploy param
-                return default(T); // Would need actual tracking
+                result = default(T); // Would need actual tracking
+            }
+            else
+            {
+                result = default(T);
             }
         }
-
-        // Default returns for common types
-        if (typeof(T) == typeof(string))
+        else if (typeof(T) == typeof(string))
         {
-            return (T)(object)"MockValue";
+            result = (T)(object)"MockValue";
         }
         else if (typeof(T) == typeof(int))
         {
-            return (T)(object)0;
+            result = (T)(object)0;
         }
         else if (typeof(T) == typeof(bool))
         {
-            return (T)(object)true;
+            result = (T)(object)true;
+        }
+        else
+        {
+            result = default(T);
         }
 
-        return default(T);
+        return Task.FromResult(result);
     }
 
-    public async Task<UInt256> SendAsync(UInt160 contractHash, string method, params object[] parameters)
+    public Task<UInt256> SendAsync(UInt160 contractHash, string method, params object[] parameters)
     {
         _logger.LogDebug("Mock sending transaction to contract {ContractHash} method {Method}", contractHash, method);
 
         // Return a mock transaction hash
-        return new UInt256(Guid.NewGuid().ToByteArray().Concat(Guid.NewGuid().ToByteArray()).ToArray());
+        var txHash = new UInt256(Guid.NewGuid().ToByteArray().Concat(Guid.NewGuid().ToByteArray()).ToArray());
+        return Task.FromResult(txHash);
     }
 
-    public async Task<bool> WaitForConfirmationAsync(UInt256 txHash, int maxRetries = 30, int delaySeconds = 5)
+    public Task<bool> WaitForConfirmationAsync(UInt256 txHash, int maxRetries = 30, int delaySeconds = 5)
     {
         _logger.LogDebug("Mock waiting for transaction {TxHash} confirmation", txHash);
 
         // Always return true for mock
-        return true;
+        return Task.FromResult(true);
     }
 }

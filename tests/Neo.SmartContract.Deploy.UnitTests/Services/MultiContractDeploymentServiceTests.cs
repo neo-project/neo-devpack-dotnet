@@ -235,7 +235,7 @@ public class MultiContractDeploymentServiceTests : TestBase
     }
 
     [Fact]
-    public async Task DeploymentRollback_OnCriticalFailure_ShouldTrackRollbackOrder()
+    public void DeploymentRollback_OnCriticalFailure_ShouldTrackRollbackOrder()
     {
         // Arrange
         var deployedContracts = new List<(string name, UInt160 hash, bool shouldRollback)>

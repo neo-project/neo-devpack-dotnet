@@ -154,7 +154,7 @@ public class DeploymentToolkit : IDisposable
             ProjectPath = isProject ? path : null,
             SourcePath = isProject ? null : path,
             OutputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "artifacts"),
-            ContractName = Path.GetFileNameWithoutExtension(path)
+            ContractName = Path.GetFileNameWithoutExtension(path) ?? "Contract"
         };
 
         var deploymentOptions = new DeploymentOptions
@@ -246,7 +246,7 @@ public class DeploymentToolkit : IDisposable
         if (string.IsNullOrWhiteSpace(method))
             throw new ArgumentException("Method name cannot be null or empty", nameof(method));
         var contractHash = ParseContractHash(contractHashOrAddress);
-        return await _toolkit.CallContractAsync<T>(contractHash, method, args);
+        return await _toolkit.CallContractAsync<T>(contractHash!, method, args).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -298,7 +298,7 @@ public class DeploymentToolkit : IDisposable
             ProjectPath = isProject ? path : null,
             SourcePath = isProject ? null : path,
             OutputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "artifacts"),
-            ContractName = Path.GetFileNameWithoutExtension(path)
+            ContractName = Path.GetFileNameWithoutExtension(path) ?? "Contract"
         };
 
         var deploymentOptions = new DeploymentOptions
@@ -328,7 +328,7 @@ public class DeploymentToolkit : IDisposable
         {
             Success = updateResult.Success,
             ContractHash = contractHash,
-            TransactionHash = updateResult.TransactionHash,
+            TransactionHash = updateResult.TransactionHash ?? UInt256.Zero,
             ErrorMessage = updateResult.ErrorMessage
         };
 

@@ -31,6 +31,15 @@ public class ContractDeployerService : IContractDeployer
     private readonly TransactionBuilder _transactionBuilder;
     private readonly TransactionConfirmationService _confirmationService;
 
+    /// <summary>
+    /// Creates a new instance of ContractDeployerService
+    /// </summary>
+    /// <param name="logger">Logger instance</param>
+    /// <param name="walletManager">Wallet manager for signing transactions</param>
+    /// <param name="configuration">Configuration provider</param>
+    /// <param name="rpcClientFactory">RPC client factory</param>
+    /// <param name="transactionBuilder">Transaction builder</param>
+    /// <param name="confirmationService">Transaction confirmation service</param>
     public ContractDeployerService(
         ILogger<ContractDeployerService> logger,
         IWalletManager walletManager,

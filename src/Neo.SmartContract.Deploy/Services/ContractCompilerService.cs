@@ -20,6 +20,10 @@ public class ContractCompilerService : IContractCompiler
 {
     private readonly ILogger<ContractCompilerService> _logger;
 
+    /// <summary>
+    /// Creates a new instance of ContractCompilerService
+    /// </summary>
+    /// <param name="logger">Logger instance</param>
     public ContractCompilerService(ILogger<ContractCompilerService> logger)
     {
         _logger = logger;

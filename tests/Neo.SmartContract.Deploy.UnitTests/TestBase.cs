@@ -138,7 +138,7 @@ namespace TestContract
         GC.SuppressFinalize(this);
     }
 
-    protected string CreateTestContractProject(string contractName = "TestContract", string contractCode = null)
+    protected string CreateTestContractProject(string contractName = "TestContract", string? contractCode = null)
     {
         if (contractCode == null)
         {
