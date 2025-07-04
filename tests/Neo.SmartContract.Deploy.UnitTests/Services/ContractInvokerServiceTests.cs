@@ -29,6 +29,18 @@ public class ContractInvokerServiceTests : TestBase
         _mockConfirmationLogger = new Mock<ILogger<TransactionConfirmationService>>();
         _confirmationService = new TransactionConfirmationService(_mockConfirmationLogger.Object);
 
+        // Setup mock RPC client to avoid real network calls
+        var mockRpcClient = new Mock<Neo.Network.RPC.RpcClient>(new Uri("http://localhost:50012"));
+        mockRpcClient.Setup(x => x.GetBlockCountAsync()).ReturnsAsync(100u);
+        mockRpcClient.Setup(x => x.InvokeScriptAsync(It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<Neo.Network.P2P.Payloads.Signer>()))
+                     .ReturnsAsync(new Neo.Network.RPC.Models.RpcInvokeResult
+                     {
+                         State = Neo.VM.VMState.HALT,
+                         GasConsumed = 1000000,
+                         Stack = new Neo.VM.Types.StackItem[] { Neo.VM.Types.StackItem.Null }
+                     });
+        _mockRpcClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockRpcClient.Object);
+
         _invokerService = new ContractInvokerService(
             _mockLogger.Object,
             _mockWalletManager.Object,

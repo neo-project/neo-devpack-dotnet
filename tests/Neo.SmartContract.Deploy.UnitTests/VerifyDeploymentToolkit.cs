@@ -215,7 +215,7 @@ public class VerifyDeploymentToolkit : IDisposable
         var sourceOptions = new CompilationOptions
         {
             SourcePath = "test.cs",
-            OutputDirectory = Path.Combine(_tempDir, "source-output"), 
+            OutputDirectory = Path.Combine(_tempDir, "source-output"),
             ContractName = "SourceContract"
         };
 
