@@ -1,43 +1,44 @@
 #!/bin/bash
 
-# Build script for multi-contract deployment example
-# This script compiles all contracts and prepares them for deployment
+# Build script for multiple contract projects
 
-set -e
+echo "Building contract projects..."
 
-echo "=== Building Multi-Contract Deployment Example ==="
-echo
+# Build TokenContract
+echo "Building TokenContract..."
+dotnet build src/TokenContract/TokenContract.csproj -c Release
+if [ $? -ne 0 ]; then
+    echo "TokenContract build failed"
+    exit 1
+fi
 
-# Navigate to project root
-cd "$(dirname "$0")"
+# Build NFTContract
+echo "Building NFTContract..."
+dotnet build src/NFTContract/NFTContract.csproj -c Release
+if [ $? -ne 0 ]; then
+    echo "NFTContract build failed"
+    exit 1
+fi
 
-# Clean previous builds
-echo "Cleaning previous builds..."
-dotnet clean
-rm -rf src/DeploymentExample.Contract/bin/
-rm -rf src/DeploymentExample.Contract/obj/
+# Build GovernanceContract
+echo "Building GovernanceContract..."
+dotnet build src/GovernanceContract/GovernanceContract.csproj -c Release
+if [ $? -ne 0 ]; then
+    echo "GovernanceContract build failed"
+    exit 1
+fi
 
-# Build contracts
-echo "Building contracts..."
+# Build legacy contract for compatibility
+echo "Building DeploymentExample.Contract..."
 dotnet build src/DeploymentExample.Contract/DeploymentExample.Contract.csproj -c Release
+if [ $? -ne 0 ]; then
+    echo "DeploymentExample.Contract build failed"
+    exit 1
+fi
 
-# Build deployment application
-echo "Building deployment application..."
-dotnet build deploy/DeploymentExample.Deploy/DeploymentExample.Deploy.csproj -c Release
+echo "All contracts built successfully!"
 
-# Build tests
-echo "Building tests..."
-dotnet build tests/DeploymentExample.Tests/DeploymentExample.Tests.csproj -c Release
+# Create output directory for compiled contracts
+mkdir -p compiled-contracts
 
-echo
-echo "=== Build Complete ==="
-echo "Contract binaries: src/DeploymentExample.Contract/bin/Release/net9.0/"
-echo "Deployment app: deploy/DeploymentExample.Deploy/bin/Release/net9.0/"
-echo "Tests: tests/DeploymentExample.Tests/bin/Release/net9.0/"
-echo
-echo "To deploy contracts:"
-echo "  cd deploy/DeploymentExample.Deploy"
-echo "  dotnet run multi local"
-echo
-echo "To run tests:"
-echo "  dotnet test"
+echo "Contract build complete. Use nccs to compile the contracts to NEF format."

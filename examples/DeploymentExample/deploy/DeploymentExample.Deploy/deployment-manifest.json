@@ -4,7 +4,7 @@
   "contracts": [
     {
       "name": "TokenContract",
-      "sourcePath": "../../src/DeploymentExample.Contract/TokenContract.cs",
+      "sourcePath": "../../src/TokenContract/TokenContract.cs",
       "dependencies": [],
       "generateDebugInfo": true,
       "optimize": true,
@@ -14,7 +14,7 @@
     },
     {
       "name": "NFTContract", 
-      "sourcePath": "../../src/DeploymentExample.Contract/NFTContract.cs",
+      "sourcePath": "../../src/NFTContract/NFTContract.cs",
       "dependencies": ["TokenContract"],
       "generateDebugInfo": true,
       "optimize": true,
@@ -25,7 +25,7 @@
     },
     {
       "name": "GovernanceContract",
-      "sourcePath": "../../src/DeploymentExample.Contract/GovernanceContract.cs", 
+      "sourcePath": "../../src/GovernanceContract/GovernanceContract.cs", 
       "dependencies": ["TokenContract"],
       "generateDebugInfo": true,
       "optimize": true,
