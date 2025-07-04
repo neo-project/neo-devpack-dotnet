@@ -58,7 +58,7 @@ public class ContractDeployerServiceTests : TestBase
 
         // The exception should contain error information (either connection refused or unknown contract)
         Assert.True(
-            exception.Message.Contains("Connection refused") || 
+            exception.Message.Contains("Connection refused") ||
             exception.Message.Contains("Unknown contract"),
             $"Expected error message to contain 'Connection refused' or 'Unknown contract', but got: {exception.Message}");
     }
