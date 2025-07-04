@@ -1,0 +1,34 @@
+# Build outputs
+bin/
+obj/
+
+# Compiled contracts
+*.nef
+*.manifest.json
+
+# Wallet files (IMPORTANT: Never commit wallets!)
+wallets/
+*.json
+*.db3
+
+# Deployment records (contain contract addresses)
+.deployments/
+
+# Environment-specific settings
+appsettings.*.json
+!appsettings.json
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/
+
+# Mac
+.DS_Store

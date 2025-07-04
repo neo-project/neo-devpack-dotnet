@@ -8,7 +8,7 @@ on:
 env:
   DOTNET_VERSION: 9.0.300
   DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
-  COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
+  COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo.SmartContract.Deploy.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
   COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage-join/
   COVERLET_MERGE_WITH: /p:MergeWith=${{ github.workspace }}/coverage-join/coverage.json
 
@@ -35,6 +35,8 @@ jobs:
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
     - name: Build Neo.Compiler.CSharp
       run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+    - name: Build Neo.SmartContract.Deploy
+      run: dotnet build ./src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj
     - name: Build Neo.SmartContract.Template and test templates
       run: |
         dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug
@@ -82,6 +84,15 @@ jobs:
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_MERGE_WITH }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+        /p:CoverletOutput=${{ github.workspace }}/coverage-join/ \
+        /p:CoverletOutputFormat=json
+    - name: Test Neo.SmartContract.Deploy.UnitTests
+      run: |
+        dotnet test ./tests/Neo.SmartContract.Deploy.UnitTests \
+        --filter "FullyQualifiedName!~Integration" \
+        ${{ env.DOTNET_TEST_PARAMETERS }} \
+        ${{ env.COVERLET_MERGE_WITH }} \
+        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls
@@ -116,6 +127,12 @@ jobs:
     - name : Pack (Neo.SmartContract.Framework)
       run: |
         dotnet pack ./src/Neo.SmartContract.Framework \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
+    - name : Pack (Neo.SmartContract.Deploy)
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Deploy \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}

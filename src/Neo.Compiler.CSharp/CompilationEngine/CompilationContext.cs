@@ -589,8 +589,10 @@ namespace Neo.Compiler
                 {
                     // The following codes typically switch the code context from user's contract to devpack framework codes.
                     // Be aware that, the context of the _initialize method should be remained in the user's contract
-                    ISourceAssemblySymbol assembly = (ISourceAssemblySymbol)symbol.ContainingAssembly;
-                    model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
+                    if (symbol.ContainingAssembly is ISourceAssemblySymbol assembly)
+                    {
+                        model = assembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
+                    }
                 }
                 method.Convert(model);
             }

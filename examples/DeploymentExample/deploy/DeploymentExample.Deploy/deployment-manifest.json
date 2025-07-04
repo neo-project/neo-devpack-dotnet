@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "description": "Multi-contract deployment manifest for Token, NFT, and Governance ecosystem",
+  "contracts": [
+    {
+      "name": "TokenContract",
+      "sourcePath": "../../src/TokenContract/TokenContract.cs",
+      "dependencies": [],
+      "generateDebugInfo": true,
+      "optimize": true,
+      "gasLimit": 100000000,
+      "initialParameters": ["@deployer"],
+      "postDeploymentActions": []
+    },
+    {
+      "name": "NFTContract", 
+      "sourcePath": "../../src/NFTContract/NFTContract.cs",
+      "dependencies": ["TokenContract"],
+      "generateDebugInfo": true,
+      "optimize": true,
+      "gasLimit": 100000000,
+      "initialParameters": ["@deployer", "@TokenContract", 1000000000],
+      "injectDependencies": true,
+      "postDeploymentActions": []
+    },
+    {
+      "name": "GovernanceContract",
+      "sourcePath": "../../src/GovernanceContract/GovernanceContract.cs", 
+      "dependencies": ["TokenContract"],
+      "generateDebugInfo": true,
+      "optimize": true,
+      "gasLimit": 100000000,
+      "initialParameters": ["@deployer", "@TokenContract"],
+      "injectDependencies": true,
+      "postDeploymentActions": [
+        {
+          "method": "createProposal",
+          "parameters": [1, "@NFTContract", "Add NFT contract to governance"],
+          "required": false
+        }
+      ]
+    }
+  ],
+  "deploymentOrder": ["TokenContract", "NFTContract", "GovernanceContract"],
+  "networkOverrides": {
+    "testnet": {
+      "gasPrice": 200000000,
+      "validUntilBlockOffset": 200
+    },
+    "mainnet": {
+      "gasPrice": 500000000,
+      "validUntilBlockOffset": 500,
+      "requireConfirmation": true
+    }
+  }
+}

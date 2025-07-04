@@ -1,0 +1,24 @@
+# Wallet files (NEVER commit these!)
+wallets/*.json
+!wallets/README.md
+
+# Deployment results
+deployment-results*.json
+contract-addresses*.json
+
+# Local configuration overrides
+appsettings.local.json
+appsettings.*.local.json
+
+# Build output
+bin/
+obj/
+
+# IDE files
+.vs/
+.vscode/
+*.user
+
+# Environment files
+.env
+.env.local

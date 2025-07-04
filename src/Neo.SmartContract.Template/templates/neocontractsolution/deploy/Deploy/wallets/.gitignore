@@ -1,0 +1,9 @@
+# Wallet files contain private keys - NEVER commit them!
+*.json
+*.wallet
+*.db3
+
+# Only exception: you may commit example/template wallet files with no real value
+!example.*
+!template.*
+!*.example.*
