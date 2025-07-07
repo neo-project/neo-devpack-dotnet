@@ -10,6 +10,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.Wallets;
 using Neo.SmartContract.Deploy.Exceptions;
 using Neo.SmartContract.Deploy.Interfaces;
+using Neo.SmartContract.Deploy.Security;
 
 namespace Neo.SmartContract.Deploy.Services;
 
@@ -19,14 +20,16 @@ namespace Neo.SmartContract.Deploy.Services;
 public class WalletManagerService : IWalletManager, IDisposable
 {
     private readonly ILogger<WalletManagerService> _logger;
+    private readonly ICredentialProvider? _credentialProvider;
     private readonly SemaphoreSlim _walletLock = new SemaphoreSlim(1, 1);
     private Wallet? _wallet;
     private WalletAccount? _defaultAccount;
     private bool _disposed = false;
 
-    public WalletManagerService(ILogger<WalletManagerService> logger)
+    public WalletManagerService(ILogger<WalletManagerService> logger, ICredentialProvider? credentialProvider = null)
     {
         _logger = logger;
+        _credentialProvider = credentialProvider;
     }
 
     /// <summary>
@@ -82,6 +85,33 @@ public class WalletManagerService : IWalletManager, IDisposable
         finally
         {
             _walletLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// Load a wallet using secure credential provider
+    /// </summary>
+    /// <param name="walletPath">Path to wallet file</param>
+    /// <exception cref="ArgumentException">Thrown when wallet path is invalid</exception>
+    /// <exception cref="FileNotFoundException">Thrown when wallet file not found</exception>
+    /// <exception cref="WalletException">Thrown when wallet loading fails</exception>
+    /// <exception cref="InvalidOperationException">Thrown when no credential provider is configured</exception>
+    public async Task LoadWalletSecurelyAsync(string walletPath)
+    {
+        if (_credentialProvider == null)
+        {
+            throw new InvalidOperationException(
+                "No credential provider configured. Please configure a secure credential provider in services.");
+        }
+
+        var password = await _credentialProvider.GetWalletPasswordAsync(walletPath);
+        await LoadWalletAsync(walletPath, password);
+
+        // Clear password from memory
+        if (!string.IsNullOrEmpty(password))
+        {
+            // In a real implementation, you might want to use SecureString
+            password = null;
         }
     }
 

@@ -148,6 +148,27 @@ public class ContractDeployerService : IContractDeployer
             };
             var tx = _transactionBuilder.Build(txOptions);
 
+            // Check for dry-run mode
+            if (options.DryRun)
+            {
+                _logger.LogInformation("[DRY-RUN] Would deploy contract {ContractName} with hash {ContractHash}",
+                    contract.Name, contractHash);
+                _logger.LogInformation("[DRY-RUN] Estimated gas consumption: {GasConsumed}", invokeResult.GasConsumed);
+
+                return new ContractDeploymentInfo
+                {
+                    ContractName = contract.Name,
+                    ContractHash = contractHash,
+                    TransactionHash = UInt256.Zero,
+                    BlockIndex = blockCount,
+                    NetworkMagic = options.NetworkMagic ?? 0,
+                    DeployedAt = DateTime.UtcNow,
+                    GasConsumed = invokeResult.GasConsumed,
+                    Success = true,
+                    IsDryRun = true
+                };
+            }
+
             // Sign transaction using wallet manager
             await _walletManager.SignTransactionAsync(tx, deployerAccount);
 
@@ -183,6 +204,30 @@ public class ContractDeployerService : IContractDeployer
 
             _logger.LogInformation("Contract {ContractName} deployed successfully with hash {ContractHash}",
                 contract.Name, result.ContractHash);
+
+            // Verify deployment if requested
+            if (options.VerifyAfterDeploy)
+            {
+                await Task.Delay(options.VerificationDelayMs);
+
+                try
+                {
+                    var exists = await ContractExistsAsync(contractHash, options.RpcUrl);
+                    if (!exists)
+                    {
+                        _logger.LogWarning("Contract verification failed - contract not found at {ContractHash}", contractHash);
+                        result.VerificationFailed = true;
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Contract verification successful - contract exists at {ContractHash}", contractHash);
+                    }
+                }
+                catch (Exception verifyEx)
+                {
+                    _logger.LogWarning(verifyEx, "Failed to verify contract deployment");
+                }
+            }
 
             return result;
         }
@@ -268,6 +313,27 @@ public class ContractDeployerService : IContractDeployer
                 ValidUntilBlock = blockCount + deploymentConfig.ValidUntilBlockOffset
             };
             var tx = _transactionBuilder.Build(txOptions);
+
+            // Check for dry-run mode
+            if (options.DryRun)
+            {
+                _logger.LogInformation("[DRY-RUN] Would deploy contract {ContractName} with hash {ContractHash}",
+                    contract.Name, contractHash);
+                _logger.LogInformation("[DRY-RUN] Estimated gas consumption: {GasConsumed}", invokeResult.GasConsumed);
+
+                return new ContractDeploymentInfo
+                {
+                    ContractName = contract.Name,
+                    ContractHash = contractHash,
+                    TransactionHash = UInt256.Zero,
+                    BlockIndex = blockCount,
+                    NetworkMagic = options.NetworkMagic ?? 0,
+                    DeployedAt = DateTime.UtcNow,
+                    GasConsumed = invokeResult.GasConsumed,
+                    Success = true,
+                    IsDryRun = true
+                };
+            }
 
             // Sign transaction using wallet manager
             await _walletManager.SignTransactionAsync(tx, deployerAccount);

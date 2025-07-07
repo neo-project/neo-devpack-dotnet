@@ -136,7 +136,7 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Deployment information</returns>
     /// <exception cref="ArgumentException">Thrown when path is invalid</exception>
     /// <exception cref="FileNotFoundException">Thrown when file does not exist</exception>
-    public async Task<ContractDeploymentInfo> Deploy(string path, object[]? initParams = null)
+    public async Task<ContractDeploymentInfo> DeployAsync(string path, object[]? initParams = null)
     {
         if (string.IsNullOrWhiteSpace(path))
             throw new ArgumentException("Path cannot be null or empty", nameof(path));
@@ -190,7 +190,7 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Deployment information</returns>
     /// <exception cref="ArgumentException">Thrown when paths are invalid</exception>
     /// <exception cref="FileNotFoundException">Thrown when files do not exist</exception>
-    public async Task<ContractDeploymentInfo> DeployArtifacts(string nefPath, string manifestPath, object[]? initParams = null)
+    public async Task<ContractDeploymentInfo> DeployArtifactsAsync(string nefPath, string manifestPath, object[]? initParams = null)
     {
         if (string.IsNullOrWhiteSpace(nefPath))
             throw new ArgumentException("NEF path cannot be null or empty", nameof(nefPath));
@@ -238,7 +238,7 @@ public class DeploymentToolkit : IDisposable
     /// <param name="args">Method arguments</param>
     /// <returns>Method return value</returns>
     /// <exception cref="ArgumentException">Thrown when parameters are invalid</exception>
-    public async Task<T> Call<T>(string contractHashOrAddress, string method, params object[] args)
+    public async Task<T> CallAsync<T>(string contractHashOrAddress, string method, params object[] args)
     {
         if (string.IsNullOrWhiteSpace(contractHashOrAddress))
             throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
@@ -257,7 +257,7 @@ public class DeploymentToolkit : IDisposable
     /// <param name="args">Method arguments</param>
     /// <returns>Transaction hash</returns>
     /// <exception cref="ArgumentException">Thrown when parameters are invalid</exception>
-    public async Task<UInt256> Invoke(string contractHashOrAddress, string method, params object[] args)
+    public async Task<UInt256> InvokeAsync(string contractHashOrAddress, string method, params object[] args)
     {
         if (string.IsNullOrWhiteSpace(contractHashOrAddress))
             throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
@@ -278,7 +278,7 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Update result</returns>
     /// <exception cref="ArgumentException">Thrown when parameters are invalid</exception>
     /// <exception cref="FileNotFoundException">Thrown when file does not exist</exception>
-    public async Task<ContractDeploymentInfo> Update(string contractHashOrAddress, string path)
+    public async Task<ContractDeploymentInfo> UpdateAsync(string contractHashOrAddress, string path)
     {
         if (string.IsNullOrWhiteSpace(contractHashOrAddress))
             throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
@@ -314,7 +314,7 @@ public class DeploymentToolkit : IDisposable
         var compiler = _serviceProvider.GetRequiredService<IContractCompiler>();
         var compiled = await compiler.CompileAsync(compilationOptions);
 
-        // Then update
+        // Use the update service which now properly delegates to ContractDeployerService
         var updateService = _serviceProvider.GetRequiredService<IContractUpdateService>();
         var updateResult = await updateService.UpdateContractAsync(
             compilationOptions.ContractName,
@@ -349,7 +349,7 @@ public class DeploymentToolkit : IDisposable
     /// </summary>
     /// <returns>Deployer account script hash</returns>
     /// <exception cref="InvalidOperationException">Thrown when no deployer account is configured</exception>
-    public async Task<UInt160> GetDeployerAccount()
+    public async Task<UInt160> GetDeployerAccountAsync()
     {
         await EnsureWalletLoaded();
         var account = _toolkit.GetDeployerAccount();
@@ -364,12 +364,12 @@ public class DeploymentToolkit : IDisposable
     /// <param name="address">Account address (null for default deployer)</param>
     /// <returns>GAS balance</returns>
     /// <exception cref="ArgumentException">Thrown when address is invalid</exception>
-    public async Task<decimal> GetGasBalance(string? address = null)
+    public async Task<decimal> GetGasBalanceAsync(string? address = null)
     {
         UInt160 account;
         if (string.IsNullOrEmpty(address))
         {
-            account = await GetDeployerAccount();
+            account = await GetDeployerAccountAsync();
         }
         else
         {
@@ -378,7 +378,7 @@ public class DeploymentToolkit : IDisposable
 
         // Call GAS token contract
         var gasHash = UInt160.Parse(GAS_CONTRACT_HASH);
-        var balance = await Call<System.Numerics.BigInteger>(gasHash.ToString(), "balanceOf", account);
+        var balance = await CallAsync<System.Numerics.BigInteger>(gasHash.ToString(), "balanceOf", account);
 
         // GAS has 8 decimals
         return (decimal)balance / GAS_DECIMALS;
@@ -391,7 +391,7 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Dictionary of contract names to deployment information</returns>
     /// <exception cref="ArgumentException">Thrown when manifestPath is invalid</exception>
     /// <exception cref="FileNotFoundException">Thrown when manifest file does not exist</exception>
-    public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifest(string manifestPath)
+    public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifestAsync(string manifestPath)
     {
         if (string.IsNullOrWhiteSpace(manifestPath))
             throw new ArgumentException("Manifest path cannot be null or empty", nameof(manifestPath));
@@ -434,7 +434,7 @@ public class DeploymentToolkit : IDisposable
     /// <param name="contractHashOrAddress">Contract hash or address</param>
     /// <returns>True if contract exists, false otherwise</returns>
     /// <exception cref="ArgumentException">Thrown when contractHashOrAddress is invalid</exception>
-    public async Task<bool> ContractExists(string contractHashOrAddress)
+    public async Task<bool> ContractExistsAsync(string contractHashOrAddress)
     {
         if (string.IsNullOrWhiteSpace(contractHashOrAddress))
             throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
@@ -456,14 +456,37 @@ public class DeploymentToolkit : IDisposable
             if (_walletLoaded) return;
 
             var walletPath = _configuration["Wallet:Path"];
-            var walletPassword = _configuration["Wallet:Password"];
 
-            if (!string.IsNullOrEmpty(walletPath) && !string.IsNullOrEmpty(walletPassword))
+            if (!string.IsNullOrEmpty(walletPath))
             {
                 _logger.LogInformation($"Auto-loading wallet from configuration...");
-                await _toolkit.LoadWalletAsync(walletPath, walletPassword);
-                _walletLoaded = true;
-                _logger.LogInformation($"Wallet loaded successfully");
+
+                // Try secure loading first
+                try
+                {
+                    var walletManager = _serviceProvider.GetService<IWalletManager>();
+                    if (walletManager != null)
+                    {
+                        await walletManager.LoadWalletSecurelyAsync(walletPath);
+                        _walletLoaded = true;
+                        _logger.LogInformation($"Wallet loaded successfully using secure credential provider");
+                        return;
+                    }
+                }
+                catch (Exception secureEx)
+                {
+                    _logger.LogDebug($"Secure wallet loading failed: {secureEx.Message}");
+                }
+
+                // Fall back to password from config (not recommended)
+                var walletPassword = _configuration["Wallet:Password"];
+                if (!string.IsNullOrEmpty(walletPassword))
+                {
+                    _logger.LogWarning("Loading wallet with password from configuration. This is not recommended for production!");
+                    await _toolkit.LoadWalletAsync(walletPath, walletPassword);
+                    _walletLoaded = true;
+                    _logger.LogInformation($"Wallet loaded successfully");
+                }
             }
         }
         catch (Exception ex)
@@ -486,21 +509,40 @@ public class DeploymentToolkit : IDisposable
             if (_walletLoaded) return; // Double-check after acquiring lock
 
             // Try to load from environment variables
-            var walletPath = Environment.GetEnvironmentVariable("NEO_WALLET_PATH");
-            var walletPassword = Environment.GetEnvironmentVariable("NEO_WALLET_PASSWORD");
+            var walletPath = Environment.GetEnvironmentVariable("NEO_WALLET_PATH") ?? _configuration["Wallet:Path"];
 
-            if (!string.IsNullOrEmpty(walletPath) && !string.IsNullOrEmpty(walletPassword))
+            if (!string.IsNullOrEmpty(walletPath))
             {
-                await _toolkit.LoadWalletAsync(walletPath, walletPassword);
-                _walletLoaded = true;
-                _logger.LogInformation($"Wallet loaded from environment variables");
+                var walletManager = _serviceProvider.GetService<IWalletManager>();
+                if (walletManager != null)
+                {
+                    try
+                    {
+                        await walletManager.LoadWalletSecurelyAsync(walletPath);
+                        _walletLoaded = true;
+                        _logger.LogInformation($"Wallet loaded securely");
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogDebug($"Secure loading failed: {ex.Message}");
+                    }
+                }
+
+                // Try with explicit password as fallback
+                var walletPassword = Environment.GetEnvironmentVariable("NEO_WALLET_PASSWORD");
+                if (!string.IsNullOrEmpty(walletPassword))
+                {
+                    await _toolkit.LoadWalletAsync(walletPath, walletPassword);
+                    _walletLoaded = true;
+                    _logger.LogInformation($"Wallet loaded from environment variables");
+                    return;
+                }
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    "No wallet loaded. Set wallet configuration in appsettings.json or " +
-                    "NEO_WALLET_PATH and NEO_WALLET_PASSWORD environment variables.");
-            }
+
+            throw new InvalidOperationException(
+                "No wallet loaded. Set NEO_WALLET_PATH environment variable and configure " +
+                "a secure credential provider or set NEO_WALLET_PASSWORD environment variable.");
         }
         finally
         {

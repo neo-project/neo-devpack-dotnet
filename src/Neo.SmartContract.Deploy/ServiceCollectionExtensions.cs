@@ -23,6 +23,18 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<TransactionBuilder>();
         services.AddSingleton<TransactionConfirmationService>();
 
+        // Register security services
+        services.AddSingleton<Security.ICredentialProvider, Security.SecureCredentialProvider>();
+
+        // Register health checks
+        services.AddTransient<HealthChecks.RpcHealthCheck>();
+        services.AddTransient<HealthChecks.WalletHealthCheck>();
+        services.AddTransient<HealthChecks.DeploymentServiceHealthCheck>();
+        services.AddSingleton<HealthChecks.HealthCheckService>();
+
+        // Register monitoring
+        services.AddSingleton<Monitoring.DeploymentMetrics>();
+
         // Register core services
         services.AddTransient<IContractCompiler, ContractCompilerService>();
         services.AddTransient<IContractDeployer, ContractDeployerService>();

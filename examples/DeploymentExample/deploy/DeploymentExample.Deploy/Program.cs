@@ -60,7 +60,7 @@ class Program
                     
                 case "manifest":
                     // Deploy from manifest file
-                    var manifestResults = await toolkit.DeployFromManifest("deployment-manifest.json");
+                    var manifestResults = await toolkit.DeployFromManifestAsync("deployment-manifest.json");
                     Console.WriteLine($"Deployed {manifestResults.Count} contracts from manifest");
                     foreach (var kvp in manifestResults)
                     {
@@ -114,11 +114,11 @@ class Program
         Console.WriteLine("=== Deploying ExampleContract ===");
         
         // Get deployer account for initialization
-        var deployerAddress = await toolkit.GetDeployerAccount();
+        var deployerAddress = await toolkit.GetDeployerAccountAsync();
         Console.WriteLine($"Deployer: {deployerAddress}");
         
         // Check GAS balance
-        var gasBalance = await toolkit.GetGasBalance();
+        var gasBalance = await toolkit.GetGasBalanceAsync();
         Console.WriteLine($"GAS Balance: {gasBalance}");
         
         if (gasBalance == 0)
@@ -129,7 +129,7 @@ class Program
         }
         
         // Deploy the contract with the deployer as initial owner
-        var deploymentResult = await toolkit.Deploy(
+        var deploymentResult = await toolkit.DeployAsync(
             "../../src/DeploymentExample.Contract/DeploymentExample.Contract.csproj",
             new object[] { deployerAddress } // Pass deployer as owner during deployment
         );
@@ -154,12 +154,12 @@ class Program
         
         // 1. Get contract info (read-only call)
         Console.WriteLine("\n1. Getting contract info...");
-        var info = await toolkit.Call<object>(contractHash.ToString(), "getInfo");
+        var info = await toolkit.CallAsync<object>(contractHash.ToString(), "getInfo");
         Console.WriteLine($"   Contract Info: {info}");
         
         // 2. Get current counter value
         Console.WriteLine("\n2. Getting counter value...");
-        var counter = await toolkit.Call<BigInteger>(
+        var counter = await toolkit.CallAsync<BigInteger>(
             contractHash.ToString(), 
             "getCounter"
         );
@@ -167,7 +167,7 @@ class Program
         
         // 3. Increment counter (state-changing transaction)
         Console.WriteLine("\n3. Incrementing counter...");
-        var txHash = await toolkit.Invoke(contractHash.ToString(), "increment");
+        var txHash = await toolkit.InvokeAsync(contractHash.ToString(), "increment");
         Console.WriteLine($"   Transaction: {txHash}");
         
         // Wait a moment for the transaction to be processed
@@ -175,7 +175,7 @@ class Program
         await Task.Delay(5000);
         
         // Get updated counter value
-        var newCounter = await toolkit.Call<BigInteger>(
+        var newCounter = await toolkit.CallAsync<BigInteger>(
             contractHash.ToString(),
             "getCounter"
         );
@@ -183,7 +183,7 @@ class Program
         
         // 4. Test multiply function
         Console.WriteLine("\n4. Testing multiply function...");
-        var result = await toolkit.Call<BigInteger>(
+        var result = await toolkit.CallAsync<BigInteger>(
             contractHash.ToString(),
             "multiply",
             7, 6
@@ -192,7 +192,7 @@ class Program
         
         // 5. Get owner
         Console.WriteLine("\n5. Getting contract owner...");
-        var owner = await toolkit.Call<string>(contractHash.ToString(), "getOwner");
+        var owner = await toolkit.CallAsync<string>(contractHash.ToString(), "getOwner");
         Console.WriteLine($"   Owner: {owner}");
         
         Console.WriteLine("\n=== All tests completed successfully! ===");

@@ -62,4 +62,24 @@ public class DeploymentOptions
     /// Initial parameters to pass to contract constructor
     /// </summary>
     public List<object>? InitialParameters { get; set; }
+
+    /// <summary>
+    /// Whether to perform a dry-run without actually deploying
+    /// </summary>
+    public bool DryRun { get; set; } = false;
+
+    /// <summary>
+    /// Whether to verify the contract after deployment
+    /// </summary>
+    public bool VerifyAfterDeploy { get; set; } = true;
+
+    /// <summary>
+    /// Delay in milliseconds before verification (to allow for blockchain propagation)
+    /// </summary>
+    public int VerificationDelayMs { get; set; } = 5000;
+
+    /// <summary>
+    /// Whether to enable automatic rollback on failure
+    /// </summary>
+    public bool EnableRollback { get; set; } = false;
 }

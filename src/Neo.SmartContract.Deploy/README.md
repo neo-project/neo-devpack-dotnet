@@ -8,7 +8,7 @@ Deploy a contract in just 2 lines:
 
 ```csharp
 var toolkit = new DeploymentToolkit().SetNetwork("testnet");
-var contractHash = await toolkit.Deploy("MyContract.csproj");
+var result = await toolkit.DeployAsync("MyContract.csproj");
 ```
 
 That's it! The toolkit automatically handles:
@@ -45,6 +45,9 @@ That's it! The toolkit automatically handles:
 - **Wallet Management**: Integrate with Neo wallets for transaction signing
 - **Multi-contract Support**: Deploy multiple contracts with dependencies in sequence
 - **Network Awareness**: Support for different Neo networks (MainNet, TestNet, Private)
+- **Secure Credentials**: Built-in secure credential providers for production use
+- **Deployment Safety**: Dry-run mode and post-deployment verification
+- **Production Ready**: Comprehensive logging, monitoring, and error handling
 
 ## Installation
 
@@ -60,8 +63,8 @@ dotnet add package Neo.SmartContract.Deploy
 using Neo.SmartContract.Deploy;
 
 var toolkit = new DeploymentToolkit().SetNetwork("testnet");
-var result = await toolkit.Deploy("MyContract.csproj");
-var deployerAccount = toolkit.GetDeployerAccount();
+var result = await toolkit.DeployAsync("MyContract.csproj");
+var deployerAccount = await toolkit.GetDeployerAccountAsync();
 
 // Approach 1: Compile and deploy from source
 var compilationOptions = new CompilationOptions
@@ -420,14 +423,103 @@ var report = await manager.CreateDeploymentReportAsync();
 
 ## Security Considerations
 
+### Development Security
 1. **Never commit wallet files or passwords** to version control
 2. **Never commit deployment records** to public repositories
 3. Use environment variables for sensitive configuration
 4. Ensure proper access controls on wallet files
-5. Use separate wallets for different environments
-6. Monitor deployment transactions and contract state
-7. Neo Express is for development only - never use it in production
-8. Verify contract hashes after deployment/update
+
+### Production Security
+1. **Use secure credential providers** - See [PRODUCTION-DEPLOYMENT.md](PRODUCTION-DEPLOYMENT.md)
+2. **Enable dry-run mode** for testing deployments
+3. **Always verify deployments** with `VerifyAfterDeploy = true`
+4. **Use separate wallets** for each environment
+5. **Monitor deployment transactions** and contract state
+6. **Hardware wallets recommended** for MainNet
+7. **Multi-signature wallets** for critical contracts
+8. Neo Express is for development only - never use it in production
+
+### New Security Features
+
+#### Secure Credential Management
+```csharp
+// Use environment variables (recommended)
+export NEO_WALLET_PASSWORD="your-secure-password"
+
+// Or use secure credential provider
+services.AddSingleton<ICredentialProvider, SecureCredentialProvider>();
+```
+
+#### Deployment Safety Features
+```csharp
+var options = new DeploymentOptions
+{
+    DryRun = true,                    // Test without deploying
+    VerifyAfterDeploy = true,         // Verify contract exists
+    VerificationDelayMs = 5000,       // Wait before verifying
+    EnableRollback = true             // Enable rollback support
+};
+
+// Dry run first
+var dryRun = await toolkit.DeployAsync("Contract.csproj", options);
+Console.WriteLine($"Would deploy to: {dryRun.ContractHash}");
+
+// Then actual deployment
+options.DryRun = false;
+var result = await toolkit.DeployAsync("Contract.csproj", options);
+```
+
+### Health Checks and Monitoring
+
+#### Health Checks
+```csharp
+// Check overall health
+var health = await toolkit.CheckHealthAsync();
+Console.WriteLine($"Status: {health.Status}");
+
+foreach (var (component, result) in health.Results)
+{
+    Console.WriteLine($"{component}: {result.Status} - {result.Description}");
+}
+
+// Check specific component
+var rpcHealth = await toolkit.CheckHealthAsync("rpc");
+```
+
+#### Metrics and Monitoring
+```csharp
+// Get deployment metrics
+var metrics = toolkit.GetMetrics();
+Console.WriteLine($"Total Deployments: {metrics.TotalDeployments}");
+Console.WriteLine($"Success Rate: {metrics.SuccessRate:F2}%");
+Console.WriteLine($"Average Gas: {metrics.AverageGasPerDeployment / 100_000_000m} GAS");
+
+// Metrics by network
+foreach (var (network, count) in metrics.DeploymentsByNetwork)
+{
+    Console.WriteLine($"{network}: {count} deployments");
+}
+```
+
+#### Custom Health Checks
+```csharp
+// Implement custom health check
+public class CustomHealthCheck : IHealthCheck
+{
+    public async Task<HealthCheckResult> CheckHealthAsync(CancellationToken ct)
+    {
+        // Your health check logic
+        if (everythingIsGood)
+            return HealthCheckResult.Healthy("All systems operational");
+        else
+            return HealthCheckResult.Degraded("Service is slow");
+    }
+}
+
+// Register custom health check
+var healthService = toolkit.GetService<HealthCheckService>();
+healthService.RegisterHealthCheck("custom", new CustomHealthCheck());
+```
 
 ## License
 

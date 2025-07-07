@@ -20,6 +20,15 @@ public interface IWalletManager
     Task LoadWalletAsync(string walletPath, string password);
 
     /// <summary>
+    /// Load a wallet using secure credential provider
+    /// </summary>
+    /// <param name="walletPath">Path to wallet file</param>
+    /// <exception cref="System.InvalidOperationException">Thrown when no credential provider is configured</exception>
+    /// <exception cref="System.IO.FileNotFoundException">Thrown when wallet file not found</exception>
+    /// <exception cref="Neo.SmartContract.Deploy.Exceptions.WalletException">Thrown when wallet loading fails</exception>
+    Task LoadWalletSecurelyAsync(string walletPath);
+
+    /// <summary>
     /// Get account script hash
     /// </summary>
     /// <param name="accountAddress">Account address (optional - uses default if not specified)</param>

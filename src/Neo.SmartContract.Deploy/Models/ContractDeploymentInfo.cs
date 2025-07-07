@@ -51,4 +51,14 @@ public class ContractDeploymentInfo
     /// Any error message if deployment failed
     /// </summary>
     public string? ErrorMessage { get; set; }
+
+    /// <summary>
+    /// Whether this was a dry-run deployment
+    /// </summary>
+    public bool IsDryRun { get; set; } = false;
+
+    /// <summary>
+    /// Whether post-deployment verification failed
+    /// </summary>
+    public bool VerificationFailed { get; set; } = false;
 }

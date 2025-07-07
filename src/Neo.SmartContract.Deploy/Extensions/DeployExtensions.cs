@@ -38,7 +38,7 @@ public static class DeployExtensions
     /// </summary>
     public static async Task<UInt160?> QuickDeploy(this DeploymentToolkit toolkit, string path, params object[] initParams)
     {
-        var result = await toolkit.Deploy(path, initParams);
+        var result = await toolkit.DeployAsync(path, initParams);
         return result.Success ? result.ContractHash : null;
     }
 
@@ -50,7 +50,7 @@ public static class DeployExtensions
         // Temporarily disable wait for confirmation
         Environment.SetEnvironmentVariable("Deployment__WaitForConfirmation", "false");
 
-        var result = await toolkit.Deploy(path, initParams);
+        var result = await toolkit.DeployAsync(path, initParams);
 
         // Re-enable
         Environment.SetEnvironmentVariable("Deployment__WaitForConfirmation", null);

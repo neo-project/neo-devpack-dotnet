@@ -33,11 +33,11 @@ namespace DeploymentExample.Deploy
             Console.WriteLine("Deploying Token, NFT, and Governance contracts with dependencies...\n");
 
             // Get deployer account
-            var deployerAddress = await _toolkit.GetDeployerAccount();
+            var deployerAddress = await _toolkit.GetDeployerAccountAsync();
             Console.WriteLine($"Deployer: {deployerAddress}");
             
             // Check GAS balance
-            var gasBalance = await _toolkit.GetGasBalance();
+            var gasBalance = await _toolkit.GetGasBalanceAsync();
             Console.WriteLine($"GAS Balance: {gasBalance}\n");
             
             if (gasBalance < 300) // Need more GAS for multiple contracts
@@ -57,7 +57,7 @@ namespace DeploymentExample.Deploy
                     throw new FileNotFoundException($"Token contract not found at {tokenPath}. Please compile the contracts first.");
                 }
                 
-                var tokenDeployment = await _toolkit.Deploy(tokenPath, new object[] { deployerAddress });
+                var tokenDeployment = await _toolkit.DeployAsync(tokenPath, new object[] { deployerAddress });
                 results.TokenContract = tokenDeployment.ContractHash;
                 Console.WriteLine($"   ✓ Token deployed at: {tokenDeployment.ContractHash}");
                 Console.WriteLine($"   Transaction: {tokenDeployment.TransactionHash}\n");
@@ -70,7 +70,7 @@ namespace DeploymentExample.Deploy
                     throw new FileNotFoundException($"NFT contract not found at {nftPath}. Please compile the contracts first.");
                 }
                 
-                var nftDeployment = await _toolkit.Deploy(
+                var nftDeployment = await _toolkit.DeployAsync(
                     nftPath, 
                     new object[] { deployerAddress, results.TokenContract, 10_00000000 } // 10 tokens per mint
                 );
@@ -86,7 +86,7 @@ namespace DeploymentExample.Deploy
                     throw new FileNotFoundException($"Governance contract not found at {governancePath}. Please compile the contracts first.");
                 }
                 
-                var governanceDeployment = await _toolkit.Deploy(
+                var governanceDeployment = await _toolkit.DeployAsync(
                     governancePath,
                     new object[] { deployerAddress, results.TokenContract }
                 );
@@ -125,7 +125,7 @@ namespace DeploymentExample.Deploy
             try
             {
                 Console.WriteLine("   - Setting NFT contract address in Token contract...");
-                var txHash = await _toolkit.Invoke(tokenContract.ToString(), "setNFTContract", nftContract);
+                var txHash = await _toolkit.InvokeAsync(tokenContract.ToString(), "setNFTContract", nftContract);
                 Console.WriteLine($"     ✓ Transaction: {txHash}");
             }
             catch (Exception ex)
@@ -140,7 +140,7 @@ namespace DeploymentExample.Deploy
             try
             {
                 Console.WriteLine("   - Setting Governance contract address in NFT contract...");
-                var txHash = await _toolkit.Invoke(nftContract.ToString(), "setGovernanceContract", governanceContract);
+                var txHash = await _toolkit.InvokeAsync(nftContract.ToString(), "setGovernanceContract", governanceContract);
                 Console.WriteLine($"     ✓ Transaction: {txHash}");
             }
             catch (Exception ex)
@@ -155,7 +155,7 @@ namespace DeploymentExample.Deploy
             try
             {
                 Console.WriteLine("   - Adding NFT contract to governance...");
-                var txHash = await _toolkit.Invoke(
+                var txHash = await _toolkit.InvokeAsync(
                     governanceContract.ToString(), 
                     "addManagedContract",
                     nftContract

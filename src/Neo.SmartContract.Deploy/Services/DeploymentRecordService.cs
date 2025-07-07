@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Neo.Json;
 using Neo.SmartContract.Deploy.Interfaces;
+using Neo.SmartContract.Deploy.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Deploy.Services;
@@ -65,6 +68,42 @@ public class DeploymentRecordService : IDeploymentRecordService
         {
             _logger.LogError(ex, $"Failed to get deployment record for {contractName}");
             return null;
+        }
+    }
+
+    public async Task<DeploymentRecord?> GetDeploymentRecordAsync(string contractName, string network)
+    {
+        return await GetDeploymentRecordAsync<DeploymentRecord>(contractName, network);
+    }
+
+    public async Task RecordUpdateAsync(string contractName, string network, DeploymentRecord record)
+    {
+        try
+        {
+            // Get existing record if it exists
+            var existingRecord = await GetDeploymentRecordAsync(contractName, network);
+
+            if (existingRecord != null)
+            {
+                // Merge update history
+                var existingHistory = existingRecord.UpdateHistory?.ToList() ?? new List<UpdateHistoryEntry>();
+                var newHistory = record.UpdateHistory?.ToList() ?? new List<UpdateHistoryEntry>();
+
+                existingHistory.AddRange(newHistory);
+
+                record.DeployedAt = existingRecord.DeployedAt; // Preserve original deployment time
+                record.UpdateHistory = existingHistory.ToArray();
+            }
+
+            // Save the updated record
+            await SaveDeploymentRecordAsync(contractName, network, record);
+
+            _logger.LogInformation($"Recorded update for {contractName} on {network}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Failed to record update for {contractName}");
+            throw;
         }
     }
 
