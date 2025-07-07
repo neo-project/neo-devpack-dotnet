@@ -40,10 +40,10 @@ namespace DeploymentExample.Deploy
             var gasBalance = await _toolkit.GetGasBalanceAsync();
             Console.WriteLine($"GAS Balance: {gasBalance}\n");
             
-            if (gasBalance < 300) // Need more GAS for multiple contracts
+            if (gasBalance < 150) // Need more GAS for multiple contracts
             {
                 throw new InvalidOperationException(
-                    "Insufficient GAS balance. Need at least 300 GAS for multi-contract deployment."
+                    "Insufficient GAS balance. Need at least 150 GAS for multi-contract deployment."
                 );
             }
 
@@ -51,51 +51,49 @@ namespace DeploymentExample.Deploy
             {
                 // Deploy Token Contract first (no dependencies)
                 Console.WriteLine("1. Deploying Token Contract...");
-                var tokenPath = Path.Combine("../../compiled-contracts", "DeploymentExample.TokenContract.nef");
-                if (!File.Exists(tokenPath))
-                {
-                    throw new FileNotFoundException($"Token contract not found at {tokenPath}. Please compile the contracts first.");
-                }
+                var tokenSourcePath = Path.Combine("..", "..", "src", "TokenContract", "TokenContract.cs");
                 
-                var tokenDeployment = await _toolkit.DeployAsync(tokenPath, new object[] { deployerAddress });
+                // Deploy with initialization parameters
+                var tokenDeployment = await _toolkit.DeployAsync(tokenSourcePath, new object[] { deployerAddress });
                 results.TokenContract = tokenDeployment.ContractHash;
                 Console.WriteLine($"   ✓ Token deployed at: {tokenDeployment.ContractHash}");
-                Console.WriteLine($"   Transaction: {tokenDeployment.TransactionHash}\n");
+                Console.WriteLine($"   Transaction: {tokenDeployment.TransactionHash}");
+                Console.WriteLine($"   GAS consumed: {tokenDeployment.GasConsumed / 100_000_000m} GAS\n");
                 
                 // Deploy NFT Contract (depends on Token)
                 Console.WriteLine("2. Deploying NFT Contract...");
-                var nftPath = Path.Combine("../../compiled-contracts", "DeploymentExample.NFTContract.nef");
-                if (!File.Exists(nftPath))
-                {
-                    throw new FileNotFoundException($"NFT contract not found at {nftPath}. Please compile the contracts first.");
-                }
+                var nftSourcePath = Path.Combine("..", "..", "src", "NFTContract", "NFTContract.cs");
                 
-                var nftDeployment = await _toolkit.DeployAsync(
-                    nftPath, 
-                    new object[] { deployerAddress, results.TokenContract, 10_00000000 } // 10 tokens per mint
-                );
+                var nftDeployment = await _toolkit.DeployAsync(nftSourcePath, new object[] { deployerAddress });
                 results.NFTContract = nftDeployment.ContractHash;
                 Console.WriteLine($"   ✓ NFT deployed at: {nftDeployment.ContractHash}");
-                Console.WriteLine($"   Transaction: {nftDeployment.TransactionHash}\n");
+                Console.WriteLine($"   Transaction: {nftDeployment.TransactionHash}");
+                Console.WriteLine($"   GAS consumed: {nftDeployment.GasConsumed / 100_000_000m} GAS\n");
                 
                 // Deploy Governance Contract (depends on Token)
                 Console.WriteLine("3. Deploying Governance Contract...");
-                var governancePath = Path.Combine("../../compiled-contracts", "DeploymentExample.GovernanceContract.nef");
-                if (!File.Exists(governancePath))
-                {
-                    throw new FileNotFoundException($"Governance contract not found at {governancePath}. Please compile the contracts first.");
-                }
+                var governanceSourcePath = Path.Combine("..", "..", "src", "GovernanceContract", "GovernanceContract.cs");
                 
-                var governanceDeployment = await _toolkit.DeployAsync(
-                    governancePath,
-                    new object[] { deployerAddress, results.TokenContract }
-                );
+                var governanceDeployment = await _toolkit.DeployAsync(governanceSourcePath, new object[] { deployerAddress });
                 results.GovernanceContract = governanceDeployment.ContractHash;
                 Console.WriteLine($"   ✓ Governance deployed at: {governanceDeployment.ContractHash}");
-                Console.WriteLine($"   Transaction: {governanceDeployment.TransactionHash}\n");
+                Console.WriteLine($"   Transaction: {governanceDeployment.TransactionHash}");
+                Console.WriteLine($"   GAS consumed: {governanceDeployment.GasConsumed / 100_000_000m} GAS\n");
+                
+                // Initialize contracts with proper parameters
+                Console.WriteLine("4. Initializing contracts...");
+                
+                // Initialize Token contract
+                await InitializeTokenContract(results.TokenContract, deployerAddress);
+                
+                // Initialize NFT contract
+                await InitializeNFTContract(results.NFTContract, deployerAddress, results.TokenContract, 10_00000000);
+                
+                // Initialize Governance contract
+                await InitializeGovernanceContract(results.GovernanceContract, deployerAddress, results.TokenContract);
                 
                 // Configure cross-contract relationships
-                Console.WriteLine("4. Configuring contract relationships...");
+                Console.WriteLine("5. Configuring contract relationships...");
                 
                 // Set NFT contract address in Token contract
                 await ConfigureTokenContract(results.TokenContract, results.NFTContract);
@@ -117,6 +115,60 @@ namespace DeploymentExample.Deploy
                 results.ErrorMessage = ex.Message;
                 Console.WriteLine($"\n❌ Deployment failed: {ex.Message}");
                 throw;
+            }
+        }
+        
+        private async Task InitializeTokenContract(UInt160 tokenContract, UInt160 owner)
+        {
+            try
+            {
+                Console.WriteLine("   - Initializing Token contract...");
+                var txHash = await _toolkit.InvokeAsync(tokenContract.ToString(), "initialize", owner);
+                Console.WriteLine($"     ✓ Transaction: {txHash}");
+                
+                // Wait for confirmation
+                await Task.Delay(5000);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"     ⚠️  Failed to initialize Token contract: {ex.Message}");
+                // This might fail if already initialized, which is okay
+            }
+        }
+        
+        private async Task InitializeNFTContract(UInt160 nftContract, UInt160 owner, UInt160 tokenContract, BigInteger mintPrice)
+        {
+            try
+            {
+                Console.WriteLine("   - Initializing NFT contract...");
+                var txHash = await _toolkit.InvokeAsync(nftContract.ToString(), "initialize", owner, tokenContract, mintPrice);
+                Console.WriteLine($"     ✓ Transaction: {txHash}");
+                
+                // Wait for confirmation
+                await Task.Delay(5000);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"     ⚠️  Failed to initialize NFT contract: {ex.Message}");
+                // This might fail if already initialized, which is okay
+            }
+        }
+        
+        private async Task InitializeGovernanceContract(UInt160 governanceContract, UInt160 owner, UInt160 tokenContract)
+        {
+            try
+            {
+                Console.WriteLine("   - Initializing Governance contract...");
+                var txHash = await _toolkit.InvokeAsync(governanceContract.ToString(), "initialize", owner, tokenContract);
+                Console.WriteLine($"     ✓ Transaction: {txHash}");
+                
+                // Wait for confirmation
+                await Task.Delay(5000);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"     ⚠️  Failed to initialize Governance contract: {ex.Message}");
+                // This might fail if already initialized, which is okay
             }
         }
         

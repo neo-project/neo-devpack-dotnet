@@ -82,4 +82,10 @@ public class DeploymentOptions
     /// Whether to enable automatic rollback on failure
     /// </summary>
     public bool EnableRollback { get; set; } = false;
+
+    /// <summary>
+    /// WIF (Wallet Import Format) private key for signing transactions
+    /// If provided, will be used instead of loading from wallet file
+    /// </summary>
+    public string? WifKey { get; set; }
 }

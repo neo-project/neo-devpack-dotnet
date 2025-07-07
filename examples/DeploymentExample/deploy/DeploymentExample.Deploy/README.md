@@ -1,6 +1,6 @@
-# ExampleContract Deployment
+# Neo Smart Contract Deployment Example
 
-This project demonstrates how to deploy and interact with Neo smart contracts using the simplified deployment toolkit.
+This project demonstrates how to deploy and interact with Neo smart contracts using the simplified deployment toolkit. It supports both single contract and multi-contract deployment scenarios.
 
 ## Quick Start
 
@@ -21,13 +21,19 @@ This project demonstrates how to deploy and interact with Neo smart contracts us
 3. **Run the deployment**
 
    ```bash
-   # Deploy to default network (from appsettings.json)
+   # Deploy single contract to default network
    dotnet run
    
-   # Deploy to specific network
-   dotnet run local
-   dotnet run testnet
-   dotnet run mainnet
+   # Deploy multiple contracts with dependencies
+   dotnet run multi
+   
+   # Deploy to specific networks
+   dotnet run single local
+   dotnet run multi testnet
+   dotnet run manifest mainnet
+   
+   # Test existing deployed contracts
+   dotnet run test <token_hash> <nft_hash> <governance_hash>
    ```
 
 ## Configuration
@@ -59,14 +65,38 @@ The `deployment-manifest.json` file allows batch deployment of multiple contract
 dotnet run -- --manifest deployment-manifest.json
 ```
 
-## What This Example Does
+## Deployment Modes
 
-1. **Deploys the ExampleContract** with the deployer as initial owner
+### Single Contract Deployment
+1. **Deploys SimpleContract** with the deployer as initial owner
 2. **Tests contract methods**:
-   - Gets contract info
-   - Reads and increments a counter
+   - Gets counter value and increments it
    - Tests the multiply function
-   - Verifies ownership
+   - Verifies basic functionality
+
+### Multi-Contract Deployment
+1. **Deploys TokenContract (NEP-17)** - Fungible token with governance
+2. **Deploys NFTContract (NEP-11)** - Non-fungible tokens with token-based minting
+3. **Deploys GovernanceContract** - DAO system managing other contracts
+4. **Configures cross-contract relationships** and dependencies
+5. **Tests all integrations** to ensure ecosystem works correctly
+
+## Deployed TestNet Example
+
+For testing purposes, the multi-contract system has been deployed to NEO TestNet:
+
+| Contract | Address | Network |
+|----------|---------|---------|
+| **TokenContract** | `0x2db2dce76b4a7f8116ecfae0d819e7099cb3a256` | TestNet |
+| **NFTContract** | `0x8699c5d074fc27cdbd7caec486387c1a29300536` | TestNet |
+| **GovernanceContract** | `0xa3db58df3764610e43f3fda0c7b8633636c6c147` | TestNet |
+
+### Test the Deployed Contracts
+
+```bash
+# Test the deployed TestNet contracts
+dotnet run test 0x2db2dce76b4a7f8116ecfae0d819e7099cb3a256 0x8699c5d074fc27cdbd7caec486387c1a29300536 0xa3db58df3764610e43f3fda0c7b8633636c6c147 testnet
+```
 
 ## Troubleshooting
 
@@ -85,9 +115,16 @@ dotnet run -- --manifest deployment-manifest.json
 
 ### TestNet/MainNet
 
+#### Single Contract Deployment
 1. Ensure your wallet has sufficient GAS for deployment (typically 10-20 GAS)
 2. Verify network connectivity to RPC nodes
 3. Check that wallet password is correctly set
+
+#### Multi-Contract Deployment
+1. Ensure your wallet has sufficient GAS for deployment (typically 150+ GAS)
+2. The deployment will deploy contracts in order: Token → NFT → Governance
+3. Each contract requires ~10 GAS for deployment
+4. Additional GAS needed for initialization and configuration transactions
 
 ## Security Notes
 

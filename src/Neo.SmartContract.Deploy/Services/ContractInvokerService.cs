@@ -1,14 +1,18 @@
 using System;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Neo;
+using Neo.Cryptography.ECC;
 using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.Network.RPC;
 using Neo.SmartContract;
+using Neo.SmartContract.Native;
 using Neo.VM;
+using Neo.Wallets;
 using Neo.SmartContract.Deploy.Exceptions;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
@@ -101,13 +105,40 @@ public class ContractInvokerService : IContractInvoker
     /// <exception cref="ContractInvocationException">Thrown when invocation fails</exception>
     public async Task<UInt256> SendAsync(UInt160 contractHash, string method, params object[] parameters)
     {
+        return await SendAsync(contractHash, method, null, parameters);
+    }
+
+    /// <summary>
+    /// Send a transaction to invoke a contract method with deployment options
+    /// </summary>
+    /// <param name="contractHash">Contract hash</param>
+    /// <param name="method">Method name</param>
+    /// <param name="options">Deployment options (for WIF key)</param>
+    /// <param name="parameters">Method parameters</param>
+    /// <returns>Transaction hash</returns>
+    /// <exception cref="ArgumentNullException">Thrown when required parameters are null</exception>
+    /// <exception cref="ContractInvocationException">Thrown when invocation fails</exception>
+    public async Task<UInt256> SendAsync(UInt160 contractHash, string method, DeploymentOptions? options, params object[] parameters)
+    {
         if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
         if (string.IsNullOrWhiteSpace(method)) throw new ArgumentException("Method name cannot be empty", nameof(method));
 
         try
         {
             var client = _rpcClientFactory.CreateClient();
-            var signerAccount = _walletManager.GetAccount();
+
+            // Get signer account - use WIF key if provided, otherwise use wallet manager
+            UInt160 signerAccount;
+            if (!string.IsNullOrEmpty(options?.WifKey))
+            {
+                var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(options.WifKey);
+                var keyPair = new Neo.Wallets.KeyPair(privateKey);
+                signerAccount = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
+            }
+            else
+            {
+                signerAccount = _walletManager.GetAccount();
+            }
 
             // Build contract call script using helper
             var script = ScriptBuilderHelper.BuildContractCallScript(contractHash, method, parameters);
@@ -143,8 +174,38 @@ public class ContractInvokerService : IContractInvoker
             };
             var tx = _transactionBuilder.Build(txOptions);
 
-            // Sign transaction using wallet manager
-            await _walletManager.SignTransactionAsync(tx, signerAccount);
+            // Sign transaction using WIF key or wallet manager
+            if (!string.IsNullOrEmpty(options?.WifKey))
+            {
+                // Sign directly with WIF key
+                var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(options.WifKey);
+                var keyPair = new Neo.Wallets.KeyPair(privateKey);
+
+                // Get network magic for the current network
+                uint network = options.NetworkMagic ?? 894710606; // Default to testnet
+
+                // For testnet, use the correct network magic
+                if (_configuration["Neo:Network"]?.ToLower() == "testnet")
+                {
+                    network = 894710606; // TestNet network magic
+                }
+                else if (_configuration["Neo:Network"]?.ToLower() == "mainnet")
+                {
+                    network = 860833102; // MainNet network magic
+                }
+
+                var signature = tx.Sign(keyPair, network);
+                tx.Witnesses = new[] { new Neo.Network.P2P.Payloads.Witness
+                {
+                    InvocationScript = new byte[] { 0x0C, 0x40 }.Concat(signature).ToArray(),
+                    VerificationScript = Neo.SmartContract.Contract.CreateSignatureRedeemScript(keyPair.PublicKey)
+                }};
+            }
+            else
+            {
+                // Use wallet manager
+                await _walletManager.SignTransactionAsync(tx, signerAccount);
+            }
 
             // Send transaction
             var txHash = await client.SendRawTransactionAsync(tx);

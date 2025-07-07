@@ -82,13 +82,44 @@ public static class ScriptBuilderHelper
     {
         using var sb = new ScriptBuilder();
 
-        // Push manifest and NEF
-        sb.EmitPush(manifestBytes);
+        // Build arguments array for ContractManagement.Deploy
+        // Order in array: [nef (byte[]), manifest (string), data (object)]
+
+        // First, push the arguments in reverse order (for PACK)
+
+        // 3. Push deployment data (for _deploy method)
+        if (initParams != null && initParams.Length > 0)
+        {
+            // If single parameter, push it directly
+            if (initParams.Length == 1)
+            {
+                sb.EmitPush(initParams[0]);
+            }
+            else
+            {
+                // Multiple parameters need to be packed as array
+                EmitParameterArray(sb, initParams);
+            }
+        }
+        else
+        {
+            // No initialization data
+            sb.Emit(OpCode.PUSHNULL);
+        }
+
+        // 2. Push manifest as string (ContractManagement expects JSON string)
+        var manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
+        sb.EmitPush(manifestJson);
+
+        // 1. Push NEF bytes
         sb.EmitPush(nefBytes);
 
-        // Call ContractManagement.Deploy
-        sb.EmitPush(2); // Parameter count
+        // Create array with 3 elements
+        sb.EmitPush(3);
         sb.Emit(OpCode.PACK);
+
+        // Call ContractManagement.Deploy with the array
+        sb.EmitPush(CallFlags.All);
         sb.EmitPush("deploy");
         sb.EmitPush(Neo.SmartContract.Native.NativeContract.ContractManagement.Hash);
         sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
@@ -176,10 +207,10 @@ public static class ScriptBuilderHelper
             sb.Emit(OpCode.NEWARRAY0);
         }
 
-        // Call contract method
+        // Call contract method with correct parameter order
+        sb.EmitPush((byte)callFlags);
         sb.EmitPush(method);
         sb.EmitPush(scriptHash);
-        sb.EmitPush((byte)callFlags);
         sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
     }
 

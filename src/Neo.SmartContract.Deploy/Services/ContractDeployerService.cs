@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -169,8 +170,38 @@ public class ContractDeployerService : IContractDeployer
                 };
             }
 
-            // Sign transaction using wallet manager
-            await _walletManager.SignTransactionAsync(tx, deployerAccount);
+            // Sign transaction using WIF key or wallet manager
+            if (!string.IsNullOrEmpty(options.WifKey))
+            {
+                // Sign directly with WIF key
+                var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(options.WifKey);
+                var keyPair = new KeyPair(privateKey);
+
+                // Get network magic for the current network
+                uint network = options.NetworkMagic ?? 894710606; // Default to testnet
+
+                // For testnet, use the correct network magic
+                if (_configuration["Neo:Network"]?.ToLower() == "testnet")
+                {
+                    network = 894710606; // TestNet network magic
+                }
+                else if (_configuration["Neo:Network"]?.ToLower() == "mainnet")
+                {
+                    network = 860833102; // MainNet network magic
+                }
+
+                var signature = tx.Sign(keyPair, network);
+                tx.Witnesses = new[] { new Neo.Network.P2P.Payloads.Witness
+                {
+                    InvocationScript = new byte[] { 0x0C, 0x40 }.Concat(signature).ToArray(),
+                    VerificationScript = Neo.SmartContract.Contract.CreateSignatureRedeemScript(keyPair.PublicKey)
+                }};
+            }
+            else
+            {
+                // Use wallet manager
+                await _walletManager.SignTransactionAsync(tx, deployerAccount);
+            }
 
             // Send transaction
             var txHash = await client.SendRawTransactionAsync(tx);
@@ -212,7 +243,7 @@ public class ContractDeployerService : IContractDeployer
 
                 try
                 {
-                    var exists = await ContractExistsAsync(contractHash, options.RpcUrl);
+                    var exists = await ContractExistsAsync(contractHash);
                     if (!exists)
                     {
                         _logger.LogWarning("Contract verification failed - contract not found at {ContractHash}", contractHash);
@@ -335,8 +366,38 @@ public class ContractDeployerService : IContractDeployer
                 };
             }
 
-            // Sign transaction using wallet manager
-            await _walletManager.SignTransactionAsync(tx, deployerAccount);
+            // Sign transaction using WIF key or wallet manager
+            if (!string.IsNullOrEmpty(options.WifKey))
+            {
+                // Sign directly with WIF key
+                var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(options.WifKey);
+                var keyPair = new KeyPair(privateKey);
+
+                // Get network magic for the current network
+                uint network = options.NetworkMagic ?? 894710606; // Default to testnet
+
+                // For testnet, use the correct network magic
+                if (_configuration["Neo:Network"]?.ToLower() == "testnet")
+                {
+                    network = 894710606; // TestNet network magic
+                }
+                else if (_configuration["Neo:Network"]?.ToLower() == "mainnet")
+                {
+                    network = 860833102; // MainNet network magic
+                }
+
+                var signature = tx.Sign(keyPair, network);
+                tx.Witnesses = new[] { new Neo.Network.P2P.Payloads.Witness
+                {
+                    InvocationScript = new byte[] { 0x0C, 0x40 }.Concat(signature).ToArray(),
+                    VerificationScript = Neo.SmartContract.Contract.CreateSignatureRedeemScript(keyPair.PublicKey)
+                }};
+            }
+            else
+            {
+                // Use wallet manager
+                await _walletManager.SignTransactionAsync(tx, deployerAccount);
+            }
 
             // Send transaction
             var txHash = await client.SendRawTransactionAsync(tx);
@@ -396,6 +457,33 @@ public class ContractDeployerService : IContractDeployer
     /// <exception cref="ArgumentNullException">Thrown when contractHash is null</exception>
     /// <exception cref="ArgumentException">Thrown when rpcUrl is empty</exception>
     /// <exception cref="ContractDeploymentException">Thrown when check fails</exception>
+    /// <summary>
+    /// Check if a contract exists on the blockchain using the default RPC client
+    /// </summary>
+    /// <param name="contractHash">Contract hash to check</param>
+    /// <returns>True if contract exists, false otherwise</returns>
+    public async Task<bool> ContractExistsAsync(UInt160 contractHash)
+    {
+        if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
+
+        _logger.LogInformation("Checking if contract {ContractHash} exists", contractHash);
+
+        try
+        {
+            var client = _rpcClientFactory.CreateClient();
+
+            // Try to get contract state
+            var contractState = await client.GetContractStateAsync(contractHash.ToString());
+
+            return contractState != null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to check contract existence for {ContractHash}", contractHash);
+            throw new ContractDeploymentException("Contract", $"Failed to check contract existence: {ex.Message}", ex);
+        }
+    }
+
     public async Task<bool> ContractExistsAsync(UInt160 contractHash, string rpcUrl)
     {
         if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));

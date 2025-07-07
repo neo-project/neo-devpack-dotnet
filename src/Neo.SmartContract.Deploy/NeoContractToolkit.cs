@@ -26,6 +26,7 @@ public class NeoContractToolkit
     private readonly IWalletManager _walletManager;
     private readonly IConfiguration _configuration;
     private readonly ILogger<NeoContractToolkit> _logger;
+    private DeploymentOptions? _currentDeploymentOptions;
 
     /// <summary>
     /// Create a new instance of the toolkit
@@ -153,6 +154,15 @@ public class NeoContractToolkit
     }
 
     /// <summary>
+    /// Set deployment options (for WIF key support)
+    /// </summary>
+    /// <param name="options">Deployment options</param>
+    public void SetDeploymentOptions(DeploymentOptions? options)
+    {
+        _currentDeploymentOptions = options;
+    }
+
+    /// <summary>
     /// Invoke a deployed contract method
     /// </summary>
     /// <param name="contractHash">Contract hash to invoke</param>
@@ -166,7 +176,7 @@ public class NeoContractToolkit
     {
         _logger.LogInformation("Invoking contract {ContractHash} method {Method}", contractHash, method);
 
-        var txHash = await _invoker.SendAsync(contractHash, method, parameters);
+        var txHash = await _invoker.SendAsync(contractHash, method, _currentDeploymentOptions, parameters);
 
         _logger.LogInformation("Contract invocation transaction sent: {TxHash}", txHash);
 

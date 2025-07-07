@@ -24,7 +24,7 @@ public class DeploymentToolkit : IDisposable
     private const string GAS_CONTRACT_HASH = "0xd2a4cff31913016155e38e474a2c06d08be276cf";
     private const decimal GAS_DECIMALS = 100_000_000m;
     private const string MAINNET_RPC_URL = "https://rpc10.n3.nspcc.ru:10331";
-    private const string TESTNET_RPC_URL = "https://rpc10.n3.neotracker.io:443";
+    private const string TESTNET_RPC_URL = "https://testnet1.neo.coz.io:443";
     private const string LOCAL_RPC_URL = "http://localhost:50012";
     private const string DEFAULT_RPC_URL = "http://localhost:10332";
 
@@ -35,6 +35,7 @@ public class DeploymentToolkit : IDisposable
     private readonly SemaphoreSlim _walletLock = new SemaphoreSlim(1, 1);
     private volatile bool _walletLoaded = false;
     private volatile string? _currentNetwork = null;
+    private volatile string? _wifKey = null;
     private bool _disposed = false;
 
     /// <summary>
@@ -129,6 +130,37 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
+    /// Set the WIF (Wallet Import Format) key for signing transactions
+    /// </summary>
+    /// <param name="wifKey">The WIF private key</param>
+    /// <returns>The deployment toolkit instance for chaining</returns>
+    /// <exception cref="ArgumentException">Thrown when WIF key is invalid</exception>
+    public DeploymentToolkit SetWifKey(string wifKey)
+    {
+        if (string.IsNullOrWhiteSpace(wifKey))
+            throw new ArgumentException("WIF key cannot be null or empty", nameof(wifKey));
+
+        try
+        {
+            // Validate the WIF key by attempting to create a KeyPair
+            var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(wifKey);
+            var keyPair = new KeyPair(privateKey);
+            var account = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
+
+            _wifKey = wifKey;
+            _walletLoaded = true; // Mark as loaded since we have a WIF key
+
+            _logger.LogInformation($"WIF key set for account: {account.ToAddress(Neo.ProtocolSettings.Default.AddressVersion)}");
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException($"Invalid WIF key: {ex.Message}", nameof(wifKey));
+        }
+
+        return this;
+    }
+
+    /// <summary>
     /// Deploy a contract from source code or project
     /// </summary>
     /// <param name="path">Path to contract project (.csproj) or source file</param>
@@ -159,10 +191,11 @@ public class DeploymentToolkit : IDisposable
 
         var deploymentOptions = new DeploymentOptions
         {
-            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
+            DeployerAccount = await GetDeployerAccountAsync(),
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
             WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true),
-            InitialParameters = initParams?.ToList()
+            InitialParameters = initParams?.ToList(),
+            WifKey = _wifKey
         };
 
         _logger.LogInformation($"Deploying {compilationOptions.ContractName}...");
@@ -207,10 +240,11 @@ public class DeploymentToolkit : IDisposable
 
         var deploymentOptions = new DeploymentOptions
         {
-            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
+            DeployerAccount = await GetDeployerAccountAsync(),
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
             WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true),
-            InitialParameters = initParams?.ToList()
+            InitialParameters = initParams?.ToList(),
+            WifKey = _wifKey
         };
 
         _logger.LogInformation($"Deploying from artifacts...");
@@ -266,6 +300,12 @@ public class DeploymentToolkit : IDisposable
             throw new ArgumentException("Method name cannot be null or empty", nameof(method));
         await EnsureWalletLoaded();
 
+        // Set deployment options with WIF key if available
+        if (!string.IsNullOrEmpty(_wifKey))
+        {
+            _toolkit.SetDeploymentOptions(new DeploymentOptions { WifKey = _wifKey });
+        }
+
         var contractHash = ParseContractHash(contractHashOrAddress);
         return await _toolkit.InvokeContractAsync(contractHash, method, args);
     }
@@ -303,7 +343,7 @@ public class DeploymentToolkit : IDisposable
 
         var deploymentOptions = new DeploymentOptions
         {
-            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
+            DeployerAccount = await GetDeployerAccountAsync(),
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
             WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true)
         };
@@ -351,6 +391,14 @@ public class DeploymentToolkit : IDisposable
     /// <exception cref="InvalidOperationException">Thrown when no deployer account is configured</exception>
     public async Task<UInt160> GetDeployerAccountAsync()
     {
+        if (!string.IsNullOrEmpty(_wifKey))
+        {
+            // Use WIF key to get account
+            var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(_wifKey);
+            var keyPair = new KeyPair(privateKey);
+            return Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
+        }
+
         await EnsureWalletLoaded();
         var account = _toolkit.GetDeployerAccount();
         if (account == null || account == UInt160.Zero)
@@ -402,7 +450,7 @@ public class DeploymentToolkit : IDisposable
 
         var deploymentOptions = new DeploymentOptions
         {
-            DeployerAccount = _toolkit.GetDeployerAccount() ?? UInt160.Zero,
+            DeployerAccount = await GetDeployerAccountAsync(),
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
             WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true)
         };
@@ -503,6 +551,13 @@ public class DeploymentToolkit : IDisposable
     {
         if (_walletLoaded) return;
 
+        // If WIF key is set, we don't need to load wallet
+        if (!string.IsNullOrEmpty(_wifKey))
+        {
+            _walletLoaded = true;
+            return;
+        }
+
         await _walletLock.WaitAsync();
         try
         {
@@ -573,6 +628,13 @@ public class DeploymentToolkit : IDisposable
     {
         if (string.IsNullOrWhiteSpace(address))
             throw new ArgumentException("Address cannot be null or empty", nameof(address));
+
+        // Try to parse as hash first
+        if (address.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+        {
+            if (UInt160.TryParse(address, out var hash))
+                return hash;
+        }
 
         try
         {

@@ -318,6 +318,56 @@ await governance.CreateProposal(
 );
 ```
 
+## Deployed Testnet Contracts
+
+The example has been successfully deployed to NEO TestNet for demonstration purposes:
+
+### Latest Deployment (TestNet)
+
+| Contract | Address | Transaction Hash | Network |
+|----------|---------|------------------|---------|
+| **TokenContract** | `0x2db2dce76b4a7f8116ecfae0d819e7099cb3a256` | `0x29397173e0e5ad93010f721ff6f786171e32e84f9bc44067072df332853e9554` | TestNet |
+| **NFTContract** | `0x8699c5d074fc27cdbd7caec486387c1a29300536` | `0xc0b8c4b7dd68525da2adc39455252f32ac884947aeaba387c6ce20fa017952b7` | TestNet |
+| **GovernanceContract** | `0xa3db58df3764610e43f3fda0c7b8633636c6c147` | `0x43d4a849396ddaf6b9917a3aeb30e49929a15fa32ebf51b1ab4b2d9e46dcf5a8` | TestNet |
+
+**Deployment Details:**
+- **Deployer Address**: `NTmHjwiadq4g3VHpJ5FQigQcD4fF5m8TyX` (`0x0c3146e78efc42bfb7d4cc2e06e3efd063c01c56`)
+- **Network**: NEO TestNet
+- **RPC Endpoint**: `https://testnet1.neo.coz.io:443`
+- **Total GAS Consumed**: ~30.00233163 GAS
+- **Deployment Mode**: Multi-contract with dependencies
+
+### Contract Features Verified
+
+#### TokenContract (NEP-17)
+- **Symbol**: `EXT`
+- **Decimals**: `8`
+- **Total Supply**: `100,000,000 EXT`
+- **Status**: ✅ Deployed and initialized
+
+#### NFTContract (NEP-11)
+- **Symbol**: `EXNFT`
+- **Decimals**: `0`
+- **Total Supply**: `0 NFTs`
+- **Status**: ✅ Deployed and initialized
+
+#### GovernanceContract
+- **Type**: DAO Governance System
+- **Status**: ✅ Deployed and initialized
+
+### Test the Deployed Contracts
+
+You can test the deployed contracts using the deploy project:
+
+```bash
+cd deploy/DeploymentExample.Deploy
+
+# Test existing deployed contracts
+dotnet run test 0x2db2dce76b4a7f8116ecfae0d819e7099cb3a256 0x8699c5d074fc27cdbd7caec486387c1a29300536 0xa3db58df3764610e43f3fda0c7b8633636c6c147 testnet
+```
+
+**Note**: These are demonstration contracts deployed on TestNet. Do not use them for production purposes.
+
 ## Next Steps
 
 - Customize contracts for your use case

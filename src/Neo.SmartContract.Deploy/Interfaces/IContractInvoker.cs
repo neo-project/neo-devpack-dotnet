@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Neo;
+using Neo.SmartContract.Deploy.Models;
 
 namespace Neo.SmartContract.Deploy.Interfaces;
 
@@ -28,6 +29,17 @@ public interface IContractInvoker
     /// <returns>Transaction hash</returns>
     /// <exception cref="Neo.SmartContract.Deploy.Exceptions.ContractInvocationException">Thrown when invocation fails</exception>
     Task<UInt256> SendAsync(UInt160 contractHash, string method, params object[] parameters);
+
+    /// <summary>
+    /// Send a transaction to invoke a contract method with deployment options
+    /// </summary>
+    /// <param name="contractHash">Contract hash</param>
+    /// <param name="method">Method name to invoke</param>
+    /// <param name="options">Deployment options (for WIF key)</param>
+    /// <param name="parameters">Method parameters</param>
+    /// <returns>Transaction hash</returns>
+    /// <exception cref="Neo.SmartContract.Deploy.Exceptions.ContractInvocationException">Thrown when invocation fails</exception>
+    Task<UInt256> SendAsync(UInt160 contractHash, string method, DeploymentOptions? options, params object[] parameters);
 
     /// <summary>
     /// Wait for transaction confirmation
