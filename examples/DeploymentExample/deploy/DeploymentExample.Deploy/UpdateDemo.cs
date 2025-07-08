@@ -75,7 +75,7 @@ public class UpdateDemo
                 catch (Exception)
                 {
                     // If not initialized, it might be zero
-                    Console.WriteLine($"   Contract Owner: (not yet initialized)")
+                    Console.WriteLine($"   Contract Owner: (not yet initialized)");
                 }
                 
                 // Step 2: Update the contract

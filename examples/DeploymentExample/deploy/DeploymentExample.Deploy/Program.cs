@@ -135,9 +135,30 @@ class Program
                     await UpdateDemo.RunDemo();
                     break;
                     
+                case "testupdate":
+                    // Test update on the newly deployed contract
+                    using (var testLoggerFactory = LoggerFactory.Create(builder =>
+                    {
+                        builder.AddConsole();
+                        builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+                    }))
+                    {
+                        var testConfiguration = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json", optional: false)
+                            .AddJsonFile($"appsettings.{network}.json", optional: true)
+                            .AddEnvironmentVariables()
+                            .Build();
+                            
+                        var testLogger = testLoggerFactory.CreateLogger<TestSingleUpdate>();
+                        var updateTester = new TestSingleUpdate(testConfiguration, testLogger);
+                        await updateTester.RunAsync();
+                    }
+                    break;
+                    
                 default:
                     Console.WriteLine($"Unknown command: {command}");
-                    Console.WriteLine("Available commands: single, multi, manifest, test, interact, check, debug, update, demo");
+                    Console.WriteLine("Available commands: single, multi, manifest, test, interact, check, debug, update, demo, testupdate");
                     return 1;
             }
             

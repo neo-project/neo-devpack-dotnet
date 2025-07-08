@@ -12,20 +12,18 @@ using Neo;
 namespace DeploymentExample.Deploy;
 
 /// <summary>
-/// Updates previously deployed contracts with new versions
+/// Tests updating a single contract with update functionality
 /// </summary>
-public class UpdateContracts
+public class TestSingleUpdate
 {
-    private readonly ILogger<UpdateContracts> _logger;
+    private readonly ILogger<TestSingleUpdate> _logger;
     private readonly IConfiguration _configuration;
     private readonly IServiceProvider _serviceProvider;
     
-    // Deployed contract hashes from previous deployment - NEW UPDATABLE CONTRACTS
+    // New updatable contract deployed in demo
     private const string TokenContractHash = "0xaef772277517be7405e42da00177b87c5293f413";
-    private const string NFTContractHash = "0x8699c5d074fc27cdbd7caec486387c1a29300536";
-    private const string GovernanceContractHash = "0xa3db58df3764610e43f3fda0c7b8633636c6c147";
 
-    public UpdateContracts(IConfiguration configuration, ILogger<UpdateContracts> logger)
+    public TestSingleUpdate(IConfiguration configuration, ILogger<TestSingleUpdate> logger)
     {
         _logger = logger;
         _configuration = configuration;
@@ -42,18 +40,15 @@ public class UpdateContracts
     {
         try
         {
-            _logger.LogInformation("Starting contract updates...");
+            _logger.LogInformation("Testing update of updatable TokenContract...");
             
-            // Add a small change to each contract source file to trigger an update
             await UpdateTokenContract();
-            await UpdateNFTContract();
-            await UpdateGovernanceContract();
             
-            _logger.LogInformation("✅ All contracts updated successfully!");
+            _logger.LogInformation("✅ Contract update test completed successfully!");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Contract update failed");
+            _logger.LogError(ex, "❌ Contract update test failed");
             throw;
         }
     }
@@ -62,18 +57,6 @@ public class UpdateContracts
     {
         await UpdateContract("TokenContract", TokenContractHash, 
             Path.Combine("..", "..", "src", "TokenContract", "TokenContract.cs"));
-    }
-
-    private async Task UpdateNFTContract()
-    {
-        await UpdateContract("NFTContract", NFTContractHash, 
-            Path.Combine("..", "..", "src", "NFTContract", "NFTContract.cs"));
-    }
-
-    private async Task UpdateGovernanceContract()
-    {
-        await UpdateContract("GovernanceContract", GovernanceContractHash, 
-            Path.Combine("..", "..", "src", "GovernanceContract", "GovernanceContract.cs"));
     }
     
     private async Task UpdateContract(string contractName, string contractHash, string sourcePath)
@@ -85,9 +68,11 @@ public class UpdateContracts
         
         // Add a version comment
         var className = $"public class {contractName} : SmartContract";
-        if (!content.Contains("// Version: 1.1"))
+        var versionComment = $"// Updated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}";
+        
+        if (!content.Contains(versionComment))
         {
-            content = content.Replace(className, $"// Version: 1.1\n    {className}");
+            content = content.Replace(className, $"{versionComment}\n    {className}");
             await File.WriteAllTextAsync(sourcePath, content);
         }
         
