@@ -30,6 +30,13 @@ public class SimpleTestWalletManager : IWalletManager
         await Task.CompletedTask;
     }
 
+    public async Task LoadWalletSecurelyAsync(string walletPath)
+    {
+        _logger.LogInformation("Mock loading wallet securely from {WalletPath}", walletPath);
+        _isLoaded = true;
+        await Task.CompletedTask;
+    }
+
     public UInt160 GetAccount(string? accountAddress = null)
     {
         if (!_isLoaded)

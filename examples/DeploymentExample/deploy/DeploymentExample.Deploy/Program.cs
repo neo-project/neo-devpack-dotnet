@@ -1,7 +1,9 @@
 using Neo;
 using Neo.SmartContract.Deploy;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Numerics;
 
@@ -31,10 +33,14 @@ class Program
 
             // Parse command line arguments
             var command = args.Length > 0 ? args[0].ToLower() : "single";
-            var network = args.Length > 1 ? args[1] : "local";
+            var network = args.Length > 1 ? args[1] : "testnet";
             
-            // Set network
+            // Set network and WIF key for testnet deployment
             toolkit.SetNetwork(network);
+            
+            // Use WIF key for signing if provided
+            var wifKey = "KzjaqMvqzF1uup6KrTKRxTgjcXE7PbKLRH84e6ckyXDt3fu7afUb";
+            toolkit.SetWifKey(wifKey);
 
             Console.WriteLine("=== NEO Smart Contract Deployment Example ===");
             Console.WriteLine($"Network: {network}");
@@ -88,9 +94,45 @@ class Program
                     await contractTester.TestDeployedContracts(testResults);
                     break;
                     
+                case "interact":
+                    // Interact with the deployed contract
+                    await InteractProgram.RunInteraction();
+                    break;
+                    
+                case "check":
+                    // Check deployment status
+                    await CheckDeployment.CheckContractStatus();
+                    break;
+                    
+                case "debug":
+                    // Debug deployment with minimal contract
+                    await DebugDeploy.DebugDeployment();
+                    break;
+                    
+                case "update":
+                    // Update deployed contracts
+                    using (var updateLoggerFactory = LoggerFactory.Create(builder =>
+                    {
+                        builder.AddConsole();
+                        builder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
+                    }))
+                    {
+                        var updateConfiguration = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json", optional: false)
+                            .AddJsonFile($"appsettings.{network}.json", optional: true)
+                            .AddEnvironmentVariables()
+                            .Build();
+                            
+                        var updateLogger = updateLoggerFactory.CreateLogger<UpdateContracts>();
+                        var updater = new UpdateContracts(updateConfiguration, updateLogger);
+                        await updater.RunAsync();
+                    }
+                    break;
+                    
                 default:
                     Console.WriteLine($"Unknown command: {command}");
-                    Console.WriteLine("Available commands: single, multi, manifest, test");
+                    Console.WriteLine("Available commands: single, multi, manifest, test, interact, check, debug, update");
                     return 1;
             }
             
@@ -111,28 +153,29 @@ class Program
     /// </summary>
     static async Task DeployExampleContract(DeploymentToolkit toolkit)
     {
-        Console.WriteLine("=== Deploying ExampleContract ===");
+        Console.WriteLine("=== Deploying SimpleContract ===");
         
         // Get deployer account for initialization
         var deployerAddress = await toolkit.GetDeployerAccountAsync();
         Console.WriteLine($"Deployer: {deployerAddress}");
         
         // Check GAS balance
-        var gasBalance = await toolkit.GetGasBalanceAsync();
-        Console.WriteLine($"GAS Balance: {gasBalance}");
-        
-        if (gasBalance == 0)
+        try
         {
-            throw new InvalidOperationException(
-                "Insufficient GAS balance. Please fund the deployer account."
-            );
+            var gasBalance = await toolkit.GetGasBalanceAsync();
+            Console.WriteLine($"GAS Balance: {gasBalance}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Warning: Could not check GAS balance: {ex.Message}");
+            Console.WriteLine("Proceeding with deployment anyway...");
         }
         
-        // Deploy the contract with the deployer as initial owner
-        var deploymentResult = await toolkit.DeployAsync(
-            "../../src/DeploymentExample.Contract/DeploymentExample.Contract.csproj",
-            new object[] { deployerAddress } // Pass deployer as owner during deployment
-        );
+        // Deploy the simple contract first to test deployment
+        var contractSourcePath = "../../src/DeploymentExample.Contract/SimpleContract.cs";
+        Console.WriteLine($"Deploying from: {contractSourcePath}");
+        
+        var deploymentResult = await toolkit.DeployAsync(contractSourcePath);
         
         Console.WriteLine($"Contract deployed!");
         Console.WriteLine($"  Contract Hash: {deploymentResult.ContractHash}");
@@ -140,8 +183,11 @@ class Program
         Console.WriteLine($"  Block: {deploymentResult.BlockIndex}");
         Console.WriteLine($"  GAS Consumed: {deploymentResult.GasConsumed / 100_000_000m} GAS");
         
-        // Test contract methods
-        await TestContractMethods(toolkit, deploymentResult.ContractHash);
+        if (deploymentResult.Success)
+        {
+            // Test simple contract methods
+            await TestSimpleContractMethods(toolkit, deploymentResult.ContractHash);
+        }
     }
 
     /// <summary>
@@ -196,5 +242,49 @@ class Program
         Console.WriteLine($"   Owner: {owner}");
         
         Console.WriteLine("\n=== All tests completed successfully! ===");
+    }
+
+    /// <summary>
+    /// Test the simple contract's methods
+    /// </summary>
+    static async Task TestSimpleContractMethods(DeploymentToolkit toolkit, UInt160 contractHash)
+    {
+        Console.WriteLine();
+        Console.WriteLine("=== Testing Simple Contract Methods ===");
+        
+        // 1. Get current counter value
+        Console.WriteLine("\n1. Getting counter value...");
+        var counter = await toolkit.CallAsync<BigInteger>(
+            contractHash.ToString(), 
+            "getCounter"
+        );
+        Console.WriteLine($"   Current Counter: {counter}");
+        
+        // 2. Increment counter
+        Console.WriteLine("\n2. Incrementing counter...");
+        var txHash = await toolkit.InvokeAsync(contractHash.ToString(), "increment");
+        Console.WriteLine($"   Transaction: {txHash}");
+        
+        // Wait for confirmation
+        Console.WriteLine("   Waiting for transaction confirmation...");
+        await Task.Delay(15000); // Wait 15 seconds for block
+        
+        // Get updated counter value
+        var newCounter = await toolkit.CallAsync<BigInteger>(
+            contractHash.ToString(),
+            "getCounter"
+        );
+        Console.WriteLine($"   New Counter: {newCounter}");
+        
+        // 3. Test multiply function
+        Console.WriteLine("\n3. Testing multiply function...");
+        var result = await toolkit.CallAsync<BigInteger>(
+            contractHash.ToString(),
+            "multiply",
+            7, 6
+        );
+        Console.WriteLine($"   7 × 6 = {result}");
+        
+        Console.WriteLine("\n=== Simple contract tests completed! ===");
     }
 }

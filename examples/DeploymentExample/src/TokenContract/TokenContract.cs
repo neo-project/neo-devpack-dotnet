@@ -16,6 +16,7 @@ namespace DeploymentExample.Contract
     [ManifestExtra("Version", "1.0.0")]
     [ContractPermission("*", "*")]
     [SupportedStandards("NEP-17")]
+    // Version: 1.1
     public class TokenContract : SmartContract
     {
         // Token metadata

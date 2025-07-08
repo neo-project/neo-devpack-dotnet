@@ -38,7 +38,17 @@ namespace DeploymentExample.Contract
         {
             if (!update)
             {
-                var owner = (UInt160)data;
+                // If data is null, use the transaction sender as owner
+                UInt160 owner;
+                if (data == null)
+                {
+                    owner = Runtime.Transaction.Sender;
+                }
+                else
+                {
+                    owner = (UInt160)data;
+                }
+                
                 if (!owner.IsValid || owner.IsZero)
                 {
                     throw new Exception("Invalid owner address");

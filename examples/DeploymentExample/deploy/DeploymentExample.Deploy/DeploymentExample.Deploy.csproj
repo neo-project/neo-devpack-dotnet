@@ -33,4 +33,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="create-wallet.cs" />
+    <None Include="create-wallet.cs" />
+  </ItemGroup>
+
 </Project>

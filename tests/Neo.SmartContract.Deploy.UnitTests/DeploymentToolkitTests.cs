@@ -77,7 +77,7 @@ public class DeploymentToolkitTests : TestBase
 
         // Assert
         Assert.Same(toolkit, result);
-        Assert.Equal("https://rpc10.n3.neotracker.io:443", Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        Assert.Equal("https://testnet1.neo.coz.io:443", Environment.GetEnvironmentVariable("Network__RpcUrl"));
         Assert.Equal("testnet", Environment.GetEnvironmentVariable("Network__Network"));
     }
 
@@ -124,7 +124,7 @@ public class DeploymentToolkitTests : TestBase
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => toolkit.Deploy("test.csproj")
+            () => toolkit.DeployAsync("test.csproj")
         );
     }
 
@@ -139,7 +139,7 @@ public class DeploymentToolkitTests : TestBase
         // This would require a mock setup for the actual implementation
         // For now, we're testing that the method exists and can be called
         await Assert.ThrowsAsync<ArgumentException>(
-            () => toolkit.GetGasBalance(testAddress)
+            () => toolkit.GetGasBalanceAsync(testAddress)
         );
     }
 
@@ -155,7 +155,7 @@ public class DeploymentToolkitTests : TestBase
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => toolkit.GetDeployerAccount()
+            () => toolkit.GetDeployerAccountAsync()
         );
     }
 }

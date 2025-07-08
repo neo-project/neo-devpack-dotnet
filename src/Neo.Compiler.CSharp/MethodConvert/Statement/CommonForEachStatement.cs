@@ -149,7 +149,10 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertIteratorForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
-            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
+            var designation = ((DeclarationExpressionSyntax)syntax.Variable).Designation;
+#pragma warning disable RS1039 // This call will always return 'null'.
+            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)designation).Variables.Select(p => model.GetDeclaredSymbol(p) as ILocalSymbol).Where(s => s != null).ToArray()!;
+#pragma warning restore RS1039
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
@@ -287,7 +290,10 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertArrayForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
-            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
+            var designation = ((DeclarationExpressionSyntax)syntax.Variable).Designation;
+#pragma warning disable RS1039 // This call will always return 'null'.
+            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)designation).Variables.Select(p => model.GetDeclaredSymbol(p) as ILocalSymbol).Where(s => s != null).ToArray()!;
+#pragma warning restore RS1039
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();

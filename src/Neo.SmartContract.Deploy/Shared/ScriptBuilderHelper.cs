@@ -161,7 +161,12 @@ public static class ScriptBuilderHelper
     {
         using var sb = new ScriptBuilder();
 
-        // Push update data (or null)
+        // Build arguments array for ContractManagement.Update
+        // Order in array: [nef (byte[]), manifest (string), data (object)]
+
+        // First, push the arguments in reverse order (for PACK)
+
+        // 3. Push update data (for _deploy method)
         if (updateData != null)
         {
             sb.EmitPush(updateData);
@@ -171,15 +176,21 @@ public static class ScriptBuilderHelper
             sb.Emit(OpCode.PUSHNULL);
         }
 
-        // Push manifest and NEF
-        sb.EmitPush(manifestBytes);
+        // 2. Push manifest as string (ContractManagement expects JSON string)
+        var manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
+        sb.EmitPush(manifestJson);
+
+        // 1. Push NEF bytes
         sb.EmitPush(nefBytes);
 
-        // Call contract's update method
-        sb.EmitPush(3); // Parameter count
+        // Create array with 3 elements
+        sb.EmitPush(3);
         sb.Emit(OpCode.PACK);
+
+        // Call ContractManagement.Update with the array
+        sb.EmitPush(CallFlags.All);
         sb.EmitPush("update");
-        sb.EmitPush(contractHash);
+        sb.EmitPush(Neo.SmartContract.Native.NativeContract.ContractManagement.Hash);
         sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
 
         return sb.ToArray();

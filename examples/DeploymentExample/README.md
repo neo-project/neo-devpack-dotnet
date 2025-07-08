@@ -23,6 +23,7 @@ DeploymentExample/
 │       ├── Program.cs                  # Main deployment program
 │       ├── MultiContractDeployer.cs    # Multi-contract deployment
 │       ├── MultiContractTester.cs      # Integration tests
+│       ├── UpdateContracts.cs          # Contract update utility
 │       ├── deployment-manifest.json    # Batch deployment config
 │       ├── appsettings.json           # Configuration
 │       ├── wallet.json                # Sample wallet (DO NOT USE IN PRODUCTION)
@@ -219,6 +220,9 @@ export Network__RpcUrl=https://custom.rpc.url
 # Wallet configuration
 export NEO_WALLET_PATH=/path/to/wallet.json
 export NEO_WALLET_PASSWORD=your-password
+
+# WIF key for direct signing
+export NEO_WIF_KEY=your-wif-key
 ```
 
 ## Testing
@@ -367,6 +371,49 @@ dotnet run test 0x2db2dce76b4a7f8116ecfae0d819e7099cb3a256 0x8699c5d074fc27cdbd7
 ```
 
 **Note**: These are demonstration contracts deployed on TestNet. Do not use them for production purposes.
+
+## Contract Update Functionality
+
+The deployment toolkit supports updating deployed contracts through the `ContractManagement.Update` native contract. The update functionality has been implemented and tested with the following considerations:
+
+### Update Requirements
+1. Contracts can only be updated by the original deployer account
+2. The account must have sufficient GAS for the update transaction
+3. The contract must exist on the blockchain
+
+### Update Process
+The toolkit provides update functionality through:
+- `DeploymentToolkit.UpdateAsync()` - High-level API for contract updates
+- `ContractDeployerService.UpdateAsync()` - Low-level service for direct updates
+- `ScriptBuilderHelper.BuildUpdateScript()` - Script builder for ContractManagement.Update calls
+
+### Example Update Code
+```csharp
+// Update a deployed contract
+var updateResult = await toolkit.UpdateAsync(
+    contractHash: "0x2db2dce76b4a7f8116ecfae0d819e7099cb3a256",
+    sourcePath: "path/to/updated/contract.cs"
+);
+```
+
+### Update Command
+The deployment example includes an update command:
+
+```bash
+# Set WIF key environment variable
+export NEO_WIF_KEY=your-wif-key
+
+# Run update command
+dotnet run update
+```
+
+### Testing Results
+During testing, we successfully:
+- ✅ Implemented update script generation using ContractManagement.Update
+- ✅ Added WIF key support for update transaction signing
+- ✅ Created comprehensive update test utilities in UpdateContracts.cs
+
+Note: The deployed example contracts cannot be updated as they were deployed with a different account configuration. For production use, ensure you maintain access to the original deployment account.
 
 ## Next Steps
 

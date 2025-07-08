@@ -54,17 +54,17 @@ namespace DeploymentExample.Deploy
             try
             {
                 // Get token info
-                var symbol = await _toolkit.Call<string>(tokenContract.ToString(), "symbol");
-                var decimals = await _toolkit.Call<BigInteger>(tokenContract.ToString(), "decimals");
-                var totalSupply = await _toolkit.Call<BigInteger>(tokenContract.ToString(), "totalSupply");
+                var symbol = await _toolkit.CallAsync<string>(tokenContract.ToString(), "symbol");
+                var decimals = await _toolkit.CallAsync<BigInteger>(tokenContract.ToString(), "decimals");
+                var totalSupply = await _toolkit.CallAsync<BigInteger>(tokenContract.ToString(), "totalSupply");
                 
                 Console.WriteLine($"   Symbol: {symbol}");
                 Console.WriteLine($"   Decimals: {decimals}");
                 Console.WriteLine($"   Total Supply: {totalSupply / 100000000} {symbol}");
                 
                 // Check deployer balance
-                var deployerAddress = await _toolkit.GetDeployerAccount();
-                var balance = await _toolkit.Call<BigInteger>(
+                var deployerAddress = await _toolkit.GetDeployerAccountAsync();
+                var balance = await _toolkit.CallAsync<BigInteger>(
                     tokenContract.ToString(), 
                     "balanceOf", 
                     deployerAddress
@@ -86,9 +86,9 @@ namespace DeploymentExample.Deploy
             try
             {
                 // Get NFT info
-                var symbol = await _toolkit.Call<string>(nftContract.ToString(), "symbol");
-                var decimals = await _toolkit.Call<BigInteger>(nftContract.ToString(), "decimals");
-                var totalSupply = await _toolkit.Call<BigInteger>(nftContract.ToString(), "totalSupply");
+                var symbol = await _toolkit.CallAsync<string>(nftContract.ToString(), "symbol");
+                var decimals = await _toolkit.CallAsync<BigInteger>(nftContract.ToString(), "decimals");
+                var totalSupply = await _toolkit.CallAsync<BigInteger>(nftContract.ToString(), "totalSupply");
                 
                 Console.WriteLine($"   Symbol: {symbol}");
                 Console.WriteLine($"   Decimals: {decimals}");
@@ -98,7 +98,7 @@ namespace DeploymentExample.Deploy
                 Console.WriteLine("   Testing NFT minting...");
                 try
                 {
-                    var txHash = await _toolkit.Invoke(
+                    var txHash = await _toolkit.InvokeAsync(
                         nftContract.ToString(),
                         "mint",
                         "https://example.com/nft/1.json",
@@ -126,8 +126,8 @@ namespace DeploymentExample.Deploy
             try
             {
                 // Check if deployer is council member
-                var deployerAddress = await _toolkit.GetDeployerAccount();
-                var isCouncilMember = await _toolkit.Call<bool>(
+                var deployerAddress = await _toolkit.GetDeployerAccountAsync();
+                var isCouncilMember = await _toolkit.CallAsync<bool>(
                     governanceContract.ToString(),
                     "isCouncilMember",
                     deployerAddress
@@ -136,7 +136,7 @@ namespace DeploymentExample.Deploy
                 Console.WriteLine($"   Deployer is council member: {isCouncilMember}");
                 
                 // Get proposal count
-                var proposalCount = await _toolkit.Call<BigInteger>(
+                var proposalCount = await _toolkit.CallAsync<BigInteger>(
                     governanceContract.ToString(),
                     "getProposalCount"
                 );
@@ -148,7 +148,7 @@ namespace DeploymentExample.Deploy
                     Console.WriteLine("   Creating test proposal...");
                     try
                     {
-                        var txHash = await _toolkit.Invoke(
+                        var txHash = await _toolkit.InvokeAsync(
                             governanceContract.ToString(),
                             "createProposal",
                             1, // Proposal type
@@ -177,11 +177,11 @@ namespace DeploymentExample.Deploy
             
             try
             {
-                var deployerAddress = await _toolkit.GetDeployerAccount();
+                var deployerAddress = await _toolkit.GetDeployerAccountAsync();
                 
                 // Test token approval for NFT minting
                 Console.WriteLine("   Setting up token approval for NFT minting...");
-                var approvalTx = await _toolkit.Invoke(
+                var approvalTx = await _toolkit.InvokeAsync(
                     deployment.TokenContract!.ToString(),
                     "approve",
                     deployment.NFTContract,
@@ -191,7 +191,7 @@ namespace DeploymentExample.Deploy
                 
                 // Test governance proposal for adding council member
                 Console.WriteLine("   Testing governance proposal system...");
-                var proposalTx = await _toolkit.Invoke(
+                var proposalTx = await _toolkit.InvokeAsync(
                     deployment.GovernanceContract!.ToString(),
                     "createProposal",
                     3, // Add council member type

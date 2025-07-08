@@ -16,15 +16,15 @@ public class CredentialProviderTests
         // Arrange
         var password = "test-password-general";
         Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", password);
-        
+
         try
         {
             var logger = new Mock<ILogger<EnvironmentCredentialProvider>>();
             var provider = new EnvironmentCredentialProvider(logger.Object);
-            
+
             // Act
             var result = await provider.GetWalletPasswordAsync("wallet.json");
-            
+
             // Assert
             Assert.Equal(password, result);
         }
@@ -33,7 +33,7 @@ public class CredentialProviderTests
             Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", null);
         }
     }
-    
+
     [Fact]
     public async Task EnvironmentCredentialProvider_WithSpecificPassword_ShouldPreferSpecific()
     {
@@ -42,15 +42,15 @@ public class CredentialProviderTests
         var specificPassword = "specific-password";
         Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", generalPassword);
         Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD_TESTWALLET", specificPassword);
-        
+
         try
         {
             var logger = new Mock<ILogger<EnvironmentCredentialProvider>>();
             var provider = new EnvironmentCredentialProvider(logger.Object);
-            
+
             // Act
             var result = await provider.GetWalletPasswordAsync("testwallet.json");
-            
+
             // Assert
             Assert.Equal(specificPassword, result);
         }
@@ -60,19 +60,19 @@ public class CredentialProviderTests
             Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD_TESTWALLET", null);
         }
     }
-    
+
     [Fact]
     public async Task EnvironmentCredentialProvider_WithoutPassword_ShouldThrow()
     {
         // Arrange
         var logger = new Mock<ILogger<EnvironmentCredentialProvider>>();
         var provider = new EnvironmentCredentialProvider(logger.Object);
-        
+
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(
             () => provider.GetWalletPasswordAsync("wallet.json"));
     }
-    
+
     [Fact]
     public async Task EnvironmentCredentialProvider_GetRpcCredentials_ShouldReturnWhenSet()
     {
@@ -81,15 +81,15 @@ public class CredentialProviderTests
         var password = "rpc-password";
         Environment.SetEnvironmentVariable("NEO_RPC_USER", username);
         Environment.SetEnvironmentVariable("NEO_RPC_PASSWORD", password);
-        
+
         try
         {
             var logger = new Mock<ILogger<EnvironmentCredentialProvider>>();
             var provider = new EnvironmentCredentialProvider(logger.Object);
-            
+
             // Act
             var result = await provider.GetRpcCredentialsAsync("http://localhost:10332");
-            
+
             // Assert
             Assert.NotNull(result);
             Assert.Equal(username, result.Value.username);
@@ -101,25 +101,25 @@ public class CredentialProviderTests
             Environment.SetEnvironmentVariable("NEO_RPC_PASSWORD", null);
         }
     }
-    
+
     [Fact]
     public async Task SecureCredentialProvider_WithCache_ShouldReusePassword()
     {
         // Arrange
         var password = "cached-password";
         Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", password);
-        
+
         try
         {
             var logger = new Mock<ILogger<SecureCredentialProvider>>();
             var config = new ConfigurationBuilder().Build();
             var provider = new SecureCredentialProvider(logger.Object, config);
-            
+
             // Act
             var result1 = await provider.GetWalletPasswordAsync("wallet.json");
             Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", "different-password");
             var result2 = await provider.GetWalletPasswordAsync("wallet.json");
-            
+
             // Assert
             Assert.Equal(password, result1);
             Assert.Equal(password, result2); // Should use cached value
@@ -129,28 +129,28 @@ public class CredentialProviderTests
             Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", null);
         }
     }
-    
+
     [Fact]
-    public void SecureCredentialProvider_ClearCache_ShouldRemoveCachedPasswords()
+    public async Task SecureCredentialProvider_ClearCache_ShouldRemoveCachedPasswords()
     {
         // Arrange
         var password = "cached-password";
         Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", password);
-        
+
         try
         {
             var logger = new Mock<ILogger<SecureCredentialProvider>>();
             var config = new ConfigurationBuilder().Build();
             var provider = new SecureCredentialProvider(logger.Object, config);
-            
+
             // Prime the cache
-            var _ = provider.GetWalletPasswordAsync("wallet.json").Result;
-            
+            var _ = await provider.GetWalletPasswordAsync("wallet.json");
+
             // Act
             provider.ClearCache();
             Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", "new-password");
-            var result = provider.GetWalletPasswordAsync("wallet.json").Result;
-            
+            var result = await provider.GetWalletPasswordAsync("wallet.json");
+
             // Assert
             Assert.Equal("new-password", result); // Should not use cached value
         }
@@ -159,7 +159,7 @@ public class CredentialProviderTests
             Environment.SetEnvironmentVariable("NEO_WALLET_PASSWORD", null);
         }
     }
-    
+
     [Fact]
     public async Task SecureCredentialProvider_WithConfiguration_ShouldUseAsLastResort()
     {
@@ -169,22 +169,22 @@ public class CredentialProviderTests
         {
             ["Wallet:Password"] = configPassword
         };
-        
+
         var logger = new Mock<ILogger<SecureCredentialProvider>>();
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(configData!)
             .Build();
         var provider = new SecureCredentialProvider(logger.Object, config);
-        
+
         // Act
         var result = await provider.GetWalletPasswordAsync("wallet.json");
-        
+
         // Assert
         Assert.Equal(configPassword, result);
-        
+
         // Verify warning was logged
         logger.Verify(x => x.Log(
-            LogLevel.Warning,
+            Microsoft.Extensions.Logging.LogLevel.Warning,
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("not recommended for production")),
             It.IsAny<Exception>(),

@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Logging;
 using Neo;
 using Neo.SmartContract.Deploy.Interfaces;
+using Neo.SmartContract.Deploy.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -95,6 +97,11 @@ public class SimpleTestInvoker : IContractInvoker
     }
 
     public Task<UInt256> SendAsync(UInt160 contractHash, string method, params object[] parameters)
+    {
+        return SendAsync(contractHash, method, null, parameters);
+    }
+
+    public Task<UInt256> SendAsync(UInt160 contractHash, string method, DeploymentOptions? options, params object[] parameters)
     {
         _logger.LogDebug("Mock sending transaction to contract {ContractHash} method {Method}", contractHash, method);
 

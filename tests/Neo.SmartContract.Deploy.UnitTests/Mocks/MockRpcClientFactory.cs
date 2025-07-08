@@ -10,17 +10,27 @@ namespace Neo.SmartContract.Deploy.UnitTests.Mocks;
 public class MockRpcClientFactory : IRpcClientFactory
 {
     private readonly Func<RpcClient> _clientFactory;
-    
+
     public MockRpcClientFactory(Func<RpcClient>? clientFactory = null)
     {
         _clientFactory = clientFactory ?? (() => new MockRpcClient());
     }
-    
-    public RpcClient CreateClient(string rpcUrl)
+
+    public RpcClient CreateClient(string? networkName = null)
     {
         return _clientFactory();
     }
-    
+
+    public string GetRpcUrl(string? networkName = null)
+    {
+        return "http://localhost:10332";
+    }
+
+    public string GetNetworkName()
+    {
+        return "test";
+    }
+
     public void ClearPool()
     {
         // No-op for mock
