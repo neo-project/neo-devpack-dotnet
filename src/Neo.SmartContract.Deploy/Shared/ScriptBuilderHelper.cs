@@ -161,7 +161,8 @@ public static class ScriptBuilderHelper
     {
         using var sb = new ScriptBuilder();
 
-        // Build arguments array for ContractManagement.Update
+        // Build arguments array for the contract's own update method
+        // The contract must have an update method that internally calls ContractManagement.Update
         // Order in array: [nef (byte[]), manifest (string), data (object)]
 
         // First, push the arguments in reverse order (for PACK)
@@ -187,10 +188,11 @@ public static class ScriptBuilderHelper
         sb.EmitPush(3);
         sb.Emit(OpCode.PACK);
 
-        // Call ContractManagement.Update with the array
+        // Call the contract's own update method, not ContractManagement.Update directly
+        // The contract's update method should internally call ContractManagement.Update
         sb.EmitPush(CallFlags.All);
         sb.EmitPush("update");
-        sb.EmitPush(Neo.SmartContract.Native.NativeContract.ContractManagement.Hash);
+        sb.EmitPush(contractHash); // Call the contract's update method
         sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
 
         return sb.ToArray();

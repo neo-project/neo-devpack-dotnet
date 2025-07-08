@@ -90,7 +90,16 @@ public class ContractDeployerService : IContractDeployer
 
             // Get deployer account from options or wallet manager
             var deployerAccount = options.DeployerAccount;
-            if (deployerAccount == null)
+            
+            // If WIF key is provided, derive account from it
+            if (!string.IsNullOrEmpty(options.WifKey))
+            {
+                var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(options.WifKey);
+                var keyPair = new KeyPair(privateKey);
+                var sigContract = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey);
+                deployerAccount = sigContract.ScriptHash;
+            }
+            else if (deployerAccount == null || deployerAccount == UInt160.Zero)
             {
                 if (!_walletManager.IsWalletLoaded)
                     throw new InvalidOperationException("Wallet not loaded. Please load a wallet before deployment.");
@@ -315,7 +324,22 @@ public class ContractDeployerService : IContractDeployer
                 contract.ManifestBytes);
 
             // Get deployer account from options or wallet manager
-            var deployerAccount = options.DeployerAccount ?? _walletManager.GetAccount();
+            var deployerAccount = options.DeployerAccount;
+            
+            // If WIF key is provided, derive account from it
+            if (!string.IsNullOrEmpty(options.WifKey))
+            {
+                var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(options.WifKey);
+                var keyPair = new KeyPair(privateKey);
+                var sigContract = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey);
+                deployerAccount = sigContract.ScriptHash;
+            }
+            else if (deployerAccount == null || deployerAccount == UInt160.Zero)
+            {
+                if (!_walletManager.IsWalletLoaded)
+                    throw new InvalidOperationException("Wallet not loaded. Please load a wallet before update.");
+                deployerAccount = _walletManager.GetAccount();
+            }
 
             // Create signer
             var signer = new Signer

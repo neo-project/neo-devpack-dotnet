@@ -408,12 +408,36 @@ dotnet run update
 ```
 
 ### Testing Results
-During testing, we successfully:
-- ✅ Implemented update script generation using ContractManagement.Update
-- ✅ Added WIF key support for update transaction signing
+During testing, we discovered:
+- ✅ Implemented update script generation that calls the contract's own update method
+- ✅ Added WIF key support for update transaction signing  
 - ✅ Created comprehensive update test utilities in UpdateContracts.cs
+- ❌ The deployed example contracts **cannot be updated** because they don't implement an `update` method
 
-Note: The deployed example contracts cannot be updated as they were deployed with a different account configuration. For production use, ensure you maintain access to the original deployment account.
+### Making Contracts Updatable
+For a contract to be updatable, it must implement its own `update` method:
+
+```csharp
+[DisplayName("update")]
+public static bool Update(ByteString nefFile, string manifest, object data)
+{
+    // Check authorization (e.g., only owner can update)
+    if (!Runtime.CheckWitness(GetOwner()))
+    {
+        throw new Exception("Only owner can update contract");
+    }
+    
+    // Call ContractManagement.Update
+    ContractManagement.Update(nefFile, manifest, data);
+    return true;
+}
+```
+
+**Important**: 
+- Contracts can only be updated if they have an `update` method implemented
+- The update method must internally call `ContractManagement.Update`
+- Only the contract itself can call `ContractManagement.Update` - external accounts cannot
+- The example contracts in this project were deployed without update functionality
 
 ## Next Steps
 
