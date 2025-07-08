@@ -16,7 +16,6 @@ namespace DeploymentExample.Contract
     [ManifestExtra("Version", "1.0.0")]
     [ContractPermission("*", "*")]
     [SupportedStandards("NEP-17")]
-    // Version: 1.1
     public class TokenContract : SmartContract
     {
         // Token metadata
@@ -335,6 +334,23 @@ namespace DeploymentExample.Contract
         {
             var governance = GetGovernance();
             return Runtime.CheckWitness(governance);
+        }
+
+        /// <summary>
+        /// Update the contract
+        /// </summary>
+        [DisplayName("update")]
+        public static bool Update(ByteString nefFile, string manifest, object data)
+        {
+            // Only owner can update
+            if (!Runtime.CheckWitness(GetOwner()))
+            {
+                throw new Exception("Only owner can update contract");
+            }
+            
+            // Call ContractManagement.Update
+            ContractManagement.Update(nefFile, manifest, data);
+            return true;
         }
     }
 }

@@ -130,9 +130,14 @@ class Program
                     }
                     break;
                     
+                case "demo":
+                    // Run update demo
+                    await UpdateDemo.RunDemo();
+                    break;
+                    
                 default:
                     Console.WriteLine($"Unknown command: {command}");
-                    Console.WriteLine("Available commands: single, multi, manifest, test, interact, check, debug, update");
+                    Console.WriteLine("Available commands: single, multi, manifest, test, interact, check, debug, update, demo");
                     return 1;
             }
             

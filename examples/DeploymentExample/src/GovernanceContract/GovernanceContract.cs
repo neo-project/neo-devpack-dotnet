@@ -484,5 +484,23 @@ namespace DeploymentExample.Contract
 
             return (Map<string, object>)StdLib.Deserialize(proposalData);
         }
+
+        /// <summary>
+        /// Update the contract
+        /// </summary>
+        [DisplayName("update")]
+        public static bool Update(ByteString nefFile, string manifest, object data)
+        {
+            // Check if caller is authorized - must be executed through governance proposal
+            var isCouncil = IsCouncilMember(Runtime.CallingScriptHash);
+            if (!isCouncil && !Runtime.CheckWitness(GetOwner()))
+            {
+                throw new Exception("Only council or owner can update contract");
+            }
+            
+            // Call ContractManagement.Update
+            ContractManagement.Update(nefFile, manifest, data);
+            return true;
+        }
     }
 }
