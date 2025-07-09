@@ -1,0 +1,142 @@
+{
+  "name": "Sample DeFi Ecosystem",
+  "version": "1.0",
+  "description": "A sample deployment manifest for a DeFi ecosystem with multiple interconnected contracts",
+  "contracts": [
+    {
+      "id": "governance_token",
+      "name": "GovernanceToken",
+      "description": "Platform governance token (NEP-17)",
+      "projectPath": "./contracts/GovernanceToken/GovernanceToken.csproj",
+      "initParams": [
+        "DeFi Governance Token",
+        "DEFI",
+        8,
+        100000000
+      ],
+      "tags": ["token", "nep17", "governance"]
+    },
+    {
+      "id": "price_oracle",
+      "name": "PriceOracle",
+      "description": "Decentralized price oracle for asset valuation",
+      "projectPath": "./contracts/PriceOracle/PriceOracle.csproj",
+      "tags": ["oracle", "infrastructure"]
+    },
+    {
+      "id": "stablecoin",
+      "name": "StableCoin",
+      "description": "USD-pegged stablecoin",
+      "projectPath": "./contracts/StableCoin/StableCoin.csproj",
+      "initParams": [
+        "USD Stablecoin",
+        "USDC",
+        6,
+        1000000000
+      ],
+      "tags": ["token", "nep17", "stablecoin"]
+    },
+    {
+      "id": "dex",
+      "name": "DecentralizedExchange",
+      "description": "Automated Market Maker (AMM) DEX",
+      "projectPath": "./contracts/DEX/DEX.csproj",
+      "dependencies": ["governance_token", "price_oracle", "stablecoin"],
+      "initParams": [
+        "@contract:governance_token",
+        "@contract:price_oracle",
+        30
+      ],
+      "tags": ["dex", "defi", "amm"],
+      "options": {
+        "gasLimit": 200000000
+      }
+    },
+    {
+      "id": "lending_pool",
+      "name": "LendingPool",
+      "description": "Decentralized lending and borrowing protocol",
+      "projectPath": "./contracts/LendingPool/LendingPool.csproj",
+      "dependencies": ["governance_token", "price_oracle", "stablecoin"],
+      "initParams": [
+        "@contract:price_oracle",
+        "@contract:governance_token"
+      ],
+      "tags": ["lending", "defi"]
+    },
+    {
+      "id": "staking_rewards",
+      "name": "StakingRewards",
+      "description": "Staking rewards distribution contract",
+      "projectPath": "./contracts/StakingRewards/StakingRewards.csproj",
+      "dependencies": ["governance_token"],
+      "initParams": [
+        "@contract:governance_token",
+        100000,
+        604800
+      ],
+      "tags": ["staking", "defi", "rewards"]
+    }
+  ],
+  "interactions": [
+    {
+      "source": "dex",
+      "target": "governance_token",
+      "method": "approve",
+      "params": ["@contract:dex", "1000000000000000"],
+      "description": "Allow DEX to manage governance tokens",
+      "order": 1
+    },
+    {
+      "source": "dex",
+      "target": "stablecoin",
+      "method": "approve",
+      "params": ["@contract:dex", "1000000000000"],
+      "description": "Allow DEX to manage stablecoins",
+      "order": 2
+    },
+    {
+      "source": "lending_pool",
+      "target": "stablecoin",
+      "method": "approve",
+      "params": ["@contract:lending_pool", "1000000000000"],
+      "description": "Allow lending pool to manage stablecoins",
+      "order": 3
+    },
+    {
+      "source": "price_oracle",
+      "target": "price_oracle",
+      "method": "addPriceFeed",
+      "params": ["@contract:governance_token", "DEFI", 1000000],
+      "description": "Add DEFI token price feed",
+      "order": 4
+    },
+    {
+      "source": "price_oracle",
+      "target": "price_oracle",
+      "method": "addPriceFeed",
+      "params": ["@contract:stablecoin", "USDC", 100000000],
+      "description": "Add USDC price feed ($1.00)",
+      "order": 5
+    },
+    {
+      "source": "staking_rewards",
+      "target": "governance_token",
+      "method": "approve",
+      "params": ["@contract:staking_rewards", "10000000000000000"],
+      "description": "Allow staking contract to distribute rewards",
+      "order": 6
+    }
+  ],
+  "settings": {
+    "defaultGasLimit": 100000000,
+    "defaultNetworkFee": 1000000,
+    "verifyAfterDeploy": true,
+    "waitForConfirmation": true,
+    "dryRun": false,
+    "rollbackOnFailure": false
+  },
+  "continueOnError": false,
+  "enableBatching": true,
+  "batchSize": 3
+}

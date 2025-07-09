@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,7 @@ public class DeploymentToolkit : IDisposable
     private readonly IContractInvoker _invoker;
     private readonly IWalletManager _walletManager;
     private readonly IContractUpdateService _updater;
+    private readonly IMultiContractDeploymentService _multiDeployer;
     private volatile string? _currentNetwork = null;
     private volatile string? _wifKey = null;
     private bool _disposed = false;
@@ -77,6 +79,7 @@ public class DeploymentToolkit : IDisposable
         _invoker = _serviceProvider.GetRequiredService<IContractInvoker>();
         _walletManager = _serviceProvider.GetRequiredService<IWalletManager>();
         _updater = _serviceProvider.GetRequiredService<IContractUpdateService>();
+        _multiDeployer = _serviceProvider.GetRequiredService<IMultiContractDeploymentService>();
     }
 
     /// <summary>
@@ -302,8 +305,8 @@ public class DeploymentToolkit : IDisposable
     /// Deploy multiple contracts from a manifest file
     /// </summary>
     /// <param name="manifestPath">Path to the deployment manifest JSON file</param>
-    /// <returns>Dictionary of contract names to deployment information</returns>
-    public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifestAsync(string manifestPath)
+    /// <returns>Multi-contract deployment result</returns>
+    public async Task<MultiContractDeploymentResult> DeployFromManifestAsync(string manifestPath)
     {
         if (string.IsNullOrWhiteSpace(manifestPath))
             throw new ArgumentException("Manifest path cannot be null or empty", nameof(manifestPath));
@@ -311,9 +314,54 @@ public class DeploymentToolkit : IDisposable
         _logger?.LogInformation("Deploying contracts from manifest: {ManifestPath}", manifestPath);
 
         var options = CreateDeploymentOptions();
-        var toolkit = new NeoContractToolkit(_serviceProvider);
-        
-        return await toolkit.DeployFromManifestAsync(manifestPath, options);
+        return await _multiDeployer.DeployFromManifestAsync(manifestPath, options);
+    }
+
+    /// <summary>
+    /// Deploy multiple contracts from a manifest file (legacy compatibility)
+    /// </summary>
+    /// <param name="manifestPath">Path to the deployment manifest JSON file</param>
+    /// <returns>Dictionary of contract names to deployment information</returns>
+    public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifestLegacyAsync(string manifestPath)
+    {
+        var result = await DeployFromManifestAsync(manifestPath);
+        return result.DeployedContracts;
+    }
+
+    /// <summary>
+    /// Deploy multiple contracts from a deployment manifest object
+    /// </summary>
+    /// <param name="manifest">Deployment manifest</param>
+    /// <returns>Multi-contract deployment result</returns>
+    public async Task<MultiContractDeploymentResult> DeployMultipleAsync(DeploymentManifest manifest)
+    {
+        if (manifest == null)
+            throw new ArgumentNullException(nameof(manifest));
+
+        _logger?.LogInformation("Deploying {Count} contracts from manifest: {Name}", 
+            manifest.Contracts.Count, manifest.Name);
+
+        var options = CreateDeploymentOptions();
+        return await _multiDeployer.DeployMultipleAsync(manifest, options);
+    }
+
+    /// <summary>
+    /// Create a deployment manifest builder
+    /// </summary>
+    /// <returns>Deployment manifest builder</returns>
+    public DeploymentManifestBuilder CreateManifestBuilder()
+    {
+        return new DeploymentManifestBuilder();
+    }
+
+    /// <summary>
+    /// Resolve dependency order for a list of contracts
+    /// </summary>
+    /// <param name="contracts">List of contract definitions</param>
+    /// <returns>Ordered list of contracts to deploy</returns>
+    public List<ContractDefinition> ResolveDependencyOrder(IList<ContractDefinition> contracts)
+    {
+        return _multiDeployer.ResolveDependencyOrder(contracts);
     }
 
     /// <summary>

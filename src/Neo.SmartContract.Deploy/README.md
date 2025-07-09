@@ -5,12 +5,17 @@ A comprehensive toolkit for deploying and managing Neo smart contracts with mini
 ## Features
 
 - **Simple Deployment**: Deploy contracts with just a few lines of code
+- **Multi-Contract Deployment**: Deploy multiple interconnected contracts with dependency resolution
 - **Contract Updates**: Update existing contracts with full or partial updates
 - **Multiple Networks**: Support for MainNet, TestNet, and custom networks
 - **Contract Compilation**: Built-in contract compilation support
 - **Contract Invocation**: Easy contract method calls and invocations
 - **Wallet Management**: Integrated wallet and account management
-- **Batch Operations**: Deploy multiple contracts from manifest files
+- **Batch Operations**: Deploy multiple contracts in parallel for faster deployment
+- **Dependency Resolution**: Automatically determine correct deployment order
+- **Contract Interactions**: Setup contract interactions after deployment
+- **Rollback Support**: Rollback deployed contracts on failure
+- **Manifest-Based Deployment**: Define complex deployments in JSON manifests
 - **Extensibility**: Pluggable architecture with dependency injection
 
 ## Installation
@@ -66,6 +71,38 @@ var txHash = await toolkit.InvokeAsync(
 );
 ```
 
+### Multi-Contract Deployment
+
+Deploy multiple interconnected contracts with dependency resolution:
+
+```csharp
+// Using fluent builder
+var manifest = toolkit.CreateManifestBuilder()
+    .WithName("DeFi Protocol")
+    .AddContract("token", "GovernanceToken", "./Token.csproj")
+    .AddContract("dex", "DEX", "./DEX.csproj", c => c
+        .DependsOn("token")
+        .WithInitParams("@contract:token", 1000000))
+    .AddInteraction("dex", "token", "approve", i => i
+        .WithParams("@contract:dex", 1000000000))
+    .Build();
+
+var result = await toolkit.DeployMultipleAsync(manifest);
+
+// Or from a manifest file
+var result = await toolkit.DeployFromManifestAsync("deployment-manifest.json");
+```
+
+Key features:
+- Automatic dependency resolution
+- Parallel deployment of independent contracts
+- Contract reference resolution (`@contract:id`)
+- Post-deployment interaction setup
+- Rollback on failure support
+- Comprehensive deployment reporting
+
+See [Multi-Contract Deployment Guide](../../docs/multi-contract-deployment.md) for detailed documentation.
+
 ## Core Components
 
 ### DeploymentToolkit
@@ -84,6 +121,7 @@ The main entry point providing a fluent API for common operations:
 - **IContractUpdateService** - Manages contract updates
 - **IContractInvoker** - Executes contract method calls
 - **IWalletManager** - Manages accounts and signatures
+- **IMultiContractDeploymentService** - Orchestrates multi-contract deployments with dependencies
 
 ### Update Functionality
 

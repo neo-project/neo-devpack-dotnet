@@ -38,6 +38,9 @@ public static class ServiceCollectionExtensions
         // Add the toolkit
         services.AddSingleton<NeoContractToolkit>();
 
+        // Add multi-contract deployment service
+        services.AddSingleton<IMultiContractDeploymentService, MultiContractDeploymentService>();
+
         return services;
     }
 
