@@ -282,7 +282,7 @@ public class DeploymentToolkit : IDisposable
         catch (Exception ex)
         {
             _logger?.LogWarning("Failed to retrieve network magic from RPC: {Message}. Using default.", ex.Message);
-            
+
             // Fallback to known values based on network name
             return _currentNetwork?.ToLower() switch
             {
