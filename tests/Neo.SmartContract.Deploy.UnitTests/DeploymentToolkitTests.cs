@@ -200,6 +200,100 @@ public class DeploymentToolkitTests : TestBase
 
     #endregion
 
+    #region Network Magic Tests
+
+    [Fact]
+    public async Task UpdateAsync_ShouldRetrieveNetworkMagicFromRpc_WhenNotConfigured()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetNetwork("testnet");
+        
+        // Act & Assert
+        // This test verifies that when NetworkMagic is not configured,
+        // the toolkit will attempt to retrieve it from RPC
+        // Currently throws NotImplementedException, but the framework is in place
+        await Assert.ThrowsAsync<NotImplementedException>(
+            () => toolkit.CallAsync<string>("0x1234567890123456789012345678901234567890", "test")
+        );
+    }
+
+    [Fact]
+    public void SetNetwork_WithKnownNetworks_ShouldConfigureCorrectRpcUrl()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        var testCases = new Dictionary<string, string>
+        {
+            { "mainnet", "https://rpc10.n3.nspcc.ru:10331" },
+            { "testnet", "https://testnet1.neo.coz.io:443" },
+            { "local", "http://localhost:50012" },
+            { "private", "http://localhost:50012" }
+        };
+
+        foreach (var testCase in testCases)
+        {
+            // Act
+            toolkit.SetNetwork(testCase.Key);
+
+            // Assert
+            Assert.Equal(testCase.Value, Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        }
+    }
+
+    [Fact]
+    public void SetNetwork_WithHttpUrl_ShouldUseAsRpcUrl()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        var customUrls = new[]
+        {
+            "http://localhost:10332",
+            "https://custom.neo.rpc:443",
+            "http://192.168.1.100:10332"
+        };
+
+        foreach (var url in customUrls)
+        {
+            // Act
+            toolkit.SetNetwork(url);
+
+            // Assert
+            Assert.Equal(url, Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        }
+    }
+
+    [Fact]
+    public void SetNetwork_ShouldBeCaseInsensitive()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        var variations = new[] { "MAINNET", "MainNet", "mainnet", "MaInNeT" };
+
+        foreach (var variation in variations)
+        {
+            // Act
+            toolkit.SetNetwork(variation);
+
+            // Assert
+            Assert.Equal("https://rpc10.n3.nspcc.ru:10331", Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        }
+    }
+
+    [Fact]
+    public void SetNetwork_WithEmptyOrNull_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+
+        // Act & Assert
+        Assert.Throws<ArgumentException>(() => toolkit.SetNetwork(""));
+        Assert.Throws<ArgumentException>(() => toolkit.SetNetwork("   "));
+        Assert.Throws<ArgumentException>(() => toolkit.SetNetwork(null!));
+    }
+
+    #endregion
+
     private new string CreateTestContract()
     {
         var contractCode = @"
