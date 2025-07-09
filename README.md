@@ -80,15 +80,17 @@ Project templates for creating new NEO smart contracts with the proper structure
 
 ### Neo.SmartContract.Deploy
 
-A comprehensive deployment toolkit that simplifies the process of deploying smart contracts to NEO networks. Features include:
+A comprehensive deployment toolkit that simplifies the process of deploying and updating smart contracts on NEO networks. Features include:
 
-- Simplified API for contract deployment
+- Simplified API for contract deployment and updates
 - Automatic wallet and configuration management
 - Support for multiple networks (MainNet, TestNet, local)
 - Contract compilation and deployment in one step
 - Multi-contract deployment from manifest files
-- Contract update capabilities
+- **Contract update capabilities using Neo N3's _deploy method**
+- WIF key support for direct transaction signing
 - Integration with Neo Express for local development
+- Comprehensive error handling and retry mechanisms
 
 ## Getting Started
 
@@ -298,6 +300,66 @@ public void TestGasConsumption()
 3. Create a test class that inherits from TestBase<T>
 4. Implement the TestSetup method to compile and initialize the contract
 5. Write test methods for each contract feature or scenario
+
+### Updating Smart Contracts
+
+The NEO DevPack provides comprehensive support for updating deployed smart contracts. Here's how to implement and execute contract updates:
+
+#### Making Your Contract Updatable
+
+Add an update method to your contract:
+
+```csharp
+[DisplayName("update")]
+public static bool Update(ByteString nefFile, string manifest, object data)
+{
+    // Check authorization - only owner can update
+    if (!Runtime.CheckWitness(GetOwner()))
+    {
+        throw new Exception("Only owner can update contract");
+    }
+    
+    // Call ContractManagement.Update to perform the update
+    ContractManagement.Update(nefFile, manifest, data);
+    return true;
+}
+```
+
+#### Updating a Contract Using the Deployment Toolkit
+
+```csharp
+using Neo.SmartContract.Deploy;
+
+// Create and configure the toolkit
+var toolkit = new DeploymentToolkit();
+toolkit.SetWifKey("your-wif-key"); // Use the same key that deployed the contract
+toolkit.SetNetwork("testnet");
+
+// Update the contract
+var result = await toolkit.UpdateAsync(
+    contractHash: "0x1234567890abcdef1234567890abcdef12345678",
+    path: "path/to/UpdatedContract.cs"
+);
+
+if (result.Success)
+{
+    Console.WriteLine($"Contract updated successfully!");
+    Console.WriteLine($"Transaction: {result.TransactionHash}");
+}
+```
+
+#### Update Best Practices
+
+1. **Test Updates Thoroughly**: Always test on testnet before mainnet
+2. **Maintain State Compatibility**: Ensure storage layout remains compatible
+3. **Version Your Contracts**: Track contract versions for easier management
+4. **Implement Authorization**: Use proper access controls for updates
+5. **Document Changes**: Keep a changelog of contract updates
+
+For detailed update documentation, see:
+- [Contract Update Guide](docs/UPDATE_GUIDE.md)
+- [Update Troubleshooting](docs/CONTRACT_UPDATE_TROUBLESHOOTING.md)
+- [Deployment Example with Updates](examples/DeploymentExample/)
 
 ## Examples
 

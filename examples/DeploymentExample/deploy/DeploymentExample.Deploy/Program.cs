@@ -23,7 +23,7 @@ namespace DeploymentExample.Deploy;
 /// </summary>
 class Program
 {
-    static async Task<int> Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         try
         {
@@ -135,6 +135,11 @@ class Program
                     await UpdateDemo.RunDemo();
                     break;
                     
+                case "deployupdate":
+                    // Deploy and update with specific credentials
+                    await DeployAndUpdate.Run();
+                    break;
+                    
                 case "testupdate":
                     // Test update on the newly deployed contract
                     using (var testLoggerFactory = LoggerFactory.Create(builder =>
@@ -156,9 +161,19 @@ class Program
                     }
                     break;
                     
+                case "testdeployed":
+                    // Test already deployed contracts with hardcoded addresses
+                    await TestDeployedContracts.RunTestsAsync();
+                    break;
+                    
+                case "testupdatepattern":
+                    // Test contract update with _deploy pattern
+                    await TestContractUpdate.RunUpdateTest();
+                    break;
+                    
                 default:
                     Console.WriteLine($"Unknown command: {command}");
-                    Console.WriteLine("Available commands: single, multi, manifest, test, interact, check, debug, update, demo, testupdate");
+                    Console.WriteLine("Available commands: single, multi, manifest, test, interact, check, debug, update, demo, deployupdate, testupdate, testdeployed, testupdatepattern");
                     return 1;
             }
             

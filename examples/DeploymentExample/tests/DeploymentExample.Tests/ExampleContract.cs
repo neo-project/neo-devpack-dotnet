@@ -98,11 +98,6 @@ namespace DeploymentExample.Tests
         [DisplayName("setOwner")]
         public abstract bool SetOwner(UInt160 newOwner);
 
-        /// <summary>
-        /// Unsafe method
-        /// </summary>
-        [DisplayName("update")]
-        public abstract bool Update(byte[] nefFile, string manifest, object? data = null);
 
         #endregion
 

@@ -16,6 +16,11 @@ public class NetworkConfiguration
     public string Network { get; set; } = string.Empty;
 
     /// <summary>
+    /// Network magic number for transaction signing
+    /// </summary>
+    public uint NetworkMagic { get; set; } = 894710606; // Default to testnet
+
+    /// <summary>
     /// Wallet configuration
     /// </summary>
     public WalletConfiguration Wallet { get; set; } = new();

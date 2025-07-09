@@ -77,3 +77,15 @@ echo "Contract Addresses:"
 echo "  Token:      $TOKEN_HASH"
 echo "  NFT:        $NFT_HASH"
 echo "  Governance: $GOV_HASH"
+
+# Contract Update Example
+echo -e "\n=== Contract Update Example ==="
+echo
+echo "To update a deployed contract, use:"
+echo "  neoxp contract update <contract-hash> <new-nef-file> <deployer>"
+echo
+echo "Example - Update Token Contract:"
+echo "  1. Modify and rebuild the contract"
+echo "  2. Run: neoxp contract update $TOKEN_HASH compiled-contracts/DeploymentExample.TokenContract.nef deployer"
+echo
+echo "Note: The contract must have an 'update' method that calls ContractManagement.Update"

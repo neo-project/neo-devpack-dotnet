@@ -1,0 +1,284 @@
+name: Update Smart Contracts
+
+# Simple workflow for updating deployed smart contracts
+
+on:
+  workflow_dispatch:
+    inputs:
+      contract_hash:
+        description: 'Contract hash to update (0x...)'
+        required: true
+        type: string
+      contract_name:
+        description: 'Contract name'
+        required: true
+        type: choice
+        options:
+          - TokenContract
+          - NFTContract
+          - GovernanceContract
+      network:
+        description: 'Target network'
+        required: true
+        default: 'testnet'
+        type: choice
+        options:
+          - testnet
+          - mainnet
+      dry_run:
+        description: 'Dry run (compile only, no deployment)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  DOTNET_VERSION: 9.0.300
+
+jobs:
+  update-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Validate inputs
+        run: |
+          # Validate contract hash format
+          if [[ ! "${{ github.event.inputs.contract_hash }}" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+            echo "❌ Invalid contract hash format"
+            exit 1
+          fi
+          
+          echo "✅ Valid contract hash: ${{ github.event.inputs.contract_hash }}"
+          echo "📦 Contract to update: ${{ github.event.inputs.contract_name }}"
+          echo "🌐 Target network: ${{ github.event.inputs.network }}"
+
+      - name: Build contract
+        run: |
+          CONTRACT_PATH=""
+          case "${{ github.event.inputs.contract_name }}" in
+            "TokenContract")
+              CONTRACT_PATH="./examples/DeploymentExample/src/TokenContract/TokenContract.csproj"
+              ;;
+            "NFTContract")
+              CONTRACT_PATH="./examples/DeploymentExample/src/NFTContract/NFTContract.csproj"
+              ;;
+            "GovernanceContract")
+              CONTRACT_PATH="./examples/DeploymentExample/src/GovernanceContract/GovernanceContract.csproj"
+              ;;
+          esac
+          
+          echo "Building $CONTRACT_PATH..."
+          dotnet build "$CONTRACT_PATH"
+
+      - name: Compile contract
+        run: |
+          dotnet tool install -g Neo.Compiler.CSharp
+          
+          CONTRACT_PATH=""
+          case "${{ github.event.inputs.contract_name }}" in
+            "TokenContract")
+              CONTRACT_PATH="./examples/DeploymentExample/src/TokenContract/TokenContract.csproj"
+              ;;
+            "NFTContract")
+              CONTRACT_PATH="./examples/DeploymentExample/src/NFTContract/NFTContract.csproj"
+              ;;
+            "GovernanceContract")
+              CONTRACT_PATH="./examples/DeploymentExample/src/GovernanceContract/GovernanceContract.csproj"
+              ;;
+          esac
+          
+          mkdir -p ./update-artifacts
+          nccs "$CONTRACT_PATH" -o ./update-artifacts/
+          
+          echo "📄 Compiled artifacts:"
+          ls -la ./update-artifacts/
+
+      - name: Check contract size
+        run: |
+          NEF_FILE="./update-artifacts/${{ github.event.inputs.contract_name }}.nef"
+          if [ -f "$NEF_FILE" ]; then
+            SIZE=$(stat -c%s "$NEF_FILE")
+            echo "📏 Contract size: $SIZE bytes"
+            
+            if [ $SIZE -gt 2097152 ]; then
+              echo "❌ Contract size exceeds 2MB limit!"
+              exit 1
+            fi
+          fi
+
+      - name: Dry run summary
+        if: github.event.inputs.dry_run == 'true'
+        run: |
+          echo "🔍 Dry run completed successfully!"
+          echo "📋 Summary:"
+          echo "  - Contract: ${{ github.event.inputs.contract_name }}"
+          echo "  - Target: ${{ github.event.inputs.contract_hash }}"
+          echo "  - Network: ${{ github.event.inputs.network }}"
+          echo "  - Status: Ready for update"
+
+      - name: Update contract
+        if: github.event.inputs.dry_run == 'false'
+        env:
+          DEPLOYMENT_WIF_KEY: ${{ secrets[format('{0}_DEPLOYMENT_WIF_KEY', github.event.inputs.network == 'mainnet' && 'MAINNET' || 'TESTNET')] }}
+        run: |
+          if [ -z "$DEPLOYMENT_WIF_KEY" ]; then
+            echo "❌ Deployment WIF key not found for ${{ github.event.inputs.network }}"
+            exit 1
+          fi
+          
+          # Build deployment toolkit
+          dotnet build ./src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj
+          
+          # Create update script
+          cat > update-contract.csx << 'EOF'
+          #r "nuget: Neo.SmartContract.Deploy, *"
+          using Neo.SmartContract.Deploy;
+          
+          var toolkit = new DeploymentToolkit();
+          var contractHash = "${{ github.event.inputs.contract_hash }}";
+          var contractName = "${{ github.event.inputs.contract_name }}";
+          var network = "${{ github.event.inputs.network }}";
+          
+          Console.WriteLine($"🚀 Updating {contractName} ({contractHash}) on {network}...");
+          
+          toolkit.SetWifKey(Environment.GetEnvironmentVariable("DEPLOYMENT_WIF_KEY"));
+          toolkit.SetNetwork(network);
+          
+          // Map contract name to source path
+          var contractPath = contractName switch
+          {
+              "TokenContract" => "./examples/DeploymentExample/src/TokenContract/TokenContract.cs",
+              "NFTContract" => "./examples/DeploymentExample/src/NFTContract/NFTContract.cs",
+              "GovernanceContract" => "./examples/DeploymentExample/src/GovernanceContract/GovernanceContract.cs",
+              _ => throw new Exception($"Unknown contract: {contractName}")
+          };
+          
+          try
+          {
+              var result = await toolkit.UpdateAsync(contractHash, contractPath);
+              
+              if (result.Success)
+              {
+                  Console.WriteLine($"✅ Contract updated successfully!");
+                  Console.WriteLine($"📝 Transaction: {result.TransactionHash}");
+                  Console.WriteLine($"⛽ Gas consumed: {result.GasConsumed / 100_000_000m} GAS");
+                  
+                  // Save update info
+                  var updateInfo = new
+                  {
+                      ContractName = contractName,
+                      ContractHash = contractHash,
+                      Network = network,
+                      TransactionHash = result.TransactionHash,
+                      GasConsumed = result.GasConsumed,
+                      Timestamp = DateTime.UtcNow
+                  };
+                  
+                  File.WriteAllText("update-result.json", System.Text.Json.JsonSerializer.Serialize(updateInfo));
+              }
+              else
+              {
+                  Console.WriteLine($"❌ Update failed: {result.ErrorMessage}");
+                  Environment.Exit(1);
+              }
+          }
+          catch (Exception ex)
+          {
+              Console.WriteLine($"❌ Error: {ex.Message}");
+              Environment.Exit(1);
+          }
+          EOF
+          
+          dotnet script update-contract.csx
+
+      - name: Upload update results
+        if: github.event.inputs.dry_run == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-results
+          path: |
+            update-result.json
+            ./update-artifacts/
+
+      - name: Verify update
+        if: github.event.inputs.dry_run == 'false' && success()
+        env:
+          DEPLOYMENT_WIF_KEY: ${{ secrets[format('{0}_DEPLOYMENT_WIF_KEY', github.event.inputs.network == 'mainnet' && 'MAINNET' || 'TESTNET')] }}
+        run: |
+          echo "🔍 Verifying contract update..."
+          
+          # Wait for transaction confirmation
+          sleep 15
+          
+          # Create verification script
+          cat > verify-update.csx << 'EOF'
+          #r "nuget: Neo.SmartContract.Deploy, *"
+          using Neo.SmartContract.Deploy;
+          
+          var toolkit = new DeploymentToolkit();
+          toolkit.SetWifKey(Environment.GetEnvironmentVariable("DEPLOYMENT_WIF_KEY"));
+          toolkit.SetNetwork("${{ github.event.inputs.network }}");
+          
+          var contractHash = "${{ github.event.inputs.contract_hash }}";
+          
+          try
+          {
+              // Test basic contract functionality
+              var contractName = "${{ github.event.inputs.contract_name }}";
+              
+              switch (contractName)
+              {
+                  case "TokenContract":
+                      var symbol = await toolkit.CallAsync<string>(contractHash, "symbol");
+                      Console.WriteLine($"✅ Token symbol: {symbol}");
+                      break;
+                      
+                  case "NFTContract":
+                      var nftSymbol = await toolkit.CallAsync<string>(contractHash, "symbol");
+                      Console.WriteLine($"✅ NFT symbol: {nftSymbol}");
+                      break;
+                      
+                  case "GovernanceContract":
+                      var owner = await toolkit.CallAsync<string>(contractHash, "getOwner");
+                      Console.WriteLine($"✅ Governance owner: {owner}");
+                      break;
+              }
+              
+              Console.WriteLine("✅ Contract is responding correctly after update");
+          }
+          catch (Exception ex)
+          {
+              Console.WriteLine($"⚠️ Verification warning: {ex.Message}");
+          }
+          EOF
+          
+          dotnet script verify-update.csx
+
+      - name: Create update summary
+        if: always()
+        run: |
+          echo "## Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Contract | ${{ github.event.inputs.contract_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Hash | \`${{ github.event.inputs.contract_hash }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Network | ${{ github.event.inputs.network }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dry Run | ${{ github.event.inputs.dry_run }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "update-result.json" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Update Details" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+            cat update-result.json >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi

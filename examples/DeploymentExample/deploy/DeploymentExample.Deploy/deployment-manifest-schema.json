@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Neo Smart Contract Deployment Manifest",
+  "description": "Schema for defining multi-contract deployment configurations with update support",
+  "type": "object",
+  "required": ["version", "contracts"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Manifest version"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the deployment"
+    },
+    "contracts": {
+      "type": "array",
+      "description": "List of contracts to deploy",
+      "items": {
+        "type": "object",
+        "required": ["name", "sourcePath"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Contract name (must match the contract class name)"
+          },
+          "sourcePath": {
+            "type": "string",
+            "description": "Path to contract source file (.cs)"
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "List of contract names this contract depends on",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generateDebugInfo": {
+            "type": "boolean",
+            "description": "Generate debug information",
+            "default": true
+          },
+          "optimize": {
+            "type": "boolean",
+            "description": "Optimize contract compilation",
+            "default": true
+          },
+          "gasLimit": {
+            "type": "integer",
+            "description": "Gas limit for deployment transaction",
+            "default": 100000000
+          },
+          "initialParameters": {
+            "type": "array",
+            "description": "Parameters for contract initialization. Use @deployer for deployer address, @ContractName for deployed contract addresses",
+            "items": {}
+          },
+          "injectDependencies": {
+            "type": "boolean",
+            "description": "Automatically inject dependency contract addresses",
+            "default": false
+          },
+          "postDeploymentActions": {
+            "type": "array",
+            "description": "Methods to call after deployment",
+            "items": {
+              "type": "object",
+              "required": ["method", "parameters"],
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "description": "Method name to call"
+                },
+                "parameters": {
+                  "type": "array",
+                  "description": "Method parameters"
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether this action must succeed",
+                  "default": true
+                }
+              }
+            }
+          },
+          "updateConfiguration": {
+            "type": "object",
+            "description": "Contract update configuration",
+            "properties": {
+              "allowUpdates": {
+                "type": "boolean",
+                "description": "Whether the contract can be updated",
+                "default": true
+              },
+              "updateMethod": {
+                "type": "string",
+                "description": "Name of the contract's update method",
+                "default": "update"
+              },
+              "requireOwnerAuthorization": {
+                "type": "boolean",
+                "description": "Require owner authorization for updates",
+                "default": true
+              },
+              "requireCouncilApproval": {
+                "type": "boolean",
+                "description": "Require council/governance approval for updates",
+                "default": false
+              },
+              "updateGasLimit": {
+                "type": "integer",
+                "description": "Gas limit for update transactions",
+                "default": 50000000
+              },
+              "updateCooldownPeriod": {
+                "type": "integer",
+                "description": "Minimum time (in milliseconds) between updates",
+                "default": 0
+              },
+              "maxContractSize": {
+                "type": "integer",
+                "description": "Maximum allowed contract size in bytes",
+                "default": 2097152
+              }
+            }
+          }
+        }
+      }
+    },
+    "deploymentOrder": {
+      "type": "array",
+      "description": "Explicit deployment order (optional, defaults to dependency resolution)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "networkOverrides": {
+      "type": "object",
+      "description": "Network-specific configuration overrides",
+      "properties": {
+        "testnet": {
+          "$ref": "#/definitions/networkConfig"
+        },
+        "mainnet": {
+          "$ref": "#/definitions/networkConfig"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "networkConfig": {
+      "type": "object",
+      "properties": {
+        "gasPrice": {
+          "type": "integer",
+          "description": "Gas price for transactions"
+        },
+        "validUntilBlockOffset": {
+          "type": "integer",
+          "description": "Number of blocks until transaction expires"
+        },
+        "requireConfirmation": {
+          "type": "boolean",
+          "description": "Wait for transaction confirmation"
+        }
+      }
+    }
+  }
+}

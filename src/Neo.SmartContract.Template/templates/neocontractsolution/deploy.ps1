@@ -98,3 +98,11 @@ Write-Host ""
 Write-Host "Deployment completed successfully!" -ForegroundColor Green
 Write-Host ""
 Write-Host "To view transaction details, check your Neo blockchain explorer" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "=== Contract Update Instructions ===" -ForegroundColor Cyan
+Write-Host "To update deployed contracts:"
+Write-Host "1. Modify your contract source code"
+Write-Host "2. Run: .\update.ps1 -ContractHash <hash> [-Environment $Environment]"
+Write-Host ""
+Write-Host "Or manually update using the deployment toolkit:"
+Write-Host "cd deploy\Deploy; dotnet run -- update <contract-hash>"

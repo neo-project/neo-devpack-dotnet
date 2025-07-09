@@ -52,16 +52,25 @@ namespace DeploymentExample.Contract
         public static event Action<UInt160, bool> OnContractManaged;
 
         /// <summary>
-        /// Deploy the governance contract
+        /// Deploy/update the governance contract
         /// </summary>
         [DisplayName("_deploy")]
-        public static void Deploy(object data, bool update)
+        public static void _deploy(object data, bool update)
         {
-            if (!update)
+            if (update)
             {
-                // Minimal deployment - just mark as deployed
-                Storage.Put(Storage.CurrentContext, "deployed", 1);
+                // Check authorization for updates - must be council or owner
+                var isCouncil = IsCouncilMember(Runtime.CallingScriptHash);
+                if (!isCouncil && !Runtime.CheckWitness(GetOwner()))
+                {
+                    throw new Exception("Only council or owner can update contract");
+                }
+                // Perform any migration logic here if needed
+                return;
             }
+            
+            // Initial deployment - just mark as deployed
+            Storage.Put(Storage.CurrentContext, "deployed", 1);
         }
         
         /// <summary>
@@ -486,21 +495,12 @@ namespace DeploymentExample.Contract
         }
 
         /// <summary>
-        /// Update the contract
+        /// Check if an address is a council member
         /// </summary>
-        [DisplayName("update")]
-        public static bool Update(ByteString nefFile, string manifest, object data)
+        private static bool IsCouncilMember(UInt160 address)
         {
-            // Check if caller is authorized - must be executed through governance proposal
-            var isCouncil = IsCouncilMember(Runtime.CallingScriptHash);
-            if (!isCouncil && !Runtime.CheckWitness(GetOwner()))
-            {
-                throw new Exception("Only council or owner can update contract");
-            }
-            
-            // Call ContractManagement.Update
-            ContractManagement.Update(nefFile, manifest, data);
-            return true;
+            // For now, only managed contracts are considered council members
+            return IsManagedContract(address);
         }
     }
 }

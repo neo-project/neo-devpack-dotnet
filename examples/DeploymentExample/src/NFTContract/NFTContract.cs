@@ -41,16 +41,24 @@ namespace DeploymentExample.Contract
         public static event Action<UInt160, ByteString, string> OnMinted;
 
         /// <summary>
-        /// Deploy the NFT contract
+        /// Deploy/update the NFT contract
         /// </summary>
         [DisplayName("_deploy")]
-        public static void Deploy(object data, bool update)
+        public static void _deploy(object data, bool update)
         {
-            if (!update)
+            if (update)
             {
-                // Minimal deployment - just mark as deployed
-                Storage.Put(Storage.CurrentContext, "deployed", 1);
+                // Check authorization for updates
+                if (!Runtime.CheckWitness(GetOwner()))
+                {
+                    throw new Exception("Only owner can update contract");
+                }
+                // Perform any migration logic here if needed
+                return;
             }
+            
+            // Initial deployment - just mark as deployed
+            Storage.Put(Storage.CurrentContext, "deployed", 1);
         }
         
         /// <summary>
@@ -368,19 +376,5 @@ namespace DeploymentExample.Contract
             return true;
         }
 
-        /// <summary>
-        /// Update the contract (owner only)
-        /// </summary>
-        [DisplayName("update")]
-        public static bool Update(ByteString nefFile, string manifest, object data)
-        {
-            if (!Runtime.CheckWitness(GetOwner()))
-            {
-                throw new Exception("Only owner can update contract");
-            }
-
-            ContractManagement.Update(nefFile, manifest, data);
-            return true;
-        }
     }
 }

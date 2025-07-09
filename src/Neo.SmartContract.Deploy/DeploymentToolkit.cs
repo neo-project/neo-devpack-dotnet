@@ -311,11 +311,36 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Update an existing contract
+    /// Update an existing contract with a new version
     /// </summary>
     /// <param name="contractHashOrAddress">Contract hash or address to update</param>
-    /// <param name="path">Path to new contract project or source</param>
-    /// <returns>Update result</returns>
+    /// <param name="path">Path to new contract project (.csproj) or source file (.cs)</param>
+    /// <returns>Update result containing transaction hash and success status</returns>
+    /// <remarks>
+    /// <para>This method updates a deployed contract by calling ContractManagement.Update directly.</para>
+    /// <para>When a contract is updated, Neo automatically calls the contract's _deploy method with update=true.</para>
+    /// <para>Requirements:</para>
+    /// <list type="bullet">
+    /// <item><description>The contract's _deploy method must check authorization when update=true</description></item>
+    /// <item><description>The calling account must be authorized to update (typically the contract owner)</description></item>
+    /// <item><description>Sufficient GAS balance for the update transaction</description></item>
+    /// </list>
+    /// <para>Example _deploy method with update authorization:</para>
+    /// <code>
+    /// [DisplayName("_deploy")]
+    /// public static void _deploy(object data, bool update)
+    /// {
+    ///     if (update)
+    ///     {
+    ///         if (!Runtime.CheckWitness(GetOwner()))
+    ///             throw new Exception("Only owner can update contract");
+    ///         // Optional: Perform state migration
+    ///         return;
+    ///     }
+    ///     // Initial deployment logic
+    /// }
+    /// </code>
+    /// </remarks>
     /// <exception cref="ArgumentException">Thrown when parameters are invalid</exception>
     /// <exception cref="FileNotFoundException">Thrown when file does not exist</exception>
     public async Task<ContractDeploymentInfo> UpdateAsync(string contractHashOrAddress, string path)
@@ -344,8 +369,12 @@ public class DeploymentToolkit : IDisposable
         var deploymentOptions = new DeploymentOptions
         {
             DeployerAccount = await GetDeployerAccountAsync(),
+            WifKey = _wifKey, // Support WIF key for direct signing
+            RpcUrl = GetCurrentRpcUrl(),
+            NetworkMagic = GetNetworkMagic(),
             GasLimit = _configuration.GetValue<long>("Deployment:GasLimit", 100_000_000),
-            WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true)
+            WaitForConfirmation = _configuration.GetValue<bool>("Deployment:WaitForConfirmation", true),
+            VerifyAfterDeploy = _configuration.GetValue<bool>("Deployment:VerifyAfterDeploy", true)
         };
 
         _logger.LogInformation($"Updating contract {contractHash}...");
@@ -354,23 +383,9 @@ public class DeploymentToolkit : IDisposable
         var compiler = _serviceProvider.GetRequiredService<IContractCompiler>();
         var compiled = await compiler.CompileAsync(compilationOptions);
 
-        // Use the update service which now properly delegates to ContractDeployerService
-        var updateService = _serviceProvider.GetRequiredService<IContractUpdateService>();
-        var updateResult = await updateService.UpdateContractAsync(
-            compilationOptions.ContractName,
-            _currentNetwork ?? "custom",
-            compiled.NefBytes,
-            compiled.Manifest.ToJson().ToString(),
-            null,
-            null);
-
-        var result = new ContractDeploymentInfo
-        {
-            Success = updateResult.Success,
-            ContractHash = contractHash,
-            TransactionHash = updateResult.TransactionHash ?? UInt256.Zero,
-            ErrorMessage = updateResult.ErrorMessage
-        };
+        // Use ContractDeployer directly for better WIF key support
+        var deployer = _serviceProvider.GetRequiredService<IContractDeployer>();
+        var result = await deployer.UpdateAsync(compiled, contractHash, deploymentOptions);
 
         if (result.Success)
         {
@@ -666,6 +681,26 @@ public class DeploymentToolkit : IDisposable
 
         // Fallback to default RPC URL
         return _configuration["Network:RpcUrl"] ?? DEFAULT_RPC_URL;
+    }
+
+    private uint GetNetworkMagic()
+    {
+        if (!string.IsNullOrEmpty(_currentNetwork))
+        {
+            var networks = _configuration.GetSection("Network:Networks").Get<Dictionary<string, NetworkConfiguration>>();
+            if (networks != null && networks.TryGetValue(_currentNetwork, out var network))
+            {
+                return network.NetworkMagic;
+            }
+        }
+
+        // Return network magic based on current network
+        return _currentNetwork?.ToLower() switch
+        {
+            "mainnet" => 860833102,
+            "testnet" => 894710606,
+            _ => _configuration.GetValue<uint>("Network:NetworkMagic", 894710606) // Default to testnet
+        };
     }
 
     #endregion

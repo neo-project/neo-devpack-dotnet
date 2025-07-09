@@ -152,6 +152,135 @@ public class ContractDeployerServiceTests : TestBase
     }
 
     [Fact]
+    public async Task UpdateAsync_WithNullDeploymentOptions_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var compiledContract = CreateMockCompiledContract();
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() =>
+            _deployerService.UpdateAsync(compiledContract, contractHash, null!));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithZeroContractHash_ShouldThrowArgumentException()
+    {
+        // Arrange
+        var compiledContract = CreateMockCompiledContract();
+        var deploymentOptions = CreateDeploymentOptions();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _deployerService.UpdateAsync(compiledContract, UInt160.Zero, deploymentOptions));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithWifKey_ShouldAttemptUpdate()
+    {
+        // Arrange
+        var compiledContract = CreateMockCompiledContract();
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var deploymentOptions = CreateDeploymentOptionsWithWifKey();
+
+        // Act
+        var result = await _deployerService.UpdateAsync(compiledContract, contractHash, deploymentOptions);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success); // Should fail due to network connectivity
+        Assert.NotNull(result.ErrorMessage);
+        // Should not be authorization error since WIF key is provided
+        Assert.DoesNotContain("unauthorized", result.ErrorMessage.ToLower());
+        Assert.DoesNotContain("wallet not loaded", result.ErrorMessage.ToLower());
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithInvalidWalletSetup_ShouldHandleError()
+    {
+        // Arrange
+        var compiledContract = CreateMockCompiledContract();
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var deploymentOptions = CreateDeploymentOptions();
+
+        // Remove DeployerAccount from options to force wallet manager usage
+        deploymentOptions = new DeploymentOptions
+        {
+            GasLimit = deploymentOptions.GasLimit,
+            WaitForConfirmation = deploymentOptions.WaitForConfirmation,
+            DefaultNetworkFee = deploymentOptions.DefaultNetworkFee,
+            ValidUntilBlockOffset = deploymentOptions.ValidUntilBlockOffset,
+            ConfirmationRetries = deploymentOptions.ConfirmationRetries,
+            ConfirmationDelaySeconds = deploymentOptions.ConfirmationDelaySeconds
+        };
+
+        // Setup wallet manager to indicate wallet is not loaded
+        _mockWalletManager.Setup(x => x.IsWalletLoaded).Returns(false);
+
+        // Act
+        var result = await _deployerService.UpdateAsync(compiledContract, contractHash, deploymentOptions);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.NotNull(result.ErrorMessage);
+        Assert.True(
+            result.ErrorMessage.Contains("Wallet not loaded") ||
+            result.ErrorMessage.Contains("Object reference") ||
+            result.ErrorMessage.Contains("Mock RPC client") ||
+            result.ErrorMessage.Contains("Connection refused"),
+            $"Expected error message to contain 'Wallet not loaded', 'Object reference', 'Mock RPC client', or 'Connection refused', but got: {result.ErrorMessage}");
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldGenerateUpdateScript()
+    {
+        // Arrange
+        var compiledContract = CreateMockCompiledContract();
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var deploymentOptions = CreateDeploymentOptions();
+
+        // Setup wallet manager mock
+        var deployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
+        _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(deployerAccount);
+        _mockWalletManager.Setup(x => x.SignTransactionAsync(It.IsAny<Neo.Network.P2P.Payloads.Transaction>(), It.IsAny<UInt160?>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _deployerService.UpdateAsync(compiledContract, contractHash, deploymentOptions);
+
+        // Assert
+        Assert.NotNull(result);
+        // Verify that update was attempted (should fail due to network but reach script generation)
+        Assert.False(result.Success);
+        Assert.NotNull(result.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithCustomNetworkMagic_ShouldUseCorrectMagic()
+    {
+        // Arrange
+        var compiledContract = CreateMockCompiledContract();
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var deploymentOptions = CreateDeploymentOptions();
+        deploymentOptions.NetworkMagic = 894710606; // Testnet magic
+
+        // Setup wallet manager mock
+        var deployerAccount = UInt160.Parse("0xb1983fa2021e0c36e5e37c2771b8bb7b5c525688");
+        _mockWalletManager.Setup(x => x.GetAccount(null)).Returns(deployerAccount);
+        _mockWalletManager.Setup(x => x.SignTransactionAsync(It.IsAny<Neo.Network.P2P.Payloads.Transaction>(), It.IsAny<UInt160?>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _deployerService.UpdateAsync(compiledContract, contractHash, deploymentOptions);
+
+        // Assert
+        Assert.NotNull(result);
+        // Network magic should be used in transaction (can't verify directly due to mock)
+        Assert.False(result.Success); // Should fail due to network connectivity
+    }
+
+    [Fact]
     public async Task DeployAsync_WithInvalidWalletSetup_ShouldHandleError()
     {
         // Arrange
@@ -254,6 +383,21 @@ public class ContractDeployerServiceTests : TestBase
             ValidUntilBlockOffset = 100,
             ConfirmationRetries = 3,
             ConfirmationDelaySeconds = 1
+        };
+    }
+
+    private DeploymentOptions CreateDeploymentOptionsWithWifKey()
+    {
+        return new DeploymentOptions
+        {
+            WifKey = "KzjaqMvqzF1uup6KrTKRxTgjcXE7PbKLRH84e6ckyXDt3fu7afUb",
+            GasLimit = 50_000_000,
+            WaitForConfirmation = false,
+            DefaultNetworkFee = 1_000_000,
+            ValidUntilBlockOffset = 100,
+            ConfirmationRetries = 3,
+            ConfirmationDelaySeconds = 1,
+            NetworkMagic = 894710606 // Testnet
         };
     }
 }

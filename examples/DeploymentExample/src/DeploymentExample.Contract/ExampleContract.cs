@@ -34,29 +34,36 @@ namespace DeploymentExample.Contract
         /// Contract deployment initialization
         /// </summary>
         [DisplayName("_deploy")]
-        public static void Deploy(object data, bool update)
+        public static void _deploy(object data, bool update)
         {
-            if (!update)
+            if (update)
             {
-                // If data is null, use the transaction sender as owner
-                UInt160 owner;
-                if (data == null)
+                // Check authorization for updates
+                if (!Runtime.CheckWitness(GetOwner()))
                 {
-                    owner = Runtime.Transaction.Sender;
+                    throw new Exception("Only owner can update contract");
                 }
-                else
-                {
-                    owner = (UInt160)data;
-                }
-                
-                if (!owner.IsValid || owner.IsZero)
-                {
-                    throw new Exception("Invalid owner address");
-                }
-                
-                Storage.Put(Storage.CurrentContext, new byte[] { OWNER_PREFIX }, owner);
-                Storage.Put(Storage.CurrentContext, new byte[] { COUNTER_PREFIX }, 0);
+                return;
             }
+            
+            // Initial deployment - set owner
+            UInt160 owner;
+            if (data == null)
+            {
+                owner = Runtime.Transaction.Sender;
+            }
+            else
+            {
+                owner = (UInt160)data;
+            }
+            
+            if (!owner.IsValid || owner.IsZero)
+            {
+                throw new Exception("Invalid owner address");
+            }
+            
+            Storage.Put(Storage.CurrentContext, new byte[] { OWNER_PREFIX }, owner);
+            Storage.Put(Storage.CurrentContext, new byte[] { COUNTER_PREFIX }, 0);
         }
 
         /// <summary>
@@ -159,20 +166,6 @@ namespace DeploymentExample.Contract
             return Runtime.CheckWitness(GetOwner());
         }
 
-        /// <summary>
-        /// Update the contract (only owner can update)
-        /// </summary>
-        [DisplayName("update")]
-        public static bool Update(ByteString nefFile, string manifest, object data)
-        {
-            if (!Runtime.CheckWitness(GetOwner()))
-            {
-                throw new Exception("Only owner can update contract");
-            }
-
-            ContractManagement.Update(nefFile, manifest, data);
-            return true;
-        }
 
         /// <summary>
         /// Destroy the contract (only owner can destroy)

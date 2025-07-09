@@ -31,6 +31,29 @@ namespace MyContract
         public static event Action<UInt160, string, BigInteger> OnDataStored;
         
         /// <summary>
+        /// Contract deployment and update method
+        /// </summary>
+        /// <param name="data">Deployment data</param>
+        /// <param name="update">Whether this is an update</param>
+        [DisplayName("_deploy")]
+        public static void _deploy(object data, bool update)
+        {
+            if (update)
+            {
+                // Check authorization for updates
+                var owner = GetOwner();
+                if (!Runtime.CheckWitness(owner))
+                {
+                    throw new Exception("Only owner can update contract");
+                }
+                return;
+            }
+            
+            // Initial deployment - no initialization here
+            // Use the initialize method for post-deployment setup
+        }
+        
+        /// <summary>
         /// Contract initialization method
         /// Called once after deployment to set up the contract
         /// </summary>
@@ -127,24 +150,6 @@ namespace MyContract
             return true;
         }
         
-        /// <summary>
-        /// Update the contract
-        /// Only the owner can update
-        /// </summary>
-        /// <param name="nefFile">New NEF file</param>
-        /// <param name="manifest">New manifest</param>
-        /// <param name="data">Update data</param>
-        [DisplayName("update")]
-        public static void Update(ByteString nefFile, string manifest, object? data = null)
-        {
-            var owner = GetOwner();
-            if (!Runtime.CheckWitness(owner))
-            {
-                throw new Exception("Only owner can update");
-            }
-            
-            ContractManagement.Update(nefFile, manifest, data);
-        }
         
         /// <summary>
         /// Destroy the contract

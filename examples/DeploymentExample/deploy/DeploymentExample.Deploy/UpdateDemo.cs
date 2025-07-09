@@ -31,7 +31,7 @@ public class UpdateDemo
         try
         {
             // Step 1: Deploy the Token contract with update functionality
-            Console.WriteLine("\n1. Deploying TokenContract with update method...");
+            Console.WriteLine("\n1. Deploying TokenContract with update support...");
             
             var contractPath = Path.Combine("..", "..", "src", "TokenContract", "TokenContract.cs");
             var deployResult = await toolkit.DeployAsync(contractPath);

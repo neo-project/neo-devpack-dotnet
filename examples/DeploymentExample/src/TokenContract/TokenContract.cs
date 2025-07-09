@@ -42,16 +42,24 @@ namespace DeploymentExample.Contract
         public static event Action<UInt160, BigInteger> OnBurned;
 
         /// <summary>
-        /// Deploy the token contract
+        /// Deploy/update the token contract
         /// </summary>
         [DisplayName("_deploy")]
-        public static void Deploy(object data, bool update)
+        public static void _deploy(object data, bool update)
         {
-            if (!update)
+            if (update)
             {
-                // Minimal deployment - just mark as deployed
-                Storage.Put(Storage.CurrentContext, "deployed", 1);
+                // Check authorization for updates
+                if (!Runtime.CheckWitness(GetOwner()))
+                {
+                    throw new Exception("Only owner can update contract");
+                }
+                // Perform any migration logic here if needed
+                return;
             }
+            
+            // Initial deployment - just mark as deployed
+            Storage.Put(Storage.CurrentContext, "deployed", 1);
         }
         
         /// <summary>
@@ -337,21 +345,5 @@ namespace DeploymentExample.Contract
             return Runtime.CheckWitness(governance);
         }
 
-        /// <summary>
-        /// Update the contract
-        /// </summary>
-        [DisplayName("update")]
-        public static bool Update(ByteString nefFile, string manifest, object data)
-        {
-            // Only owner can update
-            if (!Runtime.CheckWitness(GetOwner()))
-            {
-                throw new Exception("Only owner can update contract");
-            }
-            
-            // Call ContractManagement.Update
-            ContractManagement.Update(nefFile, manifest, data);
-            return true;
-        }
     }
 }

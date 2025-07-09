@@ -4,29 +4,37 @@ This guide explains how to make Neo smart contracts updatable and use the deploy
 
 ## Key Concepts
 
-### 1. Contract Update Mechanism in Neo
+### 1. Contract Update Mechanism in Neo N3
 
 - **ContractManagement.Update**: A native contract method that updates a deployed contract
-- **Important**: Only the contract itself can call `ContractManagement.Update`
-- External accounts cannot directly update contracts - they must call the contract's update method
+- **_deploy Method**: When a contract is updated, Neo automatically calls the contract's `_deploy` method with `update=true`
+- **Authorization**: Must be implemented in the `_deploy` method when handling updates
 
 ### 2. Making Contracts Updatable
 
-To make a contract updatable, you must implement an `update` method in your contract:
+In Neo N3, contracts handle updates through the `_deploy` method:
 
 ```csharp
-[DisplayName("update")]
-public static bool Update(ByteString nefFile, string manifest, object data)
+[DisplayName("_deploy")]
+public static void _deploy(object data, bool update)
 {
-    // Check authorization (e.g., only owner can update)
-    if (!Runtime.CheckWitness(GetOwner()))
+    if (update)
     {
-        throw new Exception("Only owner can update contract");
+        // Check authorization (e.g., only owner can update)
+        if (!Runtime.CheckWitness(GetOwner()))
+        {
+            throw new Exception("Only owner can update contract");
+        }
+        
+        // Optional: Perform state migration
+        // MigrateState(data);
+        
+        return;
     }
     
-    // Call ContractManagement.Update
-    ContractManagement.Update(nefFile, manifest, data);
-    return true;
+    // Initial deployment logic
+    Storage.Put(Storage.CurrentContext, "deployed", 1);
+    // Initialize owner, etc.
 }
 ```
 
@@ -44,18 +52,36 @@ if (!Runtime.CheckWitness(GetOwner()))
 
 #### Multi-sig or Council:
 ```csharp
-var isCouncil = IsCouncilMember(Runtime.CallingScriptHash);
-if (!isCouncil && !Runtime.CheckWitness(GetOwner()))
+[DisplayName("_deploy")]
+public static void _deploy(object data, bool update)
 {
-    throw new Exception("Only council or owner can update");
+    if (update)
+    {
+        var isCouncil = IsCouncilMember(Runtime.CallingScriptHash);
+        if (!isCouncil && !Runtime.CheckWitness(GetOwner()))
+        {
+            throw new Exception("Only council or owner can update");
+        }
+        return;
+    }
+    // Initial deployment...
 }
 ```
 
 #### Governance-based:
 ```csharp
-if (!CheckGovernance())
+[DisplayName("_deploy")]
+public static void _deploy(object data, bool update)
 {
-    throw new Exception("Only governance can update");
+    if (update)
+    {
+        if (!CheckGovernance())
+        {
+            throw new Exception("Only governance can update");
+        }
+        return;
+    }
+    // Initial deployment...
 }
 ```
 
@@ -64,7 +90,7 @@ if (!CheckGovernance())
 ### Deploy a Contract with Update Capability
 
 ```csharp
-// Deploy contract (must have update method)
+// Deploy contract (with proper _deploy method)
 var toolkit = new DeploymentToolkit();
 toolkit.SetWifKey("your-wif-key");
 toolkit.SetNetwork("testnet");
@@ -105,9 +131,9 @@ dotnet run demo
 
 ## Common Issues and Solutions
 
-### "method not found: update/3"
-**Problem**: The contract doesn't have an update method.
-**Solution**: Add an update method to your contract before deployment.
+### "Unauthorized update attempt"
+**Problem**: The authorization check in `_deploy` method failed.
+**Solution**: Use the same WIF key that deployed the contract, or ensure proper authorization is granted.
 
 ### "Only owner can update contract"
 **Problem**: The WIF key doesn't match the contract owner.
@@ -130,10 +156,13 @@ The deployment toolkit includes comprehensive update testing:
 ### Update Script Generation
 
 The toolkit generates an update script that:
-1. Pushes the new NEF file bytes
-2. Pushes the new manifest JSON
-3. Pushes optional update data
-4. Calls the contract's update method
+1. Pushes the contract hash to update
+2. Pushes optional update data
+3. Pushes the new manifest JSON
+4. Pushes the new NEF file bytes
+5. Calls `ContractManagement.Update` directly
+
+This triggers the contract's `_deploy` method with `update=true`.
 
 See `ScriptBuilderHelper.BuildUpdateScript` for implementation details.
 
@@ -156,10 +185,10 @@ Updates require proper transaction signing:
 
 ## Example Contracts with Update Support
 
-All example contracts now include update methods:
-- **TokenContract**: Owner-based update
-- **NFTContract**: Owner-based update
-- **GovernanceContract**: Council or owner-based update
+All example contracts implement the `_deploy` method with update authorization:
+- **TokenContract**: Owner-based update authorization in `_deploy`
+- **NFTContract**: Owner-based update authorization in `_deploy`
+- **GovernanceContract**: Council or owner-based update authorization in `_deploy`
 
 ## Deployment Record
 

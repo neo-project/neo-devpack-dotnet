@@ -90,7 +90,7 @@ public class ContractDeployerService : IContractDeployer
 
             // Get deployer account from options or wallet manager
             var deployerAccount = options.DeployerAccount;
-            
+
             // If WIF key is provided, derive account from it
             if (!string.IsNullOrEmpty(options.WifKey))
             {
@@ -298,6 +298,7 @@ public class ContractDeployerService : IContractDeployer
     {
         if (contract == null) throw new ArgumentNullException(nameof(contract));
         if (contractHash == null) throw new ArgumentNullException(nameof(contractHash));
+        if (contractHash == UInt160.Zero) throw new ArgumentException("Contract hash cannot be zero", nameof(contractHash));
         if (options == null) throw new ArgumentNullException(nameof(options));
 
         _logger.LogInformation("Updating contract {ContractHash} with new version", contractHash);
@@ -325,7 +326,7 @@ public class ContractDeployerService : IContractDeployer
 
             // Get deployer account from options or wallet manager
             var deployerAccount = options.DeployerAccount;
-            
+
             // If WIF key is provided, derive account from it
             if (!string.IsNullOrEmpty(options.WifKey))
             {

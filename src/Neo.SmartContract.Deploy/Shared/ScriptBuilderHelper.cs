@@ -161,11 +161,13 @@ public static class ScriptBuilderHelper
     {
         using var sb = new ScriptBuilder();
 
-        // Build arguments array for the contract's own update method
-        // The contract must have an update method that internally calls ContractManagement.Update
-        // Order in array: [nef (byte[]), manifest (string), data (object)]
+        // Build arguments array for ContractManagement.Update
+        // Order in array: [nef (byte[]), manifest (string), data (object), contract (hash)]
 
         // First, push the arguments in reverse order (for PACK)
+
+        // 4. Push contract hash
+        sb.EmitPush(contractHash);
 
         // 3. Push update data (for _deploy method)
         if (updateData != null)
@@ -184,15 +186,15 @@ public static class ScriptBuilderHelper
         // 1. Push NEF bytes
         sb.EmitPush(nefBytes);
 
-        // Create array with 3 elements
-        sb.EmitPush(3);
+        // Create array with 4 elements
+        sb.EmitPush(4);
         sb.Emit(OpCode.PACK);
 
-        // Call the contract's own update method, not ContractManagement.Update directly
-        // The contract's update method should internally call ContractManagement.Update
+        // Call ContractManagement.Update directly
+        // This will trigger the contract's _deploy method with update=true
         sb.EmitPush(CallFlags.All);
         sb.EmitPush("update");
-        sb.EmitPush(contractHash); // Call the contract's update method
+        sb.EmitPush(Neo.SmartContract.Native.NativeContract.ContractManagement.Hash);
         sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
 
         return sb.ToArray();

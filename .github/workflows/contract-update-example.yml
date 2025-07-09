@@ -1,0 +1,328 @@
+name: Contract Update CI/CD Example
+
+# This workflow demonstrates how to integrate contract updates into your CI/CD pipeline
+# It includes deployment, testing, and updating of smart contracts
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'testnet'
+        type: choice
+        options:
+          - testnet
+          - mainnet
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+          - deploy
+          - update
+          - test
+      contract_hash:
+        description: 'Contract hash (required for update)'
+        required: false
+        type: string
+
+env:
+  DOTNET_VERSION: 9.0.300
+  NEO_EXPRESS_VERSION: 3.5.20
+
+jobs:
+  build-contracts:
+    runs-on: ubuntu-latest
+    outputs:
+      artifacts-path: ${{ steps.upload.outputs.artifact-path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build contracts
+        run: |
+          dotnet build ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+          dotnet build ./examples/DeploymentExample/src/TokenContract/TokenContract.csproj
+          dotnet build ./examples/DeploymentExample/src/NFTContract/NFTContract.csproj
+          dotnet build ./examples/DeploymentExample/src/GovernanceContract/GovernanceContract.csproj
+
+      - name: Compile contracts
+        run: |
+          mkdir -p ./artifacts
+          dotnet tool install -g Neo.Compiler.CSharp
+          nccs ./examples/DeploymentExample/src/TokenContract/TokenContract.csproj -o ./artifacts/
+          nccs ./examples/DeploymentExample/src/NFTContract/NFTContract.csproj -o ./artifacts/
+          nccs ./examples/DeploymentExample/src/GovernanceContract/GovernanceContract.csproj -o ./artifacts/
+
+      - name: Upload artifacts
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-artifacts
+          path: ./artifacts/
+          retention-days: 7
+
+  deploy-contracts:
+    if: github.event.inputs.action == 'deploy'
+    needs: build-contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+          path: ./artifacts/
+
+      - name: Setup deployment environment
+        env:
+          DEPLOYMENT_WIF_KEY: ${{ secrets.DEPLOYMENT_WIF_KEY }}
+        run: |
+          echo "Setting up deployment for ${{ github.event.inputs.environment }}"
+          
+          # Create deployment configuration
+          cat > deployment-config.json << EOF
+          {
+            "network": "${{ github.event.inputs.environment }}",
+            "contracts": [
+              {
+                "name": "TokenContract",
+                "nefPath": "./artifacts/TokenContract.nef",
+                "manifestPath": "./artifacts/TokenContract.manifest.json"
+              },
+              {
+                "name": "NFTContract",
+                "nefPath": "./artifacts/NFTContract.nef",
+                "manifestPath": "./artifacts/NFTContract.manifest.json"
+              },
+              {
+                "name": "GovernanceContract",
+                "nefPath": "./artifacts/GovernanceContract.nef",
+                "manifestPath": "./artifacts/GovernanceContract.manifest.json"
+              }
+            ]
+          }
+          EOF
+
+      - name: Deploy contracts
+        env:
+          DEPLOYMENT_WIF_KEY: ${{ secrets.DEPLOYMENT_WIF_KEY }}
+        run: |
+          dotnet build ./src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj
+          
+          # Create deployment script
+          cat > deploy.csx << 'EOF'
+          #r "nuget: Neo.SmartContract.Deploy, *"
+          using Neo.SmartContract.Deploy;
+          using System.Text.Json;
+          
+          var config = JsonSerializer.Deserialize<dynamic>(File.ReadAllText("deployment-config.json"));
+          var toolkit = new DeploymentToolkit();
+          
+          toolkit.SetWifKey(Environment.GetEnvironmentVariable("DEPLOYMENT_WIF_KEY"));
+          toolkit.SetNetwork(config.GetProperty("network").GetString());
+          
+          foreach (var contract in config.GetProperty("contracts").EnumerateArray())
+          {
+              var name = contract.GetProperty("name").GetString();
+              var nefPath = contract.GetProperty("nefPath").GetString();
+              var manifestPath = contract.GetProperty("manifestPath").GetString();
+              
+              Console.WriteLine($"Deploying {name}...");
+              var result = await toolkit.DeployArtifactsAsync(nefPath, manifestPath);
+              
+              if (result.Success)
+              {
+                  Console.WriteLine($"✅ {name} deployed: {result.ContractHash}");
+                  Console.WriteLine($"   Transaction: {result.TransactionHash}");
+                  
+                  // Save contract hash for later use
+                  File.AppendAllText("deployed-contracts.txt", $"{name}={result.ContractHash}\n");
+              }
+              else
+              {
+                  Console.WriteLine($"❌ {name} deployment failed: {result.ErrorMessage}");
+                  Environment.Exit(1);
+              }
+          }
+          EOF
+          
+          dotnet script deploy.csx
+
+      - name: Save deployment results
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-results
+          path: deployed-contracts.txt
+
+  update-contracts:
+    if: github.event.inputs.action == 'update'
+    needs: build-contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+          path: ./artifacts/
+
+      - name: Update contract
+        env:
+          DEPLOYMENT_WIF_KEY: ${{ secrets.DEPLOYMENT_WIF_KEY }}
+          CONTRACT_HASH: ${{ github.event.inputs.contract_hash }}
+        run: |
+          if [ -z "$CONTRACT_HASH" ]; then
+            echo "❌ Contract hash is required for update action"
+            exit 1
+          fi
+          
+          dotnet build ./src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj
+          
+          # Create update script
+          cat > update.csx << 'EOF'
+          #r "nuget: Neo.SmartContract.Deploy, *"
+          using Neo.SmartContract.Deploy;
+          
+          var toolkit = new DeploymentToolkit();
+          var contractHash = Environment.GetEnvironmentVariable("CONTRACT_HASH");
+          var network = "${{ github.event.inputs.environment }}";
+          
+          toolkit.SetWifKey(Environment.GetEnvironmentVariable("DEPLOYMENT_WIF_KEY"));
+          toolkit.SetNetwork(network);
+          
+          Console.WriteLine($"Updating contract {contractHash} on {network}...");
+          
+          // Find the contract source based on hash
+          // In a real scenario, you'd have a mapping of hashes to contracts
+          var contractPath = "./examples/DeploymentExample/src/TokenContract/TokenContract.cs";
+          
+          var result = await toolkit.UpdateAsync(contractHash, contractPath);
+          
+          if (result.Success)
+          {
+              Console.WriteLine($"✅ Contract updated successfully!");
+              Console.WriteLine($"   Transaction: {result.TransactionHash}");
+              Console.WriteLine($"   Gas consumed: {result.GasConsumed / 100_000_000m} GAS");
+          }
+          else
+          {
+              Console.WriteLine($"❌ Update failed: {result.ErrorMessage}");
+              Environment.Exit(1);
+          }
+          EOF
+          
+          dotnet script update.csx
+
+  test-contracts:
+    if: github.event.inputs.action == 'test' || github.event.inputs.action == 'deploy' || github.event.inputs.action == 'update'
+    needs: [build-contracts]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run contract tests
+        run: |
+          # Run unit tests
+          dotnet test ./tests/Neo.SmartContract.Framework.UnitTests
+          
+          # Run deployment integration tests
+          dotnet test ./tests/Neo.SmartContract.Deploy.UnitTests --filter "Category!=Integration"
+
+      - name: Test contract functionality
+        if: github.event.inputs.action == 'deploy' || github.event.inputs.action == 'update'
+        env:
+          DEPLOYMENT_WIF_KEY: ${{ secrets.DEPLOYMENT_WIF_KEY }}
+        run: |
+          # Create test script
+          cat > test-contracts.csx << 'EOF'
+          #r "nuget: Neo.SmartContract.Deploy, *"
+          using Neo.SmartContract.Deploy;
+          
+          var toolkit = new DeploymentToolkit();
+          toolkit.SetWifKey(Environment.GetEnvironmentVariable("DEPLOYMENT_WIF_KEY"));
+          toolkit.SetNetwork("${{ github.event.inputs.environment }}");
+          
+          // Read deployed contracts
+          if (File.Exists("deployed-contracts.txt"))
+          {
+              var contracts = File.ReadAllLines("deployed-contracts.txt")
+                  .Select(line => line.Split('='))
+                  .ToDictionary(parts => parts[0], parts => parts[1]);
+              
+              // Test token contract
+              if (contracts.TryGetValue("TokenContract", out var tokenHash))
+              {
+                  Console.WriteLine("Testing TokenContract...");
+                  var symbol = await toolkit.CallAsync<string>(tokenHash, "symbol");
+                  Console.WriteLine($"  Symbol: {symbol}");
+                  
+                  var totalSupply = await toolkit.CallAsync<System.Numerics.BigInteger>(tokenHash, "totalSupply");
+                  Console.WriteLine($"  Total Supply: {totalSupply}");
+              }
+          }
+          EOF
+          
+          dotnet script test-contracts.csx
+
+  create-release:
+    if: github.event.inputs.action == 'deploy' && github.event.inputs.environment == 'mainnet'
+    needs: [deploy-contracts, test-contracts]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download deployment results
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-results
+
+      - name: Create deployment release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: deployment-${{ github.run_number }}
+          release_name: Contract Deployment ${{ github.run_number }}
+          body: |
+            ## Deployed Contracts
+            
+            Environment: ${{ github.event.inputs.environment }}
+            
+            ### Contract Addresses:
+            ```
+            $(cat deployed-contracts.txt)
+            ```
+            
+            ### Deployment Details:
+            - Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Commit: ${{ github.sha }}
+          draft: false
+          prerelease: false

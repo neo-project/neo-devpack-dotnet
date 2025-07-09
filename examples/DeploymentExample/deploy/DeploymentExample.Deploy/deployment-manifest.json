@@ -10,7 +10,12 @@
       "optimize": true,
       "gasLimit": 100000000,
       "initialParameters": ["@deployer"],
-      "postDeploymentActions": []
+      "postDeploymentActions": [],
+      "updateConfiguration": {
+        "allowUpdates": true,
+        "requireOwnerAuthorization": true,
+        "updateGasLimit": 50000000
+      }
     },
     {
       "name": "NFTContract", 
@@ -21,7 +26,12 @@
       "gasLimit": 100000000,
       "initialParameters": ["@deployer", "@TokenContract", 1000000000],
       "injectDependencies": true,
-      "postDeploymentActions": []
+      "postDeploymentActions": [],
+      "updateConfiguration": {
+        "allowUpdates": true,
+        "requireOwnerAuthorization": true,
+        "updateGasLimit": 50000000
+      }
     },
     {
       "name": "GovernanceContract",
@@ -38,7 +48,13 @@
           "parameters": [1, "@NFTContract", "Add NFT contract to governance"],
           "required": false
         }
-      ]
+      ],
+      "updateConfiguration": {
+        "allowUpdates": true,
+        "requireOwnerAuthorization": true,
+        "requireCouncilApproval": true,
+        "updateGasLimit": 50000000
+      }
     }
   ],
   "deploymentOrder": ["TokenContract", "NFTContract", "GovernanceContract"],
