@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Neo;
+using Neo.IO;
+using Neo.SmartContract.Manifest;
 using Neo.Wallets;
 using Neo.SmartContract.Deploy.Extensions;
 using Neo.SmartContract.Deploy.Interfaces;
@@ -34,6 +36,7 @@ public class DeploymentToolkit : IDisposable
     private readonly IContractDeployer _deployer;
     private readonly IContractInvoker _invoker;
     private readonly IWalletManager _walletManager;
+    private readonly IContractUpdateService _updater;
     private volatile string? _currentNetwork = null;
     private volatile string? _wifKey = null;
     private bool _disposed = false;
@@ -73,6 +76,7 @@ public class DeploymentToolkit : IDisposable
         _deployer = _serviceProvider.GetRequiredService<IContractDeployer>();
         _invoker = _serviceProvider.GetRequiredService<IContractInvoker>();
         _walletManager = _serviceProvider.GetRequiredService<IWalletManager>();
+        _updater = _serviceProvider.GetRequiredService<IContractUpdateService>();
     }
 
     /// <summary>
@@ -328,6 +332,104 @@ public class DeploymentToolkit : IDisposable
         return await _deployer.ContractExistsAsync(contractHash, rpcUrl);
     }
 
+    /// <summary>
+    /// Update an existing contract from source code or project
+    /// </summary>
+    /// <param name="contractHashOrAddress">Contract hash or address to update</param>
+    /// <param name="path">Path to contract project (.csproj) or source file</param>
+    /// <param name="updateParams">Optional update parameters</param>
+    /// <returns>Update information</returns>
+    public async Task<ContractUpdateInfo> UpdateAsync(string contractHashOrAddress, string path, object[]? updateParams = null)
+    {
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentException("Path cannot be null or empty", nameof(path));
+
+        _logger?.LogInformation("Updating contract {Contract} from: {Path}", contractHashOrAddress, path);
+
+        // Parse contract hash
+        var contractHash = ParseContractHashOrAddress(contractHashOrAddress);
+
+        // Compile the contract
+        var contract = await _compiler.CompileAsync(path);
+
+        // Create update options
+        var options = CreateUpdateOptions();
+
+        // Update the contract
+        return await _updater.UpdateAsync(contractHash, contract, options, updateParams);
+    }
+
+    /// <summary>
+    /// Update a contract from pre-compiled NEF and manifest files
+    /// </summary>
+    /// <param name="contractHashOrAddress">Contract hash or address to update</param>
+    /// <param name="nefPath">Path to NEF file (null to keep existing)</param>
+    /// <param name="manifestPath">Path to manifest file (null to keep existing)</param>
+    /// <param name="updateParams">Optional update parameters</param>
+    /// <returns>Update information</returns>
+    public async Task<ContractUpdateInfo> UpdateArtifactsAsync(string contractHashOrAddress, string? nefPath, string? manifestPath, object[]? updateParams = null)
+    {
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        if (string.IsNullOrWhiteSpace(nefPath) && string.IsNullOrWhiteSpace(manifestPath))
+            throw new ArgumentException("At least one of NEF path or manifest path must be provided");
+
+        _logger?.LogInformation("Updating contract {Contract} from artifacts - NEF: {NefPath}, Manifest: {ManifestPath}", 
+            contractHashOrAddress, nefPath ?? "keep existing", manifestPath ?? "keep existing");
+
+        // Parse contract hash
+        var contractHash = ParseContractHashOrAddress(contractHashOrAddress);
+
+        // Load the contract artifacts
+        CompiledContract contract;
+        
+        if (!string.IsNullOrWhiteSpace(nefPath) && !string.IsNullOrWhiteSpace(manifestPath))
+        {
+            // Both provided - load complete contract
+            contract = await _compiler.LoadContractAsync(nefPath, manifestPath);
+        }
+        else
+        {
+            // Partial update - create contract with only the provided artifact
+            contract = new CompiledContract
+            {
+                Name = "PartialUpdate"
+            };
+
+            if (!string.IsNullOrWhiteSpace(nefPath))
+            {
+                var nefBytes = await File.ReadAllBytesAsync(nefPath);
+                contract.NefBytes = nefBytes;
+            }
+
+            if (!string.IsNullOrWhiteSpace(manifestPath))
+            {
+                var manifestJson = await File.ReadAllTextAsync(manifestPath);
+                contract.Manifest = ContractManifest.Parse(manifestJson);
+            }
+        }
+
+        // Create update options
+        var options = CreateUpdateOptions();
+        
+        // Set update mode based on what was provided
+        if (string.IsNullOrWhiteSpace(nefPath))
+        {
+            options.UpdateManifestOnly = true;
+        }
+        else if (string.IsNullOrWhiteSpace(manifestPath))
+        {
+            options.UpdateNefOnly = true;
+        }
+
+        // Update the contract
+        return await _updater.UpdateAsync(contractHash, contract, options, updateParams);
+    }
+
     #region Private Methods
 
     private DeploymentOptions CreateDeploymentOptions()
@@ -358,6 +460,22 @@ public class DeploymentToolkit : IDisposable
             NetworkMagic = GetNetworkMagic(),
             WaitForConfirmation = true,
             GasLimit = 10_000_000
+        };
+    }
+
+    private UpdateOptions CreateUpdateOptions()
+    {
+        if (string.IsNullOrWhiteSpace(_wifKey))
+            throw new InvalidOperationException("WIF key must be set before update. Use SetWifKey().");
+
+        return new UpdateOptions
+        {
+            WifKey = _wifKey,
+            RpcUrl = GetCurrentRpcUrl(),
+            NetworkMagic = GetNetworkMagic(),
+            WaitForConfirmation = true,
+            VerifyAfterUpdate = true,
+            GasLimit = 100_000_000
         };
     }
 

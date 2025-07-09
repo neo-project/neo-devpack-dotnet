@@ -155,6 +155,76 @@ public static class ScriptBuilderHelper
         EmitContractCall(sb, scriptHash, method, CallFlags.All, parameters);
     }
 
+    /// <summary>
+    /// Build an update script for a contract
+    /// </summary>
+    /// <param name="nefBytes">NEF file bytes (null to keep existing)</param>
+    /// <param name="manifestBytes">Manifest bytes (null to keep existing)</param>
+    /// <param name="updateParams">Update parameters for _deploy method</param>
+    /// <returns>Update script</returns>
+    public static byte[] BuildUpdateScript(byte[]? nefBytes, byte[]? manifestBytes, object[]? updateParams = null)
+    {
+        using var sb = new ScriptBuilder();
+
+        // Build arguments array for ContractManagement.Update
+        // Order in array: [nef (byte[] or null), manifest (string or null), data (object)]
+
+        // First, push the arguments in reverse order (for PACK)
+
+        // 3. Push update data (for _deploy method with update=true)
+        if (updateParams != null && updateParams.Length > 0)
+        {
+            // If single parameter, push it directly
+            if (updateParams.Length == 1)
+            {
+                sb.EmitPush(updateParams[0]);
+            }
+            else
+            {
+                // Multiple parameters need to be packed as array
+                EmitParameterArray(sb, updateParams);
+            }
+        }
+        else
+        {
+            // No update data
+            sb.Emit(OpCode.PUSHNULL);
+        }
+
+        // 2. Push manifest as string (ContractManagement expects JSON string) or null
+        if (manifestBytes != null)
+        {
+            var manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
+            sb.EmitPush(manifestJson);
+        }
+        else
+        {
+            sb.Emit(OpCode.PUSHNULL);
+        }
+
+        // 1. Push NEF bytes or null
+        if (nefBytes != null)
+        {
+            sb.EmitPush(nefBytes);
+        }
+        else
+        {
+            sb.Emit(OpCode.PUSHNULL);
+        }
+
+        // Create array with 3 elements
+        sb.EmitPush(3);
+        sb.Emit(OpCode.PACK);
+
+        // Call ContractManagement.Update with the array
+        sb.EmitPush(CallFlags.All);
+        sb.EmitPush("update");
+        sb.EmitPush(Neo.SmartContract.Native.NativeContract.ContractManagement.Hash);
+        sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
+
+        return sb.ToArray();
+    }
+
     private static void EmitContractCall(ScriptBuilder sb, UInt160 scriptHash, string method, CallFlags callFlags, params object[] parameters)
     {
         // Build parameters array

@@ -33,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IWalletManager, WalletManagerService>();
         services.AddSingleton<IContractInvoker, ContractInvokerService>();
         services.AddSingleton<IContractDeployer, ContractDeployerService>();
+        services.AddSingleton<IContractUpdateService, ContractUpdateService>();
 
         // Add the toolkit
         services.AddSingleton<NeoContractToolkit>();
@@ -128,6 +129,19 @@ public static class ServiceCollectionExtensions
         where TWalletManager : class, IWalletManager
     {
         services.AddSingleton<IWalletManager, TWalletManager>();
+        return services;
+    }
+
+    /// <summary>
+    /// Replace the default contract update service
+    /// </summary>
+    /// <typeparam name="TUpdateService">Update service implementation type</typeparam>
+    /// <param name="services">Service collection</param>
+    /// <returns>Service collection</returns>
+    public static IServiceCollection UseContractUpdateService<TUpdateService>(this IServiceCollection services)
+        where TUpdateService : class, IContractUpdateService
+    {
+        services.AddSingleton<IContractUpdateService, TUpdateService>();
         return services;
     }
 }

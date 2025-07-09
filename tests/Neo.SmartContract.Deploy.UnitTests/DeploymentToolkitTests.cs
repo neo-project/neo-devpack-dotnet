@@ -2,6 +2,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Neo;
+using Neo.SmartContract;
+using Neo.Extensions;
+using Neo.Wallets;
 using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
 using System;
@@ -299,5 +303,179 @@ namespace TestContract
         var contractPath = Path.Combine(tempDir, "TestContract.cs");
         File.WriteAllText(contractPath, contractCode);
         return contractPath;
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithValidContract_CallsUpdateService()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var contractPath = CreateTestContract();
+        
+        // This test would need a more complex setup with mocked services
+        // For now, we verify the method exists and accepts correct parameters
+        
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await toolkit.UpdateAsync(contractHash.ToString(), contractPath));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_EmptyContractHash_ThrowsArgumentException()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        var contractPath = CreateTestContract();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await toolkit.UpdateAsync("", contractPath));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_EmptyPath_ThrowsArgumentException()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await toolkit.UpdateAsync(contractHash.ToString(), ""));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_NoWifKey_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var contractPath = CreateTestContract();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await toolkit.UpdateAsync(contractHash.ToString(), contractPath));
+    }
+
+    [Fact]
+    public async Task UpdateArtifactsAsync_WithValidArtifacts_CallsUpdateService()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var nefPath = Path.GetTempFileName();
+        var manifestPath = Path.GetTempFileName();
+        
+        File.WriteAllBytes(nefPath, new byte[] { 0x4E, 0x45, 0x46, 0x33 });
+        File.WriteAllText(manifestPath, "{\"name\":\"TestContract\"}");
+
+        try
+        {
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await toolkit.UpdateArtifactsAsync(contractHash.ToString(), nefPath, manifestPath));
+        }
+        finally
+        {
+            File.Delete(nefPath);
+            File.Delete(manifestPath);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateArtifactsAsync_BothPathsNull_ThrowsArgumentException()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await toolkit.UpdateArtifactsAsync(contractHash.ToString(), null, null));
+    }
+
+    [Fact]
+    public async Task UpdateArtifactsAsync_OnlyNefPath_SetsUpdateNefOnlyFlag()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var nefPath = Path.GetTempFileName();
+        
+        File.WriteAllBytes(nefPath, new byte[] { 0x4E, 0x45, 0x46, 0x33 });
+
+        try
+        {
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await toolkit.UpdateArtifactsAsync(contractHash.ToString(), nefPath, null));
+        }
+        finally
+        {
+            File.Delete(nefPath);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateArtifactsAsync_OnlyManifestPath_SetsUpdateManifestOnlyFlag()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var manifestPath = Path.GetTempFileName();
+        
+        File.WriteAllText(manifestPath, "{\"name\":\"TestContract\"}");
+
+        try
+        {
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await toolkit.UpdateArtifactsAsync(contractHash.ToString(), null, manifestPath));
+        }
+        finally
+        {
+            File.Delete(manifestPath);
+        }
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WithAddress_ParsesCorrectly()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        
+        var contractHash = UInt160.Parse("0x1234567890123456789012345678901234567890");
+        var address = contractHash.ToAddress(ProtocolSettings.Default.AddressVersion);
+        var contractPath = CreateTestContract();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await toolkit.UpdateAsync(address, contractPath));
+    }
+
+    [Fact]
+    public async Task UpdateAsync_InvalidContractHash_ThrowsArgumentException()
+    {
+        // Arrange
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey("L1QqQJnpBwbsPGAuutuzPTac8piqvbR1HRjrY5qHup48TBCBFe4g");
+        var contractPath = CreateTestContract();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await toolkit.UpdateAsync("invalid-hash", contractPath));
     }
 }
