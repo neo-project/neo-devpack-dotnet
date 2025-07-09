@@ -41,7 +41,6 @@ public class DeploymentToolkitTests : TestBase
         // Assert
         Assert.Same(toolkit, result);
         Assert.Equal("https://rpc10.n3.nspcc.ru:10331", Environment.GetEnvironmentVariable("Network__RpcUrl"));
-        Assert.Equal("mainnet", Environment.GetEnvironmentVariable("Network__Network"));
     }
 
     [Fact]
@@ -56,7 +55,6 @@ public class DeploymentToolkitTests : TestBase
         // Assert
         Assert.Same(toolkit, result);
         Assert.Equal("https://testnet1.neo.coz.io:443", Environment.GetEnvironmentVariable("Network__RpcUrl"));
-        Assert.Equal("testnet", Environment.GetEnvironmentVariable("Network__Network"));
     }
 
     [Fact]
@@ -71,7 +69,6 @@ public class DeploymentToolkitTests : TestBase
         // Assert
         Assert.Same(toolkit, result);
         Assert.Equal("http://localhost:50012", Environment.GetEnvironmentVariable("Network__RpcUrl"));
-        Assert.Equal("private", Environment.GetEnvironmentVariable("Network__Network"));
     }
 
     [Fact]
@@ -87,7 +84,6 @@ public class DeploymentToolkitTests : TestBase
         // Assert
         Assert.Same(toolkit, result);
         Assert.Equal(customRpc, Environment.GetEnvironmentVariable("Network__RpcUrl"));
-        Assert.Equal("custom", Environment.GetEnvironmentVariable("Network__Network"));
     }
 
     [Fact]

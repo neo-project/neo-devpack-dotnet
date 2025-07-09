@@ -22,13 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="**/*.cs">
-      <Pack>true</Pack>
-      <PackagePath>src</PackagePath>
-    </Compile>
+    <ProjectReference Include="..\..\neo\src\Neo.Network.RpcClient\Neo.Network.RpcClient.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Neo;
 using Neo.Wallets;
 using Neo.SmartContract.Deploy.Models;
+using Neo.Network.RPC;
 
 namespace Neo.SmartContract.Deploy;
 
@@ -75,18 +76,15 @@ public class DeploymentToolkit : IDisposable
         {
             case "mainnet":
                 Environment.SetEnvironmentVariable("Network__RpcUrl", MAINNET_RPC_URL);
-                Environment.SetEnvironmentVariable("Network__Network", "mainnet");
                 break;
 
             case "testnet":
                 Environment.SetEnvironmentVariable("Network__RpcUrl", TESTNET_RPC_URL);
-                Environment.SetEnvironmentVariable("Network__Network", "testnet");
                 break;
 
             case "local":
             case "private":
                 Environment.SetEnvironmentVariable("Network__RpcUrl", LOCAL_RPC_URL);
-                Environment.SetEnvironmentVariable("Network__Network", "private");
                 break;
 
             default:
@@ -94,7 +92,6 @@ public class DeploymentToolkit : IDisposable
                 if (network.StartsWith("http"))
                 {
                     Environment.SetEnvironmentVariable("Network__RpcUrl", network);
-                    Environment.SetEnvironmentVariable("Network__Network", "custom");
                 }
                 break;
         }
@@ -255,24 +252,45 @@ public class DeploymentToolkit : IDisposable
         return _configuration["Network:RpcUrl"] ?? DEFAULT_RPC_URL;
     }
 
-    private uint GetNetworkMagic()
+    private async Task<uint> GetNetworkMagicAsync()
     {
+        // Check if NetworkMagic is explicitly configured
         if (!string.IsNullOrEmpty(_currentNetwork))
         {
             var networks = _configuration.GetSection("Network:Networks").Get<Dictionary<string, NetworkConfiguration>>();
-            if (networks != null && networks.TryGetValue(_currentNetwork, out var network))
+            if (networks != null && networks.TryGetValue(_currentNetwork, out var network) && network.NetworkMagic.HasValue)
             {
-                return network.NetworkMagic;
+                return network.NetworkMagic.Value;
             }
         }
 
-        // Return network magic based on current network
-        return _currentNetwork?.ToLower() switch
+        // Check configuration for NetworkMagic
+        var configuredMagic = _configuration.GetValue<uint?>("Network:NetworkMagic", null);
+        if (configuredMagic.HasValue)
         {
-            "mainnet" => 860833102,
-            "testnet" => 894710606,
-            _ => _configuration.GetValue<uint>("Network:NetworkMagic", 894710606) // Default to testnet
-        };
+            return configuredMagic.Value;
+        }
+
+        // Retrieve from RPC
+        try
+        {
+            var rpcUrl = GetCurrentRpcUrl();
+            using var rpcClient = new RpcClient(new Uri(rpcUrl), null, null, ProtocolSettings.Default);
+            var version = await rpcClient.GetVersionAsync();
+            return version.Protocol.Network;
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogWarning("Failed to retrieve network magic from RPC: {Message}. Using default.", ex.Message);
+            
+            // Fallback to known values based on network name
+            return _currentNetwork?.ToLower() switch
+            {
+                "mainnet" => 860833102,
+                "testnet" => 894710606,
+                _ => 894710606 // Default to testnet
+            };
+        }
     }
 
     #endregion

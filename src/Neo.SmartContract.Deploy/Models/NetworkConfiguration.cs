@@ -11,14 +11,10 @@ public class NetworkConfiguration
     public string RpcUrl { get; set; } = string.Empty;
 
     /// <summary>
-    /// Network name (private, testnet, mainnet)
-    /// </summary>
-    public string Network { get; set; } = string.Empty;
-
-    /// <summary>
     /// Network magic number for transaction signing
+    /// Retrieved from RPC if not explicitly set
     /// </summary>
-    public uint NetworkMagic { get; set; } = 894710606; // Default to testnet
+    public uint? NetworkMagic { get; set; }
 
     /// <summary>
     /// Wallet configuration
