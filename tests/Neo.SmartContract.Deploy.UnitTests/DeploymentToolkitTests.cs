@@ -208,7 +208,7 @@ public class DeploymentToolkitTests : TestBase
         // Arrange
         var toolkit = new DeploymentToolkit();
         toolkit.SetNetwork("testnet");
-        
+
         // Act & Assert
         // This test verifies that when NetworkMagic is not configured,
         // the toolkit will attempt to retrieve it from RPC

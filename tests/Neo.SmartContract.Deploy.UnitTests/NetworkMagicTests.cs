@@ -105,7 +105,7 @@ public class NetworkMagicTests : IDisposable
         // These are the fallback values that should be used when RPC fails
         // The actual test of this behavior would require mocking the RPC client
         Assert.NotNull(toolkit);
-        
+
         // Note: expectedMagic parameter documents the expected fallback value
         // when RPC is unavailable. In PR 2, when deployment is implemented,
         // this will be tested through actual deployment operations.

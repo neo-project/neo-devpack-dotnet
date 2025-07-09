@@ -62,7 +62,7 @@ public class RpcIntegrationTests
         catch (Exception ex)
         {
             // Log but don't fail - RPC endpoints may be temporarily unavailable
-            Assert.True(false, $"RPC endpoint {rpcUrl} is not accessible: {ex.Message}");
+            Assert.Fail($"RPC endpoint {rpcUrl} is not accessible: {ex.Message}");
         }
     }
 }
