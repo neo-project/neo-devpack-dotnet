@@ -54,7 +54,7 @@ public class DeploymentToolkitTests : TestBase
 
         // Assert
         Assert.Same(toolkit, result);
-        Assert.Equal("https://testnet.rpc.ngd.network:10331", Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        Assert.Equal("https://testnet.ngd.network:10331", Environment.GetEnvironmentVariable("Network__RpcUrl"));
     }
 
     [Fact]
@@ -226,7 +226,7 @@ public class DeploymentToolkitTests : TestBase
         var testCases = new Dictionary<string, string>
         {
             { "mainnet", "https://rpc10.n3.nspcc.ru:10331" },
-            { "testnet", "https://testnet.rpc.ngd.network:10331" },
+            { "testnet", "https://testnet.ngd.network:10331" },
             { "local", "http://localhost:50012" },
             { "private", "http://localhost:50012" }
         };

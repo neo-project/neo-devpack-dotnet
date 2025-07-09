@@ -11,7 +11,7 @@ namespace Neo.SmartContract.Deploy.UnitTests;
 /// </summary>
 public class RpcIntegrationTests
 {
-    private const string NGD_TESTNET_URL = "https://testnet.rpc.ngd.network:10331";
+    private const string NGD_TESTNET_URL = "https://testnet.ngd.network:10331";
     private const uint TESTNET_MAGIC = 894710606;
 
     [Fact(Skip = "Integration test - requires network access")]
@@ -43,7 +43,7 @@ public class RpcIntegrationTests
     }
 
     [Theory(Skip = "Integration test - requires network access")]
-    [InlineData("https://testnet.rpc.ngd.network:10331", 894710606)]
+    [InlineData("https://testnet.ngd.network:10331", 894710606)]
     [InlineData("https://rpc10.n3.nspcc.ru:10331", 860833102)]
     public async Task KnownRpcEndpoints_ShouldReturnCorrectNetworkMagic(string rpcUrl, uint expectedMagic)
     {
