@@ -193,7 +193,7 @@ public class DeploymentToolkit : IDisposable
     public async Task<UInt160> GetDeployerAccountAsync()
     {
         await Task.Delay(1); // Simulate async work
-        
+
         if (!string.IsNullOrEmpty(_wifKey))
         {
             // Use WIF key to get account
