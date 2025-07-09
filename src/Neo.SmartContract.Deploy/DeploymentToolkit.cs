@@ -20,7 +20,7 @@ public class DeploymentToolkit : IDisposable
     private const string GAS_CONTRACT_HASH = "0xd2a4cff31913016155e38e474a2c06d08be276cf";
     private const decimal GAS_DECIMALS = 100_000_000m;
     private const string MAINNET_RPC_URL = "https://rpc10.n3.nspcc.ru:10331";
-    private const string TESTNET_RPC_URL = "https://testnet1.neo.coz.io:443";
+    private const string TESTNET_RPC_URL = "https://testnet.rpc.ngd.network:10331";
     private const string LOCAL_RPC_URL = "http://localhost:50012";
     private const string DEFAULT_RPC_URL = "http://localhost:10332";
 
