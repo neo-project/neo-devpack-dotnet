@@ -78,6 +78,17 @@ Code analyzers and linting tools to help write secure and efficient contracts.
 
 Project templates for creating new NEO smart contracts with the proper structure and configurations.
 
+### Neo.SmartContract.Deploy
+
+A streamlined deployment toolkit that provides a simplified API for Neo smart contract deployment. Features include:
+
+- **Simple API**: Easy-to-use methods for deploying contracts from source code or artifacts
+- **Network Support**: Support for mainnet, testnet, and private network deployment
+- **WIF Key Integration**: Direct signing with WIF (Wallet Import Format) keys
+- **Contract Interaction**: Call and invoke contract methods after deployment
+- **Balance Checking**: Monitor GAS balances for deployment accounts
+- **Manifest Deployment**: Deploy multiple contracts from deployment manifests
+
 ## Getting Started
 
 ### Prerequisites
@@ -308,6 +319,105 @@ The repository includes various example contracts that demonstrate different fea
 | [SampleRoyaltyNEP11Token](examples/Example.SmartContract.SampleRoyaltyNEP11Token/) | NFT with royalty feature implementation |
 
 Each example comes with corresponding unit tests that demonstrate how to properly test the contract functionality.
+
+## Contract Deployment
+
+The `Neo.SmartContract.Deploy` package provides a streamlined way to deploy contracts to the NEO blockchain. It supports deployment from source code, compiled artifacts, and deployment manifests.
+
+### Installation
+
+```shell
+dotnet add package Neo.SmartContract.Deploy
+```
+
+### Basic Usage
+
+```csharp
+using Neo.SmartContract.Deploy;
+
+// Create deployment toolkit
+var deployment = new DeploymentToolkit()
+    .SetNetwork("testnet")
+    .SetWifKey("your-wif-key-here");
+
+// Deploy from source code
+var result = await deployment.DeployAsync("MyContract.cs");
+
+if (result.Success)
+{
+    Console.WriteLine($"Contract deployed: {result.ContractHash}");
+    Console.WriteLine($"Transaction: {result.TransactionHash}");
+}
+else
+{
+    Console.WriteLine($"Deployment failed: {result.ErrorMessage}");
+}
+```
+
+### Advanced Deployment Options
+
+```csharp
+// Deploy with initialization parameters
+var initParams = new object[] { "param1", 42, true };
+var result = await deployment.DeployAsync("MyContract.cs", initParams);
+
+// Deploy from compiled artifacts
+var artifactsResult = await deployment.DeployArtifactsAsync(
+    "MyContract.nef", 
+    "MyContract.manifest.json", 
+    initParams);
+
+// Deploy multiple contracts from manifest
+var manifestResult = await deployment.DeployFromManifestAsync("deployment-manifest.json");
+```
+
+### Network Configuration
+
+```csharp
+// Use predefined networks
+deployment.SetNetwork("mainnet");
+deployment.SetNetwork("testnet"); 
+deployment.SetNetwork("local");
+
+// Or use custom RPC URL
+deployment.SetNetwork("https://my-custom-rpc.com:10332");
+```
+
+### Contract Interaction
+
+```csharp
+// Call contract method (read-only)
+var balance = await deployment.CallAsync<int>("contract-hash", "balanceOf", "account-address");
+
+// Invoke contract method (state-changing)
+var txHash = await deployment.InvokeAsync("contract-hash", "transfer", fromAccount, toAccount, amount);
+
+// Check contract existence
+var exists = await deployment.ContractExistsAsync("contract-hash");
+
+// Get account balance
+var gasBalance = await deployment.GetGasBalanceAsync();
+```
+
+### Configuration File Support
+
+Create an `appsettings.json` file for configuration:
+
+```json
+{
+  "Network": {
+    "RpcUrl": "https://testnet1.neo.coz.io:443",
+    "Network": "testnet"
+  },
+  "Deployment": {
+    "GasLimit": 100000000,
+    "WaitForConfirmation": true
+  },
+  "Wallet": {
+    "Path": "wallet.json"
+  }
+}
+```
 
 ## Documentation
 
