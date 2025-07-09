@@ -159,7 +159,7 @@ public class NetworkMagicTests : IDisposable
 
         // Act & Assert - Testnet
         toolkit.SetNetwork("testnet");
-        Assert.Equal("https://testnet.ngd.network:10331", Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        Assert.Equal("http://seed2t5.neo.org:20332", Environment.GetEnvironmentVariable("Network__RpcUrl"));
 
         // Act & Assert - Custom
         toolkit.SetNetwork("http://custom:10332");
