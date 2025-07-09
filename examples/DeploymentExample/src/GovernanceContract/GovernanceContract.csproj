@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.6.2" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Message Text="Building GovernanceContract NEF and manifest files" Importance="high" />
+    <Exec Command="dotnet nccs &quot;$(MSBuildProjectFullPath)&quot; -o &quot;$(TargetDir)&quot;" />
+  </Target>
+
+</Project>

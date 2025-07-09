@@ -1,0 +1,286 @@
+name: Test Smart Contracts
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*' ]
+    paths:
+      - 'src/**/*.cs'
+      - 'tests/**/*.cs'
+      - 'examples/**/*.cs'
+      - '**/*.csproj'
+      - '.github/workflows/test-contracts.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**/*.cs'
+      - 'tests/**/*.cs'
+      - 'examples/**/*.cs'
+      - '**/*.csproj'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NEO_CC_VERSION: '3.6.2'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        configuration: [Debug, Release]
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install Neo Compiler
+        run: dotnet tool install -g Neo.Compiler.CSharp --version ${{ env.NEO_CC_VERSION }}
+      
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build solution
+        run: dotnet build --configuration ${{ matrix.configuration }} --no-restore
+      
+      - name: Run unit tests
+        run: |
+          dotnet test --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "console;verbosity=detailed" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./test-results \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.configuration }}
+          path: test-results/
+      
+      - name: Generate coverage report
+        if: matrix.os == 'ubuntu-latest' && matrix.configuration == 'Debug'
+        run: |
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+          reportgenerator \
+            -reports:"test-results/*/coverage.opencover.xml" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"Html;Cobertura;MarkdownSummaryGithub"
+      
+      - name: Upload coverage report
+        if: matrix.os == 'ubuntu-latest' && matrix.configuration == 'Debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report/
+      
+      - name: Write coverage to summary
+        if: matrix.os == 'ubuntu-latest' && matrix.configuration == 'Debug'
+        run: |
+          cat coverage-report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+
+  contract-compilation:
+    name: Compile Contracts
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install Neo Compiler
+        run: dotnet tool install -g Neo.Compiler.CSharp --version ${{ env.NEO_CC_VERSION }}
+      
+      - name: Compile all contracts
+        run: |
+          echo "## Contract Compilation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Find all contract projects
+          for proj in $(find . -name "*.csproj" -path "*/src/*" ! -path "*/bin/*" ! -path "*/obj/*"); do
+            echo "Compiling $proj..."
+            
+            if dotnet nccs "$proj" -o "$(dirname $proj)/bin/sc"; then
+              echo "✅ **$(basename $proj)** compiled successfully" >> $GITHUB_STEP_SUMMARY
+              
+              # Check contract size
+              nef_file=$(find "$(dirname $proj)/bin/sc" -name "*.nef" | head -1)
+              if [ -f "$nef_file" ]; then
+                size=$(stat -f%z "$nef_file" 2>/dev/null || stat -c%s "$nef_file")
+                echo "   Size: $size bytes" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "❌ **$(basename $proj)** compilation failed" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          done
+      
+      - name: Validate manifests
+        run: |
+          echo "Validating contract manifests..."
+          
+          for manifest in $(find . -name "*.manifest.json" ! -path "*/bin/*" ! -path "*/obj/*"); do
+            echo "Checking $manifest..."
+            jq empty "$manifest" || (echo "Invalid JSON in $manifest" && exit 1)
+            
+            # Check required fields
+            jq -e '.name' "$manifest" > /dev/null || (echo "Missing 'name' in $manifest" && exit 1)
+            jq -e '.abi' "$manifest" > /dev/null || (echo "Missing 'abi' in $manifest" && exit 1)
+          done
+      
+      - name: Upload compiled contracts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-contracts
+          path: |
+            **/bin/sc/*.nef
+            **/bin/sc/*.manifest.json
+            **/bin/sc/*.nefdbgnfo
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: contract-compilation
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install Neo Express
+        run: dotnet tool install -g Neo.Express
+      
+      - name: Download compiled contracts
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-contracts
+      
+      - name: Start Neo Express
+        run: |
+          neoxp create
+          neoxp run &
+          sleep 10  # Wait for blockchain to start
+      
+      - name: Run integration tests
+        run: |
+          dotnet test tests/*IntegrationTests/*.csproj \
+            --configuration Release \
+            --logger "console;verbosity=detailed"
+      
+      - name: Stop Neo Express
+        if: always()
+        run: pkill -f neoxp || true
+
+  security-analysis:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Run security analyzer
+        run: |
+          echo "Running security analysis..."
+          
+          # Check for common vulnerabilities
+          echo "## Security Analysis Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for reentrancy patterns
+          if grep -r "Transfer.*Contract\.Call" --include="*.cs" src/; then
+            echo "⚠️ **Warning:** Potential reentrancy pattern detected" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No reentrancy patterns detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for unchecked arithmetic
+          if grep -r "unchecked" --include="*.cs" src/; then
+            echo "⚠️ **Warning:** Unchecked arithmetic operations found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No unchecked arithmetic operations" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for proper access control
+          if ! grep -r "Runtime\.CheckWitness" --include="*.cs" src/; then
+            echo "⚠️ **Warning:** No witness checks found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Witness checks implemented" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Run code analysis
+        run: |
+          dotnet build --configuration Release
+          
+          # Run analyzers
+          dotnet build --configuration Release \
+            /p:RunAnalyzersDuringBuild=true \
+            /p:RunAnalyzersDuringLiveAnalysis=true \
+            /p:TreatWarningsAsErrors=true
+      
+      - name: Check code formatting
+        run: |
+          dotnet format --verify-no-changes --verbosity diagnostic || {
+            echo "Code formatting issues found. Run 'dotnet format' to fix."
+            exit 1
+          }
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [build-and-test, contract-compilation, integration-tests, security-analysis, code-quality]
+    if: always()
+    
+    steps:
+      - name: Create summary
+        run: |
+          echo "## Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build and Test | ${{ needs.build-and-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contract Compilation | ${{ needs.contract-compilation.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Analysis | ${{ needs.security-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,213 @@
+name: Deploy Smart Contracts
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: 'Target network'
+        required: true
+        type: choice
+        options:
+          - testnet
+          - mainnet
+      manifest:
+        description: 'Deployment manifest file'
+        required: false
+        default: 'deployment-manifest.json'
+      dry_run:
+        description: 'Perform dry run only'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  validate:
+    name: Validate Contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install Neo tools
+        run: |
+          dotnet tool install -g Neo.Compiler.CSharp
+          dotnet tool install -g Neo.SmartContract.Deploy.CLI
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build contracts
+        run: dotnet build --configuration Release
+      
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build
+      
+      - name: Check contract sizes
+        run: |
+          echo "Checking contract sizes..."
+          find . -name "*.nef" -exec ls -lh {} \;
+          
+          # Fail if any contract is too large
+          for nef in $(find . -name "*.nef"); do
+            size=$(stat -f%z "$nef" 2>/dev/null || stat -c%s "$nef")
+            if [ $size -gt 65536 ]; then
+              echo "ERROR: Contract $nef is too large ($size bytes > 65536bytes)"
+              exit 1
+            fi
+          done
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-artifacts
+          path: |
+            **/*.nef
+            **/*.manifest.json
+            deployment-manifest.json
+
+  security-check:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run security scanner
+        run: |
+          echo "Running security analysis..."
+          # Add your security scanning tools here
+          # e.g., static analysis, vulnerability scanning
+      
+      - name: Check for hardcoded keys
+        run: |
+          echo "Checking for hardcoded private keys..."
+          if grep -r "L[1-9A-HJ-NP-Za-km-z]\{51\}" --include="*.cs" --include="*.json" .; then
+            echo "ERROR: Found potential private keys in code!"
+            exit 1
+          fi
+      
+      - name: Validate access controls
+        run: |
+          echo "Validating access control patterns..."
+          # Check for proper access control implementations
+
+  deploy:
+    name: Deploy Contracts
+    runs-on: ubuntu-latest
+    needs: [validate, security-check]
+    if: github.event.inputs.dry_run == 'false'
+    environment:
+      name: ${{ github.event.inputs.network }}
+      url: ${{ steps.deploy.outputs.explorer_url }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install deployment tools
+        run: |
+          dotnet tool install -g Neo.SmartContract.Deploy.CLI
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+      
+      - name: Configure deployment
+        run: |
+          echo "Configuring deployment for ${{ github.event.inputs.network }}..."
+          
+          # Create deployment configuration
+          cat > deployment-config.json << EOF
+          {
+            "network": "${{ github.event.inputs.network }}",
+            "gasLimit": 100000000,
+            "waitForConfirmation": true,
+            "verifyAfterDeploy": true
+          }
+          EOF
+      
+      - name: Deploy contracts
+        id: deploy
+        env:
+          NEO_WIF_KEY: ${{ secrets.DEPLOY_WIF_KEY }}
+        run: |
+          echo "Deploying to ${{ github.event.inputs.network }}..."
+          
+          neo-deploy deploy-manifest \
+            -n ${{ github.event.inputs.network }} \
+            -w "$NEO_WIF_KEY" \
+            -m ${{ github.event.inputs.manifest }} \
+            -o deployment-results.json \
+            -v
+          
+          # Extract deployment info
+          CONTRACT_HASH=$(jq -r '.deployedContracts | to_entries | .[0].value.contractHash' deployment-results.json)
+          
+          # Set outputs
+          if [ "${{ github.event.inputs.network }}" == "mainnet" ]; then
+            echo "explorer_url=https://neotube.io/contract/$CONTRACT_HASH" >> $GITHUB_OUTPUT
+          else
+            echo "explorer_url=https://testnet.neotube.io/contract/$CONTRACT_HASH" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Verify deployment
+        run: |
+          echo "Verifying deployment..."
+          
+          neo-deploy verify \
+            -n ${{ github.event.inputs.network }} \
+            -m deployment-results.json \
+            -t
+      
+      - name: Upload deployment results
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-results-${{ github.event.inputs.network }}
+          path: deployment-results.json
+      
+      - name: Create deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Network:** ${{ github.event.inputs.network }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Manifest:** ${{ github.event.inputs.manifest }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployed Contracts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          jq -r '.deployedContracts | to_entries | .[] | "- **\(.key)**: `\(.value.contractHash)`"' deployment-results.json >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total Gas Used:** $(jq -r '.totalGasConsumed / 100000000' deployment-results.json) GAS" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View on Explorer](${{ steps.deploy.outputs.explorer_url }})" >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    steps:
+      - name: Send success notification
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "Sending success notification..."
+          # Add your notification logic here (Slack, Discord, email, etc.)
+      
+      - name: Send failure notification
+        if: needs.deploy.result == 'failure'
+        run: |
+          echo "Sending failure notification..."
+          # Add your notification logic here

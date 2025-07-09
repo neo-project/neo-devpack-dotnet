@@ -1,0 +1,51 @@
+{
+  "name": "MyContract Deployment",
+  "description": "Deployment manifest for MyContract solution",
+  "contracts": [
+    {
+      "name": "MyContract",
+      "projectPath": "src/MyContract/MyContract.csproj",
+      "deploymentOrder": 1,
+      "initializationParams": [],
+      "dependencies": [],
+      "configuration": {
+        #if (contractType == 'NEP17')
+        "totalSupply": "10000000",
+        "tokenSymbol": "MYT",
+        "tokenDecimals": 8
+        #elif (contractType == 'NEP11')
+        "collectionName": "My NFT Collection",
+        "collectionSymbol": "MYNFT"
+        #elif (contractType == 'Governance')
+        "votingPeriod": 604800000,
+        "quorumPercentage": 30,
+        "passPercentage": 51
+        #else
+        "initialized": true
+        #endif
+      }
+    }
+  ],
+  "postDeploymentActions": [
+    {
+      "contract": "MyContract",
+      "method": "getData",
+      "params": ["version"],
+      "description": "Verify contract deployment"
+    }
+  ],
+  "networks": {
+    "testnet": {
+      "rpcUrl": "https://testnet1.neo.coz.io:443",
+      "networkMagic": 894710606
+    },
+    "mainnet": {
+      "rpcUrl": "https://rpc10.n3.nspcc.ru:10331",
+      "networkMagic": 860833102
+    },
+    "local": {
+      "rpcUrl": "http://localhost:50012",
+      "networkMagic": 894710606
+    }
+  }
+}

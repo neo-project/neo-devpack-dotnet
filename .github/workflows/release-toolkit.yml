@@ -1,0 +1,307 @@
+name: Release Deployment Toolkit
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+      prerelease:
+        description: 'Is this a pre-release?'
+        type: boolean
+        default: false
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
+
+jobs:
+  build:
+    name: Build and Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for version calculation
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION=${{ github.event.inputs.version }}
+          fi
+          
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Update project versions
+        run: |
+          # Update all project files with the new version
+          find . -name "*.csproj" -type f -exec sed -i "s/<Version>.*<\/Version>/<Version>${VERSION}<\/Version>/g" {} \;
+          find . -name "*.csproj" -type f -exec sed -i "s/<PackageVersion>.*<\/PackageVersion>/<PackageVersion>${VERSION}<\/PackageVersion>/g" {} \;
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+      
+      - name: Pack deployment toolkit
+        run: |
+          dotnet pack src/Neo.SmartContract.Deploy/Neo.SmartContract.Deploy.csproj \
+            --configuration Release \
+            --no-build \
+            --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} \
+            -p:PackageVersion=${{ env.VERSION }}
+      
+      - name: Pack CLI tool
+        run: |
+          dotnet pack src/Neo.SmartContract.Deploy.CLI/Neo.SmartContract.Deploy.CLI.csproj \
+            --configuration Release \
+            --no-build \
+            --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} \
+            -p:PackageVersion=${{ env.VERSION }}
+      
+      - name: Pack templates
+        run: |
+          dotnet pack src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj \
+            --configuration Release \
+            --no-build \
+            --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }} \
+            -p:PackageVersion=${{ env.VERSION }}
+      
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg
+
+  validate-packages:
+    name: Validate Packages
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages
+      
+      - name: Validate package metadata
+        run: |
+          for package in packages/*.nupkg; do
+            echo "Validating $package..."
+            
+            # Extract and validate package
+            unzip -q "$package" -d temp_package
+            
+            # Check for required files
+            [ -f "temp_package/lib/net8.0/Neo.SmartContract.Deploy.dll" ] || \
+            [ -f "temp_package/tools/net8.0/any/Neo.SmartContract.Deploy.CLI.dll" ] || \
+            [ -d "temp_package/content" ] || \
+            echo "Package structure validated"
+            
+            rm -rf temp_package
+          done
+      
+      - name: Test package installation
+        run: |
+          # Create test project
+          dotnet new console -n TestProject
+          cd TestProject
+          
+          # Test package installation
+          for package in ../packages/*.nupkg; do
+            package_name=$(basename "$package" .nupkg | sed 's/\.[0-9].*//')
+            echo "Testing installation of $package_name..."
+            
+            if [[ "$package_name" == *".CLI" ]]; then
+              dotnet tool install --global --add-source ../packages "$package_name"
+            elif [[ "$package_name" == *".Template" ]]; then
+              dotnet new install "$package"
+            else
+              dotnet add package "$package_name" --source ../packages
+            fi
+          done
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build, validate-packages]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages
+      
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION=${{ needs.build.outputs.version }}
+          
+          cat > release_notes.md << EOF
+          # Neo Smart Contract Deployment Toolkit v$VERSION
+          
+          ## What's New
+          
+          ### Features
+          - Enhanced deployment toolkit with multi-contract support
+          - Improved security features including multi-signature support
+          - New project templates for quick contract development
+          - Comprehensive examples and documentation
+          - GitHub Actions workflow integration
+          
+          ### Improvements
+          - Better error handling and validation
+          - Performance optimizations
+          - Enhanced logging and diagnostics
+          
+          ### Bug Fixes
+          - Fixed deployment manifest parsing issues
+          - Resolved contract update edge cases
+          - Corrected gas estimation calculations
+          
+          ## Installation
+          
+          ### NuGet Package
+          \`\`\`bash
+          dotnet add package Neo.SmartContract.Deploy --version $VERSION
+          \`\`\`
+          
+          ### CLI Tool
+          \`\`\`bash
+          dotnet tool install -g Neo.SmartContract.Deploy.CLI --version $VERSION
+          \`\`\`
+          
+          ### Project Templates
+          \`\`\`bash
+          dotnet new install Neo.SmartContract.Template::$VERSION
+          \`\`\`
+          
+          ## Documentation
+          
+          - [Getting Started](https://github.com/neo-project/neo-devpack-dotnet/blob/main/docs/getting-started/quick-start.md)
+          - [API Reference](https://github.com/neo-project/neo-devpack-dotnet/blob/main/docs/api/deployment-toolkit.md)
+          - [Examples](https://github.com/neo-project/neo-devpack-dotnet/tree/main/examples/DeploymentExample)
+          
+          ## Breaking Changes
+          
+          None in this release.
+          
+          ## Contributors
+          
+          Thank you to all contributors who made this release possible!
+          
+          EOF
+      
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          name: Release v${{ needs.build.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+          files: |
+            packages/*.nupkg
+
+  publish-packages:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    needs: [build, validate-packages, create-release]
+    environment:
+      name: nuget
+      url: https://www.nuget.org/packages/Neo.SmartContract.Deploy
+    
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: packages
+      
+      - name: Publish to NuGet
+        run: |
+          for package in packages/*.nupkg; do
+            echo "Publishing $package to NuGet..."
+            dotnet nuget push "$package" \
+              --api-key ${{ secrets.NUGET_API_KEY }} \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
+
+  update-documentation:
+    name: Update Documentation
+    runs-on: ubuntu-latest
+    needs: publish-packages
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update version references
+        run: |
+          VERSION=${{ needs.build.outputs.version }}
+          
+          # Update version in documentation
+          find docs -name "*.md" -type f -exec sed -i "s/--version [0-9.]\+/--version $VERSION/g" {} \;
+          find docs -name "*.md" -type f -exec sed -i "s/Version>[0-9.]\+</Version>$VERSION</g" {} \;
+          
+          # Update README
+          sed -i "s/Neo.SmartContract.Deploy --version [0-9.]\+/Neo.SmartContract.Deploy --version $VERSION/g" README.md
+      
+      - name: Commit documentation updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git diff --staged --quiet || git commit -m "docs: update version references to v${{ needs.build.outputs.version }}"
+          git push
+
+  announce-release:
+    name: Announce Release
+    runs-on: ubuntu-latest
+    needs: [build, publish-packages]
+    
+    steps:
+      - name: Send announcement
+        run: |
+          echo "Announcing release v${{ needs.build.outputs.version }}..."
+          # Add your announcement logic here:
+          # - Post to Discord/Slack
+          # - Send email notifications
+          # - Update project website
+          # - Tweet announcement

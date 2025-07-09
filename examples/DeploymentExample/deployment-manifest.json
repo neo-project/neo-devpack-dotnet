@@ -1,0 +1,142 @@
+{
+  "name": "DeploymentExample Multi-Contract Deployment",
+  "description": "Complete deployment manifest for all example contracts",
+  "version": "1.0.0",
+  "contracts": [
+    {
+      "name": "SimpleContract",
+      "displayName": "Simple Storage Contract",
+      "projectPath": "src/SimpleContract/SimpleContract.csproj",
+      "deploymentOrder": 1,
+      "initializationParams": [],
+      "dependencies": [],
+      "configuration": {
+        "initialData": {
+          "appName": "DeploymentExample",
+          "version": "1.0.0",
+          "environment": "testnet"
+        }
+      },
+      "postDeploymentActions": [
+        {
+          "method": "storeData",
+          "params": ["appName", "DeploymentExample"],
+          "description": "Store application name"
+        },
+        {
+          "method": "storeData",
+          "params": ["deploymentTime", "${timestamp}"],
+          "description": "Store deployment timestamp"
+        }
+      ]
+    },
+    {
+      "name": "TokenContract",
+      "displayName": "Example Token (NEP-17)",
+      "projectPath": "src/TokenContract/TokenContract.csproj",
+      "deploymentOrder": 2,
+      "initializationParams": [],
+      "dependencies": [],
+      "configuration": {
+        "tokenDetails": {
+          "name": "Example Token",
+          "symbol": "EXT",
+          "decimals": 8,
+          "totalSupply": "100000000"
+        }
+      },
+      "postDeploymentActions": [
+        {
+          "method": "symbol",
+          "params": [],
+          "expectedResult": "EXT",
+          "description": "Verify token symbol"
+        }
+      ]
+    },
+    {
+      "name": "NFTContract",
+      "displayName": "Example NFT Collection (NEP-11)",
+      "projectPath": "src/NFTContract/NFTContract.csproj",
+      "deploymentOrder": 3,
+      "initializationParams": [],
+      "dependencies": [],
+      "configuration": {
+        "collectionDetails": {
+          "name": "Example NFT Collection",
+          "symbol": "EXNFT",
+          "baseUri": "https://example.com/nft/"
+        }
+      },
+      "postDeploymentActions": [
+        {
+          "method": "symbol",
+          "params": [],
+          "expectedResult": "EXNFT",
+          "description": "Verify NFT symbol"
+        }
+      ]
+    },
+    {
+      "name": "GovernanceContract",
+      "displayName": "Governance Contract",
+      "projectPath": "src/GovernanceContract/GovernanceContract.csproj",
+      "deploymentOrder": 4,
+      "initializationParams": [],
+      "dependencies": ["TokenContract"],
+      "configuration": {
+        "governanceSettings": {
+          "votingPeriod": 604800000,
+          "quorumPercentage": 30,
+          "passPercentage": 51,
+          "votingToken": "${TokenContract.hash}"
+        }
+      },
+      "postDeploymentActions": [
+        {
+          "method": "getVotingPeriod",
+          "params": [],
+          "expectedResult": 604800000,
+          "description": "Verify voting period configuration"
+        }
+      ]
+    }
+  ],
+  "deploymentSettings": {
+    "gasLimit": 100000000,
+    "waitForConfirmation": true,
+    "verifyAfterDeploy": true,
+    "saveDeploymentInfo": true,
+    "deploymentInfoPath": "deploy/deployment-results.json"
+  },
+  "networks": {
+    "testnet": {
+      "rpcUrl": "https://testnet1.neo.coz.io:443",
+      "networkMagic": 894710606,
+      "explorerUrl": "https://testnet.neotube.io"
+    },
+    "mainnet": {
+      "rpcUrl": "https://rpc10.n3.nspcc.ru:10331",
+      "networkMagic": 860833102,
+      "explorerUrl": "https://neotube.io"
+    },
+    "local": {
+      "rpcUrl": "http://localhost:50012",
+      "networkMagic": 894710606,
+      "explorerUrl": "http://localhost:8000"
+    }
+  },
+  "securityChecks": {
+    "requireMultiSig": false,
+    "minSignatures": 2,
+    "signers": [],
+    "auditRequired": true,
+    "auditReport": "audit/deployment-audit.md"
+  },
+  "notifications": {
+    "enabled": true,
+    "webhookUrl": "${DEPLOYMENT_WEBHOOK_URL}",
+    "emailRecipients": ["devops@example.com"],
+    "slackChannel": "#deployments"
+  }
+}

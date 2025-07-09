@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "The Neo Project",
+  "classifications": ["Smart Contract", "Neo", "Blockchain"],
+  "identity": "Neo.Contract.Solution",
+  "name": "Neo Smart Contract Solution",
+  "shortName": "neocontractsolution",
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "sourceName": "NeoContractSolution",
+  "preferNameDirectory": true,
+  "symbols": {
+    "contractName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "MyContract",
+      "replaces": "MyContract",
+      "description": "The name of the smart contract"
+    },
+    "enableDeployment": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include deployment toolkit support"
+    },
+    "enableTests": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include unit test project"
+    },
+    "enableSecurityFeatures": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Include security features (multi-sig, access control)"
+    },
+    "contractType": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "Basic",
+      "choices": [
+        {
+          "choice": "Basic",
+          "description": "Basic smart contract template"
+        },
+        {
+          "choice": "NEP17",
+          "description": "NEP-17 fungible token standard"
+        },
+        {
+          "choice": "NEP11",
+          "description": "NEP-11 non-fungible token standard"
+        },
+        {
+          "choice": "Governance",
+          "description": "Governance contract with voting"
+        }
+      ],
+      "description": "Type of smart contract to create"
+    },
+    "Framework": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "net8.0",
+      "replaces": "net8.0"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!enableDeployment)",
+          "exclude": [
+            "deploy/**/*",
+            "deployment.json"
+          ]
+        },
+        {
+          "condition": "(!enableTests)",
+          "exclude": [
+            "tests/**/*"
+          ]
+        },
+        {
+          "condition": "(contractType != 'NEP17')",
+          "exclude": [
+            "src/MyContract/TokenContract.cs"
+          ]
+        },
+        {
+          "condition": "(contractType != 'NEP11')",
+          "exclude": [
+            "src/MyContract/NFTContract.cs"
+          ]
+        },
+        {
+          "condition": "(contractType != 'Governance')",
+          "exclude": [
+            "src/MyContract/GovernanceContract.cs"
+          ]
+        },
+        {
+          "condition": "(contractType != 'Basic')",
+          "exclude": [
+            "src/MyContract/BasicContract.cs"
+          ]
+        }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "condition": "(OS == 'Windows_NT')",
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}
