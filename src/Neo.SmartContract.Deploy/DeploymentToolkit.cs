@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Neo;
 using Neo.Wallets;
+using Neo.SmartContract.Deploy.Extensions;
+using Neo.SmartContract.Deploy.Interfaces;
 using Neo.SmartContract.Deploy.Models;
+using Neo.SmartContract.Deploy.Services;
 
 namespace Neo.SmartContract.Deploy;
 
 /// <summary>
-/// Simplified deployment toolkit for Neo smart contract deployment (PR 1 - Basic Framework)
-/// Note: This is a minimal implementation. Full functionality will be added in subsequent PRs.
+/// Simplified deployment toolkit for Neo smart contract deployment
+/// Provides a fluent API for common deployment scenarios
 /// </summary>
 public class DeploymentToolkit : IDisposable
 {
@@ -25,6 +29,11 @@ public class DeploymentToolkit : IDisposable
 
     private readonly IConfiguration _configuration;
     private readonly ILogger<DeploymentToolkit>? _logger;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IContractCompiler _compiler;
+    private readonly IContractDeployer _deployer;
+    private readonly IContractInvoker _invoker;
+    private readonly IWalletManager _walletManager;
     private volatile string? _currentNetwork = null;
     private volatile string? _wifKey = null;
     private bool _disposed = false;
@@ -53,9 +62,17 @@ public class DeploymentToolkit : IDisposable
         builder.AddEnvironmentVariables();
         _configuration = builder.Build();
 
-        // Create a simple console logger
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        _logger = loggerFactory.CreateLogger<DeploymentToolkit>();
+        // Set up dependency injection
+        var services = new ServiceCollection();
+        services.AddLogging(builder => builder.AddConsole());
+        services.AddNeoContractDeploy(_configuration);
+        
+        _serviceProvider = services.BuildServiceProvider();
+        _logger = _serviceProvider.GetService<ILogger<DeploymentToolkit>>();
+        _compiler = _serviceProvider.GetRequiredService<IContractCompiler>();
+        _deployer = _serviceProvider.GetRequiredService<IContractDeployer>();
+        _invoker = _serviceProvider.GetRequiredService<IContractInvoker>();
+        _walletManager = _serviceProvider.GetRequiredService<IWalletManager>();
     }
 
     /// <summary>
@@ -134,19 +151,30 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Deploy a contract from source code or project (Stub - Implementation in PR 2)
+    /// Deploy a contract from source code or project
     /// </summary>
     /// <param name="path">Path to contract project (.csproj) or source file</param>
     /// <param name="initParams">Optional initialization parameters</param>
     /// <returns>Deployment information</returns>
     public async Task<ContractDeploymentInfo> DeployAsync(string path, object[]? initParams = null)
     {
-        await Task.Delay(1); // Simulate async work
-        throw new NotImplementedException("DeployAsync will be implemented in PR 2 - Full Deployment Functionality");
+        if (string.IsNullOrWhiteSpace(path))
+            throw new ArgumentException("Path cannot be null or empty", nameof(path));
+
+        _logger?.LogInformation("Deploying contract from: {Path}", path);
+
+        // Compile the contract
+        var contract = await _compiler.CompileAsync(path);
+
+        // Create deployment options
+        var options = CreateDeploymentOptions();
+
+        // Deploy the contract
+        return await _deployer.DeployAsync(contract, options, initParams);
     }
 
     /// <summary>
-    /// Deploy a pre-compiled contract from NEF and manifest files (Stub - Implementation in PR 2)
+    /// Deploy a pre-compiled contract from NEF and manifest files
     /// </summary>
     /// <param name="nefPath">Path to NEF file</param>
     /// <param name="manifestPath">Path to manifest file</param>
@@ -154,12 +182,26 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Deployment information</returns>
     public async Task<ContractDeploymentInfo> DeployArtifactsAsync(string nefPath, string manifestPath, object[]? initParams = null)
     {
-        await Task.Delay(1); // Simulate async work
-        throw new NotImplementedException("DeployArtifactsAsync will be implemented in PR 2 - Full Deployment Functionality");
+        if (string.IsNullOrWhiteSpace(nefPath))
+            throw new ArgumentException("NEF path cannot be null or empty", nameof(nefPath));
+
+        if (string.IsNullOrWhiteSpace(manifestPath))
+            throw new ArgumentException("Manifest path cannot be null or empty", nameof(manifestPath));
+
+        _logger?.LogInformation("Deploying contract from artifacts - NEF: {NefPath}, Manifest: {ManifestPath}", nefPath, manifestPath);
+
+        // Load the pre-compiled contract
+        var contract = await _compiler.LoadContractAsync(nefPath, manifestPath);
+
+        // Create deployment options
+        var options = CreateDeploymentOptions();
+
+        // Deploy the contract
+        return await _deployer.DeployAsync(contract, options, initParams);
     }
 
     /// <summary>
-    /// Call a contract method (read-only) (Stub - Implementation in PR 2)
+    /// Call a contract method (read-only)
     /// </summary>
     /// <typeparam name="T">Return type</typeparam>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
@@ -168,12 +210,22 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Method return value</returns>
     public async Task<T> CallAsync<T>(string contractHashOrAddress, string method, params object[] args)
     {
-        await Task.Delay(1); // Simulate async work
-        throw new NotImplementedException("CallAsync will be implemented in PR 2 - Full Deployment Functionality");
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        if (string.IsNullOrWhiteSpace(method))
+            throw new ArgumentException("Method name cannot be null or empty", nameof(method));
+
+        var contractHash = ParseContractHashOrAddress(contractHashOrAddress);
+        var rpcUrl = GetCurrentRpcUrl();
+
+        _logger?.LogInformation("Calling contract method {Method} on {Contract}", method, contractHash);
+
+        return await _invoker.CallAsync<T>(contractHash, method, args, rpcUrl);
     }
 
     /// <summary>
-    /// Invoke a contract method (state-changing transaction) (Stub - Implementation in PR 2)
+    /// Invoke a contract method (state-changing transaction)
     /// </summary>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
     /// <param name="method">Method name</param>
@@ -181,8 +233,21 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Transaction hash</returns>
     public async Task<UInt256> InvokeAsync(string contractHashOrAddress, string method, params object[] args)
     {
-        await Task.Delay(1); // Simulate async work
-        throw new NotImplementedException("InvokeAsync will be implemented in PR 2 - Full Deployment Functionality");
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        if (string.IsNullOrWhiteSpace(method))
+            throw new ArgumentException("Method name cannot be null or empty", nameof(method));
+
+        if (string.IsNullOrWhiteSpace(_wifKey))
+            throw new InvalidOperationException("WIF key must be set before invoking methods. Use SetWifKey().");
+
+        var contractHash = ParseContractHashOrAddress(contractHashOrAddress);
+        var options = CreateInvocationOptions();
+
+        _logger?.LogInformation("Invoking contract method {Method} on {Contract}", method, contractHash);
+
+        return await _invoker.InvokeAsync(contractHash, method, args, options);
     }
 
     /// <summary>
@@ -206,39 +271,114 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Get the current balance of an account (Stub - Implementation in PR 2)
+    /// Get the current balance of an account
     /// </summary>
     /// <param name="address">Account address (null for default deployer)</param>
     /// <returns>GAS balance</returns>
     public async Task<decimal> GetGasBalanceAsync(string? address = null)
     {
-        await Task.Delay(1); // Simulate async work
-        throw new NotImplementedException("GetGasBalanceAsync will be implemented in PR 2 - Full Deployment Functionality");
+        UInt160 accountHash;
+
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            // Use the default deployer account
+            accountHash = await GetDeployerAccountAsync();
+        }
+        else
+        {
+            // Parse the provided address
+            accountHash = ParseContractHashOrAddress(address);
+        }
+
+        var rpcUrl = GetCurrentRpcUrl();
+        return await _walletManager.GetGasBalanceAsync(accountHash, rpcUrl);
     }
 
     /// <summary>
-    /// Deploy multiple contracts from a manifest file (Stub - Implementation in PR 2)
+    /// Deploy multiple contracts from a manifest file
     /// </summary>
     /// <param name="manifestPath">Path to the deployment manifest JSON file</param>
     /// <returns>Dictionary of contract names to deployment information</returns>
     public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifestAsync(string manifestPath)
     {
-        await Task.Delay(1); // Simulate async work
-        throw new NotImplementedException("DeployFromManifestAsync will be implemented in PR 2 - Full Deployment Functionality");
+        if (string.IsNullOrWhiteSpace(manifestPath))
+            throw new ArgumentException("Manifest path cannot be null or empty", nameof(manifestPath));
+
+        _logger?.LogInformation("Deploying contracts from manifest: {ManifestPath}", manifestPath);
+
+        var options = CreateDeploymentOptions();
+        var toolkit = new NeoContractToolkit(_serviceProvider);
+        
+        return await toolkit.DeployFromManifestAsync(manifestPath, options);
     }
 
     /// <summary>
-    /// Check if a contract exists at the given address (Stub - Implementation in PR 2)
+    /// Check if a contract exists at the given address
     /// </summary>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
     /// <returns>True if contract exists, false otherwise</returns>
     public async Task<bool> ContractExistsAsync(string contractHashOrAddress)
     {
-        await Task.Delay(1); // Simulate async work
-        throw new NotImplementedException("ContractExistsAsync will be implemented in PR 2 - Full Deployment Functionality");
+        if (string.IsNullOrWhiteSpace(contractHashOrAddress))
+            throw new ArgumentException("Contract hash or address cannot be null or empty", nameof(contractHashOrAddress));
+
+        var contractHash = ParseContractHashOrAddress(contractHashOrAddress);
+        var rpcUrl = GetCurrentRpcUrl();
+
+        return await _deployer.ContractExistsAsync(contractHash, rpcUrl);
     }
 
     #region Private Methods
+
+    private DeploymentOptions CreateDeploymentOptions()
+    {
+        if (string.IsNullOrWhiteSpace(_wifKey))
+            throw new InvalidOperationException("WIF key must be set before deployment. Use SetWifKey().");
+
+        return new DeploymentOptions
+        {
+            WifKey = _wifKey,
+            RpcUrl = GetCurrentRpcUrl(),
+            NetworkMagic = GetNetworkMagic(),
+            WaitForConfirmation = true,
+            VerifyAfterDeploy = false,
+            GasLimit = 100_000_000
+        };
+    }
+
+    private InvocationOptions CreateInvocationOptions()
+    {
+        if (string.IsNullOrWhiteSpace(_wifKey))
+            throw new InvalidOperationException("WIF key must be set before invocation. Use SetWifKey().");
+
+        return new InvocationOptions
+        {
+            WifKey = _wifKey,
+            RpcUrl = GetCurrentRpcUrl(),
+            NetworkMagic = GetNetworkMagic(),
+            WaitForConfirmation = true,
+            GasLimit = 10_000_000
+        };
+    }
+
+    private UInt160 ParseContractHashOrAddress(string contractHashOrAddress)
+    {
+        try
+        {
+            // Try to parse as a hex hash first
+            if (contractHashOrAddress.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+            {
+                return UInt160.Parse(contractHashOrAddress);
+            }
+
+            // Try to parse as an address
+            return contractHashOrAddress.ToScriptHash(ProtocolSettings.Default.AddressVersion);
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException($"Invalid contract hash or address: {contractHashOrAddress}", nameof(contractHashOrAddress), ex);
+        }
+    }
 
     private string GetCurrentRpcUrl()
     {
@@ -298,7 +438,11 @@ public class DeploymentToolkit : IDisposable
         {
             if (disposing)
             {
-                // Dispose managed resources if any
+                // Dispose managed resources
+                if (_serviceProvider is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
             }
 
             _disposed = true;

@@ -10,7 +10,26 @@ public class ContractDeploymentException : Exception
     /// <summary>
     /// Name of the contract that failed to deploy
     /// </summary>
-    public string ContractName { get; }
+    public string? ContractName { get; }
+
+    /// <summary>
+    /// Create a new ContractDeploymentException
+    /// </summary>
+    /// <param name="message">Error message</param>
+    public ContractDeploymentException(string message)
+        : base(message)
+    {
+    }
+
+    /// <summary>
+    /// Create a new ContractDeploymentException with inner exception
+    /// </summary>
+    /// <param name="message">Error message</param>
+    /// <param name="innerException">Inner exception</param>
+    public ContractDeploymentException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
 
     /// <summary>
     /// Create a new ContractDeploymentException

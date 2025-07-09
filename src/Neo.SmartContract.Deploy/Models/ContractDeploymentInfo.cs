@@ -62,4 +62,24 @@ public class ContractDeploymentInfo
     /// Whether verification failed after deployment
     /// </summary>
     public bool VerificationFailed { get; set; }
+
+    /// <summary>
+    /// Address of the account that deployed the contract
+    /// </summary>
+    public string? DeployerAddress { get; set; }
+
+    /// <summary>
+    /// Network fee paid for the deployment transaction
+    /// </summary>
+    public long NetworkFee { get; set; }
+
+    /// <summary>
+    /// System fee paid for the deployment transaction
+    /// </summary>
+    public long SystemFee { get; set; }
+
+    /// <summary>
+    /// Timestamp when the deployment occurred
+    /// </summary>
+    public DateTimeOffset Timestamp { get; set; }
 }

@@ -91,26 +91,81 @@ public class DeploymentToolkitTests : TestBase
     }
 
     [Fact]
-    public async Task Deploy_WithoutImplementation_ShouldThrowNotImplementedException()
+    public async Task DeployArtifacts_WithoutWifKey_ShouldThrowInvalidOperationException()
     {
         // Arrange
         var toolkit = new DeploymentToolkit();
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+        
+        var nefPath = Path.Combine(tempDir, "test.nef");
+        var manifestPath = Path.Combine(tempDir, "test.manifest.json");
+        
+        try
+        {
+            // Create minimal NEF file
+            var nefContent = new byte[] 
+            { 
+                0x4E, 0x45, 0x46, 0x33, // Magic
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Compiler
+                0x00, 0x00, 0x00, 0x00, // Source
+                0x00, // Reserved
+                0x00, 0x00, // Method count
+                0x01, 0x00, // Script length
+                0x40, // RET opcode
+                0x00, 0x00, 0x00, 0x00 // Checksum
+            };
+            await File.WriteAllBytesAsync(nefPath, nefContent);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<NotImplementedException>(
-            () => toolkit.DeployAsync("test.csproj")
-        );
+            // Create minimal manifest
+            var manifestContent = @"{
+                ""name"": ""TestContract"",
+                ""groups"": [],
+                ""features"": {},
+                ""supportedstandards"": [],
+                ""abi"": {
+                    ""methods"": [{
+                        ""name"": ""test"",
+                        ""parameters"": [],
+                        ""returntype"": ""Void"",
+                        ""offset"": 0,
+                        ""safe"": true
+                    }],
+                    ""events"": []
+                },
+                ""permissions"": [],
+                ""trusts"": [],
+                ""extra"": null
+            }";
+            await File.WriteAllTextAsync(manifestPath, manifestContent);
+
+            // Act & Assert
+            // Should throw InvalidOperationException for missing WIF key
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => toolkit.DeployArtifactsAsync(nefPath, manifestPath)
+            );
+        }
+        finally
+        {
+            // Cleanup
+            if (Directory.Exists(tempDir))
+                Directory.Delete(tempDir, true);
+        }
     }
 
     [Fact]
-    public async Task GetGasBalance_WithoutImplementation_ShouldThrowNotImplementedException()
+    public async Task GetGasBalance_WithInvalidAddress_ShouldThrowArgumentException()
     {
         // Arrange
         var toolkit = new DeploymentToolkit();
-        var testAddress = "NXXxXXxXXxXXxXXxXXxXXxXXxXXxXXxXXxX";
+        var testAddress = "invalid-address";
+        toolkit.SetWifKey("KzjaqMvqzF1uup6KrTKRxTgjcXE7PbKLRH84e6ckyXDt3fu7afUb");
+        toolkit.SetNetwork("testnet");
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotImplementedException>(
+        await Assert.ThrowsAsync<ArgumentException>(
             () => toolkit.GetGasBalanceAsync(testAddress)
         );
     }
@@ -188,17 +243,15 @@ public class DeploymentToolkitTests : TestBase
     }
 
     [Fact]
-    public async Task ContractExistsAsync_WithoutImplementation_ShouldThrowNotImplementedException()
+    public async Task ContractExistsAsync_WithEmptyHash_ShouldThrowArgumentException()
     {
         // Arrange
         var toolkit = new DeploymentToolkit();
-        var contractHash = "0x1234567890123456789012345678901234567890";
-
         toolkit.SetNetwork("testnet");
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotImplementedException>(
-            () => toolkit.ContractExistsAsync(contractHash)
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => toolkit.ContractExistsAsync("")
         );
     }
 
