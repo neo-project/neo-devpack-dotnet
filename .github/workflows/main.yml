@@ -212,4 +212,4 @@ jobs:
         dotnet pack -o pub -c Release
         dotnet nuget push "pub/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${NUGET_TOKEN} --skip-duplicate
       env:
-        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        NUGET_TOKEN: ${{ secrets.NUGET }}

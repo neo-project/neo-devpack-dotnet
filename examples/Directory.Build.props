@@ -3,7 +3,7 @@
 
     <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
-        <VersionPrefix>3.8.1</VersionPrefix>
+        <VersionPrefix>3.9.0</VersionPrefix>
         <TargetFramework>net9.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
@@ -40,12 +40,12 @@
         Set UseLocalAnalyzer to 'true' to use the local project reference (current default)
         -->
         <UseLocalAnalyzer>true</UseLocalAnalyzer>
-        <NeoAnalyzerVersion>3.8.1</NeoAnalyzerVersion>
+        <NeoAnalyzerVersion>3.9.0</NeoAnalyzerVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-        <PackageReference Include="Neo.SmartContract.Framework" Version="3.8.1"/>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="3.8.1"/>
+        <PackageReference Include="Neo.SmartContract.Framework" Version="3.9.0"/>
+        <PackageReference Include="Neo.SmartContract.Testing" Version="3.9.0"/>
         
         <!-- 
         Local Project Reference for Analyzer (Current - when UseLocalAnalyzer=true)
