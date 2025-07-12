@@ -604,5 +604,90 @@ namespace Neo.Compiler
                 return null;
             }
         }
+
+        /// <summary>
+        /// Generates an interactive web-based GUI for compiled contracts
+        /// </summary>
+        /// <param name="contexts">Compilation contexts containing contract information</param>
+        /// <param name="outputDirectory">Directory to generate the web files (optional)</param>
+        /// <param name="options">Web GUI generation options (optional)</param>
+        /// <returns>List of web GUI generation results for each contract</returns>
+        public List<WebGui.WebGuiGenerationResult> GenerateWebGui(
+            IEnumerable<CompilationContext> contexts,
+            string? outputDirectory = null,
+            WebGui.WebGuiOptions? options = null)
+        {
+            var results = new List<WebGui.WebGuiGenerationResult>();
+
+            foreach (var context in contexts)
+            {
+                if (!context.Success)
+                {
+                    results.Add(WebGui.WebGuiGenerationResult.Failure(
+                        $"Cannot generate web GUI for failed compilation of contract {context.ContractName}"));
+                    continue;
+                }
+
+                var contractOutputDir = outputDirectory != null
+                    ? Path.Combine(outputDirectory, context.ContractName)
+                    : null;
+
+                var result = context.GenerateWebGui(contractOutputDir, options);
+                results.Add(result);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Generates an interactive web-based GUI for a single compiled contract
+        /// </summary>
+        /// <param name="context">Compilation context containing contract information</param>
+        /// <param name="outputDirectory">Directory to generate the web files (optional)</param>
+        /// <param name="options">Web GUI generation options (optional)</param>
+        /// <returns>Web GUI generation result</returns>
+        public WebGui.WebGuiGenerationResult GenerateWebGui(
+            CompilationContext context,
+            string? outputDirectory = null,
+            WebGui.WebGuiOptions? options = null)
+        {
+            return context.GenerateWebGui(outputDirectory, options);
+        }
+
+        /// <summary>
+        /// Compiles sources and automatically generates web GUIs for all contracts
+        /// </summary>
+        /// <param name="sourceFiles">Source files to compile</param>
+        /// <param name="webGuiOutputDirectory">Directory to generate web GUIs (optional)</param>
+        /// <param name="webGuiOptions">Web GUI generation options (optional)</param>
+        /// <returns>Tuple containing compilation contexts and web GUI generation results</returns>
+        public (List<CompilationContext> contexts, List<WebGui.WebGuiGenerationResult> webGuiResults) CompileSourcesWithWebGui(
+            string[] sourceFiles,
+            string? webGuiOutputDirectory = null,
+            WebGui.WebGuiOptions? webGuiOptions = null)
+        {
+            var contexts = CompileSources(sourceFiles);
+            var webGuiResults = GenerateWebGui(contexts, webGuiOutputDirectory, webGuiOptions);
+
+            return (contexts, webGuiResults);
+        }
+
+        /// <summary>
+        /// Compiles a project and automatically generates web GUIs for all contracts
+        /// </summary>
+        /// <param name="csprojPath">Path to the .csproj file</param>
+        /// <param name="webGuiOutputDirectory">Directory to generate web GUIs (optional)</param>
+        /// <param name="webGuiOptions">Web GUI generation options (optional)</param>
+        /// <returns>Tuple containing compilation contexts and web GUI generation results</returns>
+        public (List<CompilationContext> contexts, List<WebGui.WebGuiGenerationResult> webGuiResults) CompileProjectWithWebGui(
+            string csprojPath,
+            string? webGuiOutputDirectory = null,
+            WebGui.WebGuiOptions? webGuiOptions = null)
+        {
+            var contexts = CompileProject(csprojPath);
+            var webGuiResults = GenerateWebGui(contexts, webGuiOutputDirectory, webGuiOptions);
+
+            return (contexts, webGuiResults);
+        }
     }
 }

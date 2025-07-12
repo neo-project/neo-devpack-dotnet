@@ -665,5 +665,59 @@ namespace Neo.Compiler
         }
 
         public UInt160? GetContractHash() => Script.ToScriptHash();
+
+        /// <summary>
+        /// Generates an interactive web-based GUI for the compiled contract
+        /// </summary>
+        /// <param name="outputDirectory">Directory to generate the web files (optional)</param>
+        /// <param name="options">Web GUI generation options (optional)</param>
+        /// <returns>Web GUI generation result</returns>
+        public WebGui.WebGuiGenerationResult GenerateWebGui(string? outputDirectory = null, WebGui.WebGuiOptions? options = null)
+        {
+            if (!Success)
+            {
+                return WebGui.WebGuiGenerationResult.Failure("Cannot generate web GUI for failed compilation");
+            }
+
+            var generator = new WebGui.WebGuiGenerator();
+            var contractHash = GetContractHash()?.ToString();
+            var nefFile = CreateExecutable();
+            var nefBytes = nefFile.ToArray();
+
+            return generator.GenerateWebGui(
+                ContractName,
+                CreateManifest(),
+                nefBytes,
+                contractHash,
+                outputDirectory,
+                options
+            );
+        }
+
+        /// <summary>
+        /// Generates HTML content for the contract web GUI without writing to files
+        /// </summary>
+        /// <param name="options">Web GUI generation options (optional)</param>
+        /// <returns>Generated HTML content</returns>
+        public string GenerateWebGuiHtml(WebGui.WebGuiOptions? options = null)
+        {
+            if (!Success)
+            {
+                throw new InvalidOperationException("Cannot generate web GUI HTML for failed compilation");
+            }
+
+            var generator = new WebGui.WebGuiGenerator();
+            var contractHash = GetContractHash()?.ToString();
+            var nefFile = CreateExecutable();
+            var nefBytes = nefFile.ToArray();
+
+            return generator.GenerateHtmlContent(
+                ContractName,
+                CreateManifest(),
+                nefBytes,
+                contractHash,
+                options
+            );
+        }
     }
 }
