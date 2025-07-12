@@ -72,7 +72,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CompilationOptions_DefaultValues()
         {
             var options = new CompilationOptions();
-            
+
             Assert.AreEqual(CompilationOptions.DebugType.None, options.Debug);
             Assert.AreEqual(CompilationOptions.OptimizationType.Basic, options.Optimize);
             Assert.AreEqual(false, options.Checked);
@@ -297,7 +297,7 @@ namespace TestContract
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.9.0"" />
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1"" />
   </ItemGroup>
 </Project>";
             File.WriteAllText(projectFile, projectContent);
@@ -308,7 +308,7 @@ using Neo.SmartContract.Framework;
 
 namespace TestProject
 {
-    public class TestContract : SmartContract.Framework.SmartContract
+    public class TestContract : Neo.SmartContract.Framework.SmartContract
     {
         public static int Add(int a, int b)
         {
@@ -328,7 +328,10 @@ namespace TestProject
             Assert.IsTrue(results.Count >= 1);
             var result = results.FirstOrDefault(r => r.ContractName == "TestContract");
             Assert.IsNotNull(result);
-            Assert.IsTrue(result.Success);
+            if (result != null)
+            {
+                Assert.IsTrue(result.Success);
+            }
         }
 
         [TestMethod]
@@ -427,7 +430,7 @@ namespace TestProject
 
             // Test multiple independent engine instances instead of concurrent access
             var engines = Enumerable.Range(0, 5).Select(_ => new CompilationEngine()).ToArray();
-            var tasks = engines.Select(engine => 
+            var tasks = engines.Select(engine =>
                 System.Threading.Tasks.Task.Run(() => engine.CompileSources(new[] { contractPath }))
             ).ToArray();
 

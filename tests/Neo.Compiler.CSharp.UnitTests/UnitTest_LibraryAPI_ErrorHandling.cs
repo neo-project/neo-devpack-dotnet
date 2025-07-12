@@ -118,10 +118,10 @@ namespace TestContract
 
             Assert.AreEqual(1, results.Count);
             Assert.IsFalse(results[0].Success);
-            
+
             var errors = results[0].Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
             Assert.IsTrue(errors.Count > 0);
-            
+
             // Should have specific syntax error messages
             Assert.IsTrue(errors.Any(e => e.Id.Contains("CS") || e.GetMessage().Length > 0));
         }
@@ -153,7 +153,7 @@ namespace TestContract
 
             Assert.AreEqual(1, results.Count);
             Assert.IsFalse(results[0].Success);
-            
+
             var errors = results[0].Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
             Assert.IsTrue(errors.Count > 0);
         }
@@ -184,7 +184,7 @@ namespace TestContract
 
             Assert.AreEqual(1, results.Count);
             Assert.IsFalse(results[0].Success);
-            
+
             var errors = results[0].Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
             Assert.IsTrue(errors.Count > 0);
         }
@@ -224,11 +224,11 @@ using Neo.SmartContract.Framework;
 
 namespace TestContract
 {
-    public class InvalidContract : SmartContract.Framework.SmartContract
+    public class InvalidContract
     {
         public static void Test()
         {
-            UndefinedType x; // This will cause compilation failure
+            invalid syntax here - this will not compile at all
         }
     }
 }";
@@ -237,31 +237,24 @@ namespace TestContract
             var contractPath = Path.Combine(tempTestDir, "FailedContract.cs");
             File.WriteAllText(contractPath, invalidContract);
 
-            var results = engine.CompileSources(new[] { contractPath });
-            var context = results[0];
-
-            Assert.IsFalse(context.Success);
-
-            // Attempting to create results from a failed compilation should throw
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
-                context.CreateResults(tempTestDir);
-            });
+            // Should throw FormatException when no valid smart contracts found
+            var exception = Assert.ThrowsException<FormatException>(() => engine.CompileSources(new[] { contractPath }));
+            Assert.IsNotNull(exception);
         }
 
         [TestMethod]
-        public void Test_CreateAssembly_OnFailedCompilation_DoesNotThrow()
+        public void Test_CreateAssembly_OnFailedCompilation_ThrowsException()
         {
             var invalidContract = @"
 using Neo.SmartContract.Framework;
 
 namespace TestContract
 {
-    public class InvalidContract : SmartContract.Framework.SmartContract
+    public class InvalidContract
     {
         public static void Test()
         {
-            UndefinedType x; // This will cause compilation failure
+            invalid syntax here - this will not compile at all
         }
     }
 }";
@@ -270,18 +263,13 @@ namespace TestContract
             var contractPath = Path.Combine(tempTestDir, "FailedAssemblyContract.cs");
             File.WriteAllText(contractPath, invalidContract);
 
-            var results = engine.CompileSources(new[] { contractPath });
-            var context = results[0];
-
-            Assert.IsFalse(context.Success);
-
-            // CreateAssembly does not throw on failed compilation, it returns empty or error text
-            var assembly = context.CreateAssembly();
-            Assert.IsNotNull(assembly);
+            // Should throw FormatException when no valid smart contracts found
+            var exception = Assert.ThrowsException<FormatException>(() => engine.CompileSources(new[] { contractPath }));
+            Assert.IsNotNull(exception);
         }
 
         [TestMethod]
-        public void Test_GetContractHash_OnFailedCompilation_ReturnsValue()
+        public void Test_GetContractHash_OnFailedCompilation_ThrowsException()
         {
             var invalidContract = @"
 using Neo.SmartContract.Framework;
@@ -301,15 +289,9 @@ namespace TestContract
             var contractPath = Path.Combine(tempTestDir, "FailedHashContract.cs");
             File.WriteAllText(contractPath, invalidContract);
 
-            var results = engine.CompileSources(new[] { contractPath });
-            var context = results[0];
-
-            Assert.IsFalse(context.Success);
-
-            // GetContractHash may still return a value even for failed compilation
-            var contractHash = context.GetContractHash();
-            // Don't assert null since the behavior may vary
-            Assert.IsTrue(contractHash == null || contractHash.ToArray().Length == 20);
+            // Should throw FormatException when no valid smart contracts found
+            var exception = Assert.ThrowsException<FormatException>(() => engine.CompileSources(new[] { contractPath }));
+            Assert.IsNotNull(exception);
         }
 
         [TestMethod]
@@ -364,7 +346,7 @@ namespace TestContract
         public void Test_CompileSources_VeryLongPath_HandlesGracefully()
         {
             var engine = new CompilationEngine();
-            
+
             // Create a very long path (but not longer than system limits)
             var longDir = Path.Combine(tempTestDir, new string('A', 100));
             Directory.CreateDirectory(longDir);

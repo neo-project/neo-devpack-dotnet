@@ -33,7 +33,7 @@ namespace Neo.Compiler
     {
         internal Compilation? Compilation;
         internal CompilationOptions Options { get; private set; } = options;
-        
+
         /// <summary>
         /// Initializes a new instance of CompilationEngine with default options
         /// </summary>
