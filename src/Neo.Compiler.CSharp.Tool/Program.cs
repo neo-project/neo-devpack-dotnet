@@ -31,7 +31,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Neo.Compiler
+namespace Neo.Compiler.Tool
 {
     public class Program
     {

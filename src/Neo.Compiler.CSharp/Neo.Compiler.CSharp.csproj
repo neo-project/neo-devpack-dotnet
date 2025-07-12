@@ -4,24 +4,24 @@
     <TargetFramework>net9.0</TargetFramework>
     <AssemblyTitle>Neo.Compiler.CSharp</AssemblyTitle>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>nccs</AssemblyName>
-    <OutputType>Exe</OutputType>
+    <AssemblyName>Neo.Compiler.CSharp</AssemblyName>
+    <OutputType>Library</OutputType>
     <PackageId>Neo.Compiler.CSharp</PackageId>
-    <PackAsTool>true</PackAsTool>
     <RootNamespace>Neo.Compiler</RootNamespace>
     <Nullable>enable</Nullable>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
     <Company>The Neo Project</Company>
     <Product>Neo.Compiler.CSharp</Product>
-    <Description>Neo.Compiler.CSharp</Description>
+    <Description>Neo Smart Contract Compiler for C# - Compiles C# code to Neo VM bytecode</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-    <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +31,10 @@
       <Aliases>scfx</Aliases>
     </ProjectReference>
     <ProjectReference Include="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

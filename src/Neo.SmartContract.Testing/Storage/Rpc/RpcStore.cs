@@ -28,10 +28,6 @@ public class RpcStore : IStore
 {
     private int _id = 0;
 
-    /// <summary>
-    /// Event raised when a new snapshot is created
-    /// </summary>
-    public event IStore.OnNewSnapshotDelegate? OnNewSnapshot;
 
     /// <summary>
     /// Url
@@ -57,9 +53,7 @@ public class RpcStore : IStore
     public void Put(byte[] key, byte[] value) => throw new NotImplementedException();
     public IStoreSnapshot GetSnapshot()
     {
-        var snapshot = new RpcSnapshot(this);
-        OnNewSnapshot?.Invoke(this, snapshot);
-        return snapshot;
+        return new RpcSnapshot(this);
     }
     public bool Contains(byte[] key) => TryGet(key) != null;
     public void Dispose()

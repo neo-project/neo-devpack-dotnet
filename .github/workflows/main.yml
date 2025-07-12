@@ -150,6 +150,18 @@ jobs:
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
+    - name : Pack (Neo.Compiler.CSharp)
+      run: |
+        dotnet pack ./src/Neo.Compiler.CSharp \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
+    - name : Pack (Neo.Compiler.CSharp.Tool)
+      run: |
+        dotnet pack ./src/Neo.Compiler.CSharp.Tool \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
     - name: Publish to Github Packages
       working-directory: ./out
       run: |

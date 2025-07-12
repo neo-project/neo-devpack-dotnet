@@ -26,7 +26,7 @@ using System.Text.RegularExpressions;
 
 namespace Neo.Optimizer
 {
-    internal static class DumpNef
+    public static class DumpNef
     {
         internal static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
         internal static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);

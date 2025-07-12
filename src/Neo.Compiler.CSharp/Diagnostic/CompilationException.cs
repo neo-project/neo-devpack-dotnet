@@ -14,7 +14,7 @@ using System;
 
 namespace Neo.Compiler
 {
-    class CompilationException : Exception
+    public class CompilationException : Exception
     {
         public Diagnostic Diagnostic { get; }
 
