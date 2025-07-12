@@ -48,6 +48,7 @@ namespace Neo.Compiler
                 new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),
                 new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"),
                 new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"),
+                new Option<bool>("--generate-plugin", "Generate a Neo N3 plugin for interacting with the compiled contract"),
                 new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -82,6 +83,10 @@ namespace Neo.Compiler
             // Check if the --generate-interface option is present in the command line args
             options.GenerateContractInterface = context.ParseResult.CommandResult.Children
                 .Any(token => token.Symbol.Name == "generate-interface");
+
+            // Check if the --generate-plugin option is present in the command line args
+            options.GeneratePlugin = context.ParseResult.CommandResult.Children
+                .Any(token => token.Symbol.Name == "generate-plugin");
 
             if (paths is null || paths.Length == 0)
             {
@@ -512,6 +517,27 @@ namespace Neo.Compiler
                     else
                     {
                         Console.WriteLine($"Skipping interface generation for {baseName} as no contract hash was found.");
+                    }
+                }
+
+                // Generate plugin if the option is enabled
+                if (options.GeneratePlugin)
+                {
+                    var contractHash = context.GetContractHash();
+                    if (contractHash != null)
+                    {
+                        try
+                        {
+                            ContractPluginGenerator.GeneratePlugin(baseName, manifest, contractHash, outputFolder);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.Error.WriteLine($"Error generating plugin: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Skipping plugin generation for {baseName} as no contract hash was found.");
                     }
                 }
 

@@ -74,7 +74,9 @@
         <PropertyGroup>
             <NccsProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj</NccsProject>
         </PropertyGroup>
-        <Exec Command="dotnet run --project &quot;$(NccsProject)&quot; -- &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
+        <MSBuild Projects="$(NccsProject)" Targets="Build" ContinueOnError="true"/>
+        <!-- Run standard compilation and plugin generation -->
+        <Exec Command="dotnet run --project &quot;$(NccsProject)&quot; -- &quot;$(MSBuildProjectFile)&quot; --generate-plugin" ContinueOnError="true"/>
     </Target>
 
     <!-- Smart Contract Artifact Generation Target -->
@@ -85,7 +87,7 @@
             <TestingArtifactsDir>$(UnitTestProjectDir)\TestingArtifacts</TestingArtifactsDir>
             <ArtifactClassName>Sample$(ContractName.Replace('Example.SmartContract.', ''))</ArtifactClassName>
             <NefFilePath>$(OutputPath)$(AssemblyName).nef</NefFilePath>
-            <ManifestFilePath>$(OutputPath)$(AssemblyName).manifest.json</ManifestFilePath>
+            <ManifestFilePath>$(OutputPath)$(AssemblyName).manifest.json</ManefFilePath>
             <NccsProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj</NccsProject>
         </PropertyGroup>
         
