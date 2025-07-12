@@ -33,6 +33,13 @@ namespace Neo.Compiler
     {
         internal Compilation? Compilation;
         internal CompilationOptions Options { get; private set; } = options;
+        
+        /// <summary>
+        /// Initializes a new instance of CompilationEngine with default options
+        /// </summary>
+        public CompilationEngine() : this(new CompilationOptions())
+        {
+        }
         private static readonly MetadataReference[] CommonReferences;
         private readonly Dictionary<string, MetadataReference> MetaReferences = new();
         private string? ProjectVersion;
