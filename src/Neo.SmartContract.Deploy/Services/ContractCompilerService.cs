@@ -88,7 +88,7 @@ public class ContractCompilerService : IContractCompiler
 
             if (results.Count == 0)
             {
-                throw new CompilationException(compilationPath, new[] { "No compilation results produced" });
+                throw new Neo.SmartContract.Deploy.Exceptions.CompilationException(compilationPath, new[] { "No compilation results produced" });
             }
 
             var firstResult = results[0];
@@ -97,7 +97,7 @@ public class ContractCompilerService : IContractCompiler
             if (!firstResult.Success)
             {
                 var errors = firstResult.Diagnostics.Select(d => d.ToString()).ToList();
-                throw new CompilationException(compilationPath, errors);
+                throw new Neo.SmartContract.Deploy.Exceptions.CompilationException(compilationPath, errors);
             }
 
             // Create compilation results

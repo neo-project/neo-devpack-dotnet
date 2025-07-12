@@ -54,6 +54,7 @@ A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) 
 - Debug information generation
 - Source code generation for contract testing
 - Contract interface generation
+- **Available as both a CLI tool (`nccs`) and a NuGet library for programmatic compilation**
 
 ### Neo.SmartContract.Testing
 
@@ -151,7 +152,31 @@ public class HelloWorldContract : SmartContract
 
 The NEO C# compiler (nccs) translates your C# smart contract into NeoVM bytecode, which can then be deployed to the NEO blockchain. There are several ways to compile your contract:
 
-#### Basic Compilation
+#### Using the Global Tool (Recommended)
+
+Install the compiler as a global tool:
+
+```shell
+dotnet tool install -g Neo.Compiler.CSharp.Tool
+```
+
+Then compile your contract:
+
+```shell
+nccs path/to/your/contract.csproj
+```
+
+#### Using the Library Package
+
+Add the compiler library to your project:
+
+```shell
+dotnet add package Neo.Compiler.CSharp
+```
+
+Then compile programmatically in your code. See [compiler library usage documentation](docs/compiler-library-usage.md) for details.
+
+#### Basic Compilation (From Source)
 
 ```shell
 dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- path/to/your/contract.csproj
