@@ -19,7 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="R3E.SmartContract.Testing" Version="3.8.1-*" />
+    <PackageReference Include="R3E.SmartContract.Testing" Version="TemplateNeoVersion" />
   </ItemGroup>
 
   <ItemGroup>
