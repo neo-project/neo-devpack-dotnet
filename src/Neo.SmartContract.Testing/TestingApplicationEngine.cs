@@ -288,7 +288,7 @@ namespace Neo.SmartContract.Testing
                         // We need to switch the Engine's snapshot in case
                         // that a mock want to query the storage, it's not committed
 
-                        Engine.Storage = new EngineStorage(backup.Store, SnapshotCache);
+                        Engine.Storage = new EngineStorage(backup.Store, SnapshotCache!);
 
                         // Invoke snapshot
 

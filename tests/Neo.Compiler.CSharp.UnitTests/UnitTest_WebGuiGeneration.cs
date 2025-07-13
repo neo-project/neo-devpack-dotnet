@@ -209,7 +209,7 @@ namespace TestContract
 
             foreach (var result in webGuiResults)
             {
-                Assert.IsTrue(result.HtmlContent.Contains("dark-theme"));
+                Assert.IsTrue(result.HtmlContent?.Contains("dark-theme") == true);
             }
         }
 
@@ -230,7 +230,7 @@ namespace TestContract
             var expectedFiles = new[] { "index.html", "styles.css", "contract.js", "config.json" };
             foreach (var expectedFile in expectedFiles)
             {
-                var filePath = Path.Combine(webGuiResult.OutputDirectory, expectedFile);
+                var filePath = Path.Combine(webGuiResult.OutputDirectory!, expectedFile);
                 Assert.IsTrue(File.Exists(filePath), $"Expected file {expectedFile} not found");
                 Assert.IsTrue(webGuiResult.GeneratedFiles.Contains(filePath));
             }
@@ -271,7 +271,7 @@ namespace TestContract
             var context = results[0];
             var webGuiResult = context.GenerateWebGui(tempTestDir);
 
-            var jsFilePath = Path.Combine(webGuiResult.OutputDirectory, "contract.js");
+            var jsFilePath = Path.Combine(webGuiResult.OutputDirectory!, "contract.js");
             Assert.IsTrue(File.Exists(jsFilePath));
 
             var jsContent = File.ReadAllText(jsFilePath);
@@ -291,7 +291,7 @@ namespace TestContract
             var context = results[0];
             var webGuiResult = context.GenerateWebGui(tempTestDir);
 
-            var cssFilePath = Path.Combine(webGuiResult.OutputDirectory, "styles.css");
+            var cssFilePath = Path.Combine(webGuiResult.OutputDirectory!, "styles.css");
             Assert.IsTrue(File.Exists(cssFilePath));
 
             var cssContent = File.ReadAllText(cssFilePath);
@@ -311,7 +311,7 @@ namespace TestContract
             var context = results[0];
             var webGuiResult = context.GenerateWebGui(tempTestDir);
 
-            var configFilePath = Path.Combine(webGuiResult.OutputDirectory, "config.json");
+            var configFilePath = Path.Combine(webGuiResult.OutputDirectory!, "config.json");
             Assert.IsTrue(File.Exists(configFilePath));
 
             var configContent = File.ReadAllText(configFilePath);
@@ -399,7 +399,7 @@ namespace TestContract
 
             // Test with null contract name
             Assert.ThrowsException<ArgumentException>(() =>
-                generator.GenerateWebGui(null, manifest, nefBytes));
+                generator.GenerateWebGui(null!, manifest, nefBytes));
         }
 
         [TestMethod]
@@ -426,7 +426,7 @@ namespace TestContract
 
             // Test with null manifest
             Assert.ThrowsException<ArgumentNullException>(() =>
-                generator.GenerateWebGui("TestContract", null, new byte[] { 1, 2, 3 }));
+                generator.GenerateWebGui("TestContract", null!, new byte[] { 1, 2, 3 }));
         }
 
         [TestMethod]

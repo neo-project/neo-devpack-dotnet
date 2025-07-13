@@ -53,7 +53,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_CompileSources_NullArray_ThrowsArgumentNullException()
         {
             var engine = new CompilationEngine();
-            engine.CompileSources((string[])null);
+            engine.CompileSources((string[])null!);
         }
 
         [TestMethod]
