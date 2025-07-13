@@ -251,7 +251,11 @@ namespace Neo.SmartContract.Testing
                     // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
-                    AddFee(descriptor.FixedPrice * ExecFeeFactor);
+                    // Calculate ExecFeeFactor the same way as ApplicationEngine
+                    uint execFeeFactor = (SnapshotCache == null || PersistingBlock?.Index == 0) 
+                        ? PolicyContract.DefaultExecFeeFactor 
+                        : NativeContract.Policy.GetExecFeeFactor(SnapshotCache);
+                    AddFee(descriptor.FixedPrice * execFeeFactor);
 
                     if (method.StartsWith('_')) throw new ArgumentException($"Invalid Method Name: {method}");
                     if ((callFlags & ~CallFlags.All) != 0)

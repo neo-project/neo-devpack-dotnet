@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.Persistence;
 using System;
 using System.Buffers.Binary;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.Storage
 {
@@ -121,7 +122,7 @@ namespace Neo.SmartContract.Testing.Storage
                 {
                     // "key":"value" in base64
 
-                    Snapshot.Add(new StorageKey(Convert.FromBase64String(entry.Key)), new StorageItem(Convert.FromBase64String(str.Value)));
+                    Snapshot.Add(new StorageKey { Id = 0, Key = Convert.FromBase64String(entry.Key) }, new StorageItem(Convert.FromBase64String(str.Value)));
                 }
                 else if (entry.Value is JObject obj)
                 {
@@ -133,8 +134,9 @@ namespace Neo.SmartContract.Testing.Storage
                     {
                         if (subEntry.Value is JString subStr)
                         {
+                            var keyBytes = prefix.Concat(Convert.FromBase64String(subEntry.Key)).ToArray();
                             Snapshot.Add(
-                                new StorageKey([.. prefix, .. Convert.FromBase64String(subEntry.Key)]),
+                                new StorageKey { Id = 0, Key = keyBytes },
                                 new StorageItem(Convert.FromBase64String(subStr.Value))
                                 );
                         }

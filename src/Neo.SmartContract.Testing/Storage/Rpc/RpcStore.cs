@@ -109,7 +109,7 @@ public class RpcStore : IStore
             yield break;
         }
 
-        var skey = new StorageKey(key);
+        var skey = (StorageKey)key;
         var start = 0;
 
         while (true)
@@ -173,7 +173,7 @@ public class RpcStore : IStore
 
     public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
     {
-        var skey = new StorageKey(key);
+        var skey = (StorageKey)key;
         var requestBody = new
         {
             jsonrpc = "2.0",

@@ -88,7 +88,7 @@ namespace Neo.SmartContract.Testing.Storage
 
             foreach (var entry in Data)
             {
-                snapshot.Add(new StorageKey(entry.key), new StorageItem(entry.value));
+                snapshot.Add(new StorageKey { Id = 0, Key = entry.key }, new StorageItem(entry.value));
             }
         }
 

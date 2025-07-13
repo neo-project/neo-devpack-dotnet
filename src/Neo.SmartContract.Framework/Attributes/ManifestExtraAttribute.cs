@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.Attributes
         {
         }
 
-        internal static readonly Dictionary<string, string> AttributeType = new()
+        public static readonly Dictionary<string, string> AttributeType = new()
         {
             { nameof(ContractAuthorAttribute), "Author" },
             { nameof(ContractEmailAttribute), "E-mail" },

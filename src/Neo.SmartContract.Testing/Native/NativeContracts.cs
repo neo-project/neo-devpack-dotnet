@@ -128,10 +128,13 @@ namespace Neo.SmartContract.Testing.Native
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                        throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
+                    var task = method!.Invoke(native, new object[] { engine });
+                    if (task == null)
+                        throw new Exception($"Error: {native.Name}.OnPersistAsync returned null");
 
-                    task.GetAwaiter().GetResult();
+                    // Use dynamic to access GetAwaiter() since ContractTask is internal
+                    dynamic dynamicTask = task;
+                    dynamicTask.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.OnPersistAsync");
                 }
@@ -143,10 +146,13 @@ namespace Neo.SmartContract.Testing.Native
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, genesis, clonedSnapshot, genesis))
                 {
                     engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
-                        throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
+                    var task = method!.Invoke(native, new object[] { engine });
+                    if (task == null)
+                        throw new Exception($"Error: {native.Name}.PostPersistAsync returned null");
 
-                    task.GetAwaiter().GetResult();
+                    // Use dynamic to access GetAwaiter() since ContractTask is internal
+                    dynamic dynamicTask = task;
+                    dynamicTask.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.PostPersistAsync");
                 }
