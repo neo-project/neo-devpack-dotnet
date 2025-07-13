@@ -1,6 +1,6 @@
 # NEO Smart Contract Deployment Example
 
-This example demonstrates a complete workflow for developing, testing, and deploying NEO smart contracts using the Neo.SmartContract.Deploy toolkit. It includes both single contract and multi-contract deployment scenarios.
+This example demonstrates a complete workflow for developing, testing, and deploying NEO smart contracts using the R3E.SmartContract.Deploy toolkit. It includes both single contract and multi-contract deployment scenarios.
 
 ## Project Structure
 
@@ -35,7 +35,7 @@ DeploymentExample/
 
 1. .NET 9.0 SDK or later
 2. Neo Express (for local testing)
-3. Neo.SmartContract.Deploy toolkit
+3. R3E.SmartContract.Deploy toolkit
 
 ## Quick Start
 
@@ -227,7 +227,7 @@ export NEO_WIF_KEY=your-wif-key
 
 ## Testing
 
-The test project uses Neo.SmartContract.Testing framework to:
+The test project uses R3E.SmartContract.Testing framework to:
 
 - Test contract deployment
 - Verify state changes
@@ -451,5 +451,5 @@ public static bool Update(ByteString nefFile, string manifest, object data)
 
 - [NEO Documentation](https://docs.neo.org/)
 - [NEO Developer Portal](https://developers.neo.org/)
-- [Neo.SmartContract.Deploy Documentation](https://github.com/neo-project/neo-devpack-dotnet)
+- [R3E.SmartContract.Deploy Documentation](https://github.com/neo-project/neo-devpack-dotnet)
 - [NEP Standards](https://github.com/neo-project/proposals)

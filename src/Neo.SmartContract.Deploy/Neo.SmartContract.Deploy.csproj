@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <PackageId>Neo.SmartContract.Deploy</PackageId>
+    <PackageId>R3E.SmartContract.Deploy</PackageId>
     <PackageTags>NEO;Blockchain;Smart Contract;Deploy;Deployment</PackageTags>
     <Title>Neo Smart Contract Deployment Toolkit</Title>
     <Description>A comprehensive deployment toolkit for Neo N3 smart contracts, providing infrastructure for deploying, initializing, and managing smart contracts.</Description>

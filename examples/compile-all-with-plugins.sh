@@ -2,7 +2,7 @@
 # Script to compile all example contracts with plugin generation
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-COMPILER="$SCRIPT_DIR/../src/Neo.Compiler.CSharp/bin/Debug/net9.0/nccs.dll"
+COMPILER="$SCRIPT_DIR/../src/Neo.Compiler.CSharp/bin/Debug/net9.0/rncc.dll"
 EXAMPLES_DIR="$SCRIPT_DIR"
 
 echo "Compiling all example contracts with plugin generation..."

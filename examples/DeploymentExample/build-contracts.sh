@@ -41,4 +41,4 @@ echo "All contracts built successfully!"
 # Create output directory for compiled contracts
 mkdir -p compiled-contracts
 
-echo "Contract build complete. Use nccs to compile the contracts to NEF format."
+echo "Contract build complete. Use rncc to compile the contracts to NEF format."

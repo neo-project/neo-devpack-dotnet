@@ -120,7 +120,7 @@ Edit `HelloWorldContract.csproj`:
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="3.8.1" />
+    <PackageReference Include="R3E.SmartContract.Framework" Version="3.8.1" />
   </ItemGroup>
 </Project>
 ```
@@ -130,10 +130,10 @@ Edit `HelloWorldContract.csproj`:
 Replace the contents of `Class1.cs` with:
 
 ```csharp
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Native;
-using Neo.SmartContract.Framework.Services;
+using R3E.SmartContract.Framework;
+using R3E.SmartContract.Framework.Attributes;
+using R3E.SmartContract.Framework.Native;
+using R3E.SmartContract.Framework.Services;
 
 namespace HelloWorld
 {
@@ -207,7 +207,7 @@ From your project directory, compile the contract:
 dotnet build
 
 # Compile to NEO bytecode (from the neo-devpack-dotnet root directory)
-dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- HelloWorldContract/HelloWorldContract.csproj
+dotnet run --project src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- HelloWorldContract/HelloWorldContract.csproj
 ```
 
 **Verify compilation:**
@@ -357,7 +357,7 @@ Edit `HelloWorldContract.Tests.csproj`:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Neo.SmartContract.Testing" Version="3.8.1" />
+    <PackageReference Include="R3E.SmartContract.Testing" Version="3.8.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -372,8 +372,8 @@ Create `HelloWorldTests.cs`:
 
 ```csharp
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
+using R3E.SmartContract.Testing;
+using R3E.SmartContract.Testing.TestingStandards;
 using System;
 
 namespace HelloWorld.Tests
@@ -520,7 +520,7 @@ neo> invoke [contract-hash] greeting "World"
          "args": [
            "run",
            "--project",
-           "${workspaceFolder}/../neo-devpack-dotnet/src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj",
+           "${workspaceFolder}/../neo-devpack-dotnet/src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj",
            "--",
            "${workspaceFolder}/HelloWorld.csproj"
          ]
@@ -691,7 +691,7 @@ public class ProxyContract : SmartContract
 
 ### Common Issues
 
-**Issue: "Could not find Neo.SmartContract.Framework"**
+**Issue: "Could not find R3E.SmartContract.Framework"**
 - Solution: Ensure you've added the correct NuGet package reference
 
 **Issue: "Contract compilation failed"**

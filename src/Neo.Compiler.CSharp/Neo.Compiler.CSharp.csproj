@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyTitle>Neo.Compiler.CSharp</AssemblyTitle>
+    <AssemblyTitle>R3E.Compiler.CSharp</AssemblyTitle>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>Neo.Compiler.CSharp</AssemblyName>
+    <AssemblyName>R3E.Compiler.CSharp</AssemblyName>
     <OutputType>Library</OutputType>
-    <PackageId>Neo.Compiler.CSharp</PackageId>
+    <PackageId>R3E.Compiler.CSharp</PackageId>
     <RootNamespace>Neo.Compiler</RootNamespace>
     <Nullable>enable</Nullable>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler</PackageTags>
     <Company>The Neo Project</Company>
-    <Product>Neo.Compiler.CSharp</Product>
+    <Product>R3E.Compiler.CSharp</Product>
     <Description>Neo Smart Contract Compiler for C# - Compiles C# code to Neo VM bytecode</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

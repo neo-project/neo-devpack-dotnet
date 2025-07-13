@@ -52,7 +52,7 @@ That's it! The toolkit automatically handles:
 ## Installation
 
 ```bash
-dotnet add package Neo.SmartContract.Deploy
+dotnet add package R3E.SmartContract.Deploy
 ```
 
 ## Quick Start
@@ -60,7 +60,7 @@ dotnet add package Neo.SmartContract.Deploy
 ### Simplest Usage (3 lines!)
 
 ```csharp
-using Neo.SmartContract.Deploy;
+using R3E.SmartContract.Deploy;
 
 var toolkit = new DeploymentToolkit().SetNetwork("testnet");
 var result = await toolkit.DeployAsync("MyContract.csproj");

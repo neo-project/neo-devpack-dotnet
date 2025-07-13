@@ -1,0 +1,8 @@
+{
+  "PluginConfiguration": {
+    "ContractHash": "0xef061fe2c2f02e63f00159e99dfd90cbc54ae0d2",
+    "Network": 860833102,
+    "MaxGasPerTransaction": 5000000000,
+    "DefaultAccount": ""
+  }
+}

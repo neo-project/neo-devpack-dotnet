@@ -1,41 +1,41 @@
-# Neo.Compiler.CSharp.Tool
+# R3E.Compiler.CSharp.Tool
 
-Neo Smart Contract Compiler CLI Tool - Command-line interface for compiling Neo smart contracts.
+Neo Smart Contract Compiler CLI Tool (r3e neo contract compiler) - Command-line interface for compiling Neo smart contracts.
 
 ## Installation
 
 Install as a global .NET tool:
 
 ```bash
-dotnet tool install -g Neo.Compiler.CSharp.Tool
+dotnet tool install -g R3E.Compiler.CSharp.Tool
 ```
 
 Update to the latest version:
 
 ```bash
-dotnet tool update -g Neo.Compiler.CSharp.Tool
+dotnet tool update -g R3E.Compiler.CSharp.Tool
 ```
 
 ## Usage
 
-Once installed, the `nccs` command will be available globally.
+Once installed, the `rncc` command will be available globally.
 
 ### Basic Usage
 
 Compile a C# project:
 ```bash
-nccs MyContract.csproj
+rncc MyContract.csproj
 ```
 
 Compile source files:
 ```bash
-nccs Contract1.cs Contract2.cs
+rncc Contract1.cs Contract2.cs
 ```
 
 ### Options
 
 ```
-nccs [paths] [options]
+rncc [paths] [options]
 
 Arguments:
   paths                           The path of the solution file, project file, project directory or source files.
@@ -62,32 +62,32 @@ Options:
 
 Compile with debug information:
 ```bash
-nccs MyContract.csproj -d Portable
+rncc MyContract.csproj -d Portable
 ```
 
 Compile with optimization:
 ```bash
-nccs MyContract.csproj --optimize All
+rncc MyContract.csproj --optimize All
 ```
 
 Generate contract interface:
 ```bash
-nccs MyContract.csproj --generate-interface
+rncc MyContract.csproj --generate-interface
 ```
 
 Generate plugin from contract:
 ```bash
-nccs MyContract.csproj --generate-plugin
+rncc MyContract.csproj --generate-plugin
 ```
 
 Run security analysis:
 ```bash
-nccs MyContract.csproj --security-analysis
+rncc MyContract.csproj --security-analysis
 ```
 
 Compile to specific output directory:
 ```bash
-nccs MyContract.csproj -o ./build
+rncc MyContract.csproj -o ./build
 ```
 
 ## Output Files
@@ -102,7 +102,7 @@ The compiler generates:
 
 ## For Library Usage
 
-If you need to integrate the compiler into your own tools or applications, use the `Neo.Compiler.CSharp` NuGet package instead.
+If you need to integrate the compiler into your own tools or applications, use the `R3E.Compiler.CSharp` NuGet package instead.
 
 ## License
 

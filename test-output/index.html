@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SampleHelloWorld - Neo Smart Contract Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fab fa-ethereum"></i>
+                <h1>SampleHelloWorld</h1>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn btn-ghost">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="refresh-all" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+    <nav class="nav-tabs">
+        <button class="tab-button active" data-tab="overview">Overview</button>
+        <button class="tab-button" data-tab="methods">Methods</button>
+        <button class="tab-button" data-tab="balance">Balance</button>
+        <button class="tab-button" data-tab="transactions">Transactions</button>
+        <button class="tab-button" data-tab="events">Events</button>
+        <button class="tab-button" data-tab="state">State</button>
+        <button class="tab-button" data-tab="wallet">Wallet</button>
+    </nav>
+    <div id="overview" class="tab-content active">
+        <div class="card">
+            <h2><i class="fas fa-info-circle"></i> Contract Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Contract Name:</label>
+                    <span>SampleHelloWorld</span>
+                </div>
+                <div class="info-item">
+                    <label>Contract Hash:</label>
+                    <span class="hash">0xef061fe2c2f02e63f00159e99dfd90cbc54ae0d2</span>
+                </div>
+                <div class="info-item">
+                    <label>Methods:</label>
+                    <span>1</span>
+                </div>
+                <div class="info-item">
+                    <label>Events:</label>
+                    <span>0</span>
+                </div>
+                <div class="info-item">
+                    <label>Generated:</label>
+                    <span>2025-07-13 08:37:45 UTC</span>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-code"></i> Contract ABI</h3>
+            <h4>Methods</h4>
+            <div class="method-list">
+                <div class="method-item">
+                    <div class="method-signature">
+                        <span class="method-name">sayHello</span>
+                        <span class="method-params">(
+)</span>
+                        <span class="return-type">→ String</span>
+                        <span class="safe-badge">SAFE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="methods" class="tab-content">
+        <div class="card">
+            <h2><i class="fas fa-play-circle"></i> Method Invocation</h2>
+            <div class="method-invocation">
+                <div class="method-selector">
+                    <label for="method-select">Select Method:</label>
+                    <select id="method-select">
+                        <option value="sayHello">sayHello</option>
+                    </select>
+                </div>
+                <div id="method-parameters" class="method-parameters"></div>
+                <div class="method-actions">
+                    <button id="invoke-method" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Invoke Method
+                    </button>
+                    <button id="test-invoke" class="btn btn-secondary">
+                        <i class="fas fa-flask"></i> Test Invoke
+                    </button>
+                </div>
+                <div id="method-result" class="method-result"></div>
+            </div>
+        </div>
+    </div>
+    <div id="balance" class="tab-content">
+        <div class="card">
+            <h2><i class="fas fa-wallet"></i> Balance Monitoring</h2>
+            <div class="balance-grid">
+                <div class="balance-card">
+                    <h3>GAS Balance</h3>
+                    <div id="gas-balance" class="balance-amount">Loading...</div>
+                </div>
+                <div class="balance-card">
+                    <h3>NEO Balance</h3>
+                    <div id="neo-balance" class="balance-amount">Loading...</div>
+                </div>
+                <div class="balance-card">
+                    <h3>Contract Balance</h3>
+                    <div id="contract-balance" class="balance-amount">Loading...</div>
+                </div>
+            </div>
+            <div class="balance-chart">
+                <canvas id="balanceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div id="transactions" class="tab-content">
+        <div class="card">
+            <h2><i class="fas fa-history"></i> Transaction History</h2>
+            <div class="transaction-filters">
+                <input type="text" id="tx-filter" placeholder="Filter by hash, method, or address...">
+                <button id="clear-filter" class="btn btn-secondary">Clear</button>
+            </div>
+            <div id="transaction-list" class="transaction-list"></div>
+            <div class="pagination">
+                <button id="prev-page" class="btn btn-ghost">Previous</button>
+                <span id="page-info">Page 1</span>
+                <button id="next-page" class="btn btn-ghost">Next</button>
+            </div>
+        </div>
+    </div>
+    <div id="events" class="tab-content">
+        <div class="card">
+            <h2><i class="fas fa-bell"></i> Event Monitoring</h2>
+            <div class="event-controls">
+                <button id="start-monitoring" class="btn btn-success">
+                    <i class="fas fa-play"></i> Start Monitoring
+                </button>
+                <button id="stop-monitoring" class="btn btn-danger" disabled>
+                    <i class="fas fa-stop"></i> Stop Monitoring
+                </button>
+                <button id="clear-events" class="btn btn-secondary">
+                    <i class="fas fa-trash"></i> Clear Events
+                </button>
+            </div>
+            <div id="event-list" class="event-list"></div>
+        </div>
+    </div>
+    <div id="state" class="tab-content">
+        <div class="card">
+            <h2><i class="fas fa-database"></i> Contract State</h2>
+            <div class="state-viewer">
+                <div class="state-controls">
+                    <input type="text" id="storage-key" placeholder="Storage key...">
+                    <button id="get-storage" class="btn btn-primary">Get Value</button>
+                </div>
+                <div id="storage-result" class="storage-result"></div>
+                <div class="state-dump">
+                    <button id="dump-state" class="btn btn-secondary">Dump All State</button>
+                    <div id="state-dump-result" class="state-dump-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="wallet" class="tab-content">
+        <div class="card">
+            <h2><i class="fas fa-link"></i> Wallet Connection</h2>
+            <div class="wallet-connection">
+                <div class="wallet-status">
+                    <div id="wallet-info" class="wallet-info">No wallet connected</div>
+                    <button id="connect-wallet" class="btn btn-primary">Connect Wallet</button>
+                    <button id="disconnect-wallet" class="btn btn-secondary" style="display: none;">Disconnect</button>
+                </div>
+                <div class="wallet-details" style="display: none;">
+                    <div class="wallet-detail">
+                        <label>Address:</label>
+                        <span id="wallet-address"></span>
+                    </div>
+                    <div class="wallet-detail">
+                        <label>Balance:</label>
+                        <span id="wallet-balance"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>Generated by Neo DevPack Compiler</p>
+            <p>Generated on 2025-07-13 08:37:45 UTC</p>
+        </div>
+    </footer>
+    <script src="contract.js"></script>
+</body>
+</html>

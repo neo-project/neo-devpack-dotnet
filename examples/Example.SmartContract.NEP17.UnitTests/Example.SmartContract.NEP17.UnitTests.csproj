@@ -21,7 +21,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0"/>
         <PackageReference Include="MSTest.TestAdapter" Version="3.8.0"/>
         <PackageReference Include="MSTest.TestFramework" Version="3.8.0"/>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="3.8.1"/>
+        <PackageReference Include="R3E.SmartContract.Testing" Version="3.8.1"/>
     </ItemGroup>
 
     <ItemGroup>

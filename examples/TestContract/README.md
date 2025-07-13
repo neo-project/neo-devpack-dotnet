@@ -28,7 +28,7 @@ build.bat
 
 ### Manual Build
 ```bash
-dotnet run --project ../../src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- TestContract.csproj --generate-interface
+dotnet run --project ../../src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- TestContract.csproj --generate-interface
 ```
 
 ## Generated Interface
@@ -41,10 +41,10 @@ The compiler will generate an interface file `IHelloWorldContract.cs` in the `bi
 
 using Neo;
 using Neo.SmartContract;
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Native;
-using Neo.SmartContract.Framework.Services;
+using R3E.SmartContract.Framework;
+using R3E.SmartContract.Framework.Attributes;
+using R3E.SmartContract.Framework.Native;
+using R3E.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
 using System.Numerics;
@@ -76,7 +76,7 @@ You can use the generated interface in your tests or applications like this:
 
 ```csharp
 using Neo.SmartContract.Generated.HelloWorldContract;
-using Neo.SmartContract.Testing;
+using R3E.SmartContract.Testing;
 
 // Create a test instance
 var helloWorld = new TestingStandard<IHelloWorldContract>();

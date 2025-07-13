@@ -18,6 +18,7 @@ using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.Compiler.WebGui;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -49,6 +50,7 @@ namespace Neo.Compiler.Tool
                 new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"),
                 new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"),
                 new Option<bool>("--generate-plugin", "Generate a Neo N3 plugin for interacting with the compiled contract"),
+                new Option<bool>("--generate-webgui", "Generate an interactive web GUI for the compiled contract"),
                 new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -87,6 +89,10 @@ namespace Neo.Compiler.Tool
             // Check if the --generate-plugin option is present in the command line args
             options.GeneratePlugin = context.ParseResult.CommandResult.Children
                 .Any(token => token.Symbol.Name == "generate-plugin");
+
+            // Check if the --generate-webgui option is present in the command line args
+            options.GenerateWebGui = context.ParseResult.CommandResult.Children
+                .Any(token => token.Symbol.Name == "generate-webgui");
 
             if (paths is null || paths.Length == 0)
             {
@@ -538,6 +544,29 @@ namespace Neo.Compiler.Tool
                     else
                     {
                         Console.WriteLine($"Skipping plugin generation for {baseName} as no contract hash was found.");
+                    }
+                }
+
+                // Generate web GUI if the option is enabled
+                if (options.GenerateWebGui)
+                {
+                    var contractHash = context.GetContractHash();
+                    try
+                    {
+                        var webGuiResult = context.GenerateWebGui(outputFolder);
+                        if (webGuiResult.Success)
+                        {
+                            Console.WriteLine($"Created web GUI at: {webGuiResult.OutputDirectory}");
+                            Console.WriteLine($"Main HTML file: {webGuiResult.HtmlFilePath}");
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine($"Error generating web GUI: {webGuiResult.ErrorMessage}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error generating web GUI: {ex.Message}");
                     }
                 }
 

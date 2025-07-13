@@ -376,10 +376,10 @@ dotnet build
 #### "Web GUI generation failed"
 ```bash
 # Check if Web GUI feature is available
-ls src/Neo.Compiler.CSharp/WebGui/
+ls src/R3E.Compiler.CSharp/WebGui/
 
 # Rebuild compiler with Web GUI support
-dotnet build src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+dotnet build src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj
 ```
 
 #### "Deployment failed - insufficient GAS"

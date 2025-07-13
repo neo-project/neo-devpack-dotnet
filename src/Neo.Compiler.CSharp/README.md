@@ -1,23 +1,23 @@
-# Neo.Compiler.CSharp
+# R3E.Compiler.CSharp
 
 Neo Smart Contract Compiler for C# - Compiles C# code to Neo VM bytecode.
 
 ## Overview
 
-Neo.Compiler.CSharp is the official C# compiler for Neo N3 smart contracts. It compiles C# source code into Neo VM bytecode, generating NEF (Neo Executable Format) files and contract manifests that can be deployed to the Neo blockchain.
+R3E.Compiler.CSharp is the official C# compiler for Neo N3 smart contracts. It compiles C# source code into Neo VM bytecode, generating NEF (Neo Executable Format) files and contract manifests that can be deployed to the Neo blockchain.
 
 ## Installation
 
 ### As a NuGet Package (Library)
 
 ```bash
-dotnet add package Neo.Compiler.CSharp
+dotnet add package R3E.Compiler.CSharp
 ```
 
 ### As a Global Tool
 
 ```bash
-dotnet tool install -g Neo.Compiler.CSharp.Tool
+dotnet tool install -g R3E.Compiler.CSharp.Tool
 ```
 
 ## Usage
@@ -74,7 +74,7 @@ var references = new CompilationSourceReferences
 {
     Packages = new[] 
     { 
-        ("Neo.SmartContract.Framework", "3.9.0"),
+        ("R3E.SmartContract.Framework", "3.9.0"),
         ("MyCustomPackage", "1.0.0")
     },
     Projects = new[] { "../SharedContracts/Shared.csproj" }
@@ -134,7 +134,7 @@ The compiler generates the following files:
 ## Requirements
 
 - .NET 9.0 or higher
-- Neo.SmartContract.Framework reference in your smart contract project
+- R3E.SmartContract.Framework reference in your smart contract project
 
 ## Examples
 

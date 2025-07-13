@@ -3,15 +3,15 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>nccs</AssemblyName>
-    <PackageId>Neo.Compiler.CSharp.Tool</PackageId>
+    <AssemblyName>rncc</AssemblyName>
+    <PackageId>R3E.Compiler.CSharp.Tool</PackageId>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>nccs</ToolCommandName>
+    <ToolCommandName>rncc</ToolCommandName>
     <RootNamespace>Neo.Compiler.Tool</RootNamespace>
     <Nullable>enable</Nullable>
     <PackageTags>NEO;Blockchain;Smart Contract;Compiler;Tool;CLI</PackageTags>
     <Company>The Neo Project</Company>
-    <Product>Neo.Compiler.CSharp.Tool</Product>
+    <Product>R3E.Compiler.CSharp.Tool</Product>
     <Description>Neo Smart Contract Compiler CLI Tool - Command-line interface for compiling Neo smart contracts</Description>
     <IncludeSymbols>false</IncludeSymbols>
     <IsPackable>true</IsPackable>

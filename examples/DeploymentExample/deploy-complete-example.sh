@@ -70,9 +70,9 @@ check_prerequisites() {
     neo_express_version=$(neo-express --version)
     print_success "Neo Express found: $neo_express_version"
     
-    # Check nccs (Neo Compiler)
-    if ! command -v nccs &> /dev/null; then
-        print_warning "Neo Compiler (nccs) not found. Building from source..."
+    # Check rncc (r3e neo contract compiler)
+    if ! command -v rncc &> /dev/null; then
+        print_warning "r3e neo contract compiler (rncc) not found. Building from source..."
         dotnet build ../../src/Neo.Compiler.CSharp.Tool/Neo.Compiler.CSharp.Tool.csproj
         export PATH="$PATH:$(pwd)/../../src/Neo.Compiler.CSharp.Tool/bin/Debug/net9.0"
     fi

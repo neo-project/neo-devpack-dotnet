@@ -1,4 +1,6 @@
-# NEO DevPack for .NET
+# NEO DevPack for .NET (R3E Edition)
+
+**Version 0.0.1**
 
 <p align="center">
   <a href="https://neo.org/">
@@ -13,11 +15,11 @@
   <a href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
-  <a href="https://www.nuget.org/packages/Neo.SmartContract.Framework">
-    <img src="https://img.shields.io/nuget/v/Neo.SmartContract.Framework.svg" alt="NuGet Version">
+  <a href="https://www.nuget.org/packages/R3E.SmartContract.Framework">
+    <img src="https://img.shields.io/nuget/v/R3E.SmartContract.Framework.svg" alt="NuGet Version">
   </a>
-  <a href="https://www.nuget.org/packages/Neo.SmartContract.Framework">
-    <img src="https://img.shields.io/nuget/dt/Neo.SmartContract.Framework.svg" alt="NuGet Downloads">
+  <a href="https://www.nuget.org/packages/R3E.SmartContract.Framework">
+    <img src="https://img.shields.io/nuget/dt/R3E.SmartContract.Framework.svg" alt="NuGet Downloads">
   </a>
   <a href="https://discord.gg/rvZFQ5382k">
     <img src="https://img.shields.io/discord/382937847893590016?logo=discord" alt="Discord">
@@ -36,7 +38,7 @@ NEO DevPack for .NET is a comprehensive suite of development tools for building 
 
 The NEO DevPack for .NET consists of several key components:
 
-### Neo.SmartContract.Framework
+### R3E.SmartContract.Framework
 
 The framework provides the necessary libraries and APIs for writing NEO smart contracts in C#. It includes:
 
@@ -45,7 +47,7 @@ The framework provides the necessary libraries and APIs for writing NEO smart co
 - Standard contract templates (NEP-17, NEP-11, etc.)
 - Utilities for common blockchain operations
 
-### Neo.Compiler.CSharp
+### R3E.Compiler.CSharp (R3E Neo Contract Compiler - rncc)
 
 A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) bytecode. Features include:
 
@@ -54,9 +56,11 @@ A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) 
 - Debug information generation
 - Source code generation for contract testing
 - Contract interface generation
-- **Available as both a CLI tool (`nccs`) and a NuGet library for programmatic compilation**
+- **Web GUI generation for interactive contract interfaces**
+- **Neo N3 plugin generation for CLI integration**
+- **Available as both a CLI tool (`rncc`) and a NuGet library for programmatic compilation**
 
-### Neo.SmartContract.Testing
+### R3E.SmartContract.Testing
 
 A testing framework for NEO smart contracts that allows:
 
@@ -67,19 +71,19 @@ A testing framework for NEO smart contracts that allows:
 - Gas consumption tracking
 - Code coverage analysis
 
-### Neo.Disassembler.CSharp
+### R3E.Disassembler.CSharp
 
 A tool for disassembling NeoVM bytecode back to readable C# code.
 
-### Neo.SmartContract.Analyzer
+### R3E.SmartContract.Analyzer
 
 Code analyzers and linting tools to help write secure and efficient contracts.
 
-### Neo.SmartContract.Template
+### R3E.SmartContract.Template
 
 Project templates for creating new NEO smart contracts with the proper structure and configurations.
 
-### Neo.SmartContract.Deploy
+### R3E.SmartContract.Deploy
 
 A comprehensive deployment toolkit that simplifies the process of deploying and updating smart contracts on NEO networks. Features include:
 
@@ -126,17 +130,17 @@ dotnet test
 ### Creating a New Smart Contract
 
 1. Create a new class library project targeting .NET 9.0 or later
-2. Add a reference to the Neo.SmartContract.Framework package
+2. Add a reference to the R3E.SmartContract.Framework package
 3. Create a class that inherits from `SmartContract`
 4. Implement your contract logic
-5. Compile using the Neo.Compiler.CSharp
+5. Compile using the R3E.Compiler.CSharp
 
 Example:
 
 ```csharp
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Services;
+using R3E.SmartContract.Framework;
+using R3E.SmartContract.Framework.Attributes;
+using R3E.SmartContract.Framework.Services;
 
 public class HelloWorldContract : SmartContract
 {
@@ -150,20 +154,20 @@ public class HelloWorldContract : SmartContract
 
 ### Compiling a Smart Contract
 
-The NEO C# compiler (nccs) translates your C# smart contract into NeoVM bytecode, which can then be deployed to the NEO blockchain. There are several ways to compile your contract:
+The NEO C# compiler (r3e neo contract compiler - rncc) translates your C# smart contract into NeoVM bytecode, which can then be deployed to the NEO blockchain. There are several ways to compile your contract:
 
 #### Using the Global Tool (Recommended)
 
 Install the compiler as a global tool:
 
 ```shell
-dotnet tool install -g Neo.Compiler.CSharp.Tool
+dotnet tool install -g R3E.Compiler.CSharp.Tool
 ```
 
 Then compile your contract:
 
 ```shell
-nccs path/to/your/contract.csproj
+rncc path/to/your/contract.csproj
 ```
 
 #### Using the Library Package
@@ -171,7 +175,7 @@ nccs path/to/your/contract.csproj
 Add the compiler library to your project:
 
 ```shell
-dotnet add package Neo.Compiler.CSharp
+dotnet add package R3E.Compiler.CSharp
 ```
 
 Then compile programmatically in your code. See [compiler library usage documentation](docs/compiler-library-usage.md) for details.
@@ -179,7 +183,7 @@ Then compile programmatically in your code. See [compiler library usage document
 #### Basic Compilation (From Source)
 
 ```shell
-dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- path/to/your/contract.csproj
+dotnet run --project src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- path/to/your/contract.csproj
 ```
 
 This command will compile your contract and generate the following files in the `bin/sc` directory of your project:
@@ -192,7 +196,7 @@ You can customize the compilation process with various options:
 
 ```shell
 # For bash/zsh (macOS/Linux)
-dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- \
+dotnet run --project src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- \
     path/to/your/contract.csproj \
     -o output/directory \
     --base-name MyContract \
@@ -202,7 +206,7 @@ dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- \
     --generate-interface
 
 # For Windows Command Prompt
-dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- ^
+dotnet run --project src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- ^
     path/to/your/contract.csproj ^
     -o output/directory ^
     --base-name MyContract ^
@@ -218,15 +222,15 @@ The compiler can also process individual `.cs` files or entire directories:
 
 ```shell
 # Compile a single file
-dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- path/to/Contract.cs
+dotnet run --project src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- path/to/Contract.cs
 
 # Compile all contracts in a directory
-dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- path/to/contract/directory
+dotnet run --project src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- path/to/contract/directory
 ```
 
 #### Compiler Command Reference
 
-The NEO C# compiler supports the following options:
+The NEO C# compiler (r3e neo contract compiler) supports the following options:
 
 | Option | Description |
 |--------|-------------|
@@ -248,8 +252,8 @@ The NEO C# compiler supports the following options:
 The NEO DevPack includes a comprehensive testing framework specifically designed for smart contracts. Here's how to create unit tests for your contracts:
 
 ```csharp
-using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
+using R3E.SmartContract.Testing;
+using R3E.SmartContract.Testing.TestingStandards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Example.SmartContract.MyContract.UnitTests
@@ -321,7 +325,7 @@ public void TestGasConsumption()
 #### Setting Up the Test Project
 
 1. Create a new test project for your contract
-2. Add references to the Neo.SmartContract.Testing package and your contract project
+2. Add references to the R3E.SmartContract.Testing package and your contract project
 3. Create a test class that inherits from TestBase<T>
 4. Implement the TestSetup method to compile and initialize the contract
 5. Write test methods for each contract feature or scenario
@@ -353,7 +357,7 @@ public static bool Update(ByteString nefFile, string manifest, object data)
 #### Updating a Contract Using the Deployment Toolkit
 
 ```csharp
-using Neo.SmartContract.Deploy;
+using R3E.SmartContract.Deploy;
 
 // Create and configure the toolkit
 var toolkit = new DeploymentToolkit();

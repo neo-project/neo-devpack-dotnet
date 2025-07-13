@@ -4,10 +4,10 @@
     <Nullable>enable</Nullable>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
-    <AssemblyName>Neo.SmartContract.Framework</AssemblyName>
-    <PackageId>Neo.SmartContract.Framework</PackageId>
-    <Description>Neo.SmartContract.Framework</Description>
+    <AssemblyTitle>R3E.SmartContract.Framework</AssemblyTitle>
+    <AssemblyName>R3E.SmartContract.Framework</AssemblyName>
+    <PackageId>R3E.SmartContract.Framework</PackageId>
+    <Description>R3E.SmartContract.Framework</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>

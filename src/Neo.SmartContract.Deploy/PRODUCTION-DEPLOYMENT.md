@@ -72,8 +72,8 @@ Console.WriteLine($"Dry run successful. Estimated GAS: {dryRunResult.GasConsumed
 ### 2. Production Deployment Script
 
 ```csharp
-using Neo.SmartContract.Deploy;
-using Neo.SmartContract.Deploy.Security;
+using R3E.SmartContract.Deploy;
+using R3E.SmartContract.Deploy.Security;
 
 // Production deployment with all safety checks
 public static async Task DeployToMainNet()
@@ -194,7 +194,7 @@ public static async Task VerifyDeployment(string contractHash)
   "Logging": {
     "LogLevel": {
       "Default": "Information",
-      "Neo.SmartContract.Deploy": "Debug",
+      "R3E.SmartContract.Deploy": "Debug",
       "Microsoft": "Warning"
     }
   },

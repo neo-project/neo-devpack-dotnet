@@ -1,13 +1,13 @@
-# Using Neo.Compiler.CSharp as a Library
+# Using R3E.Compiler.CSharp as a Library
 
-Starting with version 3.9.0, the Neo C# compiler is available as a NuGet library package that can be referenced in your own projects. This allows developers to integrate Neo smart contract compilation directly into their applications.
+Starting with version 3.9.0, the Neo C# compiler (r3e neo contract compiler) is available as a NuGet library package that can be referenced in your own projects. This allows developers to integrate Neo smart contract compilation directly into their applications.
 
 ## Installation
 
-Add the Neo.Compiler.CSharp package to your project:
+Add the R3E.Compiler.CSharp package to your project:
 
 ```bash
-dotnet add package Neo.Compiler.CSharp --version 3.9.0
+dotnet add package R3E.Compiler.CSharp --version 3.9.0
 ```
 
 ## Basic Usage
@@ -140,7 +140,7 @@ You can integrate the compiler library into MSBuild or other build systems:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <PackageReference Include="Neo.Compiler.CSharp" Version="3.9.0" />
+    <PackageReference Include="R3E.Compiler.CSharp" Version="0.0.1" />
   </ItemGroup>
 
   <Target Name="CompileNeoContracts" BeforeTargets="Build">
@@ -154,13 +154,13 @@ You can integrate the compiler library into MSBuild or other build systems:
 If you need the command-line interface, install the tool package globally:
 
 ```bash
-dotnet tool install -g Neo.Compiler.CSharp.Tool --version 3.9.0
+dotnet tool install -g R3E.Compiler.CSharp.Tool --version 3.9.0
 ```
 
 Then use it from the command line:
 
 ```bash
-nccs MyContract.cs --debug --optimize=All
+rncc MyContract.cs --debug --optimize=All
 ```
 
 ## API Reference
@@ -175,11 +175,11 @@ Key classes and interfaces:
 
 ## Migration from CLI Tool
 
-If you were previously using the `nccs` command-line tool in your build scripts, you can now integrate compilation directly into your application for better control and error handling.
+If you were previously using the `rncc` command-line tool in your build scripts, you can now integrate compilation directly into your application for better control and error handling.
 
 Before (using CLI):
 ```bash
-nccs MyContract.cs -o ./output --debug
+rncc MyContract.cs -o ./output --debug
 ```
 
 After (using library):
@@ -192,9 +192,9 @@ var results = engine.CompileSources(new[] { "MyContract.cs" });
 ## Requirements
 
 - .NET 9.0 or later
-- Neo.SmartContract.Framework (automatically included as a dependency)
+- R3E.SmartContract.Framework (automatically included as a dependency)
 
 ## See Also
 
 - [Neo Smart Contract Documentation](https://docs.neo.org/docs/n3/develop/write/basics)
-- [Neo.SmartContract.Framework Documentation](https://github.com/neo-project/neo-devpack-dotnet)
+- [R3E.SmartContract.Framework Documentation](https://github.com/neo-project/neo-devpack-dotnet)

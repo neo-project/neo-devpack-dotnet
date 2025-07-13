@@ -2,12 +2,12 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <Title>Neo.SmartContract.Testing</Title>
+        <Title>R3E.SmartContract.Testing</Title>
         <LangVersion>latest</LangVersion>
-        <AssemblyTitle>Neo.SmartContract.Testing</AssemblyTitle>
-        <AssemblyName>Neo.SmartContract.Testing</AssemblyName>
+        <AssemblyTitle>R3E.SmartContract.Testing</AssemblyTitle>
+        <AssemblyName>R3E.SmartContract.Testing</AssemblyName>
         <RootNamespace>Neo.SmartContract.Testing</RootNamespace>
-        <PackageId>Neo.SmartContract.Testing</PackageId>
+        <PackageId>R3E.SmartContract.Testing</PackageId>
         <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
         <Description>TestEngine for NEO smart contract testing.</Description>
         <IncludeContentInPack>true</IncludeContentInPack>

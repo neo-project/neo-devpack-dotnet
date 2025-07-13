@@ -7,11 +7,11 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
     <RootNamespace>Neo.SmartContract.Analyzer</RootNamespace>
-    <PackageId>Neo.SmartContract.Analyzer</PackageId>
+    <PackageId>R3E.SmartContract.Analyzer</PackageId>
     <PackAsTool>true</PackAsTool>
     <PackageTags>NEO;Blockchain;Smart Contract;Analyzer</PackageTags>
-    <Product>Neo.SmartContract.Analyzer.CSharp</Product>
-    <Description>Neo.SmartContract.Analyzer.CSharp</Description>
+    <Product>R3E.SmartContract.Analyzer.CSharp</Product>
+    <Description>R3E.SmartContract.Analyzer.CSharp</Description>
   </PropertyGroup>
 
   <ItemGroup>

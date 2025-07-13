@@ -1,6 +1,6 @@
 # Neo Smart Contract Update Guide
 
-This guide provides comprehensive information on updating Neo smart contracts using the Neo.SmartContract.Deploy toolkit.
+This guide provides comprehensive information on updating Neo smart contracts using the R3E.SmartContract.Deploy toolkit.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ Contract updates in Neo N3 work by calling `ContractManagement.Update` directly.
 
 ## Prerequisites
 
-1. **Neo.SmartContract.Deploy toolkit** installed and configured
+1. **R3E.SmartContract.Deploy toolkit** installed and configured
 2. **Authorized Account**: Access to the account that can update the contract (typically the deployer/owner)
 3. **Contract with _deploy Method**: The target contract must have proper authorization logic in its `_deploy` method
 4. **Sufficient GAS**: Balance to cover update transaction costs
@@ -214,7 +214,7 @@ await toolkit.LoadWalletAsync("path/to/wallet.json", "password");
 ### Example 1: Basic Token Contract Update
 
 ```csharp
-using Neo.SmartContract.Deploy;
+using R3E.SmartContract.Deploy;
 
 class Program
 {
@@ -619,4 +619,4 @@ public class ContractUpdatePipeline
 }
 ```
 
-This comprehensive guide covers all aspects of contract updates using the Neo.SmartContract.Deploy toolkit. For additional examples and advanced use cases, see the deployment examples in the repository.
+This comprehensive guide covers all aspects of contract updates using the R3E.SmartContract.Deploy toolkit. For additional examples and advanced use cases, see the deployment examples in the repository.

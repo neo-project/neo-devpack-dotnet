@@ -30,7 +30,7 @@ All components of the enhanced Neo smart contract deployment workflow have been 
 
 ### Web GUI Generation Architecture
 ```
-Neo.Compiler.CSharp/
+R3E.Compiler.CSharp/
 ├── WebGui/
 │   ├── IWebGuiGenerator.cs          # Interface definition
 │   ├── WebGuiGenerator.cs           # Main implementation  

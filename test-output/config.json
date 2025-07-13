@@ -1,0 +1,34 @@
+﻿{
+  "contract": {
+    "name": "SampleHelloWorld",
+    "hash": "0xef061fe2c2f02e63f00159e99dfd90cbc54ae0d2",
+    "abi": {
+      "methods": [
+        {
+          "name": "sayHello",
+          "parameters": [],
+          "returnType": "String",
+          "safe": true
+        }
+      ],
+      "events": []
+    }
+  },
+  "network": {
+    "rpcEndpoint": "https://neo.coz.io:443",
+    "magic": 860833102
+  },
+  "features": {
+    "transactionHistory": true,
+    "balanceMonitoring": true,
+    "methodInvocation": true,
+    "stateMonitoring": true,
+    "eventMonitoring": true,
+    "walletConnection": true,
+    "advancedFeatures": false
+  },
+  "ui": {
+    "refreshInterval": 30,
+    "darkTheme": false
+  }
+}

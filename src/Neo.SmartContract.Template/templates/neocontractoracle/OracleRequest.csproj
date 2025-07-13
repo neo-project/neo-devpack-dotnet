@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="TemplateNeoVersion" />
+    <PackageReference Include="R3E.SmartContract.Framework" Version="TemplateNeoVersion" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -20,7 +20,7 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: &quot;$(ProjectPath)&quot;" Importance="high">
     </Message>
-    <Exec Command="nccs $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
+    <Exec Command="rncc $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
   </Target>
 
 </Project>

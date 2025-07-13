@@ -117,7 +117,7 @@ $projectContent = @"
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Compiling smart contract..." Importance="high" />
-    <Exec Command="dotnet nccs &quot;`$(MSBuildProjectFullPath)&quot; -o &quot;`$(SolutionDir)deploy\contracts&quot;" />
+    <Exec Command="dotnet rncc &quot;`$(MSBuildProjectFullPath)&quot; -o &quot;`$(SolutionDir)deploy\contracts&quot;" />
   </Target>
 
 </Project>

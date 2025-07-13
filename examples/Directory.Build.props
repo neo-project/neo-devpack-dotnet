@@ -3,7 +3,7 @@
 
     <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
-        <VersionPrefix>3.9.0</VersionPrefix>
+        <VersionPrefix>0.0.1</VersionPrefix>
         <TargetFramework>net9.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
@@ -40,12 +40,12 @@
         Set UseLocalAnalyzer to 'true' to use the local project reference (current default)
         -->
         <UseLocalAnalyzer>true</UseLocalAnalyzer>
-        <NeoAnalyzerVersion>3.9.0</NeoAnalyzerVersion>
+        <NeoAnalyzerVersion>0.0.1</NeoAnalyzerVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-        <PackageReference Include="Neo.SmartContract.Framework" Version="3.9.0"/>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="3.9.0"/>
+        <PackageReference Include="R3E.SmartContract.Framework" Version="0.0.1"/>
+        <PackageReference Include="R3E.SmartContract.Testing" Version="0.0.1"/>
         
         <!-- 
         Local Project Reference for Analyzer (Current - when UseLocalAnalyzer=true)
@@ -62,7 +62,7 @@
         Use this when Neo.SmartContract.Analyzer is available on NuGet
         To switch: Set <UseLocalAnalyzer>false</UseLocalAnalyzer> above
         -->
-        <PackageReference Include="Neo.SmartContract.Analyzer" 
+        <PackageReference Include="R3E.SmartContract.Analyzer" 
                           Version="$(NeoAnalyzerVersion)" 
                           Condition="'$(UseLocalAnalyzer)' == 'false'">
             <PrivateAssets>all</PrivateAssets>
@@ -72,11 +72,11 @@
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent" Condition="'$(IsTestProject)' != 'true'">
         <PropertyGroup>
-            <NccsToolProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp.Tool\Neo.Compiler.CSharp.Tool.csproj</NccsToolProject>
+            <RnccToolProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp.Tool\Neo.Compiler.CSharp.Tool.csproj</RnccToolProject>
         </PropertyGroup>
-        <MSBuild Projects="$(NccsToolProject)" Targets="Build" ContinueOnError="true"/>
+        <MSBuild Projects="$(RnccToolProject)" Targets="Build" ContinueOnError="true"/>
         <!-- Run standard compilation and plugin generation -->
-        <Exec Command="dotnet run --project &quot;$(NccsToolProject)&quot; -- &quot;$(MSBuildProjectFile)&quot; --generate-plugin" ContinueOnError="true"/>
+        <Exec Command="dotnet run --project &quot;$(RnccToolProject)&quot; -- &quot;$(MSBuildProjectFile)&quot; --generate-plugin" ContinueOnError="true"/>
     </Target>
 
     <!-- Smart Contract Artifact Generation Target -->
@@ -88,15 +88,15 @@
             <ArtifactClassName>Sample$(ContractName.Replace('Example.SmartContract.', ''))</ArtifactClassName>
             <NefFilePath>$(OutputPath)$(AssemblyName).nef</NefFilePath>
             <ManifestFilePath>$(OutputPath)$(AssemblyName).manifest.json</ManefFilePath>
-            <NccsToolProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp.Tool\Neo.Compiler.CSharp.Tool.csproj</NccsToolProject>
+            <RnccToolProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp.Tool\Neo.Compiler.CSharp.Tool.csproj</RnccToolProject>
         </PropertyGroup>
         
-        <!-- Generate artifact using nccs with additional parameters if unit test project exists -->
+        <!-- Generate artifact using rncc with additional parameters if unit test project exists -->
         <Message Text="Checking for unit test project: $(UnitTestProjectDir)" Condition="Exists('$(UnitTestProjectDir)')" />
         <MakeDir Directories="$(TestingArtifactsDir)" Condition="Exists('$(UnitTestProjectDir)') AND !Exists('$(TestingArtifactsDir)')" />
         
-        <!-- Use nccs to generate artifacts for unit tests -->
-        <Exec Command="dotnet run --project &quot;$(NccsToolProject)&quot; -- &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source" 
+        <!-- Use rncc to generate artifacts for unit tests -->
+        <Exec Command="dotnet run --project &quot;$(RnccToolProject)&quot; -- &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source" 
               ContinueOnError="true" 
               Condition="Exists('$(UnitTestProjectDir)')" />
     </Target>

@@ -32,8 +32,8 @@ The extracted version information is stored in the `CompilationEngine` and made 
 ### Explicit Version Specification (No Change)
 
 ```csharp
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Attributes;
+using R3E.SmartContract.Framework;
+using R3E.SmartContract.Framework.Attributes;
 
 [ContractVersion("1.0.0")]
 public class MyContract : SmartContract

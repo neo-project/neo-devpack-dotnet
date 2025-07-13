@@ -1,6 +1,6 @@
 # Neo N3 Smart Contract Plugin Generation
 
-The Neo smart contract compiler (`nccs`) now supports automatic generation of Neo N3 plugins that provide CLI commands for interacting with compiled smart contracts through neo-cli.
+The Neo smart contract compiler (r3e neo contract compiler - `rncc`) now supports automatic generation of Neo N3 plugins that provide CLI commands for interacting with compiled smart contracts through neo-cli.
 
 ## Overview
 
@@ -16,7 +16,7 @@ When you compile a smart contract with the `--generate-plugin` option, the compi
 To generate a plugin when compiling your contract:
 
 ```bash
-dotnet nccs MyContract.cs --generate-plugin -o ./output
+dotnet rncc MyContract.cs --generate-plugin -o ./output
 ```
 
 This will create:

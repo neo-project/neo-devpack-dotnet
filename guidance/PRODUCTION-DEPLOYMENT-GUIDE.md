@@ -243,7 +243,7 @@ private static void RequireNotPaused()
 ```bash
 # Pre-deployment checklist
 echo "1. Verify contract compilation"
-dotnet run --project Neo.Compiler.CSharp -- Contract.csproj
+dotnet run --project R3E.Compiler.CSharp -- Contract.csproj
 
 echo "2. Run all tests"
 dotnet test --configuration Release
@@ -688,7 +688,7 @@ public static class ComplianceTracker
 ### Deployment Commands
 ```bash
 # Compile contract
-dotnet run --project Neo.Compiler.CSharp -- Contract.csproj
+dotnet run --project R3E.Compiler.CSharp -- Contract.csproj
 
 # Deploy to mainnet (NEO CLI)
 neo> deploy Contract.nef Contract.manifest.json
