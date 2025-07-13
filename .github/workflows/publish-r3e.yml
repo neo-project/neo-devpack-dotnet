@@ -1,0 +1,38 @@
+name: Publish R3E Packages to NuGet
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*.*.*-r3e'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.300
+
+    - name: Build
+      run: dotnet build -c Release
+
+    - name: Pack
+      run: dotnet pack -c Release --no-build -o ./nupkgs
+
+    - name: Publish R3E packages to NuGet
+      run: |
+        # Only push R3E packages
+        for package in ./nupkgs/R3E*.nupkg; do
+          echo "Publishing $package..."
+          dotnet nuget push "$package" \
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET }} \
+            --skip-duplicate
+        done
