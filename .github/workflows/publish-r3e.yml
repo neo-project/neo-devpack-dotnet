@@ -28,11 +28,12 @@ jobs:
 
     - name: Publish R3E packages to NuGet
       run: |
-        # Only push R3E packages
+        # Only push R3E packages, continue on error
         for package in ./nupkgs/R3E*.nupkg; do
           echo "Publishing $package..."
           dotnet nuget push "$package" \
             --source https://api.nuget.org/v3/index.json \
             --api-key ${{ secrets.NUGET }} \
-            --skip-duplicate
+            --skip-duplicate || echo "Failed to publish $package, continuing..."
         done
+        echo "Publishing complete. Check above for any failures."
