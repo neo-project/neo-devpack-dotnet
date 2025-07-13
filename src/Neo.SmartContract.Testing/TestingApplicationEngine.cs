@@ -252,8 +252,8 @@ namespace Neo.SmartContract.Testing
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
                     // Calculate ExecFeeFactor the same way as ApplicationEngine
-                    uint execFeeFactor = (SnapshotCache == null || PersistingBlock?.Index == 0) 
-                        ? PolicyContract.DefaultExecFeeFactor 
+                    uint execFeeFactor = (SnapshotCache == null || PersistingBlock?.Index == 0)
+                        ? PolicyContract.DefaultExecFeeFactor
                         : NativeContract.Policy.GetExecFeeFactor(SnapshotCache);
                     AddFee(descriptor.FixedPrice * execFeeFactor);
 
