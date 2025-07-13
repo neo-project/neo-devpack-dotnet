@@ -122,7 +122,7 @@ namespace Neo.SmartContract.Testing.Storage
                 {
                     // "key":"value" in base64
 
-                    Snapshot.Add(new StorageKey { Id = 0, Key = Convert.FromBase64String(entry.Key) }, new StorageItem(Convert.FromBase64String(str.Value)));
+                    Store.Put(Convert.FromBase64String(entry.Key), Convert.FromBase64String(str.Value));
                 }
                 else if (entry.Value is JObject obj)
                 {
@@ -135,10 +135,7 @@ namespace Neo.SmartContract.Testing.Storage
                         if (subEntry.Value is JString subStr)
                         {
                             var keyBytes = prefix.Concat(Convert.FromBase64String(subEntry.Key)).ToArray();
-                            Snapshot.Add(
-                                new StorageKey { Id = 0, Key = keyBytes },
-                                new StorageItem(Convert.FromBase64String(subStr.Value))
-                                );
+                            Store.Put(keyBytes, Convert.FromBase64String(subStr.Value));
                         }
                     }
                 }

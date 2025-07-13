@@ -5,7 +5,7 @@
         <Title>R3E.SmartContract.Testing</Title>
         <LangVersion>latest</LangVersion>
         <AssemblyTitle>R3E.SmartContract.Testing</AssemblyTitle>
-        <AssemblyName>R3E.SmartContract.Testing</AssemblyName>
+        <AssemblyName>Neo.SmartContract.Testing</AssemblyName>
         <RootNamespace>Neo.SmartContract.Testing</RootNamespace>
         <PackageId>R3E.SmartContract.Testing</PackageId>
         <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
