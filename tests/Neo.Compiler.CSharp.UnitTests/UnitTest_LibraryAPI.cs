@@ -79,7 +79,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(false, options.NoInline);
             Assert.AreEqual((byte)0x35, options.AddressVersion);
             Assert.IsNotNull(options.CompilerVersion);
-            Assert.IsTrue(options.CompilerVersion.Contains("Neo.Compiler.CSharp"));
+            Assert.IsTrue(options.CompilerVersion.Contains("R3E.Compiler.CSharp"));
         }
 
         [TestMethod]
