@@ -1,18 +1,15 @@
-# NEO DevPack for .NET (R3E Edition)
+# R3E DevPack for .NET
 
 **Version 0.0.1**
 
 <p align="center">
-  <a href="https://neo.org/">
-    <img src="https://neo3.azureedge.net/images/logo%20files-dark.svg" width="250px" alt="neo-logo">
+  <a href="https://github.com/r3e-network/">
+    <img src="https://avatars.githubusercontent.com/u/187460041?s=200&v=4" width="250px" alt="r3e-logo">
   </a>
 </p>
 
 <p align="center">
-  <a href='https://coveralls.io/github/neo-project/neo-devpack-dotnet'>
-    <img src='https://coveralls.io/repos/github/neo-project/neo-devpack-dotnet/badge.svg' alt='Coverage Status' />
-  </a>
-  <a href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/LICENSE">
+  <a href="https://github.com/r3e-network/neo-devpack-dotnet/blob/r3e/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href="https://www.nuget.org/packages/R3E.SmartContract.Framework">
@@ -21,35 +18,46 @@
   <a href="https://www.nuget.org/packages/R3E.SmartContract.Framework">
     <img src="https://img.shields.io/nuget/dt/R3E.SmartContract.Framework.svg" alt="NuGet Downloads">
   </a>
-  <a href="https://discord.gg/rvZFQ5382k">
-    <img src="https://img.shields.io/discord/382937847893590016?logo=discord" alt="Discord">
-  </a>
-  <a href="https://twitter.com/neo_blockchain">
-    <img src="https://img.shields.io/twitter/follow/neo_blockchain?style=social" alt="Twitter Follow">
+  <a href="https://github.com/r3e-network/neo-devpack-dotnet/releases">
+    <img src="https://img.shields.io/github/v/release/r3e-network/neo-devpack-dotnet?include_prereleases" alt="GitHub Release">
   </a>
   <img src="https://img.shields.io/badge/.NET-9.0-512BD4" alt=".NET Version">
 </p>
 
 ## Overview
 
-NEO DevPack for .NET is a comprehensive suite of development tools for building smart contracts and decentralized applications (dApps) on the NEO blockchain platform using .NET. This toolkit enables developers to write, compile, test, and deploy smart contracts using C# and other .NET languages.
+R3E DevPack for .NET is a comprehensive suite of development tools for building smart contracts and decentralized applications (dApps) on the R3E blockchain platform using .NET. This toolkit enables developers to write, compile, test, and deploy smart contracts using C# and other .NET languages.
+
+This is a rebranded version of the Neo DevPack, customized for the R3E blockchain network while maintaining full compatibility with Neo smart contract standards.
+
+## Available Packages
+
+| Package | Version | Description |
+|---------|---------|-------------|
+| [R3E.SmartContract.Framework](https://www.nuget.org/packages/R3E.SmartContract.Framework/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Framework.svg) | Core framework for R3E smart contracts |
+| [R3E.SmartContract.Testing](https://www.nuget.org/packages/R3E.SmartContract.Testing/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Testing.svg) | Testing framework for R3E contracts |
+| [R3E.Compiler.CSharp](https://www.nuget.org/packages/R3E.Compiler.CSharp/) | ![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.svg) | C# to R3E bytecode compiler |
+| [R3E.Compiler.CSharp.Tool](https://www.nuget.org/packages/R3E.Compiler.CSharp.Tool/) | ![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.Tool.svg) | Global CLI tool for compiling contracts |
+| [R3E.SmartContract.Analyzer](https://www.nuget.org/packages/R3E.SmartContract.Analyzer/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Analyzer.svg) | Roslyn analyzers for contract development |
+| [R3E.SmartContract.Template](https://www.nuget.org/packages/R3E.SmartContract.Template/) | ![NuGet](https://img.shields.io/nuget/v/R3E.SmartContract.Template.svg) | Project templates for R3E contracts |
+| [R3E.Disassembler.CSharp](https://www.nuget.org/packages/R3E.Disassembler.CSharp/) | ![NuGet](https://img.shields.io/nuget/v/R3E.Disassembler.CSharp.svg) | Bytecode disassembler |
 
 ## Components
 
-The NEO DevPack for .NET consists of several key components:
+The R3E DevPack for .NET consists of several key components:
 
 ### R3E.SmartContract.Framework
 
-The framework provides the necessary libraries and APIs for writing NEO smart contracts in C#. It includes:
+The framework provides the necessary libraries and APIs for writing R3E smart contracts in C#. It includes:
 
 - Base classes and interfaces for smart contract development
-- NEO blockchain API wrappers
+- R3E blockchain API wrappers
 - Standard contract templates (NEP-17, NEP-11, etc.)
 - Utilities for common blockchain operations
 
-### R3E.Compiler.CSharp (R3E Neo Contract Compiler - rncc)
+### R3E.Compiler.CSharp (R3E Contract Compiler - r3e-compiler)
 
-A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) bytecode. Features include:
+A specialized compiler that translates C# code into R3E Virtual Machine bytecode. Features include:
 
 - Full C# language support for smart contract development
 - Optimization for gas efficiency
@@ -57,12 +65,14 @@ A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) 
 - Source code generation for contract testing
 - Contract interface generation
 - **Web GUI generation for interactive contract interfaces**
-- **Neo N3 plugin generation for CLI integration**
-- **Available as both a CLI tool (`rncc`) and a NuGet library for programmatic compilation**
+- **R3E plugin generation for CLI integration**
+- **Available as both a CLI tool (`r3e-compiler`) and a NuGet library for programmatic compilation**
+
+[![NuGet](https://img.shields.io/nuget/v/R3E.Compiler.CSharp.svg)](https://www.nuget.org/packages/R3E.Compiler.CSharp/)
 
 ### R3E.SmartContract.Testing
 
-A testing framework for NEO smart contracts that allows:
+A testing framework for R3E smart contracts that allows:
 
 - Unit testing of contracts without deployment
 - Storage simulation
@@ -73,7 +83,7 @@ A testing framework for NEO smart contracts that allows:
 
 ### R3E.Disassembler.CSharp
 
-A tool for disassembling NeoVM bytecode back to readable C# code.
+A tool for disassembling R3E VM bytecode back to readable C# code.
 
 ### R3E.SmartContract.Analyzer
 
@@ -81,20 +91,20 @@ Code analyzers and linting tools to help write secure and efficient contracts.
 
 ### R3E.SmartContract.Template
 
-Project templates for creating new NEO smart contracts with the proper structure and configurations.
+Project templates for creating new R3E smart contracts with the proper structure and configurations.
 
 ### R3E.SmartContract.Deploy
 
-A comprehensive deployment toolkit that simplifies the process of deploying and updating smart contracts on NEO networks. Features include:
+A comprehensive deployment toolkit that simplifies the process of deploying and updating smart contracts on R3E networks. Features include:
 
 - Simplified API for contract deployment and updates
 - Automatic wallet and configuration management
 - Support for multiple networks (MainNet, TestNet, local)
 - Contract compilation and deployment in one step
 - Multi-contract deployment from manifest files
-- **Contract update capabilities using Neo N3's _deploy method**
+- **Contract update capabilities using R3E's _deploy method**
 - WIF key support for direct transaction signing
-- Integration with Neo Express for local development
+- Integration with R3E Express for local development
 - Comprehensive error handling and retry mechanisms
 
 ## Getting Started
@@ -106,10 +116,31 @@ A comprehensive deployment toolkit that simplifies the process of deploying and 
 
 ### Installation
 
+#### Install from NuGet
+
+```shell
+# Install the core framework
+dotnet add package R3E.SmartContract.Framework --version 0.0.1
+
+# Install the testing framework
+dotnet add package R3E.SmartContract.Testing --version 0.0.1
+
+# Install the compiler library
+dotnet add package R3E.Compiler.CSharp --version 0.0.1
+
+# Install the compiler global tool
+dotnet tool install -g R3E.Compiler.CSharp.Tool --version 0.0.1
+
+# Install project templates
+dotnet new install R3E.SmartContract.Template::0.0.1
+```
+
+#### Build from Source
+
 Clone the repository with submodules:
 
 ```shell
-git clone --recurse-submodules https://github.com/neo-project/neo-devpack-dotnet.git
+git clone --recurse-submodules https://github.com/r3e-network/neo-devpack-dotnet.git
 cd neo-devpack-dotnet
 ```
 
@@ -129,6 +160,21 @@ dotnet test
 
 ### Creating a New Smart Contract
 
+#### Using the Template (Recommended)
+
+```shell
+# Create a new R3E smart contract project
+dotnet new r3e-contract -n MyContract
+
+# Navigate to the project
+cd MyContract
+
+# Build the contract
+dotnet build
+```
+
+#### Manual Creation
+
 1. Create a new class library project targeting .NET 9.0 or later
 2. Add a reference to the R3E.SmartContract.Framework package
 3. Create a class that inherits from `SmartContract`
@@ -138,9 +184,9 @@ dotnet test
 Example:
 
 ```csharp
-using R3E.SmartContract.Framework;
-using R3E.SmartContract.Framework.Attributes;
-using R3E.SmartContract.Framework.Services;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
 
 public class HelloWorldContract : SmartContract
 {
@@ -154,7 +200,7 @@ public class HelloWorldContract : SmartContract
 
 ### Compiling a Smart Contract
 
-The NEO C# compiler (r3e neo contract compiler - rncc) translates your C# smart contract into NeoVM bytecode, which can then be deployed to the NEO blockchain. There are several ways to compile your contract:
+The R3E C# compiler translates your C# smart contract into R3E VM bytecode, which can then be deployed to the R3E blockchain. There are several ways to compile your contract:
 
 #### Using the Global Tool (Recommended)
 
@@ -167,7 +213,7 @@ dotnet tool install -g R3E.Compiler.CSharp.Tool
 Then compile your contract:
 
 ```shell
-rncc path/to/your/contract.csproj
+r3e-compiler path/to/your/contract.csproj
 ```
 
 #### Using the Library Package
@@ -230,7 +276,7 @@ dotnet run --project src/R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj -- path/
 
 #### Compiler Command Reference
 
-The NEO C# compiler (r3e neo contract compiler) supports the following options:
+The R3E C# compiler supports the following options:
 
 | Option | Description |
 |--------|-------------|
@@ -249,26 +295,23 @@ The NEO C# compiler (r3e neo contract compiler) supports the following options:
 
 ### Testing a Smart Contract
 
-The NEO DevPack includes a comprehensive testing framework specifically designed for smart contracts. Here's how to create unit tests for your contracts:
+The R3E DevPack includes a comprehensive testing framework specifically designed for smart contracts. Here's how to create unit tests for your contracts:
 
 ```csharp
-using R3E.SmartContract.Testing;
-using R3E.SmartContract.Testing.TestingStandards;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.TestingStandards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Example.SmartContract.MyContract.UnitTests
 {
     [TestClass]
-    public class MyContractTests : TestBase<ArtifactMyContract>
+    public class MyContractTests : TestBase<MyContract>
     {
         [TestInitialize]
         public void TestSetup()
         {
-            // Compile and generate testing artifacts
-            var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-
-            // Setup the test base with the compiled contract
-            TestBaseSetup(nef, manifest);
+            // The testing framework automatically compiles and loads your contract
+            TestInitialize();
         }
 
         [TestMethod]
@@ -332,7 +375,7 @@ public void TestGasConsumption()
 
 ### Updating Smart Contracts
 
-The NEO DevPack provides comprehensive support for updating deployed smart contracts. Here's how to implement and execute contract updates:
+The R3E DevPack provides comprehensive support for updating deployed smart contracts. Here's how to implement and execute contract updates:
 
 #### Making Your Contract Updatable
 
@@ -357,7 +400,7 @@ public static bool Update(ByteString nefFile, string manifest, object data)
 #### Updating a Contract Using the Deployment Toolkit
 
 ```csharp
-using R3E.SmartContract.Deploy;
+using Neo.SmartContract.Deploy;
 
 // Create and configure the toolkit
 var toolkit = new DeploymentToolkit();
@@ -414,10 +457,11 @@ Each example comes with corresponding unit tests that demonstrate how to properl
 
 ## Documentation
 
-For detailed documentation on NEO smart contract development with .NET:
+For detailed documentation on R3E smart contract development with .NET:
 
-- [NEO Official Documentation](https://docs.neo.org/)
-- [NEO Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html)
+- [R3E DevPack Repository](https://github.com/r3e-network/neo-devpack-dotnet)
+- [Neo Official Documentation](https://docs.neo.org/) (for reference, as R3E maintains Neo compatibility)
+- [Neo Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html) (applicable to R3E)
 
 ## Contributing
 
@@ -437,5 +481,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- [NEO Project](https://neo.org/)
+- [R3E Network](https://github.com/r3e-network/)
+- [NEO Project](https://neo.org/) - Original developers of the Neo DevPack
 - [NEO Community](https://neo.org/community)
