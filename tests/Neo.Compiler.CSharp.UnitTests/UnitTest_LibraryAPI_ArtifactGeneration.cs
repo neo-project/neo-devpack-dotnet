@@ -284,7 +284,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(nef.Script);
             Assert.IsTrue(nef.Script.Length > 0);
             Assert.IsNotNull(nef.Compiler);
-            Assert.IsTrue(nef.Compiler.Contains("Neo.Compiler.CSharp"));
+            Assert.IsTrue(nef.Compiler.Contains("R3E.Compiler.CSharp"));
 
             // NEF should be serializable
             var nefBytes = nef.ToArray();
