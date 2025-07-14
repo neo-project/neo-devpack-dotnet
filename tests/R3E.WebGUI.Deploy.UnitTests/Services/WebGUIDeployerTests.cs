@@ -5,6 +5,7 @@ using R3E.WebGUI.Deploy.Services;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Xunit;
 
 namespace R3E.WebGUI.Deploy.UnitTests.Services;
 

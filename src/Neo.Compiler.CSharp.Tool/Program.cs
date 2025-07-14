@@ -669,7 +669,7 @@ namespace Neo.Compiler.Tool
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<DeploymentResult>(responseContent, new JsonSerializerOptions 
+                var result = System.Text.Json.JsonSerializer.Deserialize<DeploymentResult>(responseContent, new JsonSerializerOptions 
                 { 
                     PropertyNameCaseInsensitive = true 
                 });

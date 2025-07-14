@@ -1,9 +1,11 @@
 using FluentAssertions;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using R3E.WebGUI.Service.API.Controllers;
+using R3E.WebGUI.Service.API.Models;
 using R3E.WebGUI.Service.Core.Services;
 using R3E.WebGUI.Service.Domain.Models;
 using System.Text;
@@ -14,14 +16,32 @@ namespace R3E.WebGUI.Service.UnitTests.Controllers;
 public class WebGUIControllerTests
 {
     private readonly Mock<IWebGUIService> _mockService;
+    private readonly Mock<INeoRpcService> _mockNeoRpcService;
+    private readonly Mock<IWebGUIGeneratorService> _mockGeneratorService;
+    private readonly Mock<IContractConfigService> _mockConfigService;
+    private readonly Mock<IStorageService> _mockStorageService;
     private readonly Mock<ILogger<WebGUIController>> _mockLogger;
+    private readonly Mock<IValidator<DeployWebGUIRequest>> _mockValidator;
     private readonly WebGUIController _controller;
 
     public WebGUIControllerTests()
     {
         _mockService = new Mock<IWebGUIService>();
+        _mockNeoRpcService = new Mock<INeoRpcService>();
+        _mockGeneratorService = new Mock<IWebGUIGeneratorService>();
+        _mockConfigService = new Mock<IContractConfigService>();
+        _mockStorageService = new Mock<IStorageService>();
         _mockLogger = new Mock<ILogger<WebGUIController>>();
-        _controller = new WebGUIController(_mockService.Object, _mockLogger.Object);
+        _mockValidator = new Mock<IValidator<DeployWebGUIRequest>>();
+        
+        _controller = new WebGUIController(
+            _mockService.Object,
+            _mockNeoRpcService.Object,
+            _mockGeneratorService.Object,
+            _mockConfigService.Object,
+            _mockStorageService.Object,
+            _mockLogger.Object,
+            _mockValidator.Object);
     }
 
     [Fact]
