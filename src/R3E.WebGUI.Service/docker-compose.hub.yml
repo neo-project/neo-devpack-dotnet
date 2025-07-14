@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  r3e-webgui-service:
+    image: r3enetwork/r3e-webgui-service:latest
+    container_name: r3e-webgui-service
+    ports:
+      - "8888:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=R3EWebGUI;User Id=sa;Password=R3E_Strong_Pass_2024!;TrustServerCertificate=true
+      - R3EWebGUI__BaseDomain=${BASE_DOMAIN:-localhost}
+      - R3EWebGUI__StorageBasePath=/app/webgui-storage
+      - R3EWebGUI__MaxFileSizeKB=5120
+      - R3EWebGUI__AllowedNetworks=["testnet", "mainnet"]
+      - R3EWebGUI__RateLimiting__EnableRateLimiting=true
+      - R3EWebGUI__RateLimiting__PermitLimit=100
+      - R3EWebGUI__RateLimiting__WindowMinutes=1
+      - NEO_RPC_TESTNET=https://test1.neo.coz.io:443
+      - NEO_RPC_MAINNET=https://mainnet1.neo.coz.io:443
+    volumes:
+      - webgui-storage:/app/webgui-storage
+      - webgui-logs:/app/logs
+    depends_on:
+      - sqlserver
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: r3e-webgui-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD:-R3E_Strong_Pass_2024!}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1' | /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD:-R3E_Strong_Pass_2024!} -C || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: r3e-webgui-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - webgui-storage:/var/www/webgui:ro
+    depends_on:
+      - r3e-webgui-service
+    networks:
+      - r3e-network
+    restart: unless-stopped
+
+volumes:
+  webgui-storage:
+    driver: local
+  webgui-logs:
+    driver: local
+  sqlserver-data:
+    driver: local
+
+networks:
+  r3e-network:
+    driver: bridge

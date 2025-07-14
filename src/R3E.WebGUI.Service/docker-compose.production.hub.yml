@@ -1,0 +1,195 @@
+version: '3.8'
+
+services:
+  r3e-webgui-service:
+    image: r3enetwork/r3e-webgui-service:latest
+    container_name: r3e-webgui-service
+    ports:
+      - "8888:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=R3EWebGUI;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true
+      - R3EWebGUI__BaseDomain=${BASE_DOMAIN}
+      - R3EWebGUI__StorageBasePath=/app/webgui-storage
+      - R3EWebGUI__MaxFileSizeKB=10240
+      - R3EWebGUI__AllowedNetworks=["testnet", "mainnet"]
+      - R3EWebGUI__RateLimiting__EnableRateLimiting=true
+      - R3EWebGUI__RateLimiting__PermitLimit=200
+      - R3EWebGUI__RateLimiting__WindowMinutes=1
+      - R3EWebGUI__Security__RequireHttps=${REQUIRE_HTTPS:-false}
+      - R3EWebGUI__Security__EnableCors=true
+      - NEO_RPC_TESTNET=${NEO_RPC_TESTNET:-https://test1.neo.coz.io:443}
+      - NEO_RPC_MAINNET=${NEO_RPC_MAINNET:-https://mainnet1.neo.coz.io:443}
+    volumes:
+      - webgui-storage:/app/webgui-storage
+      - webgui-logs:/app/logs
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: r3e-webgui-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Express
+      - MSSQL_MEMORY_LIMIT_MB=4096
+    ports:
+      - "${SQL_PORT:-1433}:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1' | /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -C || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  nginx:
+    image: nginx:alpine
+    container_name: r3e-webgui-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.production.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - webgui-storage:/var/www/webgui:ro
+      - certbot-etc:/etc/letsencrypt:ro
+      - certbot-var:/var/lib/letsencrypt:ro
+    depends_on:
+      r3e-webgui-service:
+        condition: service_healthy
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # SSL Certificate Management (Optional)
+  certbot:
+    image: certbot/certbot
+    container_name: r3e-webgui-certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./webroot:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email ${ADMIN_EMAIL} --agree-tos --no-eff-email --staging --expand -d ${BASE_DOMAIN} -d *.${BASE_DOMAIN}
+    networks:
+      - r3e-network
+    profiles:
+      - ssl
+
+  # Monitoring (Optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: r3e-webgui-prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: r3e-webgui-grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+volumes:
+  webgui-storage:
+    driver: local
+  webgui-logs:
+    driver: local
+  sqlserver-data:
+    driver: local
+  certbot-etc:
+    driver: local
+  certbot-var:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  r3e-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
