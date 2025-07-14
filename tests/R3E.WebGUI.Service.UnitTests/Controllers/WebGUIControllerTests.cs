@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using R3E.WebGUI.Service.API.Controllers;
-using R3E.WebGUI.Service.API.Dto;
 using R3E.WebGUI.Service.Core.Services;
 using R3E.WebGUI.Service.Domain.Models;
 using System.Text;
