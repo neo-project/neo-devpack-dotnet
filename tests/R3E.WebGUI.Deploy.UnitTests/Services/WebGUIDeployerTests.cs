@@ -269,7 +269,6 @@ public class WebGUIDeployerTests : IDisposable
         }
         
         _httpClient?.Dispose();
-        _mockHttpHandler?.Dispose();
         
         // Reset console output
         Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
