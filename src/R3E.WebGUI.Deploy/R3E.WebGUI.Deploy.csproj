@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>R3E.WebGUI.Deploy</AssemblyName>
+    <RootNamespace>R3E.WebGUI.Deploy</RootNamespace>
+    <Company>R3E Community</Company>
+    <Product>R3E WebGUI Deploy Tool</Product>
+    <Description>CLI tool for deploying Neo contract WebGUIs to R3E hosting service</Description>
+    <Version>0.0.1</Version>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>r3e-webgui-deploy</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj" />
+  </ItemGroup>
+
+</Project>

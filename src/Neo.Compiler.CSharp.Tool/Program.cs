@@ -29,8 +29,12 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Neo.Compiler.Tool
 {
@@ -51,6 +55,11 @@ namespace Neo.Compiler.Tool
                 new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"),
                 new Option<bool>("--generate-plugin", "Generate a Neo N3 plugin for interacting with the compiled contract"),
                 new Option<bool>("--generate-webgui", "Generate an interactive web GUI for the compiled contract"),
+                new Option<bool>("--deploy-webgui", "Deploy the generated WebGUI to R3E hosting service"),
+                new Option<string>("--webgui-service-url", () => "https://api.r3e-gui.com", "URL of the R3E WebGUI hosting service"),
+                new Option<string>("--contract-address", "The deployed contract address for WebGUI deployment"),
+                new Option<string>("--network", () => "testnet", "The network where the contract is deployed"),
+                new Option<string>("--deployer-address", "The address of the contract deployer"),
                 new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"),
                 new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
                 new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
@@ -93,6 +102,30 @@ namespace Neo.Compiler.Tool
             // Check if the --generate-webgui option is present in the command line args
             options.GenerateWebGui = context.ParseResult.CommandResult.Children
                 .Any(token => token.Symbol.Name == "generate-webgui");
+
+            // Check WebGUI deployment options
+            options.DeployWebGui = context.ParseResult.CommandResult.Children
+                .Any(token => token.Symbol.Name == "deploy-webgui");
+
+            // Extract WebGUI deployment parameters
+            if (options.DeployWebGui)
+            {
+                options.WebGuiServiceUrl = context.ParseResult.GetValueForOption(
+                    context.ParseResult.CommandResult.Command.Options.FirstOrDefault(o => o.Name == "webgui-service-url")) as string;
+                options.ContractAddress = context.ParseResult.GetValueForOption(
+                    context.ParseResult.CommandResult.Command.Options.FirstOrDefault(o => o.Name == "contract-address")) as string;
+                options.Network = context.ParseResult.GetValueForOption(
+                    context.ParseResult.CommandResult.Command.Options.FirstOrDefault(o => o.Name == "network")) as string;
+                options.DeployerAddress = context.ParseResult.GetValueForOption(
+                    context.ParseResult.CommandResult.Command.Options.FirstOrDefault(o => o.Name == "deployer-address")) as string;
+
+                // Auto-enable WebGUI generation if deployment is requested
+                if (!options.GenerateWebGui)
+                {
+                    options.GenerateWebGui = true;
+                    Console.WriteLine("Auto-enabling WebGUI generation for deployment...");
+                }
+            }
 
             if (paths is null || paths.Length == 0)
             {
@@ -558,6 +591,20 @@ namespace Neo.Compiler.Tool
                         {
                             Console.WriteLine($"Created web GUI at: {webGuiResult.OutputDirectory}");
                             Console.WriteLine($"Main HTML file: {webGuiResult.HtmlFilePath}");
+
+                            // Deploy WebGUI if requested
+                            if (options.DeployWebGui)
+                            {
+                                try
+                                {
+                                    Console.WriteLine("🚀 Deploying WebGUI to R3E hosting service...");
+                                    Task.Run(async () => await DeployWebGuiAsync(options, webGuiResult, context.ContractName!)).GetAwaiter().GetResult();
+                                }
+                                catch (Exception deployEx)
+                                {
+                                    Console.Error.WriteLine($"❌ WebGUI deployment failed: {deployEx.Message}");
+                                }
+                            }
                         }
                         else
                         {
@@ -578,5 +625,91 @@ namespace Neo.Compiler.Tool
                 return 1;
             }
         }
+
+        private static async Task DeployWebGuiAsync(Options options, WebGuiGenerationResult webGuiResult, string contractName)
+        {
+            if (string.IsNullOrEmpty(options.ContractAddress) || string.IsNullOrEmpty(options.DeployerAddress))
+            {
+                throw new ArgumentException("Contract address and deployer address are required for WebGUI deployment");
+            }
+
+            var serviceUrl = options.WebGuiServiceUrl ?? "https://api.r3e-gui.com";
+            
+            using var httpClient = new HttpClient();
+            using var form = new MultipartFormDataContent();
+
+            // Add metadata
+            form.Add(new StringContent(options.ContractAddress), "contractAddress");
+            form.Add(new StringContent(contractName), "contractName");
+            form.Add(new StringContent(options.Network ?? "testnet"), "network");
+            form.Add(new StringContent(options.DeployerAddress), "deployerAddress");
+            form.Add(new StringContent($"WebGUI for {contractName} contract"), "description");
+
+            // Add WebGUI files
+            var webGuiDirectory = webGuiResult.OutputDirectory!;
+            var files = Directory.GetFiles(webGuiDirectory, "*", SearchOption.AllDirectories);
+            
+            foreach (var filePath in files)
+            {
+                var relativePath = Path.GetRelativePath(webGuiDirectory, filePath);
+                var fileContent = await File.ReadAllBytesAsync(filePath);
+                var byteContent = new ByteArrayContent(fileContent);
+                
+                var contentType = GetContentType(filePath);
+                byteContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+                
+                form.Add(byteContent, "webGUIFiles", relativePath);
+            }
+
+            Console.WriteLine($"📁 Uploading {files.Length} WebGUI files...");
+
+            // Deploy to service
+            var response = await httpClient.PostAsync($"{serviceUrl}/api/webgui/deploy", form);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<DeploymentResult>(responseContent, new JsonSerializerOptions 
+                { 
+                    PropertyNameCaseInsensitive = true 
+                });
+
+                Console.WriteLine("✅ WebGUI deployed successfully!");
+                Console.WriteLine($"🌐 Subdomain: {result?.Subdomain}");
+                Console.WriteLine($"🔗 URL: {result?.Url}");
+                Console.WriteLine($"📍 Contract: {result?.ContractAddress}");
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Deployment failed ({response.StatusCode}): {errorContent}");
+            }
+        }
+
+        private static string GetContentType(string filePath)
+        {
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            return extension switch
+            {
+                ".html" => "text/html",
+                ".css" => "text/css",
+                ".js" => "application/javascript",
+                ".json" => "application/json",
+                ".png" => "image/png",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".gif" => "image/gif",
+                ".svg" => "image/svg+xml",
+                ".ico" => "image/x-icon",
+                _ => "application/octet-stream"
+            };
+        }
+    }
+
+    public class DeploymentResult
+    {
+        public bool Success { get; set; }
+        public string? Subdomain { get; set; }
+        public string? Url { get; set; }
+        public string? ContractAddress { get; set; }
     }
 }

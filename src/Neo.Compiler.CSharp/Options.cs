@@ -32,5 +32,10 @@ namespace Neo.Compiler
         public bool GenerateContractInterface { get; set; } = false;
         public bool GeneratePlugin { get; set; } = false;
         public bool GenerateWebGui { get; set; } = false;
+        public bool DeployWebGui { get; set; } = false;
+        public string? WebGuiServiceUrl { get; set; }
+        public string? ContractAddress { get; set; }
+        public string? Network { get; set; } = "testnet";
+        public string? DeployerAddress { get; set; }
     }
 }

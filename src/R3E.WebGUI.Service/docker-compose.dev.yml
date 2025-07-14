@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  r3e-webgui-service:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Logging__Console__LogLevel__Default=Debug
+      - Logging__Console__LogLevel__Microsoft=Information
+      - Logging__Console__LogLevel__Microsoft.Hosting.Lifetime=Information
+    
+  sqlserver:
+    ports:
+      - "1433:1433"
+    
+  nginx:
+    profiles:
+      - never  # Disable nginx in dev mode

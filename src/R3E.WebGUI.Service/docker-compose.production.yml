@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  r3e-webgui-service:
+    build:
+      context: ../../
+      dockerfile: src/R3E.WebGUI.Service/Dockerfile
+    container_name: r3e-webgui-service
+    ports:
+      - "8888:8888"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8888
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=R3EWebGUIService;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - Storage__LocalPath=/app/webgui-storage
+      - R3EWebGUI__BaseDomain=service.neoservicelayer.com
+      - R3EWebGUI__MaxFileSize=10485760
+      - R3EWebGUI__MaxTotalFileSize=52428800
+      - R3EWebGUI__MaxFileCount=100
+      - RateLimit__MaxRequestsPerMinute=100
+      - RateLimit__MaxRequestsPerHour=2000
+      - RateLimit__MaxDeploymentsPerDay=100
+      - Security__RequireHttps=true
+      - Security__EnableCors=true
+    volumes:
+      - webgui-storage:/app/webgui-storage
+      - webgui-logs:/app/logs
+    depends_on:
+      - sqlserver
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: r3e-webgui-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - r3e-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '${DB_PASSWORD}' -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: r3e-webgui-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.http-only.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - webgui-storage:/var/www/webgui:ro
+      - certbot-etc:/etc/letsencrypt:ro
+      - certbot-var:/var/lib/letsencrypt:ro
+    depends_on:
+      - r3e-webgui-service
+    networks:
+      - r3e-network
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: r3e-webgui-certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./webroot:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email ${ADMIN_EMAIL} --agree-tos --no-eff-email --force-renewal -d ${DOMAIN} -d *.${DOMAIN}
+    networks:
+      - r3e-network
+
+volumes:
+  webgui-storage:
+    driver: local
+  webgui-logs:
+    driver: local
+  sqlserver-data:
+    driver: local
+  certbot-etc:
+    driver: local
+  certbot-var:
+    driver: local
+
+networks:
+  r3e-network:
+    driver: bridge

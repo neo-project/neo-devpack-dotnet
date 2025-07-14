@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Neo Smart Contract Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #00d4aa;
+            --accent-color: #764ba2;
+            --background-color: #f8fafc;
+            --card-color: #ffffff;
+            --text-color: #1a1a1a;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-color);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .network-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--background-color);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .network-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+        }
+
+        .wallet-button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wallet-button:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .wallet-connected {
+            background: var(--success-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .contract-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: var(--border-radius);
+        }
+
+        .contract-info {
+            text-align: center;
+        }
+
+        .contract-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .contract-description {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .contract-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .meta-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .plugin-download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: calc(var(--border-radius) / 2);
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .plugin-download-btn:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        /* Grid Layout */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: between;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        /* Method Categories */
+        .method-categories {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .category-tab {
+            padding: 0.5rem 1rem;
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .category-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Methods */
+        .method {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .method:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .method-header {
+            padding: 1rem;
+            background: var(--background-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .method-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .method-name {
+            font-weight: 600;
+        }
+
+        .method-type {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .method-type.read-only {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .method-type.write {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .method-content {
+            padding: 1rem;
+            display: none;
+        }
+
+        .method.expanded .method-content {
+            display: block;
+        }
+
+        .method-description {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-help {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .button-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .button-primary:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .button-secondary {
+            background: var(--background-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .button-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .button-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .button-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        /* Results */
+        .result-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .result-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .result-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        .result-loading {
+            background: rgba(107, 114, 128, 0.1);
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        /* Sidebar Components */
+        .balance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .balance-item:last-child {
+            border-bottom: none;
+        }
+
+        .balance-label {
+            font-weight: 500;
+        }
+
+        .balance-amount {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .transaction-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-hash {
+            font-family: monospace;
+            font-size: 0.875rem;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .transaction-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem;
+            max-width: 400px;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .notification-error {
+            border-left: 4px solid var(--error-color);
+        }
+
+        .notification-warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contract-name {
+                font-size: 2rem;
+            }
+
+            .contract-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .method-categories {
+                flex-direction: column;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #0f172a;
+                --card-color: #1e293b;
+                --text-color: #f1f5f9;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo" id="contract-logo">
+                    <i class="ri-code-s-slash-line"></i>
+                    <span id="header-title">Smart Contract</span>
+                </a>
+                
+                <div class="wallet-section">
+                    <div class="network-indicator">
+                        <div class="network-dot"></div>
+                        <span id="network-name">Testnet</span>
+                    </div>
+                    
+                    <button class="wallet-button" id="wallet-connect">
+                        <i class="ri-wallet-3-line"></i>
+                        <span>Connect Wallet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Contract Header -->
+            <div class="contract-header" id="contract-header">
+                <div class="contract-info">
+                    <h1 class="contract-name" id="contract-name">Loading...</h1>
+                    <p class="contract-description" id="contract-description">Loading contract information...</p>
+                    
+                    <div class="contract-meta" id="contract-meta">
+                        <!-- Meta items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Main Panel -->
+                <div class="main-panel">
+                    <!-- Contract Methods -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="ri-function-line"></i>
+                                Contract Methods
+                            </h2>
+                        </div>
+                        <div class="card-content">
+                            <div class="method-categories" id="method-categories">
+                                <!-- Categories will be populated by JavaScript -->
+                            </div>
+                            
+                            <div id="methods-container">
+                                <!-- Methods will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Events Log -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="ri-notification-line"></i>
+                                Recent Events
+                            </h2>
+                        </div>
+                        <div class="card-content">
+                            <div id="events-container">
+                                <p class="text-muted">No events detected yet. Events will appear here when contract methods are invoked.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- Wallet Info -->
+                    <div class="card" id="wallet-info" style="display: none;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ri-wallet-line"></i>
+                                Wallet
+                            </h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="wallet-address" class="meta-value" style="word-break: break-all; margin-bottom: 1rem;"></div>
+                            <div id="wallet-balance"></div>
+                        </div>
+                    </div>
+
+                    <!-- Contract Statistics -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ri-bar-chart-line"></i>
+                                Statistics
+                            </h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="balance-item">
+                                <span class="balance-label">Total Methods</span>
+                                <span class="balance-amount" id="total-methods">0</span>
+                            </div>
+                            <div class="balance-item">
+                                <span class="balance-label">Read-Only</span>
+                                <span class="balance-amount" id="readonly-methods">0</span>
+                            </div>
+                            <div class="balance-item">
+                                <span class="balance-label">Write Methods</span>
+                                <span class="balance-amount" id="write-methods">0</span>
+                            </div>
+                            <div class="balance-item">
+                                <span class="balance-label">Events</span>
+                                <span class="balance-amount" id="total-events">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ri-history-line"></i>
+                                Recent Transactions
+                            </h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="transactions-container">
+                                <p class="text-muted">No transactions yet.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blockchain Info -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="ri-links-line"></i>
+                                Blockchain Info
+                            </h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="balance-item">
+                                <span class="balance-label">Block Height</span>
+                                <span class="balance-amount" id="block-height">Loading...</span>
+                            </div>
+                            <div class="balance-item">
+                                <span class="balance-label">Gas Price</span>
+                                <span class="balance-amount" id="gas-price">Loading...</span>
+                            </div>
+                            <div class="balance-item">
+                                <span class="balance-label">Network</span>
+                                <span class="balance-amount" id="network-info">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="text-align: center;">
+            <div class="loading"></div>
+            <p style="margin-top: 1rem; color: var(--text-muted);">Loading contract interface...</p>
+        </div>
+    </div>
+
+    <!-- Notification container -->
+    <div id="notification-container"></div>
+
+    <script src="neo-wallet-adapter.js"></script>
+    <script src="modern-webgui.js"></script>
+</body>
+</html>

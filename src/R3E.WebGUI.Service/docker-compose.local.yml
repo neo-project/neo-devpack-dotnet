@@ -1,0 +1,67 @@
+services:
+  r3e-webgui-service:
+    build:
+      context: ../../
+      dockerfile: src/R3E.WebGUI.Service/Dockerfile
+    container_name: r3e-webgui-service-local
+    ports:
+      - "8888:8888"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8888
+      - ConnectionStrings__DefaultConnection=Server=sqlserver-local;Database=R3EWebGUIService;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
+      - Storage__LocalPath=/app/webgui-storage
+      - R3EWebGUI__BaseDomain=localhost
+      - R3EWebGUI__MaxFileSize=10485760
+      - R3EWebGUI__MaxTotalFileSize=52428800
+      - R3EWebGUI__MaxFileCount=100
+      - RateLimit__MaxRequestsPerMinute=100
+      - RateLimit__MaxRequestsPerHour=2000
+      - RateLimit__MaxDeploymentsPerDay=100
+    volumes:
+      - webgui-storage-local:/app/webgui-storage
+      - webgui-logs-local:/app/logs
+    depends_on:
+      - sqlserver-local
+    networks:
+      - r3e-local-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  sqlserver-local:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: r3e-webgui-sqlserver-local
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data-local:/var/opt/mssql
+    networks:
+      - r3e-local-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${DB_PASSWORD}' -C -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  webgui-storage-local:
+    driver: local
+  webgui-logs-local:
+    driver: local
+  sqlserver-data-local:
+    driver: local
+
+networks:
+  r3e-local-network:
+    driver: bridge
