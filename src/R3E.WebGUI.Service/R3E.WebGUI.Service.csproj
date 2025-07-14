@@ -9,7 +9,7 @@
     <Company>R3E Community</Company>
     <Product>R3E WebGUI Hosting Service</Product>
     <Description>Revolutionary hosting service for Neo smart contracts that automatically generates professional web interfaces from contract manifests. Features JSON-based configuration, signature authentication, multi-wallet support, and Docker deployment.</Description>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <PackageId>R3E.WebGUI.Service</PackageId>
     <Title>R3E WebGUI Hosting Service</Title>
     <Authors>R3E Community</Authors>
