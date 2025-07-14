@@ -7,6 +7,7 @@ using R3E.WebGUI.Service.API.Controllers;
 using R3E.WebGUI.Service.Core.Services;
 using R3E.WebGUI.Service.Domain.Models;
 using System.Text;
+using Xunit;
 
 namespace R3E.WebGUI.Service.UnitTests.Controllers;
 

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using R3E.WebGUI.Service.Domain.Models;
 using R3E.WebGUI.Service.Infrastructure.Data;
 using R3E.WebGUI.Service.Infrastructure.Repositories;
+using Xunit;
 
 namespace R3E.WebGUI.Service.UnitTests.Repositories;
 

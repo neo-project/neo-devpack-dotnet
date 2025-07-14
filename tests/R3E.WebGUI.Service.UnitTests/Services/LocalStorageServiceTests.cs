@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using R3E.WebGUI.Service.Core.Services;
 using System.Text;
+using Xunit;
 
 namespace R3E.WebGUI.Service.UnitTests.Services;
 

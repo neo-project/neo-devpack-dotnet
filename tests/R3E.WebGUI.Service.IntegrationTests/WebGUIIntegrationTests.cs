@@ -7,6 +7,7 @@ using R3E.WebGUI.Service.Infrastructure.Data;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Xunit;
 
 namespace R3E.WebGUI.Service.IntegrationTests;
 

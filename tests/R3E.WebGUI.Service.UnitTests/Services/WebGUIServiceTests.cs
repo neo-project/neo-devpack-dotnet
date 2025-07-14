@@ -6,6 +6,7 @@ using R3E.WebGUI.Service.Core.Services;
 using R3E.WebGUI.Service.Domain.Models;
 using R3E.WebGUI.Service.Infrastructure.Repositories;
 using System.Text;
+using Xunit;
 
 namespace R3E.WebGUI.Service.UnitTests.Services;
 
