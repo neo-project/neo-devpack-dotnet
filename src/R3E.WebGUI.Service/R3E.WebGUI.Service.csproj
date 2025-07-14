@@ -9,7 +9,7 @@
     <Company>R3E Community</Company>
     <Product>R3E WebGUI Hosting Service</Product>
     <Description>WebGUI hosting service for Neo smart contracts with subdomain support and contract search</Description>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
