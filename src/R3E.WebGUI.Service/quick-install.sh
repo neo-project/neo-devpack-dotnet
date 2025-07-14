@@ -4,7 +4,7 @@
 # R3E WebGUI Service - Quick Install Script
 # 
 # One-line installation command:
-# curl -sSL https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/quick-install.sh | sudo bash
+# curl -sSL https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/quick-install.sh | sudo bash
 # ============================================================================
 
 set -e
@@ -22,7 +22,7 @@ echo -e "${YELLOW}Requirements: Ubuntu/Debian/CentOS, 4GB+ RAM, ports 80,443,888
 echo ""
 
 # Download and run the full setup script
-curl -sSL https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-r3e-webgui.sh -o /tmp/setup-r3e-webgui.sh
+curl -sSL https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-r3e-webgui.sh -o /tmp/setup-r3e-webgui.sh
 chmod +x /tmp/setup-r3e-webgui.sh
 /tmp/setup-r3e-webgui.sh
 

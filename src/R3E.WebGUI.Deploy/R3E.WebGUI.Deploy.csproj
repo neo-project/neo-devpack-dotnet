@@ -9,19 +9,30 @@
     <RootNamespace>R3E.WebGUI.Deploy</RootNamespace>
     <Company>R3E Community</Company>
     <Product>R3E WebGUI Deploy Tool</Product>
-    <Description>CLI tool for deploying Neo contract WebGUIs to R3E hosting service</Description>
+    <Description>Command-line tool for deploying Neo smart contract WebGUIs to R3E hosting service. Provides automated deployment with signature authentication and comprehensive validation.</Description>
     <Version>0.0.2</Version>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>r3e-webgui-deploy</ToolCommandName>
+    <PackageId>R3E.WebGUI.Deploy</PackageId>
+    <Title>R3E WebGUI Deploy Tool</Title>
+    <Authors>R3E Community</Authors>
+    <PackageProjectUrl>https://github.com/r3e-network/neo-devpack-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/r3e-network/neo-devpack-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>neo;blockchain;smartcontract;webgui;r3e;cli;deployment;tool</PackageTags>
+    <PackageLicense>MIT</PackageLicense>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../R3E.Compiler.CSharp/R3E.Compiler.CSharp.csproj" />
+    <ProjectReference Include="../Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj" />
   </ItemGroup>
 
 </Project>

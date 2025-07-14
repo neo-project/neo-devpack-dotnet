@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Neo;
 using Neo.Cryptography;
+using Neo.SmartContract;
 using Neo.Wallets;
 
 namespace R3E.WebGUI.Service.Core.Services;

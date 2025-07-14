@@ -30,7 +30,7 @@ The service is available on Docker Hub:
 
 ```bash
 # Download the deployment script
-curl -o deploy-docker-hub.sh https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/deploy-docker-hub.sh
+curl -o deploy-docker-hub.sh https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/deploy-docker-hub.sh
 
 # Make it executable
 chmod +x deploy-docker-hub.sh
@@ -43,7 +43,7 @@ chmod +x deploy-docker-hub.sh
 
 1. **Download Docker Compose file**:
 ```bash
-curl -o docker-compose.hub.yml https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/docker-compose.hub.yml
+curl -o docker-compose.hub.yml https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/docker-compose.hub.yml
 ```
 
 2. **Create environment file**:
@@ -290,8 +290,8 @@ services:
 
 ## 🤝 Support
 
-- **Documentation**: [GitHub Repository](https://github.com/neo-project/neo-devpack-dotnet)
-- **Issues**: [GitHub Issues](https://github.com/neo-project/neo-devpack-dotnet/issues)
+- **Documentation**: [GitHub Repository](https://github.com/r3e-network/neo-devpack-dotnet)
+- **Issues**: [GitHub Issues](https://github.com/r3e-network/neo-devpack-dotnet/issues)
 - **Docker Hub**: [r3enetwork/r3e-webgui-service](https://hub.docker.com/r/r3enetwork/r3e-webgui-service)
 
 ## 📄 License

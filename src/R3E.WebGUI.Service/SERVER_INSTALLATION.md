@@ -5,7 +5,7 @@
 The easiest way to install the complete R3E WebGUI Service on your server:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/quick-install.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/quick-install.sh | sudo bash
 ```
 
 This command will:
@@ -43,7 +43,7 @@ If you prefer to install manually or customize the process:
 
 ```bash
 # Download the setup script
-wget https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-r3e-webgui.sh
+wget https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-r3e-webgui.sh
 
 # Make it executable
 chmod +x setup-r3e-webgui.sh
@@ -394,8 +394,8 @@ sudo systemctl start r3e-webgui
 
 ## 📞 Support
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/neo-project/neo-devpack-dotnet/issues)
-- **Documentation**: [Full documentation](https://github.com/neo-project/neo-devpack-dotnet/tree/r3e/src/R3E.WebGUI.Service)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/r3e-network/neo-devpack-dotnet/issues)
+- **Documentation**: [Full documentation](https://github.com/r3e-network/neo-devpack-dotnet/tree/r3e/src/R3E.WebGUI.Service)
 - **Docker Hub**: [r3enetwork/r3e-webgui-service](https://hub.docker.com/r/r3enetwork/r3e-webgui-service)
 
 ## 🎯 Quick Start After Installation

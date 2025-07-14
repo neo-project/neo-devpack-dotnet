@@ -200,7 +200,7 @@ public class WebGUIService : IWebGUIService
             {
                 ["configBased"] = true,
                 ["version"] = config.Version,
-                ["theme"] = config.Theme.Primary
+                ["theme"] = config.Theme.PrimaryColor
             }
         };
 

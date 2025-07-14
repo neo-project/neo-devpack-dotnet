@@ -8,8 +8,20 @@
     <RootNamespace>R3E.WebGUI.Service</RootNamespace>
     <Company>R3E Community</Company>
     <Product>R3E WebGUI Hosting Service</Product>
-    <Description>WebGUI hosting service for Neo smart contracts with subdomain support and contract search</Description>
+    <Description>Revolutionary hosting service for Neo smart contracts that automatically generates professional web interfaces from contract manifests. Features JSON-based configuration, signature authentication, multi-wallet support, and Docker deployment.</Description>
     <Version>0.0.2</Version>
+    <PackageId>R3E.WebGUI.Service</PackageId>
+    <Title>R3E WebGUI Hosting Service</Title>
+    <Authors>R3E Community</Authors>
+    <PackageProjectUrl>https://github.com/r3e-network/neo-devpack-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/r3e-network/neo-devpack-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>neo;blockchain;smartcontract;webgui;r3e;hosting;docker</PackageTags>
+    <PackageLicense>MIT</PackageLicense>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -14,6 +14,7 @@ public class WebGUIController : ControllerBase
     private readonly INeoRpcService _neoRpcService;
     private readonly IWebGUIGeneratorService _webGUIGeneratorService;
     private readonly IContractConfigService _contractConfigService;
+    private readonly IStorageService _storageService;
     private readonly ILogger<WebGUIController> _logger;
     private readonly IValidator<DeployWebGUIRequest> _deployValidator;
 
@@ -22,6 +23,7 @@ public class WebGUIController : ControllerBase
         INeoRpcService neoRpcService,
         IWebGUIGeneratorService webGUIGeneratorService,
         IContractConfigService contractConfigService,
+        IStorageService storageService,
         ILogger<WebGUIController> logger,
         IValidator<DeployWebGUIRequest> deployValidator)
     {
@@ -29,6 +31,7 @@ public class WebGUIController : ControllerBase
         _neoRpcService = neoRpcService;
         _webGUIGeneratorService = webGUIGeneratorService;
         _contractConfigService = contractConfigService;
+        _storageService = storageService;
         _logger = logger;
         _deployValidator = deployValidator;
     }

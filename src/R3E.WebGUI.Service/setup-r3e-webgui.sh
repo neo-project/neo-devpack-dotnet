@@ -6,7 +6,7 @@
 # This script will download and setup the complete R3E WebGUI Service
 # from Docker Hub on your server with all dependencies and configurations.
 #
-# Usage: curl -sSL https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-r3e-webgui.sh | bash
+# Usage: curl -sSL https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service/setup-r3e-webgui.sh | bash
 # ============================================================================
 
 set -e
@@ -22,7 +22,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 INSTALL_DIR="/opt/r3e-webgui"
-GITHUB_RAW_URL="https://raw.githubusercontent.com/neo-project/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service"
+GITHUB_RAW_URL="https://raw.githubusercontent.com/r3e-network/neo-devpack-dotnet/r3e/src/R3E.WebGUI.Service"
 DOCKER_HUB_IMAGE="r3enetwork/r3e-webgui-service:latest"
 
 # Default configuration values
