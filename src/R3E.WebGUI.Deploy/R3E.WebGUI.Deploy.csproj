@@ -10,7 +10,7 @@
     <Company>R3E Community</Company>
     <Product>R3E WebGUI Deploy Tool</Product>
     <Description>CLI tool for deploying Neo contract WebGUIs to R3E hosting service</Description>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>r3e-webgui-deploy</ToolCommandName>
   </PropertyGroup>

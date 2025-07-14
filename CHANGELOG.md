@@ -1,47 +1,138 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the R3E DevPack will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.1] - 2025-07-13
+## [Unreleased]
+
+### Planned
+- Advanced WebGUI analytics and usage metrics
+- Theme marketplace for custom WebGUI designs
+- GraphQL API for advanced integrations
+- Multi-network deployment automation
+- Plugin marketplace and distribution system
+
+## [0.0.2] - 2025-01-14
 
 ### Added
-- **R3E Neo Contract Compiler (rncc)**: Renamed compiler binary from `nccs` to `rncc` (r3e neo contract compiler)
-- **Web GUI Generation**: Added `--generate-webgui` option to automatically generate interactive web interfaces for compiled contracts
-  - Generates HTML, JavaScript, and CSS files for contract interaction
-  - Includes method invocation interface, transaction history, and state monitoring
-  - Supports wallet connection and real-time updates
-- **Plugin Generation**: Complete implementation of `--generate-plugin` for Neo N3 plugin creation
-  - Generates CLI commands for all contract methods
-  - Creates contract wrapper classes for easy integration
-  - Includes plugin configuration and project files
-- **Enhanced Deployment Toolkit**: Production-ready deployment toolkit with simplified API
-  - Support for mainnet, testnet, and local networks
-  - Automatic wallet management
-  - Comprehensive deployment options
+- **R3E WebGUI Service**: Complete hosting service for Neo smart contract web interfaces
+  - JSON-based configuration system replacing static HTML files
+  - Automatic WebGUI generation from contract manifests
+  - Signature-based authentication without user registration
+  - Multi-wallet support (NeoLine, O3, WalletConnect)
+  - Plugin upload and distribution with integrity validation
+  - Subdomain routing for contract interfaces
+  - Professional, responsive design templates
+  - Real-time blockchain data integration
+  - Docker containerization with production configurations
+  - Comprehensive API with rate limiting and security headers
+  - Complete documentation and deployment guides
 
-### Changed
-- Renamed all references from `nccs` to `rncc` throughout the codebase
-- Updated compiler description to include "r3e neo contract compiler"
-- Version reset to 0.0.1 for new release cycle
+- **R3E WebGUI Deploy Tool**: CLI tool for WebGUI deployment automation
+  - Command-line interface for WebGUI management
+  - Signature-based deployment workflow
+  - Integration with existing development tools
 
-### Fixed
-- Web GUI generation integration with CLI tool
-- Plugin generation for contracts with complex parameter types
-- Deployment toolkit error handling for network connectivity issues
+- **Enhanced Testing Framework**
+  - Unit tests for all WebGUI service components
+  - Integration tests for API endpoints
+  - Production workflow validation scripts
+  - Comprehensive test coverage reporting
+
+- **Documentation**
+  - Complete setup and deployment guides
+  - Signature authentication documentation
+  - Production deployment checklist
+  - Docker deployment configurations
+  - Troubleshooting guides
+  - API reference documentation
+
+### Enhanced
+- Improved contract compilation error handling
+- Enhanced NEP-17 token template generation
+- Better integration between compiler and WebGUI service
+- Expanded test coverage across all projects
 
 ### Technical Details
-- Built on Neo devpack-dotnet framework
-- Requires .NET 9.0 or higher
-- Compatible with Neo N3 protocol
+- ASP.NET Core 9.0 web service
+- Entity Framework Core with SQL Server
+- Nginx reverse proxy configuration
+- Docker multi-stage builds
+- Clean architecture implementation
+- Comprehensive logging and monitoring
+- Rate limiting and security middleware
 
-### Migration Guide
-For users upgrading from previous versions:
-1. Replace all `nccs` commands with `rncc`
-2. Update build scripts to use the new binary name
-3. Web GUI generation is now available with `--generate-webgui`
-4. Plugin generation continues to work with `--generate-plugin`
+## [0.0.1] - 2025-01-13
 
-[0.0.1]: https://github.com/neo-project/neo-devpack-dotnet/releases/tag/v0.0.1
+### Added
+- **R3E Compiler.CSharp**: Neo smart contract compiler with R3E branding
+  - Complete rebranding from Neo.Compiler.CSharp
+  - Maintained full compatibility with Neo ecosystem
+  - Enhanced error handling and validation
+  - Support for latest Neo 3.8.x features
+
+- **R3E SmartContract Framework**: Framework for R3E smart contract development
+  - Rebranded from Neo.SmartContract.Framework
+  - Full compatibility with existing Neo contracts
+  - Enhanced documentation and examples
+  - Support for modern C# language features
+
+- **Package Publishing Pipeline**
+  - GitHub Actions workflow for automated package publishing
+  - NuGet package generation for all R3E components
+  - Symbol packages for enhanced debugging
+  - Automated version management
+
+- **Comprehensive Testing**
+  - Full unit test suite with updated branding
+  - Integration tests for compiler functionality
+  - Compatibility tests with Neo ecosystem
+  - Performance benchmarking
+
+- **Documentation**
+  - Updated README with R3E branding
+  - Migration guide from Neo DevPack
+  - Contribution guidelines
+  - Development setup instructions
+
+### Changed
+- Rebranded all packages from `Neo.*` to `R3E.*` namespace
+- Updated assembly names and package identifiers
+- Modified package descriptions and metadata
+- Updated documentation to reflect R3E community focus
+
+### Technical Details
+- .NET 9.0 target framework
+- Neo 3.8.2 compatibility
+- Maintained API compatibility for seamless migration
+- Enhanced build and packaging scripts
+
+## Migration Guide
+
+### From Neo DevPack to R3E DevPack v0.0.1
+- Replace `Neo.Compiler.CSharp` with `R3E.Compiler.CSharp`
+- Replace `Neo.SmartContract.Framework` with `R3E.SmartContract.Framework`
+- Update using statements and namespaces
+- No code changes required - full API compatibility maintained
+
+### Upgrading to v0.0.2
+- No breaking changes - fully backward compatible
+- Optional: Deploy WebGUIs for existing contracts using the new service
+- Optional: Use the new deployment tools for enhanced workflow
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/neo-project/neo-devpack-dotnet/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/neo-project/neo-devpack-dotnet/discussions)
+- **Documentation**: Available in each project's README and docs folder
+- **Community**: Join the Neo developer community for support
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
