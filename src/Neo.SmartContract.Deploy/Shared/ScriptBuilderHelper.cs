@@ -48,7 +48,7 @@ public static class ScriptBuilderHelper
     /// <param name="method">Method name</param>
     /// <param name="parameters">Method parameters</param>
     /// <returns>Contract call script</returns>
-    public static byte[] BuildContractCallScript(UInt160 scriptHash, string method, params object[] parameters)
+    public static byte[] BuildContractCallScript(UInt160 scriptHash, string method, params object?[] parameters)
     {
         using var sb = new ScriptBuilder();
         EmitContractCall(sb, scriptHash, method, parameters);
