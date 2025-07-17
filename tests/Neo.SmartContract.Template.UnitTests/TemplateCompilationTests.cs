@@ -33,7 +33,7 @@ namespace Neo.SmartContract.Template.UnitTests
         {
             var projectPath = Path.Combine(TemplateProjectBasePath, templateName);
             var fullProjectPath = Path.GetFullPath(projectPath);
-            
+
             Assert.IsTrue(Directory.Exists(fullProjectPath), $"Template directory not found: {fullProjectPath}");
 
             var tempDirectory = Path.Combine(Path.GetTempPath(), $"NeoTemplateTest_{Guid.NewGuid()}");
@@ -72,7 +72,7 @@ namespace Neo.SmartContract.Template.UnitTests
                 var error = process.StandardError.ReadToEnd();
                 process.WaitForExit();
 
-                Assert.AreEqual(0, process.ExitCode, 
+                Assert.AreEqual(0, process.ExitCode,
                     $"Build failed for {templateName} in {configuration} mode.\nOutput: {output}\nError: {error}");
 
                 // Verify that the build artifacts were created
@@ -114,3 +114,4 @@ namespace Neo.SmartContract.Template.UnitTests
         }
     }
 }
+
