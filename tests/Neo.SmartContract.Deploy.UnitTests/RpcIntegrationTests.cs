@@ -30,7 +30,7 @@ public class RpcIntegrationTests
     }
 
     [Fact(Skip = "Integration test - requires network access")]
-    public async Task DeploymentToolkit_ShouldRetrieveNetworkMagicFromNeoTestnet()
+    public void DeploymentToolkit_ShouldRetrieveNetworkMagicFromNeoTestnet()
     {
         // Arrange
         var toolkit = new DeploymentToolkit();
