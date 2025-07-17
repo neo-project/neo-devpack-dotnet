@@ -78,7 +78,7 @@ public static class ScriptBuilderHelper
     /// <param name="initializeMethod">Optional initialization method</param>
     /// <param name="initParams">Initialization parameters</param>
     /// <returns>Deployment script</returns>
-    public static byte[] BuildDeploymentScript(byte[] nefBytes, byte[] manifestBytes, string? initializeMethod = null, object[]? initParams = null)
+    public static byte[] BuildDeploymentScript(byte[] nefBytes, byte[] manifestBytes, string? initializeMethod = null, object?[]? initParams = null)
     {
         using var sb = new ScriptBuilder();
 
