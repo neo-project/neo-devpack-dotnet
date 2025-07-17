@@ -1,0 +1,217 @@
+name: Ordered Package Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 3.8.1)'
+        required: true
+        type: string
+
+env:
+  DOTNET_VERSION: 9.0.300
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Get version
+      id: get_version
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' ./src/Directory.Build.props)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Verify version consistency
+      run: |
+        PROPS_VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' ./src/Directory.Build.props)
+        EXPECTED_VERSION="${{ steps.get_version.outputs.version }}"
+        if [[ "$PROPS_VERSION" != "$EXPECTED_VERSION" ]]; then
+          echo "Error: Version mismatch!"
+          echo "Directory.Build.props version: $PROPS_VERSION"
+          echo "Expected version: $EXPECTED_VERSION"
+          exit 1
+        fi
+    
+    - name: Remove Neo core projects from solution
+      run: |
+        cp neo-devpack-dotnet.sln neo-devpack-dotnet.release.sln
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/neo/neo.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Cryptography.BLS12_381/Neo.Cryptography.BLS12_381.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Extensions/Neo.Extensions.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.IO/Neo.IO.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Json/Neo.Json.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.VM/Neo.VM.csproj || true
+    
+    - name: Restore packages
+      run: dotnet restore neo-devpack-dotnet.release.sln
+    
+    # Release in dependency order
+    - name: Pack and Push Neo.SmartContract.Framework
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj \
+          --configuration Release \
+          --output ./pub \
+          --no-restore
+        
+        dotnet nuget push "./pub/Neo.SmartContract.Framework.*.nupkg" \
+          --source https://api.nuget.org/v3/index.json \
+          --api-key ${{ secrets.NUGET_TOKEN }} \
+          --skip-duplicate
+    
+    - name: Wait for Neo.SmartContract.Framework availability
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        echo "Waiting for Neo.SmartContract.Framework $VERSION to be available on NuGet..."
+        for i in {1..30}; do
+          if dotnet nuget list source https://api.nuget.org/v3/index.json --take 1 "Neo.SmartContract.Framework" --exact-match --prerelease | grep -q "$VERSION"; then
+            echo "Package is now available!"
+            break
+          fi
+          echo "Attempt $i/30: Package not yet available, waiting 10s..."
+          sleep 10
+        done
+    
+    - name: Pack and Push Neo.SmartContract.Analyzer
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj \
+          --configuration Release \
+          --output ./pub \
+          --no-restore
+        
+        dotnet nuget push "./pub/Neo.SmartContract.Analyzer.*.nupkg" \
+          --source https://api.nuget.org/v3/index.json \
+          --api-key ${{ secrets.NUGET_TOKEN }} \
+          --skip-duplicate
+    
+    - name: Pack and Push Neo.Disassembler.CSharp
+      run: |
+        dotnet pack ./src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj \
+          --configuration Release \
+          --output ./pub \
+          --no-restore
+        
+        dotnet nuget push "./pub/Neo.Disassembler.CSharp.*.nupkg" \
+          --source https://api.nuget.org/v3/index.json \
+          --api-key ${{ secrets.NUGET_TOKEN }} \
+          --skip-duplicate
+    
+    - name: Prepare Neo.SmartContract.Testing for release
+      run: |
+        # Get Neo package version from neo submodule
+        NEO_VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' ./neo/src/Directory.Build.props)
+        echo "Neo package version: $NEO_VERSION"
+        
+        # Backup original project file
+        cp ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj \
+           ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup
+        
+        # Replace project reference with package reference
+        dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj' || true
+        dotnet add ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version "$NEO_VERSION"
+    
+    - name: Pack and Push Neo.SmartContract.Testing
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj \
+          --configuration Release \
+          --output ./pub \
+          --no-restore
+        
+        dotnet nuget push "./pub/Neo.SmartContract.Testing.*.nupkg" \
+          --source https://api.nuget.org/v3/index.json \
+          --api-key ${{ secrets.NUGET_TOKEN }} \
+          --skip-duplicate
+        
+        # Restore original project file
+        mv ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup \
+           ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
+    
+    - name: Wait for Neo.SmartContract.Testing availability
+      run: |
+        VERSION="${{ steps.get_version.outputs.version }}"
+        echo "Waiting for Neo.SmartContract.Testing $VERSION to be available on NuGet..."
+        for i in {1..30}; do
+          if dotnet nuget list source https://api.nuget.org/v3/index.json --take 1 "Neo.SmartContract.Testing" --exact-match --prerelease | grep -q "$VERSION"; then
+            echo "Package is now available!"
+            break
+          fi
+          echo "Attempt $i/30: Package not yet available, waiting 10s..."
+          sleep 10
+        done
+    
+    - name: Pack and Push Neo.Compiler.CSharp
+      run: |
+        dotnet pack ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj \
+          --configuration Release \
+          --output ./pub \
+          --no-restore
+        
+        dotnet nuget push "./pub/Neo.Compiler.CSharp.*.nupkg" \
+          --source https://api.nuget.org/v3/index.json \
+          --api-key ${{ secrets.NUGET_TOKEN }} \
+          --skip-duplicate
+    
+    - name: Pack and Push Neo.SmartContract.Template
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj \
+          --configuration Release \
+          --output ./pub
+        
+        dotnet nuget push "./pub/Neo.SmartContract.Template.*.nupkg" \
+          --source https://api.nuget.org/v3/index.json \
+          --api-key ${{ secrets.NUGET_TOKEN }} \
+          --skip-duplicate
+    
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.get_version.outputs.version }}
+        release_name: v${{ steps.get_version.outputs.version }}
+        body: |
+          ## Neo DevPack v${{ steps.get_version.outputs.version }}
+          
+          ### Packages Released
+          - Neo.SmartContract.Framework
+          - Neo.SmartContract.Analyzer
+          - Neo.Disassembler.CSharp
+          - Neo.SmartContract.Testing
+          - Neo.Compiler.CSharp
+          - Neo.SmartContract.Template
+          
+          ### Installation
+          ```bash
+          dotnet add package Neo.SmartContract.Framework --version ${{ steps.get_version.outputs.version }}
+          dotnet tool install -g Neo.Compiler.CSharp --version ${{ steps.get_version.outputs.version }}
+          dotnet new install Neo.SmartContract.Template::${{ steps.get_version.outputs.version }}
+          ```
+        draft: false
+        prerelease: ${{ contains(steps.get_version.outputs.version, '-') }}
+    
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./pub/
+        asset_name: nuget-packages-${{ steps.get_version.outputs.version }}.zip
+        asset_content_type: application/zip
