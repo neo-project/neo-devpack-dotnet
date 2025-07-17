@@ -178,5 +178,4 @@ public static class ScriptBuilderHelper
         sb.EmitPush(scriptHash);
         sb.EmitSysCall(ApplicationEngine.System_Contract_Call);
     }
-
 }
