@@ -18,7 +18,7 @@ public static class ScriptBuilderHelper
     /// </summary>
     /// <param name="sb">Script builder instance</param>
     /// <param name="parameters">Parameters to emit</param>
-    public static void EmitParameterArray(ScriptBuilder sb, object[]? parameters)
+    public static void EmitParameterArray(ScriptBuilder sb, params object?[]? parameters)
     {
         if (parameters == null)
             throw new ArgumentNullException(nameof(parameters));
