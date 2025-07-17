@@ -150,7 +150,7 @@ public static class ScriptBuilderHelper
     }
 
 
-    private static void EmitContractCall(ScriptBuilder sb, UInt160 scriptHash, string method, params object[] parameters)
+    private static void EmitContractCall(ScriptBuilder sb, UInt160 scriptHash, string method, params object?[] parameters)
     {
         EmitContractCall(sb, scriptHash, method, CallFlags.All, parameters);
     }
