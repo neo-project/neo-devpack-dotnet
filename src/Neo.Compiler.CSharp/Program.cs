@@ -528,7 +528,7 @@ namespace Neo.Compiler
                     {
                         try
                         {
-                            ContractPluginGenerator.GeneratePlugin(baseName, manifest, contractHash, outputFolder);
+                            ContractPluginGenerator.GeneratePlugin(baseName, manifest, contractHash, outputFolder, options);
                         }
                         catch (Exception ex)
                         {

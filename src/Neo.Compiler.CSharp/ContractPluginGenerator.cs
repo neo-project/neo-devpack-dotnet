@@ -30,7 +30,8 @@ namespace Neo.Compiler
         /// <param name="manifest">Contract manifest</param>
         /// <param name="contractHash">Contract hash</param>
         /// <param name="outputPath">Base output directory</param>
-        public static void GeneratePlugin(string contractName, ContractManifest manifest, UInt160 contractHash, string outputPath)
+        /// <param name="options">Compilation options with plugin configuration</param>
+        public static void GeneratePlugin(string contractName, ContractManifest manifest, UInt160 contractHash, string outputPath, Options? options = null)
         {
             string pluginName = $"{contractName}Plugin";
             string pluginPath = Path.Combine(outputPath, pluginName);
@@ -40,10 +41,10 @@ namespace Neo.Compiler
             GenerateMainPluginFile(pluginName, contractName, manifest, contractHash, pluginPath);
 
             // Generate project file
-            GenerateProjectFile(pluginName, pluginPath);
+            GenerateProjectFile(pluginName, pluginPath, options);
 
             // Generate configuration file
-            GenerateConfigurationFile(pluginName, contractHash, pluginPath);
+            GenerateConfigurationFile(pluginName, contractHash, pluginPath, options);
 
             // Generate CLI commands file
             GenerateCliCommandsFile(pluginName, contractName, manifest, contractHash, pluginPath);
@@ -109,7 +110,7 @@ namespace Neo.Compiler
             File.WriteAllText(Path.Combine(pluginPath, $"{pluginName}.cs"), builder.ToString());
         }
 
-        private static void GenerateProjectFile(string pluginName, string pluginPath)
+        private static void GenerateProjectFile(string pluginName, string pluginPath, Options? options = null)
         {
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder) { NewLine = "\n" };
@@ -123,7 +124,7 @@ namespace Neo.Compiler
             sourceCode.WriteLine("  </PropertyGroup>");
             sourceCode.WriteLine();
             sourceCode.WriteLine("  <ItemGroup>");
-            sourceCode.WriteLine("    <ProjectReference Include=\"../../neo/src/Neo/Neo.csproj\" />");
+            sourceCode.WriteLine($"    <PackageReference Include=\"Neo\" Version=\"{options?.PluginNeoVersion ?? "3.*"}\" />");
             sourceCode.WriteLine("  </ItemGroup>");
             sourceCode.WriteLine();
             sourceCode.WriteLine("  <ItemGroup>");
@@ -134,15 +135,15 @@ namespace Neo.Compiler
             File.WriteAllText(Path.Combine(pluginPath, $"{pluginName}.csproj"), builder.ToString());
         }
 
-        private static void GenerateConfigurationFile(string pluginName, UInt160 contractHash, string pluginPath)
+        private static void GenerateConfigurationFile(string pluginName, UInt160 contractHash, string pluginPath, Options? options = null)
         {
             var config = new JObject
             {
                 ["PluginConfiguration"] = new JObject
                 {
                     ["ContractHash"] = contractHash.ToString(),
-                    ["Network"] = 860833102, // Default to Neo TestNet
-                    ["MaxGasPerTransaction"] = 50_00000000L, // 50 GAS
+                    ["Network"] = options?.PluginNetworkId ?? 860833102, // Default to Neo TestNet
+                    ["MaxGasPerTransaction"] = options?.PluginMaxGas ?? 50_00000000L, // 50 GAS
                     ["DefaultAccount"] = "" // Will be set by user
                 }
             };
@@ -177,7 +178,7 @@ namespace Neo.Compiler
             sourceCode.WriteLine("            _wrapper = wrapper;");
             sourceCode.WriteLine("        }");
             sourceCode.WriteLine();
-            sourceCode.WriteLine("        public void Handle(string[] args)");
+            sourceCode.WriteLine("        public async void Handle(string[] args)");
             sourceCode.WriteLine("        {");
             sourceCode.WriteLine("            if (args.Length == 0)");
             sourceCode.WriteLine("            {");
@@ -191,13 +192,13 @@ namespace Neo.Compiler
             sourceCode.WriteLine("                string[] parameters = args.Skip(1).ToArray();");
             sourceCode.WriteLine();
             sourceCode.WriteLine("                switch (command)");
-            sourceCode.WriteLine("                {");
+            sourceCode.WriteLine("                {" );
 
             // Generate case statements for each contract method
             foreach (var method in manifest.Abi.Methods.Where(m => !m.Name.StartsWith('_')))
             {
                 sourceCode.WriteLine($"                    case \"{method.Name.ToLower()}\":");
-                sourceCode.WriteLine($"                        Handle{method.Name}(parameters);");
+                sourceCode.WriteLine($"                        await Handle{method.Name}(parameters);");
                 sourceCode.WriteLine("                        break;");
             }
 
@@ -297,7 +298,7 @@ namespace Neo.Compiler
 
         private static void GenerateCliMethodHandler(StringWriter sourceCode, ContractMethodDescriptor method)
         {
-            sourceCode.WriteLine($"        private async void Handle{method.Name}(string[] parameters)");
+            sourceCode.WriteLine($"        private async Task Handle{method.Name}(string[] parameters)");
             sourceCode.WriteLine("        {");
             sourceCode.WriteLine($"            // {method.Name}: {(method.Safe ? "Safe method" : "State-changing method")}");
 

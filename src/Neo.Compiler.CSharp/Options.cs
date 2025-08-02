@@ -31,5 +31,8 @@ namespace Neo.Compiler
         public bool SecurityAnalysis { get; set; } = false;
         public bool GenerateContractInterface { get; set; } = false;
         public bool GeneratePlugin { get; set; } = false;
+        public string? PluginNeoVersion { get; set; } = "3.*";
+        public long PluginMaxGas { get; set; } = 50_00000000L;
+        public uint PluginNetworkId { get; set; } = 860833102;
     }
 }
