@@ -65,7 +65,7 @@ internal partial class MethodConvert
                 ConvertMemberAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                 break;
             default:
-                throw new CompilationException(expression.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment expression: {expression}");
+                throw CompilationException.UnsupportedSyntax(expression.Left, $"Complex assignment operators (+=, -=, etc.) can only be used with element access, identifiers, or member access expressions. Found: {expression.Left.GetType().Name}");
         }
     }
 
@@ -120,7 +120,7 @@ internal partial class MethodConvert
                 ConvertPropertyIdentifierNameComplexAssignment(model, type, operatorToken, property, right);
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Complex assignment operators cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -136,7 +136,7 @@ internal partial class MethodConvert
                 ConvertPropertyMemberAccessComplexAssignment(model, type, operatorToken, left, right, property);
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Complex assignment operators cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -275,7 +275,7 @@ internal partial class MethodConvert
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
             "<<=" => (OpCode.SHL, true),
             ">>=" => (OpCode.SHR, true),
-            _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
+            _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Complex assignment operator '{operatorToken.ValueText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
         };
         AddInstruction(opcode);
         if (opcode == OpCode.XOR && isBoolean)

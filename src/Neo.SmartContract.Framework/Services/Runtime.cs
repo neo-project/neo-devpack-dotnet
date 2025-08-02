@@ -93,7 +93,7 @@ namespace Neo.SmartContract.Framework.Services
         /// The stackitem 'State' can be of any kind (a number, a string, an array, ...), so it's up to the developer perform the expected cast here
         /// </summary>
         [Syscall("System.Runtime.GetNotifications")]
-        public static extern Notification[] GetNotifications(UInt160 hash = null);
+        public static extern Notification[] GetNotifications(UInt160? hash = null);
 
         [Syscall("System.Runtime.CheckWitness")]
         public static extern bool CheckWitness(UInt160 hash);

@@ -13,6 +13,6 @@ namespace Neo.SmartContract.Framework.Native
 {
     public class CalledByContractCondition : WitnessCondition
     {
-        public UInt160 Hash;
+        public UInt160 Hash = null!;
     }
 }

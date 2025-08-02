@@ -64,7 +64,7 @@ namespace Neo.Compiler
             foreach (ILocalSymbol symbol in _blockSymbols.Pop())
                 RemoveLocalVariable(symbol);
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in block statement handling. This is a compiler bug that should be reported.");
         }
     }
 }

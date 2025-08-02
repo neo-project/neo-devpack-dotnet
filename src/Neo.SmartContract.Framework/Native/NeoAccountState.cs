@@ -17,6 +17,6 @@ namespace Neo.SmartContract.Framework.Native
     {
         public readonly BigInteger Balance;
         public readonly BigInteger Height;
-        public readonly ECPoint VoteTo;
+        public readonly ECPoint? VoteTo;
     }
 }

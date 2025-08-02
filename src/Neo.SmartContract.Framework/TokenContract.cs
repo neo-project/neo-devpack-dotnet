@@ -34,13 +34,13 @@ namespace Neo.SmartContract.Framework
             if (!owner.IsValid)
                 throw new Exception("The argument \"owner\" is invalid.");
             StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
-            return (BigInteger)balanceMap[owner];
+            return (BigInteger)balanceMap[owner]!;
         }
 
         protected static bool UpdateBalance(UInt160 owner, BigInteger increment)
         {
             StorageMap balanceMap = new(Storage.CurrentContext, Prefix_Balance);
-            BigInteger balance = (BigInteger)balanceMap[owner];
+            BigInteger balance = (BigInteger)balanceMap[owner]!;
             balance += increment;
             if (balance < 0)
                 return false;

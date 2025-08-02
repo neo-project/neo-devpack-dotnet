@@ -38,7 +38,7 @@ internal partial class MethodConvert
                 ConvertOrPattern(model, pattern.Left, pattern.Right, localIndex);
                 break;
             default:
-                throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}");
+                throw CompilationException.UnsupportedSyntax(pattern, $"Binary pattern operator '{pattern.OperatorToken.ValueText}' is not supported. Only 'and' and 'or' operators are allowed in binary patterns.");
         }
     }
 

@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Services;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
@@ -175,6 +176,24 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             storage.Put((ByteString)key, (ByteString)value);
             return true;
         }
+
+        #region BigInteger
+
+        public static BigInteger TestIncrease(byte[] key)
+        {
+            var prefix = new byte[] { 0xA0, 0xAF };
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
+            return storage.Increase((ByteString)key);
+        }
+
+        public static BigInteger TestDecrease(byte[] key)
+        {
+            var prefix = new byte[] { 0xA0, 0xAF };
+            var storage = new StorageMap(Storage.CurrentContext, prefix);
+            return storage.Decrease((ByteString)key);
+        }
+
+        #endregion
 
         #region Serialize
 
