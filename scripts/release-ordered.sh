@@ -122,7 +122,7 @@ wait_for_package() {
 }
 
 # Get version from Directory.Build.props
-VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' ./src/Directory.Build.props)
+VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
 echo "Version to release: $VERSION"
 
 # Remove Neo core projects from solution to avoid building them
@@ -172,20 +172,26 @@ cp "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj" \
    "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup"
 
 # Get Neo package version
-NEO_VERSION=$(grep -oP '(?<=<VersionPrefix>)[^<]+' ./neo/src/Directory.Build.props)
+NEO_VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./neo/src/Directory.Build.props | head -1)
 echo "Neo package version: $NEO_VERSION"
 
 # Replace project reference with package reference
 dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj' || true
 dotnet add ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version "$NEO_VERSION"
 
+# Fix RpcStore.cs for package reference compatibility
+echo "Fixing RpcStore.cs for package reference compatibility..."
+sed -i.bak 's/public event IStore\.OnNewSnapshotDelegate/public event Action<IStore, IStoreSnapshot>/g' \
+    "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
 
 pack_and_push "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
 wait_for_package "Neo.SmartContract.Testing" "$VERSION"
 
-# Restore original project file
+# Restore original project file and RpcStore.cs
 mv "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup" \
    "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
+mv "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs.bak" \
+   "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
 
 # 5. Neo.Compiler.CSharp (depends on Framework and Testing)
 pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
