@@ -192,7 +192,7 @@ namespace Neo.Compiler
             sourceCode.WriteLine("                string[] parameters = args.Skip(1).ToArray();");
             sourceCode.WriteLine();
             sourceCode.WriteLine("                switch (command)");
-            sourceCode.WriteLine("                {" );
+            sourceCode.WriteLine("                {");
 
             // Generate case statements for each contract method
             foreach (var method in manifest.Abi.Methods.Where(m => !m.Name.StartsWith('_')))

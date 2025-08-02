@@ -205,7 +205,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(content.Contains("private async Task HandletestMethod"), "Should have testMethod handler");
             Assert.IsTrue(content.Contains("private async Task HandlesetState"), "Should have setState handler");
             Assert.IsTrue(content.Contains("private async Task HandlenoParams"), "Should have noParams handler");
-            
+
             // Should NOT have handler for private methods
             Assert.IsFalse(content.Contains("private async Task Handle_deploy"), "Should NOT have _deploy handler");
 
@@ -225,13 +225,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             string pluginPath = Path.Combine(_testOutputPath, "TestContractPlugin");
             string content = File.ReadAllText(Path.Combine(pluginPath, "TestContractWrapper.cs"));
 
-            Assert.IsTrue(content.Contains($"private static readonly UInt160 ContractHash = UInt160.Parse(\"{_testContractHash}\")"), 
+            Assert.IsTrue(content.Contains($"private static readonly UInt160 ContractHash = UInt160.Parse(\"{_testContractHash}\")"),
                 "Should contain contract hash");
-            Assert.IsTrue(content.Contains("public async Task<string> testMethodAsync(BigInteger value)"), 
+            Assert.IsTrue(content.Contains("public async Task<string> testMethodAsync(BigInteger value)"),
                 "Should have async wrapper for testMethod");
-            Assert.IsTrue(content.Contains("public async Task<bool> setStateAsync(string key, byte[] value)"), 
+            Assert.IsTrue(content.Contains("public async Task<bool> setStateAsync(string key, byte[] value)"),
                 "Should have async wrapper for setState");
-            Assert.IsTrue(content.Contains("public async Task<BigInteger> noParamsAsync()"), 
+            Assert.IsTrue(content.Contains("public async Task<BigInteger> noParamsAsync()"),
                 "Should have async wrapper for noParams");
         }
 
@@ -287,7 +287,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Assert
             string pluginPath = Path.Combine(_testOutputPath, "TypeTestPlugin");
             string wrapperContent = File.ReadAllText(Path.Combine(pluginPath, "TypeTestWrapper.cs"));
-            
+
             Assert.IsTrue(wrapperContent.Contains("bool boolParam"), "Should have bool parameter");
             Assert.IsTrue(wrapperContent.Contains("BigInteger intParam"), "Should have BigInteger parameter");
             Assert.IsTrue(wrapperContent.Contains("string stringParam"), "Should have string parameter");

@@ -51,7 +51,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
         {
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
             Assert.AreEqual(Program.Main([path, "--generate-plugin"]), 0);
-            
+
             // Verify plugin files were created
             var outputDir = Path.Combine(Path.GetDirectoryName(path), "bin", "sc");
             var pluginDir = Path.Combine(outputDir, "Contract_BigIntegerPlugin");
@@ -66,11 +66,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
             var path = Path.Combine(csFileDir, "Contract_BigInteger.cs");
             var outputPath = Path.Combine(Path.GetTempPath(), "plugin_test_output");
             Assert.AreEqual(Program.Main([path, "--generate-plugin", "-o", outputPath]), 0);
-            
+
             // Verify plugin files were created in custom output directory
             var pluginDir = Path.Combine(outputPath, "Contract_BigIntegerPlugin");
             Assert.IsTrue(Directory.Exists(pluginDir), "Plugin directory should be created in custom output");
-            
+
             // Cleanup
             if (Directory.Exists(outputPath))
                 Directory.Delete(outputPath, true);
