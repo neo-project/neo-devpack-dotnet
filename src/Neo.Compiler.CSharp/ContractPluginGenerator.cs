@@ -161,6 +161,7 @@ namespace Neo.Compiler
             sourceCode.WriteLine("using System;");
             sourceCode.WriteLine("using System.Linq;");
             sourceCode.WriteLine("using System.Numerics;");
+            sourceCode.WriteLine("using System.Threading.Tasks;");
             sourceCode.WriteLine("using Neo;");
             sourceCode.WriteLine("using Neo.ConsoleService;");
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
