@@ -23,6 +23,10 @@ This guide focuses on implementing safe arithmetic operations in Neo smart contr
 
 ### Neo N3 BigInteger Characteristics
 
+> **Important**: As noted by the Neo team, BigInteger in Neo VM has a maximum length of 256 bits (32 bytes). 
+> The VM will throw an exception if a value exceeds this limit, providing automatic overflow protection.
+> However, we still recommend implementing explicit bounds checking for business logic validation.
+
 ```csharp
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Services;
@@ -30,8 +34,9 @@ using Neo.SmartContract.Framework.Services;
 [DisplayName("ArithmeticSafetyDemo")]
 public class ArithmeticSafetyDemo : SmartContract
 {
-    // BigInteger in Neo can handle arbitrarily large numbers, but we still need bounds
-    // for practical and security reasons
+    // BigInteger in Neo VM has a maximum of 256 bits (32 bytes)
+    // The VM automatically prevents overflow beyond this limit
+    // We still define practical bounds for business logic validation
     
     /// <summary>
     /// Maximum safe value for token amounts (example: 21M tokens with 8 decimals)
@@ -49,11 +54,12 @@ public class ArithmeticSafetyDemo : SmartContract
     [Safe]
     public static void DemonstrateBigIntegerBehavior()
     {
-        // BigInteger can handle very large numbers
+        // BigInteger in Neo VM has automatic overflow protection at 256 bits
         BigInteger large1 = BigInteger.Parse("999999999999999999999999999999");
         BigInteger large2 = BigInteger.Parse("111111111111111111111111111111");
         
-        // This won't overflow, but we should still validate for business logic
+        // The VM will automatically throw if result exceeds 256 bits
+        // We still validate for business logic constraints
         BigInteger result = large1 + large2;
         
         // Always validate results against business logic constraints
@@ -70,7 +76,7 @@ public class ArithmeticSafetyDemo : SmartContract
 public class SafeAddition : SmartContract
 {
     /// <summary>
-    /// Safe addition with overflow protection
+    /// Safe addition with business logic validation
     /// </summary>
     public static BigInteger SafeAdd(BigInteger a, BigInteger b)
     {
@@ -78,8 +84,8 @@ public class SafeAddition : SmartContract
         Assert(a >= 0, "First operand must be non-negative");
         Assert(b >= 0, "Second operand must be non-negative");
         
-        // Check for overflow before operation
-        Assert(a <= MAX_SAFE_VALUE - b, "Addition would cause overflow");
+        // Check against business logic limits (VM handles 256-bit overflow automatically)
+        Assert(a <= MAX_SAFE_VALUE - b, "Addition would exceed business logic limits");
         
         BigInteger result = a + b;
         
@@ -246,7 +252,7 @@ public class SafeSubtraction : SmartContract
 public class SafeMultiplication : SmartContract
 {
     /// <summary>
-    /// Safe multiplication with overflow protection
+    /// Safe multiplication with business logic validation
     /// </summary>
     public static BigInteger SafeMultiply(BigInteger a, BigInteger b)
     {
@@ -257,8 +263,8 @@ public class SafeMultiplication : SmartContract
         if (a == 1) return b;
         if (b == 1) return a;
         
-        // Check for overflow before multiplication
-        Assert(a <= MAX_SAFE_VALUE / b, "Multiplication would cause overflow");
+        // Check against business logic limits (VM handles 256-bit overflow automatically)
+        Assert(a <= MAX_SAFE_VALUE / b, "Multiplication would exceed business logic limits");
         
         BigInteger result = a * b;
         
