@@ -65,8 +65,8 @@ public class OwnerOnlyContract : SmartContract
     public static bool TransferOwnership(UInt160 newOwner)
     {
         OnlyOwner();
+        Assert(newOwner != null && newOwner.IsValid, "Invalid new owner address");
         Assert(newOwner != OWNER, "New owner must be different");
-        Assert(Runtime.CheckWitness(newOwner), "New owner must authorize the transfer");
         
         // Update owner in storage for future reference
         Storage.Put(Storage.CurrentContext, "owner", newOwner);
