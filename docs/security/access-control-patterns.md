@@ -66,7 +66,9 @@ public class OwnerOnlyContract : SmartContract
     {
         OnlyOwner();
         Assert(newOwner != null && newOwner.IsValid, "Invalid new owner address");
+        Assert(newOwner != UInt160.Zero, "New owner cannot be zero address");
         Assert(newOwner != OWNER, "New owner must be different");
+        Assert(Runtime.CheckWitness(newOwner), "New owner must authorize the transfer");
         
         // Update owner in storage for future reference
         Storage.Put(Storage.CurrentContext, "owner", newOwner);
