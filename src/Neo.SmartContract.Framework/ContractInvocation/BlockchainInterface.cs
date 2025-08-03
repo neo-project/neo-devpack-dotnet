@@ -151,7 +151,9 @@ namespace Neo.SmartContract.Framework.ContractInvocation
             try
             {
                 var contract = ContractManagement.GetContract(contractHash);
-                return (byte[]?)contract?.Nef;
+                if (contract == null || contract.Nef == null)
+                    return null;
+                return (byte[])contract.Nef;
             }
             catch
             {
