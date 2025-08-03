@@ -70,7 +70,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             var modifiesStateProp = attributeType.GetProperty("ModifiesState");
             Assert.IsNotNull(modifiesStateProp);
-            
+
             // Test default value
             var modifiesState = modifiesStateProp.GetValue(attribute);
             Assert.AreEqual(true, modifiesState);
@@ -179,7 +179,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_ContractInvocation_AllTypesExist()
         {
             var assembly = typeof(scfx::Neo.SmartContract.Framework.SmartContract).Assembly;
-            
+
             // List of all expected types
             string[] expectedTypes = new[]
             {
