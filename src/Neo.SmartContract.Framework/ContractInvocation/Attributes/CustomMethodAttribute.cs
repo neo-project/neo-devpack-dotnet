@@ -206,7 +206,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation.Attributes
 
         private object?[]? FlattenArrayParameters(object?[] parameters)
         {
-            var flattened = new List<object?>();
+            var flattened = new System.Collections.Generic.List<object?>();
             
             foreach (var param in parameters)
             {
