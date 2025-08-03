@@ -19,7 +19,7 @@ concurrency:
 jobs:
 
   Test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -94,7 +94,7 @@ jobs:
   PublishPackage:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
     needs: Test
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -153,7 +153,7 @@ jobs:
   Release:
     if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
     needs: Test
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
