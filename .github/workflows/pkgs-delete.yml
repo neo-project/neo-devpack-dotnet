@@ -9,7 +9,7 @@ jobs:
 
   delete-myget-pkgs:
     name: Delete Old MyGet Packages
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -64,7 +64,7 @@ jobs:
 
   delete-git-pkgs:
     name: Delete Old Github Packages
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Delete Neo.SmartContract.Testing Package
