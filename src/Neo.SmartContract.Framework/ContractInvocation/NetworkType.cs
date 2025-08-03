@@ -32,3 +32,4 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         Privnet
     }
 }
+
