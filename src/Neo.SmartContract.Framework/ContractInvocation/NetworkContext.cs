@@ -33,10 +33,17 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         public IReadOnlyCollection<string> ConfiguredNetworks => _networkAddresses.Keys;
 
         /// <summary>
+        /// Initializes a new NetworkContext with the default network (privnet).
+        /// </summary>
+        public NetworkContext() : this("privnet")
+        {
+        }
+
+        /// <summary>
         /// Initializes a new NetworkContext with the specified current network.
         /// </summary>
         /// <param name="currentNetwork">The name of the current active network</param>
-        public NetworkContext(string currentNetwork = "privnet")
+        public NetworkContext(string currentNetwork)
         {
             CurrentNetwork = currentNetwork ?? throw new ArgumentNullException(nameof(currentNetwork));
             _networkAddresses = new Dictionary<string, UInt160>();
