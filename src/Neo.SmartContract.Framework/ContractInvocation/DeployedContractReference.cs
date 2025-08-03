@@ -94,14 +94,14 @@ namespace Neo.SmartContract.Framework.ContractInvocation
             string currentNetwork = "privnet")
         {
             var networkContext = new NetworkContext(currentNetwork);
-            
+
             if (privnetAddress != null)
                 networkContext.SetNetworkAddress("privnet", privnetAddress);
             if (testnetAddress != null)
                 networkContext.SetNetworkAddress("testnet", testnetAddress);
             if (mainnetAddress != null)
                 networkContext.SetNetworkAddress("mainnet", mainnetAddress);
-            
+
             return new DeployedContractReference(identifier, networkContext);
         }
 

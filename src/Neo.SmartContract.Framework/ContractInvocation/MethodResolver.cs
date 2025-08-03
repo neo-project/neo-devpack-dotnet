@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
             Type? sourceType = null)
         {
             var cacheKey = GenerateCacheKey(contractReference, methodName, parameters, sourceType);
-            
+
             if (_resolutionCache.TryGetValue(cacheKey, out var cached))
             {
                 return cached;
@@ -49,7 +49,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
 
             var resolution = PerformMethodResolution(contractReference, methodName, parameters, sourceType);
             _resolutionCache[cacheKey] = resolution;
-            
+
             return resolution;
         }
 
@@ -234,9 +234,9 @@ namespace Neo.SmartContract.Framework.ContractInvocation
 
             // Heuristic-based determination
             var methodName = method.Name.ToLowerInvariant();
-            
+
             // Read-only method patterns
-            if (methodName.StartsWith("get") || methodName.StartsWith("is") || 
+            if (methodName.StartsWith("get") || methodName.StartsWith("is") ||
                 methodName.StartsWith("has") || methodName.StartsWith("check") ||
                 methodName.StartsWith("view") || methodName.StartsWith("query") ||
                 methodName.Contains("balance") || methodName.Contains("supply"))
@@ -290,7 +290,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         private static bool IsParameterTypeCompatible(MethodInfo method, object?[]? args)
         {
             var parameters = method.GetParameters();
-            
+
             if (args == null)
                 return parameters.Length == 0;
 
@@ -338,7 +338,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         {
             var parameters = resolution.OriginalParameters;
             var expectedParams = contractMethod.Parameters;
-            
+
             var paramCount = parameters?.Length ?? 0;
             if (paramCount != expectedParams.Length)
             {
@@ -358,9 +358,9 @@ namespace Neo.SmartContract.Framework.ContractInvocation
             object?[]? parameters,
             Type? sourceType)
         {
-            var paramSignature = parameters == null ? "void" : 
+            var paramSignature = parameters == null ? "void" :
                 string.Join(",", parameters.Select(p => p?.GetType().Name ?? "null"));
-                
+
             return $"{contractReference.Identifier}.{methodName}({paramSignature})" +
                    (sourceType != null ? $"@{sourceType.FullName}" : "");
         }
