@@ -44,13 +44,53 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         /// <returns>The result of the contract method call</returns>
         protected virtual object InvokeMethod(string method, CallFlags flags, params object?[]? args)
         {
+            // Use MethodResolver for enhanced method resolution
+            var resolution = MethodResolver.ResolveMethod(ContractReference, method, args, GetSourceContractType());
+            
+            if (!resolution.IsResolved)
+            {
+                throw new InvalidOperationException($"Failed to resolve method '{method}': {resolution.ErrorMessage}");
+            }
+
+            // Handle development contracts that aren't resolved yet
+            if (ContractReference is DevelopmentContractReference devRef && !devRef.IsResolved)
+            {
+                return HandleDevelopmentContractInvocation(resolution);
+            }
+
+            // Ensure contract is resolved for deployed contracts
             if (!ContractReference.IsResolved)
             {
                 throw new InvalidOperationException($"Contract reference '{ContractReference.Identifier}' is not resolved. Cannot invoke method '{method}'.");
             }
 
-            // This call will be replaced by the compiler with the actual Contract.Call
-            return Contract.Call(ContractReference.ResolvedHash!, method, flags, args);
+            // Use resolved method name and parameters
+            return Contract.Call(ContractReference.ResolvedHash!, resolution.ResolvedMethodName, resolution.CallFlags, resolution.ResolvedParameters);
+        }
+
+        /// <summary>
+        /// Gets the source contract type for development contracts.
+        /// Override this in derived classes for development contract proxies.
+        /// </summary>
+        /// <returns>The source contract type, or null for deployed contracts</returns>
+        protected virtual Type? GetSourceContractType()
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Handles method invocation for development contracts.
+        /// Override this to provide custom development-time behavior.
+        /// </summary>
+        /// <param name="resolution">The method resolution information</param>
+        /// <returns>The result of the method invocation</returns>
+        protected virtual object HandleDevelopmentContractInvocation(MethodResolutionInfo resolution)
+        {
+            // Default behavior: throw exception indicating contract not deployed
+            throw new InvalidOperationException(
+                $"Development contract '{ContractReference.Identifier}' is not yet compiled. " +
+                $"Method '{resolution.OriginalMethodName}' cannot be invoked until contract is deployed. " +
+                $"Consider overriding HandleDevelopmentContractInvocation for custom development-time behavior.");
         }
 
         /// <summary>
