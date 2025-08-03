@@ -46,7 +46,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         {
             // Use MethodResolver for enhanced method resolution
             var resolution = MethodResolver.ResolveMethod(ContractReference, method, args, GetSourceContractType());
-            
+
             if (!resolution.IsResolved)
             {
                 throw new InvalidOperationException($"Failed to resolve method '{method}': {resolution.ErrorMessage}");

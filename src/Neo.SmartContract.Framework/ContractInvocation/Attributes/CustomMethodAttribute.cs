@@ -168,8 +168,8 @@ namespace Neo.SmartContract.Framework.ContractInvocation.Attributes
                 if (!SupportsArrayParameters && paramType.IsArray)
                     return false;
 
-                if (!SupportsObjectParameters && !paramType.IsPrimitive && 
-                    paramType != typeof(string) && paramType != typeof(UInt160) && 
+                if (!SupportsObjectParameters && !paramType.IsPrimitive &&
+                    paramType != typeof(string) && paramType != typeof(UInt160) &&
                     paramType != typeof(UInt256) && paramType != typeof(ECPoint))
                     return false;
             }
@@ -207,7 +207,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation.Attributes
         private object?[]? FlattenArrayParameters(object?[] parameters)
         {
             var flattened = new System.Collections.Generic.List<object?>();
-            
+
             foreach (var param in parameters)
             {
                 if (param is Array array)

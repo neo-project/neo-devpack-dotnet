@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
     public abstract class DevelopmentContractProxy : ContractProxyBase
     {
         private static readonly Dictionary<string, MethodInfo> _methodCache = new();
-        
+
         /// <summary>
         /// Gets the source contract type for method reflection.
         /// </summary>
@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         /// Initializes a new DevelopmentContractProxy.
         /// </summary>
         /// <param name="contractReference">The development contract reference</param>
-        protected DevelopmentContractProxy(DevelopmentContractReference contractReference) 
+        protected DevelopmentContractProxy(DevelopmentContractReference contractReference)
             : base(contractReference)
         {
             ValidateSourceContract();
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         {
             // Validate method exists in source contract
             var methodInfo = GetValidatedMethodInfo(method, args);
-            
+
             // If contract is not resolved (still developing), provide development-time behavior
             if (!ContractReference.IsResolved)
             {
@@ -71,7 +71,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         protected virtual object HandleDevelopmentTimeInvocation(MethodInfo methodInfo, object?[]? args)
         {
             // Options for development-time behavior:
-            
+
             // 1. Throw exception indicating contract not deployed yet
             throw new InvalidOperationException(
                 $"Development contract '{ContractReference.Identifier}' is not yet compiled. " +
@@ -79,7 +79,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
 
             // 2. Alternative: Return default values for testing
             // return GetDefaultReturnValue(methodInfo.ReturnType);
-            
+
             // 3. Alternative: Invoke source method directly for unit testing
             // return InvokeSourceMethodDirectly(methodInfo, args);
         }
@@ -90,7 +90,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         private MethodInfo GetValidatedMethodInfo(string methodName, object?[]? args)
         {
             var cacheKey = $"{SourceContractType.FullName}.{methodName}";
-            
+
             if (!_methodCache.TryGetValue(cacheKey, out var methodInfo))
             {
                 methodInfo = FindMatchingMethod(methodName, args);
@@ -112,7 +112,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         private MethodInfo? FindMatchingMethod(string methodName, object?[]? args)
         {
             var methods = SourceContractType.GetMethods(BindingFlags.Public | BindingFlags.Static);
-            
+
             foreach (var method in methods)
             {
                 if (method.Name.Equals(methodName, StringComparison.OrdinalIgnoreCase))
@@ -134,10 +134,10 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         private static bool IsParameterCompatible(MethodInfo method, object?[]? args)
         {
             var parameters = method.GetParameters();
-            
+
             if (args == null && parameters.Length == 0)
                 return true;
-                
+
             if (args == null || parameters.Length != args.Length)
                 return false;
 
@@ -159,7 +159,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         {
             var methods = SourceContractType.GetMethods(BindingFlags.Public | BindingFlags.Static);
             var names = new List<string>();
-            
+
             foreach (var method in methods)
             {
                 if (!method.IsSpecialName && method.DeclaringType != typeof(object))

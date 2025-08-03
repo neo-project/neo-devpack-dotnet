@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_CustomMethodAttribute_Creation()
         {
             var attribute = new CustomMethodAttribute();
-            
+
             Assert.IsNotNull(attribute);
             Assert.IsNull(attribute.MethodName);
             Assert.IsTrue(attribute.ModifiesState);
@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_CustomMethodAttribute_WithMethodName()
         {
             var attribute = new CustomMethodAttribute("customMethod");
-            
+
             Assert.AreEqual("customMethod", attribute.MethodName);
         }
 
@@ -49,7 +49,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 ReadOnly = true
             };
-            
+
             Assert.IsTrue(attribute.ReadOnly);
             var flags = attribute.GetEffectiveCallFlags();
             Assert.AreEqual(scfx::Neo.SmartContract.Framework.Services.CallFlags.ReadOnly, flags);
@@ -64,11 +64,11 @@ namespace Neo.SmartContract.Framework.UnitTests
                 MaxParameters = 4,
                 ValidateParameters = true
             };
-            
+
             // Valid parameter count
             Assert.IsTrue(attribute.ValidateParameterConstraints(new object[] { "param1", "param2" }));
             Assert.IsTrue(attribute.ValidateParameterConstraints(new object[] { "param1", "param2", "param3" }));
-            
+
             // Invalid parameter count
             Assert.IsFalse(attribute.ValidateParameterConstraints(new object[] { "param1" })); // Too few
             Assert.IsFalse(attribute.ValidateParameterConstraints(new object[] { "a", "b", "c", "d", "e" })); // Too many
@@ -82,10 +82,10 @@ namespace Neo.SmartContract.Framework.UnitTests
                 SupportsArrayParameters = false,
                 ValidateParameters = true
             };
-            
+
             // Should fail with array parameter
             Assert.IsFalse(attribute.ValidateParameterConstraints(new object[] { new int[] { 1, 2, 3 } }));
-            
+
             // Should pass with non-array parameters
             Assert.IsTrue(attribute.ValidateParameterConstraints(new object[] { "string", 123 }));
         }
@@ -101,10 +101,10 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 ParameterTransform = ParameterTransformStrategy.None
             };
-            
+
             var originalParams = new object[] { "test", 123 };
             var transformedParams = attribute.TransformParameters(originalParams);
-            
+
             Assert.AreSame(originalParams, transformedParams);
         }
 
@@ -115,10 +115,10 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 ParameterTransform = ParameterTransformStrategy.WrapInArray
             };
-            
+
             var originalParams = new object[] { "test", 123 };
             var transformedParams = attribute.TransformParameters(originalParams);
-            
+
             Assert.AreEqual(1, transformedParams.Length);
             Assert.AreSame(originalParams, transformedParams[0]);
         }
@@ -130,11 +130,11 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 ParameterTransform = ParameterTransformStrategy.FlattenArrays
             };
-            
+
             // Test with array parameters
             var originalParams = new object[] { "test", new int[] { 1, 2, 3 }, "end" };
             var transformedParams = attribute.TransformParameters(originalParams);
-            
+
             // Should flatten the array parameter
             Assert.AreEqual(5, transformedParams.Length);
             Assert.AreEqual("test", transformedParams[0]);
@@ -151,10 +151,10 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 ParameterTransform = ParameterTransformStrategy.SerializeToByteArray
             };
-            
+
             var originalParams = new object[] { "test", 123 };
             var transformedParams = attribute.TransformParameters(originalParams);
-            
+
             Assert.AreEqual(1, transformedParams.Length);
             Assert.IsInstanceOfType(transformedParams[0], typeof(byte[]));
         }
@@ -167,7 +167,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_ContractMethodAttribute_Creation()
         {
             var attribute = new ContractMethodAttribute();
-            
+
             Assert.IsNotNull(attribute);
             Assert.IsNull(attribute.MethodName);
             Assert.IsTrue(attribute.ModifiesState);
@@ -180,7 +180,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_ContractMethodAttribute_WithMethodName()
         {
             var attribute = new ContractMethodAttribute("testMethod");
-            
+
             Assert.AreEqual("testMethod", attribute.MethodName);
         }
 
@@ -191,7 +191,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 ReadOnly = true
             };
-            
+
             var flags = attribute.GetEffectiveCallFlags();
             Assert.AreEqual(scfx::Neo.SmartContract.Framework.Services.CallFlags.ReadOnly, flags);
         }
@@ -205,7 +205,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 AllowCall = false,
                 AllowNotify = true
             };
-            
+
             var flags = attribute.GetEffectiveCallFlags();
             Assert.IsTrue((flags & scfx::Neo.SmartContract.Framework.Services.CallFlags.States) != 0);
             Assert.IsTrue((flags & scfx::Neo.SmartContract.Framework.Services.CallFlags.AllowCall) == 0);
@@ -224,7 +224,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 ValidateParameters = true,
                 MinParameters = 1
             };
-            
+
             // Should handle null parameters gracefully
             Assert.IsFalse(attribute.ValidateParameterConstraints(null));
         }
@@ -238,7 +238,7 @@ namespace Neo.SmartContract.Framework.UnitTests
                 MinParameters = 0,
                 MaxParameters = 0
             };
-            
+
             // Should pass with empty parameters
             Assert.IsTrue(attribute.ValidateParameterConstraints(new object[0]));
         }
@@ -250,7 +250,7 @@ namespace Neo.SmartContract.Framework.UnitTests
             {
                 ParameterTransform = ParameterTransformStrategy.WrapInArray
             };
-            
+
             // Should handle null parameters gracefully
             var result = attribute.TransformParameters(null);
             Assert.IsNull(result);
