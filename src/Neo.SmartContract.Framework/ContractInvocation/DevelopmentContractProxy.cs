@@ -143,7 +143,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
 
             for (int i = 0; i < parameters.Length; i++)
             {
-                if (args[i] != null && !parameters[i].ParameterType.IsAssignableFrom(args[i].GetType()))
+                if (args[i] != null && !parameters[i].ParameterType.IsAssignableFrom(args[i]!.GetType()))
                 {
                     return false;
                 }
