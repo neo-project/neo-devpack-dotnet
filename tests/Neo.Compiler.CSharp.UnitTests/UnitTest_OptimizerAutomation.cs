@@ -10,18 +10,15 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler;
 using Neo.Json;
-using Neo.Optimizer;
-using OptimizerClass = Neo.Optimizer.Optimizer;
-using StrategyAttribute = Neo.Optimizer.StrategyAttribute;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using OptimizerClass = Neo.Optimizer.Optimizer;
+using StrategyAttribute = Neo.Optimizer.StrategyAttribute;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
