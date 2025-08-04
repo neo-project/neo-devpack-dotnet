@@ -149,7 +149,7 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertIteratorForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
-            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
+            ILocalSymbol[] symbols = [.. ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!)];
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();

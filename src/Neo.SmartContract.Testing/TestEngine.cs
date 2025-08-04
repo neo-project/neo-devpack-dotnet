@@ -625,16 +625,10 @@ namespace Neo.SmartContract.Testing
 
             engine.LoadScript(script, initialPosition: initialPosition);
 
-            // Clean events, if we Execute inside and execute
-            // becaus it's a mock, we can register twice
-
-            ApplicationEngine.Log -= ApplicationEngineLog;
-            ApplicationEngine.Notify -= ApplicationEngineNotify;
-
             // Attach to static event
 
-            ApplicationEngine.Log += ApplicationEngineLog;
-            ApplicationEngine.Notify += ApplicationEngineNotify;
+            engine.Log += ApplicationEngineLog;
+            engine.Notify += ApplicationEngineNotify;
 
             // Execute
             if (ResetFeeConsumed) FeeConsumed.Reset();
@@ -644,11 +638,6 @@ namespace Neo.SmartContract.Testing
             // Increment fee
 
             foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
-
-            // Detach to static event
-
-            ApplicationEngine.Log -= ApplicationEngineLog;
-            ApplicationEngine.Notify -= ApplicationEngineNotify;
 
             // Process result
 

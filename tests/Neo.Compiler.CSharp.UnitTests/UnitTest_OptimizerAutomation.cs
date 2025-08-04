@@ -101,9 +101,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Verify that all discovered strategies have valid method signatures
             var optimizerType = typeof(OptimizerClass);
             var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
-            var orderedStrategies = field.GetValue(null) as System.Collections.Generic.List<(MethodInfo method, StrategyAttribute attribute)>;
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
 
-            foreach (var (method, attribute) in orderedStrategies)
+            foreach (var (method, attribute) in orderedStrategies ?? [])
             {
                 // Verify method signature
                 Assert.IsTrue(method.IsStatic, $"Strategy method '{method.Name}' should be static");
