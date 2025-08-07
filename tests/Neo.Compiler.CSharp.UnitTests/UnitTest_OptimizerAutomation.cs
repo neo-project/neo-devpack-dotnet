@@ -10,18 +10,15 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler;
 using Neo.Json;
-using Neo.Optimizer;
-using OptimizerClass = Neo.Optimizer.Optimizer;
-using StrategyAttribute = Neo.Optimizer.StrategyAttribute;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using OptimizerClass = Neo.Optimizer.Optimizer;
+using StrategyAttribute = Neo.Optimizer.StrategyAttribute;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -101,9 +98,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Verify that all discovered strategies have valid method signatures
             var optimizerType = typeof(OptimizerClass);
             var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
-            var orderedStrategies = field.GetValue(null) as System.Collections.Generic.List<(MethodInfo method, StrategyAttribute attribute)>;
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
 
-            foreach (var (method, attribute) in orderedStrategies)
+            foreach (var (method, attribute) in orderedStrategies ?? [])
             {
                 // Verify method signature
                 Assert.IsTrue(method.IsStatic, $"Strategy method '{method.Name}' should be static");
