@@ -8,7 +8,6 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <RootNamespace>Neo.SmartContract.Analyzer</RootNamespace>
     <PackageId>Neo.SmartContract.Analyzer</PackageId>
-    <PackAsTool>true</PackAsTool>
     <PackageTags>NEO;Blockchain;Smart Contract;Analyzer</PackageTags>
     <Product>Neo.SmartContract.Analyzer.CSharp</Product>
     <Description>Neo.SmartContract.Analyzer.CSharp</Description>
