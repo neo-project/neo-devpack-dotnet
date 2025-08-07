@@ -113,26 +113,64 @@ jobs:
         git --git-dir=./neo/.git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX_NEO={}' >> $GITHUB_ENV
         sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./neo/src/Directory.Build.props | xargs -I{} echo 'VERSION_NEO={}' >> $GITHUB_ENV
 
-    - name : Pack (Neo.SmartContract.Framework)
+    # Build and publish packages in dependency order
+    - name: Pack Neo.SmartContract.Framework
       run: |
         dotnet pack ./src/Neo.SmartContract.Framework \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
-    - name : Replace Neo reference by package in Neo.SmartContract.Testing
+        
+    - name: Pack Neo.SmartContract.Analyzer
       run: |
+        dotnet pack ./src/Neo.SmartContract.Analyzer \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
+        
+    - name: Pack Neo.Disassembler.CSharp
+      run: |
+        dotnet pack ./src/Neo.Disassembler.CSharp \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
+        
+    - name: Prepare and Pack Neo.SmartContract.Testing
+      run: |
+        # Backup project file
+        cp ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj \
+           ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup
+        
+        # Replace Neo reference with package
         dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj'
         dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version ${{ env.VERSION_NEO }}-${{ env.VERSION_SUFFIX_NEO }}
-    - name : Build (Neo.SmartContract.Testing)
-      run: |
+        
+        # Build and pack
         dotnet build ./src/Neo.SmartContract.Testing -f net9.0
-    - name : Pack (Neo.SmartContract.Testing)
-      run: |
         dotnet pack ./src/Neo.SmartContract.Testing \
         --no-build \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
+        
+        # Restore project file
+        mv ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup \
+           ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
+           
+    - name: Pack Neo.Compiler.CSharp
+      run: |
+        dotnet pack ./src/Neo.Compiler.CSharp \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
+        
+    - name: Pack Neo.SmartContract.Template
+      run: |
+        dotnet pack ./src/Neo.SmartContract.Template \
+        --configuration Debug \
+        --output ./out \
+        --version-suffix ${{ env.VERSION_SUFFIX }}
+        
     - name: Publish to Github Packages
       working-directory: ./out
       run: |
@@ -164,10 +202,12 @@ jobs:
       id: get_version
       run: |
         sudo apt install xmlstarlet
-        find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('::set-output name=version::v',//i:VersionPrefix/text())" | xargs echo
+        find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('version=v',//i:VersionPrefix/text())" >> $GITHUB_OUTPUT
     - name: Check tag
       id: check_tag
-      run: curl -s -I ${{ format('https://github.com/{0}/releases/tag/{1}', github.repository, steps.get_version.outputs.version) }} | head -n 1 | cut -d$' ' -f2 | xargs printf "::set-output name=statusCode::%s" | xargs echo
+      run: |
+        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})
+        echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
     - name: Create release
       if: steps.check_tag.outputs.statusCode == '404'
       id: create_release
@@ -183,16 +223,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Publish to NuGet
+    - name: Run ordered release script
       if: steps.check_tag.outputs.statusCode == '404'
       run: |
-        dotnet sln neo-devpack-dotnet.sln remove ./neo/src/neo/neo.csproj
-        dotnet sln neo-devpack-dotnet.sln remove ./neo/src/Neo.Cryptography.BLS12_381/Neo.Cryptography.BLS12_381.csproj
-        dotnet sln neo-devpack-dotnet.sln remove ./neo/src/Neo.Extensions/Neo.Extensions.csproj
-        dotnet sln neo-devpack-dotnet.sln remove ./neo/src/Neo.IO/Neo.IO.csproj
-        dotnet sln neo-devpack-dotnet.sln remove ./neo/src/Neo.Json/Neo.Json.csproj
-        dotnet sln neo-devpack-dotnet.sln remove ./neo/src/Neo.VM/Neo.VM.csproj
-        dotnet pack -o pub -c Release
-        dotnet nuget push "pub/*.nupkg" -s https://api.nuget.org/v3/index.json -k ${NUGET_TOKEN} --skip-duplicate
-      env:
-        NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        chmod +x ./scripts/release-ordered.sh
+        ./scripts/release-ordered.sh --api-key "${{ secrets.NUGET_TOKEN }}"
