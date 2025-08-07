@@ -11,7 +11,7 @@ public abstract class Contract_ByteString(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteString"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""literal00ToFF"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""literalWithOtherChar"",""parameters"":[],""returntype"":""ByteArray"",""offset"":260,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.8.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteString"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""literal00ToFF"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""literalWithOtherChar"",""parameters"":[],""returntype"":""ByteArray"",""offset"":260,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.8.3"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"

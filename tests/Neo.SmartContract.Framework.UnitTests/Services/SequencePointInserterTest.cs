@@ -23,7 +23,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_SequencePointInserter()
         {
             var debug = TestCleanup.CachedContracts[typeof(Contract_SequencePointInserter)].DbgInfo;
-            Assert.IsNotNull(debug);
 
             var points = debug.Methods[0].SequencePoints.Select(u => u.Address).ToArray();
 

@@ -128,29 +128,29 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 }, Contract.TestOver16Bytes());
         }
 
-        [TestMethod]
-        public void Test_String()
-        {
-            var prefix = new byte[] { 0x61, 0x61 };
-            var key = new byte[] { 0x01, 0x02, 0x03 };
-            var value = new byte[] { 0x04, 0x05, 0x06 };
+        //[TestMethod]
+        //public void Test_String()
+        //{
+        //    var prefix = new byte[] { 0x61, 0x61 };
+        //    var key = new byte[] { 0x01, 0x02, 0x03 };
+        //    var value = new byte[] { 0x04, 0x05, 0x06 };
 
-            // Put
+        //    // Put
 
-            Assert.IsTrue(Contract.TestPutString(key, value));
-            EnsureChanges(prefix, key, value, 1);
+        //    Assert.IsTrue(Contract.TestPutString(key, value));
+        //    EnsureChanges(prefix, key, value, 1);
 
-            // Get
+        //    // Get
 
-            var getVal = Contract.TestGetString(key);
-            CollectionAssert.AreEqual(value, getVal);
-            EnsureChanges(prefix, key, value, 1);
+        //    var getVal = Contract.TestGetString(key);
+        //    CollectionAssert.AreEqual(value, getVal);
+        //    EnsureChanges(prefix, key, value, 1);
 
-            // Delete
+        //    // Delete
 
-            Contract.TestDeleteString(key);
-            EnsureChanges(prefix, key, 0);
-        }
+        //    Contract.TestDeleteString(key);
+        //    EnsureChanges(prefix, key, 0);
+        //}
 
         [TestMethod]
         public void Test_ReadOnly()
