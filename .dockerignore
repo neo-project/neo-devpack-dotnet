@@ -1,0 +1,61 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+**/packages/
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+coverage/
+*.trx
+*.coverage
+
+# Documentation
+docs/
+*.md
+
+# CI/CD
+.github/
+.travis.yml
+appveyor.yml
+
+# Local files
+*.local
+.env
+.env.*
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Log files
+*.log
+
+# NuGet
+*.nupkg
+packages/
+
+# Build artifacts from Makefile
+test-nccs-*

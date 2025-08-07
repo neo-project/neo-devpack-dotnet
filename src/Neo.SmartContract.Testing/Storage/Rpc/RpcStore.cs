@@ -29,6 +29,11 @@ public class RpcStore : IStore
     private int _id = 0;
 
     /// <summary>
+    /// Event raised when a new snapshot is created
+    /// </summary>
+    public event IStore.OnNewSnapshotDelegate? OnNewSnapshot;
+
+    /// <summary>
     /// Url
     /// </summary>
     public Uri Url { get; set; }
@@ -50,9 +55,17 @@ public class RpcStore : IStore
 
     public void Delete(byte[] key) => throw new NotImplementedException();
     public void Put(byte[] key, byte[] value) => throw new NotImplementedException();
-    public IStoreSnapshot GetSnapshot() => new RpcSnapshot(this);
+    public IStoreSnapshot GetSnapshot()
+    {
+        var snapshot = new RpcSnapshot(this);
+        OnNewSnapshot?.Invoke(this, snapshot);
+        return snapshot;
+    }
     public bool Contains(byte[] key) => TryGet(key) != null;
-    public void Dispose() { }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 
     #region Rpc calls
 
@@ -89,14 +102,14 @@ public class RpcStore : IStore
             ConcurrentDictionary<byte[], byte[]> data = new();
 
             // We ask for 5 bytes because the minimum prefix is one byte
-            foreach (var entry in Find(key.Take(key.Length == 4 ? 4 : 5).ToArray(), SeekDirection.Forward))
+            foreach (var (Key, Value) in Find([.. key.Take(key.Length == 4 ? 4 : 5)], SeekDirection.Forward))
             {
-                data.TryAdd(entry.Key, entry.Value);
+                data.TryAdd(Key, Value);
             }
 
-            foreach (var entry in Find(data, key, direction))
+            foreach (var (Key, Value) in Find(data, key, direction))
             {
-                yield return (entry.Key, entry.Value);
+                yield return (Key, Value);
             }
 
             yield break;
@@ -127,7 +140,7 @@ public class RpcStore : IStore
 
                 var prefix = skey.ToArray().Take(4);
 
-                foreach (JObject r in results)
+                foreach (JObject r in results.Cast<JObject>())
                 {
                     if (r["key"]?.Value<string>() is string jkey &&
                         r["value"]?.Value<string>() is string kvalue)

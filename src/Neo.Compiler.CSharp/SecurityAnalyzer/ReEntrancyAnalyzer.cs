@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,14 +54,83 @@ namespace Neo.Compiler.SecurityAnalyzer
             public string GetWarningInfo(bool print = false)
             {
                 if (vulnerabilityPairs.Count <= 0) return "";
+
+                // Parse debug info if available
+                NeoDebugInfo? debugInfo = null;
+                if (DebugInfo != null)
+                {
+                    try
+                    {
+                        if (DebugInfo is JObject jObj)
+                            debugInfo = NeoDebugInfo.FromDebugInfoJson(jObj);
+                    }
+                    catch
+                    {
+                        // Fallback to address-only warnings if debug info parsing fails
+                    }
+                }
+
                 StringBuilder result = new();
                 foreach ((BasicBlock callBlock, HashSet<BasicBlock> writeBlocks) in vulnerabilityPairs)
                 {
                     StringBuilder additional = new();
-                    additional.AppendLine($"[SEC] Potential Re-entrancy: Calling contracts at instruction address: " +
-                        $"{string.Join(", ", callOtherContractInstructions[callBlock])} before writing storage at");
+                    additional.AppendLine($"[SEC] Potential Re-entrancy vulnerability detected");
+                    additional.AppendLine($"  Issue: Contract calls external code before writing to storage, allowing potential re-entrancy attacks");
+
+                    // Add source location information for contract calls
+                    additional.AppendLine($"  External contract calls:");
+                    foreach (int callAddr in callOtherContractInstructions[callBlock])
+                    {
+                        if (debugInfo != null)
+                        {
+                            var sourceLocation = GetSourceLocation(callAddr, debugInfo);
+                            if (sourceLocation != null)
+                            {
+                                additional.AppendLine($"    At: {sourceLocation.FileName}:{sourceLocation.Line}:{sourceLocation.Column}");
+                                if (!string.IsNullOrEmpty(sourceLocation.CodeSnippet))
+                                    additional.AppendLine($"    Code: {sourceLocation.CodeSnippet}");
+                            }
+                            else
+                            {
+                                additional.AppendLine($"    At instruction address: {callAddr}");
+                            }
+                        }
+                        else
+                        {
+                            additional.AppendLine($"    At instruction address: {callAddr}");
+                        }
+                    }
+
+                    // Add source location information for storage writes
+                    additional.AppendLine($"  Storage writes that occur after external calls:");
                     foreach (BasicBlock writeBlock in writeBlocks)
-                        additional.AppendLine($"\t{string.Join(", ", writeStorageInstructions[writeBlock])}");
+                    {
+                        foreach (int writeAddr in writeStorageInstructions[writeBlock])
+                        {
+                            if (debugInfo != null)
+                            {
+                                var sourceLocation = GetSourceLocation(writeAddr, debugInfo);
+                                if (sourceLocation != null)
+                                {
+                                    additional.AppendLine($"    At: {sourceLocation.FileName}:{sourceLocation.Line}:{sourceLocation.Column}");
+                                    if (!string.IsNullOrEmpty(sourceLocation.CodeSnippet))
+                                        additional.AppendLine($"    Code: {sourceLocation.CodeSnippet}");
+                                }
+                                else
+                                {
+                                    additional.AppendLine($"    At instruction address: {writeAddr}");
+                                }
+                            }
+                            else
+                            {
+                                additional.AppendLine($"    At instruction address: {writeAddr}");
+                            }
+                        }
+                    }
+
+                    additional.AppendLine($"  Recommendation: Perform all storage writes before making external contract calls, or use reentrancy guards");
+                    additional.AppendLine();
+
                     if (print)
                         Console.Write(additional.ToString());
                     result.Append(additional);
@@ -137,7 +207,53 @@ namespace Neo.Compiler.SecurityAnalyzer
                         q.Enqueue(current.prevBlock);
                 }
             }
-            return new(vulnerabilityPairs, callOtherContractInstructions, writeStorageInstructions);
+            return new(vulnerabilityPairs, callOtherContractInstructions, writeStorageInstructions, debugInfo);
+        }
+
+        /// <summary>
+        /// Represents source code location information for diagnostic messages
+        /// </summary>
+        private class SourceLocation
+        {
+            public string FileName { get; set; } = string.Empty;
+            public int Line { get; set; }
+            public int Column { get; set; }
+            public string? CodeSnippet { get; set; }
+        }
+
+        /// <summary>
+        /// Gets source code location information for an instruction address
+        /// </summary>
+        /// <param name="instructionAddress">The instruction address to look up</param>
+        /// <param name="debugInfo">Debug information containing source mappings</param>
+        /// <returns>Source location information if found, null otherwise</returns>
+        private static SourceLocation? GetSourceLocation(int instructionAddress, NeoDebugInfo debugInfo)
+        {
+            // Find the sequence point that covers this instruction address
+            foreach (var method in debugInfo.Methods)
+            {
+                if (instructionAddress >= method.Range.Start && instructionAddress <= method.Range.End)
+                {
+                    // Find the closest sequence point at or before this address
+                    var sequencePoint = method.SequencePoints
+                        .Where(sp => sp.Address <= instructionAddress)
+                        .OrderByDescending(sp => sp.Address)
+                        .FirstOrDefault();
+
+                    if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
+                    {
+                        var fileName = debugInfo.Documents[sequencePoint.Document];
+                        return new SourceLocation
+                        {
+                            FileName = System.IO.Path.GetFileName(fileName),
+                            Line = sequencePoint.Start.Line,
+                            Column = sequencePoint.Start.Column,
+                            CodeSnippet = null // Could be enhanced to read actual source code
+                        };
+                    }
+                }
+            }
+            return null;
         }
     }
 }

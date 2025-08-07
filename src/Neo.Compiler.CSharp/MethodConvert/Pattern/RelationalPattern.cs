@@ -55,7 +55,7 @@ internal partial class MethodConvert
             "<=" => OpCode.LE,
             ">" => OpCode.GT,
             ">=" => OpCode.GE,
-            _ => throw new CompilationException(pattern, DiagnosticId.SyntaxNotSupported, $"Unsupported pattern: {pattern}")
+            _ => throw CompilationException.UnsupportedSyntax(pattern, $"Relational operator '{pattern.OperatorToken.ValueText}' is not supported in patterns. Only <, <=, >, and >= are allowed.")
         });
     }
 }

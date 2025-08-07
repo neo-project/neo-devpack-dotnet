@@ -16,6 +16,7 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Neo.Optimizer
@@ -25,12 +26,14 @@ namespace Neo.Optimizer
         public static readonly int[] OperandSizePrefixTable = new int[256];
         public static readonly int[] OperandSizeTable = new int[256];
         public static readonly Dictionary<string, Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> strategies = new();
+        private static readonly List<(MethodInfo method, StrategyAttribute attribute)> orderedStrategies = new();
 
         static Optimizer()
         {
             var assembly = Assembly.GetExecutingAssembly();
             foreach (Type type in assembly.GetTypes())
                 RegisterStrategies(type);
+            DiscoverAndOrderStrategies(assembly);
             foreach (FieldInfo field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 OperandSizeAttribute? attribute = field.GetCustomAttribute<OperandSizeAttribute>();
@@ -45,11 +48,54 @@ namespace Neo.Optimizer
         {
             foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
             {
-                StrategyAttribute attribute = method.GetCustomAttribute<StrategyAttribute>()!;
+                StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
                 if (attribute is null) continue;
+
+                // Validate method signature
+                if (method.ReturnType != typeof((NefFile, ContractManifest, JObject?)) ||
+                    method.GetParameters().Length != 3 ||
+                    method.GetParameters()[0].ParameterType != typeof(NefFile) ||
+                    method.GetParameters()[1].ParameterType != typeof(ContractManifest) ||
+                    method.GetParameters()[2].ParameterType != typeof(JObject))
+                {
+                    continue; // Skip methods with incorrect signature
+                }
+
                 string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
                 strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
+                orderedStrategies.Add((method, attribute));
             }
+
+            // Sort strategies by priority (highest priority first)
+            orderedStrategies.Sort((a, b) => b.attribute.Priority.CompareTo(a.attribute.Priority));
+        }
+
+        private static void DiscoverAndOrderStrategies(Assembly assembly)
+        {
+            var strategyMethods = new List<(MethodInfo method, StrategyAttribute attribute)>();
+
+            foreach (Type type in assembly.GetTypes())
+            {
+                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                {
+                    var attribute = method.GetCustomAttribute<StrategyAttribute>();
+                    if (attribute != null)
+                    {
+                        // Verify method signature matches expected optimization strategy signature
+                        var parameters = method.GetParameters();
+                        if (parameters.Length == 3 &&
+                            parameters[0].ParameterType == typeof(NefFile) &&
+                            parameters[1].ParameterType == typeof(ContractManifest) &&
+                            parameters[2].ParameterType == typeof(JObject))
+                        {
+                            strategyMethods.Add((method, attribute));
+                        }
+                    }
+                }
+            }
+
+            // Order by priority (higher priority first)
+            orderedStrategies.AddRange(strategyMethods.OrderByDescending(s => s.attribute.Priority));
         }
 
         public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
@@ -60,25 +106,23 @@ namespace Neo.Optimizer
             manifest.Extra ??= new JObject();
             manifest.Extra["nef"] = new JObject();
             manifest.Extra["nef"]!["optimization"] = optimizationType.ToString();
-            // TODO in the future: optimize by StrategyAttribute in a loop
-            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.FoldJump(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Reachability.RemoveUncoveredInstructions(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.RemoveDupDrop(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.UseIncDec(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.FoldNotInEqual(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.UseNz(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.UseIsNull(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.FoldNotInJmp(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.InitStaticToConst(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Peephole.RemoveInitialize(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Reachability.RemoveMultiRet(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = Miscellaneous.RemoveMethodToken(nef, manifest, debugInfo);
-            (nef, manifest, debugInfo) = JumpCompresser.CompressJump(nef, manifest, debugInfo);
+            // Execute optimization strategies in priority order (attribute-driven)
+            foreach (var (method, attribute) in orderedStrategies)
+            {
+                try
+                {
+                    var result = method.Invoke(null, new object?[] { nef, manifest, debugInfo });
+                    if (result is ValueTuple<NefFile, ContractManifest, JObject?> tuple)
+                    {
+                        (nef, manifest, debugInfo) = tuple;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log warning but continue with other optimizations
+                    System.Diagnostics.Debug.WriteLine($"Warning: Optimization strategy '{method.Name}' failed: {ex.Message}");
+                }
+            }
             return (nef, manifest, debugInfo);
         }
     }

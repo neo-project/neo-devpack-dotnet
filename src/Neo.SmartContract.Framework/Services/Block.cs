@@ -11,6 +11,7 @@
 
 namespace Neo.SmartContract.Framework.Services
 {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public class Block
     {
         public readonly UInt256 Hash;
@@ -24,4 +25,5 @@ namespace Neo.SmartContract.Framework.Services
         public readonly UInt160 NextConsensus;
         public readonly int TransactionsCount;
     }
+#pragma warning restore CS8618
 }
