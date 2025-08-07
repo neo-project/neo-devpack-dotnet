@@ -241,10 +241,22 @@ jobs:
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-arm64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-arm64
         
         # Rename executables to have consistent naming
-        mv ./nccs-win-x64/nccs.exe ./nccs-win-x64/nccs.exe || mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe || true
-        mv ./nccs-linux-x64/nccs ./nccs-linux-x64/nccs || mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs || true
-        mv ./nccs-osx-x64/nccs ./nccs-osx-x64/nccs || mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs || true
-        mv ./nccs-osx-arm64/nccs ./nccs-osx-arm64/nccs || mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs || true
+        # Windows: Neo.Compiler.CSharp.exe -> nccs.exe
+        if [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ]; then
+          mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
+        fi
+        # Linux: Neo.Compiler.CSharp -> nccs
+        if [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ]; then
+          mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
+        fi
+        # macOS x64: Neo.Compiler.CSharp -> nccs
+        if [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ]; then
+          mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
+        fi
+        # macOS ARM64: Neo.Compiler.CSharp -> nccs
+        if [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ]; then
+          mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
+        fi
         
         # Create zip archives
         echo "Creating archives..."
