@@ -42,6 +42,7 @@ namespace Neo.SmartContract.Testing
         internal readonly List<FeeWatcher> _feeWatchers = [];
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = [];
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = [];
+        private HashSet<string>? _seenNotifications;
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = [];
         private NativeContracts? _native;
 
@@ -315,6 +316,13 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineNotify(object? sender, NotifyEventArgs e)
         {
+            // De-duplicate notifications within a single execution in case of accidental double subscription
+            if (_seenNotifications is not null)
+            {
+                var key = $"{e.ScriptHash}-{e.EventName}-{e.State.ToJson().ToString()}";
+                if (!_seenNotifications.Add(key)) return;
+            }
+
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
             {
                 foreach (var contract in contracts)
@@ -625,31 +633,40 @@ namespace Neo.SmartContract.Testing
 
             engine.LoadScript(script, initialPosition: initialPosition);
 
-            // Attach to static event
-
-            engine.Log += ApplicationEngineLog;
-            engine.Notify += ApplicationEngineNotify;
+            // Prepare per-execution notification de-duplication and attach to static events
+            _seenNotifications = new HashSet<string>();
+            ApplicationEngine.Log += ApplicationEngineLog;
+            ApplicationEngine.Notify += ApplicationEngineNotify;
 
             // Execute
             if (ResetFeeConsumed) FeeConsumed.Reset();
-            beforeExecute?.Invoke(engine);
-            var executionResult = engine.Execute();
-
-            // Increment fee
-
-            foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
-
-            // Process result
-
-            if (executionResult != VMState.HALT)
+            try
             {
-                throw new TestException(engine);
+                beforeExecute?.Invoke(engine);
+                var executionResult = engine.Execute();
+
+                // Increment fee
+
+                foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
+
+                // Process result
+
+                if (executionResult != VMState.HALT)
+                {
+                    throw new TestException(engine);
+                }
+
+                snapshot.Commit();
+
+                if (engine.ResultStack.Count == 0) return StackItem.Null;
+                return engine.ResultStack.Pop();
             }
-
-            snapshot.Commit();
-
-            if (engine.ResultStack.Count == 0) return StackItem.Null;
-            return engine.ResultStack.Pop();
+            finally
+            {
+                _seenNotifications = null;
+                ApplicationEngine.Log -= ApplicationEngineLog;
+                ApplicationEngine.Notify -= ApplicationEngineNotify;
+            }
         }
 
         /// <summary>

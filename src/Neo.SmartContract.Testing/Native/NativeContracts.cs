@@ -122,10 +122,9 @@ namespace Neo.SmartContract.Testing.Native
                 DataCache clonedSnapshot = _engine.Storage.Snapshot.CloneCache();
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
-                    // Attach to static event
-
-                    engine.Log += _engine.ApplicationEngineLog;
-                    engine.Notify += _engine.ApplicationEngineNotify;
+                    // Attach to static events
+                    ApplicationEngine.Log += _engine.ApplicationEngineLog;
+                    ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
 
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, [engine]) is not ContractTask task)
@@ -134,6 +133,8 @@ namespace Neo.SmartContract.Testing.Native
                     task.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.OnPersistAsync");
+                    ApplicationEngine.Log -= _engine.ApplicationEngineLog;
+                    ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
                 }
 
                 // Mock Native.PostPersist
@@ -142,10 +143,9 @@ namespace Neo.SmartContract.Testing.Native
 
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, genesis, clonedSnapshot, genesis))
                 {
-                    // Attach to static event
-
-                    engine.Log += _engine.ApplicationEngineLog;
-                    engine.Notify += _engine.ApplicationEngineNotify;
+                    // Attach to static events
+                    ApplicationEngine.Log += _engine.ApplicationEngineLog;
+                    ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
 
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, [engine]) is not ContractTask task)
@@ -154,6 +154,8 @@ namespace Neo.SmartContract.Testing.Native
                     task.GetAwaiter().GetResult();
                     if (engine.Execute() != VM.VMState.HALT)
                         throw new Exception($"Error executing {native.Name}.PostPersistAsync");
+                    ApplicationEngine.Log -= _engine.ApplicationEngineLog;
+                    ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
                 }
 
                 clonedSnapshot.Commit();

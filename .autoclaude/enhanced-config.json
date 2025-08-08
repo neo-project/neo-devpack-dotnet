@@ -1,0 +1,123 @@
+{
+  "hooks": {
+    "enabled": true,
+    "autoFormat": true,
+    "validateSyntax": true,
+    "learnPatterns": true,
+    "hookTimeout": 30000,
+    "enableAsyncHooks": true
+  },
+  "agents": {
+    "enabled": true,
+    "maxConcurrent": 5,
+    "coordinationStrategy": "adaptive",
+    "agentTimeout": 300000,
+    "enableSpecializedAgents": true,
+    "retryFailedTasks": true,
+    "maxRetries": 3
+  },
+  "memory": {
+    "enabled": true,
+    "pruneAfterDays": 30,
+    "maxSizeMB": 100,
+    "enableCompression": true,
+    "enableAutoBackup": true,
+    "backupInterval": 86400000,
+    "patternConfidenceThreshold": 0.7
+  },
+  "languageConversion": {
+    "enabled": true,
+    "autoDetectEnvironment": true,
+    "parallelConversion": true,
+    "strictValidation": true,
+    "maxFilesPerBatch": 10,
+    "enableTypeMapping": true,
+    "enablePatternLearning": true,
+    "generateCompatibilityReport": true,
+    "supportedPairs": [
+      {
+        "from": "csharp",
+        "to": "rust",
+        "name": "C# to Rust",
+        "typeMappings": {
+          "string": "String",
+          "int": "i32",
+          "long": "i64",
+          "bool": "bool",
+          "byte[]": "Vec<u8>",
+          "List<T>": "Vec<T>",
+          "Dictionary<K,V>": "HashMap<K,V>",
+          "UInt160": "U160",
+          "UInt256": "U256",
+          "BigInteger": "num_bigint::BigInt"
+        },
+        "specialValidation": true
+      },
+      {
+        "from": "javascript",
+        "to": "typescript",
+        "name": "JavaScript to TypeScript",
+        "typeMappings": {
+          "var": "let",
+          "function": "function",
+          "null": "null | undefined",
+          "Object": "Record<string, unknown>"
+        },
+        "specialValidation": false
+      },
+      {
+        "from": "python",
+        "to": "rust",
+        "name": "Python to Rust",
+        "typeMappings": {
+          "str": "String",
+          "int": "i64",
+          "float": "f64",
+          "bool": "bool",
+          "list": "Vec",
+          "dict": "HashMap",
+          "None": "Option::None"
+        },
+        "specialValidation": false
+      },
+      {
+        "from": "java",
+        "to": "kotlin",
+        "name": "Java to Kotlin",
+        "typeMappings": {
+          "String": "String",
+          "int": "Int",
+          "long": "Long",
+          "boolean": "Boolean",
+          "List<T>": "List<T>",
+          "Map<K,V>": "Map<K,V>",
+          "null": "null"
+        },
+        "specialValidation": false
+      }
+    ]
+  },
+  "neoRs": {
+    "enabled": false,
+    "autoDetectEnvironment": true,
+    "parallelConversion": true,
+    "strictValidation": true,
+    "maxFilesPerBatch": 10,
+    "enableTypeMapping": true,
+    "enablePatternLearning": true,
+    "generateCompatibilityReport": true
+  },
+  "performance": {
+    "enableMetrics": true,
+    "metricsInterval": 60000,
+    "enableProfiling": false,
+    "maxMemoryUsage": 512,
+    "enableQueryOptimization": true
+  },
+  "logging": {
+    "level": "info",
+    "enableFileLogging": true,
+    "maxLogFiles": 5,
+    "maxLogSizeMB": 10
+  }
+}
