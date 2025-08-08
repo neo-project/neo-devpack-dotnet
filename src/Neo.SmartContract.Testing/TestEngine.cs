@@ -627,8 +627,8 @@ namespace Neo.SmartContract.Testing
 
             // Attach to static event
 
-            ApplicationEngine.Log += ApplicationEngineLog;
-            ApplicationEngine.Notify += ApplicationEngineNotify;
+            engine.Log += ApplicationEngineLog;
+            engine.Notify += ApplicationEngineNotify;
 
             // Execute
             if (ResetFeeConsumed) FeeConsumed.Reset();

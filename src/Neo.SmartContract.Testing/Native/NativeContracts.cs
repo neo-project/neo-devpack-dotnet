@@ -124,8 +124,8 @@ namespace Neo.SmartContract.Testing.Native
                 {
                     // Attach to static event
 
-                    ApplicationEngine.Log += _engine.ApplicationEngineLog;
-                    ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
+                    engine.Log += _engine.ApplicationEngineLog;
+                    engine.Notify += _engine.ApplicationEngineNotify;
 
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, [engine]) is not ContractTask task)
@@ -144,8 +144,8 @@ namespace Neo.SmartContract.Testing.Native
                 {
                     // Attach to static event
 
-                    ApplicationEngine.Log += _engine.ApplicationEngineLog;
-                    ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
+                    engine.Log += _engine.ApplicationEngineLog;
+                    engine.Notify += _engine.ApplicationEngineNotify;
 
                     engine.LoadScript(Array.Empty<byte>());
                     if (method!.Invoke(native, [engine]) is not ContractTask task)
