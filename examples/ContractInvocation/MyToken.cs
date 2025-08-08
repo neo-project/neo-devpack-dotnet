@@ -29,7 +29,9 @@ namespace Examples.ContractInvocation
 
         #region NEP-17 Standard
 
+        [Safe]
         public override string Symbol => "NMY";
+        [Safe]
         public override byte Decimals => 8;
 
         public static void _deploy(object data, bool update)
@@ -47,19 +49,25 @@ namespace Examples.ContractInvocation
         [DisplayName("mint")]
         public static new bool Mint(UInt160 to, BigInteger amount)
         {
+            if (!to.IsValid)
+                throw new ArgumentException("Invalid address");
+
             if (!Runtime.CheckWitness(Owner))
                 throw new InvalidOperationException("No authorization");
 
             if (amount <= 0)
                 throw new ArgumentException("Amount must be positive");
 
-            Mint(to, amount);
+            Nep17Token.Mint(to, amount);
             return true;
         }
 
         [DisplayName("burn")]
         public static new bool Burn(UInt160 from, BigInteger amount)
         {
+            if (!from.IsValid)
+                throw new ArgumentException("Invalid address");
+
             if (!Runtime.CheckWitness(from) && !Runtime.CheckWitness(Owner))
                 throw new InvalidOperationException("No authorization");
 
@@ -69,13 +77,16 @@ namespace Examples.ContractInvocation
             if (BalanceOf(from) < amount)
                 throw new InvalidOperationException("Insufficient balance");
 
-            Burn(from, amount);
+            Nep17Token.Burn(from, amount);
             return true;
         }
 
         [DisplayName("transferFrom")]
         public static bool TransferFrom(UInt160 from, UInt160 to, BigInteger amount, object? data = null)
         {
+            if (!from.IsValid || !to.IsValid)
+                throw new ArgumentException("Invalid address");
+
             if (!Runtime.CheckWitness(from))
                 throw new InvalidOperationException("No authorization");
 
@@ -85,6 +96,9 @@ namespace Examples.ContractInvocation
         [DisplayName("approve")]
         public static bool Approve(UInt160 owner, UInt160 spender, BigInteger amount)
         {
+            if (!owner.IsValid || !spender.IsValid)
+                throw new ArgumentException("Invalid address");
+
             if (!Runtime.CheckWitness(owner))
                 throw new InvalidOperationException("No authorization");
 
@@ -99,8 +113,12 @@ namespace Examples.ContractInvocation
         }
 
         [DisplayName("allowance")]
+        [Safe]
         public static BigInteger Allowance(UInt160 owner, UInt160 spender)
         {
+            if (!owner.IsValid || !spender.IsValid)
+                throw new ArgumentException("Invalid address");
+
             StorageMap allowanceMap = new(Storage.CurrentReadOnlyContext, "allowance");
             var result = allowanceMap.Get(owner + spender);
             return result != null ? (BigInteger)result : 0;

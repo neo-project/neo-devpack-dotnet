@@ -68,9 +68,9 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         /// </summary>
         /// <param name="identifier">The contract identifier</param>
         /// <param name="address">The contract address</param>
-        /// <param name="network">The network name (default: "privnet")</param>
+        /// <param name="network">The network name (default: "mainnet")</param>
         /// <returns>A new DeployedContractReference</returns>
-        public static DeployedContractReference Create(string identifier, UInt160 address, string network = "privnet")
+        public static DeployedContractReference Create(string identifier, UInt160 address, string network = ContractConstants.DefaultNetwork)
         {
             var networkContext = new NetworkContext(network);
             networkContext.SetNetworkAddress(network, address);
@@ -91,7 +91,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
             UInt160? privnetAddress = null,
             UInt160? testnetAddress = null,
             UInt160? mainnetAddress = null,
-            string currentNetwork = "privnet")
+            string currentNetwork = ContractConstants.DefaultNetwork)
         {
             var networkContext = new NetworkContext(currentNetwork);
 

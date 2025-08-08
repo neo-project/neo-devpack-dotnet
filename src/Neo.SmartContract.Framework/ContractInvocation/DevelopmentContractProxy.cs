@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Neo.SmartContract.Framework.Services;
+using Neo.SmartContract.Framework.ContractInvocation.Exceptions;
 
 namespace Neo.SmartContract.Framework.ContractInvocation
 {
@@ -205,12 +206,4 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         }
     }
 
-    /// <summary>
-    /// Exception thrown when a method is not found in the development contract.
-    /// </summary>
-    public class MethodNotFoundException : Exception
-    {
-        public MethodNotFoundException(string message) : base(message) { }
-        public MethodNotFoundException(string message, Exception innerException) : base(message, innerException) { }
-    }
 }

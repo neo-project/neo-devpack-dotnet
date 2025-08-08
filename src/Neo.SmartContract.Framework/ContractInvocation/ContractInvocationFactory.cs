@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         public static DeployedContractReference RegisterDeployedContract(
             string identifier,
             UInt160 address,
-            string network = "privnet")
+            string network = ContractConstants.DefaultNetwork)
         {
             var reference = DeployedContractReference.Create(identifier, address, network);
             _registeredContracts[identifier] = reference;
@@ -96,7 +96,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
             UInt160? privnetAddress = null,
             UInt160? testnetAddress = null,
             UInt160? mainnetAddress = null,
-            string currentNetwork = "privnet")
+            string currentNetwork = ContractConstants.DefaultNetwork)
         {
             var reference = DeployedContractReference.CreateMultiNetwork(
                 identifier, privnetAddress, testnetAddress, mainnetAddress, currentNetwork);

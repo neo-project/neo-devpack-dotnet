@@ -33,9 +33,9 @@ namespace Neo.SmartContract.Framework.ContractInvocation
         public IReadOnlyCollection<string> ConfiguredNetworks => _networkAddresses.Keys;
 
         /// <summary>
-        /// Initializes a new NetworkContext with the default network (privnet).
+        /// Initializes a new NetworkContext with the default network (mainnet).
         /// </summary>
-        public NetworkContext() : this("privnet")
+        public NetworkContext() : this(ContractConstants.DefaultNetwork)
         {
         }
 
