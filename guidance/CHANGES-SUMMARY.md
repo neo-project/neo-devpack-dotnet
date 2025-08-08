@@ -27,16 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Included time estimates for all tutorials
 - Standardized code comment styles
 
-## [Unreleased]
-
-### Fixed
-- Align Testing project with local `neo` submodule APIs to resolve CI restore drift:
-  - Removed unintended `Neo` package injection by adding `<PackageReference Remove="Neo" />` in `src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj`.
-  - Updated event subscriptions to static `ApplicationEngine.Log` and `ApplicationEngine.Notify` in `src/Neo.SmartContract.Testing/TestEngine.cs` and `src/Neo.SmartContract.Testing/Native/NativeContracts.cs` to match current `neo` API, fixing CS0176 and snapshot delegate errors.
-
-### Notes
-- Build validated locally; remaining warnings are non-blocking (duplicate PackageReference in analyzer unit tests, RS analyzer suggestions).
-
 ## Document Enhancements Summary
 
 ### Core Improvements
