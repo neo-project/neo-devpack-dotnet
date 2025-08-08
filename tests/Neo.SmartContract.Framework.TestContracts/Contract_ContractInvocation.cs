@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     public class Contract_ContractInvocation : SmartContract
     {
         // Reference to a development contract (another contract under development)
-        [ContractReference("../SampleNep17Token", 
+        [ContractReference("../SampleNep17Token",
             ReferenceType = ContractReferenceType.Development,
             ProjectPath = "../Example.SmartContract.NEP17/Example.SmartContract.NEP17.csproj")]
         private static readonly DevelopmentContractReference TokenContract;
