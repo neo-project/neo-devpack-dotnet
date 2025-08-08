@@ -22,11 +22,7 @@
       <PackageReference Include="ReportGenerator.Core" Version="5.4.8" />
     </ItemGroup>
 
-  <!-- Guard against CI or tools injecting a Neo package reference.
-       We must build against the local neo submodule to keep APIs aligned. -->
-  <ItemGroup>
-    <PackageReference Remove="Neo" />
-  </ItemGroup>
+  <!-- Guard is now centralized in Directory.Build.targets to avoid diff churn. -->
 
     <ItemGroup>
       <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />

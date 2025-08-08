@@ -1,0 +1,8 @@
+<Project>
+  <!-- Ensure CI or tooling cannot inject a Neo package into Neo.SmartContract.Testing -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Neo.SmartContract.Testing'">
+    <PackageReference Remove="Neo" />
+  </ItemGroup>
+</Project>
+
+
