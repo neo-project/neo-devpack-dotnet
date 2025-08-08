@@ -194,7 +194,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
                 }
 
                 // Override call flags
-                resolution.CallFlags = customAttr.GetEffectiveCallFlags();
+                resolution.CallFlags = customAttr.CallFlags;
 
                 // Validate parameters
                 if (!customAttr.ValidateParameterConstraints(resolution.OriginalParameters))
@@ -216,7 +216,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
                     {
                         resolution.ResolvedMethodName = contractAttr.MethodName;
                     }
-                    resolution.CallFlags = contractAttr.GetEffectiveCallFlags();
+                    resolution.CallFlags = contractAttr.CallFlags;
                 }
             }
         }
@@ -230,7 +230,7 @@ namespace Neo.SmartContract.Framework.ContractInvocation
             var contractAttr = method.GetCustomAttribute<ContractMethodAttribute>();
             if (contractAttr != null)
             {
-                return contractAttr.GetEffectiveCallFlags();
+                return contractAttr.CallFlags;
             }
 
             // Heuristic-based determination

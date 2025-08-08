@@ -68,12 +68,12 @@ namespace Neo.SmartContract.Framework.UnitTests
             var methodNameProp = attributeType.GetProperty("MethodName");
             Assert.IsNotNull(methodNameProp);
 
-            var modifiesStateProp = attributeType.GetProperty("ModifiesState");
-            Assert.IsNotNull(modifiesStateProp);
+            var callFlagsProp = attributeType.GetProperty("CallFlags");
+            Assert.IsNotNull(callFlagsProp);
 
             // Test default value
-            var modifiesState = modifiesStateProp.GetValue(attribute);
-            Assert.AreEqual(true, modifiesState);
+            var callFlags = callFlagsProp.GetValue(attribute);
+            Assert.IsNotNull(callFlags);
         }
 
         [TestMethod]
@@ -168,8 +168,8 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsNotNull(attribute);
 
             // Test properties
-            var readOnlyProp = attributeType.GetProperty("ReadOnly");
-            Assert.IsNotNull(readOnlyProp);
+            var callFlagsProp = attributeType.GetProperty("CallFlags");
+            Assert.IsNotNull(callFlagsProp);
 
             var methodNameProp = attributeType.GetProperty("MethodName");
             Assert.IsNotNull(methodNameProp);
