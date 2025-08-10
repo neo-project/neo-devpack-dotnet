@@ -20,7 +20,7 @@ namespace ZKP
     [DisplayName("SampleZKP")]
     [ContractAuthor("code-dev")]
     [ContractVersion("0.0.1")]
-    [ContractDescription("A sample contract to demonstrate how to use Example.SmartContract.ZKPil")]
+    [ContractDescription("A sample contract to demonstrate how to use Zero-Knowledge Proofs with BLS12-381")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/examples/")]
     [ContractPermission(Permission.Any, Method.Any)]
     public class ExampleZKP : SmartContract
@@ -69,7 +69,7 @@ namespace ZKP
         };
 
         /// <summary>
-        /// Verify '&' circuit.To verify x1&x2 = 0 or 1
+        /// Verify AND circuit. To verify x1 AND x2 = 0 or 1
         /// AB=alpha*beta+sum(pub_input[i]*(beta*u_i(x)+alpha*v_i(x)+w_i(x))/gamma)*gamma+C*delta
         /// </summary>
         /// <param name="a">Point A</param>
@@ -77,7 +77,7 @@ namespace ZKP
         /// <param name="c">Point C</param>
         /// <param name="public_input">Public paramters</param>
         /// <returns>result</returns>
-        public static bool Veify(byte[] a, byte[] b, byte[] c, byte[][] public_input)
+        public static bool Verify(byte[] a, byte[] b, byte[] c, byte[][] public_input)
         {
             //Equation left1: A*B
             byte[] lt = (byte[])CryptoLib.Bls12381Pairing(a, b);
