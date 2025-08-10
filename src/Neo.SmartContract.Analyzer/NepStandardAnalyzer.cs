@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
-using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Analyzer
 {
