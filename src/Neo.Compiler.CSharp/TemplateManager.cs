@@ -532,45 +532,49 @@ namespace {{Namespace}}
     [ContractVersion(""{{Version}}"")]
     [ContractSourceCode(""https://github.com/{{Author}}/{{ProjectName}}"")]
     [ContractPermission(Permission.Any, Method.Any)]
-    public class {{ClassName}} : SmartContract, IOracle
+    public class {{ClassName}} : SmartContract
     {
         private const byte Prefix_RequestId = 0x01;
         private const byte Prefix_Response = 0x02;
 
-        public static void Request(string url, string? filter, string callback, object userData, long gasForResponse)
+        public static void RequestData(string url, string filter, string callback, object userData, long gasForResponse)
         {
             Oracle.Request(url, filter, callback, userData, gasForResponse);
         }
 
-        public void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode responseCode, byte[] result)
+        // This method is called by the Oracle service when a response is received
+        // The method name must match the callback parameter in RequestData
+        public static void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode responseCode, string result)
         {
             if (responseCode != OracleResponseCode.Success)
             {
-                Runtime.Log($""Oracle response failed with code: {responseCode}"");
+                Runtime.Log(""Oracle response failed with code: "" + (byte)responseCode);
                 return;
             }
 
-            // Process the oracle response
-            string resultString = result.ToByteString().ToString();
-            
             // Store the response
-            Storage.Put(Storage.CurrentContext, Prefix_Response + userData, resultString);
+            StorageContext context = Storage.CurrentContext;
+            byte[] key = Helper.Concat(new byte[] { Prefix_Response }, StdLib.Serialize(userData));
+            Storage.Put(context, key, result);
             
-            Runtime.Log($""Oracle response received: {resultString}"");
+            Runtime.Log(""Oracle response received: "" + result);
             
             // Trigger an event
-            OnResponseReceived(requestedUrl, userData, resultString);
+            OnResponseReceived(requestedUrl, userData, result);
         }
 
         public delegate void OnResponseReceivedDelegate(string url, object userData, string response);
         
         [DisplayName(""ResponseReceived"")]
-        public static event OnResponseReceivedDelegate OnResponseReceived;
+        public static event OnResponseReceivedDelegate OnResponseReceived = default!;
 
         [Safe]
         public static string GetLastResponse(object userData)
         {
-            return Storage.Get(Storage.CurrentReadOnlyContext, Prefix_Response + userData);
+            StorageContext context = Storage.CurrentReadOnlyContext;
+            byte[] key = Helper.Concat(new byte[] { Prefix_Response }, StdLib.Serialize(userData));
+            ByteString data = Storage.Get(context, key);
+            return data;
         }
 
         public static void _deploy(object data, bool update)
@@ -581,7 +585,7 @@ namespace {{Namespace}}
             }
         }
 
-        public static void Update(ByteString nefFile, string manifest, object? data = null)
+        public static void Update(ByteString nefFile, string manifest, object data)
         {
             ContractManagement.Update(nefFile, manifest, data);
         }
