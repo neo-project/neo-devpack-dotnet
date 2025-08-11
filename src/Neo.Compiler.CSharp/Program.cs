@@ -42,6 +42,9 @@ namespace Neo.Compiler
             {
                 Description = "Neo Smart Contract Compiler and Tools"
             };
+            
+            // Add a hidden argument to support backward compatibility
+            rootCommand.AddArgument(new Argument<string[]>("paths", () => null!) { IsHidden = true, Arity = ArgumentArity.ZeroOrMore });
 
             // Create the 'compile' subcommand with the existing compilation functionality
             var compileCommand = new Command("compile", "Compile Neo smart contracts")
@@ -78,19 +81,32 @@ namespace Neo.Compiler
             };
             newCommand.Handler = CommandHandler.Create<string, string, string?, bool>(HandleNew);
 
+            // Add compile options to root for backward compatibility
+            rootCommand.AddOption(new Option<string>(["-o", "--output"], "Specifies the output directory."));
+            rootCommand.AddOption(new Option<string>("--base-name", "Specifies the base name of the output files."));
+            rootCommand.AddOption(new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."));
+            rootCommand.AddOption(new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."));
+            rootCommand.AddOption(new Option<bool>("--assembly", "Indicates whether to generate assembly."));
+            rootCommand.AddOption(new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."));
+            rootCommand.AddOption(new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"));
+            rootCommand.AddOption(new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"));
+            rootCommand.AddOption(new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"));
+            rootCommand.AddOption(new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."));
+            rootCommand.AddOption(new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler."));
+            rootCommand.AddOption(debugOption);
+
             rootCommand.AddCommand(compileCommand);
             rootCommand.AddCommand(newCommand);
 
             // Make compile the default command when no subcommand is specified
-            rootCommand.Handler = CommandHandler.Create<string[]?, InvocationContext>((paths, context) =>
+            rootCommand.Handler = CommandHandler.Create<Options, string[], InvocationContext>((options, paths, context) =>
             {
                 // If arguments are provided without a subcommand, assume compile command
                 if (paths != null && paths.Length > 0)
                 {
-                    var compileArgs = new List<string> { "compile" };
-                    compileArgs.AddRange(paths);
-                    compileArgs.AddRange(context.ParseResult.UnparsedTokens);
-                    return rootCommand.Invoke(compileArgs.ToArray());
+                    // Use HandleCompile directly for backward compatibility
+                    HandleCompile(options, paths, context);
+                    return context.ExitCode;
                 }
                 // Otherwise show help
                 return rootCommand.Invoke("--help");
