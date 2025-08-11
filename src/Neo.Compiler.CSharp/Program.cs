@@ -140,6 +140,14 @@ namespace Neo.Compiler
                     return;
                 }
 
+                // Validate template before creating directory
+                var validTemplates = new[] { "basic", "nep17", "nft", "nep11", "oracle", "ownable" };
+                if (!validTemplates.Contains(template.ToLower()))
+                {
+                    Console.Error.WriteLine($"Unknown template: {template}. Available templates: basic, nep17, nft, oracle, ownable");
+                    return;
+                }
+
                 // Create directory
                 Directory.CreateDirectory(outputDir);
 
@@ -162,9 +170,6 @@ namespace Neo.Compiler
                     case "ownable":
                         GenerateOwnableContract(outputDir, cleanName);
                         break;
-                    default:
-                        Console.Error.WriteLine($"Unknown template: {template}. Available templates: basic, nep17, nft, oracle, ownable");
-                        return;
                 }
 
                 Console.WriteLine($"Successfully created {template} contract '{cleanName}' in {outputDir}");
@@ -642,7 +647,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.SmartContract.{contractName}
+namespace {contractName}Contract
 {{
     [DisplayName(""{contractName}"")]
     [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
@@ -746,7 +751,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.SmartContract.{contractName}
+namespace {contractName}Contract
 {{
     [DisplayName(""{contractName}"")]
     [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
@@ -857,7 +862,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.SmartContract.{contractName}
+namespace {contractName}Contract
 {{
     [DisplayName(""{contractName}"")]
     [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
@@ -975,7 +980,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.SmartContract.{contractName}
+namespace {contractName}Contract
 {{
     [DisplayName(""{contractName}"")]
     [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
@@ -1089,7 +1094,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace Neo.SmartContract.{contractName}
+namespace {contractName}Contract
 {{
     [DisplayName(""{contractName}"")]
     [ContractAuthor(""<Your Name>"", ""<Your Email>"")]

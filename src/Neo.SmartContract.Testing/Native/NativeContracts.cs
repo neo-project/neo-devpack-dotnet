@@ -124,16 +124,25 @@ namespace Neo.SmartContract.Testing.Native
                 {
                     // Attach to static event
 
-                    engine.Log += _engine.ApplicationEngineLog;
-                    engine.Notify += _engine.ApplicationEngineNotify;
+                    ApplicationEngine.Log += _engine.ApplicationEngineLog;
+                    ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
 
-                    engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, [engine]) is not ContractTask task)
-                        throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
+                    try
+                    {
+                        engine.LoadScript(Array.Empty<byte>());
+                        if (method!.Invoke(native, [engine]) is not ContractTask task)
+                            throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
 
-                    task.GetAwaiter().GetResult();
-                    if (engine.Execute() != VM.VMState.HALT)
-                        throw new Exception($"Error executing {native.Name}.OnPersistAsync");
+                        task.GetAwaiter().GetResult();
+                        if (engine.Execute() != VM.VMState.HALT)
+                            throw new Exception($"Error executing {native.Name}.OnPersistAsync");
+                    }
+                    finally
+                    {
+                        // Detach from static event
+                        ApplicationEngine.Log -= _engine.ApplicationEngineLog;
+                        ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
+                    }
                 }
 
                 // Mock Native.PostPersist
@@ -144,16 +153,25 @@ namespace Neo.SmartContract.Testing.Native
                 {
                     // Attach to static event
 
-                    engine.Log += _engine.ApplicationEngineLog;
-                    engine.Notify += _engine.ApplicationEngineNotify;
+                    ApplicationEngine.Log += _engine.ApplicationEngineLog;
+                    ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
 
-                    engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, [engine]) is not ContractTask task)
-                        throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
+                    try
+                    {
+                        engine.LoadScript(Array.Empty<byte>());
+                        if (method!.Invoke(native, [engine]) is not ContractTask task)
+                            throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
 
-                    task.GetAwaiter().GetResult();
-                    if (engine.Execute() != VM.VMState.HALT)
-                        throw new Exception($"Error executing {native.Name}.PostPersistAsync");
+                        task.GetAwaiter().GetResult();
+                        if (engine.Execute() != VM.VMState.HALT)
+                            throw new Exception($"Error executing {native.Name}.PostPersistAsync");
+                    }
+                    finally
+                    {
+                        // Detach from static event
+                        ApplicationEngine.Log -= _engine.ApplicationEngineLog;
+                        ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
+                    }
                 }
 
                 clonedSnapshot.Commit();

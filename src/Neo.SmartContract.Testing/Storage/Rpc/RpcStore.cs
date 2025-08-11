@@ -26,12 +26,17 @@ namespace Neo.SmartContract.Testing.Storage.Rpc;
 
 public class RpcStore : IStore
 {
+    /// <summary>
+    /// Delegate for OnNewSnapshot event
+    /// </summary>
+    public delegate void OnNewSnapshotDelegate(IStoreSnapshot snapshot);
+
     private int _id = 0;
 
     /// <summary>
     /// Event raised when a new snapshot is created
     /// </summary>
-    public event IStore.OnNewSnapshotDelegate? OnNewSnapshot;
+    public event OnNewSnapshotDelegate? OnNewSnapshot;
 
     /// <summary>
     /// Url
@@ -58,7 +63,7 @@ public class RpcStore : IStore
     public IStoreSnapshot GetSnapshot()
     {
         var snapshot = new RpcSnapshot(this);
-        OnNewSnapshot?.Invoke(this, snapshot);
+        OnNewSnapshot?.Invoke(snapshot);
         return snapshot;
     }
     public bool Contains(byte[] key) => TryGet(key) != null;
