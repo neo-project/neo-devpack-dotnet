@@ -32,7 +32,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             if (IsCI)
             {
-                Assert.Inconclusive("Skipping integration tests in CI environment");
                 return;
             }
             
@@ -47,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestCleanup]
         public void TestCleanup()
         {
-            if (Directory.Exists(_testOutputPath))
+            if (!string.IsNullOrEmpty(_testOutputPath) && Directory.Exists(_testOutputPath))
             {
                 Directory.Delete(_testOutputPath, true);
             }
@@ -56,6 +55,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandHelp()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             var result = RunCompilerCommand("new --help");
 
             Assert.IsTrue(result.Contains("Create a new smart contract from a template"));
@@ -68,6 +72,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandBasicContract()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             string contractName = "TestBasic";
             var result = RunCompilerCommand($"new {contractName} -t Basic --output \"{_testOutputPath}\"");
 
@@ -83,6 +92,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandNEP17Contract()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             string contractName = "TestToken";
             var result = RunCompilerCommand($"new {contractName} -t NEP17 --output \"{_testOutputPath}\" --description \"Test Token Contract\"");
 
@@ -100,6 +114,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandWithCustomAuthor()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             string contractName = "AuthorTest";
             var result = RunCompilerCommand($"new {contractName} --output \"{_testOutputPath}\" --author \"Jane Smith\" --email \"jane@test.com\"");
 
@@ -116,6 +135,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandInvalidName()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             var result = RunCompilerCommand($"new 123Invalid --output \"{_testOutputPath}\"");
 
             Assert.IsTrue(result.Contains("Error: Contract name must start with a letter"));
@@ -124,6 +148,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandExistingDirectory()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             string contractName = "ExistingContract";
             string projectPath = Path.Combine(_testOutputPath, contractName);
             Directory.CreateDirectory(projectPath);
@@ -137,6 +166,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandForceOverwrite()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             string contractName = "ForceContract";
             string projectPath = Path.Combine(_testOutputPath, contractName);
             Directory.CreateDirectory(projectPath);
@@ -151,6 +185,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestNewCommandAllTemplates()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             var templates = new[] { "Basic", "NEP17", "NEP11", "Ownable", "Oracle" };
 
             foreach (var template in templates)
@@ -169,6 +208,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestGeneratedContractCompilation()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
             string contractName = "CompilableContract";
 
             // Generate the contract
