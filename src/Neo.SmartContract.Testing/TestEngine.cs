@@ -627,29 +627,38 @@ namespace Neo.SmartContract.Testing
 
             // Attach to static event
 
-            engine.Log += ApplicationEngineLog;
-            engine.Notify += ApplicationEngineNotify;
+            ApplicationEngine.Log += ApplicationEngineLog;
+            ApplicationEngine.Notify += ApplicationEngineNotify;
 
-            // Execute
-            if (ResetFeeConsumed) FeeConsumed.Reset();
-            beforeExecute?.Invoke(engine);
-            var executionResult = engine.Execute();
-
-            // Increment fee
-
-            foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
-
-            // Process result
-
-            if (executionResult != VMState.HALT)
+            try
             {
-                throw new TestException(engine);
+                // Execute
+                if (ResetFeeConsumed) FeeConsumed.Reset();
+                beforeExecute?.Invoke(engine);
+                var executionResult = engine.Execute();
+
+                // Increment fee
+
+                foreach (var feeWatcher in _feeWatchers) feeWatcher.Value += engine.FeeConsumed;
+
+                // Process result
+
+                if (executionResult != VMState.HALT)
+                {
+                    throw new TestException(engine);
+                }
+
+                snapshot.Commit();
+
+                if (engine.ResultStack.Count == 0) return StackItem.Null;
+                return engine.ResultStack.Pop();
             }
-
-            snapshot.Commit();
-
-            if (engine.ResultStack.Count == 0) return StackItem.Null;
-            return engine.ResultStack.Pop();
+            finally
+            {
+                // Detach from static event
+                ApplicationEngine.Log -= ApplicationEngineLog;
+                ApplicationEngine.Notify -= ApplicationEngineNotify;
+            }
         }
 
         /// <summary>
