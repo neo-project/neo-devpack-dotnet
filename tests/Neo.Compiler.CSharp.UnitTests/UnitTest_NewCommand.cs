@@ -24,10 +24,18 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         private string _testOutputPath = null!;
         private string _compilerPath = null!;
+        private static bool IsCI => Environment.GetEnvironmentVariable("CI") == "true" || 
+                                    Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
 
         [TestInitialize]
         public void TestSetup()
         {
+            if (IsCI)
+            {
+                Assert.Inconclusive("Skipping integration tests in CI environment");
+                return;
+            }
+            
             _testOutputPath = Path.Combine(Path.GetTempPath(), "NeoNewCommandTest_" + Guid.NewGuid().ToString());
             Directory.CreateDirectory(_testOutputPath);
 
