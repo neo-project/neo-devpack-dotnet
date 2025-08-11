@@ -29,6 +29,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Neo.Compiler
@@ -37,9 +38,15 @@ namespace Neo.Compiler
     {
         public static int Main(string[] args)
         {
-            RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
+            var rootCommand = new RootCommand(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
             {
-                new Argument<string[]>("paths", "The path of the solution file, project file, project directory or source files."),
+                Description = "Neo Smart Contract Compiler and Tools"
+            };
+
+            // Create the 'compile' subcommand with the existing compilation functionality
+            var compileCommand = new Command("compile", "Compile Neo smart contracts")
+            {
+                new Argument<string[]>("paths", "The path of the solution file, project file, project directory or source files.") { Arity = ArgumentArity.ZeroOrMore },
                 new Option<string>(["-o", "--output"], "Specifies the output directory."),
                 new Option<string>("--base-name", "Specifies the base name of the output files."),
                 new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."),
@@ -58,9 +65,37 @@ namespace Neo.Compiler
             {
                 Arity = ArgumentArity.ZeroOrOne
             };
-            rootCommand.AddOption(debugOption);
+            compileCommand.AddOption(debugOption);
+            compileCommand.Handler = CommandHandler.Create<Options, string[], InvocationContext>(HandleCompile);
 
-            rootCommand.Handler = CommandHandler.Create<RootCommand, Options, string[], InvocationContext>(Handle);
+            // Create the 'new' subcommand for generating contracts from templates
+            var newCommand = new Command("new", "Create a new smart contract from a template")
+            {
+                new Argument<string>("name", "The name of the contract to create"),
+                new Option<string>(["-t", "--template"], () => "basic", "The template to use (basic, nep17, nft, oracle, ownable)"),
+                new Option<string>(["-o", "--output"], "The output directory for the new contract"),
+                new Option<bool>(["-f", "--force"], "Overwrite existing files")
+            };
+            newCommand.Handler = CommandHandler.Create<string, string, string?, bool>(HandleNew);
+
+            rootCommand.AddCommand(compileCommand);
+            rootCommand.AddCommand(newCommand);
+
+            // Make compile the default command when no subcommand is specified
+            rootCommand.Handler = CommandHandler.Create<string[]?, InvocationContext>((paths, context) =>
+            {
+                // If arguments are provided without a subcommand, assume compile command
+                if (paths != null && paths.Length > 0)
+                {
+                    var compileArgs = new List<string> { "compile" };
+                    compileArgs.AddRange(paths);
+                    compileArgs.AddRange(context.ParseResult.UnparsedTokens);
+                    return rootCommand.Invoke(compileArgs.ToArray());
+                }
+                // Otherwise show help
+                return rootCommand.Invoke("--help");
+            });
+
             return rootCommand.Invoke(args);
         }
 
@@ -77,7 +112,74 @@ namespace Neo.Compiler
             return ret;
         }
 
-        private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)
+        private static void HandleNew(string name, string template, string? output, bool force)
+        {
+            try
+            {
+                // Validate contract name
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.Error.WriteLine("Contract name cannot be empty.");
+                    return;
+                }
+
+                // Clean the name to be a valid C# identifier
+                string cleanName = System.Text.RegularExpressions.Regex.Replace(name, @"[^a-zA-Z0-9_]", "");
+                if (char.IsDigit(cleanName[0]))
+                {
+                    cleanName = "_" + cleanName;
+                }
+
+                // Determine output directory
+                string outputDir = output ?? Path.Combine(Environment.CurrentDirectory, cleanName);
+
+                // Check if directory exists
+                if (Directory.Exists(outputDir) && !force)
+                {
+                    Console.Error.WriteLine($"Directory '{outputDir}' already exists. Use --force to overwrite.");
+                    return;
+                }
+
+                // Create directory
+                Directory.CreateDirectory(outputDir);
+
+                // Generate contract based on template
+                switch (template.ToLower())
+                {
+                    case "basic":
+                        GenerateBasicContract(outputDir, cleanName);
+                        break;
+                    case "nep17":
+                        GenerateNep17Contract(outputDir, cleanName);
+                        break;
+                    case "nft":
+                    case "nep11":
+                        GenerateNftContract(outputDir, cleanName);
+                        break;
+                    case "oracle":
+                        GenerateOracleContract(outputDir, cleanName);
+                        break;
+                    case "ownable":
+                        GenerateOwnableContract(outputDir, cleanName);
+                        break;
+                    default:
+                        Console.Error.WriteLine($"Unknown template: {template}. Available templates: basic, nep17, nft, oracle, ownable");
+                        return;
+                }
+
+                Console.WriteLine($"Successfully created {template} contract '{cleanName}' in {outputDir}");
+                Console.WriteLine();
+                Console.WriteLine("Next steps:");
+                Console.WriteLine($"  cd {outputDir}");
+                Console.WriteLine($"  nccs compile");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error creating contract: {ex.Message}");
+            }
+        }
+
+        private static void HandleCompile(Options options, string[]? paths, InvocationContext context)
         {
             // Check if the --generate-interface option is present in the command line args
             options.GenerateContractInterface = context.ParseResult.CommandResult.Children
@@ -92,7 +194,7 @@ namespace Neo.Compiler
                     if (context.ExitCode == 2)
                     {
                         // Display help without args
-                        command.Invoke("--help");
+                        Console.WriteLine("No project files found. Use 'nccs --help' for usage information.");
                     }
                 }
                 catch (UnauthorizedAccessException)
@@ -523,5 +625,615 @@ namespace Neo.Compiler
                 return 1;
             }
         }
+
+        #region Template Generation Methods
+
+        private static void GenerateBasicContract(string outputDir, string contractName)
+        {
+            string contractPath = Path.Combine(outputDir, $"{contractName}.cs");
+            string projectPath = Path.Combine(outputDir, $"{contractName}.csproj");
+
+            // Generate basic contract code
+            string contractCode = $@"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.ComponentModel;
+using System.Numerics;
+
+namespace Neo.SmartContract.{contractName}
+{{
+    [DisplayName(""{contractName}"")]
+    [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
+    [ContractDescription(""<Description of your contract>"")]
+    [ContractVersion(""1.0.0"")]
+    [ContractSourceCode(""https://github.com/your-repo/{contractName}"")]
+    [ContractPermission(Permission.Any, Method.Any)]
+    public class {contractName} : SmartContract
+    {{
+        private const byte Prefix_Owner = 0xff;
+
+        [Safe]
+        public static UInt160 GetOwner()
+        {{
+            return (UInt160)Storage.Get(new[] {{ Prefix_Owner }});
+        }}
+
+        private static bool IsOwner() =>
+            Runtime.CheckWitness(GetOwner());
+
+        public static bool Verify() => IsOwner();
+
+        public static void _deploy(object data, bool update)
+        {{
+            if (update) return;
+            
+            var initialOwner = data is null ? Runtime.Transaction.Sender : (UInt160)data;
+            Storage.Put(new[] {{ Prefix_Owner }}, initialOwner);
+        }}
+
+        public static void Update(ByteString nefFile, string manifest, object? data = null)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Update(nefFile, manifest, data);
+        }}
+
+        public static void Destroy()
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Destroy();
+        }}
+
+        [Safe]
+        public static string HelloWorld()
+        {{
+            return ""Hello, World!"";
+        }}
+
+        public static BigInteger Add(BigInteger a, BigInteger b)
+        {{
+            return a + b;
+        }}
+
+        public static void SetValue(string key, string value)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            Storage.Put(key, value);
+        }}
+
+        [Safe]
+        public static string GetValue(string key)
+        {{
+            return Storage.Get(key);
+        }}
+    }}
+}}";
+
+            // Generate project file
+            string projectContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1-*"" />
+  </ItemGroup>
+
+</Project>";
+
+            File.WriteAllText(contractPath, contractCode);
+            File.WriteAllText(projectPath, projectContent);
+        }
+
+        private static void GenerateNep17Contract(string outputDir, string contractName)
+        {
+            string contractPath = Path.Combine(outputDir, $"{contractName}.cs");
+            string projectPath = Path.Combine(outputDir, $"{contractName}.csproj");
+
+            // Generate NEP-17 token contract
+            string contractCode = $@"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.ComponentModel;
+using System.Numerics;
+
+namespace Neo.SmartContract.{contractName}
+{{
+    [DisplayName(""{contractName}"")]
+    [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
+    [ContractDescription(""NEP-17 Token Contract"")]
+    [ContractVersion(""1.0.0"")]
+    [ContractSourceCode(""https://github.com/your-repo/{contractName}"")]
+    [ContractPermission(Permission.Any, Method.Any)]
+    [SupportedStandards(NepStandard.Nep17)]
+    public class {contractName} : Nep17Token
+    {{
+        private const byte Prefix_Owner = 0xff;
+
+        public override string Symbol {{ [Safe] get => ""EXAMPLE""; }}
+        public override byte Decimals {{ [Safe] get => 8; }}
+
+        [Safe]
+        public static UInt160 GetOwner()
+        {{
+            return (UInt160)Storage.Get(new[] {{ Prefix_Owner }});
+        }}
+
+        private static bool IsOwner() =>
+            Runtime.CheckWitness(GetOwner());
+
+        public delegate void OnSetOwnerDelegate(UInt160 previousOwner, UInt160 newOwner);
+
+        [DisplayName(""SetOwner"")]
+        public static event OnSetOwnerDelegate OnSetOwner;
+
+        public static void SetOwner(UInt160 newOwner)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No Authorization!"");
+
+            ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, ""owner must be valid"");
+
+            UInt160 previous = GetOwner();
+            Storage.Put(new[] {{ Prefix_Owner }}, newOwner);
+            OnSetOwner(previous, newOwner);
+        }}
+
+        public static new void Burn(UInt160 account, BigInteger amount)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No Authorization!"");
+            Nep17Token.Burn(account, amount);
+        }}
+
+        public static new void Mint(UInt160 to, BigInteger amount)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No Authorization!"");
+            Nep17Token.Mint(to, amount);
+        }}
+
+        [Safe]
+        public static bool Verify() => IsOwner();
+
+        public static void _deploy(object data, bool update)
+        {{
+            if (update) return;
+
+            var initialOwner = data is null ? Runtime.Transaction.Sender : (UInt160)data;
+            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, ""owner must exists"");
+
+            Storage.Put(new[] {{ Prefix_Owner }}, initialOwner);
+            OnSetOwner(null, initialOwner);
+        }}
+
+        public static void Update(ByteString nefFile, string manifest, object? data = null)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Update(nefFile, manifest, data);
+        }}
+    }}
+}}";
+
+            string projectContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1-*"" />
+  </ItemGroup>
+
+</Project>";
+
+            File.WriteAllText(contractPath, contractCode);
+            File.WriteAllText(projectPath, projectContent);
+        }
+
+        private static void GenerateNftContract(string outputDir, string contractName)
+        {
+            string contractPath = Path.Combine(outputDir, $"{contractName}.cs");
+            string projectPath = Path.Combine(outputDir, $"{contractName}.csproj");
+
+            // Generate NEP-11 NFT contract
+            string contractCode = $@"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.ComponentModel;
+using System.Numerics;
+
+namespace Neo.SmartContract.{contractName}
+{{
+    [DisplayName(""{contractName}"")]
+    [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
+    [ContractDescription(""NEP-11 NFT Contract"")]
+    [ContractVersion(""1.0.0"")]
+    [ContractSourceCode(""https://github.com/your-repo/{contractName}"")]
+    [ContractPermission(Permission.Any, Method.Any)]
+    [SupportedStandards(NepStandard.Nep11)]
+    public class {contractName} : Nep11Token<{contractName}State>
+    {{
+        private const byte Prefix_Owner = 0xff;
+        private const byte Prefix_TokenId = 0x02;
+
+        public override string Symbol {{ [Safe] get => ""EXAMPLE""; }}
+
+        [Safe]
+        public static UInt160 GetOwner()
+        {{
+            return (UInt160)Storage.Get(new[] {{ Prefix_Owner }});
+        }}
+
+        private static bool IsOwner() =>
+            Runtime.CheckWitness(GetOwner());
+
+        public static void _deploy(object data, bool update)
+        {{
+            if (update) return;
+
+            var initialOwner = data is null ? Runtime.Transaction.Sender : (UInt160)data;
+            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, ""owner must exists"");
+
+            Storage.Put(new[] {{ Prefix_Owner }}, initialOwner);
+            Storage.Put(new[] {{ Prefix_TokenId }}, 0);
+        }}
+
+        public static void Mint(UInt160 to, string name, string description, string image)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No Authorization!"");
+
+            var tokenId = GetNextTokenId();
+            var state = new {contractName}State
+            {{
+                Owner = to,
+                Name = name,
+                Description = description,
+                Image = image
+            }};
+
+            Mint(tokenId, state);
+        }}
+
+        private static ByteString GetNextTokenId()
+        {{
+            var currentId = (BigInteger)Storage.Get(new[] {{ Prefix_TokenId }});
+            var nextId = currentId + 1;
+            Storage.Put(new[] {{ Prefix_TokenId }}, nextId);
+            return (ByteString)nextId.ToByteArray();
+        }}
+
+        public static void Update(ByteString nefFile, string manifest, object? data = null)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Update(nefFile, manifest, data);
+        }}
+
+        public static void Destroy()
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Destroy();
+        }}
+
+        [Safe]
+        public static bool Verify() => IsOwner();
+    }}
+
+    public class {contractName}State : Nep11TokenState
+    {{
+        public string Description {{ get; set; }} = string.Empty;
+        public string Image {{ get; set; }} = string.Empty;
+    }}
+}}";
+
+            string projectContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1-*"" />
+  </ItemGroup>
+
+</Project>";
+
+            File.WriteAllText(contractPath, contractCode);
+            File.WriteAllText(projectPath, projectContent);
+        }
+
+        private static void GenerateOracleContract(string outputDir, string contractName)
+        {
+            string contractPath = Path.Combine(outputDir, $"{contractName}.cs");
+            string projectPath = Path.Combine(outputDir, $"{contractName}.csproj");
+
+            // Generate Oracle contract
+            string contractCode = $@"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.ComponentModel;
+using System.Numerics;
+
+namespace Neo.SmartContract.{contractName}
+{{
+    [DisplayName(""{contractName}"")]
+    [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
+    [ContractDescription(""Oracle Request Contract"")]
+    [ContractVersion(""1.0.0"")]
+    [ContractSourceCode(""https://github.com/your-repo/{contractName}"")]
+    [ContractPermission(Permission.Any, Method.Any)]
+    public class {contractName} : SmartContract
+    {{
+        private const byte Prefix_Owner = 0xff;
+        private const byte Prefix_RequestId = 0x10;
+
+        [Safe]
+        public static UInt160 GetOwner()
+        {{
+            return (UInt160)Storage.Get(new[] {{ Prefix_Owner }});
+        }}
+
+        private static bool IsOwner() =>
+            Runtime.CheckWitness(GetOwner());
+
+        public static void _deploy(object data, bool update)
+        {{
+            if (update) return;
+
+            var initialOwner = data is null ? Runtime.Transaction.Sender : (UInt160)data;
+            Storage.Put(new[] {{ Prefix_Owner }}, initialOwner);
+        }}
+
+        public static void RequestData(string url, string filter, string callback, object userData, long gasForResponse)
+        {{
+            if (gasForResponse < 10000000)
+                throw new InvalidOperationException(""Insufficient gas for response"");
+
+            Oracle.Request(url, filter, callback, userData, gasForResponse);
+        }}
+
+        public static void OnOracleResponse(string url, object userData, int code, byte[] result)
+        {{
+            if (Runtime.CallingScriptHash != Oracle.Hash)
+                throw new InvalidOperationException(""Unauthorized"");
+
+            if (code != 0)
+            {{
+                Runtime.Log(""Oracle request failed"");
+                return;
+            }}
+
+            // Process the oracle response
+            var responseData = StdLib.JsonDeserialize(result);
+            ProcessOracleData(userData, responseData);
+        }}
+
+        private static void ProcessOracleData(object userData, object responseData)
+        {{
+            // Store or process the oracle response data
+            var key = new byte[] {{ Prefix_RequestId }}.Concat((ByteString)userData);
+            Storage.Put(key, StdLib.JsonSerialize(responseData));
+            
+            Runtime.Log(""Oracle data processed successfully"");
+        }}
+
+        [Safe]
+        public static ByteString GetOracleData(ByteString requestId)
+        {{
+            var key = new byte[] {{ Prefix_RequestId }}.Concat(requestId);
+            return Storage.Get(key);
+        }}
+
+        public static void Update(ByteString nefFile, string manifest, object? data = null)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Update(nefFile, manifest, data);
+        }}
+
+        [Safe]
+        public static bool Verify() => IsOwner();
+    }}
+}}";
+
+            string projectContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1-*"" />
+  </ItemGroup>
+
+</Project>";
+
+            File.WriteAllText(contractPath, contractCode);
+            File.WriteAllText(projectPath, projectContent);
+        }
+
+        private static void GenerateOwnableContract(string outputDir, string contractName)
+        {
+            string contractPath = Path.Combine(outputDir, $"{contractName}.cs");
+            string projectPath = Path.Combine(outputDir, $"{contractName}.csproj");
+
+            // Generate Ownable contract
+            string contractCode = $@"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.ComponentModel;
+using System.Numerics;
+
+namespace Neo.SmartContract.{contractName}
+{{
+    [DisplayName(""{contractName}"")]
+    [ContractAuthor(""<Your Name>"", ""<Your Email>"")]
+    [ContractDescription(""Ownable Contract with Access Control"")]
+    [ContractVersion(""1.0.0"")]
+    [ContractSourceCode(""https://github.com/your-repo/{contractName}"")]
+    [ContractPermission(Permission.Any, Method.Any)]
+    public class {contractName} : SmartContract
+    {{
+        private const byte Prefix_Owner = 0xff;
+        private const byte Prefix_Admin = 0xfe;
+        private const byte Prefix_Data = 0x01;
+
+        public delegate void OnSetOwnerDelegate(UInt160 previousOwner, UInt160 newOwner);
+        public delegate void OnSetAdminDelegate(UInt160 admin, bool isAdmin);
+
+        [DisplayName(""SetOwner"")]
+        public static event OnSetOwnerDelegate OnSetOwner;
+
+        [DisplayName(""SetAdmin"")]
+        public static event OnSetAdminDelegate OnSetAdmin;
+
+        [Safe]
+        public static UInt160 GetOwner()
+        {{
+            return (UInt160)Storage.Get(new[] {{ Prefix_Owner }});
+        }}
+
+        private static bool IsOwner() =>
+            Runtime.CheckWitness(GetOwner());
+
+        [Safe]
+        public static bool IsAdmin(UInt160 account)
+        {{
+            if (account == GetOwner()) return true;
+            return Storage.Get(new[] {{ Prefix_Admin }}.Concat(account)).Equals(1);
+        }}
+
+        private static bool HasPermission()
+        {{
+            var caller = Runtime.Transaction.Sender;
+            return IsOwner() || IsAdmin(caller);
+        }}
+
+        public static void SetOwner(UInt160 newOwner)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No Authorization!"");
+
+            ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, ""owner must be valid"");
+
+            UInt160 previous = GetOwner();
+            Storage.Put(new[] {{ Prefix_Owner }}, newOwner);
+            OnSetOwner(previous, newOwner);
+        }}
+
+        public static void SetAdmin(UInt160 admin, bool isAdmin)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No Authorization!"");
+
+            ExecutionEngine.Assert(admin.IsValid && !admin.IsZero, ""admin must be valid"");
+
+            if (isAdmin)
+                Storage.Put(new[] {{ Prefix_Admin }}.Concat(admin), 1);
+            else
+                Storage.Delete(new[] {{ Prefix_Admin }}.Concat(admin));
+
+            OnSetAdmin(admin, isAdmin);
+        }}
+
+        public static void _deploy(object data, bool update)
+        {{
+            if (update) return;
+
+            var initialOwner = data is null ? Runtime.Transaction.Sender : (UInt160)data;
+            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, ""owner must exists"");
+
+            Storage.Put(new[] {{ Prefix_Owner }}, initialOwner);
+            OnSetOwner(null, initialOwner);
+        }}
+
+        public static void SetData(string key, ByteString value)
+        {{
+            if (!HasPermission())
+                throw new InvalidOperationException(""No Authorization!"");
+
+            var storageKey = new byte[] {{ Prefix_Data }}.Concat(key);
+            Storage.Put(storageKey, value);
+        }}
+
+        [Safe]
+        public static ByteString GetData(string key)
+        {{
+            var storageKey = new byte[] {{ Prefix_Data }}.Concat(key);
+            return Storage.Get(storageKey);
+        }}
+
+        public static void DeleteData(string key)
+        {{
+            if (!HasPermission())
+                throw new InvalidOperationException(""No Authorization!"");
+
+            var storageKey = new byte[] {{ Prefix_Data }}.Concat(key);
+            Storage.Delete(storageKey);
+        }}
+
+        public static void Update(ByteString nefFile, string manifest, object? data = null)
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Update(nefFile, manifest, data);
+        }}
+
+        public static void Destroy()
+        {{
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+            ContractManagement.Destroy();
+        }}
+
+        [Safe]
+        public static bool Verify() => IsOwner();
+    }}
+}}";
+
+            string projectContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1-*"" />
+  </ItemGroup>
+
+</Project>";
+
+            File.WriteAllText(contractPath, contractCode);
+            File.WriteAllText(projectPath, projectContent);
+        }
+
+        #endregion
     }
 }
