@@ -22,8 +22,8 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_NewCommand
     {
-        private string _testOutputPath;
-        private string _compilerPath;
+        private string _testOutputPath = null!;
+        private string _compilerPath = null!;
 
         [TestInitialize]
         public void TestSetup()

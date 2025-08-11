@@ -21,8 +21,8 @@ namespace Neo.Compiler.CSharp.UnitTests
     [TestClass]
     public class UnitTest_TemplateManager
     {
-        private TemplateManager _templateManager;
-        private string _testOutputPath;
+        private TemplateManager _templateManager = null!;
+        private string _testOutputPath = null!;
 
         [TestInitialize]
         public void TestSetup()
