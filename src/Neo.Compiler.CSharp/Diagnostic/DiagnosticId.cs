@@ -39,5 +39,6 @@ namespace Neo.Compiler
         public const string CapturedStaticFieldNotFound = "NC3007";
         public const string InvalidType = "NC3008";
         public const string InvalidArgument = "NC3009";
+        public const string SafeSetter = "NC3010";
     }
 }
