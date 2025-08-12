@@ -22,6 +22,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using BigInteger = System.Numerics.BigInteger;
@@ -126,7 +127,7 @@ namespace Neo.Compiler
         {
             return CompileSources(new CompilationSourceReferences()
             {
-                Packages = [new("Neo.SmartContract.Framework", "3.7.4-*")]
+                Packages = [new("Neo.SmartContract.Framework", "3.8.1")]
             },
             sourceFiles);
         }
@@ -171,14 +172,32 @@ namespace Neo.Compiler
 
             // Write and compile
 
-            var path = Path.GetTempFileName();
+            // Create a proper temp directory instead of just a temp file
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDir);
+            var path = Path.Combine(tempDir, "TempProject.csproj");
+            var nugetConfig = Path.Combine(tempDir, "nuget.config");
+
+            // Create NuGet.config that prioritizes NuGet.org
+            var nugetConfigContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key=""NuGet.org"" value=""https://api.nuget.org/v3/index.json"" protocolVersion=""3"" />
+  </packageSources>
+</configuration>";
+
             File.WriteAllText(path, csproj);
+            File.WriteAllText(nugetConfig, nugetConfigContent);
 
             try
             {
                 return CompileProject(path);
             }
-            finally { File.Delete(path); }
+            finally
+            {
+                if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+            }
         }
 
         public List<CompilationContext> CompileProject(string csproj)
@@ -376,7 +395,7 @@ namespace Neo.Compiler
             Process.Start(new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"restore \"{csproj}\" --source \"https://www.myget.org/F/neo/api/v3/index.json\"",
+                Arguments = $"restore \"{csproj}\"",
                 WorkingDirectory = folder
             })!.WaitForExit();
 

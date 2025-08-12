@@ -13,6 +13,6 @@ namespace Neo.SmartContract.Framework.Native
 {
     public class NotCondition : WitnessCondition
     {
-        public WitnessCondition Expression;
+        public WitnessCondition Expression = null!;
     }
 }

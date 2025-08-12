@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
     <NullableArgument Condition="'$(Nullable)' != ''">--nullable $(Nullable)</NullableArgument>
     <CheckedArgument Condition="'$(CheckForOverflowUnderflow)' == 'true'">--checked</CheckedArgument>
     <DebugArgument Condition="'$(Configuration)' == 'Debug'">-d</DebugArgument>
+    <DebugArgument Condition="'$(Configuration)' != 'Debug'"></DebugArgument>
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

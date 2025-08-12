@@ -104,11 +104,6 @@ namespace Neo.SmartContract.Testing.Native
 
             var genesis = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
 
-            // Attach to static event
-
-            ApplicationEngine.Log += _engine.ApplicationEngineLog;
-            ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
-
             // Process native contracts
 
             foreach (var native in new Neo.SmartContract.Native.NativeContract[]
@@ -127,8 +122,13 @@ namespace Neo.SmartContract.Testing.Native
                 DataCache clonedSnapshot = _engine.Storage.Snapshot.CloneCache();
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
+                    // Attach to static event
+
+                    engine.Log += _engine.ApplicationEngineLog;
+                    engine.Notify += _engine.ApplicationEngineNotify;
+
                     engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                    if (method!.Invoke(native, [engine]) is not ContractTask task)
                         throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
 
                     task.GetAwaiter().GetResult();
@@ -142,8 +142,13 @@ namespace Neo.SmartContract.Testing.Native
 
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, genesis, clonedSnapshot, genesis))
                 {
+                    // Attach to static event
+
+                    engine.Log += _engine.ApplicationEngineLog;
+                    engine.Notify += _engine.ApplicationEngineNotify;
+
                     engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                    if (method!.Invoke(native, [engine]) is not ContractTask task)
                         throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
 
                     task.GetAwaiter().GetResult();
@@ -158,11 +163,6 @@ namespace Neo.SmartContract.Testing.Native
             {
                 _engine.Storage.Commit();
             }
-
-            // Detach to static event
-
-            ApplicationEngine.Log -= _engine.ApplicationEngineLog;
-            ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
 
             return genesis;
         }

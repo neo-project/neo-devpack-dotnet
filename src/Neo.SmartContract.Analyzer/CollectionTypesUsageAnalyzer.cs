@@ -24,7 +24,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
-using Xunit.Sdk;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -91,7 +90,7 @@ namespace Neo.SmartContract.Analyzer
             if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
 
             var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            var originalType = variableType.OriginalDefinition.ToString() ?? throw new NullException("originalType is null");
+            var originalType = variableType.OriginalDefinition.ToString() ?? throw new ArgumentNullException("originalType is null");
 
             if (_unsupportedCollectionTypes.Contains(originalType))
             {

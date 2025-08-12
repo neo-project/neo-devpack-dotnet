@@ -3,6 +3,11 @@
     <PropertyGroup>
         <Nullable>disable</Nullable>
         <RootNamespace>Transfer</RootNamespace>
+        
+        <!-- Force library project style -->
+        <OutputType>Library</OutputType>
+        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+        <EnableDefaultItems>true</EnableDefaultItems>
     </PropertyGroup>
 
 </Project>

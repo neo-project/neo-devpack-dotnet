@@ -101,7 +101,7 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in foreach statement handling. This is a compiler bug that should be reported.");
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertIteratorForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
-            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
+            ILocalSymbol[] symbols = [.. ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!)];
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
@@ -198,7 +198,7 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in foreach statement handling. This is a compiler bug that should be reported.");
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in foreach statement handling. This is a compiler bug that should be reported.");
         }
 
         /// <summary>
@@ -350,7 +350,7 @@ namespace Neo.Compiler
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Bad statement stack handling inside. This is a compiler bug.");
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in foreach statement handling. This is a compiler bug that should be reported.");
         }
     }
 }
