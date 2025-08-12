@@ -24,7 +24,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     {
         private string _testOutputPath = null!;
         private string _compilerPath = null!;
-        private static bool IsCI => Environment.GetEnvironmentVariable("CI") == "true" || 
+        private static bool IsCI => Environment.GetEnvironmentVariable("CI") == "true" ||
                                     Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
 
         [TestInitialize]
@@ -34,7 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 return;
             }
-            
+
             _testOutputPath = Path.Combine(Path.GetTempPath(), "NeoNewCommandTest_" + Guid.NewGuid().ToString());
             Directory.CreateDirectory(_testOutputPath);
 
