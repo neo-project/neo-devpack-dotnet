@@ -4,6 +4,7 @@ on:
   push:
     branches: [master]
   pull_request:
+  workflow_dispatch:
 
 env:
   DOTNET_VERSION: 9.0.300
@@ -223,6 +224,110 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Build nccs compiler for multiple platforms
+      if: steps.check_tag.outputs.statusCode == '404'
+      run: |
+        # Build for different platforms
+        echo "Building nccs for Windows x64..."
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-win-x64
+        
+        echo "Building nccs for Linux x64..."
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-linux-x64
+        
+        echo "Building nccs for macOS x64..."
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-x64
+        
+        echo "Building nccs for macOS ARM64..."
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-arm64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-arm64
+        
+        # Rename executables to have consistent naming
+        # Windows: Neo.Compiler.CSharp.exe -> nccs.exe
+        if [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ]; then
+          mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
+        fi
+        # Linux: Neo.Compiler.CSharp -> nccs
+        if [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ]; then
+          mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
+        fi
+        # macOS x64: Neo.Compiler.CSharp -> nccs
+        if [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ]; then
+          mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
+        fi
+        # macOS ARM64: Neo.Compiler.CSharp -> nccs
+        if [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ]; then
+          mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
+        fi
+        
+        # Create zip archives
+        echo "Creating archives..."
+        cd nccs-win-x64 && zip -r ../nccs-win-x64.zip * && cd ..
+        cd nccs-linux-x64 && tar -czf ../nccs-linux-x64.tar.gz * && cd ..
+        cd nccs-osx-x64 && tar -czf ../nccs-osx-x64.tar.gz * && cd ..
+        cd nccs-osx-arm64 && tar -czf ../nccs-osx-arm64.tar.gz * && cd ..
+        
+        # Generate checksums
+        echo "Generating checksums..."
+        sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
+        
+        # Display checksums for verification
+        echo "Checksums:"
+        cat checksums.txt
+    - name: Upload nccs binaries to release
+      if: steps.check_tag.outputs.statusCode == '404' && steps.create_release.outputs.upload_url != ''
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          const assets = [
+            { name: 'nccs-win-x64.zip', path: './nccs-win-x64.zip', contentType: 'application/zip' },
+            { name: 'nccs-linux-x64.tar.gz', path: './nccs-linux-x64.tar.gz', contentType: 'application/gzip' },
+            { name: 'nccs-osx-x64.tar.gz', path: './nccs-osx-x64.tar.gz', contentType: 'application/gzip' },
+            { name: 'nccs-osx-arm64.tar.gz', path: './nccs-osx-arm64.tar.gz', contentType: 'application/gzip' },
+            { name: 'checksums.txt', path: './checksums.txt', contentType: 'text/plain' }
+          ];
+          
+          let uploadedCount = 0;
+          const errors = [];
+          
+          for (const asset of assets) {
+            try {
+              if (!fs.existsSync(asset.path)) {
+                console.error(`File not found: ${asset.path}`);
+                errors.push(`File not found: ${asset.path}`);
+                continue;
+              }
+              
+              console.log(`Uploading ${asset.name}...`);
+              const data = fs.readFileSync(asset.path);
+              const uploadUrl = '${{ steps.create_release.outputs.upload_url }}'.replace('{?name,label}', `?name=${asset.name}`);
+              
+              const response = await github.request({
+                method: 'POST',
+                url: uploadUrl,
+                headers: {
+                  'content-type': asset.contentType,
+                  'content-length': data.length
+                },
+                data: data
+              });
+              
+              console.log(`Successfully uploaded ${asset.name}`);
+              uploadedCount++;
+            } catch (error) {
+              console.error(`Failed to upload ${asset.name}: ${error.message}`);
+              errors.push(`Failed to upload ${asset.name}: ${error.message}`);
+            }
+          }
+          
+          console.log(`Upload summary: ${uploadedCount}/${assets.length} files uploaded successfully`);
+          
+          if (errors.length > 0) {
+            console.error('Errors encountered:');
+            errors.forEach(err => console.error(`  - ${err}`));
+            throw new Error(`Failed to upload some assets. ${uploadedCount}/${assets.length} succeeded.`);
+          }
     - name: Run ordered release script
       if: steps.check_tag.outputs.statusCode == '404'
       run: |
