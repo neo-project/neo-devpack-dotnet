@@ -518,6 +518,7 @@ namespace {{Namespace}}
         {
             return @"using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Interfaces;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
@@ -532,7 +533,7 @@ namespace {{Namespace}}
     [ContractVersion(""{{Version}}"")]
     [ContractSourceCode(""https://github.com/{{Author}}/{{ProjectName}}"")]
     [ContractPermission(Permission.Any, Method.Any)]
-    public class {{ClassName}} : SmartContract
+    public class {{ClassName}} : SmartContract, IOracle
     {
         private const byte Prefix_RequestId = 0x01;
         private const byte Prefix_Response = 0x02;
@@ -543,8 +544,8 @@ namespace {{Namespace}}
         }
 
         // This method is called by the Oracle service when a response is received
-        // The method name must match the callback parameter in RequestData
-        public static void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode responseCode, string result)
+        // Implements the IOracle interface
+        public void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode responseCode, string result)
         {
             if (responseCode != OracleResponseCode.Success)
             {
