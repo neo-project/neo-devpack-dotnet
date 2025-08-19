@@ -134,7 +134,11 @@ namespace Neo.Compiler
                 Console.WriteLine();
 
                 // Prepare additional replacements
-                var additionalReplacements = new Dictionary<string, string>();
+                var additionalReplacements = new Dictionary<string, string>
+                {
+                    { "{{Author}}", author },
+                    { "{{Email}}", email }
+                };
                 if (!string.IsNullOrEmpty(description))
                 {
                     additionalReplacements["{{Description}}"] = description;
