@@ -217,7 +217,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Generate the contract
             var generateResult = RunCompilerCommand($"new {contractName} -t Basic --output \"{_testOutputPath}\"");
-            Assert.IsTrue(generateResult.Contains($"Successfully created Basic contract"));
+            Assert.IsTrue(generateResult.Contains("Successfully created Basic contract"));
 
             // Try to compile the generated contract
             string projectPath = Path.Combine(_testOutputPath, contractName, $"{contractName}.csproj");
