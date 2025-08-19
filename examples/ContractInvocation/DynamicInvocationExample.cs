@@ -69,7 +69,7 @@ namespace Examples.ContractInvocation
             // Look up contract from registry
             var contractHash = GetRegisteredContract(identifier, network);
             if (contractHash == null)
-                throw new ContractNotResolvedException(identifier, $"Contract not found in registry for {network}");
+                throw new ContractNotResolvedException($"Contract '{identifier}' not found in registry for {network}");
 
             // Try to get from factory first (may already be registered)
             var contractRef = ContractInvocationFactory.GetContractReference(identifier);
@@ -194,7 +194,8 @@ namespace Examples.ContractInvocation
                 throw new Exception($"Old contract {oldIdentifier} not found");
 
             // Deploy new contract
-            var newContract = (UInt160)ContractManagement.Deploy(newNef, newManifest);
+            var deployedContract = ContractManagement.Deploy((ByteString)newNef, newManifest);
+            var newContract = deployedContract.Hash;
 
             // Migrate data (example: transfer ownership/funds)
             try
@@ -279,7 +280,9 @@ namespace Examples.ContractInvocation
 
         private static byte[] CreateRegistryKey(string identifier, string network)
         {
-            return REGISTRY_PREFIX + identifier + network;
+            // Concatenate the ByteStrings first, then convert to byte array
+            ByteString key = REGISTRY_PREFIX + identifier + network;
+            return (byte[])key;
         }
 
         private static bool IsOwner()
@@ -336,7 +339,7 @@ namespace Examples.ContractInvocation
             var key = CONTRACT_VERSION_PREFIX.Concat(contractHash);
             var stored = Storage.Get(Storage.CurrentContext, key);
             if (stored == null || stored.Length == 0) return 0;
-            return stored.ToInteger();
+            return (int)(BigInteger)(ByteString)stored;
         }
 
         private static void MarkContractDeprecated(string identifier)

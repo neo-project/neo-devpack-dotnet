@@ -100,7 +100,7 @@ namespace Examples.ContractInvocation
         {
             // Check if development contract is available
             if (DevelopmentContract == null)
-                throw new ContractNotResolvedException("MyDevelopmentContract", "Development contract not configured");
+                throw new ContractNotResolvedException("Development contract 'MyDevelopmentContract' not configured");
 
             // Development contracts might not be deployed yet
             if (!DevelopmentContract.IsResolved)
@@ -125,16 +125,16 @@ namespace Examples.ContractInvocation
             try
             {
                 // Deploy the contract
-                var deployedHash = (UInt160)ContractManagement.Deploy(nefFile, manifest);
+                var deployedContract = ContractManagement.Deploy((ByteString)nefFile, manifest);
                 
-                if (deployedHash == null || deployedHash == UInt160.Zero)
+                if (deployedContract == null || deployedContract.Hash == UInt160.Zero)
                     throw new Exception("Failed to deploy contract");
 
                 // Log deployment for tracking
-                Runtime.Log($"Contract deployed at: {deployedHash}");
+                Runtime.Log($"Contract deployed at: {deployedContract.Hash}");
 
                 // Now call a method on the newly deployed contract
-                return Contract.Call(deployedHash, "initialize", CallFlags.All);
+                return Contract.Call(deployedContract.Hash, "initialize", CallFlags.All);
             }
             catch (Exception ex)
             {
@@ -203,7 +203,7 @@ namespace Examples.ContractInvocation
             var tokenContract = SelectContract(tokenId);
             
             if (!tokenContract.IsResolved)
-                throw new ContractNotResolvedException(tokenId, "Token contract not available");
+                throw new ContractNotResolvedException($"Token contract '{tokenId}' not available");
 
             // Use a generic NEP-17 proxy pattern
             var proxy = new Nep17Proxy(tokenContract);
@@ -273,12 +273,12 @@ namespace Examples.ContractInvocation
         {
             return contractId switch
             {
-                "NEO" => NeoContract ?? throw new ContractNotResolvedException("NEO"),
-                "GAS" => GasContract ?? throw new ContractNotResolvedException("GAS"),
-                "CUSTOM" => CustomTokenContract ?? throw new ContractNotResolvedException("CustomToken"),
-                "DEV" => DevelopmentContract ?? throw new ContractNotResolvedException("MyDevelopmentContract"),
-                "GOV" => GovernanceContract ?? throw new ContractNotResolvedException("MyGovernanceContract"),
-                "ORACLE" => OracleContract ?? throw new ContractNotResolvedException("PriceOracle"),
+                "NEO" => NeoContract ?? throw new ContractNotResolvedException("Contract 'NEO' not resolved"),
+                "GAS" => GasContract ?? throw new ContractNotResolvedException("Contract 'GAS' not resolved"),
+                "CUSTOM" => CustomTokenContract ?? throw new ContractNotResolvedException("Contract 'CustomToken' not resolved"),
+                "DEV" => DevelopmentContract ?? throw new ContractNotResolvedException("Contract 'MyDevelopmentContract' not resolved"),
+                "GOV" => GovernanceContract ?? throw new ContractNotResolvedException("Contract 'MyGovernanceContract' not resolved"),
+                "ORACLE" => OracleContract ?? throw new ContractNotResolvedException("Contract 'PriceOracle' not resolved"),
                 _ => throw new ArgumentException($"Unknown contract ID: {contractId}")
             };
         }
@@ -330,31 +330,31 @@ namespace Examples.ContractInvocation
             {
             }
 
-            [ContractMethod("symbol", CallFlags.ReadOnly)]
+            [ContractMethod("symbol")]
             public string Symbol()
             {
                 return (string)InvokeReadOnly("symbol");
             }
 
-            [ContractMethod("decimals", CallFlags.ReadOnly)]
+            [ContractMethod("decimals")]
             public byte Decimals()
             {
                 return (byte)InvokeReadOnly("decimals");
             }
 
-            [ContractMethod("totalSupply", CallFlags.ReadOnly)]
+            [ContractMethod("totalSupply")]
             public BigInteger TotalSupply()
             {
                 return (BigInteger)InvokeReadOnly("totalSupply");
             }
 
-            [ContractMethod("balanceOf", CallFlags.ReadOnly)]
+            [ContractMethod("balanceOf")]
             public BigInteger BalanceOf(UInt160 account)
             {
                 return (BigInteger)InvokeReadOnly("balanceOf", account);
             }
 
-            [ContractMethod("transfer", CallFlags.All)]
+            [ContractMethod("transfer")]
             public bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data)
             {
                 return (bool)Contract.Call(ContractReference.ResolvedHash!, "transfer", CallFlags.All, from, to, amount, data);
