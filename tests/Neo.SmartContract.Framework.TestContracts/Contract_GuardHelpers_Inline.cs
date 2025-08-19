@@ -157,7 +157,7 @@ namespace Neo.SmartContract.Framework.TestContracts
             RequireValidAddress(to);
             RequirePositive(amount);
             RequireWitness(from, "NO_WITNESS");
-            
+
             // Simulate transfer logic
             return true;
         }
