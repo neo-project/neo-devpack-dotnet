@@ -93,7 +93,7 @@ jobs:
         file: ${{ github.workspace }}/coverage/lcov.info
 
   PublishPackage:
-    if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
+    if: github.ref == 'refs/heads/master'
     needs: Test
     runs-on: ubuntu-latest
     steps:
@@ -190,7 +190,7 @@ jobs:
             --no-service-endpoint;
 
   Release:
-    if: github.ref == 'refs/heads/master' && startsWith(github.repository, 'neo-project/')
+    if: github.ref == 'refs/heads/master'
     needs: Test
     runs-on: ubuntu-latest
     steps:
