@@ -21,6 +21,7 @@ namespace Neo.SmartContract.Framework.UnitTests
     {
         // Override to disable gas consumption testing since our values may differ
         protected override bool TestGasConsume { get; set; } = false;
+
         [TestMethod]
         public void TestRequire()
         {
