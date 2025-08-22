@@ -535,8 +535,8 @@ namespace {{Namespace}}
     [ContractPermission(Permission.Any, Method.Any)]
     public class {{ClassName}} : SmartContract, IOracle
     {
-        private const byte Prefix_RequestId = 0x01;
-        private const byte Prefix_Response = 0x02;
+        private const byte Prefix_RequestId = 0xff;
+        private const byte Prefix_Response = 0xfe;
 
         public static void RequestData(string url, string filter, string callback, object userData, long gasForResponse)
         {
