@@ -69,7 +69,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireNonNegative(BigInteger amount)
         {
             if (amount < 0)
-                throw new Exception("NEGATIVE");
+                throw new Exception("Negative");
         }
 
         /// <summary>
