@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireNotNull(object? value, string paramName)
         {
             if (value is null)
-                throw new Exception($"NULL:{paramName}");
+                throw new Exception($"null:{paramName}");
         }
 
         /// <summary>
