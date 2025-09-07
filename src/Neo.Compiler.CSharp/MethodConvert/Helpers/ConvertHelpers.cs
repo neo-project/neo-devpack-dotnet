@@ -38,6 +38,28 @@ internal partial class MethodConvert
                                                                   && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
             return false;
 
+        // Validation 1: Check for ref/out parameters
+        if (symbol.Parameters.Any(p => p.RefKind != RefKind.None))
+        {
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, 
+                $"Cannot inline method '{symbol.Name}': Methods with ref/out parameters cannot be inlined.");
+        }
+
+        // Validation 2: Check for recursive calls
+        if (IsRecursiveMethod(syntax, symbol))
+        {
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, 
+                $"Cannot inline method '{symbol.Name}': Recursive methods cannot be inlined.");
+        }
+
+        // Validation 3: Check method size (optional warning for large methods)
+        var methodSize = EstimateMethodSize(syntax);
+        if (methodSize > 50) // Threshold for "large" methods
+        {
+            // This is a warning, not an error - we still allow it but warn the user
+            System.Console.WriteLine($"Warning: Inlining large method '{symbol.Name}' ({methodSize} estimated instructions). This may increase contract size significantly.");
+        }
+
         _internalInline = true;
 
         using (InsertSequencePoint(syntax))
@@ -99,6 +121,79 @@ internal partial class MethodConvert
     {
         if (Symbol.Name.StartsWith("_") && !Symbol.IsInternalCoreMethod())
             throw new CompilationException(Symbol, DiagnosticId.InvalidMethodName, $"The method name {Symbol.Name} is not valid.");
+    }
+
+    /// <summary>
+    /// Checks if a method contains recursive calls to itself
+    /// </summary>
+    private bool IsRecursiveMethod(BaseMethodDeclarationSyntax syntax, IMethodSymbol symbol)
+    {
+        // Check method body for recursive calls
+        if (syntax.Body != null)
+        {
+            var invocations = syntax.Body.DescendantNodes().OfType<InvocationExpressionSyntax>();
+            foreach (var invocation in invocations)
+            {
+                if (invocation.Expression is IdentifierNameSyntax identifier && 
+                    identifier.Identifier.Text == symbol.Name)
+                {
+                    return true;
+                }
+                if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
+                    memberAccess.Name.Identifier.Text == symbol.Name)
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Check expression body for recursive calls
+        if (syntax.ExpressionBody != null)
+        {
+            var invocations = syntax.ExpressionBody.DescendantNodes().OfType<InvocationExpressionSyntax>();
+            foreach (var invocation in invocations)
+            {
+                if (invocation.Expression is IdentifierNameSyntax identifier && 
+                    identifier.Identifier.Text == symbol.Name)
+                {
+                    return true;
+                }
+                if (invocation.Expression is MemberAccessExpressionSyntax memberAccess &&
+                    memberAccess.Name.Identifier.Text == symbol.Name)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Estimates the size of a method in terms of approximate instruction count
+    /// </summary>
+    private int EstimateMethodSize(BaseMethodDeclarationSyntax syntax)
+    {
+        int size = 0;
+
+        // Count nodes in method body
+        if (syntax.Body != null)
+        {
+            // Each statement roughly translates to 1-3 instructions
+            size += syntax.Body.Statements.Count * 2;
+            
+            // Each expression adds complexity
+            size += syntax.Body.DescendantNodes().OfType<ExpressionSyntax>().Count();
+        }
+
+        // Count nodes in expression body
+        if (syntax.ExpressionBody != null)
+        {
+            // Expression bodies are typically smaller
+            size += syntax.ExpressionBody.DescendantNodes().Count();
+        }
+
+        return size;
     }
 
     private void InsertInitializationInstructions()
