@@ -12,7 +12,6 @@
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace Neo.SmartContract.Framework.Helpers
 {
@@ -26,10 +25,10 @@ namespace Neo.SmartContract.Framework.Helpers
         /// </summary>
         /// <param name="condition">The condition to check</param>
         /// <param name="errorCode">Short error code to reduce GAS costs</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Require(bool condition, string errorCode)
         {
-            ExecutionEngine.Assert(condition, errorCode);
+            if (!condition)
+                throw new Exception(errorCode);
         }
 
         /// <summary>
@@ -37,20 +36,19 @@ namespace Neo.SmartContract.Framework.Helpers
         /// </summary>
         /// <param name="condition">The postcondition to check</param>
         /// <param name="errorCode">Short error code to reduce GAS costs</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Ensure(bool condition, string errorCode)
         {
-            ExecutionEngine.Assert(condition, $"POST:{errorCode}");
+            if (!condition)
+                throw new Exception($"POST:{errorCode}");
         }
 
         /// <summary>
         /// Reverts the transaction with the specified error code
         /// </summary>
         /// <param name="errorCode">Short error code to reduce GAS costs</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Revert(string errorCode)
         {
-            ExecutionEngine.Abort(errorCode);
+            throw new Exception(errorCode);
         }
 
         /// <summary>
@@ -58,40 +56,40 @@ namespace Neo.SmartContract.Framework.Helpers
         /// </summary>
         /// <param name="value">The value to check</param>
         /// <param name="paramName">The parameter name for error reporting</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireNotNull(object? value, string paramName)
         {
-            ExecutionEngine.Assert(value is not null, $"null:{paramName}");
+            if (value is null)
+                throw new Exception($"null:{paramName}");
         }
 
         /// <summary>
         /// Requires that an amount is non-negative
         /// </summary>
         /// <param name="amount">The amount to check</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireNonNegative(BigInteger amount)
         {
-            ExecutionEngine.Assert(amount >= 0, "Negative");
+            if (amount < 0)
+                throw new Exception("Negative");
         }
 
         /// <summary>
         /// Requires that an amount is positive (greater than zero)
         /// </summary>
         /// <param name="amount">The amount to check</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequirePositive(BigInteger amount)
         {
-            ExecutionEngine.Assert(amount > 0, "NOT_POSITIVE");
+            if (amount <= 0)
+                throw new Exception("NOT_POSITIVE");
         }
 
         /// <summary>
         /// Requires that a UInt160 address is valid (not zero)
         /// </summary>
         /// <param name="address">The address to check</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireValidAddress(UInt160 address)
         {
-            ExecutionEngine.Assert(address is not null && address != UInt160.Zero, "INVALID_ADDR");
+            if (address is null || address == UInt160.Zero)
+                throw new Exception("INVALID_ADDR");
         }
 
         /// <summary>
@@ -99,10 +97,10 @@ namespace Neo.SmartContract.Framework.Helpers
         /// </summary>
         /// <param name="account">The account to check witness for</param>
         /// <param name="errorCode">Optional custom error code</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireWitness(UInt160 account, string errorCode = "NO_WITNESS")
         {
-            ExecutionEngine.Assert(Runtime.CheckWitness(account), errorCode);
+            if (!Runtime.CheckWitness(account))
+                throw new Exception(errorCode);
         }
 
         /// <summary>
@@ -111,10 +109,10 @@ namespace Neo.SmartContract.Framework.Helpers
         /// <param name="value">The value to check</param>
         /// <param name="min">Minimum allowed value (inclusive)</param>
         /// <param name="max">Maximum allowed value (inclusive)</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireInRange(BigInteger value, BigInteger min, BigInteger max)
         {
-            ExecutionEngine.Assert(value >= min && value <= max, "OUT_OF_RANGE");
+            if (value < min || value > max)
+                throw new Exception("OUT_OF_RANGE");
         }
 
         /// <summary>
@@ -123,20 +121,20 @@ namespace Neo.SmartContract.Framework.Helpers
         /// <param name="actual">The actual value</param>
         /// <param name="expected">The expected value</param>
         /// <param name="errorCode">Optional custom error code</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireEquals(object actual, object expected, string errorCode = "NOT_EQUAL")
         {
-            ExecutionEngine.Assert(actual.Equals(expected), errorCode);
+            if (!actual.Equals(expected))
+                throw new Exception(errorCode);
         }
 
         /// <summary>
         /// Requires that the calling script hash matches the expected contract
         /// </summary>
         /// <param name="expectedCaller">The expected calling script hash</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireCaller(UInt160 expectedCaller)
         {
-            ExecutionEngine.Assert(Runtime.CallingScriptHash == expectedCaller, "INVALID_CALLER");
+            if (Runtime.CallingScriptHash != expectedCaller)
+                throw new Exception("INVALID_CALLER");
         }
 
         /// <summary>
@@ -144,10 +142,10 @@ namespace Neo.SmartContract.Framework.Helpers
         /// </summary>
         /// <param name="value">The string to check</param>
         /// <param name="paramName">The parameter name for error reporting</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireNotEmpty(string value, string paramName)
         {
-            ExecutionEngine.Assert(!string.IsNullOrEmpty(value), $"EMPTY:{paramName}");
+            if (string.IsNullOrEmpty(value))
+                throw new Exception($"EMPTY:{paramName}");
         }
     }
 }
