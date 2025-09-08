@@ -27,8 +27,7 @@ namespace Neo.SmartContract.Framework.Helpers
         /// <param name="errorCode">Short error code to reduce GAS costs</param>
         public static void Require(bool condition, string errorCode)
         {
-            if (!condition)
-                throw new Exception(errorCode);
+            ExecutionEngine.Assert(condition, errorCode);
         }
 
         /// <summary>
@@ -38,8 +37,7 @@ namespace Neo.SmartContract.Framework.Helpers
         /// <param name="errorCode">Short error code to reduce GAS costs</param>
         public static void Ensure(bool condition, string errorCode)
         {
-            if (!condition)
-                throw new Exception($"POST:{errorCode}");
+            ExecutionEngine.Assert(condition, errorCode);
         }
 
         /// <summary>
@@ -48,7 +46,7 @@ namespace Neo.SmartContract.Framework.Helpers
         /// <param name="errorCode">Short error code to reduce GAS costs</param>
         public static void Revert(string errorCode)
         {
-            throw new Exception(errorCode);
+            ExecutionEngine.Abort(errorCode);
         }
 
         /// <summary>
@@ -59,7 +57,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireNotNull(object? value, string paramName)
         {
             if (value is null)
-                throw new Exception($"null:{paramName}");
+                ExecutionEngine.Abort($"null:{paramName}");
         }
 
         /// <summary>
@@ -69,7 +67,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireNonNegative(BigInteger amount)
         {
             if (amount < 0)
-                throw new Exception("Negative");
+                ExecutionEngine.Abort("Negative");
         }
 
         /// <summary>
@@ -79,7 +77,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequirePositive(BigInteger amount)
         {
             if (amount <= 0)
-                throw new Exception("NOT_POSITIVE");
+                ExecutionEngine.Abort("NOT_POSITIVE");
         }
 
         /// <summary>
@@ -89,7 +87,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireValidAddress(UInt160 address)
         {
             if (address is null || address == UInt160.Zero)
-                throw new Exception("INVALID_ADDR");
+                ExecutionEngine.Abort("INVALID_ADDR");
         }
 
         /// <summary>
@@ -100,7 +98,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireWitness(UInt160 account, string errorCode = "NO_WITNESS")
         {
             if (!Runtime.CheckWitness(account))
-                throw new Exception(errorCode);
+                ExecutionEngine.Abort(errorCode);
         }
 
         /// <summary>
@@ -112,7 +110,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireInRange(BigInteger value, BigInteger min, BigInteger max)
         {
             if (value < min || value > max)
-                throw new Exception("OUT_OF_RANGE");
+                ExecutionEngine.Abort("OUT_OF_RANGE");
         }
 
         /// <summary>
@@ -124,7 +122,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireEquals(object actual, object expected, string errorCode = "NOT_EQUAL")
         {
             if (!actual.Equals(expected))
-                throw new Exception(errorCode);
+                ExecutionEngine.Abort(errorCode);
         }
 
         /// <summary>
@@ -134,7 +132,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireCaller(UInt160 expectedCaller)
         {
             if (Runtime.CallingScriptHash != expectedCaller)
-                throw new Exception("INVALID_CALLER");
+                ExecutionEngine.Abort("INVALID_CALLER");
         }
 
         /// <summary>
@@ -145,7 +143,7 @@ namespace Neo.SmartContract.Framework.Helpers
         public static void RequireNotEmpty(string value, string paramName)
         {
             if (string.IsNullOrEmpty(value))
-                throw new Exception($"EMPTY:{paramName}");
+                ExecutionEngine.Abort($"EMPTY:{paramName}");
         }
     }
 }
