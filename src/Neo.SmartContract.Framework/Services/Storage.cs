@@ -34,6 +34,8 @@ namespace Neo.SmartContract.Framework.Services
             get;
         }
 
+        #region Get
+
         /// <summary>
         /// Returns the value corresponding to the given key for Storage context (faster: generates opcode directly)
         /// </summary>
@@ -45,6 +47,22 @@ namespace Neo.SmartContract.Framework.Services
         /// </summary>
         [Syscall("System.Storage.Get")]
         public static extern ByteString? Get(StorageContext context, byte[] key);
+
+        /// <summary>
+        /// Returns the value corresponding to the given key for Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Get")]
+        public static extern ByteString? Get(ByteString key);
+
+        /// <summary>
+        /// Returns the value corresponding to the given key for Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Get")]
+        public static extern ByteString? Get(byte[] key);
+
+        #endregion
+
+        #region Put
 
         /// <summary>
         /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
@@ -77,6 +95,40 @@ namespace Neo.SmartContract.Framework.Services
         public static extern void Put(StorageContext context, byte[] key, BigInteger value);
 
         /// <summary>
+        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Put")]
+        public static extern void Put(ByteString key, ByteString value);
+
+        /// <summary>
+        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Put")]
+        public static extern void Put(byte[] key, ByteString value);
+
+        /// <summary>
+        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Put")]
+        public static extern void Put(byte[] key, byte[] value);
+
+        /// <summary>
+        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Put")]
+        public static extern void Put(ByteString key, BigInteger value);
+
+        /// <summary>
+        /// Writes the key/value pair for the given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Put")]
+        public static extern void Put(byte[] key, BigInteger value);
+
+        #endregion
+
+        #region Delete
+
+        /// <summary>
         /// Deletes the entry from the given Storage context (faster: generates opcode directly)
         /// </summary>
         [Syscall("System.Storage.Delete")]
@@ -87,6 +139,22 @@ namespace Neo.SmartContract.Framework.Services
         /// </summary>
         [Syscall("System.Storage.Delete")]
         public static extern void Delete(StorageContext context, byte[] key);
+
+        /// <summary>
+        /// Deletes the entry from the given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Delete")]
+        public static extern void Delete(ByteString key);
+
+        /// <summary>
+        /// Deletes the entry from the given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Delete")]
+        public static extern void Delete(byte[] key);
+
+        #endregion
+
+        #region Find
 
         /// <summary>
         /// Returns a byte[] to byte[] iterator for a byte[] prefix on a given Storage context (faster: generates opcode directly)
@@ -100,18 +168,18 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Storage.Find")]
         public static extern Iterator Find(StorageContext context, byte[] prefix, FindOptions options = FindOptions.None);
 
-        #region Interface with default Context
-        public static ByteString? Get(ByteString key) => Get(CurrentReadOnlyContext, key);
-        public static ByteString? Get(byte[] key) => Get(CurrentReadOnlyContext, key);
-        public static void Put(ByteString key, ByteString value) => Put(CurrentContext, key, value);
-        public static void Put(byte[] key, ByteString value) => Put(CurrentContext, key, value);
-        public static void Put(byte[] key, byte[] value) => Put(CurrentContext, key, value);
-        public static void Put(ByteString key, BigInteger value) => Put(CurrentContext, key, value);
-        public static void Put(byte[] key, BigInteger value) => Put(CurrentContext, key, value);
-        public static void Delete(ByteString key) => Delete(CurrentContext, key);
-        public static void Delete(byte[] key) => Delete(CurrentContext, key);
-        public static Iterator Find(ByteString prefix, FindOptions options = FindOptions.None) => Find(CurrentReadOnlyContext, prefix, options);
-        public static Iterator Find(byte[] prefix, FindOptions options = FindOptions.None) => Find(CurrentReadOnlyContext, prefix, options);
+        /// <summary>
+        /// Returns a byte[] to byte[] iterator for a byte[] prefix on a given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Find")]
+        public static extern Iterator Find(ByteString prefix, FindOptions options = FindOptions.None);
+
+        /// <summary>
+        /// Returns a byte[] to byte[] iterator for a byte[] prefix on a given Storage context (faster: generates opcode directly)
+        /// </summary>
+        [Syscall("System.Storage.Local.Find")]
+        public static extern Iterator Find(byte[] prefix, FindOptions options = FindOptions.None);
+
         #endregion
     }
 }
