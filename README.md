@@ -323,6 +323,8 @@ Each example comes with corresponding unit tests that demonstrate how to properl
 
 ## Contract Deployment
 
+This PR implements deployment from compiled artifacts (.nef + manifest) and basic RPC interactions (call, invoke, GAS balance, contract existence). Deploying from source projects (compilation) and multi-contract manifest deployment are not included.
+
 The `Neo.SmartContract.Deploy` package provides a streamlined way to deploy contracts to the NEO blockchain. It supports deployment from source code, compiled artifacts, and deployment manifests.
 
 ### Installation
@@ -355,18 +357,24 @@ else
 }
 ```
 
-### Advanced Deployment Options
+### Artifact Deployment
 
 ```csharp
 // Deploy with initialization parameters
 var initParams = new object[] { "param1", 42, true };
 var result = await deployment.DeployAsync("MyContract.cs", initParams);
 
-// Deploy from compiled artifacts
+// Deploy from compiled artifacts (.nef + manifest)
 var artifactsResult = await deployment.DeployArtifactsAsync(
-    "MyContract.nef", 
-    "MyContract.manifest.json", 
-    initParams);
+    "MyContract.nef",
+    "MyContract.manifest.json",
+    initParams,
+    waitForConfirmation: true);
+
+Console.WriteLine($"Tx: {artifactsResult.TransactionHash}");
+Console.WriteLine($"Expected Contract Hash: {artifactsResult.ContractHash}");
+
+Example app: See `examples/DeploymentArtifactsDemo` for a minimal console that deploys from NEF + manifest and performs read-only calls.
 
 // Deploy multiple contracts from manifest
 var manifestResult = await deployment.DeployFromManifestAsync("deployment-manifest.json");

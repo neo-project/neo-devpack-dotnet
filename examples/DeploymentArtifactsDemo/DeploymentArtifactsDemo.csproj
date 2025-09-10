@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DisableExamplesPreBuild>true</DisableExamplesPreBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Remove references inherited from examples/Directory.Build.props that are only for contract projects -->
+    <ProjectReference Remove="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    <ProjectReference Remove="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Neo.SmartContract.Deploy\Neo.SmartContract.Deploy.csproj" />
+  </ItemGroup>
+
+</Project>
