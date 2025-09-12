@@ -69,7 +69,7 @@ internal partial class MethodConvert
                 AddInstruction(OpCode.SUB);
                 break;
             default:
-                throw new CompilationException(expression.OperatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {expression.OperatorToken}");
+                throw CompilationException.UnsupportedSyntax(expression.OperatorToken, $"Prefix unary operator '{expression.OperatorToken.ValueText}' is not supported. Supported operators are: +, -, ~, !, ++, --, and ^.");
         }
     }
 
@@ -87,7 +87,7 @@ internal partial class MethodConvert
                 ConvertMemberAccessPreIncrementOrDecrementExpression(model, expression.OperatorToken, operand);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported postfix unary expression: {expression}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Prefix increment/decrement can only be applied to element access, identifiers, or member access expressions. Found: {expression.Operand.GetType().Name}");
         }
     }
 
@@ -140,7 +140,7 @@ internal partial class MethodConvert
                 ConvertPropertyIdentifierNamePreIncrementOrDecrementExpression(model, operatorToken, property);
                 break;
             default:
-                throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(operand, $"Prefix increment/decrement cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -217,7 +217,7 @@ internal partial class MethodConvert
                 ConvertPropertyMemberAccessPreIncrementOrDecrementExpression(model, operatorToken, operand, property);
                 break;
             default:
-                throw new CompilationException(operand, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(operand, $"Prefix increment/decrement cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -272,7 +272,7 @@ internal partial class MethodConvert
         {
             "++" => OpCode.INC,
             "--" => OpCode.DEC,
-            _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
+            _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Invalid increment/decrement operator '{operatorToken.ValueText}'. Only '++' and '--' are supported.")
         });
         if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
     }

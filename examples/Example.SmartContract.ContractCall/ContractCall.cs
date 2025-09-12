@@ -32,7 +32,7 @@ public class SampleContractCall : SmartContract
         if (!data.Equals(123)) return;
         UInt160 @this = Runtime.ExecutingScriptHash;
         UInt160 tokenHash = Runtime.CallingScriptHash;
-        BigInteger balanceOf = (BigInteger)Contract.Call(tokenHash, "balanceOf", CallFlags.All, @this);
+        BigInteger balanceOf = (BigInteger)Contract.Call(tokenHash, "balanceOf", CallFlags.ReadOnly, @this);
         Contract.Call(DummyTarget, "dummyMethod", CallFlags.All, @this, tokenHash, balanceOf);
     }
 }

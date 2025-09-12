@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
         public static extern BigInteger BalanceOf(UInt160 account);
-        public static extern bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
+        public static extern bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null);
 
         public static extern BigInteger GetGasPerBlock();
         public static extern long GetRegisterPrice();
@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Framework.Native
 
         public static extern bool RegisterCandidate(ECPoint pubkey);
         public static extern bool UnRegisterCandidate(ECPoint pubkey);
-        public static extern bool Vote(UInt160 account, ECPoint voteTo);
+        public static extern bool Vote(UInt160 account, ECPoint? voteTo);
         public static bool Unvote(UInt160 account) => Vote(account, null);
         public static extern (ECPoint, BigInteger)[] GetCandidates();
         public static extern Iterator<(ECPoint, BigInteger)> GetAllCandidates();

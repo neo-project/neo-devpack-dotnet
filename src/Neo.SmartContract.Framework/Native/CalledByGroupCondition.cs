@@ -13,6 +13,6 @@ namespace Neo.SmartContract.Framework.Native
 {
     public class CalledByGroupCondition : WitnessCondition
     {
-        public ECPoint Group;
+        public ECPoint Group = null!;
     }
 }

@@ -69,6 +69,11 @@ namespace Neo.SmartContract.Testing.Native
         public StdLib StdLib { get; }
 
         /// <summary>
+        /// Notary
+        /// </StdLib>
+        public Notary Notary { get; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="engine">Engine</param>
@@ -85,6 +90,7 @@ namespace Neo.SmartContract.Testing.Native
             Policy = _engine.FromHash<Policy>(Neo.SmartContract.Native.NativeContract.Policy.Hash, Neo.SmartContract.Native.NativeContract.Policy.Id);
             RoleManagement = _engine.FromHash<RoleManagement>(Neo.SmartContract.Native.NativeContract.RoleManagement.Hash, Neo.SmartContract.Native.NativeContract.RoleManagement.Id);
             StdLib = _engine.FromHash<StdLib>(Neo.SmartContract.Native.NativeContract.StdLib.Hash, Neo.SmartContract.Native.NativeContract.StdLib.Id);
+            Notary = _engine.FromHash<Notary>(Neo.SmartContract.Native.NativeContract.Notary.Hash, Neo.SmartContract.Native.NativeContract.Notary.Id);
         }
 
         /// <summary>
@@ -97,11 +103,6 @@ namespace Neo.SmartContract.Testing.Native
             _engine.Transaction.Script = Array.Empty<byte>(); // Store the script in the current transaction
 
             var genesis = NeoSystem.CreateGenesisBlock(_engine.ProtocolSettings);
-
-            // Attach to static event
-
-            ApplicationEngine.Log += _engine.ApplicationEngineLog;
-            ApplicationEngine.Notify += _engine.ApplicationEngineNotify;
 
             // Process native contracts
 
@@ -121,8 +122,13 @@ namespace Neo.SmartContract.Testing.Native
                 DataCache clonedSnapshot = _engine.Storage.Snapshot.CloneCache();
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, genesis, clonedSnapshot, genesis))
                 {
+                    // Attach to static event
+
+                    engine.Log += _engine.ApplicationEngineLog;
+                    engine.Notify += _engine.ApplicationEngineNotify;
+
                     engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                    if (method!.Invoke(native, [engine]) is not ContractTask task)
                         throw new Exception($"Error casting {native.Name}.OnPersist to ContractTask");
 
                     task.GetAwaiter().GetResult();
@@ -136,8 +142,13 @@ namespace Neo.SmartContract.Testing.Native
 
                 using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, genesis, clonedSnapshot, genesis))
                 {
+                    // Attach to static event
+
+                    engine.Log += _engine.ApplicationEngineLog;
+                    engine.Notify += _engine.ApplicationEngineNotify;
+
                     engine.LoadScript(Array.Empty<byte>());
-                    if (method!.Invoke(native, new object[] { engine }) is not ContractTask task)
+                    if (method!.Invoke(native, [engine]) is not ContractTask task)
                         throw new Exception($"Error casting {native.Name}.PostPersist to ContractTask");
 
                     task.GetAwaiter().GetResult();
@@ -152,11 +163,6 @@ namespace Neo.SmartContract.Testing.Native
             {
                 _engine.Storage.Commit();
             }
-
-            // Detach to static event
-
-            ApplicationEngine.Log -= _engine.ApplicationEngineLog;
-            ApplicationEngine.Notify -= _engine.ApplicationEngineNotify;
 
             return genesis;
         }

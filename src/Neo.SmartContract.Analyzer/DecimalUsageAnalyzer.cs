@@ -86,14 +86,13 @@ namespace Neo.SmartContract.Analyzer
 
         private static async Task<Document> ChangeToLong(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var root = await document.GetSyntaxRootAsync(cancellationToken);
-            var editor = new SyntaxEditor(root!, document.Project.Solution.Workspace);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             // Change the type to long
-            var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword));
-            editor.ReplaceNode(declaration.Type, newType);
+            var newType = SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword))
+                .WithTriviaFrom(declaration.Type);
+
+            var newDeclaration = declaration.WithType(newType);
 
             // Cast the initializer value to long if it's a decimal or double literal
             foreach (var variable in declaration.Variables)
@@ -103,12 +102,20 @@ namespace Neo.SmartContract.Analyzer
                     var newInitializer = SyntaxFactory.CastExpression(
                         SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.LongKeyword)),
                         literalExpression
+                    ).WithTriviaFrom(literalExpression);
+
+                    var newVariable = variable.WithInitializer(
+                        variable.Initializer.WithValue(newInitializer)
                     );
-                    editor.ReplaceNode(literalExpression, newInitializer);
+
+                    newDeclaration = newDeclaration.ReplaceNode(
+                        newDeclaration.Variables[declaration.Variables.IndexOf(variable)],
+                        newVariable
+                    );
                 }
             }
 
-            var newRoot = editor.GetChangedRoot();
+            var newRoot = root!.ReplaceNode(declaration, newDeclaration);
             return document.WithSyntaxRoot(newRoot);
         }
     }

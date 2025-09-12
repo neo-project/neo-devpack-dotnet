@@ -14,6 +14,6 @@ namespace Neo.SmartContract.Framework.Native
     public class WitnessRule
     {
         public WitnessRuleAction Action;
-        public WitnessCondition Condition;
+        public WitnessCondition Condition = null!;
     }
 }

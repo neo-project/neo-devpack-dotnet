@@ -13,6 +13,7 @@ using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.SmartContract.Framework.Services
 {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public class Contract
     {
         /// <summary>
@@ -41,7 +42,7 @@ namespace Neo.SmartContract.Framework.Services
         public readonly ContractManifest Manifest;
 
         [Syscall("System.Contract.Call")]
-        public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object[]? args);
+        public static extern object Call(UInt160 scriptHash, string method, CallFlags flags, params object?[]? args);
 
         [Syscall("System.Contract.GetCallFlags")]
         public static extern CallFlags GetCallFlags();
@@ -52,4 +53,5 @@ namespace Neo.SmartContract.Framework.Services
         [Syscall("System.Contract.CreateMultisigAccount")]
         public static extern UInt160 CreateMultisigAccount(int m, params ECPoint[] pubKey);
     }
+#pragma warning restore CS8618
 }
