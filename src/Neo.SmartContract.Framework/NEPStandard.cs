@@ -13,7 +13,7 @@ namespace Neo.SmartContract.Framework
 {
     public enum NepStandard
     {
-        //  URI Scheme for Native Assets and Supported Smart Contracts
+        // URI Scheme for Native Assets and Supported Smart Contracts
         // Defined at https://github.com/neo-project/proposals/blob/master/nep-9.mediawiki
         Nep9,
         // The NEP-11 standard is used for non-fungible tokens (NFTs).
