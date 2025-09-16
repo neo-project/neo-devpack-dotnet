@@ -106,8 +106,8 @@ namespace Neo.Compiler
                 { "{{ProjectName}}", projectName },
                 { "{{Namespace}}", projectName },
                 { "{{ClassName}}", projectName },
-                { "{{Author}}", Environment.UserName },
-                { "{{Email}}", $"{Environment.UserName}@example.com" },
+                { "{{Author}}", "Author" },
+                { "{{Email}}", $"email@example.com" },
                 { "{{Description}}", $"{projectName} Smart Contract" },
                 { "{{Version}}", "1.0.0" },
                 { "{{Year}}", DateTime.Now.Year.ToString() }

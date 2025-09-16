@@ -45,8 +45,8 @@ namespace Neo.Compiler
                 new Argument<string>("name", "The name of the new contract"),
                 new Option<ContractTemplate>(["-t", "--template"], () => ContractTemplate.Basic, "The template to use (Basic, NEP17, NEP11, Ownable, Oracle)"),
                 new Option<string>(["-o", "--output"], () => Environment.CurrentDirectory, "The output directory for the new contract"),
-                new Option<string>("--author", () => Environment.UserName, "The author of the contract"),
-                new Option<string>("--email", () => $"{Environment.UserName}@example.com", "The author's email"),
+                new Option<string>("--author", () => "Author", "The author of the contract"),
+                new Option<string>("--email", () => $"email@example.com", "The author's email"),
                 new Option<string>("--description", "A description of the contract"),
                 new Option<bool>("--force", "Overwrite existing files")
             };
