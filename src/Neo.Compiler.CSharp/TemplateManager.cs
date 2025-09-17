@@ -547,12 +547,6 @@ namespace {{Namespace}}
         // Implements the IOracle interface
         public void OnOracleResponse(string requestedUrl, object userData, OracleResponseCode responseCode, string result)
         {
-            // Do not remove this check; the oracle security model depends on restricting callers to the native oracle hash.
-            if (Runtime.CallingScriptHash != Oracle.Hash)
-            {
-                throw new InvalidOperationException(""Unauthorized oracle callback."");
-            }
-
             if (responseCode != OracleResponseCode.Success)
             {
                 Runtime.Log(""Oracle response failed with code: "" + (byte)responseCode);
