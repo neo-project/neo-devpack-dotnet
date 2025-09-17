@@ -257,3 +257,7 @@ paket-files/
 
 # MacOS
 **/.DS_Store
+
+# Development tool directories (exclude from repository)
+.claude-flow/
+.hive-mind/

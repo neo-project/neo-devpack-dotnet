@@ -37,21 +37,40 @@ namespace Neo.Compiler
     {
         public static int Main(string[] args)
         {
-            RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title)
+            RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title);
+
+            // Add the 'new' subcommand for creating contracts from templates
+            var newCommand = new Command("new", "Create a new smart contract from a template")
             {
-                new Argument<string[]>("paths", "The path of the solution file, project file, project directory or source files."),
-                new Option<string>(["-o", "--output"], "Specifies the output directory."),
-                new Option<string>("--base-name", "Specifies the base name of the output files."),
-                new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."),
-                new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."),
-                new Option<bool>("--assembly", "Indicates whether to generate assembly."),
-                new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."),
-                new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"),
-                new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"),
-                new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"),
-                new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."),
-                new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler.")
+                new Argument<string>("name", "The name of the new contract"),
+                new Option<ContractTemplate>(["-t", "--template"], () => ContractTemplate.Basic, "The template to use (Basic, NEP17, NEP11, Ownable, Oracle)"),
+                new Option<string>(["-o", "--output"], () => Environment.CurrentDirectory, "The output directory for the new contract"),
+                new Option<string>("--author", () => "Author", "The author of the contract"),
+                new Option<string>("--email", () => $"email@example.com", "The author's email"),
+                new Option<string>("--description", "A description of the contract"),
+                new Option<bool>("--force", "Overwrite existing files")
             };
+            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string, string, string, string, bool>(HandleNew);
+            rootCommand.AddCommand(newCommand);
+
+            // Add compilation arguments (make them optional for backward compatibility)
+            var pathsArgument = new Argument<string[]>("paths", "The path of the solution file, project file, project directory or source files.")
+            {
+                Arity = ArgumentArity.ZeroOrMore
+            };
+            rootCommand.AddArgument(pathsArgument);
+
+            rootCommand.AddOption(new Option<string>(["-o", "--output"], "Specifies the output directory."));
+            rootCommand.AddOption(new Option<string>("--base-name", "Specifies the base name of the output files."));
+            rootCommand.AddOption(new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."));
+            rootCommand.AddOption(new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."));
+            rootCommand.AddOption(new Option<bool>("--assembly", "Indicates whether to generate assembly."));
+            rootCommand.AddOption(new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."));
+            rootCommand.AddOption(new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"));
+            rootCommand.AddOption(new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"));
+            rootCommand.AddOption(new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"));
+            rootCommand.AddOption(new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."));
+            rootCommand.AddOption(new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler."));
 
             var debugOption = new Option<CompilationOptions.DebugType>(["-d", "--debug"],
                 new ParseArgument<CompilationOptions.DebugType>(ParseDebug), description: "Indicates the debug level.")
@@ -75,6 +94,64 @@ namespace Neo.Compiler
             }
 
             return ret;
+        }
+
+        private static void HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force)
+        {
+            try
+            {
+                // Validate the project name
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    Console.Error.WriteLine("Error: Contract name cannot be empty.");
+                    return;
+                }
+
+                if (!Regex.IsMatch(name, @"^[a-zA-Z][a-zA-Z0-9_]*$"))
+                {
+                    Console.Error.WriteLine("Error: Contract name must start with a letter and contain only letters, numbers, and underscores.");
+                    return;
+                }
+
+                // Check if the output directory already contains a project with this name
+                string projectPath = Path.Combine(output, name);
+                if (Directory.Exists(projectPath) && !force)
+                {
+                    Console.Error.WriteLine($"Error: Directory '{projectPath}' already exists. Use --force to overwrite.");
+                    return;
+                }
+
+                // Create the template manager and generate the contract
+                var templateManager = new TemplateManager();
+
+                // List available templates if requested
+                Console.WriteLine($"Creating {template} contract: {name}");
+                Console.WriteLine($"Output directory: {output}");
+                Console.WriteLine($"Author: {author}");
+                Console.WriteLine($"Email: {email}");
+                if (!string.IsNullOrEmpty(description))
+                    Console.WriteLine($"Description: {description}");
+                Console.WriteLine();
+
+                // Prepare additional replacements
+                var additionalReplacements = new Dictionary<string, string>
+                {
+                    { "{{Author}}", author },
+                    { "{{Email}}", email }
+                };
+                if (!string.IsNullOrEmpty(description))
+                {
+                    additionalReplacements["{{Description}}"] = description;
+                }
+
+                // Generate the contract from template
+                templateManager.GenerateContract(template, name, output, additionalReplacements);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error creating contract: {ex.Message}");
+                Environment.Exit(1);
+            }
         }
 
         private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)

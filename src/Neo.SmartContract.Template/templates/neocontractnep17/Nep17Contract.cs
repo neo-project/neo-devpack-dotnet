@@ -83,7 +83,7 @@ namespace Neo.SmartContract.Template
         // TODO: Replace it with your methods.
         public static string MyMethod()
         {
-            return Storage.Get(Storage.CurrentReadOnlyContext, "Hello");
+            return Storage.Get("Hello");
         }
 
         // This will be executed during deploy
@@ -104,7 +104,7 @@ namespace Neo.SmartContract.Template
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
             OnSetOwner(null, initialOwner);
-            Storage.Put(Storage.CurrentContext, "Hello", "World");
+            Storage.Put("Hello", "World");
         }
 
         public static void Update(ByteString nefFile, string manifest, object? data = null)
