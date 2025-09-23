@@ -44,7 +44,7 @@ public class RpcIntegrationTests
 
     [Theory(Skip = "Integration test - requires network access")]
     [InlineData("http://seed2t5.neo.org:20332", 894710606)]
-    [InlineData("https://rpc10.n3.nspcc.ru:10331", 860833102)]
+    [InlineData("https://mainnet1.neo.coz.io:443", 860833102)]
     public async Task KnownRpcEndpoints_ShouldReturnCorrectNetworkMagic(string rpcUrl, uint expectedMagic)
     {
         // Arrange

@@ -50,7 +50,7 @@ public class DeploymentToolkitTests : TestBase
 
         // Assert
         Assert.Same(toolkit, result);
-        Assert.Equal("https://rpc10.n3.nspcc.ru:10331", toolkit.CurrentNetwork.RpcUrl);
+        Assert.Equal("https://mainnet1.neo.coz.io:443", toolkit.CurrentNetwork.RpcUrl);
     }
 
     [Fact]
@@ -435,7 +435,7 @@ public class DeploymentToolkitTests : TestBase
         var toolkit = new DeploymentToolkit();
         var testCases = new Dictionary<string, string>
         {
-            { "mainnet", "https://rpc10.n3.nspcc.ru:10331" },
+            { "mainnet", "https://mainnet1.neo.coz.io:443" },
             { "testnet", "http://seed2t5.neo.org:20332" },
             { "local", "http://localhost:50012" },
             { "private", "http://localhost:50012" }
@@ -486,7 +486,7 @@ public class DeploymentToolkitTests : TestBase
             toolkit.SetNetwork(variation);
 
             // Assert
-            Assert.Equal("https://rpc10.n3.nspcc.ru:10331", toolkit.CurrentNetwork.RpcUrl);
+            Assert.Equal("https://mainnet1.neo.coz.io:443", toolkit.CurrentNetwork.RpcUrl);
         }
     }
 

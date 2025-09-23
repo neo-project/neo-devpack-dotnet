@@ -155,7 +155,7 @@ public class NetworkMagicTests : IDisposable
 
         // Act & Assert - Mainnet
         toolkit.SetNetwork("mainnet");
-        Assert.Equal("https://rpc10.n3.nspcc.ru:10331", toolkit.CurrentNetwork.RpcUrl);
+        Assert.Equal("https://mainnet1.neo.coz.io:443", toolkit.CurrentNetwork.RpcUrl);
 
         // Act & Assert - Testnet
         toolkit.SetNetwork("testnet");
