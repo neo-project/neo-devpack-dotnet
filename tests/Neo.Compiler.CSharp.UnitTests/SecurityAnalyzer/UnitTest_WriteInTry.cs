@@ -10,10 +10,13 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Json;
 using Neo.Optimizer;
+using Neo.SmartContract;
 using Neo.SmartContract.Testing;
+using Neo.VM;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -71,6 +74,25 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 
             // Message should be more detailed than just addresses
             Assert.IsTrue(warningInfo.Length > 150, "Enhanced diagnostic message should be more detailed than simple address listing");
+        }
+
+        [TestMethod]
+        public void Test_WriteInTryDetectsLocalStorageSyscalls()
+        {
+            WriteInTryAnalzyer.WriteInTryVulnerability v =
+                WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest);
+
+            Assert.AreEqual(2, v.vulnerabilities.Count);
+
+            foreach (var block in v.vulnerabilities.Keys)
+            {
+                bool hasLocalStorageWrite = block.instructions.Any(instruction =>
+                    instruction.OpCode == OpCode.SYSCALL &&
+                    (instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                     || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash));
+
+                Assert.IsTrue(hasLocalStorageWrite, "Expected vulnerability block to contain a local storage write syscall");
+            }
         }
     }
 }

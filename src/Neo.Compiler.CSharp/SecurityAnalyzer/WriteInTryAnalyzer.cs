@@ -23,6 +23,14 @@ namespace Neo.Compiler.SecurityAnalyzer
 {
     public static class WriteInTryAnalzyer
     {
+        private static readonly HashSet<uint> StorageWriteHashes = new()
+        {
+            ApplicationEngine.System_Storage_Put.Hash,
+            ApplicationEngine.System_Storage_Delete.Hash,
+            ApplicationEngine.System_Storage_Local_Put.Hash,
+            ApplicationEngine.System_Storage_Local_Delete.Hash
+        };
+
         public class WriteInTryVulnerability
         {
             // key block writes storage; value blocks in try
@@ -63,8 +71,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     foreach (VM.Instruction i in b.instructions)
                     {
                         if (i.OpCode == VM.OpCode.SYSCALL
-                        && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                         || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
+                        && StorageWriteHashes.Contains(i.TokenU32))
                             writeAddrs.Add(a);
                         a += i.Size;
                     }
@@ -133,8 +140,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             foreach (BasicBlock block in contractInBasicBlocks.sortedBasicBlocks)
                 foreach (VM.Instruction i in block.instructions)
                     if (i.OpCode == VM.OpCode.SYSCALL
-                    && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                     || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
+                    && StorageWriteHashes.Contains(i.TokenU32))
                         allBasicBlocksWritingStorage.Add(block);
             foreach (TryCatchFinallySingleCoverage c in tryCatchFinallyCoverage.allTry.Values)
             {

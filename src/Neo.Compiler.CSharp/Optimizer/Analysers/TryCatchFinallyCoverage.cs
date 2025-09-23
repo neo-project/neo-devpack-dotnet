@@ -77,6 +77,8 @@ namespace Neo.Optimizer
 
     public class TryCatchFinallyCoverage
     {
+        private static readonly bool EnableDiagnostics = Environment.GetEnvironmentVariable("TRY_COVERAGE_DEBUG") == "1";
+
         public ContractInBasicBlocks contractInBasicBlocks { get; protected set; }
         // key: start of try block. prevBlock.instructions.Last() is TRY
         public Dictionary<BasicBlock, TryCatchFinallySingleCoverage> allTry { get; protected set; }
@@ -103,7 +105,7 @@ namespace Neo.Optimizer
             {
                 Stack<(BasicBlock tryBlock, BasicBlock? endFinallyBlock, TryType tryType, bool continueAfterFinally)> tryStack = new();
                 tryStack.Push((b, null, TryType.TRY, true));
-                CoverSingleTry(b, tryStack);
+                ContinueToBlock(b, tryStack);
             }
         }
 
@@ -113,16 +115,17 @@ namespace Neo.Optimizer
             if (tryStack.Count <= 0)
                 return BranchType.OK;
             tryStack = InstructionCoverage.CopyStack(tryStack);
-            (BasicBlock tryBlock, BasicBlock? endFinallyBlock, TryType tryType, bool continueAfterFinally) = tryStack.Peek();
-            HashSet<BasicBlock> handledBlocks = tryType switch
-            {
-                TryType.TRY => allTry[tryBlock].tryBlocks,
-                TryType.CATCH => allTry[tryBlock].catchBlocks,
-                TryType.FINALLY => allTry[tryBlock].finallyBlocks,
-                _ => throw new ArgumentException($"Invalid {nameof(tryType)} {tryType}"),
-            };
             while (true)
             {
+                (BasicBlock tryBlock, BasicBlock? endFinallyBlock, TryType tryType, bool continueAfterFinally) = tryStack.Peek();
+                HashSet<BasicBlock> handledBlocks = tryType switch
+                {
+                    TryType.TRY => allTry[tryBlock].tryBlocks,
+                    TryType.CATCH => allTry[tryBlock].catchBlocks,
+                    TryType.FINALLY => allTry[tryBlock].finallyBlocks,
+                    _ => throw new ArgumentException($"Invalid {nameof(tryType)} {tryType}"),
+                };
+
                 if (handledBlocks.Contains(currentBlock))
                     return currentBlock.branchType;
                 handledBlocks.Add(currentBlock);
@@ -135,19 +138,19 @@ namespace Neo.Optimizer
                         foreach (int callaTarget in contractInBasicBlocks.coverage.pushaTargets.Keys)
                         {
                             BasicBlock callABlock = contractInBasicBlocks.basicBlocksByStartAddr[callaTarget];
-                            CoverSingleTry(callABlock, tryStack);
+                            ContinueToBlock(callABlock, tryStack);
                             // TODO: if a PUSHA cannot be covered, do not add it as a CALLA target
                         }
                     else
                     {
                         int callTarget = ComputeJumpTarget(currentBlock.lastAddr, instruction);
                         BasicBlock calledBlock = contractInBasicBlocks.basicBlocksByStartAddr[callTarget];
-                        CoverSingleTry(calledBlock, tryStack);
+                        ContinueToBlock(calledBlock, tryStack);
                     }
                     if (currentBlock.branchType == BranchType.OK)
                         if (currentBlock.nextBlock != null)
                             // nextBlock can still be null, when we call a method in try that ABORTs
-                            return CoverSingleTry(currentBlock.nextBlock!, tryStack);
+                            return ContinueToBlock(currentBlock.nextBlock!, tryStack);
                     return currentBlock.branchType;
                 }
                 if (instruction.OpCode == OpCode.RET)
@@ -156,6 +159,8 @@ namespace Neo.Optimizer
                 {
                     if (instruction.OpCode == OpCode.TRY || instruction.OpCode == OpCode.TRY_L)
                     {
+                        if (EnableDiagnostics)
+                            Console.Error.WriteLine($"[TryCoverage] TRY in block {currentBlock.startAddr}, state={tryType}, stack={FormatStack(tryStack)}");
                         HashSet<TryCatchFinallySingleCoverage> handledCoverage = tryType switch
                         {
                             TryType.TRY => allTry[tryBlock].nestedTrysInTry,
@@ -165,7 +170,9 @@ namespace Neo.Optimizer
                         };
                         handledCoverage.Add(allTry[currentBlock.nextBlock!]);
                         tryStack.Push((currentBlock.nextBlock!, null, TryType.TRY, true));
-                        CoverSingleTry(currentBlock.nextBlock!, tryStack);
+                        if (EnableDiagnostics)
+                            Console.Error.WriteLine($"[TryCoverage]  push TRY block {currentBlock.nextBlock!.startAddr}, stack={FormatStack(tryStack)}");
+                        ContinueToBlock(currentBlock.nextBlock!, tryStack);
                     }
                     if (instruction.OpCode == OpCode.THROW)
                     {
@@ -179,12 +186,12 @@ namespace Neo.Optimizer
                             if (allTry[prevTryBlock].catchBlock != null)
                             {
                                 tryStack.Push((prevTryBlock, null, TryType.CATCH, true));
-                                return CoverSingleTry(allTry[prevTryBlock].catchBlock!, tryStack);
+                                return ContinueToBlock(allTry[prevTryBlock].catchBlock!, tryStack);
                             }
                             else if (allTry[prevTryBlock].finallyBlock != null)
                             {
                                 tryStack.Push((prevTryBlock, null, TryType.FINALLY, false));
-                                if (CoverSingleTry(allTry[prevTryBlock].finallyBlock!, tryStack) == BranchType.ABORT)
+                                if (ContinueToBlock(allTry[prevTryBlock].finallyBlock!, tryStack) == BranchType.ABORT)
                                     return BranchType.ABORT;
                                 return BranchType.THROW;
                             }
@@ -192,21 +199,37 @@ namespace Neo.Optimizer
                         if (tryType == TryType.CATCH && allTry[tryBlock].finallyBlock != null)
                         {
                             tryStack.Push((prevTryBlock, null, TryType.FINALLY, false));
-                            if (CoverSingleTry(allTry[prevTryBlock].finallyBlock!, tryStack) == BranchType.ABORT)
+                            if (ContinueToBlock(allTry[prevTryBlock].finallyBlock!, tryStack) == BranchType.ABORT)
                                 return BranchType.ABORT;
                         }
                         return BranchType.THROW;
                     }
                     if (instruction.OpCode == OpCode.ENDTRY || instruction.OpCode == OpCode.ENDTRY_L)
                     {
+                        if (EnableDiagnostics)
+                            Console.Error.WriteLine($"[TryCoverage] ENDTRY in block {currentBlock.startAddr}, state={tryType}, stack={FormatStack(tryStack)}");
                         if (tryType != TryType.TRY && tryType != TryType.CATCH)
-                            throw new BadScriptException("No try stack on ENDTRY");
+                        {
+                            if (EnableDiagnostics)
+                            {
+                                Console.Error.WriteLine($"[TryCoverage] Unexpected ENDTRY without TRY/CATCH context. state={tryType}, block={currentBlock.startAddr}, tryBlock={tryBlock.startAddr}");
+                                foreach (var inst in currentBlock.instructions)
+                                    Console.Error.WriteLine($"    {inst.OpCode}");
+                            }
+                            throw new BadScriptException($"No try stack on ENDTRY (state={tryType}, block={currentBlock.startAddr}, tryBlock={tryBlock.startAddr})");
+                        }
                         tryStack.Pop();  // pop the ending TRY or CATCH
+                        if (EnableDiagnostics)
+                            Console.Error.WriteLine($"[TryCoverage]  pop after ENDTRY, stack={FormatStack(tryStack)}");
                         if (tryType == TryType.TRY && allTry[tryBlock].catchBlock != null)
                         {
                             tryStack.Push((tryBlock, null, TryType.CATCH, true));
-                            CoverSingleTry(allTry[tryBlock].catchBlock!, tryStack);
+                            if (EnableDiagnostics)
+                                Console.Error.WriteLine($"[TryCoverage]  push CATCH block {allTry[tryBlock].catchBlock!.startAddr}, stack={FormatStack(tryStack)}");
+                            ContinueToBlock(allTry[tryBlock].catchBlock!, tryStack);
                             tryStack.Pop();  // Pop the CATCH
+                            if (EnableDiagnostics)
+                                Console.Error.WriteLine($"[TryCoverage]  pop CATCH, stack={FormatStack(tryStack)}");
                         }
                         int endPointer = ComputeJumpTarget(currentBlock.lastAddr, instruction);
                         endFinallyBlock = contractInBasicBlocks.basicBlocksByStartAddr[endPointer];
@@ -214,6 +237,8 @@ namespace Neo.Optimizer
                         if (allTry[tryBlock].finallyBlock != null)
                         {
                             tryStack.Push(new(tryBlock, endFinallyBlock, TryType.FINALLY, true));
+                            if (EnableDiagnostics)
+                                Console.Error.WriteLine($"[TryCoverage]  push FINALLY block {allTry[tryBlock].finallyBlock!.startAddr}, end={endFinallyBlock.startAddr}, stack={FormatStack(tryStack)}");
                             nextBlock = allTry[tryBlock].finallyBlock!;
                         }
                         else
@@ -221,17 +246,21 @@ namespace Neo.Optimizer
                             allTry[tryBlock].endingBlocks.Add(endFinallyBlock);
                             nextBlock = endFinallyBlock;
                         }
-                        return CoverSingleTry(nextBlock, tryStack);
+                        return ContinueToBlock(nextBlock, tryStack);
                     }
                     if (instruction.OpCode == OpCode.ENDFINALLY)
                     {
+                        if (EnableDiagnostics)
+                            Console.Error.WriteLine($"[TryCoverage] ENDFINALLY in block {currentBlock.startAddr}, state={tryType}, stack={FormatStack(tryStack)}");
                         if (tryType != TryType.FINALLY)
                             throw new BadScriptException("No finally stack on ENDFINALLY");
                         tryStack.Pop();  // pop the ending FINALLY
+                        if (EnableDiagnostics)
+                            Console.Error.WriteLine($"[TryCoverage]  pop FINALLY, stack={FormatStack(tryStack)}");
                         if (continueAfterFinally)
                         {
                             allTry[tryBlock].endingBlocks.Add(endFinallyBlock!);
-                            return CoverSingleTry(endFinallyBlock!, tryStack);
+                            return ContinueToBlock(endFinallyBlock!, tryStack);
                         }
                         // For this basic block in finally, the branch type is OK
                         // The throw is caused by previous codes
@@ -242,14 +271,14 @@ namespace Neo.Optimizer
                 {
                     int target = ComputeJumpTarget(currentBlock.lastAddr, instruction);
                     BasicBlock targetBlock = contractInBasicBlocks.basicBlocksByStartAddr[target];
-                    return CoverSingleTry(targetBlock, tryStack);
+                    return ContinueToBlock(targetBlock, tryStack);
                 }
                 if (conditionalJump.Contains(instruction.OpCode) || conditionalJump_L.Contains(instruction.OpCode))
                 {
-                    BranchType noJump = CoverSingleTry(currentBlock.nextBlock!, tryStack);
+                    BranchType noJump = ContinueToBlock(currentBlock.nextBlock!, tryStack);
                     int target = ComputeJumpTarget(currentBlock.lastAddr, instruction);
                     BasicBlock targetBlock = contractInBasicBlocks.basicBlocksByStartAddr[target];
-                    BranchType jump = CoverSingleTry(targetBlock, tryStack);
+                    BranchType jump = ContinueToBlock(targetBlock, tryStack);
                     if (noJump == BranchType.OK || jump == BranchType.OK)
                         return BranchType.OK;
                     if (noJump == BranchType.ABORT && jump == BranchType.ABORT)
@@ -259,6 +288,33 @@ namespace Neo.Optimizer
                 }
                 currentBlock = currentBlock.nextBlock!;
             }
+        }
+
+        private static string FormatStack(Stack<(BasicBlock tryBlock, BasicBlock? endFinallyBlock, TryType tryType, bool continueAfterFinally)> stack)
+            => string.Join(" | ", stack.Select(s => $"[{s.tryBlock.startAddr}:{s.tryType}:{(s.endFinallyBlock?.startAddr.ToString() ?? "-")}:cont={s.continueAfterFinally}]"));
+
+        private BranchType ContinueToBlock(
+            BasicBlock targetBlock,
+            Stack<(BasicBlock tryBlock, BasicBlock? endFinallyBlock, TryType tryType, bool continueAfterFinally)> tryStack)
+        {
+            if (EnableDiagnostics)
+                Console.Error.WriteLine($"[TryCoverage] Continue to block {targetBlock.startAddr}, stack={FormatStack(tryStack)}");
+            if (tryStack.Count > 0)
+            {
+                (BasicBlock tryBlock, BasicBlock? endFinallyBlock, TryType tryType, bool continueAfterFinally) = tryStack.Peek();
+                if (tryType == TryType.FINALLY && endFinallyBlock != null && ReferenceEquals(targetBlock, endFinallyBlock))
+                {
+                    Stack<(BasicBlock tryBlock, BasicBlock? endFinallyBlock, TryType tryType, bool continueAfterFinally)> stackAfterFinally = InstructionCoverage.CopyStack(tryStack);
+                    stackAfterFinally.Pop();
+                    if (EnableDiagnostics)
+                        Console.Error.WriteLine($"[TryCoverage]   transition after finally end, stack={FormatStack(stackAfterFinally)}");
+                    if (!continueAfterFinally)
+                        return BranchType.OK;
+                    allTry[tryBlock].endingBlocks.Add(endFinallyBlock);
+                    return CoverSingleTry(targetBlock, stackAfterFinally);
+                }
+            }
+            return CoverSingleTry(targetBlock, tryStack);
         }
     }
 }
