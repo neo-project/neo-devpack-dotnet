@@ -155,15 +155,15 @@ public class NetworkMagicTests : IDisposable
 
         // Act & Assert - Mainnet
         toolkit.SetNetwork("mainnet");
-        Assert.Equal("https://rpc10.n3.nspcc.ru:10331", Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        Assert.Equal("https://rpc10.n3.nspcc.ru:10331", toolkit.CurrentNetwork.RpcUrl);
 
         // Act & Assert - Testnet
         toolkit.SetNetwork("testnet");
-        Assert.Equal("http://seed2t5.neo.org:20332", Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        Assert.Equal("http://seed2t5.neo.org:20332", toolkit.CurrentNetwork.RpcUrl);
 
         // Act & Assert - Custom
         toolkit.SetNetwork("http://custom:10332");
-        Assert.Equal("http://custom:10332", Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        Assert.Equal("http://custom:10332", toolkit.CurrentNetwork.RpcUrl);
     }
 
     public void Dispose()

@@ -83,12 +83,12 @@ Project templates for creating new NEO smart contracts with the proper structure
 
 A streamlined deployment toolkit that provides a simplified API for Neo smart contract deployment. Features include:
 
-- **Simple API**: Easy-to-use methods for deploying contracts from source code or artifacts
-- **Network Support**: Support for mainnet, testnet, and private network deployment
-- **WIF Key Integration**: Direct signing with WIF (Wallet Import Format) keys
-- **Contract Interaction**: Call and invoke contract methods after deployment
-- **Balance Checking**: Monitor GAS balances for deployment accounts
-- **Manifest Deployment**: Deploy multiple contracts from deployment manifests
+- **Artifact Deployment**: Deploy precompiled `.nef` and manifest artifacts with a single call
+- **Network Support**: Target mainnet, testnet, private nets, or custom RPC endpoints
+- **WIF Key Integration**: Sign deployment and invocation transactions directly with WIF keys
+- **Contract Interaction**: Perform read-only calls and on-chain invocations against deployed contracts
+- **Balance Checking**: Query GAS balances for deployment accounts
+- **Configurable Runtime**: Tune confirmation behaviour and network profiles through `DeploymentOptions`
 
 ## Getting Started
 
@@ -323,9 +323,9 @@ Each example comes with corresponding unit tests that demonstrate how to properl
 
 ## Contract Deployment
 
-This PR implements deployment from compiled artifacts (.nef + manifest) and basic RPC interactions (call, invoke, GAS balance, contract existence). Deploying from source projects (compilation) and multi-contract manifest deployment are not included.
+This PR implements deployment from compiled artifacts (`.nef` + manifest) and basic RPC interactions (call, invoke, GAS balance, contract existence). Deploying from source projects (compilation) and multi-contract manifest deployment will arrive in future iterations.
 
-The `Neo.SmartContract.Deploy` package provides a streamlined way to deploy contracts to the NEO blockchain. It supports deployment from source code, compiled artifacts, and deployment manifests.
+The `Neo.SmartContract.Deploy` package provides a streamlined way to deploy contracts to the NEO blockchain using compiled artifacts.
 
 ### Installation
 
@@ -343,18 +343,14 @@ var deployment = new DeploymentToolkit()
     .SetNetwork("testnet")
     .SetWifKey("your-wif-key-here");
 
-// Deploy from source code
-var result = await deployment.DeployAsync("MyContract.cs");
+// Deploy from compiled artifacts
+var result = await deployment.DeployArtifactsAsync(
+    "MyContract.nef",
+    "MyContract.manifest.json",
+    waitForConfirmation: true);
 
-if (result.Success)
-{
-    Console.WriteLine($"Contract deployed: {result.ContractHash}");
-    Console.WriteLine($"Transaction: {result.TransactionHash}");
-}
-else
-{
-    Console.WriteLine($"Deployment failed: {result.ErrorMessage}");
-}
+Console.WriteLine($"Contract deployed: {result.ContractHash}");
+Console.WriteLine($"Transaction: {result.TransactionHash}");
 ```
 
 ### Artifact Deployment
@@ -362,9 +358,6 @@ else
 ```csharp
 // Deploy with initialization parameters
 var initParams = new object[] { "param1", 42, true };
-var result = await deployment.DeployAsync("MyContract.cs", initParams);
-
-// Deploy from compiled artifacts (.nef + manifest)
 var artifactsResult = await deployment.DeployArtifactsAsync(
     "MyContract.nef",
     "MyContract.manifest.json",
@@ -375,9 +368,60 @@ Console.WriteLine($"Tx: {artifactsResult.TransactionHash}");
 Console.WriteLine($"Expected Contract Hash: {artifactsResult.ContractHash}");
 
 Example app: See `examples/DeploymentArtifactsDemo` for a minimal console that deploys from NEF + manifest and performs read-only calls.
+```
 
-// Deploy multiple contracts from manifest
-var manifestResult = await deployment.DeployFromManifestAsync("deployment-manifest.json");
+```csharp
+var request = new DeploymentArtifactsRequest("MyContract.nef", "MyContract.manifest.json")
+    .WithInitParams("owner", 100)
+    .WithConfirmationPolicy(waitForConfirmation: true, retries: 20, delaySeconds: 2);
+
+await deployment.DeployArtifactsAsync(request, cancellationToken);
+```
+
+### Source Deployment
+
+```csharp
+var compileAndDeploy = await deployment.DeployAsync(
+    "contracts/MyContract/MyContract.csproj",
+    initParams: new object?[] { "owner", 1000 });
+
+Console.WriteLine($"Contract hash: {compileAndDeploy.ContractHash}");
+```
+
+### Manifest Deployment
+
+You can orchestrate multiple deployments via a JSON manifest:
+
+```json
+{
+  "network": "mainnet",
+  "wif": "Kx...",
+  "waitForConfirmation": true,
+  "confirmationRetries": 40,
+  "confirmationDelaySeconds": 2,
+  "contracts": [
+    {
+      "name": "Token",
+      "nef": "artifacts/Token.nef",
+      "manifest": "artifacts/Token.manifest.json",
+      "initParams": ["admin", 1_000_000]
+    },
+    {
+      "name": "Treasury",
+      "nef": "artifacts/Treasury.nef",
+      "manifest": "artifacts/Treasury.manifest.json",
+      "waitForConfirmation": false
+    }
+  ]
+}
+```
+
+```csharp
+var deployments = await deployment.DeployFromManifestAsync("deployment.json");
+foreach (var (name, info) in deployments)
+{
+    Console.WriteLine($"{name}: {info.ContractHash} ({info.TransactionHash})");
+}
 ```
 
 ### Network Configuration
@@ -390,6 +434,20 @@ deployment.SetNetwork("local");
 
 // Or use custom RPC URL
 deployment.SetNetwork("https://my-custom-rpc.com:10332");
+
+// Alternatively configure at construction time
+var options = new DeploymentOptions { Network = NetworkProfile.TestNet };
+var toolkit = new DeploymentToolkit(options: options);
+
+// The same API exposes cancellation and confirmation tuning
+using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+var requestResult = await toolkit.DeployArtifactsAsync(
+    "MyContract.nef",
+    "MyContract.manifest.json",
+    waitForConfirmation: true,
+    confirmationRetries: 60,
+    confirmationDelaySeconds: 2,
+    cancellationToken: cts.Token);
 ```
 
 ### Contract Interaction

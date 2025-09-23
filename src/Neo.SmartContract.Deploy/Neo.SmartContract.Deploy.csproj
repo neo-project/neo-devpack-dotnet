@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
     <ProjectReference Include="..\..\neo\src\RpcClient\RpcClient.csproj" />
+    <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
   </ItemGroup>
 
 </Project>

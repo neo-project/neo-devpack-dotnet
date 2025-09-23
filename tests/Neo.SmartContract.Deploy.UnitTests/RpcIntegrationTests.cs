@@ -39,7 +39,7 @@ public class RpcIntegrationTests
         // Note: This test would require exposing GetNetworkMagicAsync as public
         // or testing through a public method that uses it in PR 2
         // For now, we verify the setup is correct
-        Assert.Equal(NEO_TESTNET_URL, Environment.GetEnvironmentVariable("Network__RpcUrl"));
+        Assert.Equal(NEO_TESTNET_URL, toolkit.CurrentNetwork.RpcUrl);
     }
 
     [Theory(Skip = "Integration test - requires network access")]

@@ -45,7 +45,7 @@ try
 {
     if (!doCall)
     {
-        if (string.IsNullOrEmpty(wif) || string.IsNullOrEmpty(nef) || string.IsNullOrEmpty(manifest))
+        if (string.IsNullOrWhiteSpace(wif) || string.IsNullOrWhiteSpace(nef) || string.IsNullOrWhiteSpace(manifest))
         {
             Console.Error.WriteLine("Missing required parameters for deployment.\n");
             PrintUsage();
@@ -60,7 +60,7 @@ try
     }
     else
     {
-        if (string.IsNullOrEmpty(contract) || string.IsNullOrEmpty(method))
+        if (string.IsNullOrWhiteSpace(contract) || string.IsNullOrWhiteSpace(method))
         {
             Console.Error.WriteLine("Missing required parameters for call.\n");
             PrintUsage();
@@ -68,7 +68,7 @@ try
         }
 
         object[] callArgs = Array.Empty<object>();
-        if (!string.IsNullOrEmpty(argsJson))
+        if (!string.IsNullOrWhiteSpace(argsJson))
         {
             try
             {
