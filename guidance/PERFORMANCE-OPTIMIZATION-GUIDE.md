@@ -435,9 +435,24 @@ public class BatchStateUpdate : SmartContract
 ### 1. Gas Measurement Framework
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class PerformanceTests : TestBase<MyContract>
+public class PerformanceTests : ContractProjectTestBase
 {
+    public PerformanceTests()
+        : base("../path/to/MyContract/MyContract.csproj", contractName: "MyContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void MeasureGasConsumption()
     {
@@ -492,8 +507,24 @@ public class PerformanceTests : TestBase<MyContract>
 ### 2. Load Testing
 
 ```csharp
-public class LoadTests : TestBase<MyContract>
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
+[TestClass]
+public class LoadTests : ContractProjectTestBase
 {
+    public LoadTests()
+        : base("../path/to/MyContract/MyContract.csproj", contractName: "MyContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void TestScalability()
     {

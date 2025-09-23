@@ -264,8 +264,7 @@ ExampleName/
 ├── README.md                   # Documentation
 └── ExampleName.UnitTests/      # Unit tests
     ├── ExampleTests.cs
-    ├── ExampleName.UnitTests.csproj
-    └── TestingArtifacts/       # Generated test artifacts
+    └── ExampleName.UnitTests.csproj  # References Neo.SmartContract.Testing.RuntimeCompilation
 ```
 
 ## 🔒 Security

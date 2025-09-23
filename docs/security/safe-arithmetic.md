@@ -686,16 +686,20 @@ public class FixedPointArithmetic : SmartContract
 
 ```csharp
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 [TestClass]
-public class ArithmeticSecurityTests : TestBase<SafeArithmeticContract>
+public class ArithmeticSecurityTests : ContractProjectTestBase
 {
+    public ArithmeticSecurityTests()
+        : base("../path/to/SafeArithmeticContract/SafeArithmeticContract.csproj", contractName: "SafeArithmeticContract")
+    {
+    }
+
     [TestInitialize]
     public void Setup()
     {
-        var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-        TestBaseSetup(nef, manifest);
+        EnsureContractDeployed();
     }
     
     [TestMethod]

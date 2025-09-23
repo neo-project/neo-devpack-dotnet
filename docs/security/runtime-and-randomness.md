@@ -702,16 +702,20 @@ public class BlockDataSecurity : SmartContract
 
 ```csharp
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 [TestClass]
-public class RandomnessSecurityTests : TestBase<RandomnessContract>
+public class RandomnessSecurityTests : ContractProjectTestBase
 {
+    public RandomnessSecurityTests()
+        : base("../path/to/RandomnessContract/RandomnessContract.csproj", contractName: "RandomnessContract")
+    {
+    }
+
     [TestInitialize]
     public void Setup()
     {
-        var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-        TestBaseSetup(nef, manifest);
+        EnsureContractDeployed();
     }
     
     [TestMethod]

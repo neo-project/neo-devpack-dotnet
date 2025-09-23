@@ -1,22 +1,26 @@
-using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 namespace Example.SmartContract.HelloWorld.UnitTests
 {
     [TestClass]
-    public class HelloWorldTests : TestBase<SampleHelloWorld>
+    public class HelloWorldTests : ContractProjectTestBase
     {
+        public HelloWorldTests()
+            : base("../Example.SmartContract.HelloWorld/Example.SmartContract.HelloWorld.csproj")
+        {
+        }
+
         [TestInitialize]
         public void TestSetup()
         {
-            var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-            TestBaseSetup(nef, manifest);
+            EnsureContractDeployed();
         }
 
         [TestMethod]
-        public void Test()
+        public void SayHello_ReturnsExpectedGreeting()
         {
-            Assert.AreEqual(Contract.SayHello, "Hello, World!");
+            EnsureContractDeployed();
+            Assert.AreEqual("Hello, World!", Contract.SayHello);
         }
     }
 }

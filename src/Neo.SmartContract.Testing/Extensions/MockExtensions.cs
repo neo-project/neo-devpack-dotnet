@@ -15,6 +15,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Neo.Extensions;
 
 namespace Neo.SmartContract.Testing.Extensions
 {
@@ -113,9 +114,64 @@ namespace Neo.SmartContract.Testing.Extensions
                     var display = invocation.Method.GetCustomAttribute<DisplayNameAttribute>();
                     var name = display is not null ? display.DisplayName : invocation.Method.Name;
 
-                    return mock.Object.Invoke(name, [.. invocation.Arguments]).ConvertTo(returnType, engine.StringInterpreter)!;
+                    var convertedArguments = ConvertArguments(invocation, invocation.Method.GetParameters());
+
+                    return mock.Object.Invoke(name, convertedArguments).ConvertTo(returnType, engine.StringInterpreter)!;
                 })
             ]);
+        }
+
+        private static object[] ConvertArguments(IInvocation invocation, ParameterInfo[] parameters)
+        {
+            var converted = new object[invocation.Arguments.Count];
+
+            for (var i = 0; i < invocation.Arguments.Count; i++)
+            {
+                converted[i] = ConvertArgument(invocation.Arguments[i], parameters[i].ParameterType);
+            }
+
+            return converted;
+        }
+
+        private static object? ConvertArgument(object? argument, Type targetType)
+        {
+            if (argument is null)
+                return null;
+
+            if (targetType.IsInstanceOfType(argument))
+                return argument;
+
+            if (targetType.FullName == "Neo.UInt160")
+            {
+                try
+                {
+                    var parse = targetType.GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, Type.DefaultBinder, new[] { typeof(string) }, null);
+                    if (parse is not null)
+                    {
+                        return parse.Invoke(null, new object?[] { argument.ToString() });
+                    }
+
+                    if (argument is Neo.UInt160 hostUInt160)
+                    {
+                        var bytes = hostUInt160.ToArray();
+                        var implicitFromBytes = targetType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                            .FirstOrDefault(m => m.IsSpecialName && m.Name == "op_Implicit" &&
+                                                 m.GetParameters().Length == 1 &&
+                                                 m.GetParameters()[0].ParameterType == typeof(byte[]));
+
+                        if (implicitFromBytes is not null)
+                        {
+                            return implicitFromBytes.Invoke(null, new object?[] { bytes });
+                        }
+                    }
+                }
+                catch
+                {
+                    // fall back to the original value if conversion fails
+                }
+            }
+
+            return argument;
         }
 
         internal static void MockAction<T>(this Mock<T> mock, string name, Type[] args)

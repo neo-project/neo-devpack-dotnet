@@ -117,6 +117,33 @@ namespace Neo.Compiler
             return false;
         }
 
+        private static string? ResolveSupportedStandard(TypedConstant constant)
+        {
+            if (constant.Kind == TypedConstantKind.Enum && constant.Type is INamedTypeSymbol enumType)
+            {
+                var match = enumType.GetMembers()
+                    .OfType<IFieldSymbol>()
+                    .FirstOrDefault(f => f.HasConstantValue && Equals(f.ConstantValue, constant.Value));
+
+                if (match is not null)
+                {
+                    if (Enum.TryParse(match.Name, ignoreCase: true, out NepStandard parsed))
+                    {
+                        return parsed.ToStandard();
+                    }
+
+                    return match.Name;
+                }
+            }
+
+            if (constant.Kind == TypedConstantKind.Primitive && constant.Value is string s)
+            {
+                return s;
+            }
+
+            return constant.Value?.ToString();
+        }
+
         internal void Compile()
         {
             HashSet<INamedTypeSymbol> processed = new(SymbolEqualityComparer.Default);
@@ -457,13 +484,8 @@ namespace Neo.Compiler
                         case nameof(SupportedStandardsAttribute):
                             _supportedStandards.UnionWith(
                                 attribute.ConstructorArguments[0].Values
-                                    .Select(p => p.Value)
-                                    .Select(p =>
-                                        p is int ip && Enum.IsDefined(typeof(NepStandard), ip)
-                                            ? ((NepStandard)ip).ToStandard()
-                                            : p as string
-                                    )
-                                    .Where(v => v != null)! // Ensure null values are not added
+                                    .Select(ResolveSupportedStandard)
+                                    .Where(v => v is not null)!
                             );
                             break;
                     }

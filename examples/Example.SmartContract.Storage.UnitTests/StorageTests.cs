@@ -1,16 +1,26 @@
-using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 namespace Example.SmartContract.Storage.UnitTests
 {
     [TestClass]
-    public class StorageTests : TestBase<SampleStorage>
+    public class StorageTests : ContractProjectTestBase
     {
+        public StorageTests()
+            : base("../Example.SmartContract.Storage/Example.SmartContract.Storage.csproj")
+        {
+        }
+
+        [TestInitialize]
+        public void TestSetup()
+        {
+            EnsureContractDeployed();
+        }
 
         [TestMethod]
-        public void Test()
+        public void ContractLoads()
         {
-
+            EnsureContractDeployed();
         }
     }
 }

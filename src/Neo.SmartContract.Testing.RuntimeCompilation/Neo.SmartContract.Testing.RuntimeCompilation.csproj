@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyTitle>Neo.SmartContract.Testing.RuntimeCompilation</AssemblyTitle>
+    <RootNamespace>Neo.SmartContract.Testing.RuntimeCompilation</RootNamespace>
+    <PackageId>Neo.SmartContract.Testing.RuntimeCompilation</PackageId>
+    <Description>Runtime contract compilation helpers that integrate Neo.Compiler.CSharp with the Neo testing framework.</Description>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);RuntimeCompilationRuntimeDependencies</TargetsForTfmSpecificBuildOutput>
+    <ResolveReferencesDependsOn>$(ResolveReferencesDependsOn);RuntimeCompilationRuntimeDependencies</ResolveReferencesDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    <ProjectReference Include="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Akka" Version="1.5.46" GeneratePathProperty="true" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" GeneratePathProperty="true" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.7" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.7" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.7" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.13.0" GeneratePathProperty="true" />
+    <PackageReference Include="System.IO.Hashing" Version="9.0.7" GeneratePathProperty="true" />
+    <Reference Include="Akka">
+      <HintPath>$(PkgAkka)\lib\net6.0\Akka.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <RuntimeDependency Include="$(PkgAkka)\lib\**\*.*" Condition="'$(PkgAkka)' != ''" />
+    <RuntimeDependency Include="$(PkgBouncyCastle_Cryptography)\lib\**\*.*" Condition="'$(PkgBouncyCastle_Cryptography)' != ''" />
+    <RuntimeDependency Include="$(PkgK4os_Compression_LZ4)\lib\**\*.*" Condition="'$(PkgK4os_Compression_LZ4)' != ''" />
+    <RuntimeDependency Include="$(PkgMicrosoft_Extensions_Configuration)\lib\**\*.*" Condition="'$(PkgMicrosoft_Extensions_Configuration)' != ''" />
+    <RuntimeDependency Include="$(PkgMicrosoft_Extensions_Configuration_Abstractions)\lib\**\*.*" Condition="'$(PkgMicrosoft_Extensions_Configuration_Abstractions)' != ''" />
+    <RuntimeDependency Include="$(PkgMicrosoft_Extensions_Configuration_Binder)\lib\**\*.*" Condition="'$(PkgMicrosoft_Extensions_Configuration_Binder)' != ''" />
+    <RuntimeDependency Include="$(PkgMicrosoft_Extensions_Configuration_Json)\lib\**\*.*" Condition="'$(PkgMicrosoft_Extensions_Configuration_Json)' != ''" />
+    <RuntimeDependency Include="$(PkgMicrosoft_IdentityModel_Tokens)\lib\**\*.*" Condition="'$(PkgMicrosoft_IdentityModel_Tokens)' != ''" />
+    <RuntimeDependency Include="$(PkgSystem_IO_Hashing)\lib\**\*.*" Condition="'$(PkgSystem_IO_Hashing)' != ''" />
+  </ItemGroup>
+
+  <Target Name="RuntimeCompilationRuntimeDependencies" Condition="@(RuntimeDependency) != ''" BeforeTargets="ResolveReferences;GetCopyToOutputDirectoryItems">
+    <ItemGroup>
+      <_RuntimeDependency Include="@(RuntimeDependency)">
+        <TargetPath>lib/%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      </_RuntimeDependency>
+    </ItemGroup>
+
+    <Message Importance="High" Text="RuntimeCompilationRuntimeDependencies: copying @(_RuntimeDependency->'%(Identity)')" />
+
+    <ItemGroup>
+      <TfmSpecificBuildOutput Include="@(_RuntimeDependency)">
+        <TargetPath>%(_RuntimeDependency.TargetPath)</TargetPath>
+      </TfmSpecificBuildOutput>
+      <ReferenceCopyLocalPaths Include="@(_RuntimeDependency)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="@(_RuntimeDependency)">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Link>%(_RuntimeDependency.TargetPath)</Link>
+        <Visible>false</Visible>
+      </None>
+    </ItemGroup>
+  </Target>
+
+</Project>

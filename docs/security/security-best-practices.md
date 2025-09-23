@@ -474,54 +474,67 @@ public class GasEfficientSecurity : SmartContract
 ### Security Testing Framework
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class SecurityTests : TestBase<MyContract>
+public class SecurityTests : ContractProjectTestBase
 {
+    private static readonly Signer AdminSigner = TestEngine.GetNewSigner();
+    private static readonly Signer TestUser = TestEngine.GetNewSigner();
+
+    public SecurityTests()
+        : base("../path/to/MyContract/MyContract.csproj", contractName: "MyContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+        Engine.SetTransactionSigners(TestUser);
+    }
+
     [TestMethod]
     public void TestAccessControl()
     {
-        // Test unauthorized access
-        Assert.ThrowsException<Exception>(() => 
-        {
-            Contract.AdminFunction();
-        });
-        
-        // Test with proper authorization
-        Engine.SetCallingScriptHash(AdminAddress);
+        Assert.ThrowsException<Exception>(() => Contract.AdminFunction());
+
+        Engine.SetTransactionSigners(AdminSigner);
         Assert.IsTrue(Contract.AdminFunction());
     }
-    
+
     [TestMethod]
     public void TestInputValidation()
     {
-        // Test null inputs
         Assert.IsFalse(Contract.ProcessData(null, "data"));
-        
-        // Test oversized inputs
-        string largeData = new string('x', 10000);
-        Assert.IsFalse(Contract.ProcessData(ValidUser, largeData));
-        
-        // Test valid inputs
-        Assert.IsTrue(Contract.ProcessData(ValidUser, "valid data"));
+
+        string largeData = new string('x', 10_000);
+        Assert.IsFalse(Contract.ProcessData(TestUser.Account, largeData));
+
+        Assert.IsTrue(Contract.ProcessData(TestUser.Account, "valid data"));
     }
-    
+
     [TestMethod]
     public void TestReentrancyProtection()
     {
-        // Simulate reentrancy attack
         bool firstCall = true;
         Contract.OnExternalCall += () =>
         {
             if (firstCall)
             {
                 firstCall = false;
-                Assert.ThrowsException<Exception>(() => Contract.WithdrawFunds(TestUser, 100));
+                Assert.ThrowsException<Exception>(() => Contract.WithdrawFunds(TestUser.Account, 100));
             }
         };
-        
-        Assert.IsTrue(Contract.WithdrawFunds(TestUser, 100));
+
+        Assert.IsTrue(Contract.WithdrawFunds(TestUser.Account, 100));
     }
 }
+```
+
+This comprehensive security guide
 ```
 
 This comprehensive security guide provides the foundation for developing secure Neo smart contracts. Remember that security is an ongoing process, and you should regularly review and update your security practices as the ecosystem evolves.

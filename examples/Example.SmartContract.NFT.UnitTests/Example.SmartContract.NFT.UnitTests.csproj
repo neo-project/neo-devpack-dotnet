@@ -7,27 +7,18 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+
+        <!-- Force PackageReference project style -->
+        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0"/>
-        <PackageReference Include="MSTest.TestAdapter" Version="3.8.0"/>
-        <PackageReference Include="MSTest.TestFramework" Version="3.8.0"/>
+        <ProjectReference Include="..\\..\\src\\Neo.SmartContract.Testing.RuntimeCompilation\\Neo.SmartContract.Testing.RuntimeCompilation.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj"/>
-        <ProjectReference Remove="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj"
-                          OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting"/>
     </ItemGroup>
-
-    <PropertyGroup>
-        <!--   Overwrite the prebuild event defined in Directory.Build.props     -->
-        <PreBuildEvent></PreBuildEvent>
-    </PropertyGroup>
 
 </Project>

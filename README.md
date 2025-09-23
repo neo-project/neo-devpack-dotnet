@@ -209,56 +209,46 @@ The NEO C# compiler supports the following options:
 The NEO DevPack includes a comprehensive testing framework specifically designed for smart contracts. Here's how to create unit tests for your contracts:
 
 ```csharp
-using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 namespace Example.SmartContract.MyContract.UnitTests
 {
     [TestClass]
-    public class MyContractTests : TestBase<ArtifactMyContract>
+    public class MyContractTests : ContractProjectTestBase
     {
-        [TestInitialize]
-        public void TestSetup()
+        public MyContractTests()
+            : base("../Example.SmartContract.MyContract/Example.SmartContract.MyContract.csproj")
         {
-            // Compile and generate testing artifacts
-            var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
+        }
 
-            // Setup the test base with the compiled contract
-            TestBaseSetup(nef, manifest);
+        [TestInitialize]
+        public void SetUp()
+        {
+            EnsureContractDeployed();
         }
 
         [TestMethod]
-        public void TestMethod()
+        public void MyMethod_ReturnsExpectedValue()
         {
-            // Access contract properties and methods through the Contract property
             var result = Contract.MyMethod("parameter");
             Assert.AreEqual("Expected result", result);
-
-            // Test storage changes after operations
-            var storedValue = Storage.Get(Contract.Hash, "myKey");
-            Assert.AreEqual("Expected storage value", storedValue);
-
-            // Verify emitted events
-            var notifications = Notifications;
-            Assert.AreEqual(1, notifications.Count);
-            Assert.AreEqual("ExpectedEvent", notifications[0].EventName);
         }
     }
 }
-```
+``` 
 
 #### Key Testing Features
 
-1. **TestBase<T> Class**: Provides a base class for contract testing with access to the contract, storage, and notifications.
+1. **ContractProjectTestBase**: Compiles the referenced contract project at test runtime and deploys it into an isolated `TestEngine` automatically.
 
-2. **Automatic Artifact Generation**: The testing framework automatically compiles your contracts and generates testing artifacts.
+2. **No Manual Artifacts**: The runtime compiler keeps NEF/manifest/debug assets in memory—no more checking generated files into source control.
 
-3. **Direct Contract Interaction**: Access contract properties and methods directly through the strongly-typed `Contract` property.
+3. **Direct Contract Interaction**: Interact with the contract through the dynamic `Contract` property, or project it onto helper interfaces for strongly-typed calls.
 
-4. **Storage Simulation**: Test persistent storage operations without deploying to a blockchain.
+4. **Storage Simulation**: Exercise persistent storage via the `Engine` and `Storage` helpers without deploying to a real network.
 
-5. **Event Verification**: Validate that your contract emits the expected events.
+5. **Event Verification**: Capture runtime notifications and logs to verify that the contract emits the expected events.
 
 6. **Gas Consumption Analysis**: Track and analyze GAS costs of operations:
 
@@ -281,11 +271,11 @@ public void TestGasConsumption()
 
 #### Setting Up the Test Project
 
-1. Create a new test project for your contract
-2. Add references to the Neo.SmartContract.Testing package and your contract project
-3. Create a test class that inherits from TestBase<T>
-4. Implement the TestSetup method to compile and initialize the contract
-5. Write test methods for each contract feature or scenario
+1. Create a new MSTest project for your contract tests.
+2. Reference your contract project and add a project reference to `Neo.SmartContract.Testing.RuntimeCompilation`.
+3. Create a test class that inherits from `ContractProjectTestBase`, supplying the path to the contract `.csproj` (and optional contract name).
+4. Call `EnsureContractDeployed()` from `[TestInitialize]` to compile and deploy the contract before each test.
+5. Write test methods that interact with the dynamic `Contract` property, asserting storage, notifications, and GAS as needed.
 
 ## Examples
 
