@@ -10,7 +10,9 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Json;
 using Neo.Optimizer;
@@ -84,14 +86,17 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 
             Assert.AreEqual(2, v.vulnerabilities.Count);
 
-            foreach (var block in v.vulnerabilities.Keys)
-            {
-                bool hasLocalStorageWrite = block.instructions.Any(instruction =>
-                    instruction.OpCode == OpCode.SYSCALL &&
-                    (instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
-                     || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash));
+            FieldInfo? hashesField = typeof(WriteInTryAnalzyer).GetField("StorageWriteHashes", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.IsNotNull(hashesField, "StorageWriteHashes field should exist");
 
-                Assert.IsTrue(hasLocalStorageWrite, "Expected vulnerability block to contain a local storage write syscall");
+            if (hashesField!.GetValue(null) is HashSet<uint> storageHashes)
+            {
+                Assert.IsTrue(storageHashes.Contains(ApplicationEngine.System_Storage_Local_Put.Hash), "StorageWriteHashes should include System.Storage.Local.Put");
+                Assert.IsTrue(storageHashes.Contains(ApplicationEngine.System_Storage_Local_Delete.Hash), "StorageWriteHashes should include System.Storage.Local.Delete");
+            }
+            else
+            {
+                Assert.Fail("Unable to inspect StorageWriteHashes");
             }
         }
     }

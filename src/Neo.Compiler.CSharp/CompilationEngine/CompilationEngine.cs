@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using BigInteger = System.Numerics.BigInteger;
@@ -146,11 +147,13 @@ namespace Neo.Compiler
         {string.Join(Environment.NewLine, references.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
     </ItemGroup>";
 
+            string targetFramework = GetTargetFrameworkMoniker();
+
             var csproj = $@"
 <Project Sdk=""Microsoft.NET.Sdk"">
 
     <PropertyGroup>
-        <TargetFramework>{AppContext.TargetFrameworkName!}</TargetFramework>
+        <TargetFramework>{targetFramework}</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -214,6 +217,30 @@ namespace Neo.Compiler
             }
             Compilation ??= GetCompilation(csproj);
             return targetContractName == null ? CompileProjectContractsWithPrepare(sortedClasses, classDependencies, allClassSymbols) : [CompileProjectContractWithPrepare(sortedClasses, classDependencies, allClassSymbols, targetContractName)];
+        }
+
+        private static string GetTargetFrameworkMoniker()
+        {
+            const string fallback = "net9.0";
+            string? tfm = AppContext.TargetFrameworkName;
+            if (string.IsNullOrEmpty(tfm))
+                return fallback;
+
+            try
+            {
+                FrameworkName framework = new(tfm);
+                if (!string.Equals(framework.Identifier, ".NETCoreApp", StringComparison.OrdinalIgnoreCase))
+                    return fallback;
+
+                if (framework.Version.Major < 9)
+                    return fallback;
+
+                return $"net{framework.Version.Major}.{framework.Version.Minor}";
+            }
+            catch
+            {
+                return fallback;
+            }
         }
 
         public (List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols) PrepareProjectContracts(string csproj)
