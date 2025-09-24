@@ -853,17 +853,21 @@ public static bool IsAdminCached(UInt160 user)
 
 ```csharp
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 [TestClass]
-public class AccessControlTests : TestBase<RBACContract>
+public class AccessControlTests : ContractProjectTestBase
 {
+    public AccessControlTests()
+        : base("../path/to/RBACContract/RBACContract.csproj", contractName: "RBACContract")
+    {
+    }
+
     [TestInitialize]
     public void Setup()
     {
         // Setup test environment
-        var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-        TestBaseSetup(nef, manifest);
+        EnsureContractDeployed();
     }
     
     [TestMethod]

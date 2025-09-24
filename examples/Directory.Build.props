@@ -19,6 +19,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>disable</ImplicitUsings>
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <DisableArtifactGeneration>true</DisableArtifactGeneration>
         
         <!-- Force library project style instead of DotnetToolReference -->
         <OutputType>Library</OutputType>
@@ -41,6 +42,11 @@
         -->
         <UseLocalAnalyzer>true</UseLocalAnalyzer>
         <NeoAnalyzerVersion>3.8.1</NeoAnalyzerVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+        <GenerateRuntimeConfigDevFile>true</GenerateRuntimeConfigDevFile>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">
@@ -68,6 +74,12 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.9.3" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.9.3" />
     </ItemGroup>
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent" Condition="'$(IsTestProject)' != 'true'">

@@ -38,6 +38,12 @@ internal partial class MethodConvert
                                                                   && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
             return false;
 
+        var inlineModel = model;
+        if (!symbol.DeclaringSyntaxReferences.IsEmpty && symbol.ContainingAssembly is ISourceAssemblySymbol sourceAssembly)
+        {
+            inlineModel = sourceAssembly.Compilation.GetSemanticModel(symbol.DeclaringSyntaxReferences[0].SyntaxTree);
+        }
+
         _internalInline = true;
 
         using (InsertSequencePoint(syntax))
@@ -45,11 +51,11 @@ internal partial class MethodConvert
             if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments);
             if (syntax.Body != null)
             {
-                ConvertStatement(model, syntax.Body);
+                ConvertStatement(inlineModel, syntax.Body);
             }
             else if (syntax.ExpressionBody != null)
             {
-                ConvertExpression(model, syntax.ExpressionBody.Expression);
+                ConvertExpression(inlineModel, syntax.ExpressionBody.Expression);
             }
         }
 
@@ -63,7 +69,7 @@ internal partial class MethodConvert
         //   public void Test() { a+=1; } // this will not push value to the stack
         if (syntax is MethodDeclarationSyntax methodSyntax
             && methodSyntax.ReturnType.ToString() == "void"
-            && IsExpressionReturningValue(model, methodSyntax))
+            && IsExpressionReturningValue(inlineModel, methodSyntax))
             AddInstruction(OpCode.DROP);
 
         return true;

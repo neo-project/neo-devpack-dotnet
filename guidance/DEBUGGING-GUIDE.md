@@ -131,30 +131,43 @@ try { } catch (Exception) { }
 ### Unit Test Debugging
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class ContractDebugTests : TestBase<MyContract>
+public class ContractDebugTests : ContractProjectTestBase
 {
+    private static readonly Signer DebugSigner = TestEngine.GetNewSigner();
+
+    public ContractDebugTests()
+        : base("../path/to/MyContract/MyContract.csproj", contractName: "MyContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+        Engine.SetTransactionSigners(DebugSigner);
+        Engine.DebugMode = true;
+    }
+
     [TestMethod]
     public void Debug_ComplexOperation()
     {
-        // Enable verbose output
-        Engine.DebugMode = true;
-        
-        // Log initial state
-        Console.WriteLine($"Initial balance: {Contract.BalanceOf(TestAddress)}");
-        
-        // Execute with logging
+        var initialBalance = Contract.BalanceOf(DebugSigner.Account);
+        Console.WriteLine($"Initial balance: {initialBalance}");
+
         try
         {
-            var result = Contract.ComplexOperation(TestAddress, 100);
+            var result = Contract.ComplexOperation(DebugSigner.Account, 100);
             Console.WriteLine($"Result: {result}");
-            
-            // Log final state
-            Console.WriteLine($"Final balance: {Contract.BalanceOf(TestAddress)}");
-            
-            // Check events
-            var events = Engine.Notifications;
-            foreach (var evt in events)
+
+            var finalBalance = Contract.BalanceOf(DebugSigner.Account);
+            Console.WriteLine($"Final balance: {finalBalance}");
+
+            foreach (var evt in Engine.Notifications)
             {
                 Console.WriteLine($"Event: {evt.EventName}");
                 Console.WriteLine($"Data: {evt.State}");
@@ -167,19 +180,17 @@ public class ContractDebugTests : TestBase<MyContract>
             throw;
         }
     }
-    
+
     [TestMethod]
     public void Debug_GasConsumption()
     {
-        // Track gas usage
         var initialGas = Engine.GasConsumed;
-        
+
         Contract.ExpensiveOperation();
-        
+
         var gasUsed = Engine.GasConsumed - initialGas;
         Console.WriteLine($"Gas consumed: {gasUsed}");
-        
-        // Assert reasonable gas usage
+
         Assert.IsTrue(gasUsed < 10_000_000, $"Too much gas: {gasUsed}");
     }
 }

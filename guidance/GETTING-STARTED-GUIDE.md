@@ -125,6 +125,8 @@ Edit `HelloWorldContract.csproj`:
 </Project>
 ```
 
+> **Note:** The additional project reference points to the runtime-compilation test harness that ships with the DevPack. It automatically compiles and deploys the contract before each test run, so no pre-built artifacts are required.
+
 ### Step 3: Write Your Contract
 
 Replace the contents of `Class1.cs` with:
@@ -357,14 +359,16 @@ Edit `HelloWorldContract.Tests.csproj`:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Neo.SmartContract.Testing" Version="3.8.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../HelloWorldContract.csproj" />
+    <ProjectReference Include="../../src/Neo.SmartContract.Testing.RuntimeCompilation/Neo.SmartContract.Testing.RuntimeCompilation.csproj" />
   </ItemGroup>
 </Project>
 ```
+
+> **Note:** The additional project reference points to the runtime-compilation test harness that ships with the DevPack. It automatically compiles and deploys the contract before each test run, so no pre-built artifacts are required.
 
 ### Step 3: Write Tests
 
@@ -372,73 +376,45 @@ Create `HelloWorldTests.cs`:
 
 ```csharp
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
-using System;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 namespace HelloWorld.Tests
 {
     [TestClass]
-    public class HelloWorldTests : TestBase<HelloWorld>
+    public class HelloWorldTests : ContractProjectTestBase
     {
-        [TestInitialize]
-        public void TestSetup()
+        public HelloWorldTests()
+            : base("../HelloWorldContract/HelloWorldContract.csproj")
         {
-            var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-            TestBaseSetup(nef, manifest);
+        }
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            EnsureContractDeployed();
         }
 
         [TestMethod]
-        public void Test_Greeting()
+        public void Greeting_ReturnsMessage()
         {
-            // Act
             var result = Contract.Greeting("NEO Developer");
-            
-            // Assert
             Assert.AreEqual("Hello, NEO Developer! Welcome to NEO.", result);
         }
 
         [TestMethod]
-        public void Test_StoreAndRetrieveMessage()
+        public void StoreAndRetrieveMessage_AsOwner()
         {
-            // Arrange
-            var testMessage = "Test message";
             var owner = Contract.GetOwner();
-            
-            // Act - Store message as owner
-            Engine.SetTransactionSigners(owner);
-            var storeResult = Contract.StoreMessage(testMessage);
-            
-            // Assert
-            Assert.IsTrue(storeResult);
+            Engine.SetTransactionSigners(new Signer
+            {
+                Account = owner,
+                Scopes = WitnessScope.CalledByEntry
+            });
+
+            var testMessage = "Test message";
+            Assert.IsTrue(Contract.StoreMessage(testMessage));
             Assert.AreEqual(testMessage, Contract.GetMessage());
-        }
-
-        [TestMethod]
-        public void Test_OnlyOwnerCanStore()
-        {
-            // Arrange
-            var nonOwner = Neo.UInt160.Zero;
-            
-            // Act & Assert
-            Engine.SetTransactionSigners(nonOwner);
-            Assert.ThrowsException<Exception>(() => 
-                Contract.StoreMessage("Unauthorized"));
-        }
-
-        [TestMethod]
-        public void Test_GasConsumption()
-        {
-            // Arrange
-            var initialGas = Engine.GasConsumed;
-            
-            // Act
-            Contract.Greeting("Test");
-            
-            // Assert
-            var gasUsed = Engine.GasConsumed - initialGas;
-            Console.WriteLine($"Greeting method used {gasUsed} GAS");
-            Assert.IsTrue(gasUsed < 1_000_000); // Less than 0.01 GAS
         }
     }
 }

@@ -762,9 +762,24 @@ public class DoSProtectedContract : SmartContract
 ### Security Testing Framework
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class SecurityTests : TestBase<MyContract>
+public class SecurityTests : ContractProjectTestBase
 {
+    public SecurityTests()
+        : base("../path/to/MyContract/MyContract.csproj", contractName: "MyContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void TestAccessControl()
     {
@@ -819,9 +834,24 @@ public class SecurityTests : TestBase<MyContract>
 Integrate security testing into your development workflow with these tools and practices:
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class AutomatedSecurityTests : TestBase<MyContract>
+public class AutomatedSecurityTests : ContractProjectTestBase
 {
+    public AutomatedSecurityTests()
+        : base("../path/to/MyContract/MyContract.csproj", contractName: "MyContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void Security_TestReentrancyProtection()
     {

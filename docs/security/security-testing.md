@@ -44,15 +44,23 @@ This guide focuses on comprehensive testing implementations that validate all se
 ### Security Test Plan Template
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 /// <summary>
 /// Comprehensive security test plan for smart contracts
 /// </summary>
 [TestClass]
-public class SecurityTestPlan : TestBase<YourContract>
+public class SecurityTestPlan : ContractProjectTestBase
 {
+    public SecurityTestPlan()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
+    {
+    }
+
     // Test Categories:
     // 1. Input Validation Tests
-    // 2. Access Control Tests  
+    // 2. Access Control Tests
     // 3. State Management Tests
     // 4. Reentrancy Tests
     // 5. Integer Overflow Tests
@@ -63,28 +71,27 @@ public class SecurityTestPlan : TestBase<YourContract>
     [TestInitialize]
     public void SecurityTestSetup()
     {
-        var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-        TestBaseSetup(nef, manifest);
-        
+        EnsureContractDeployed();
+
         // Initialize test accounts
         InitializeTestAccounts();
-        
+
         // Set up test data
         SetupTestData();
-        
+
         // Configure security monitoring
         EnableSecurityMonitoring();
     }
-    
+
     [TestCleanup]
     public void SecurityTestCleanup()
     {
         // Analyze security events
         AnalyzeSecurityEvents();
-        
+
         // Generate security report
         GenerateSecurityReport();
-        
+
         // Clean up test state
         CleanupTestState();
     }
@@ -121,115 +128,84 @@ public class SecurityTestAccounts
 ### Input Validation Testing
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class InputValidationSecurityTests : TestBase<YourContract>
+public class InputValidationSecurityTests : ContractProjectTestBase
 {
+    private static readonly Signer ValidUser = TestEngine.GetNewSigner();
+    private static readonly Signer TokenHolder = TestEngine.GetNewSigner();
+
+    public InputValidationSecurityTests()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+        Engine.SetTransactionSigners(ValidUser);
+    }
+
     [TestMethod]
     public void TestNullInputRejection()
     {
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        // Test null UInt160 parameters
-        Assert.ThrowsException<Exception>(() =>
-            Contract.ProcessUserData(null, "valid data"));
-        
-        // Test null string parameters
-        Assert.ThrowsException<Exception>(() =>
-            Contract.ProcessUserData(SecurityTestAccounts.ValidUser, null));
-        
-        // Test null byte array parameters
-        Assert.ThrowsException<Exception>(() =>
-            Contract.StoreData(SecurityTestAccounts.ValidUser, null));
+        Assert.ThrowsException<Exception>(() => Contract.ProcessUserData(null, "valid data"));
+        Assert.ThrowsException<Exception>(() => Contract.ProcessUserData(ValidUser.Account, null));
+        Assert.ThrowsException<Exception>(() => Contract.StoreData(ValidUser.Account, null));
     }
-    
+
     [TestMethod]
     public void TestInputSizeValidation()
     {
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        // Test oversized string input
-        string largeString = new string('x', 10000);
-        Assert.ThrowsException<Exception>(() =>
-            Contract.ProcessUserData(SecurityTestAccounts.ValidUser, largeString));
-        
-        // Test oversized byte array
-        byte[] largeArray = new byte[100000];
-        Assert.ThrowsException<Exception>(() =>
-            Contract.StoreData(SecurityTestAccounts.ValidUser, largeArray));
-        
-        // Test valid sizes work
+        string largeString = new string('x', 10_000);
+        Assert.ThrowsException<Exception>(() => Contract.ProcessUserData(ValidUser.Account, largeString));
+
+        byte[] largeArray = new byte[100_000];
+        Assert.ThrowsException<Exception>(() => Contract.StoreData(ValidUser.Account, largeArray));
+
         string validString = new string('x', 100);
-        Assert.IsTrue(Contract.ProcessUserData(SecurityTestAccounts.ValidUser, validString));
+        Assert.IsTrue(Contract.ProcessUserData(ValidUser.Account, validString));
     }
-    
+
     [TestMethod]
     public void TestNumericBoundaryValidation()
     {
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        // Test negative amounts where not allowed
-        Assert.ThrowsException<Exception>(() =>
-            Contract.Transfer(SecurityTestAccounts.ValidUser, SecurityTestAccounts.TokenHolder, -100));
-        
-        // Test zero amounts where not allowed
-        Assert.ThrowsException<Exception>(() =>
-            Contract.Transfer(SecurityTestAccounts.ValidUser, SecurityTestAccounts.TokenHolder, 0));
-        
-        // Test maximum value handling
-        BigInteger maxValue = BigInteger.Parse("115792089237316195423570985008687907853269984665640564039457584007913129639935");
-        Assert.ThrowsException<Exception>(() =>
-            Contract.Transfer(SecurityTestAccounts.ValidUser, SecurityTestAccounts.TokenHolder, maxValue));
-        
-        // Test valid amounts work
-        Assert.IsTrue(Contract.Transfer(SecurityTestAccounts.ValidUser, SecurityTestAccounts.TokenHolder, 100));
+        Assert.ThrowsException<Exception>(() => Contract.Transfer(ValidUser.Account, TokenHolder.Account, -100));
+        Assert.ThrowsException<Exception>(() => Contract.Transfer(ValidUser.Account, TokenHolder.Account, 0));
+
+        var maxValue = BigInteger.Parse("115792089237316195423570985008687907853269984665640564039457584007913129639935");
+        Assert.ThrowsException<Exception>(() => Contract.Transfer(ValidUser.Account, TokenHolder.Account, maxValue));
+
+        Assert.IsTrue(Contract.Transfer(ValidUser.Account, TokenHolder.Account, 100));
     }
-    
+
     [TestMethod]
     public void TestStringFormatValidation()
     {
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        // Test invalid characters
-        Assert.ThrowsException<Exception>(() =>
-            Contract.SetUserName(SecurityTestAccounts.ValidUser, "user<script>"));
-        
-        // Test SQL injection patterns
-        Assert.ThrowsException<Exception>(() =>
-            Contract.SetUserName(SecurityTestAccounts.ValidUser, "'; DROP TABLE--"));
-        
-        // Test Unicode attacks
-        Assert.ThrowsException<Exception>(() =>
-            Contract.SetUserName(SecurityTestAccounts.ValidUser, "user\u202e"));
-        
-        // Test valid format works
-        Assert.IsTrue(Contract.SetUserName(SecurityTestAccounts.ValidUser, "validuser123"));
+        Assert.ThrowsException<Exception>(() => Contract.SetUserName(ValidUser.Account, "user<script>"));
+        Assert.ThrowsException<Exception>(() => Contract.SetUserName(ValidUser.Account, "'; DROP TABLE--"));
+        Assert.ThrowsException<Exception>(() => Contract.SetUserName(ValidUser.Account, "user‮"));
+
+        Assert.IsTrue(Contract.SetUserName(ValidUser.Account, "validuser123"));
     }
-    
+
     [TestMethod]
     public void TestArrayParameterValidation()
     {
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        // Test empty arrays where not allowed
-        Assert.ThrowsException<Exception>(() =>
-            Contract.BatchProcess(new UInt160[0], new BigInteger[0]));
-        
-        // Test mismatched array lengths
-        var users = new[] { SecurityTestAccounts.ValidUser, SecurityTestAccounts.TokenHolder };
-        var amounts = new[] { BigInteger.One };
-        Assert.ThrowsException<Exception>(() =>
-            Contract.BatchProcess(users, amounts));
-        
-        // Test oversized arrays
-        var largeUserArray = new UInt160[1000];
-        var largeAmountArray = new BigInteger[1000];
-        Assert.ThrowsException<Exception>(() =>
-            Contract.BatchProcess(largeUserArray, largeAmountArray));
-        
-        // Test valid arrays work
-        var validUsers = new[] { SecurityTestAccounts.ValidUser };
-        var validAmounts = new[] { BigInteger.One };
-        Assert.IsTrue(Contract.BatchProcess(validUsers, validAmounts));
+        Assert.ThrowsException<Exception>(() => Contract.BatchProcess(Array.Empty<UInt160>(), Array.Empty<BigInteger>()));
+
+        var users = new[] { ValidUser.Account, TokenHolder.Account };
+        var amounts = new[] { new BigInteger(10), new BigInteger(20) };
+        Assert.IsTrue(Contract.BatchProcess(users, amounts));
+    }
+}
+```
+
+
     }
 }
 ```
@@ -237,104 +213,90 @@ public class InputValidationSecurityTests : TestBase<YourContract>
 ### Access Control Testing
 
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class AccessControlSecurityTests : TestBase<YourContract>
+public class AccessControlSecurityTests : ContractProjectTestBase
 {
-    [TestMethod]
-    public void TestOwnerOnlyFunctions()
+    public AccessControlSecurityTests()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
     {
-        // Test unauthorized access fails
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
+    [TestMethod]
+    public void TestOwnershipTransfer()
+    {
         Engine.SetCallingScriptHash(SecurityTestAccounts.UnauthorizedUser);
         Assert.ThrowsException<Exception>(() =>
-            Contract.AdminFunction("test"));
-        
-        // Test owner access succeeds
+            Contract.TransferOwnership(SecurityTestAccounts.UnauthorizedUser));
+
         Engine.SetCallingScriptHash(SecurityTestAccounts.Owner);
-        Assert.IsTrue(Contract.AdminFunction("test"));
+        Assert.IsTrue(Contract.TransferOwnership(SecurityTestAccounts.ValidUser));
     }
-    
-    [TestMethod]
-    public void TestWitnessVerification()
-    {
-        // Test that calling without proper witness fails
-        Engine.SetCallingScriptHash(SecurityTestAccounts.Attacker);
-        
-        // Even if attacker sets themselves as parameter, witness check should fail
-        Assert.ThrowsException<Exception>(() =>
-            Contract.UserOnlyFunction(SecurityTestAccounts.ValidUser, "malicious data"));
-        
-        // Test proper witness verification works
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        Assert.IsTrue(Contract.UserOnlyFunction(SecurityTestAccounts.ValidUser, "valid data"));
-    }
-    
+
     [TestMethod]
     public void TestRoleBasedAccess()
     {
-        // Setup roles
         Engine.SetCallingScriptHash(SecurityTestAccounts.Owner);
         Contract.GrantRole(SecurityTestAccounts.ValidUser, "moderator");
-        
-        // Test role-based function access
+
         Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
         Assert.IsTrue(Contract.ModeratorFunction("test"));
-        
-        // Test unauthorized role access
+
         Engine.SetCallingScriptHash(SecurityTestAccounts.UnauthorizedUser);
         Assert.ThrowsException<Exception>(() =>
             Contract.ModeratorFunction("test"));
-        
-        // Test role revocation
+
         Engine.SetCallingScriptHash(SecurityTestAccounts.Owner);
         Contract.RevokeRole(SecurityTestAccounts.ValidUser, "moderator");
-        
+
         Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
         Assert.ThrowsException<Exception>(() =>
             Contract.ModeratorFunction("test"));
     }
-    
+
     [TestMethod]
     public void TestMultiSigAccess()
     {
         var signers = SecurityTestAccounts.MultiSigSigners.Take(3).ToArray();
-        
-        // Test insufficient signatures
+
         Engine.SetCallingScriptHash(signers[0]);
         Assert.IsTrue(Contract.ProposeOperation("op1", "test", "data", signers));
-        
+
         Engine.SetCallingScriptHash(signers[1]);
         Assert.IsTrue(Contract.SignOperation("op1"));
-        
-        // Should not execute with only 2 signatures (requires 3)
+
         var notifications = Notifications.Where(n => n.EventName == "OperationExecuted");
         Assert.IsFalse(notifications.Any());
-        
-        // Test sufficient signatures
+
         Engine.SetCallingScriptHash(signers[2]);
         Assert.IsTrue(Contract.SignOperation("op1"));
-        
-        // Should now execute
+
         notifications = Notifications.Where(n => n.EventName == "OperationExecuted");
         Assert.IsTrue(notifications.Any());
     }
-    
+
     [TestMethod]
     public void TestPrivilegeEscalation()
     {
-        // Test that users cannot escalate their own privileges
         Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
         Assert.ThrowsException<Exception>(() =>
             Contract.GrantRole(SecurityTestAccounts.ValidUser, "admin"));
-        
-        // Test that users cannot grant privileges to others
+
         Assert.ThrowsException<Exception>(() =>
             Contract.GrantRole(SecurityTestAccounts.UnauthorizedUser, "moderator"));
-        
-        // Test that moderators cannot grant admin privileges
+
         Engine.SetCallingScriptHash(SecurityTestAccounts.Owner);
         Contract.GrantRole(SecurityTestAccounts.ValidUser, "moderator");
-        
+
         Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
         Assert.ThrowsException<Exception>(() =>
             Contract.GrantRole(SecurityTestAccounts.UnauthorizedUser, "admin"));
@@ -346,86 +308,84 @@ public class AccessControlSecurityTests : TestBase<YourContract>
 
 ### Reentrancy Attack Testing
 
+```
+
+## Vulnerability Testing
+
+### Reentrancy Attack Testing
+
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class ReentrancySecurityTests : TestBase<YourContract>
+public class ReentrancySecurityTests : ContractProjectTestBase
 {
+    private static readonly Signer Owner = TestEngine.GetNewSigner();
+    private static readonly Signer ValidUser = TestEngine.GetNewSigner();
+
+    public ReentrancySecurityTests()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void TestReentrancyProtection()
     {
-        // Setup: User has some balance
-        Engine.SetCallingScriptHash(SecurityTestAccounts.Owner);
-        Contract.Mint(SecurityTestAccounts.ValidUser, 1000);
-        
-        // Create malicious contract that attempts reentrancy
+        Engine.SetCallingScriptHash(Owner.Account);
+        Contract.Mint(ValidUser.Account, 1000);
+
         var maliciousContract = CreateMaliciousReentrantContract();
-        
-        // Test that reentrancy is prevented
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        // First withdrawal should work
-        Assert.IsTrue(Contract.Withdraw(SecurityTestAccounts.ValidUser, 100));
-        
-        // Simulate reentrancy attack
+
+        Engine.SetCallingScriptHash(ValidUser.Account);
+        Assert.IsTrue(Contract.Withdraw(ValidUser.Account, 100));
+
         bool reentrancyAttempted = false;
         Contract.OnExternalCall += () =>
         {
             if (!reentrancyAttempted)
             {
                 reentrancyAttempted = true;
-                // This should fail due to reentrancy guard
                 Assert.ThrowsException<Exception>(() =>
-                    Contract.Withdraw(SecurityTestAccounts.ValidUser, 100));
+                    Contract.Withdraw(ValidUser.Account, 100));
             }
         };
-        
-        // Trigger withdrawal that would attempt reentrancy
-        Assert.IsTrue(Contract.WithdrawWithCallback(SecurityTestAccounts.ValidUser, 100));
+
+        Assert.IsTrue(Contract.WithdrawWithCallback(ValidUser.Account, 100));
         Assert.IsTrue(reentrancyAttempted, "Reentrancy attack should have been attempted and blocked");
-    }
-    
-    [TestMethod]
-    public void TestCrossContractReentrancy()
-    {
-        // Setup multiple contracts that could be used for cross-contract reentrancy
-        var contractA = Contract;
-        var contractB = CreateSecondContract();
-        
-        // Test that cross-contract reentrancy is prevented
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        // Attempt to use contract B to call back into contract A
-        Assert.ThrowsException<Exception>(() =>
-            contractA.ComplexOperation(contractB.Hash, "reentrant_call"));
-    }
-    
-    [TestMethod]
-    public void TestReadOnlyReentrancy()
-    {
-        // Test that read-only reentrancy doesn't affect state
-        Engine.SetCallingScriptHash(SecurityTestAccounts.ValidUser);
-        
-        var initialBalance = Contract.GetBalance(SecurityTestAccounts.ValidUser);
-        
-        // Simulate read-only reentrancy during state change
-        Contract.OnExternalCall += () =>
-        {
-            // This read should see the old state, not the new state
-            var currentBalance = Contract.GetBalance(SecurityTestAccounts.ValidUser);
-            Assert.AreEqual(initialBalance, currentBalance);
-        };
-        
-        Contract.WithdrawWithReadOnlyCallback(SecurityTestAccounts.ValidUser, 100);
     }
 }
 ```
 
 ### Integer Overflow Testing
 
+
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class IntegerOverflowSecurityTests : TestBase<YourContract>
+public class IntegerOverflowSecurityTests : ContractProjectTestBase
 {
+    public IntegerOverflowSecurityTests()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void TestAdditionOverflow()
     {
@@ -495,10 +455,26 @@ public class IntegerOverflowSecurityTests : TestBase<YourContract>
 
 ### Gas Limit and DoS Testing
 
+
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class GasLimitSecurityTests : TestBase<YourContract>
+public class GasLimitSecurityTests : ContractProjectTestBase
 {
+    public GasLimitSecurityTests()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void TestGasBombPrevention()
     {
@@ -571,10 +547,26 @@ public class GasLimitSecurityTests : TestBase<YourContract>
 
 ### Stress Testing Framework
 
+
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class PerformanceSecurityTests : TestBase<YourContract>
+public class PerformanceSecurityTests : ContractProjectTestBase
 {
+    public PerformanceSecurityTests()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void TestConcurrentAccess()
     {
@@ -658,10 +650,26 @@ public class PerformanceSecurityTests : TestBase<YourContract>
 
 ### Security Test Automation Framework
 
+
 ```csharp
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract.Testing.RuntimeCompilation;
+
 [TestClass]
-public class AutomatedSecurityScanner : TestBase<YourContract>
+public class AutomatedSecurityScanner : ContractProjectTestBase
 {
+    public AutomatedSecurityScanner()
+        : base("../path/to/YourContract/YourContract.csproj", contractName: "YourContract")
+    {
+    }
+
+    [TestInitialize]
+    public void Setup()
+    {
+        EnsureContractDeployed();
+    }
+
     [TestMethod]
     public void RunComprehensiveSecurityScan()
     {

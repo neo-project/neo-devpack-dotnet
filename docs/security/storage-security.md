@@ -815,16 +815,20 @@ public class AuditableStorage : SmartContract
 
 ```csharp
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 [TestClass]
-public class StorageSecurityTests : TestBase<SecureStorageContract>
+public class StorageSecurityTests : ContractProjectTestBase
 {
+    public StorageSecurityTests()
+        : base("../path/to/SecureStorageContract/SecureStorageContract.csproj", contractName: "SecureStorageContract")
+    {
+    }
+
     [TestInitialize]
     public void Setup()
     {
-        var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-        TestBaseSetup(nef, manifest);
+        EnsureContractDeployed();
     }
     
     [TestMethod]

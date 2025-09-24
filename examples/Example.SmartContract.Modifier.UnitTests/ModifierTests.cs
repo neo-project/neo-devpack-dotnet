@@ -1,16 +1,26 @@
-using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.TestingStandards;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.RuntimeCompilation;
 
 namespace Example.SmartContract.Modifier.UnitTests
 {
     [TestClass]
-    public class ModifierTests : TestBase<SampleModifier>
+    public class ModifierTests : ContractProjectTestBase
     {
+        public ModifierTests()
+            : base("../Example.SmartContract.Modifier/Example.SmartContract.Modifier.csproj")
+        {
+        }
+
+        [TestInitialize]
+        public void TestSetup()
+        {
+            EnsureContractDeployed();
+        }
 
         [TestMethod]
-        public void Test()
+        public void ContractLoads()
         {
-
+            EnsureContractDeployed();
         }
     }
 }
