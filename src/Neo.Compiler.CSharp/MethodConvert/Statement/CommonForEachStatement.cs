@@ -149,7 +149,14 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertIteratorForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
-            ILocalSymbol[] symbols = [.. ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!)];
+            var designation = ((DeclarationExpressionSyntax)syntax.Variable).Designation;
+            ILocalSymbol?[] symbols = [.. ((ParenthesizedVariableDesignationSyntax)designation).Variables
+                .Select(p => p switch
+                {
+                    SingleVariableDesignationSyntax single => (ILocalSymbol)model.GetDeclaredSymbol(single)!,
+                    DiscardDesignationSyntax => null,
+                    _ => throw CompilationException.UnsupportedSyntax(p, $"`foreach` variable designation type '{p.GetType().Name}' is not supported. Only single variable and discard designations are allowed.")
+                })];
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget breakTarget = new();
@@ -178,7 +185,7 @@ namespace Neo.Compiler
                     }
                     else
                     {
-                        byte variableIndex = AddLocalVariable(symbols[i]);
+                        byte variableIndex = AddLocalVariable(symbols[i]!);
                         AccessSlot(OpCode.STLOC, variableIndex);
                     }
                 }
@@ -192,9 +199,11 @@ namespace Neo.Compiler
             }
             breakTarget.Instruction = AddInstruction(OpCode.NOP);
             RemoveAnonymousVariable(iteratorIndex);
-            foreach (ILocalSymbol symbol in symbols)
+            foreach (var symbol in symbols)
+            {
                 if (symbol is not null)
                     RemoveLocalVariable(symbol);
+            }
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
@@ -287,7 +296,14 @@ namespace Neo.Compiler
         /// </example>
         private void ConvertArrayForEachVariableStatement(SemanticModel model, ForEachVariableStatementSyntax syntax)
         {
-            ILocalSymbol[] symbols = ((ParenthesizedVariableDesignationSyntax)((DeclarationExpressionSyntax)syntax.Variable).Designation).Variables.Select(p => (ILocalSymbol)model.GetDeclaredSymbol(p)!).ToArray();
+            var designation = ((DeclarationExpressionSyntax)syntax.Variable).Designation;
+            ILocalSymbol?[] symbols = [.. ((ParenthesizedVariableDesignationSyntax)designation).Variables
+                .Select(p => p switch
+                {
+                    SingleVariableDesignationSyntax single => (ILocalSymbol)model.GetDeclaredSymbol(single)!,
+                    DiscardDesignationSyntax => null,
+                    _ => throw CompilationException.UnsupportedSyntax(p, $"`foreach` variable designation type '{p.GetType().Name}' is not supported. Only single variable and discard designations are allowed.")
+                })];
             JumpTarget startTarget = new();
             JumpTarget continueTarget = new();
             JumpTarget conditionTarget = new();
@@ -325,7 +341,7 @@ namespace Neo.Compiler
                     }
                     else
                     {
-                        byte variableIndex = AddLocalVariable(symbols[i]);
+                        byte variableIndex = AddLocalVariable(symbols[i]!);
                         AccessSlot(OpCode.STLOC, variableIndex);
                     }
                 }
@@ -344,9 +360,11 @@ namespace Neo.Compiler
             RemoveAnonymousVariable(arrayIndex);
             RemoveAnonymousVariable(lengthIndex);
             RemoveAnonymousVariable(iIndex);
-            foreach (ILocalSymbol symbol in symbols)
+            foreach (var symbol in symbols)
+            {
                 if (symbol is not null)
                     RemoveLocalVariable(symbol);
+            }
             PopContinueTarget();
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
