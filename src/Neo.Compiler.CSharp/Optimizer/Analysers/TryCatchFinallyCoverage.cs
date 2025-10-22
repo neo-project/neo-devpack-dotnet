@@ -199,9 +199,20 @@ namespace Neo.Optimizer
                     }
                     if (instruction.OpCode == OpCode.ENDTRY || instruction.OpCode == OpCode.ENDTRY_L)
                     {
+                        while (tryType == TryType.FINALLY && tryStack.Count > 0)
+                        {
+                            tryStack.Pop();
+                            if (tryStack.Count == 0)
+                                break;
+                            (tryBlock, endFinallyBlock, tryType, continueAfterFinally) = tryStack.Peek();
+                        }
+                        if (tryStack.Count == 0)
+                            return BranchType.OK;
                         if (tryType != TryType.TRY && tryType != TryType.CATCH)
                             throw new BadScriptException("No try stack on ENDTRY");
                         tryStack.Pop();  // pop the ending TRY or CATCH
+                        if (tryStack.Count > 0)
+                            (tryBlock, endFinallyBlock, tryType, continueAfterFinally) = tryStack.Peek();
                         if (tryType == TryType.TRY && allTry[tryBlock].catchBlock != null)
                         {
                             tryStack.Push((tryBlock, null, TryType.CATCH, true));
