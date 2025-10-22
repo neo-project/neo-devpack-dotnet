@@ -37,13 +37,16 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.Dup();                                        // Duplicate result for range check
-        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if value is within [-128, 127]
-        methodConvert.Jump(OpCode.JMPIF, endTarget);             // Jump if within range
-        methodConvert.Throw();                                      // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();                                // Duplicate result for range check
+                methodConvert.Within(sbyte.MinValue, sbyte.MaxValue); // Check if value is within [-128, 127]
+            },
+            () => { },
+            () => methodConvert.Throw(),
+            fallThroughElse: true);
     }
 
     /// <summary>
@@ -139,14 +142,17 @@ internal partial class MethodConvert
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
-        JumpTarget endTarget = new();
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Dup();
-        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.Throw();
-        endTarget.Instruction = methodConvert.Nop();
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();
+                methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);
+            },
+            () => { },
+            () => methodConvert.Throw(),
+            fallThroughElse: true);
     }
 
     /// <summary>

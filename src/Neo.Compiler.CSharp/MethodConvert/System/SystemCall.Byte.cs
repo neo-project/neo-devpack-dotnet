@@ -36,13 +36,16 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.Dup();                                                    // Duplicate result for range check
-        methodConvert.Within(byte.MinValue, byte.MaxValue);                     // Check if value is within byte range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                            // Jump if within range
-        methodConvert.Throw();                                                  // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();                            // End target
+        methodConvert.EmitIf(
+            conditionEmitter: () =>
+            {
+                methodConvert.Dup();                                            // Duplicate result for range check
+                methodConvert.Within(byte.MinValue, byte.MaxValue);             // Check if value is within byte range
+            },
+            thenEmitter: () => { },
+            elseEmitter: () => methodConvert.Throw(),
+            fallThroughElse: true);
     }
 
     /// <summary>
@@ -95,14 +98,17 @@ internal partial class MethodConvert
     private static void HandleByteCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        JumpTarget endTarget = new();
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Dup();                                        // Duplicate value for range check
-        methodConvert.Within(byte.MinValue, byte.MaxValue);         // Check if value is within byte range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
-        methodConvert.Throw();                                      // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();                // End target
+        methodConvert.EmitIf(
+            conditionEmitter: () =>
+            {
+                methodConvert.Dup();                                // Duplicate value for range check
+                methodConvert.Within(byte.MinValue, byte.MaxValue); // Check if value is within byte range
+            },
+            thenEmitter: () => { },
+            elseEmitter: () => methodConvert.Throw(),               // Throw if out of range
+            fallThroughElse: true);
     }
 
     /// <summary>

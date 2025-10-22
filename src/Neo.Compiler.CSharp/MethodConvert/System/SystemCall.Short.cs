@@ -37,13 +37,16 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.Dup();                                        // Duplicate result for range check
-        methodConvert.Within(short.MinValue, short.MaxValue);       // Check if value is within short range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
-        methodConvert.Throw();                                      // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();                // End target
+        methodConvert.EmitIf(
+            conditionEmitter: () =>
+            {
+                methodConvert.Dup();                                // Duplicate result for range check
+                methodConvert.Within(short.MinValue, short.MaxValue); // Check if value is within short range
+            },
+            thenEmitter: () => { },
+            elseEmitter: () => methodConvert.Throw(),
+            fallThroughElse: true);
     }
 
     /// <summary>
@@ -132,14 +135,17 @@ internal partial class MethodConvert
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
-        JumpTarget endTarget = new();
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Dup();
-        methodConvert.Within(short.MinValue, short.MaxValue);    // Check if value is within short range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();
+                methodConvert.Within(short.MinValue, short.MaxValue); // Check if value is within short range
+            },
+            () => { },
+            () => methodConvert.Throw(),
+            fallThroughElse: true);
     }
 
     /// <summary>

@@ -20,7 +20,7 @@ internal partial class MethodConvert
     /// Emits an if/else construct.
     /// The <paramref name="conditionEmitter"/> must push a boolean onto the evaluation stack.
     /// </summary>
-    private void EmitIf(Action conditionEmitter, Action thenEmitter, Action? elseEmitter = null)
+    private void EmitIf(Action conditionEmitter, Action thenEmitter, Action? elseEmitter = null, bool fallThroughElse = false)
     {
         ArgumentNullException.ThrowIfNull(conditionEmitter);
         ArgumentNullException.ThrowIfNull(thenEmitter);
@@ -37,13 +37,15 @@ internal partial class MethodConvert
         }
 
         JumpTarget thenTarget = new();
-        JumpTarget endTarget = new();
+        JumpTarget? endTarget = fallThroughElse ? null : new JumpTarget();
         Jump(OpCode.JMPIF, thenTarget);
         elseEmitter();
-        Jump(OpCode.JMP, endTarget);
+        if (endTarget is not null)
+            Jump(OpCode.JMP, endTarget);
         thenTarget.Instruction = Nop();
         thenEmitter();
-        endTarget.Instruction = Nop();
+        if (endTarget is not null)
+            endTarget.Instruction = Nop();
     }
 
     /// <summary>
