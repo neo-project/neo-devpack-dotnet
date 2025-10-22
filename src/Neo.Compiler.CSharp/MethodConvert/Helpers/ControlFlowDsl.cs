@@ -113,6 +113,56 @@ internal partial class MethodConvert
     private void JumpIfLessOrEqual(JumpTarget target) => Jump(OpCode.JMPLE, target);
 
     /// <summary>
+    /// Emits a loop that evaluates a comparison opcode each iteration and exits when the comparison succeeds.
+    /// </summary>
+    private void EmitWhileComparisonTrueExit(Func<Instruction>? perIterationSetup, Action comparisonSetup, OpCode comparisonOp,
+        Action<LoopScope> bodyEmitter, Func<Instruction>? exitEmitter = null)
+    {
+        ArgumentNullException.ThrowIfNull(comparisonSetup);
+        ArgumentNullException.ThrowIfNull(bodyEmitter);
+
+        JumpTarget loopStart = new();
+        JumpTarget exitTarget = new();
+        Instruction? loopStartInstruction = perIterationSetup?.Invoke();
+        loopStart.Instruction = loopStartInstruction ?? Nop();
+        comparisonSetup();
+        Jump(comparisonOp, exitTarget);
+        LoopScope scope = new(this, loopStart, exitTarget);
+        bodyEmitter(scope);
+        JumpAlways(loopStart);
+        exitTarget.Instruction = exitEmitter?.Invoke() ?? Nop();
+    }
+
+    /// <summary>
+    /// Emits a branch driven by a comparison opcode.
+    /// </summary>
+    private void EmitIfComparison(Action comparisonSetup, OpCode comparisonOp, Action thenEmitter,
+        Action? elseEmitter = null, bool fallThroughElse = false)
+    {
+        ArgumentNullException.ThrowIfNull(comparisonSetup);
+        ArgumentNullException.ThrowIfNull(thenEmitter);
+
+        JumpTarget trueTarget = new();
+        JumpTarget? endTarget = elseEmitter is not null && !fallThroughElse ? new JumpTarget() : null;
+
+        comparisonSetup();
+        Jump(comparisonOp, trueTarget);
+
+        if (elseEmitter is not null)
+        {
+            elseEmitter();
+            if (!fallThroughElse)
+                JumpAlways(endTarget!);
+        }
+
+        trueTarget.Instruction = Nop();
+        thenEmitter();
+
+        if (endTarget is not null)
+            endTarget.Instruction = Nop();
+    }
+
+    /// <summary>
     /// Emits a while loop with optional loop control callbacks.
     /// The <paramref name="conditionEmitter"/> must push a boolean onto the stack.
     /// </summary>
@@ -233,6 +283,48 @@ internal partial class MethodConvert
         defaultBody?.Invoke();
         endTarget.Instruction = Nop();
     }
+
+    /// <summary>
+    /// Emits the core pop-count loop assuming the value to inspect is on top of the stack
+    /// and the running count is beneath it.
+    /// </summary>
+    private void EmitPopCountLoopCore()
+    {
+        Push(0);                                                   // value count
+        Swap();                                                    // count value
+        EmitWhileComparisonTrueExit(
+            perIterationSetup: () => Dup(),                        // count value value
+            comparisonSetup: () => Push0(),                        // count value value 0
+            comparisonOp: OpCode.JMPEQ,                            // Exit when value == 0
+            bodyEmitter: _ =>
+            {
+                Dup();                                             // count value value
+                Push1();                                           // count value value 1
+                And();                                             // count value (value & 1)
+                Rot();                                             // value (value & 1) count
+                Add();                                             // value count += (value & 1)
+                Swap();                                            // count value
+                Push1();                                           // count value 1
+                ShR();                                             // count value >>= 1
+            },
+            exitEmitter: () => Drop());                            // Drop remaining value
+    }
+
+    /// <summary>
+    /// Emits a pop-count loop after first masking the input value down to the specified bit width.
+    /// </summary>
+    private void EmitPopCountWithMask(int bitWidth)
+    {
+        Push((BigInteger.One << bitWidth) - 1);
+        And();
+        EmitPopCountLoopCore();
+    }
+
+    /// <summary>
+    /// Emits a pop-count loop when the value has already been masked to the desired width.
+    /// </summary>
+    private void EmitPopCountFromMaskedValue()
+        => EmitPopCountLoopCore();
 
     private readonly struct LoopScope
     {

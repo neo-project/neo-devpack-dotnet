@@ -242,7 +242,7 @@ internal partial class MethodConvert
         // Evaluation stack: value=5 min=0 max=10 <- top
         methodConvert.Over();                                      // 5 0 10 0
         methodConvert.Over();                                      // 5 0 10 0 10 <- top
-        methodConvert.JumpIfLessOrEqual( exceptionTarget);         // 5 0 10  // if 0 <= 10, continue execution
+        methodConvert.JumpIfLessOrEqual(exceptionTarget);         // 5 0 10  // if 0 <= 10, continue execution
         //methodConvert.Push("min>max");
         methodConvert.Throw();                                     // Throw if min > max
         exceptionTarget.Instruction = methodConvert.Nop();         // Exception handling target
@@ -291,7 +291,7 @@ internal partial class MethodConvert
         methodConvert.Mul();                                       // Multiply the values
         methodConvert.Dup();                                       // Duplicate result for range check
         methodConvert.Within(long.MinValue, long.MaxValue);     // Check if within long range
-        methodConvert.JumpIfTrue( endTarget);            // Jump if within range
+        methodConvert.JumpIfTrue(endTarget);            // Jump if within range
         methodConvert.Throw();                                     // Throw if overflow
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
