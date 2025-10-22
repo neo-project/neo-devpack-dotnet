@@ -64,7 +64,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                     {
                         if (i.OpCode == VM.OpCode.SYSCALL
                         && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                         || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
+                         || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                         || i.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                         || i.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash))
                             writeAddrs.Add(a);
                         a += i.Size;
                     }
@@ -134,7 +136,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                 foreach (VM.Instruction i in block.instructions)
                     if (i.OpCode == VM.OpCode.SYSCALL
                     && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                     || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
+                     || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                     || i.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                     || i.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash))
                         allBasicBlocksWritingStorage.Add(block);
             foreach (TryCatchFinallySingleCoverage c in tryCatchFinallyCoverage.allTry.Values)
             {
