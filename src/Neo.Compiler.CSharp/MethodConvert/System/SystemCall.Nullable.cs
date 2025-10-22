@@ -55,12 +55,14 @@ internal partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.Dup();                                       // Duplicate value for null check
-        methodConvert.IsNull();                                    // Check if value is null
-        var endTarget = new JumpTarget();
-        methodConvert.JumpIfFalse( endTarget);            // Jump if not null
-        methodConvert.Throw();                                     // Throw if null
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();                               // Duplicate value for null check
+                methodConvert.IsNull();                            // Check if value is null
+            },
+            () => methodConvert.Throw(),                           // Throw if null
+            fallThroughElse: true);
     }
 
     /// <summary>
@@ -78,13 +80,18 @@ internal partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.Dup();                                       // Duplicate value for null check
-        methodConvert.IsNull();                                    // Check if value is null
-        var endTarget = new JumpTarget();
-        methodConvert.JumpIfFalse( endTarget);            // Jump if not null
-        methodConvert.Drop();                                      // Drop null value
-        methodConvert.Push(0);                                     // Push default value (0)
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();                               // Duplicate value for null check
+                methodConvert.IsNull();                            // Check if value is null
+            },
+            () =>
+            {
+                methodConvert.Drop();                              // Drop null value
+                methodConvert.Push(0);                             // Push default value (0)
+            },
+            fallThroughElse: true);
     }
 
     /// <summary>
