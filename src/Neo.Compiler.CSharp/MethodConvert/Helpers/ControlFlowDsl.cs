@@ -49,6 +49,58 @@ internal partial class MethodConvert
     }
 
     /// <summary>
+    /// Emits a conditional jump that executes <paramref name="conditionEmitter"/> and jumps if it evaluates true.
+    /// </summary>
+    private void EmitJumpIf(Action conditionEmitter, JumpTarget trueTarget)
+    {
+        ArgumentNullException.ThrowIfNull(conditionEmitter);
+        ArgumentNullException.ThrowIfNull(trueTarget);
+        conditionEmitter();
+        Jump(OpCode.JMPIF, trueTarget);
+    }
+
+    /// <summary>
+    /// Emits a conditional jump that executes <paramref name="conditionEmitter"/> and jumps if it evaluates false.
+    /// </summary>
+    private void EmitJumpIfNot(Action conditionEmitter, JumpTarget falseTarget)
+    {
+        ArgumentNullException.ThrowIfNull(conditionEmitter);
+        ArgumentNullException.ThrowIfNull(falseTarget);
+        conditionEmitter();
+        Jump(OpCode.JMPIFNOT, falseTarget);
+    }
+
+    /// <summary>
+    /// Emits a jump that uses the boolean already on the stack.
+    /// </summary>
+    private void JumpIfTrue(JumpTarget target) => Jump(OpCode.JMPIF, target);
+
+    /// <summary>
+    /// Emits a jump that uses the boolean already on the stack.
+    /// </summary>
+    private void JumpIfFalse(JumpTarget target) => Jump(OpCode.JMPIFNOT, target);
+
+    /// <summary>
+    /// Emits an unconditional jump.
+    /// </summary>
+    private void JumpAlways(JumpTarget target) => Jump(OpCode.JMP, target);
+
+    /// <summary>
+    /// Emits a long jump that uses the boolean already on the stack.
+    /// </summary>
+    private void JumpIfTrueLong(JumpTarget target) => Jump(OpCode.JMPIF_L, target);
+
+    /// <summary>
+    /// Emits a long jump that uses the boolean already on the stack.
+    /// </summary>
+    private void JumpIfFalseLong(JumpTarget target) => Jump(OpCode.JMPIFNOT_L, target);
+
+    /// <summary>
+    /// Emits an unconditional long jump.
+    /// </summary>
+    private void JumpAlwaysLong(JumpTarget target) => Jump(OpCode.JMP_L, target);
+
+    /// <summary>
     /// Emits a while loop with optional loop control callbacks.
     /// The <paramref name="conditionEmitter"/> must push a boolean onto the stack.
     /// </summary>

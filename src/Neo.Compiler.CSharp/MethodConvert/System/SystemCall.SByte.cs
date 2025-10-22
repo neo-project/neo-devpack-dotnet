@@ -76,7 +76,7 @@ internal partial class MethodConvert
         methodConvert.Jump(OpCode.JMPGE, notNegative);             // a
         methodConvert.Drop();
         methodConvert.Push0();
-        methodConvert.Jump(OpCode.JMP, endTarget);
+        methodConvert.JumpAlways( endTarget);
 
         notNegative.Instruction = methodConvert.Nop();
 
@@ -94,7 +94,7 @@ internal partial class MethodConvert
         methodConvert.ShR();                                       // count (value >> 1)
         methodConvert.Swap();                                      // (value >> 1) count
         methodConvert.Inc();                                       // (value >> 1) (count + 1)
-        methodConvert.Jump(OpCode.JMP, loopStart);
+        methodConvert.JumpAlways( loopStart);
 
         endLoop.Instruction = methodConvert.Drop();
         methodConvert.Push(8);
@@ -203,18 +203,18 @@ internal partial class MethodConvert
         methodConvert.Rot();                                       // value max max value
         methodConvert.Jump(OpCode.JMPLT, maxTarget);               // value max
         methodConvert.Drop();
-        methodConvert.Jump(OpCode.JMP, endTarget);
+        methodConvert.JumpAlways( endTarget);
 
         minTarget.Instruction = methodConvert.Nop();
         methodConvert.Reverse3();
         methodConvert.Drop();
         methodConvert.Drop();
-        methodConvert.Jump(OpCode.JMP, endTarget);
+        methodConvert.JumpAlways( endTarget);
 
         maxTarget.Instruction = methodConvert.Nop();
         methodConvert.Swap();
         methodConvert.Drop();
-        methodConvert.Jump(OpCode.JMP, endTarget);
+        methodConvert.JumpAlways( endTarget);
 
         endTarget.Instruction = methodConvert.Nop();
     }
@@ -389,7 +389,7 @@ internal partial class MethodConvert
         methodConvert.Swap();                                      // count value
         methodConvert.Push1();                                     // count value 1
         methodConvert.ShR();                                       // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);
+        methodConvert.JumpAlways( loopStart);
 
         endLoop.Instruction = methodConvert.Drop();                // Drop the remaining value
     }

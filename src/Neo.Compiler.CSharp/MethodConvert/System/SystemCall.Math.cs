@@ -291,7 +291,7 @@ internal partial class MethodConvert
         methodConvert.Mul();                                       // Multiply the values
         methodConvert.Dup();                                       // Duplicate result for range check
         methodConvert.Within(long.MinValue, long.MaxValue);     // Check if within long range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);            // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);            // Jump if within range
         methodConvert.Throw();                                     // Throw if overflow
         endTarget.Instruction = methodConvert.Nop();               // End target
     }

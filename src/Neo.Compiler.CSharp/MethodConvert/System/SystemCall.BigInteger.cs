@@ -338,7 +338,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate result
         methodConvert.Push0();                                     // Push 0 for comparison
         methodConvert.NumEqual();                                  // Check if remainder is 0
-        methodConvert.Jump(OpCode.JMPIFNOT, gcdTarget);            // Continue loop if not 0
+        methodConvert.JumpIfFalse( gcdTarget);            // Continue loop if not 0
         methodConvert.Drop();                                      // Drop the zero remainder
         methodConvert.Abs();                                       // Return absolute value
     }
@@ -415,7 +415,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
         methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -438,7 +438,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
         methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -461,7 +461,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
         methodConvert.Within(byte.MinValue, byte.MaxValue);     // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -484,7 +484,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
         methodConvert.Within(short.MinValue, short.MaxValue);    // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -507,7 +507,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
         methodConvert.Within(ushort.MinValue, ushort.MaxValue);   // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -530,7 +530,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
         methodConvert.Within(int.MinValue, int.MaxValue);         // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);                // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -553,7 +553,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
         methodConvert.Within(uint.MinValue, uint.MaxValue);         // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);                // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -576,7 +576,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate result for range check
         methodConvert.Within(long.MinValue, long.MaxValue);         // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);                // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -599,7 +599,7 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                                     // Duplicate value for range check
         methodConvert.Within(ulong.MinValue, ulong.MaxValue);                 // Check if within ulong range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                          // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);                          // Jump if within range
         methodConvert.Throw();                                                   // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();                             // End target
     }
@@ -749,7 +749,7 @@ internal partial class MethodConvert
         methodConvert.Push0();                                     // Push 0 for comparison
         methodConvert.Jump(OpCode.JMPNE, nonZero);                 // Jump if non-zero
         methodConvert.Drop();                                      // Drop the value if zero
-        methodConvert.Jump(OpCode.JMP, endFalse);                  // Return false for zero
+        methodConvert.JumpAlways( endFalse);                  // Return false for zero
         nonZero.Instruction = methodConvert.Nop();                 // Non-zero target
         methodConvert.Dup();                                       // Duplicate value
         methodConvert.Dec();                                       // Decrement (n-1)
@@ -758,7 +758,7 @@ internal partial class MethodConvert
         methodConvert.Jump(OpCode.JMPEQ, endTrue);                 // Jump if result is 0
         endFalse.Instruction = methodConvert.Nop();                // False case target
         methodConvert.Push(false);
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         endTrue.Instruction = methodConvert.Nop();                 // True case target
         methodConvert.Push(true);
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -838,7 +838,7 @@ internal partial class MethodConvert
         methodConvert.Push0();                                     // Push 0 for comparison
         methodConvert.Jump(OpCode.JMPLT, negativeTarget);          // Jump if b < 0
         methodConvert.Abs();                                       // Return abs(a) if b >= 0
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         negativeTarget.Instruction = methodConvert.Nop();          // Negative target
         methodConvert.Abs();                                       // Get abs(a)
         methodConvert.Negate();                                    // Return -abs(a) if b < 0
@@ -902,7 +902,7 @@ internal partial class MethodConvert
         methodConvert.Jump(OpCode.JMPGE, notNegative);             // Jump if value >= 0
         methodConvert.Drop();                                      // Drop negative value
         methodConvert.Push0();                                     // Return 0 for negative values
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         notNegative.Instruction = methodConvert.Nop();             // Target for non-negative values
         methodConvert.Push(0);                                     // Initialize count to 0
         loopStart.Instruction = methodConvert.Swap();              // Swap count and value
@@ -913,7 +913,7 @@ internal partial class MethodConvert
         methodConvert.ShR();                                       // Right shift value by 1
         methodConvert.Swap();                                      // Swap value and count
         methodConvert.Inc();                                       // Increment count
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
         endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
         methodConvert.Push(256);                                   // Push 256 (estimated bit width)
         methodConvert.Swap();                                      // Swap 256 and count
@@ -997,13 +997,13 @@ internal partial class MethodConvert
         methodConvert.Dup();
         methodConvert.Within(int.MinValue, int.MaxValue);
         var endIntCheck = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endIntCheck);
+        methodConvert.JumpIfFalse( endIntCheck);
 
         // If within int range, mask with 0xFFFFFFFF
         methodConvert.Push(0xFFFFFFFF);
         methodConvert.And();
         var endMask = new JumpTarget();
-        methodConvert.Jump(OpCode.JMP, endMask);
+        methodConvert.JumpAlways( endMask);
 
         // If larger than int, throw exception, cause too many check will make the script too long.
         endIntCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
@@ -1028,7 +1028,7 @@ internal partial class MethodConvert
         methodConvert.Swap();      // count value
         methodConvert.Push1();     // count value 1
         methodConvert.ShR();       // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);
+        methodConvert.JumpAlways( loopStart);
 
         endLoop.Instruction = methodConvert.Drop();     // Drop the remaining value
     }

@@ -38,7 +38,7 @@ internal partial class MethodConvert
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
         methodConvert.Dup();                                       // Duplicate result for range check
         methodConvert.Within(char.MinValue, char.MaxValue);        // Check if value is within char range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.JumpIfTrue( endTarget);               // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -209,13 +209,13 @@ internal partial class MethodConvert
         var endTarget = new JumpTarget();
         methodConvert.Dup();                                       // Duplicate character for multiple checks
         methodConvert.Within((ushort)'!', (ushort)'/');            // Check if within range !"#$%&'()*+,-./
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if found punctuation
+        methodConvert.JumpIfTrue( endTarget);               // Jump if found punctuation
         methodConvert.Dup();                                       // Duplicate character for next check
         methodConvert.Within((ushort)':', (ushort)'@');            // Check if within range :;<=>?@
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if found punctuation
+        methodConvert.JumpIfTrue( endTarget);               // Jump if found punctuation
         methodConvert.Dup();                                       // Duplicate character for next check
         methodConvert.Within((ushort)'[', (ushort)'`');            // Check if within range [\]^_`
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if found punctuation
+        methodConvert.JumpIfTrue( endTarget);               // Jump if found punctuation
         methodConvert.Within((ushort)'{', (ushort)'~');            // Check if within range {|}~
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -239,16 +239,16 @@ internal partial class MethodConvert
         var endTarget = new JumpTarget();
         methodConvert.Dup();                                       // Duplicate character for multiple checks
         methodConvert.Within((ushort)'$', (ushort)'+');            // Check if within range $%&'()*+
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if found symbol
+        methodConvert.JumpIfTrue( endTarget);               // Jump if found symbol
         methodConvert.Dup();                                       // Duplicate character for next check
         methodConvert.Within((ushort)'<', (ushort)'=');            // Check if within range <=>
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if found symbol
+        methodConvert.JumpIfTrue( endTarget);               // Jump if found symbol
         methodConvert.Dup();                                       // Duplicate character for next check
         methodConvert.Within((ushort)'>', (ushort)'@');            // Check if within range >?@
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if found symbol
+        methodConvert.JumpIfTrue( endTarget);               // Jump if found symbol
         methodConvert.Dup();                                       // Duplicate character for next check
         methodConvert.Within((ushort)'[', (ushort)'`');            // Check if within range [\]^_`
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if found symbol
+        methodConvert.JumpIfTrue( endTarget);               // Jump if found symbol
         methodConvert.Within((ushort)'{', (ushort)'~');            // Check if within range {|}~
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -358,10 +358,10 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate character for digit check
         methodConvert.Within((ushort)'0', (ushort)'9');            // Check if within digit range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if is digit
+        methodConvert.JumpIfTrue( endTarget);               // Jump if is digit
         methodConvert.Dup();                                       // Duplicate character for uppercase check
         methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if is uppercase
+        methodConvert.JumpIfTrue( endTarget);               // Jump if is uppercase
         methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -388,11 +388,11 @@ internal partial class MethodConvert
         methodConvert.Rot();                                       // Rotate stack to get minValue on top
         methodConvert.Ge();                                        // Check if character >= minValue
         methodConvert.Dup();                                       // Duplicate result for validation
-        methodConvert.Jump(OpCode.JMPIFNOT, validTarget);          // Jump if character < minValue
+        methodConvert.JumpIfFalse( validTarget);          // Jump if character < minValue
         methodConvert.Reverse3();                                  // Reverse stack order
         methodConvert.Drop();                                      // Drop unnecessary value
         methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end with false result
+        methodConvert.JumpAlways( endTarget);                 // Jump to end with false result
         validTarget.Instruction = methodConvert.Nop();             // Valid target marker
         methodConvert.Drop();                                      // Drop the duplicate result
         methodConvert.Lt();                                        // Check if character < maxValue
@@ -419,10 +419,10 @@ internal partial class MethodConvert
         JumpTarget validTarget = new();
         methodConvert.Dup();                                       // Duplicate character for range check
         methodConvert.Within((ushort)'0', (ushort)'9');            // Check if within digit range
-        methodConvert.Jump(OpCode.JMPIF, validTarget);             // Jump if is digit
+        methodConvert.JumpIfTrue( validTarget);             // Jump if is digit
         methodConvert.Drop();                                      // Drop character if not digit
         methodConvert.PushM1();                                    // Push -1 for non-digit
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         validTarget.Instruction = methodConvert.Nop();             // Valid digit target
         methodConvert.Push((ushort)'0');                           // Push '0' character
         methodConvert.Sub();                                       // Subtract '0' to get numeric value
@@ -448,7 +448,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate character for range check
         methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not uppercase
+        methodConvert.JumpIfFalse( endTarget);            // Jump if not uppercase
         methodConvert.Push((ushort)'A');                           // Push 'A' character
         methodConvert.Sub();                                       // Subtract 'A' to get offset
         methodConvert.Push((ushort)'a');                           // Push 'a' character
@@ -475,7 +475,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate character for range check
         methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not lowercase
+        methodConvert.JumpIfFalse( endTarget);            // Jump if not lowercase
         methodConvert.Push((ushort)'a');                           // Push 'a' character
         methodConvert.Sub();                                       // Subtract 'a' to get offset
         methodConvert.Push((ushort)'A');                           // Push 'A' character
@@ -576,7 +576,7 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if uppercase letter found
+        methodConvert.JumpIfTrue( endTarget);               // Jump if uppercase letter found
         methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }

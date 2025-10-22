@@ -76,7 +76,7 @@ internal partial class MethodConvert
         methodConvert.ShR();                                       // Right shift value by 1
         methodConvert.Swap();                                      // Swap value and count
         methodConvert.Inc();                                       // Increment count
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
         endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
         methodConvert.Push(8);                                     // Push 8 (bit width)
         methodConvert.Swap();                                      // Swap 8 and count
@@ -156,16 +156,16 @@ internal partial class MethodConvert
         methodConvert.Rot();                                       // Rotate stack elements
         methodConvert.Jump(OpCode.JMPLT, maxTarget);               // Jump if value < max threshold
         methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         minTarget.Instruction = methodConvert.Nop();               // Minimum value target
         methodConvert.Reverse3();                                  // Reverse top 3 stack elements
         methodConvert.Drop();                                      // Drop unnecessary value
         methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         maxTarget.Instruction = methodConvert.Nop();               // Maximum value target
         methodConvert.Swap();                                      // Swap top two elements
         methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
@@ -286,7 +286,7 @@ internal partial class MethodConvert
         methodConvert.Swap();                                      // count value
         methodConvert.Push1();                                     // count value 1
         methodConvert.ShR();                                       // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
 
         endLoop.Instruction = methodConvert.Drop();                // Drop the remaining value
     }

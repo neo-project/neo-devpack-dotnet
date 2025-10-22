@@ -181,18 +181,18 @@ partial class MethodConvert
         methodConvert.IsNull();                                    // Check if null (parse failed)
 
         JumpTarget failTarget = new();
-        methodConvert.Jump(OpCode.JMPIF_L, failTarget);            // Jump to fail if null
+        methodConvert.JumpIfTrueLong( failTarget);            // Jump to fail if null
 
         // If successful, check if the parsed value is within the valid range
         methodConvert.Dup();                                        // Duplicate value for range check
         methodConvert.Within(minValue, maxValue);                   // Check if within range
-        methodConvert.Jump(OpCode.JMPIFNOT_L, failTarget);         // Jump to fail if out of range
+        methodConvert.JumpIfFalseLong( failTarget);         // Jump to fail if out of range
 
         // If within range, store the value and push true
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store value in static field
         methodConvert.Push(true);                                  // Push success flag
         JumpTarget endTarget = new();
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong( endTarget);               // Jump to end
 
         // Fail target: push false
         failTarget.Instruction = methodConvert.Drop();             // Drop the failed value
@@ -227,13 +227,13 @@ partial class MethodConvert
         // Check if the parsing was successful
         methodConvert.Dup();                                       // Duplicate result for null check
         methodConvert.IsNull();                                    // Check if null (parse failed)
-        methodConvert.Jump(OpCode.JMPIF_L, endTarget);             // Jump to end if null
+        methodConvert.JumpIfTrueLong( endTarget);             // Jump to end if null
 
         // If successful, store the value and push true
         methodConvert.Dup();                                       // Duplicate result for storage
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store value in static field
         methodConvert.Push(true);                                  // Push success flag
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong( endTarget);               // Jump to end
 
         // End target: clean up stack and push false if parsing failed
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -269,110 +269,110 @@ partial class MethodConvert
         methodConvert.Dup();                                       // x x
         methodConvert.Push("true");                                // x x "true"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.JumpIfTrueLong( trueTarget);
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("TRUE");                                // x x "TRUE"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.JumpIfTrueLong( trueTarget);
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("True");                                // x x "True"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.JumpIfTrueLong( trueTarget);
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("t");                                   // x x "t"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.JumpIfTrueLong( trueTarget);
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("T");                                   // x x "T"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.JumpIfTrueLong( trueTarget);
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("1");                                   // x x "1"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);            // x
+        methodConvert.JumpIfTrueLong( trueTarget);            // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("yes");                                 // x x "yes"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);            // x
+        methodConvert.JumpIfTrueLong( trueTarget);            // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("YES");                                 // x x "YES"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);            // x
+        methodConvert.JumpIfTrueLong( trueTarget);            // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("y");                                   // x x "y"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);            // x
+        methodConvert.JumpIfTrueLong( trueTarget);            // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("Y");                                   // x x "Y"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);            // x
+        methodConvert.JumpIfTrueLong( trueTarget);            // x
 
         // Check for false values
         methodConvert.Dup();
         methodConvert.Push("false");                               // x x "false"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("FALSE");                               // x x "FALSE"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("False");                               // x x "False"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("f");                                   // x x "f"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();
         methodConvert.Push("F");                                   // x x "F"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("0");                                   // x x "0"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();
         methodConvert.Push("no");                                  // x x "no"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("NO");                                  // x x "NO"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("n");                                   // x x "n"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         methodConvert.Dup();                                       // x x
         methodConvert.Push("N");                                   // x x "N"
         methodConvert.Equal();                                     // x (equal result)
-        methodConvert.Jump(OpCode.JMPIF_L, falseTarget);           // x
+        methodConvert.JumpIfTrueLong( falseTarget);           // x
 
         // If parsing failed, clean up stack and push false
         methodConvert.Drop();                                      // Clean up input
         methodConvert.Push(false);                                 // Default out value
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store false in out parameter
         methodConvert.Push(false);                                 // Return false for parsing failure
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong( endTarget);               // Jump to end
 
         // True case
         trueTarget.Instruction = methodConvert.Nop();              // True target
@@ -380,7 +380,7 @@ partial class MethodConvert
         methodConvert.Push(true);                                  // Set out value to true
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store true in out parameter
         methodConvert.Push(true);                                  // Return true for successful parsing
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong( endTarget);               // Jump to end
 
         // False case
         falseTarget.Instruction = methodConvert.Nop();             // False target

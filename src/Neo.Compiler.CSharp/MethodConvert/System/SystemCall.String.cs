@@ -97,7 +97,7 @@ internal partial class MethodConvert
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack
         methodConvert.PushF();                                     // Push false result
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways( endTarget);                 // Jump to end
         validCountTarget.Instruction = methodConvert.Nop();        // Valid position target
         methodConvert.Push(3);                                     // Push 3 for ROLL operation
         methodConvert.Roll();                                      // Roll stack elements
@@ -140,11 +140,11 @@ internal partial class MethodConvert
         JumpTarget nullOrEmptyTarget = new();
         methodConvert.Dup();
         methodConvert.IsNull();
-        methodConvert.Jump(OpCode.JMPIF, nullOrEmptyTarget);
+        methodConvert.JumpIfTrue( nullOrEmptyTarget);
         methodConvert.Size();
         methodConvert.Push(0);
         methodConvert.NumEqual();
-        methodConvert.Jump(OpCode.JMP, endTarget);
+        methodConvert.JumpAlways( endTarget);
         nullOrEmptyTarget.Instruction = methodConvert.Drop();
         methodConvert.PushT();
         endTarget.Instruction = methodConvert.Nop();
@@ -172,9 +172,9 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         JumpTarget trueTarget = new(), endTarget = new();
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.JumpIfTrueLong( trueTarget);
         methodConvert.Push("False");
-        methodConvert.Jump(OpCode.JMP_L, endTarget);
+        methodConvert.JumpAlwaysLong( endTarget);
         trueTarget.Instruction = methodConvert.Push("True");
         endTarget.Instruction = methodConvert.Nop();
     }
@@ -272,7 +272,7 @@ internal partial class MethodConvert
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.Lt();                                        // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if done
+        methodConvert.JumpIfFalse( loopEnd);              // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -280,13 +280,13 @@ internal partial class MethodConvert
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
         methodConvert.Within('A', 'Z');                            // Check if uppercase
-        methodConvert.Jump(OpCode.JMPIF, charIsLower);             // Jump if uppercase
+        methodConvert.JumpIfTrue( charIsLower);             // Jump if uppercase
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append original character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Uppercase processing
         methodConvert.Push((ushort)'A');                           // Push 'A'
@@ -298,7 +298,7 @@ internal partial class MethodConvert
         methodConvert.Cat();                                       // Append lowercase character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
@@ -345,7 +345,7 @@ internal partial class MethodConvert
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.Lt();                                        // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if done
+        methodConvert.JumpIfFalse( loopEnd);              // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -353,13 +353,13 @@ internal partial class MethodConvert
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
         methodConvert.Within('a', 'z');                     // Check if lowercase
-        methodConvert.Jump(OpCode.JMPIF, charIsLower);             // Jump if lowercase
+        methodConvert.JumpIfTrue( charIsLower);             // Jump if lowercase
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append original character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Lowercase processing
         methodConvert.Push((ushort)'a');                           // Push 'a'
@@ -371,7 +371,7 @@ internal partial class MethodConvert
         methodConvert.Cat();                                       // Append uppercase character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
@@ -469,7 +469,7 @@ internal partial class MethodConvert
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         GetStrLen(methodConvert, strLen);                          // Get string length
         methodConvert.Lt();                                        // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not less than
+        methodConvert.JumpIfFalse( loopEnd);              // Exit if not less than
     }
 
     /// <summary>
@@ -486,7 +486,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, startIndex);        // Load start index
         methodConvert.Inc();                                       // Increment by 1
         methodConvert.AccessSlot(OpCode.STLOC, startIndex);        // Store back
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
     }
 
     /// <summary>
@@ -518,7 +518,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, endIndex);          // Load end index
         methodConvert.Dec();                                       // Decrement by 1
         methodConvert.AccessSlot(OpCode.STLOC, endIndex);          // Store back
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
     }
 
     /// <summary>
@@ -539,7 +539,7 @@ internal partial class MethodConvert
         methodConvert.Equal();                                     // Check if equals space
         methodConvert.BoolOr();                                    // Combine checks with OR
 
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not whitespace
+        methodConvert.JumpIfFalse( loopEnd);              // Exit if not whitespace
     }
 
     /// <summary>
@@ -554,7 +554,7 @@ internal partial class MethodConvert
     {
         methodConvert.LdArg1();                                    // Load trim character
         methodConvert.NumEqual();                                  // Check equality
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not equal
+        methodConvert.JumpIfFalse( loopEnd);              // Exit if not equal
     }
 
     /// <summary>
@@ -572,7 +572,7 @@ internal partial class MethodConvert
         GetEndIndex(methodConvert, endIndex);                      // Get end index
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         methodConvert.Gt();                                        // Check if end > start
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not greater
+        methodConvert.JumpIfFalse( loopEnd);              // Exit if not greater
     }
 
     /// <summary>
@@ -735,7 +735,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate result
         methodConvert.PushM1();                                    // Push -1 for comparison
         methodConvert.Equal();                                     // Check if not found
-        methodConvert.Jump(OpCode.JMPIF, loopEnd);                 // Exit if not found
+        methodConvert.JumpIfTrue( loopEnd);                 // Exit if not found
 
         // Get the index of the substring
         methodConvert.Dup();                                       // Duplicate string
@@ -756,7 +756,7 @@ internal partial class MethodConvert
         replaceEnd.Instruction = methodConvert.Nop();              // Replace end marker
 
         // Continue the loop
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways( loopStart);                 // Continue loop
 
         // End of the loop
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
