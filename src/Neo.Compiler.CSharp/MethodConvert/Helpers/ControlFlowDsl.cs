@@ -47,10 +47,10 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Emits a while loop.
+    /// Emits a while loop with optional loop control callbacks.
     /// The <paramref name="conditionEmitter"/> must push a boolean onto the stack.
     /// </summary>
-    private void EmitWhile(Action conditionEmitter, Action bodyEmitter)
+    private void EmitWhile(Action conditionEmitter, Action<LoopScope> bodyEmitter)
     {
         ArgumentNullException.ThrowIfNull(conditionEmitter);
         ArgumentNullException.ThrowIfNull(bodyEmitter);
@@ -60,22 +60,27 @@ internal partial class MethodConvert
         conditionTarget.Instruction = Nop();
         conditionEmitter();
         Jump(OpCode.JMPIFNOT, endTarget);
-        bodyEmitter();
+        LoopScope scope = new(this, conditionTarget, endTarget);
+        bodyEmitter(scope);
         Jump(OpCode.JMP, conditionTarget);
         endTarget.Instruction = Nop();
     }
+
+    private void EmitWhile(Action conditionEmitter, Action bodyEmitter)
+        => EmitWhile(conditionEmitter, _ => bodyEmitter());
 
     /// <summary>
     /// Emits a for loop (initializer; condition; iterator).
     /// Any null delegate is skipped.
     /// </summary>
-    private void EmitFor(Action? initializerEmitter, Action? conditionEmitter, Action? iteratorEmitter, Action bodyEmitter)
+    private void EmitFor(Action? initializerEmitter, Action? conditionEmitter, Action? iteratorEmitter, Action<LoopScope> bodyEmitter)
     {
         ArgumentNullException.ThrowIfNull(bodyEmitter);
 
         initializerEmitter?.Invoke();
 
         JumpTarget conditionTarget = new();
+        JumpTarget iteratorTarget = new();
         JumpTarget endTarget = new();
         conditionTarget.Instruction = Nop();
 
@@ -85,11 +90,40 @@ internal partial class MethodConvert
             Jump(OpCode.JMPIFNOT, endTarget);
         }
 
-        bodyEmitter();
+        LoopScope scope = new(this, iteratorTarget, endTarget);
+        bodyEmitter(scope);
+        iteratorTarget.Instruction = Nop();
         iteratorEmitter?.Invoke();
         Jump(OpCode.JMP, conditionTarget);
         endTarget.Instruction = Nop();
     }
+
+    private void EmitFor(Action? initializerEmitter, Action? conditionEmitter, Action? iteratorEmitter, Action bodyEmitter)
+        => EmitFor(initializerEmitter, conditionEmitter, iteratorEmitter, _ => bodyEmitter());
+
+    /// <summary>
+    /// Emits a do/while loop (body executes once before condition check).
+    /// </summary>
+    private void EmitDoWhile(Action<LoopScope> bodyEmitter, Action conditionEmitter)
+    {
+        ArgumentNullException.ThrowIfNull(bodyEmitter);
+        ArgumentNullException.ThrowIfNull(conditionEmitter);
+
+        JumpTarget bodyTarget = new();
+        JumpTarget conditionTarget = new();
+        JumpTarget endTarget = new();
+
+        bodyTarget.Instruction = Nop();
+        LoopScope scope = new(this, conditionTarget, endTarget);
+        bodyEmitter(scope);
+        conditionTarget.Instruction = Nop();
+        conditionEmitter();
+        Jump(OpCode.JMPIF, bodyTarget);
+        endTarget.Instruction = Nop();
+    }
+
+    private void EmitDoWhile(Action bodyEmitter, Action conditionEmitter)
+        => EmitDoWhile(_ => bodyEmitter(), conditionEmitter);
 
     /// <summary>
     /// Emits a switch statement. The <paramref name="valueEmitter"/> must push the discriminant value.
@@ -132,5 +166,22 @@ internal partial class MethodConvert
         defaultTarget.Instruction = Drop();
         defaultBody?.Invoke();
         endTarget.Instruction = Nop();
+    }
+
+    private readonly struct LoopScope
+    {
+        private readonly MethodConvert emitter;
+        private readonly JumpTarget continueTarget;
+        private readonly JumpTarget breakTarget;
+
+        public LoopScope(MethodConvert emitter, JumpTarget continueTarget, JumpTarget breakTarget)
+        {
+            this.emitter = emitter;
+            this.continueTarget = continueTarget;
+            this.breakTarget = breakTarget;
+        }
+
+        public void Continue() => emitter.Jump(OpCode.JMP, continueTarget);
+        public void Break() => emitter.Jump(OpCode.JMP, breakTarget);
     }
 }
