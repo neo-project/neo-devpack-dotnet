@@ -150,7 +150,7 @@ namespace Neo.Compiler
 <Project Sdk=""Microsoft.NET.Sdk"">
 
     <PropertyGroup>
-        <TargetFramework>{AppContext.TargetFrameworkName!}</TargetFramework>
+        <TargetFramework>{GetTargetFrameworkMoniker()}</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -199,6 +199,8 @@ namespace Neo.Compiler
                 if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
             }
         }
+
+        private static string GetTargetFrameworkMoniker() => "net9.0";
 
         public List<CompilationContext> CompileProject(string csproj)
         {
