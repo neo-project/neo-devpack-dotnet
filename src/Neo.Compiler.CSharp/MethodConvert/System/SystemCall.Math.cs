@@ -242,7 +242,7 @@ internal partial class MethodConvert
         // Evaluation stack: value=5 min=0 max=10 <- top
         methodConvert.Over();                                      // 5 0 10 0
         methodConvert.Over();                                      // 5 0 10 0 10 <- top
-        methodConvert.Jump(OpCode.JMPLE, exceptionTarget);         // 5 0 10  // if 0 <= 10, continue execution
+        methodConvert.JumpIfLessOrEqual( exceptionTarget);         // 5 0 10  // if 0 <= 10, continue execution
         //methodConvert.Push("min>max");
         methodConvert.Throw();                                     // Throw if min > max
         exceptionTarget.Instruction = methodConvert.Nop();         // Exception handling target
@@ -254,11 +254,11 @@ internal partial class MethodConvert
         // Alternatively, a slightly cheaper way at runtime; 10 to 16 Datoshi
         //methodConvert.Over();                                    // 10 0 5 0
         //methodConvert.Over();                                    // 10 0 5 0 5
-        //methodConvert.Jump(OpCode.JMPGE, minTarget);             // 10 0 5; should return 0 if JMPed
+        //methodConvert.JumpIfGreaterOrEqual( minTarget);             // 10 0 5; should return 0 if JMPed
         //methodConvert.Nip();                                     // 10 5
         //methodConvert.Over();                                    // 10 5 10
         //methodConvert.Over();                                    // 10 5 10 5
-        //methodConvert.Jump(OpCode.JMPLE, maxTarget);             // 10 5; should return 10 if JMPed
+        //methodConvert.JumpIfLessOrEqual( maxTarget);             // 10 5; should return 10 if JMPed
         //methodConvert.Nip();                                     // 5; should return 5
         //methodConvert.Ret();
         //minTarget.Instruction = methodConvert.Nop();             // 10 0 5; should return 0

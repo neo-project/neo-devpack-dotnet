@@ -73,7 +73,7 @@ internal partial class MethodConvert
             methodConvert.Dup();                                   // Duplicate value for negative check
             methodConvert.Push0();                                 // Push 0 for comparison
             JumpTarget notNegative = new();
-            methodConvert.Jump(OpCode.JMPGE, notNegative);         // Jump if value >= 0
+            methodConvert.JumpIfGreaterOrEqual( notNegative);         // Jump if value >= 0
             methodConvert.Drop();                                  // Drop negative value
             methodConvert.Push0();                                 // Return 0 for negative values
             methodConvert.JumpAlways( endTarget);             // Jump to end
@@ -83,7 +83,7 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Swap();              // Swap count and value
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // Exit loop if value is 0
+        methodConvert.JumpIfEqual( endLoop);                 // Exit loop if value is 0
         methodConvert.Push1();                                     // Push 1 for right shift
         methodConvert.ShR();                                       // Right shift value by 1
         methodConvert.Swap();                                      // Swap value and count
@@ -115,7 +115,7 @@ internal partial class MethodConvert
         JumpTarget noOverflowTarget = new();
         methodConvert.Dup();                                       // Duplicate result for overflow check
         methodConvert.Push(short.MaxValue);                        // Push short maximum value
-        methodConvert.Jump(OpCode.JMPLE, noOverflowTarget);        // Jump if <= max value
+        methodConvert.JumpIfLessOrEqual( noOverflowTarget);        // Jump if <= max value
         methodConvert.Throw();                                     // Throw if overflow
         noOverflowTarget.Instruction = methodConvert.Nop();        // No overflow target
     }
@@ -177,7 +177,7 @@ internal partial class MethodConvert
         methodConvert.Rot();                                       // Rotate stack elements
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
-        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);         // Jump if value < min
+        methodConvert.JumpIfLess( exceptionTarget);         // Jump if value < min
         methodConvert.Throw();                                     // Throw exception for invalid range
         exceptionTarget.Instruction = methodConvert.Nop();         // Exception handling target
         methodConvert.Rot();                                       // Rotate stack elements
@@ -185,13 +185,13 @@ internal partial class MethodConvert
         methodConvert.Rot();                                       // Rotate stack elements
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
-        methodConvert.Jump(OpCode.JMPGT, minTarget);               // Jump if value > min threshold
+        methodConvert.JumpIfGreater( minTarget);               // Jump if value > min threshold
         methodConvert.Drop();                                      // Drop unnecessary value
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
-        methodConvert.Jump(OpCode.JMPLT, maxTarget);               // Jump if value < max threshold
+        methodConvert.JumpIfLess( maxTarget);               // Jump if value < max threshold
         methodConvert.Drop();                                      // Drop unnecessary value
         methodConvert.JumpAlways( endTarget);                 // Jump to end
         minTarget.Instruction = methodConvert.Nop();               // Minimum value target
@@ -248,7 +248,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate the result
         methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 15 (0x8000)
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPLT, endTarget);               // Jump if result < 0x8000
+        methodConvert.JumpIfLess( endTarget);               // Jump if result < 0x8000
         methodConvert.Push(BigInteger.One << bitWidth);            // BigInteger.One << 16 (0x10000)
         methodConvert.Sub();                                       // Apply sign extension
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -306,7 +306,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate the result
         methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 15 (0x8000)
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPLT, endTarget);               // Jump if result < 0x8000
+        methodConvert.JumpIfLess( endTarget);               // Jump if result < 0x8000
         methodConvert.Push(BigInteger.One << bitWidth);            // BigInteger.One << 16 (0x10000)
         methodConvert.Sub();                                       // Apply sign extension
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -343,7 +343,7 @@ internal partial class MethodConvert
         JumpTarget endLoop = new();
         loopStart.Instruction = methodConvert.Dup();               // count value value
         methodConvert.Push0();                                     // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // count value
+        methodConvert.JumpIfEqual( endLoop);                 // count value
         methodConvert.Dup();                                       // count value value
         methodConvert.Push1();                                     // count value value 1
         methodConvert.And();                                       // count value (value & 1)

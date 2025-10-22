@@ -91,7 +91,7 @@ internal partial class MethodConvert
         methodConvert.Sub();                                       // Calculate start position
         methodConvert.Dup();                                       // Duplicate for bounds check
         methodConvert.Push(0);                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGT, validCountTarget);        // Jump if position > 0
+        methodConvert.JumpIfGreater( validCountTarget);        // Jump if position > 0
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack

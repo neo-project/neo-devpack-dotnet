@@ -747,7 +747,7 @@ internal partial class MethodConvert
         JumpTarget nonZero = new();
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPNE, nonZero);                 // Jump if non-zero
+        methodConvert.JumpIfNotEqual( nonZero);                 // Jump if non-zero
         methodConvert.Drop();                                      // Drop the value if zero
         methodConvert.JumpAlways( endFalse);                  // Return false for zero
         nonZero.Instruction = methodConvert.Nop();                 // Non-zero target
@@ -755,7 +755,7 @@ internal partial class MethodConvert
         methodConvert.Dec();                                       // Decrement (n-1)
         methodConvert.And();                                       // Calculate n & (n-1)
         methodConvert.Push(0);
-        methodConvert.Jump(OpCode.JMPEQ, endTrue);                 // Jump if result is 0
+        methodConvert.JumpIfEqual( endTrue);                 // Jump if result is 0
         endFalse.Instruction = methodConvert.Nop();                // False case target
         methodConvert.Push(false);
         methodConvert.JumpAlways( endTarget);                 // Jump to end
@@ -785,12 +785,12 @@ internal partial class MethodConvert
         JumpTarget endMethod = new();
         methodConvert.Dup();                                       // Duplicate value for negative check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGE, nonNegativeTarget);       // Jump if value >= 0
+        methodConvert.JumpIfGreaterOrEqual( nonNegativeTarget);       // Jump if value >= 0
         methodConvert.Throw();                                     // Throw if negative
         nonNegativeTarget.Instruction = methodConvert.Nop();       // Non-negative target
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPEQ, endMethod);               // Return 0 when input is 0
+        methodConvert.JumpIfEqual( endMethod);               // Return 0 when input is 0
         methodConvert.Push0();                                     // Initialize result to 0
         //input = 5 > 0; result = 0;
         //do
@@ -804,7 +804,7 @@ internal partial class MethodConvert
         methodConvert.Over();                                      // Copy result to top
         methodConvert.ShR();                                       // Right shift input by result
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGT, loopStart);               // Continue loop if result > 0
+        methodConvert.JumpIfGreater( loopStart);               // Continue loop if result > 0
         methodConvert.Nip();                                       // Remove the input, keep result
         methodConvert.Dec();                                       // Decrement result by 1
         endMethod.Instruction = methodConvert.Nop();               // End method target
@@ -836,7 +836,7 @@ internal partial class MethodConvert
         // if b==0 return abs(a)
         // return value has abs(value)==abs(a), sign(value)==sign(b)
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPLT, negativeTarget);          // Jump if b < 0
+        methodConvert.JumpIfLess( negativeTarget);          // Jump if b < 0
         methodConvert.Abs();                                       // Return abs(a) if b >= 0
         methodConvert.JumpAlways( endTarget);                 // Jump to end
         negativeTarget.Instruction = methodConvert.Nop();          // Negative target
@@ -899,7 +899,7 @@ internal partial class MethodConvert
         JumpTarget notNegative = new();
         methodConvert.Dup();                                       // Duplicate value for negative check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGE, notNegative);             // Jump if value >= 0
+        methodConvert.JumpIfGreaterOrEqual( notNegative);             // Jump if value >= 0
         methodConvert.Drop();                                      // Drop negative value
         methodConvert.Push0();                                     // Return 0 for negative values
         methodConvert.JumpAlways( endTarget);                 // Jump to end
@@ -908,7 +908,7 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Swap();              // Swap count and value
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // Exit loop if value is 0
+        methodConvert.JumpIfEqual( endLoop);                 // Exit loop if value is 0
         methodConvert.Push1();                                     // Push 1 for right shift
         methodConvert.ShR();                                       // Right shift value by 1
         methodConvert.Swap();                                      // Swap value and count
@@ -1019,7 +1019,7 @@ internal partial class MethodConvert
         JumpTarget endLoop = new();
         loopStart.Instruction = methodConvert.Dup();    // count value value
         methodConvert.Push0();     // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);     // count value
+        methodConvert.JumpIfEqual( endLoop);     // count value
         methodConvert.Dup();       // count value value
         methodConvert.Push1();     // count value value 1
         methodConvert.And();       // count value (value & 1)

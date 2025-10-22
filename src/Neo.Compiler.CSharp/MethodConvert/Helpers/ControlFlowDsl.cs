@@ -100,6 +100,18 @@ internal partial class MethodConvert
     /// </summary>
     private void JumpAlwaysLong(JumpTarget target) => Jump(OpCode.JMP_L, target);
 
+    private void JumpIfEqual(JumpTarget target) => Jump(OpCode.JMPEQ, target);
+
+    private void JumpIfNotEqual(JumpTarget target) => Jump(OpCode.JMPNE, target);
+
+    private void JumpIfGreater(JumpTarget target) => Jump(OpCode.JMPGT, target);
+
+    private void JumpIfGreaterOrEqual(JumpTarget target) => Jump(OpCode.JMPGE, target);
+
+    private void JumpIfLess(JumpTarget target) => Jump(OpCode.JMPLT, target);
+
+    private void JumpIfLessOrEqual(JumpTarget target) => Jump(OpCode.JMPLE, target);
+
     /// <summary>
     /// Emits a while loop with optional loop control callbacks.
     /// The <paramref name="conditionEmitter"/> must push a boolean onto the stack.
