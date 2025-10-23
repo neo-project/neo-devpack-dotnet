@@ -36,13 +36,18 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.Dup();                                                    // Duplicate result for range check
-        methodConvert.Within(byte.MinValue, byte.MaxValue);                     // Check if value is within byte range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                            // Jump if within range
-        methodConvert.Throw();                                                  // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();                            // End target
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();                                            // Duplicate result for range check
+                methodConvert.Within(byte.MinValue, byte.MaxValue);             // Check if value is within byte range
+                methodConvert.Not();                                            // Invert to detect invalid range
+            },
+            () =>
+            {
+                methodConvert.Throw();                                          // Throw if out of range
+            });
     }
 
     /// <summary>
@@ -60,25 +65,27 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endLoop = new();
-        JumpTarget loopStart = new();
-        JumpTarget endTarget = new();
-        JumpTarget notNegative = new();
         methodConvert.Push(0);                                     // Initialize count to 0
-        loopStart.Instruction = methodConvert.Swap();              // Swap count and value
-        methodConvert.Dup();                                       // Duplicate value for zero check
-        methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // Exit loop if value is 0
-        methodConvert.Push1();                                     // Push 1 for right shift
-        methodConvert.ShR();                                       // Right shift value by 1
-        methodConvert.Swap();                                      // Swap value and count
-        methodConvert.Inc();                                       // Increment count
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
-        endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
+        methodConvert.EmitWhileComparisonTrueExit(
+            perIterationSetup: () => methodConvert.Swap(),        // Swap count and value
+            comparisonSetup: () =>
+            {
+                methodConvert.Dup();                               // Duplicate value for zero check
+                methodConvert.Push0();                             // Push 0 for comparison
+            },
+            comparisonOp: OpCode.JMPEQ,
+            bodyEmitter: scope =>
+            {
+                methodConvert.Push1();                             // Push 1 for right shift
+                methodConvert.ShR();                               // Right shift value by 1
+                methodConvert.Swap();                              // Swap value and count
+                methodConvert.Inc();                               // Increment count
+            },
+            exitEmitter: () => methodConvert.Drop());              // Drop remaining value
         methodConvert.Push(8);                                     // Push 8 (bit width)
         methodConvert.Swap();                                      // Swap 8 and count
         methodConvert.Sub();                                       // Calculate 8 - count
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.Nop();                                       // End target
     }
 
     /// <summary>
@@ -95,14 +102,19 @@ internal partial class MethodConvert
     private static void HandleByteCreateChecked(MethodConvert methodConvert, SemanticModel model,
         IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        JumpTarget endTarget = new();
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Dup();                                        // Duplicate value for range check
-        methodConvert.Within(byte.MinValue, byte.MaxValue);         // Check if value is within byte range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
-        methodConvert.Throw();                                      // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();                // End target
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();                                // Duplicate value for range check
+                methodConvert.Within(byte.MinValue, byte.MaxValue); // Check if value is within byte range
+                methodConvert.Not();                                // Invert to detect invalid range
+            },
+            () =>
+            {
+                methodConvert.Throw();                              // Throw if out of range
+            });
     }
 
     /// <summary>
@@ -134,7 +146,7 @@ internal partial class MethodConvert
         methodConvert.Rot();                                       // Rotate stack elements
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
-        methodConvert.Jump(OpCode.JMPLT, exceptionTarget);         // Jump if value < min
+        methodConvert.JumpIfLess(exceptionTarget);         // Jump if value < min
         methodConvert.Throw();                                     // Throw exception for invalid range
         exceptionTarget.Instruction = methodConvert.Nop();         // Exception handling target
         methodConvert.Rot();                                       // Rotate stack elements
@@ -142,24 +154,24 @@ internal partial class MethodConvert
         methodConvert.Rot();                                       // Rotate stack elements
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
-        methodConvert.Jump(OpCode.JMPGT, minTarget);               // Jump if value > min threshold
+        methodConvert.JumpIfGreater(minTarget);               // Jump if value > min threshold
         methodConvert.Drop();                                      // Drop unnecessary value
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
         methodConvert.Dup();                                       // Duplicate for comparison
         methodConvert.Rot();                                       // Rotate stack elements
-        methodConvert.Jump(OpCode.JMPLT, maxTarget);               // Jump if value < max threshold
+        methodConvert.JumpIfLess(maxTarget);               // Jump if value < max threshold
         methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                 // Jump to end
         minTarget.Instruction = methodConvert.Nop();               // Minimum value target
         methodConvert.Reverse3();                                  // Reverse top 3 stack elements
         methodConvert.Drop();                                      // Drop unnecessary value
         methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                 // Jump to end
         maxTarget.Instruction = methodConvert.Nop();               // Maximum value target
         methodConvert.Swap();                                      // Swap top two elements
         methodConvert.Drop();                                      // Drop unnecessary value
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                 // Jump to end
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
@@ -257,31 +269,6 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        // Determine bit width of byte
-        var bitWidth = sizeof(byte) * 8;
-
-        // Mask to ensure the value is treated as a 8-bit unsigned integer
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // 0xFF
-        methodConvert.And();                                       // value = value & 0xFF
-        // Initialize count to 0
-        methodConvert.Push(0);                                     // value count
-        methodConvert.Swap();                                      // count value
-        // Loop to count the number of 1 bits
-        JumpTarget loopStart = new();
-        JumpTarget endLoop = new();
-        loopStart.Instruction = methodConvert.Dup();               // count value value
-        methodConvert.Push0();                                     // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // count value
-        methodConvert.Dup();                                       // count value value
-        methodConvert.Push1();                                     // count value value 1
-        methodConvert.And();                                       // count value (value & 1)
-        methodConvert.Rot();                                       // value (value & 1) count
-        methodConvert.Add();                                       // value count += (value & 1)
-        methodConvert.Swap();                                      // count value
-        methodConvert.Push1();                                     // count value 1
-        methodConvert.ShR();                                       // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
-
-        endLoop.Instruction = methodConvert.Drop();                // Drop the remaining value
+        methodConvert.EmitPopCountWithMask(sizeof(byte) * 8);
     }
 }
