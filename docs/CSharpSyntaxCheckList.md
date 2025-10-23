@@ -408,7 +408,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [x] `ushort`: Represents a 16-bit unsigned integer. Example: `ushort smallPositiveValue = 65535;`
 - [x] `uint`: Represents a 32-bit unsigned integer. Example: `uint positiveValue = 123;`
 - [x] `ulong`: Represents a 64-bit unsigned integer. Example: `ulong bigPositiveValue = 1234567890UL;`
-- [ ] (Will Support) `enum`: Represents an enumeration. Example: `enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };`
+- [x] `enum`: Represents an enumeration. Example: `enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday };`
 - [x] `struct`: Represents a value type. Example: `struct Point { public int X; public int Y; }`
 
 ### Reference Types
@@ -437,14 +437,9 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 - [x] **String Interpolation**: Provides a more readable way to format strings with embedded expressions. Example: `string name = $"Hello, {firstName} {lastName}!";`
 - [ ] **Anonymous Types**: Allow the creation of objects with dynamically defined properties. Example: `var person = new { Name = "John", Age = 30 };`
 - [x] **Lambda Expressions**: Enable the creation of inline delegate functions. Example: `(x, y) => x + y`
-- [ ] **LINQ Queries**: Provide a language-integrated query syntax for collections. Example: 
-  ```csharp
-  var result = from num in numbers
-               where num % 2 == 0
-               select num;
-  ```
-- [ ] **Extension Methods**: Allow adding new methods to existing types without modifying them. Example: `public static string Reverse(this string str) { /* code */ }`
-- [ ] **Generics**: Enable type parameterization to create reusable data structures and algorithms. Example: `public class List<T> { /* code */ }`
+- [x] **LINQ Queries**: Provide a language-integrated query syntax for collections (supported via `Neo.SmartContract.Framework.Linq` fluent operators).
+- [x] **Extension Methods**: Allow adding new methods to existing types without modifying them (static helper classes with `this` parameters).
+- [x] **Generics**: Enable type parameterization to create reusable data structures and algorithms (generic classes, methods, and collections such as `List<T>`). Example: `public class List<T> { /* code */ }`
 - [ ] **Asynchronous Programming (`async`, `await`)**: Facilitate non-blocking code execution. Example: 
   ```csharp
   public async Task<int> GetDataAsync()
@@ -477,7 +472,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
 
 ## 5. Other Features
 
-- [ ] **Properties and Indexers**: Provide access to class members with getter and setter methods. Example: `public int MyProperty { get; set; }`
+- [x] **Properties and Indexers**: Provide access to class members with getter and setter methods (auto-properties and explicit accessors are supported). Example: `public int MyProperty { get; set; }`
 - [x] **Delegates and Events**: Enable the creation of delegate types and event handlers. Example: 
   ```csharp
   public delegate void MyDelegate(string message);
