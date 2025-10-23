@@ -242,7 +242,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
                     {
                         var fileName = debugInfo.Documents[sequencePoint.Document];
-                        var snippet = TryGetSourceLine(fileName, sequencePoint.Start.Line);
+                        var snippet = TryGetSourceSnippet(fileName, sequencePoint.Start.Line, sequencePoint.End.Line);
                         return new SourceLocation
                         {
                             FileName = System.IO.Path.GetFileName(fileName),
@@ -256,7 +256,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             return null;
         }
 
-        private static string? TryGetSourceLine(string fileName, int zeroBasedLineNumber)
+        private static string? TryGetSourceSnippet(string fileName, int startZeroBasedLineNumber, int endZeroBasedLineNumber)
         {
             string? path = fileName;
             if (!Path.IsPathRooted(path))
@@ -269,11 +269,10 @@ namespace Neo.Compiler.SecurityAnalyzer
                 if (path != null && File.Exists(path))
                 {
                     string[] lines = File.ReadAllLines(path);
-                    foreach (int candidate in new[] { zeroBasedLineNumber, zeroBasedLineNumber - 1 })
-                    {
-                        if (candidate >= 0 && candidate < lines.Length)
-                            return lines[candidate].Trim();
-                    }
+                    int start = Math.Max(0, startZeroBasedLineNumber);
+                    int end = Math.Min(lines.Length - 1, Math.Max(startZeroBasedLineNumber, endZeroBasedLineNumber));
+                    if (start > end) return null;
+                    return string.Join(Environment.NewLine, lines[start..(end + 1)]).Trim();
                 }
             }
             catch
