@@ -84,27 +84,20 @@ internal partial class MethodConvert
 
         foreach (var t in enumMembers)
         {
-            // Duplicate inputString
-            methodConvert.Dup();                                   // Stack: [type, inputString,inputString]
-
-            // Push enum name
-            methodConvert.Push(t.Name);                            // Stack: [type, inputString,inputString, enumName]
-
-            // Equal comparison
-            methodConvert.Equal();                                 // Stack: [type,inputString, isEqual]
-
-            var nextCheck = new JumpTarget();
-            // If not equal, discard duplicated inputString and proceed to next
-            methodConvert.Jump(OpCode.JMPIFNOT, nextCheck);
-
-            // If equal:
-            // Push enum value
-            methodConvert.Push(t.ConstantValue);                   // Stack: [type, inputString, enumValue]
-            methodConvert.Reverse3();
-            methodConvert.Drop(2);
-            methodConvert.Ret();
-
-            nextCheck.Instruction = methodConvert.Nop();
+            methodConvert.EmitIf(
+                conditionEmitter: () =>
+                {
+                    methodConvert.Dup();                           // Stack: [type, inputString,inputString]
+                    methodConvert.Push(t.Name);                    // Stack: [type, inputString,inputString, enumName]
+                    methodConvert.Equal();                         // Stack: [type,inputString, isEqual]
+                },
+                thenEmitter: () =>
+                {
+                    methodConvert.Push(t.ConstantValue);           // Stack: [type, inputString, enumValue]
+                    methodConvert.Reverse3();
+                    methodConvert.Drop(2);
+                    methodConvert.Ret();
+                });
         }
 
         // No match found
@@ -184,7 +177,7 @@ internal partial class MethodConvert
 
             var nextCheck = new JumpTarget();
             // If not equal, discard duplicated inputString and proceed to next
-            methodConvert.Jump(OpCode.JMPIFNOT, nextCheck);
+            methodConvert.JumpIfFalse(nextCheck);
 
             // If equal:
             // Remove the duplicated inputString from the stack
@@ -278,7 +271,7 @@ internal partial class MethodConvert
 
             var nextCheck = new JumpTarget();
             // If not equal, discard duplicated inputString and proceed to next
-            methodConvert.Jump(OpCode.JMPIFNOT, nextCheck);
+            methodConvert.JumpIfFalse(nextCheck);
 
             // If equal:
             // Remove the duplicated inputString from the stack
