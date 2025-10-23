@@ -96,7 +96,7 @@ namespace Neo.Compiler
             return ret;
         }
 
-        private static void HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force)
+        private static int HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force)
         {
             try
             {
@@ -104,13 +104,13 @@ namespace Neo.Compiler
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     Console.Error.WriteLine("Error: Contract name cannot be empty.");
-                    return;
+                    return 1;
                 }
 
                 if (!Regex.IsMatch(name, @"^[a-zA-Z][a-zA-Z0-9_]*$"))
                 {
                     Console.Error.WriteLine("Error: Contract name must start with a letter and contain only letters, numbers, and underscores.");
-                    return;
+                    return 1;
                 }
 
                 // Check if the output directory already contains a project with this name
@@ -118,7 +118,7 @@ namespace Neo.Compiler
                 if (Directory.Exists(projectPath) && !force)
                 {
                     Console.Error.WriteLine($"Error: Directory '{projectPath}' already exists. Use --force to overwrite.");
-                    return;
+                    return 1;
                 }
 
                 // Create the template manager and generate the contract
@@ -146,11 +146,12 @@ namespace Neo.Compiler
 
                 // Generate the contract from template
                 templateManager.GenerateContract(template, name, output, additionalReplacements);
+                return 0;
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Error creating contract: {ex.Message}");
-                Environment.Exit(1);
+                return 1;
             }
         }
 
