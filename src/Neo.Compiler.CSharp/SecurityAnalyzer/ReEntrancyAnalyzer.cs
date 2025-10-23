@@ -16,6 +16,7 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -36,8 +37,6 @@ namespace Neo.Compiler.SecurityAnalyzer
             public readonly Dictionary<BasicBlock, HashSet<int>> callOtherContractInstructions;
             public readonly Dictionary<BasicBlock, HashSet<int>> writeStorageInstructions;
             public JToken? DebugInfo { get; init; }
-            // TODO: use debugInfo to GetWarningInfo with source codes
-
             public ReEntrancyVulnerabilityPair(
                 Dictionary<BasicBlock, HashSet<BasicBlock>> vulnerabilityPairs,
                 Dictionary<BasicBlock, HashSet<int>> callOtherContractInstructions,
@@ -243,15 +242,43 @@ namespace Neo.Compiler.SecurityAnalyzer
                     if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
                     {
                         var fileName = debugInfo.Documents[sequencePoint.Document];
+                        var snippet = TryGetSourceLine(fileName, sequencePoint.Start.Line);
                         return new SourceLocation
                         {
                             FileName = System.IO.Path.GetFileName(fileName),
                             Line = sequencePoint.Start.Line,
                             Column = sequencePoint.Start.Column,
-                            CodeSnippet = null // Could be enhanced to read actual source code
+                            CodeSnippet = snippet
                         };
                     }
                 }
+            }
+            return null;
+        }
+
+        private static string? TryGetSourceLine(string fileName, int zeroBasedLineNumber)
+        {
+            string? path = fileName;
+            if (!Path.IsPathRooted(path))
+            {
+                path = Path.Combine(Environment.CurrentDirectory, path);
+            }
+
+            try
+            {
+                if (path != null && File.Exists(path))
+                {
+                    string[] lines = File.ReadAllLines(path);
+                    foreach (int candidate in new[] { zeroBasedLineNumber, zeroBasedLineNumber - 1 })
+                    {
+                        if (candidate >= 0 && candidate < lines.Length)
+                            return lines[candidate].Trim();
+                    }
+                }
+            }
+            catch
+            {
+                // ignore IO issues and fall back to raw offsets
             }
             return null;
         }

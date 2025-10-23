@@ -84,5 +84,17 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return Policy.IsBlocked(account);
         }
+
+        [DisplayName("Policy_GetMaxValidUntilBlockIncrement")]
+        public static uint Policy_GetMaxValidUntilBlockIncrement()
+        {
+            return Policy.GetMaxValidUntilBlockIncrement();
+        }
+
+        [DisplayName("Policy_GetMaxTraceableBlocks")]
+        public static uint Policy_GetMaxTraceableBlocks()
+        {
+            return Policy.GetMaxTraceableBlocks();
+        }
     }
 }

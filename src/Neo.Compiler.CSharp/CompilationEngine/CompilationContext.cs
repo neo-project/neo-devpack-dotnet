@@ -63,8 +63,8 @@ namespace Neo.Compiler
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics;
-        // TODO: basename should not work when multiple contracts exit in one project
         public string? ContractName => _displayName ?? Options.BaseName ?? _className;
+        internal string ClassName => _className ?? _targetContract.Name;
         private string? Source { get; set; }
 
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);

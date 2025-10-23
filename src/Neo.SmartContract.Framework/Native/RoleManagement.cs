@@ -12,6 +12,7 @@
 #pragma warning disable CS0626
 
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Framework.Native
 {
@@ -21,5 +22,6 @@ namespace Neo.SmartContract.Framework.Native
         [ContractHash]
         public static extern UInt160 Hash { get; }
         public static extern ECPoint[] GetDesignatedByRole(Role role, uint index);
+        public static extern void DesignateAsRole(Role role, ECPoint[] nodes);
     }
 }
