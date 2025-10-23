@@ -443,7 +443,7 @@ C# Language Specification :  https://ecma-international.org/publications-and-sta
                where num % 2 == 0
                select num;
   ```
-- [ ] **Extension Methods**: Allow adding new methods to existing types without modifying them. Example: `public static string Reverse(this string str) { /* code */ }`
+- [x] **Extension Methods**: Allow adding new methods to existing types without modifying them (static helper classes with `this` parameters are supported by the compiler). Example: `public static string Reverse(this string str) { /* code */ }`
 - [ ] **Generics**: Enable type parameterization to create reusable data structures and algorithms. Example: `public class List<T> { /* code */ }`
 - [ ] **Asynchronous Programming (`async`, `await`)**: Facilitate non-blocking code execution. Example: 
   ```csharp
