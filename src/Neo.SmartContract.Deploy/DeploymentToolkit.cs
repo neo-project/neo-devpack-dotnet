@@ -76,6 +76,8 @@ public class DeploymentToolkit : IDisposable
 
     public NetworkProfile CurrentNetwork => _networkProfile;
 
+    public DeploymentOptions Options => _options.Clone();
+
     internal string? CurrentWif => _wifKey;
 
     private void Initialize(IConfiguration configuration, DeploymentOptions? options, IRpcClientFactory? rpcClientFactory)
@@ -95,6 +97,8 @@ public class DeploymentToolkit : IDisposable
     /// <exception cref="ArgumentException">Thrown when network is invalid</exception>
     public DeploymentToolkit SetNetwork(string network)
     {
+        EnsureNotDisposed();
+
         if (string.IsNullOrWhiteSpace(network))
             throw new ArgumentException("Network cannot be null or empty", nameof(network));
 
@@ -103,9 +107,28 @@ public class DeploymentToolkit : IDisposable
 
     public DeploymentToolkit UseNetwork(NetworkProfile profile)
     {
+        EnsureNotDisposed();
+
         _networkProfile = profile ?? throw new ArgumentNullException(nameof(profile));
         _options.Network = profile;
         _protocolSettings = null;
+        return this;
+    }
+
+    public DeploymentToolkit ConfigureOptions(Action<DeploymentOptions> configure)
+    {
+        EnsureNotDisposed();
+        ArgumentNullException.ThrowIfNull(configure);
+
+        var updated = _options.Clone();
+        configure(updated);
+        _options = updated;
+
+        if (updated.Network is not null)
+        {
+            UseNetwork(updated.Network);
+        }
+
         return this;
     }
 
@@ -203,6 +226,8 @@ public class DeploymentToolkit : IDisposable
     /// <exception cref="ArgumentException">Thrown when WIF key is invalid</exception>
     public DeploymentToolkit SetWifKey(string wifKey)
     {
+        EnsureNotDisposed();
+
         if (string.IsNullOrWhiteSpace(wifKey))
             throw new ArgumentException("WIF key cannot be null or empty", nameof(wifKey));
 
@@ -237,6 +262,7 @@ public class DeploymentToolkit : IDisposable
         string? targetContract = null,
         CancellationToken cancellationToken = default)
     {
+        EnsureNotDisposed();
         cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(path))
@@ -265,6 +291,7 @@ public class DeploymentToolkit : IDisposable
         string? targetContract = null,
         CancellationToken cancellationToken = default)
     {
+        EnsureNotDisposed();
         cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(path))
@@ -292,6 +319,7 @@ public class DeploymentToolkit : IDisposable
         DeploymentArtifactsRequest request,
         CancellationToken cancellationToken = default)
     {
+        EnsureNotDisposed();
         ArgumentNullException.ThrowIfNull(request);
         return DeployArtifactsInternalAsync(
             request.NefPath,
@@ -312,6 +340,7 @@ public class DeploymentToolkit : IDisposable
         int? confirmationDelaySeconds = null,
         CancellationToken cancellationToken = default)
     {
+        EnsureNotDisposed();
         return DeployArtifactsInternalAsync(
             nefPath,
             manifestPath,
@@ -331,61 +360,71 @@ public class DeploymentToolkit : IDisposable
         int? confirmationDelaySeconds,
         CancellationToken cancellationToken)
     {
+        EnsureNotDisposed();
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(nefPath) || string.IsNullOrWhiteSpace(manifestPath))
-            throw new ArgumentException("nefPath and manifestPath are required.");
+        if (string.IsNullOrWhiteSpace(nefPath))
+            throw new ArgumentException("NEF path is required.", nameof(nefPath));
 
-        if (!File.Exists(nefPath) || !File.Exists(manifestPath))
-            throw new FileNotFoundException("NEF or manifest file not found.");
+        if (string.IsNullOrWhiteSpace(manifestPath))
+            throw new ArgumentException("Manifest path is required.", nameof(manifestPath));
 
-        if (string.IsNullOrEmpty(_wifKey))
-            throw new InvalidOperationException("WIF key not set. Call SetWifKey() first.");
+        if (!File.Exists(nefPath))
+            throw new FileNotFoundException("NEF file not found.", nefPath);
 
-        var nefBytes = await File.ReadAllBytesAsync(nefPath, cancellationToken);
-        var manifestJson = await File.ReadAllTextAsync(manifestPath, cancellationToken);
+        if (!File.Exists(manifestPath))
+            throw new FileNotFoundException("Manifest file not found.", manifestPath);
+
+        var wif = EnsureWif();
+
+        var nefBytes = await File.ReadAllBytesAsync(nefPath, cancellationToken).ConfigureAwait(false);
+        var manifestJson = await File.ReadAllTextAsync(manifestPath, cancellationToken).ConfigureAwait(false);
 
         // Compute expected contract hash
         var nef = NefFile.Parse(nefBytes, verify: true);
         var manifest = ContractManifest.FromJson((Neo.Json.JObject)Neo.Json.JToken.Parse(manifestJson)!);
-        var sender = await GetDeployerAccountAsync();
+        var sender = await GetDeployerAccountAsync().ConfigureAwait(false);
         var expectedHash = Neo.SmartContract.Helper.GetContractHash(sender, nef.CheckSum, manifest.Name);
 
         // Build deploy script
         var script = BuildDeployScript(nefBytes, manifestJson, initParams);
 
-        var rpcUrl = GetCurrentRpcUrl();
-        var protocolSettings = await GetProtocolSettingsAsync();
-        using var rpc = _rpcClientFactory.Create(new Uri(rpcUrl), protocolSettings);
+        var policy = ResolveConfirmationPolicy(waitForConfirmation, confirmationRetries, confirmationDelaySeconds);
 
-        // Build transaction
-        var signer = new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry };
-        var tm = await TransactionManager.MakeTransactionAsync(rpc, script, [signer]);
-
-        // Sign and send
-        var key = Neo.Network.RPC.Utility.GetKeyPair(_wifKey);
-        tm.AddSignature(key);
-        var tx = await tm.SignAsync();
-        var txHash = await rpc.SendRawTransactionAsync(tx);
-
-        var shouldWait = waitForConfirmation ?? _options.WaitForConfirmation;
-        if (shouldWait)
+        return await WithRpcClientAsync(async (rpc, _, ct) =>
         {
-            var retries = confirmationRetries ?? _options.ConfirmationRetries;
-            var delaySeconds = confirmationDelaySeconds ?? _options.ConfirmationDelaySeconds;
-            await WaitForConfirmationAsync(
-                rpc,
-                txHash,
-                retries,
-                TimeSpan.FromSeconds(delaySeconds),
-                cancellationToken);
-        }
+            ct.ThrowIfCancellationRequested();
+            // Build transaction
+            var signer = new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry };
+            var tm = await TransactionManager.MakeTransactionAsync(rpc, script, [signer]).ConfigureAwait(false);
 
-        return new ContractDeploymentInfo
-        {
-            TransactionHash = txHash,
-            ContractHash = expectedHash
-        };
+            // Sign and send
+            var key = Neo.Network.RPC.Utility.GetKeyPair(wif);
+            tm.AddSignature(key);
+            var tx = await tm.SignAsync().ConfigureAwait(false);
+            var txHash = await rpc.SendRawTransactionAsync(tx).ConfigureAwait(false);
+
+            if (policy.WaitForConfirmation)
+            {
+                var confirmed = await WaitForConfirmationAsync(
+                    rpc,
+                    txHash,
+                    policy.ConfirmationRetries,
+                    TimeSpan.FromSeconds(policy.ConfirmationDelaySeconds),
+                    ct).ConfigureAwait(false);
+
+                if (!confirmed)
+                {
+                    throw new TimeoutException($"Transaction {txHash} was not confirmed within the allotted retries.");
+                }
+            }
+
+            return new ContractDeploymentInfo
+            {
+                TransactionHash = txHash,
+                ContractHash = expectedHash
+            };
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<CompilationOptions> CreateCompilationOptionsAsync(string baseName, CancellationToken cancellationToken)
@@ -501,23 +540,25 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Method return value</returns>
     public async Task<T> CallAsync<T>(string contractHashOrAddress, string method, params object[] args)
     {
-        var rpcUrl = GetCurrentRpcUrl();
-        var protocolSettings = await GetProtocolSettingsAsync();
-        using var rpc = _rpcClientFactory.Create(new Uri(rpcUrl), protocolSettings);
+        EnsureNotDisposed();
 
-        var hash = Neo.Network.RPC.Utility.GetScriptHash(contractHashOrAddress, protocolSettings);
-        var script = BuildContractCallScript(hash, method, CallFlags.ReadOnly, args);
-        var result = await rpc.InvokeScriptAsync(script);
+        return await WithRpcClientAsync(async (rpc, protocolSettings, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            var hash = Neo.Network.RPC.Utility.GetScriptHash(contractHashOrAddress, protocolSettings);
+            var script = BuildContractCallScript(hash, method, CallFlags.ReadOnly, args);
+            var result = await rpc.InvokeScriptAsync(script).ConfigureAwait(false);
 
-        if (result.State.HasFlag(Neo.VM.VMState.FAULT))
-            throw new InvalidOperationException($"Call fault: {result.Exception}");
+            if (result.State.HasFlag(Neo.VM.VMState.FAULT))
+                throw new InvalidOperationException($"Call fault: {result.Exception}");
 
-        if (result.Stack == null || result.Stack.Length == 0)
-            return default!;
+            if (result.Stack == null || result.Stack.Length == 0)
+                return default!;
 
-        var item = result.Stack[0];
-        object? value = ConvertStackItem<T>(item);
-        return (T)value!;
+            var item = result.Stack[0];
+            object? value = ConvertStackItem<T>(item);
+            return (T)value!;
+        }, CancellationToken.None).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -529,24 +570,24 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Transaction hash</returns>
     public async Task<UInt256> InvokeAsync(string contractHashOrAddress, string method, params object[] args)
     {
-        if (string.IsNullOrEmpty(_wifKey))
-            throw new InvalidOperationException("WIF key not set. Call SetWifKey() first.");
+        EnsureNotDisposed();
+        var wif = EnsureWif();
+        var sender = await GetDeployerAccountAsync().ConfigureAwait(false);
 
-        var rpcUrl = GetCurrentRpcUrl();
-        var protocolSettings = await GetProtocolSettingsAsync();
-        using var rpc = _rpcClientFactory.Create(new Uri(rpcUrl), protocolSettings);
+        return await WithRpcClientAsync(async (rpc, protocolSettings, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            var hash = Neo.Network.RPC.Utility.GetScriptHash(contractHashOrAddress, protocolSettings);
+            var script = BuildContractCallScript(hash, method, CallFlags.All, args);
 
-        var sender = await GetDeployerAccountAsync();
-        var hash = Neo.Network.RPC.Utility.GetScriptHash(contractHashOrAddress, protocolSettings);
-        var script = BuildContractCallScript(hash, method, CallFlags.All, args);
+            var signer = new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry };
+            var tm = await TransactionManager.MakeTransactionAsync(rpc, script, [signer]).ConfigureAwait(false);
 
-        var signer = new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry };
-        var tm = await TransactionManager.MakeTransactionAsync(rpc, script, [signer]);
-
-        var key = Neo.Network.RPC.Utility.GetKeyPair(_wifKey);
-        tm.AddSignature(key);
-        var tx = await tm.SignAsync();
-        return await rpc.SendRawTransactionAsync(tx);
+            var key = Neo.Network.RPC.Utility.GetKeyPair(wif);
+            tm.AddSignature(key);
+            var tx = await tm.SignAsync().ConfigureAwait(false);
+            return await rpc.SendRawTransactionAsync(tx).ConfigureAwait(false);
+        }, CancellationToken.None).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -556,16 +597,13 @@ public class DeploymentToolkit : IDisposable
     /// <exception cref="InvalidOperationException">Thrown when no deployer account is configured</exception>
     public Task<UInt160> GetDeployerAccountAsync()
     {
-        if (!string.IsNullOrEmpty(_wifKey))
-        {
-            // Use WIF key to get account
-            var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(_wifKey);
-            var keyPair = new KeyPair(privateKey);
-            var account = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
-            return Task.FromResult(account);
-        }
+        EnsureNotDisposed();
+        var wif = EnsureWif();
 
-        return Task.FromException<UInt160>(new InvalidOperationException("No deployer account configured. Set a WIF key using SetWifKey()."));
+        var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(wif);
+        var keyPair = new KeyPair(privateKey);
+        var account = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
+        return Task.FromResult(account);
     }
 
     /// <summary>
@@ -575,19 +613,21 @@ public class DeploymentToolkit : IDisposable
     /// <returns>GAS balance</returns>
     public async Task<decimal> GetGasBalanceAsync(string? address = null)
     {
-        var rpcUrl = GetCurrentRpcUrl();
-        var protocolSettings = await GetProtocolSettingsAsync();
-        using var rpc = _rpcClientFactory.Create(new Uri(rpcUrl), protocolSettings);
+        EnsureNotDisposed();
 
-        UInt160 account = !string.IsNullOrEmpty(address)
-            ? Neo.Network.RPC.Utility.GetScriptHash(address, protocolSettings)
-            : await GetDeployerAccountAsync();
+        return await WithRpcClientAsync(async (rpc, protocolSettings, ct) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            UInt160 account = !string.IsNullOrEmpty(address)
+                ? Neo.Network.RPC.Utility.GetScriptHash(address, protocolSettings)
+                : await GetDeployerAccountAsync().ConfigureAwait(false);
 
-        var nep17 = new Nep17API(rpc);
-        var balance = await nep17.BalanceOfAsync(NativeContract.GAS.Hash, account);
-        var decimals = await nep17.DecimalsAsync(NativeContract.GAS.Hash);
-        var factor = BigInteger.Pow(10, (int)decimals);
-        return (decimal)balance / (decimal)factor;
+            var nep17 = new Nep17API(rpc);
+            var balance = await nep17.BalanceOfAsync(NativeContract.GAS.Hash, account).ConfigureAwait(false);
+            var decimals = await nep17.DecimalsAsync(NativeContract.GAS.Hash).ConfigureAwait(false);
+            var factor = BigInteger.Pow(10, (int)decimals);
+            return (decimal)balance / (decimal)factor;
+        }, CancellationToken.None).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -597,6 +637,7 @@ public class DeploymentToolkit : IDisposable
     /// <returns>Dictionary of contract names to deployment information</returns>
     public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
+        EnsureNotDisposed();
         cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(manifestPath))
@@ -617,9 +658,7 @@ public class DeploymentToolkit : IDisposable
 
         var manifestDirectory = Path.GetDirectoryName(Path.GetFullPath(manifestPath)) ?? Directory.GetCurrentDirectory();
 
-        var originalNetwork = _networkProfile;
-        var originalOptions = _options.Clone();
-        var originalWif = _wifKey;
+        var originalState = CaptureState();
         var results = new Dictionary<string, ContractDeploymentInfo>(StringComparer.OrdinalIgnoreCase);
 
         try
@@ -629,25 +668,12 @@ public class DeploymentToolkit : IDisposable
                 UseNetwork(ResolveNetworkProfile(manifest.Network));
             }
 
-            if (manifest.WaitForConfirmation.HasValue)
-            {
-                _options.WaitForConfirmation = manifest.WaitForConfirmation.Value;
-            }
+            var manifestPolicy = ResolveConfirmationPolicy(
+                manifest.WaitForConfirmation,
+                manifest.ConfirmationRetries,
+                manifest.ConfirmationDelaySeconds);
 
-            if (manifest.ConfirmationRetries.HasValue)
-            {
-                _options.ConfirmationRetries = manifest.ConfirmationRetries.Value;
-            }
-
-            if (manifest.ConfirmationDelaySeconds.HasValue)
-            {
-                _options.ConfirmationDelaySeconds = manifest.ConfirmationDelaySeconds.Value;
-            }
-
-            if (!string.IsNullOrWhiteSpace(manifest.Wif))
-            {
-                SetWifKey(manifest.Wif);
-            }
+            using var manifestWifScope = UseTemporaryWif(manifest.Wif);
 
             foreach (var contract in manifest.Contracts)
             {
@@ -659,65 +685,43 @@ public class DeploymentToolkit : IDisposable
                 var nefPath = ResolveArtifactPath(manifestDirectory, contract.Nef);
                 var contractManifestPath = ResolveArtifactPath(manifestDirectory, contract.Manifest);
 
-                var hasInitParams = contract.InitParams.ValueKind == JsonValueKind.Array;
-                var initParams = hasInitParams
-                    ? ConvertJsonArray(contract.InitParams)
-                    : null;
-
-                string? previousWif = null;
-                if (!string.IsNullOrWhiteSpace(contract.Wif))
+                object?[]? initParams = null;
+                if (contract.InitParams.ValueKind is JsonValueKind.Array)
                 {
-                    previousWif = _wifKey;
-                    SetWifKey(contract.Wif);
+                    initParams = ConvertJsonArray(contract.InitParams);
+                }
+                else if (contract.InitParams.ValueKind is not JsonValueKind.Undefined and not JsonValueKind.Null)
+                {
+                    throw new InvalidOperationException($"Contract entry '{contract.Name ?? contract.Nef}' initialization parameters must be an array when provided.");
                 }
 
-                try
-                {
-                    var deploymentInfo = await DeployArtifactsAsync(
-                        nefPath,
-                        contractManifestPath,
-                        initParams,
-                        contract.WaitForConfirmation ?? manifest.WaitForConfirmation,
-                        contract.ConfirmationRetries ?? manifest.ConfirmationRetries,
-                        contract.ConfirmationDelaySeconds ?? manifest.ConfirmationDelaySeconds,
-                        cancellationToken).ConfigureAwait(false);
+                var contractPolicy = ResolveConfirmationPolicy(
+                    contract.WaitForConfirmation,
+                    contract.ConfirmationRetries,
+                    contract.ConfirmationDelaySeconds,
+                    manifestPolicy);
 
-                    var key = string.IsNullOrWhiteSpace(contract.Name)
-                        ? Path.GetFileNameWithoutExtension(nefPath)
-                        : contract.Name;
+                using var contractWifScope = UseTemporaryWif(contract.Wif);
 
-                    results[key] = deploymentInfo;
-                }
-                finally
-                {
-                    if (!string.IsNullOrWhiteSpace(contract.Wif))
-                    {
-                        if (!string.IsNullOrWhiteSpace(previousWif))
-                        {
-                            SetWifKey(previousWif);
-                        }
-                        else
-                        {
-                            _wifKey = null;
-                        }
-                    }
-                }
+                var deploymentInfo = await DeployArtifactsAsync(
+                    nefPath,
+                    contractManifestPath,
+                    initParams,
+                    contractPolicy.WaitForConfirmation,
+                    contractPolicy.ConfirmationRetries,
+                    contractPolicy.ConfirmationDelaySeconds,
+                    cancellationToken).ConfigureAwait(false);
+
+                var key = string.IsNullOrWhiteSpace(contract.Name)
+                    ? Path.GetFileNameWithoutExtension(nefPath)
+                    : contract.Name;
+
+                results[key] = deploymentInfo;
             }
         }
         finally
         {
-            UseNetwork(originalNetwork);
-            _options.WaitForConfirmation = originalOptions.WaitForConfirmation;
-            _options.ConfirmationRetries = originalOptions.ConfirmationRetries;
-            _options.ConfirmationDelaySeconds = originalOptions.ConfirmationDelaySeconds;
-            if (!string.IsNullOrWhiteSpace(originalWif))
-            {
-                SetWifKey(originalWif);
-            }
-            else
-            {
-                _wifKey = null;
-            }
+            RestoreState(originalState);
         }
 
         return results;
@@ -730,27 +734,116 @@ public class DeploymentToolkit : IDisposable
     /// <returns>True if contract exists, false otherwise</returns>
     public async Task<bool> ContractExistsAsync(string contractHashOrAddress)
     {
-        var rpcUrl = GetCurrentRpcUrl();
-        var protocolSettings = await GetProtocolSettingsAsync();
-        using var rpc = _rpcClientFactory.Create(new Uri(rpcUrl), protocolSettings);
-        try
+        EnsureNotDisposed();
+
+        return await WithRpcClientAsync(async (rpc, protocolSettings, ct) =>
         {
-            var hash = Neo.Network.RPC.Utility.GetScriptHash(contractHashOrAddress, protocolSettings).ToString();
-            var _ = await rpc.GetContractStateAsync(hash);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+            ct.ThrowIfCancellationRequested();
+            try
+            {
+                var hash = Neo.Network.RPC.Utility.GetScriptHash(contractHashOrAddress, protocolSettings).ToString();
+                _ = await rpc.GetContractStateAsync(hash).ConfigureAwait(false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }, CancellationToken.None).ConfigureAwait(false);
     }
 
     #region Private Methods
 
     private string GetCurrentRpcUrl() => _networkProfile.RpcUrl;
 
+    private void EnsureNotDisposed()
+    {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(DeploymentToolkit));
+    }
+
+    private string EnsureWif()
+    {
+        if (!string.IsNullOrEmpty(_wifKey))
+            return _wifKey;
+
+        throw new InvalidOperationException("WIF key not set. Call SetWifKey() first.");
+    }
+
+    private ToolkitSnapshot CaptureState()
+        => new(_networkProfile, _options.Clone(), _wifKey, _protocolSettings);
+
+    private void RestoreState(ToolkitSnapshot snapshot)
+    {
+        _networkProfile = snapshot.Network;
+        _options = snapshot.Options.Clone();
+        _options.Network = _networkProfile;
+        _wifKey = snapshot.Wif;
+        _protocolSettings = snapshot.ProtocolSettings;
+    }
+
+    private IDisposable UseTemporaryWif(string? wif)
+    {
+        if (string.IsNullOrWhiteSpace(wif))
+            return DisposableAction.Empty;
+
+        EnsureNotDisposed();
+        var previous = _wifKey;
+        SetWifKey(wif);
+
+        return new DisposableAction(() =>
+        {
+            if (!string.IsNullOrWhiteSpace(previous))
+            {
+                _wifKey = previous;
+            }
+            else
+            {
+                _wifKey = null;
+            }
+        });
+    }
+
+    private ConfirmationPolicy ResolveConfirmationPolicy(
+        bool? waitForConfirmation,
+        int? confirmationRetries,
+        int? confirmationDelaySeconds,
+        ConfirmationPolicy? fallback = null)
+    {
+        var baseline = fallback ?? new ConfirmationPolicy(
+            _options.WaitForConfirmation,
+            _options.ConfirmationRetries,
+            _options.ConfirmationDelaySeconds);
+
+        var wait = waitForConfirmation ?? baseline.WaitForConfirmation;
+        var retries = confirmationRetries ?? baseline.ConfirmationRetries;
+        var delay = confirmationDelaySeconds ?? baseline.ConfirmationDelaySeconds;
+
+        if (retries < 0)
+            throw new ArgumentOutOfRangeException(nameof(confirmationRetries), "Confirmation retries cannot be negative.");
+        if (delay < 0)
+            throw new ArgumentOutOfRangeException(nameof(confirmationDelaySeconds), "Confirmation delay cannot be negative.");
+
+        return new ConfirmationPolicy(wait, retries, delay);
+    }
+
+    private async Task<TResult> WithRpcClientAsync<TResult>(
+        Func<RpcClient, ProtocolSettings, CancellationToken, Task<TResult>> action,
+        CancellationToken cancellationToken)
+    {
+        EnsureNotDisposed();
+        ArgumentNullException.ThrowIfNull(action);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var protocolSettings = await GetProtocolSettingsAsync().ConfigureAwait(false);
+        using var rpc = _rpcClientFactory.Create(_networkProfile.RpcUri, protocolSettings);
+        return await action(rpc, protocolSettings, cancellationToken).ConfigureAwait(false);
+    }
+
     private async Task<uint> GetNetworkMagicAsync()
     {
+        EnsureNotDisposed();
+
         if (_networkProfile.NetworkMagic.HasValue)
             return _networkProfile.NetworkMagic.Value;
 
@@ -814,6 +907,8 @@ public class DeploymentToolkit : IDisposable
 
     private async Task<ProtocolSettings> GetProtocolSettingsAsync()
     {
+        EnsureNotDisposed();
+
         if (_protocolSettings is not null)
             return _protocolSettings;
 
@@ -1013,6 +1108,36 @@ public class DeploymentToolkit : IDisposable
         if (target == typeof(UInt160)) return new UInt160(item.GetSpan());
         if (target == typeof(UInt256)) return new UInt256(item.GetSpan());
         return item.GetString();
+    }
+
+    private readonly record struct ToolkitSnapshot(
+        NetworkProfile Network,
+        DeploymentOptions Options,
+        string? Wif,
+        ProtocolSettings? ProtocolSettings);
+
+    private readonly record struct ConfirmationPolicy(
+        bool WaitForConfirmation,
+        int ConfirmationRetries,
+        int ConfirmationDelaySeconds);
+
+    private sealed class DisposableAction : IDisposable
+    {
+        private readonly Action _onDispose;
+        private bool _disposed;
+        public static IDisposable Empty => new DisposableAction(static () => { });
+
+        public DisposableAction(Action onDispose)
+        {
+            _onDispose = onDispose ?? throw new ArgumentNullException(nameof(onDispose));
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _onDispose();
+        }
     }
 
     #endregion
