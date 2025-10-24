@@ -295,16 +295,18 @@ internal partial class MethodConvert
         var methodDefinition = targetType.GetMethods(BindingFlags.Public | BindingFlags.Static)
             .FirstOrDefault(m => m.Name == methodName && m.IsGenericMethodDefinition && m.GetParameters().Length == 1);
         if (methodDefinition is null)
-            return;
+        {
+            throw new InvalidOperationException($"Expected generic factory method '{targetType.FullName}.{methodName}<TValue>(TValue)' to exist for numeric system-call registration.");
+        }
 
         MethodInfo method;
         try
         {
             method = methodDefinition.MakeGenericMethod(sourceType);
         }
-        catch (ArgumentException)
+        catch (ArgumentException ex)
         {
-            return;
+            throw new InvalidOperationException($"Failed to create generic specialization '{targetType.FullName}.{methodName}<{sourceType.FullName}>' for numeric system-call registration.", ex);
         }
 
         var parameter = Expression.Parameter(sourceType, "value");

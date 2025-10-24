@@ -46,6 +46,17 @@ internal partial class MethodConvert
 
 
     private static NumericTypeDescriptor GetDescriptor(Type type) => s_numericTypeDescriptors.First(d => d.ClrType == type);
+
+    private static MethodInfo GetRequiredMethod(Type type, string name, params Type[] parameterTypes)
+    {
+        var method = type.GetMethod(name, parameterTypes);
+        if (method is null)
+        {
+            string signature = string.Join(", ", parameterTypes.Select(t => t.FullName));
+            throw new InvalidOperationException($"Expected method '{type.FullName}.{name}({signature})' to exist when registering numeric system calls.");
+        }
+        return method;
+    }
     private static void HandleNumericParse(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -278,9 +289,8 @@ internal partial class MethodConvert
         if (parseMethod is not null)
             RegisterNumericMethod(parseMethod, (mc, model, symbol, instanceExpression, arguments) => HandleNumericParse(descriptor, mc, model, symbol, instanceExpression, arguments));
 
-        var leadingZeroCountMethod = type.GetMethod("LeadingZeroCount", new[] { type });
-        if (leadingZeroCountMethod is not null)
-            RegisterNumericMethod(leadingZeroCountMethod, (mc, model, symbol, instanceExpression, arguments) => HandleNumericLeadingZeroCount(descriptor, mc, model, symbol, instanceExpression, arguments));
+        var leadingZeroCountMethod = GetRequiredMethod(type, "LeadingZeroCount", type);
+        RegisterNumericMethod(leadingZeroCountMethod, (mc, model, symbol, instanceExpression, arguments) => HandleNumericLeadingZeroCount(descriptor, mc, model, symbol, instanceExpression, arguments));
 
         if (descriptor.SupportsCopySign)
         {
