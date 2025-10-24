@@ -28,7 +28,6 @@ namespace Neo.Compiler.SecurityAnalyzer
             // key block writes storage; value blocks in try
             public readonly Dictionary<BasicBlock, HashSet<int>> vulnerabilities;
             public JToken? DebugInfo { get; init; }
-            // TODO: use debugInfo to GetWarningInfo with source codes
 
             public WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
             {

@@ -63,8 +63,7 @@ namespace Neo.Compiler
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics;
-        // TODO: basename should not work when multiple contracts exit in one project
-        public string? ContractName => _displayName ?? Options.BaseName ?? _className;
+        public string? ContractName => _displayName ?? (_allowBaseName ? Options.BaseName : null) ?? _className;
         private string? Source { get; set; }
 
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);
@@ -78,11 +77,14 @@ namespace Neo.Compiler
         /// <param name="engine"> CompilationEngine that contains the compilation syntax tree and compiled methods</param>
         /// <param name="targetContract">Contract to be compiled</param>
         /// <param name="nonDependencies">Classes that is not supposed to be compiled into current target contract.</param>
-        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null)
+        private readonly bool _allowBaseName;
+
+        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null, bool allowBaseName = true)
         {
             _engine = engine;
             _targetContract = targetContract;
             _nonDependencies = nonDependencies;
+            _allowBaseName = allowBaseName;
         }
 
         private void RemoveEmptyInitialize()
