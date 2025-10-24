@@ -15,6 +15,14 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    /// <summary>
+    /// Emits the opcode sequence for <c>RotateLeft</c> on unsigned values.
+    /// Masking and shift steps:
+    /// 1. Normalize rotation count: <c>count = count & (bitWidth - 1)</c>.
+    /// 2. Constrain the input to the requested width (<c>value & mask</c>).
+    /// 3. Shift left, mask the result, then compute the spill bits via right shift.
+    /// 4. Combine both parts and apply the mask again to keep the result within range.
+    /// </summary>
     private static void EmitRotateLeftUnsigned(MethodConvert methodConvert, int bitWidth)
     {
         var mask = (BigInteger.One << bitWidth) - 1;
@@ -42,6 +50,11 @@ internal partial class MethodConvert
         methodConvert.And();
     }
 
+    /// <summary>
+    /// Emits the opcode sequence for <c>RotateLeft</c> on signed values.
+    /// Steps mirror the unsigned version with a final two's-complement adjustment when the
+    /// high bit is set to ensure the result remains within the signed range.
+    /// </summary>
     private static void EmitRotateLeftSigned(MethodConvert methodConvert, int bitWidth)
     {
         var mask = (BigInteger.One << bitWidth) - 1;
@@ -74,6 +87,11 @@ internal partial class MethodConvert
         endTarget.Instruction = methodConvert.Nop();
     }
 
+    /// <summary>
+    /// Emits the opcode sequence for <c>RotateRight</c> on unsigned values.
+    /// The algorithm reuses the same normalized count and mask as the left rotation, but
+    /// computes the right-shifted and left-shifted halves in reverse order before combining.
+    /// </summary>
     private static void EmitRotateRightUnsigned(MethodConvert methodConvert, int bitWidth)
     {
         var mask = (BigInteger.One << bitWidth) - 1;
@@ -92,6 +110,11 @@ internal partial class MethodConvert
         methodConvert.And();
     }
 
+    /// <summary>
+    /// Emits the opcode sequence for <c>RotateRight</c> on signed values.
+    /// After performing the unsigned rotation logic it adjusts results that overflow the
+    /// signed magnitude by subtracting 2^bitWidth, matching two's-complement behaviour.
+    /// </summary>
     private static void EmitRotateRightSigned(MethodConvert methodConvert, int bitWidth)
     {
         var mask = (BigInteger.One << bitWidth) - 1;
