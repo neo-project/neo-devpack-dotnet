@@ -239,46 +239,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        // Algorithm: (sbyte)((value << (rotateAmount & 7)) | ((byte)value >> ((8 - rotateAmount) & 7)))
-        var bitWidth = sizeof(sbyte) * 8;
-
-        // Mask rotation amount to valid range (0-7)
-        methodConvert.Push(bitWidth - 1);                          // Push 7 (8-bit - 1)
-        methodConvert.And();                                       // rotateAmount & 7
-        methodConvert.Swap();
-
-        // Mask value to 8-bit
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
-        methodConvert.And();
-        methodConvert.Swap();
-
-        // Left shift: value << (rotateAmount & 7)
-        methodConvert.ShL();                                       // value << (rotateAmount & 7)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
-        methodConvert.And();                                       // Ensure SHL result is 8-bit
-
-        // Load original value for right shift part
-        methodConvert.LdArg0();                                    // Load value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
-        methodConvert.And();
-        methodConvert.LdArg1();                                    // Load rotateAmount
-        methodConvert.Push(bitWidth);                              // Push 8
-        methodConvert.Swap();                                      // Swap top two elements
-        methodConvert.Sub();                                       // 8 - rotateAmount
-        methodConvert.Push(bitWidth - 1);                          // Push 7
-        methodConvert.And();                                       // (8 - rotateAmount) & 7
-        methodConvert.ShR();                                       // (byte)value >> ((8 - rotateAmount) & 7)
-        methodConvert.Or();
-
-        // Handle sign extension for sbyte
-        methodConvert.Dup();                                       // Duplicate the result
-        methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 7 (0x80)
-        var endTarget = new JumpTarget();
-        methodConvert.JumpIfLess(endTarget);
-        methodConvert.Push(BigInteger.One << bitWidth);             // BigInteger.One << 8 (0x100)
-        methodConvert.Sub();
-        endTarget.Instruction = methodConvert.Nop();
+        EmitRotateLeftSigned(methodConvert, sizeof(sbyte) * 8);
     }
 
     /// <summary>
@@ -298,54 +259,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-
-        // Algorithm: (sbyte)(((value & 0xFF) >> (rotateAmount & 7)) | ((value & 0xFF) << ((8 - rotateAmount) & 7)))
-        var bitWidth = sizeof(sbyte) * 8;
-
-        // Mask rotation amount and perform right shift
-        methodConvert.Push(bitWidth - 1);                          // Push 7 (8-bit - 1)
-        methodConvert.And();                                       // rotateAmount & 7
-        methodConvert.Push(bitWidth);
-        methodConvert.Mod();
-        methodConvert.Push(bitWidth);
-        methodConvert.Swap();
-        methodConvert.Sub();
-        methodConvert.Swap();
-
-        // Right shift part for rotation
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
-        methodConvert.And();
-        methodConvert.Swap();
-        methodConvert.ShL();                                       // value << (rotateAmount & 7)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
-        methodConvert.And();                                       // Ensure SHL result is 8-bit
-
-        // Load original value for left shift part
-        methodConvert.LdArg0();                                    // Load value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFF (8-bit mask)
-        methodConvert.And();
-        methodConvert.LdArg1();                                    // Load rotateAmount
-        methodConvert.Push(bitWidth);
-        methodConvert.Mod();
-        methodConvert.Push(bitWidth);
-        methodConvert.Swap();
-        methodConvert.Sub();
-        methodConvert.Push(bitWidth);                              // Push 8
-        methodConvert.Swap();                                      // Swap top two elements
-        methodConvert.Sub();                                       // 8 - rotateAmount
-        methodConvert.Push(bitWidth - 1);                          // Push 7
-        methodConvert.And();                                       // (8 - rotateAmount) & 7
-        methodConvert.ShR();                                       // (byte)value >> ((8 - rotateAmount) & 7)
-        methodConvert.Or();
-
-        // Handle sign extension for sbyte
-        methodConvert.Dup();                                       // Duplicate the result
-        methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 7 (0x80)
-        var endTarget = new JumpTarget();
-        methodConvert.JumpIfLess(endTarget);
-        methodConvert.Push(BigInteger.One << bitWidth);             // BigInteger.One << 8 (0x100)
-        methodConvert.Sub();
-        endTarget.Instruction = methodConvert.Nop();
+        EmitRotateRightSigned(methodConvert, sizeof(sbyte) * 8);
     }
 
     /// <summary>
