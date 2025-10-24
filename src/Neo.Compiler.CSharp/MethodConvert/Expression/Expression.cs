@@ -170,7 +170,28 @@ internal partial class MethodConvert
             case BaseExpressionSyntax:
             case ThisExpressionSyntax:
                 // Example: base.Method() or this.Property
-                AddInstruction(OpCode.LDARG0);
+                if (TryGetInlineThisInfo() is { } thisInfo)
+                {
+                    bool firstUse = thisInfo.RemainingUses == thisInfo.TotalUses;
+                    if (firstUse)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        if (!thisInfo.Slot.HasValue)
+                            thisInfo.Slot = AddAnonymousVariable();
+                        AccessSlot(OpCode.STLOC, thisInfo.Slot.Value);
+                    }
+                    else
+                    {
+                        if (!thisInfo.Slot.HasValue)
+                            thisInfo.Slot = AddAnonymousVariable();
+                        AccessSlot(OpCode.LDLOC, thisInfo.Slot.Value);
+                    }
+                    thisInfo.RemainingUses--;
+                }
+                else
+                {
+                    AddInstruction(OpCode.LDARG0);
+                }
                 break;
             case ThrowExpressionSyntax expression:
                 // Example: throw new Exception("Error")

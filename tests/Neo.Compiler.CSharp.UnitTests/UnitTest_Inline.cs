@@ -58,5 +58,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Contract.ArrowMethodNoRerurn();
         }
+
+        [TestMethod]
+        public void Test_InlineReuse()
+        {
+            Assert.AreEqual(new BigInteger(42), Contract.TestInlineReuse(21));
+        }
+
+        [TestMethod]
+        public void Test_InlineDuplicateUsage()
+        {
+            Assert.AreEqual(new BigInteger(42), Contract.TestInlineDuplicateUsage(21));
+        }
     }
 }

@@ -79,7 +79,28 @@ internal partial class MethodConvert
                 InvokeMethod(model, method);
                 break;
             case IParameterSymbol parameter:
-                if (!_internalInline) LdArgSlot(parameter);
+                if (TryGetInlineParameterInfo(parameter) is { } info)
+                {
+                    bool firstUse = info.RemainingUses == info.TotalUses;
+                    if (firstUse)
+                    {
+                        AddInstruction(OpCode.DUP);
+                        if (!info.Slot.HasValue)
+                            info.Slot = AddAnonymousVariable();
+                        AccessSlot(OpCode.STLOC, info.Slot.Value);
+                    }
+                    else
+                    {
+                        if (!info.Slot.HasValue)
+                            info.Slot = AddAnonymousVariable();
+                        AccessSlot(OpCode.LDLOC, info.Slot.Value);
+                    }
+                    info.RemainingUses--;
+                }
+                else if (!_internalInline)
+                {
+                    LdArgSlot(parameter);
+                }
                 break;
             case IPropertySymbol property:
                 if (NeedInstanceConstructor(property.GetMethod!))

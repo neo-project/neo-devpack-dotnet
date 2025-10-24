@@ -69,7 +69,7 @@ internal partial class MethodConvert
     {
         ProcessOutParameters(model, symbol, arguments);
 
-        if (TryProcessSpecialMethods(model, symbol, null, arguments))
+        if (TryProcessSpecialMethods(model, symbol, null, arguments, instanceOnStack))
             return;
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
@@ -138,7 +138,7 @@ internal partial class MethodConvert
     /// <param name="callingConvention">The calling convention to use for the method call.</param>
     private void CallMethodWithConvention(SemanticModel model, IMethodSymbol symbol, CallingConvention callingConvention = CallingConvention.Cdecl)
     {
-        if (TryProcessSystemMethods(model, symbol, null, null) || TryProcessInlineMethods(model, symbol, null))
+        if (TryProcessSystemMethods(model, symbol, null, null) || TryProcessInlineMethods(model, symbol, null, null))
             return;
 
         var (convert, methodCallingConvention) = GetMethodConvertAndCallingConvention(model, symbol);
@@ -173,10 +173,10 @@ internal partial class MethodConvert
         });
     }
 
-    private bool TryProcessSpecialMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments)
+    private bool TryProcessSpecialMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments, bool instanceOnStack = false)
     {
         return TryProcessSystemMethods(model, symbol, instanceExpression, arguments) ||
-               TryProcessInlineMethods(model, symbol, arguments);
+               TryProcessInlineMethods(model, symbol, instanceExpression, arguments, instanceOnStack);
     }
 
     private void ProcessOutParameters(SemanticModel model, IMethodSymbol symbol, IEnumerable<SyntaxNode> arguments)

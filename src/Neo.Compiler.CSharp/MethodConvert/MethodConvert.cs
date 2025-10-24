@@ -52,6 +52,7 @@ namespace Neo.Compiler
         private readonly List<(ILocalSymbol, byte)> _variableSymbols = new();
         private readonly Dictionary<ILocalSymbol, byte> _localVariables = new(SymbolEqualityComparer.Default);
         private readonly List<byte> _anonymousVariables = new();
+        private readonly Stack<InlineContext> _inlineContexts = new();
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
@@ -307,6 +308,63 @@ namespace Neo.Compiler
             }
         }
 
+        private sealed class InlineContext
+        {
+            public InlineContext(Dictionary<IParameterSymbol, InlineParameterInfo> parameters, InlineThisInfo? thisInfo)
+            {
+                Parameters = parameters;
+                ThisInfo = thisInfo;
+            }
+
+            public Dictionary<IParameterSymbol, InlineParameterInfo> Parameters { get; }
+            public InlineThisInfo? ThisInfo { get; }
+        }
+
+        private sealed class InlineParameterInfo
+        {
+            public InlineParameterInfo(int totalUses)
+            {
+                TotalUses = totalUses;
+                RemainingUses = totalUses;
+            }
+
+            public int TotalUses { get; }
+            public int RemainingUses { get; set; }
+            public byte? Slot { get; set; }
+        }
+
+        private sealed class InlineThisInfo
+        {
+            public InlineThisInfo(int totalUses)
+            {
+                TotalUses = totalUses;
+                RemainingUses = totalUses;
+            }
+
+            public int TotalUses { get; }
+            public int RemainingUses { get; set; }
+            public byte? Slot { get; set; }
+        }
+
+        private InlineParameterInfo? TryGetInlineParameterInfo(IParameterSymbol parameter)
+        {
+            foreach (var context in _inlineContexts)
+            {
+                if (context.Parameters.TryGetValue(parameter, out var info))
+                    return info;
+            }
+            return null;
+        }
+
+        private InlineThisInfo? TryGetInlineThisInfo()
+        {
+            foreach (var context in _inlineContexts)
+            {
+                if (context.ThisInfo is not null)
+                    return context.ThisInfo;
+            }
+            return null;
+        }
 
         #endregion
     }

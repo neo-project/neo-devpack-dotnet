@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using OpCode = Neo.VM.OpCode;
@@ -25,7 +26,7 @@ extern alias scfx;
 
 internal partial class MethodConvert
 {
-    private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool instanceOnStack = false)
     {
         SyntaxNode? syntaxNode = null;
         if (!symbol.DeclaringSyntaxReferences.IsEmpty)
@@ -38,33 +39,73 @@ internal partial class MethodConvert
                                                                   && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
             return false;
 
-        _internalInline = true;
+        var walker = new InlineUsageWalker(model, symbol);
+        if (syntax.Body is not null)
+            walker.Visit(syntax.Body);
+        else if (syntax.ExpressionBody is not null)
+            walker.Visit(syntax.ExpressionBody.Expression);
 
-        using (InsertSequencePoint(syntax))
+        Dictionary<IParameterSymbol, InlineParameterInfo> parameterInfos = new(SymbolEqualityComparer.Default);
+        foreach (var parameter in symbol.Parameters)
         {
-            if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments);
-            if (syntax.Body != null)
-            {
-                ConvertStatement(model, syntax.Body);
-            }
-            else if (syntax.ExpressionBody != null)
-            {
-                ConvertExpression(model, syntax.ExpressionBody.Expression);
-            }
+            int totalUses = walker.ParameterUsage.TryGetValue(parameter, out var count) ? count : 0;
+            if (totalUses > 1 || parameter.RefKind != RefKind.None)
+                parameterInfos[parameter] = new InlineParameterInfo(totalUses);
         }
 
-        // If the method has no return value,
-        // but the expression body has a return value, example: a+=1;
-        // drop the return value
-        // Problem:
-        //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //   public void Test() => a+=1; // this will push an int value to the stack
-        //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //   public void Test() { a+=1; } // this will not push value to the stack
-        if (syntax is MethodDeclarationSyntax methodSyntax
-            && methodSyntax.ReturnType.ToString() == "void"
-            && IsExpressionReturningValue(model, methodSyntax))
-            AddInstruction(OpCode.DROP);
+        InlineThisInfo? thisInfo = null;
+        if (!symbol.IsStatic && walker.ThisUsageCount > 1)
+            thisInfo = new InlineThisInfo(walker.ThisUsageCount);
+
+        bool previousInternalInline = _internalInline;
+        InlineContext? inlineContext = null;
+        if (parameterInfos.Count > 0 || thisInfo is not null)
+        {
+            inlineContext = new InlineContext(parameterInfos, thisInfo);
+            _inlineContexts.Push(inlineContext);
+        }
+
+        _internalInline = true;
+
+        try
+        {
+            if (!symbol.IsStatic && !instanceOnStack)
+            {
+                _internalInline = previousInternalInline;
+                ConvertInstanceExpression(model, instanceExpression);
+            }
+
+            if (arguments is not null)
+            {
+                _internalInline = previousInternalInline;
+                PrepareArgumentsForMethod(model, symbol, arguments);
+            }
+
+            _internalInline = true;
+
+            using (InsertSequencePoint(syntax))
+            {
+                if (syntax.Body != null)
+                {
+                    ConvertStatement(model, syntax.Body);
+                }
+                else if (syntax.ExpressionBody != null)
+                {
+                    ConvertExpression(model, syntax.ExpressionBody.Expression);
+                }
+            }
+
+            if (syntax is MethodDeclarationSyntax methodSyntax
+                && methodSyntax.ReturnType.ToString() == "void"
+                && IsExpressionReturningValue(model, methodSyntax))
+                AddInstruction(OpCode.DROP);
+        }
+        finally
+        {
+            if (inlineContext is not null)
+                _inlineContexts.Pop();
+            _internalInline = previousInternalInline;
+        }
 
         return true;
     }
@@ -79,6 +120,44 @@ internal partial class MethodConvert
                 OpCode = OpCode.INITSSLOT,
                 Operand = [(byte)_context.StaticFieldCount]
             });
+        }
+    }
+
+    private sealed class InlineUsageWalker : Microsoft.CodeAnalysis.CSharp.CSharpSyntaxWalker
+    {
+        private readonly SemanticModel _model;
+        private readonly IMethodSymbol _methodSymbol;
+
+        public InlineUsageWalker(SemanticModel model, IMethodSymbol methodSymbol)
+        {
+            _model = model;
+            _methodSymbol = methodSymbol;
+        }
+
+        public Dictionary<IParameterSymbol, int> ParameterUsage { get; } = new(SymbolEqualityComparer.Default);
+        public int ThisUsageCount { get; private set; }
+
+        public override void VisitIdentifierName(IdentifierNameSyntax node)
+        {
+            var symbol = _model.GetSymbolInfo(node).Symbol;
+            if (symbol is IParameterSymbol parameter && SymbolEqualityComparer.Default.Equals(parameter.ContainingSymbol, _methodSymbol))
+            {
+                ParameterUsage.TryGetValue(parameter, out var count);
+                ParameterUsage[parameter] = count + 1;
+            }
+            base.VisitIdentifierName(node);
+        }
+
+        public override void VisitThisExpression(ThisExpressionSyntax node)
+        {
+            ThisUsageCount++;
+            base.VisitThisExpression(node);
+        }
+
+        public override void VisitBaseExpression(BaseExpressionSyntax node)
+        {
+            ThisUsageCount++;
+            base.VisitBaseExpression(node);
         }
     }
 

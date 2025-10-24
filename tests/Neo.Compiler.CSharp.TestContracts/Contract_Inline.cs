@@ -103,5 +103,21 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return a + b;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int InlineEcho(int value) => value;
+
+        public static int TestInlineReuse(int value)
+        {
+            return InlineEcho(value) + value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int InlineDuplicate(int value) => value + value;
+
+        public static int TestInlineDuplicateUsage(int value)
+        {
+            return InlineDuplicate(value);
+        }
     }
 }
