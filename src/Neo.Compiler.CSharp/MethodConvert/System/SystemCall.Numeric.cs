@@ -93,6 +93,44 @@ internal partial class MethodConvert
         }
     }
 
+    private static void PushNumericConstant(MethodConvert methodConvert, NumericTypeDescriptor descriptor, BigInteger value)
+    {
+        if (descriptor.BitSize <= 8)
+        {
+            if (descriptor.IsSigned)
+                methodConvert.Push((sbyte)value);
+            else
+                methodConvert.Push((byte)value);
+        }
+        else if (descriptor.BitSize <= 16)
+        {
+            if (descriptor.IsSigned)
+                methodConvert.Push((short)value);
+            else
+                methodConvert.Push((ushort)value);
+        }
+        else if (descriptor.BitSize <= 32)
+        {
+            if (descriptor.IsSigned)
+                methodConvert.Push((int)value);
+            else
+                methodConvert.Push((uint)value);
+        }
+        else
+        {
+            if (descriptor.IsSigned)
+                methodConvert.Push((long)value);
+            else
+                methodConvert.Push((ulong)value);
+        }
+    }
+
+    private static void PushMinValue(MethodConvert methodConvert, NumericTypeDescriptor descriptor)
+        => PushNumericConstant(methodConvert, descriptor, descriptor.MinValue);
+
+    private static void PushMaxValue(MethodConvert methodConvert, NumericTypeDescriptor descriptor)
+        => PushNumericConstant(methodConvert, descriptor, descriptor.MaxValue);
+
     private static void HandleNumericCreateChecked(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
@@ -115,7 +153,9 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        EmitClampToRange(methodConvert, descriptor);
+        PushMinValue(methodConvert, descriptor);
+        PushMaxValue(methodConvert, descriptor);
+        EmitClampToRangeLegacy(methodConvert);
     }
 
     private static void HandleNumericRotateLeft(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -154,7 +194,12 @@ internal partial class MethodConvert
     private static void HandleNumericCopySign(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         HandleBigIntegerCopySign(methodConvert, model, symbol, instanceExpression, arguments);
-        EmitClampToRange(methodConvert, descriptor);
+        var withinTarget = new JumpTarget();
+        methodConvert.Dup();
+        PushMaxValue(methodConvert, descriptor);
+        methodConvert.JumpIfLessOrEqual(withinTarget);
+        methodConvert.Throw();
+        withinTarget.Instruction = methodConvert.Nop();
     }
 
     private static void EmitLeadingZeroCountLoop(MethodConvert methodConvert, int bitSize)
@@ -181,30 +226,46 @@ internal partial class MethodConvert
         methodConvert.Sub();
     }
 
-    private static void EmitClampToRange(MethodConvert methodConvert, NumericTypeDescriptor descriptor)
+    private static void EmitClampToRangeLegacy(MethodConvert methodConvert)
     {
-        JumpTarget clampToMin = new();
-        JumpTarget clampToMax = new();
-        JumpTarget endTarget = new();
+        var endTarget = new JumpTarget();
+        var exceptionTarget = new JumpTarget();
+        var minTarget = new JumpTarget();
+        var maxTarget = new JumpTarget();
 
         methodConvert.Dup();
-        methodConvert.Push(descriptor.MinValue);
-        methodConvert.JumpIfLess(clampToMin);
-
+        methodConvert.Rot();
         methodConvert.Dup();
-        methodConvert.Push(descriptor.MaxValue);
-        methodConvert.JumpIfGreater(clampToMax);
+        methodConvert.Rot();
+        methodConvert.JumpIfLess(exceptionTarget);
+        methodConvert.Throw();
+        exceptionTarget.Instruction = methodConvert.Nop();
 
+        methodConvert.Rot();
+        methodConvert.Dup();
+        methodConvert.Rot();
+        methodConvert.Dup();
+        methodConvert.Rot();
+        methodConvert.JumpIfGreater(minTarget);
+        methodConvert.Drop();
+        methodConvert.Dup();
+        methodConvert.Rot();
+        methodConvert.Dup();
+        methodConvert.Rot();
+        methodConvert.JumpIfLess(maxTarget);
+        methodConvert.Drop();
         methodConvert.JumpAlways(endTarget);
 
-        clampToMin.Instruction = methodConvert.Nop();
+        minTarget.Instruction = methodConvert.Nop();
+        methodConvert.Reverse3();
         methodConvert.Drop();
-        methodConvert.Push(descriptor.MinValue);
+        methodConvert.Drop();
         methodConvert.JumpAlways(endTarget);
 
-        clampToMax.Instruction = methodConvert.Nop();
+        maxTarget.Instruction = methodConvert.Nop();
+        methodConvert.Swap();
         methodConvert.Drop();
-        methodConvert.Push(descriptor.MaxValue);
+        methodConvert.JumpAlways(endTarget);
 
         endTarget.Instruction = methodConvert.Nop();
     }
