@@ -391,19 +391,6 @@ namespace Neo.Compiler
 
         private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
         {
-            if (!string.IsNullOrEmpty(options.BaseName) && contexts.Count > 1)
-            {
-                string[] uniqueContracts = contexts
-                    .Select(c => c.ClassName)
-                    .Distinct(StringComparer.InvariantCulture)
-                    .ToArray();
-                if (uniqueContracts.Length > 1)
-                {
-                    Console.Error.WriteLine("The --base-name option can only be used when compiling a single contract. Contracts found: {0}", string.Join(", ", uniqueContracts));
-                    return 1;
-                }
-            }
-
             int result = 0;
             List<Exception> exceptions = new();
             foreach (CompilationContext context in contexts)

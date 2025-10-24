@@ -64,7 +64,6 @@ namespace Neo.Compiler
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics;
         public string? ContractName => _displayName ?? (_allowBaseName ? Options.BaseName : null) ?? _className;
-        internal string ClassName => _className ?? _targetContract.Name;
         private string? Source { get; set; }
 
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);

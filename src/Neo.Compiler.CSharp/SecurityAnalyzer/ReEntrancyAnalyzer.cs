@@ -36,6 +36,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             public readonly Dictionary<BasicBlock, HashSet<int>> callOtherContractInstructions;
             public readonly Dictionary<BasicBlock, HashSet<int>> writeStorageInstructions;
             public JToken? DebugInfo { get; init; }
+
             public ReEntrancyVulnerabilityPair(
                 Dictionary<BasicBlock, HashSet<BasicBlock>> vulnerabilityPairs,
                 Dictionary<BasicBlock, HashSet<int>> callOtherContractInstructions,
