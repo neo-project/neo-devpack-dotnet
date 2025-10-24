@@ -228,6 +228,9 @@ internal partial class MethodConvert
             case MemberAccessExpressionSyntax memberAccess:
                 ProcessByRefMemberAccess(model, parameter, memberAccess, isRef, captureOnly);
                 break;
+            case MemberAccessExpressionSyntax memberAccess:
+                ProcessOutMemberAccess(model, parameter, memberAccess);
+                break;
             default:
                 throw CompilationException.UnsupportedSyntax(argument, $"Unsupported by-ref argument syntax '{argument.GetType().Name}'. Use 'out var variable', 'out existingVariable', or 'ref existingVariable'.");
         }
