@@ -410,12 +410,37 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerExplicitConversion(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue, sbyte.MaxValue);
+    }
+
+    /// <summary>
+    /// Shared helper that enforces a BigInteger value lies within the supplied inclusive range.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance.</param>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="symbol">The method symbol.</param>
+    /// <param name="instanceExpression">The instance expression (if any).</param>
+    /// <param name="arguments">Method arguments.</param>
+    /// <param name="minValue">Inclusive minimum accepted value.</param>
+    /// <param name="maxValue">Inclusive maximum accepted value.</param>
+    private static void HandleBigIntegerRangeCheckedConversion(
+        MethodConvert methodConvert,
+        SemanticModel model,
+        IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments,
+        BigInteger minValue,
+        BigInteger maxValue)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
-        methodConvert.JumpIfTrue(endTarget);               // Jump if within range
+        methodConvert.Within(minValue, maxValue);                  // Check if within configured range
+        methodConvert.JumpIfTrue(endTarget);                       // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -433,14 +458,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToSByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
-        methodConvert.JumpIfTrue(endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue, sbyte.MaxValue);
     }
 
     /// <summary>
@@ -456,14 +474,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(byte.MinValue, byte.MaxValue);     // Check if within range
-        methodConvert.JumpIfTrue(endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, byte.MinValue, byte.MaxValue);
     }
 
     /// <summary>
@@ -479,14 +490,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(short.MinValue, short.MaxValue);    // Check if within range
-        methodConvert.JumpIfTrue(endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, short.MinValue, short.MaxValue);
     }
 
     /// <summary>
@@ -502,14 +506,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToUShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(ushort.MinValue, ushort.MaxValue);   // Check if within range
-        methodConvert.JumpIfTrue(endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, ushort.MinValue, ushort.MaxValue);
     }
 
     /// <summary>
@@ -525,14 +522,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(int.MinValue, int.MaxValue);         // Check if within range
-        methodConvert.JumpIfTrue(endTarget);                // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, int.MinValue, int.MaxValue);
     }
 
     /// <summary>
@@ -548,14 +538,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToUInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(uint.MinValue, uint.MaxValue);         // Check if within range
-        methodConvert.JumpIfTrue(endTarget);                // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, uint.MinValue, uint.MaxValue);
     }
 
     /// <summary>
@@ -571,14 +554,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToLong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate result for range check
-        methodConvert.Within(long.MinValue, long.MaxValue);         // Check if within range
-        methodConvert.JumpIfTrue(endTarget);                // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, long.MinValue, long.MaxValue);
     }
 
     /// <summary>
@@ -594,14 +570,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToULong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                                     // Duplicate value for range check
-        methodConvert.Within(ulong.MinValue, ulong.MaxValue);                 // Check if within ulong range
-        methodConvert.JumpIfTrue(endTarget);                          // Jump if within range
-        methodConvert.Throw();                                                   // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();                             // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, ulong.MinValue, ulong.MaxValue);
     }
 
     /// <summary>
