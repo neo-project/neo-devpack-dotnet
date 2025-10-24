@@ -239,35 +239,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // Algorithm: (long)((value << (rotateAmount & 63)) | ((ulong)value >> (64 - (rotateAmount & 63))))
-        var bitWidth = sizeof(long) * 8;
-        methodConvert.Push(bitWidth - 1);                          // Push 63 (64-bit - 1)
-        methodConvert.And();                                       // rotateAmount & 63
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Apply mask to value
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.ShL();                                       // value << (rotateAmount & 63)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Ensure SHL result is 64-bit
-        methodConvert.LdArg0();                                    // Load original value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Apply mask to original value
-        methodConvert.LdArg1();                                    // Load rotate amount
-        methodConvert.Push(bitWidth);                              // Push 64
-        methodConvert.Swap();                                      // Swap top two elements
-        methodConvert.Sub();                                       // 64 - rotateAmount
-        methodConvert.Push(bitWidth - 1);                          // Push 63
-        methodConvert.And();                                       // (64 - rotateAmount) & 63
-        methodConvert.ShR();                                       // (ulong)value >> ((64 - rotateAmount) & 63)
-        methodConvert.Or();                                        // Combine left and right parts
-        methodConvert.Dup();                                       // Duplicate the result
-        methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 63 (0x8000000000000000)
-        var endTarget = new JumpTarget();
-        methodConvert.JumpIfLess(endTarget);               // Jump if result < 0x8000000000000000
-        methodConvert.Push(BigInteger.One << bitWidth);            // BigInteger.One << 64 (0x10000000000000000)
-        methodConvert.Sub();                                       // Apply sign extension
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        EmitRotateLeftSigned(methodConvert, sizeof(long) * 8);
     }
 
     /// <summary>
@@ -287,45 +259,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // Algorithm: (long)(((ulong)value >> (rotateAmount & 63)) | ((long)value << (64 - (rotateAmount & 63))))
-        var bitWidth = sizeof(long) * 8;
-        methodConvert.Push(bitWidth - 1);                          // Push 63 (64-bit - 1)
-        methodConvert.And();                                       // rotateAmount & 63
-        methodConvert.Push(bitWidth);                              // Push 64
-        methodConvert.Mod();                                       // Modulo operation
-        methodConvert.Push(bitWidth);                              // Push 64
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Sub();                                       // Subtraction
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Apply mask to value
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.ShL();                                       // value << (rotateAmount & 63)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Ensure SHL result is 64-bit
-        methodConvert.LdArg0();                                    // Load original value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Apply mask to original value
-        methodConvert.LdArg1();                                    // Load rotate amount
-        methodConvert.Push(bitWidth);                              // Push 64
-        methodConvert.Mod();                                       // Modulo operation
-        methodConvert.Push(bitWidth);                              // Push 64
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Sub();                                       // Subtraction
-        methodConvert.Push(bitWidth);                              // Push 64
-        methodConvert.Swap();                                      // Swap top two elements
-        methodConvert.Sub();                                       // 64 - rotateAmount
-        methodConvert.Push(bitWidth - 1);                          // Push 63
-        methodConvert.And();                                       // (64 - rotateAmount) & 63
-        methodConvert.ShR();                                       // (ulong)value >> ((64 - rotateAmount) & 63)
-        methodConvert.Or();                                        // Combine left and right parts
-        methodConvert.Dup();                                       // Duplicate the result
-        methodConvert.Push(BigInteger.One << (bitWidth - 1));      // Push BigInteger.One << 63 (0x8000000000000000)
-        var endTarget = new JumpTarget();
-        methodConvert.JumpIfLess(endTarget);               // Jump if result < 0x8000000000000000
-        methodConvert.Push(BigInteger.One << bitWidth);            // BigInteger.One << 64 (0x10000000000000000)
-        methodConvert.Sub();                                       // Apply sign extension
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        EmitRotateRightSigned(methodConvert, sizeof(long) * 8);
     }
 
     /// <summary>
