@@ -197,30 +197,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // Algorithm: (ulong)(value << rotateAmount) | (value >> (64 - rotateAmount))
-        var bitWidth = sizeof(ulong) * 8;
-        methodConvert.Push(bitWidth - 1);                          // Push 63 (64-bit - 1)
-        methodConvert.And();                                       // rotateAmount & 63
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Apply mask to value
-        methodConvert.Swap();                                      // Swap elements
-        methodConvert.ShL();                                       // value << (rotateAmount & 63)
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Ensure SHL result is 64-bit
-        methodConvert.LdArg0();                                    // Load original value
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Apply mask to original value
-        methodConvert.LdArg1();                                    // Load rotate amount
-        methodConvert.Push(bitWidth);                              // Push 64
-        methodConvert.Swap();                                      // Swap top two elements
-        methodConvert.Sub();                                       // 64 - rotateAmount
-        methodConvert.Push(bitWidth - 1);                          // Push 63
-        methodConvert.And();                                       // (64 - rotateAmount) & 63
-        methodConvert.ShR();                                       // (ulong)value >> ((64 - rotateAmount) & 63)
-        methodConvert.Or();                                        // Combine left and right parts
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push 0xFFFFFFFFFFFFFFFF (64-bit mask)
-        methodConvert.And();                                       // Ensure final result is 64-bit
+        EmitRotateLeftUnsigned(methodConvert, sizeof(ulong) * 8);
     }
 
     /// <summary>
@@ -240,21 +217,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // Algorithm: (ulong)(value >> rotateAmount) | (value << (64 - rotateAmount))
-        var bitWidth = sizeof(ulong) * 8;
-        methodConvert.Push(bitWidth - 1);                          // Push (bitWidth - 1)
-        methodConvert.And();                                       // rotateAmount & (bitWidth - 1)
-        methodConvert.ShR();                                       // value >> (rotateAmount & (bitWidth - 1))
-        methodConvert.LdArg0();                                    // Load value again
-        methodConvert.Push(bitWidth);                              // Push bitWidth
-        methodConvert.LdArg1();                                    // Load rotateAmount
-        methodConvert.Sub();                                       // bitWidth - rotateAmount
-        methodConvert.Push(bitWidth - 1);                          // Push (bitWidth - 1)
-        methodConvert.And();                                       // (bitWidth - rotateAmount) & (bitWidth - 1)
-        methodConvert.ShL();                                       // value << ((bitWidth - rotateAmount) & (bitWidth - 1))
-        methodConvert.Or();                                        // Combine the results with OR
-        methodConvert.Push((BigInteger.One << bitWidth) - 1);      // Push (2^bitWidth - 1) as bitmask
-        methodConvert.And();                                       // Ensure final result is bitWidth-bit
+        EmitRotateRightUnsigned(methodConvert, sizeof(ulong) * 8);
     }
 
     /// <summary>
