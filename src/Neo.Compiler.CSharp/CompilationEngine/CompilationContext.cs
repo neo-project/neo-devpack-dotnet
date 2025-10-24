@@ -56,9 +56,21 @@ namespace Neo.Compiler
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
+        internal readonly struct OutSyncTarget
+        {
+            public OutSyncTarget(ISymbol symbol, byte? instanceSlot = null)
+            {
+                Symbol = symbol;
+                InstanceSlot = instanceSlot;
+            }
+
+            public ISymbol Symbol { get; }
+            public byte? InstanceSlot { get; }
+        }
+
         // This dictionary is used to sync value from key symbol to value symbol
         // We need to sync the value symbol to the key symbol when the key symbol is updated
-        internal Dictionary<ISymbol, System.Collections.Generic.List<ISymbol>> OutStaticFieldsSync { get; } = new Dictionary<ISymbol, System.Collections.Generic.List<ISymbol>>(SymbolEqualityComparer.Default);
+        internal Dictionary<ISymbol, System.Collections.Generic.List<OutSyncTarget>> OutStaticFieldsSync { get; } = new Dictionary<ISymbol, System.Collections.Generic.List<OutSyncTarget>>(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
