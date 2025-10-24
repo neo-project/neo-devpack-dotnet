@@ -158,7 +158,7 @@ internal partial class MethodConvert
             foreach (var sync in _context.OutStaticFieldsSync[p])
             {
                 LdArgSlot(p);
-                switch (sync)
+                switch (sync.Symbol)
                 {
                     case IParameterSymbol param:
                         StArgSlot(param);
@@ -166,8 +166,11 @@ internal partial class MethodConvert
                     case ILocalSymbol local:
                         StLocSlot(local);
                         break;
+                    case IFieldSymbol fieldSync:
+                        StoreOutFieldValue(fieldSync, sync.InstanceSlot);
+                        break;
                     default:
-                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
+                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.Symbol.GetType().Name}' for parameter synchronization. Only parameters, local variables, and fields are supported.");
                 }
             }
         });
@@ -181,13 +184,40 @@ internal partial class MethodConvert
 
     private void ProcessOutParameters(SemanticModel model, IMethodSymbol symbol, IEnumerable<SyntaxNode> arguments)
     {
+        var argumentMap = MapArgumentsToParameters(model, symbol, arguments);
         var parameters = DetermineParameterOrder(symbol, CallingConvention.Cdecl);
         foreach (var parameter in parameters.Where(p => p.RefKind == RefKind.Out))
         {
-            if (arguments.ElementAtOrDefault(parameter.Ordinal) is not ArgumentSyntax argument) continue;
+            if (!argumentMap.TryGetValue(parameter, out var argument)) continue;
 
             ProcessOutArgument(model, symbol, parameter, argument);
         }
+    }
+
+    private static Dictionary<IParameterSymbol, ArgumentSyntax> MapArgumentsToParameters(SemanticModel model, IMethodSymbol symbol, IEnumerable<SyntaxNode> arguments)
+    {
+        Dictionary<IParameterSymbol, ArgumentSyntax> map = new(SymbolEqualityComparer.Default);
+        int positionalIndex = 0;
+        foreach (SyntaxNode node in arguments)
+        {
+            if (node is not ArgumentSyntax argument) continue;
+
+            IParameterSymbol? targetParameter;
+            if (argument.NameColon is null)
+            {
+                targetParameter = symbol.Parameters.ElementAtOrDefault(positionalIndex++);
+            }
+            else
+            {
+                string parameterName = argument.NameColon.Name.Identifier.ValueText;
+                targetParameter = symbol.Parameters.FirstOrDefault(p => p.Name == parameterName);
+            }
+
+            if (targetParameter is null) continue;
+            if (!map.ContainsKey(targetParameter))
+                map[targetParameter] = argument;
+        }
+        return map;
     }
 
     private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IParameterSymbol parameter, ArgumentSyntax argument)
@@ -199,6 +229,9 @@ internal partial class MethodConvert
                 break;
             case IdentifierNameSyntax identifierName:
                 ProcessOutIdentifier(model, parameter, identifierName);
+                break;
+            case MemberAccessExpressionSyntax memberAccess:
+                ProcessOutMemberAccess(model, parameter, memberAccess);
                 break;
             default:
                 throw CompilationException.UnsupportedSyntax(argument, $"Unsupported out parameter syntax '{argument.GetType().Name}'. Use 'out var variable' or 'out existingVariable'.");
@@ -228,6 +261,9 @@ internal partial class MethodConvert
                 ProcessOutSymbol(parameter, param);
                 StArgSlot(param);
                 break;
+            case IFieldSymbol field:
+                ProcessOutField(model, parameter, field, instanceExpression: null, identifierName);
+                break;
             case IDiscardSymbol:
                 PushDefault(parameter.Type);
                 _context.GetOrAddCapturedStaticField(parameter);
@@ -238,8 +274,56 @@ internal partial class MethodConvert
         }
     }
 
-    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol)
+    private void ProcessOutMemberAccess(SemanticModel model, IParameterSymbol parameter, MemberAccessExpressionSyntax memberAccess)
     {
+        var symbol = model.GetSymbolInfo(memberAccess).Symbol!;
+        switch (symbol)
+        {
+            case IFieldSymbol field:
+                ProcessOutField(model, parameter, field, memberAccess.Expression, memberAccess);
+                break;
+            default:
+                throw CompilationException.UnsupportedSyntax(memberAccess, $"Unsupported member access '{memberAccess}' in out parameter. Only fields are supported.");
+        }
+    }
+
+    private void ProcessOutField(SemanticModel model, IParameterSymbol parameter, IFieldSymbol field, ExpressionSyntax? instanceExpression, SyntaxNode syntaxNode)
+    {
+        if (field.IsStatic)
+        {
+            byte fieldIndex = _context.AddStaticField(field);
+            AccessSlot(OpCode.LDSFLD, fieldIndex);
+            ProcessOutSymbol(parameter, field);
+            AccessSlot(OpCode.STSFLD, fieldIndex);
+            return;
+        }
+
+        byte instanceSlot = _context.AddAnonymousStaticField();
+        if (instanceExpression is null)
+            AddInstruction(OpCode.LDARG0);
+        else
+            ConvertExpression(model, instanceExpression);
+        AccessSlot(OpCode.STSFLD, instanceSlot);
+
+        AccessSlot(OpCode.LDSFLD, instanceSlot);
+        int fieldOffset = Array.IndexOf(field.ContainingType.GetFields(), field);
+        Push(fieldOffset);
+        AddInstruction(OpCode.PICKITEM);
+
+        ProcessOutSymbol(parameter, field, instanceSlot);
+        if (!_context.TryGetCapturedStaticField(field, out var fieldStorageIndex))
+            fieldStorageIndex = _context.GetOrAddCapturedStaticField(field);
+        AccessSlot(OpCode.STSFLD, fieldStorageIndex);
+    }
+
+    private void ProcessOutSymbol(IParameterSymbol parameter, ISymbol symbol, byte? instanceSlot = null)
+    {
+        if (symbol is IFieldSymbol fieldSymbol)
+        {
+            ProcessOutFieldSymbol(parameter, fieldSymbol, instanceSlot);
+            return;
+        }
+
         bool parameterCaptured = _context.TryGetCapturedStaticField(parameter, out var parameterIndex);
         bool symbolCaptured = _context.TryGetCapturedStaticField(symbol, out var symbolIndex);
 
@@ -253,20 +337,68 @@ internal partial class MethodConvert
         }
         else if (parameterCaptured && symbolCaptured && parameterIndex != symbolIndex)
         {
-            // both values are already captured in different indirectly connected methods,
-            // but they are different, thus need to sync value from symbol to parameter
             if (!_context.OutStaticFieldsSync.TryGetValue(parameter, out var syncList))
             {
-                syncList = new List<ISymbol>();
+                syncList = new List<CompilationContext.OutSyncTarget>();
                 _context.OutStaticFieldsSync[parameter] = syncList;
             }
-            syncList.Add(symbol);
+            syncList.Add(new CompilationContext.OutSyncTarget(symbol));
         }
         else if (!parameterCaptured && !symbolCaptured)
         {
             var index = _context.GetOrAddCapturedStaticField(symbol);
             _context.AssociateCapturedStaticField(parameter, index);
         }
+    }
+
+    private void ProcessOutFieldSymbol(IParameterSymbol parameter, IFieldSymbol field, byte? instanceSlot)
+    {
+        bool parameterCaptured = _context.TryGetCapturedStaticField(parameter, out var parameterIndex);
+        byte fieldIndex = field.IsStatic
+            ? _context.AddStaticField(field)
+            : _context.GetOrAddCapturedStaticField(field);
+
+        if (field.IsStatic)
+            _context.AssociateCapturedStaticField(field, fieldIndex);
+
+        if (!parameterCaptured)
+        {
+            _context.AssociateCapturedStaticField(parameter, fieldIndex);
+            parameterIndex = fieldIndex;
+        }
+
+        bool requireSync = !field.IsStatic || parameterIndex != fieldIndex;
+        if (requireSync)
+        {
+            if (!field.IsStatic && instanceSlot is null)
+                throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Missing instance context for field '{field.Name}' in out parameter synchronization.");
+
+            if (!_context.OutStaticFieldsSync.TryGetValue(parameter, out var syncList))
+            {
+                syncList = new List<CompilationContext.OutSyncTarget>();
+                _context.OutStaticFieldsSync[parameter] = syncList;
+            }
+            syncList.Add(new CompilationContext.OutSyncTarget(field, instanceSlot));
+        }
+    }
+
+    private void StoreOutFieldValue(IFieldSymbol field, byte? instanceSlot)
+    {
+        if (field.IsStatic)
+        {
+            byte index = _context.AddStaticField(field);
+            AccessSlot(OpCode.STSFLD, index);
+            return;
+        }
+
+        if (instanceSlot is null)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Missing instance context for field '{field.Name}' in out argument synchronization.");
+
+        AccessSlot(OpCode.LDSFLD, instanceSlot.Value);
+        int fieldOffset = Array.IndexOf(field.ContainingType.GetFields(), field);
+        Push(fieldOffset);
+        AddInstruction(OpCode.ROT);
+        AddInstruction(OpCode.SETITEM);
     }
 
     private void HandleConstructorDuplication(bool instanceOnStack, CallingConvention methodCallingConvention, IMethodSymbol symbol)
@@ -300,7 +432,7 @@ internal partial class MethodConvert
             foreach (var sync in _context.OutStaticFieldsSync[p])
             {
                 LdArgSlot(p);
-                switch (sync)
+                switch (sync.Symbol)
                 {
                     case IParameterSymbol param:
                         StArgSlot(param);
@@ -308,8 +440,11 @@ internal partial class MethodConvert
                     case ILocalSymbol local:
                         StLocSlot(local);
                         break;
+                    case IFieldSymbol fieldSync:
+                        StoreOutFieldValue(fieldSync, sync.InstanceSlot);
+                        break;
                     default:
-                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.GetType().Name}' for parameter synchronization. Only parameters and local variables are supported.");
+                        throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported symbol type '{sync.Symbol.GetType().Name}' for parameter synchronization. Only parameters, local variables, and fields are supported.");
                 }
             }
         });
