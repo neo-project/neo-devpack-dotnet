@@ -16,7 +16,6 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -210,40 +209,15 @@ namespace Neo.Compiler.SecurityAnalyzer
                     if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
                     {
                         var fileName = debugInfo.Documents[sequencePoint.Document];
-                        var snippet = TryGetSourceSnippet(fileName, sequencePoint.Start.Line, sequencePoint.End.Line);
                         return new SourceLocation
                         {
                             FileName = System.IO.Path.GetFileName(fileName),
                             Line = sequencePoint.Start.Line,
                             Column = sequencePoint.Start.Column,
-                            CodeSnippet = snippet
+                            CodeSnippet = null // Could be enhanced to read actual source code
                         };
                     }
                 }
-            }
-            return null;
-        }
-
-        private static string? TryGetSourceSnippet(string fileName, int startZeroBasedLineNumber, int endZeroBasedLineNumber)
-        {
-            string? path = fileName;
-            if (!Path.IsPathRooted(path))
-                path = Path.Combine(Environment.CurrentDirectory, path);
-
-            try
-            {
-                if (path != null && File.Exists(path))
-                {
-                    string[] lines = File.ReadAllLines(path);
-                    int start = Math.Max(0, startZeroBasedLineNumber);
-                    int end = Math.Min(lines.Length - 1, Math.Max(startZeroBasedLineNumber, endZeroBasedLineNumber));
-                    if (start > end) return null;
-                    return string.Join(Environment.NewLine, lines[start..(end + 1)]).Trim();
-                }
-            }
-            catch
-            {
-                // ignore IO failures, diagnostics will fall back to instruction offsets
             }
             return null;
         }

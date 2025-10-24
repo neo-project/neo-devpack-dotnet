@@ -263,18 +263,19 @@ namespace Neo.Compiler
                 ?? throw new ArgumentException($"targetContractName '{targetContractName}' was not found");
             var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
             var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-            var context = new CompilationContext(this, c, classesNotInDependencies!);
+            var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName: true);
             context.Compile();
             return context;
         }
 
         private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
         {
+            bool allowBaseName = sortedClasses.Count <= 1;
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies!);
+                var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName);
                 context.Compile();
                 // Process the target contract add this compilation context
                 Contexts.TryAdd(c, context);
@@ -318,11 +319,12 @@ namespace Neo.Compiler
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
 
+            bool allowBaseName = sortedClasses.Count <= 1;
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies!);
+                var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName);
                 context.Compile();
                 // Process the target contract add this compilation context
                 Contexts.TryAdd(c, context);
