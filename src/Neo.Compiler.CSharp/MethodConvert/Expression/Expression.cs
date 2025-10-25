@@ -66,8 +66,7 @@ internal partial class MethodConvert
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return false;
+            throw CompilationException.Unexpected("evaluating constant expression during conversion", e);
         }
     }
 
