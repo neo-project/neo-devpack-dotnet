@@ -16,6 +16,15 @@ namespace Neo.Compiler.CSharp.TestContracts;
 
 public class Contract_Out : SmartContract.Framework.SmartContract
 {
+    private sealed class Holder
+    {
+        public int Value;
+        public string Message = string.Empty;
+        public bool Flag;
+    }
+
+    private static int _cachedResult;
+
     // Basic out parameter usage
     private static void BasicOut(out int result)
     {
@@ -112,5 +121,24 @@ public class Contract_Out : SmartContract.Framework.SmartContract
     {
         BasicOut(out x);
         return x * 2;
+    }
+
+    public static int TestOutStaticField()
+    {
+        BasicOut(out _cachedResult);
+        return _cachedResult;
+    }
+
+    public static (int, string, bool) TestOutNamedArguments()
+    {
+        MultipleOut(b: out string message, c: out bool flag, a: out int value);
+        return (value, message, flag);
+    }
+
+    public static (int, string, bool) TestOutInstanceField()
+    {
+        var holder = new Holder();
+        MultipleOut(out holder.Value, out holder.Message, out holder.Flag);
+        return (holder.Value, holder.Message, holder.Flag);
     }
 }

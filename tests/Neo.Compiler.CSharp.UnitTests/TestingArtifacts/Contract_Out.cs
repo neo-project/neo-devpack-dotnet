@@ -11,12 +11,12 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Out"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testOutVar"",""parameters"":[],""returntype"":""Integer"",""offset"":23,""safe"":false},{""name"":""testExistingVar"",""parameters"":[],""returntype"":""Integer"",""offset"":30,""safe"":false},{""name"":""testMultipleOut"",""parameters"":[],""returntype"":""String"",""offset"":37,""safe"":false},{""name"":""testOutDiscard"",""parameters"":[],""returntype"":""Void"",""offset"":86,""safe"":false},{""name"":""testOutInLoop"",""parameters"":[],""returntype"":""Integer"",""offset"":98,""safe"":false},{""name"":""testOutConditional"",""parameters"":[{""name"":""flag"",""type"":""Boolean""}],""returntype"":""String"",""offset"":220,""safe"":false},{""name"":""testOutSwitch"",""parameters"":[{""name"":""option"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":255,""safe"":false},{""name"":""testNestedOut"",""parameters"":[],""returntype"":""Array"",""offset"":300,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":377,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.8.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Out"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testOutVar"",""parameters"":[],""returntype"":""Integer"",""offset"":23,""safe"":false},{""name"":""testExistingVar"",""parameters"":[],""returntype"":""Integer"",""offset"":30,""safe"":false},{""name"":""testMultipleOut"",""parameters"":[],""returntype"":""String"",""offset"":37,""safe"":false},{""name"":""testOutDiscard"",""parameters"":[],""returntype"":""Void"",""offset"":86,""safe"":false},{""name"":""testOutInLoop"",""parameters"":[],""returntype"":""Integer"",""offset"":98,""safe"":false},{""name"":""testOutConditional"",""parameters"":[{""name"":""flag"",""type"":""Boolean""}],""returntype"":""String"",""offset"":220,""safe"":false},{""name"":""testOutSwitch"",""parameters"":[{""name"":""option"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":255,""safe"":false},{""name"":""testNestedOut"",""parameters"":[],""returntype"":""Array"",""offset"":300,""safe"":false},{""name"":""testOutStaticField"",""parameters"":[],""returntype"":""Integer"",""offset"":377,""safe"":false},{""name"":""testOutNamedArguments"",""parameters"":[],""returntype"":""Array"",""offset"":391,""safe"":false},{""name"":""testOutInstanceField"",""parameters"":[],""returntype"":""Array"",""offset"":411,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":483,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa""]}],""trusts"":[],""extra"":{""Version"":""3.8.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/XwBVwABACpgQFcAAxphDAVIZWxsb2IIY0AQYFg05lhAEGBYNN9YQAljC2IQYVtaWTTZWTcAAAwCLCCLWosMAiwgi1smCgwEVHJ1ZSIJDAVGYWxzZYvbKEAJYwtiEGFbWlk0qEBXAgAQcBBxImwQYFg0kmhYnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaRW1JJNoQFcAAXgmDxBgWDUb////WDcAAEAJYwtiEGFbWlk1D////1pAVwEBeHBoEZckCWgSlyQOIhwQYFg17f7//1hACWMLYhBhW1pZNeT+//9ZQA9AVwEAEGRcNAhwXGgSv0BXAAFcZFg1wP7//1hkXBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BWBUCfibjl").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARpdG9hAQABDwAA/egBVwABACpgQFcAAxphDAVIZWxsb2IIY0AQYFg05lhAEGBYNN9YQAljC2IQYVtaWTTZWTcAAAwCLCCLWosMAiwgi1smCgwEVHJ1ZSIJDAVGYWxzZYvbKEAJYwtiEGFbWlk0qEBXAgAQcBBxImwQYFg0kmhYnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waUqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaRW1JJNoQFcAAXgmDxBgWDUb////WDcAAEAJYwtiEGFbWlk1D////1pAVwEBeHBoEZckCWgSlyQOIhwQYFg17f7//1hACWMLYhBhW1pZNeT+//9ZQA9AVwEAEGRcNAhwXGgSv0BXAAFcZFg1wP7//1hkXBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BdZVg1hP7//1hkWGVdQAljC2IQYVtaWTV3/v//W1pZE79AVwEACQwAEBPAcGhmXhLOZwdoZwhfCBHOZwloZwpfChDOZwtbWlk1Rv7//1lfChBR0FpfCBFR0FteElHQaBLOaBHOaBDOE79AVgwQZUBsDDw4").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -204,6 +204,115 @@ public abstract class Contract_Out(Neo.SmartContract.Testing.SmartContractInitia
     /// </remarks>
     [DisplayName("testOutInLoop")]
     public abstract BigInteger? TestOutInLoop();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEACQwAEBPAcGhmXhLOZwdoZwhfCBHOZwloZwpfChDOZwtbWlk1Rv7//1lfChBR0FpfCBFR0FteElHQaBLOaBHOaBDOE79A
+    /// INITSLOT 0100 [64 datoshi]
+    /// PUSHF [1 datoshi]
+    /// PUSHDATA1 [8 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// STSFLD6 [2 datoshi]
+    /// LDSFLD6 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STSFLD 07 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// STSFLD 08 [2 datoshi]
+    /// LDSFLD 08 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STSFLD 09 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// STSFLD 0A [2 datoshi]
+    /// LDSFLD 0A [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// STSFLD 0B [2 datoshi]
+    /// LDSFLD3 [2 datoshi]
+    /// LDSFLD2 [2 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// CALL_L 46FEFFFF [512 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// LDSFLD 0A [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDSFLD2 [2 datoshi]
+    /// LDSFLD 08 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDSFLD3 [2 datoshi]
+    /// LDSFLD6 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// ROT [2 datoshi]
+    /// SETITEM [8192 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testOutInstanceField")]
+    public abstract IList<object>? TestOutInstanceField();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: CWMLYhBhW1pZNXf+//9bWlkTv0A=
+    /// PUSHF [1 datoshi]
+    /// STSFLD3 [2 datoshi]
+    /// PUSHNULL [1 datoshi]
+    /// STSFLD2 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// STSFLD1 [2 datoshi]
+    /// LDSFLD3 [2 datoshi]
+    /// LDSFLD2 [2 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// CALL_L 77FEFFFF [512 datoshi]
+    /// LDSFLD3 [2 datoshi]
+    /// LDSFLD2 [2 datoshi]
+    /// LDSFLD1 [2 datoshi]
+    /// PUSH3 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testOutNamedArguments")]
+    public abstract IList<object>? TestOutNamedArguments();
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: XWVYNYT+//9YZFhlXUA=
+    /// LDSFLD5 [2 datoshi]
+    /// STSFLD5 [2 datoshi]
+    /// LDSFLD0 [2 datoshi]
+    /// CALL_L 84FEFFFF [512 datoshi]
+    /// LDSFLD0 [2 datoshi]
+    /// STSFLD4 [2 datoshi]
+    /// LDSFLD0 [2 datoshi]
+    /// STSFLD5 [2 datoshi]
+    /// LDSFLD5 [2 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testOutStaticField")]
+    public abstract BigInteger? TestOutStaticField();
 
     /// <summary>
     /// Unsafe method

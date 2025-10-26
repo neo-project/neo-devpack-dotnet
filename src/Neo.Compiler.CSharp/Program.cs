@@ -378,8 +378,12 @@ namespace Neo.Compiler
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Unexpected error processing solution: {ex.Message}");
-                Console.Error.WriteLine(ex.StackTrace);
+                var compEx = CompilationException.Unexpected($"processing solution '{Path.GetFileName(path)}'", ex);
+                Console.Error.WriteLine(compEx.Diagnostic);
+                if (compEx.InnerException != null)
+                {
+                    Console.Error.WriteLine(compEx.InnerException);
+                }
                 return 1;
             }
         }
@@ -392,20 +396,33 @@ namespace Neo.Compiler
         private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
         {
             int result = 0;
-            List<Exception> exceptions = new();
+            List<CompilationException> exceptions = new();
             foreach (CompilationContext context in contexts)
                 try
                 {
                     if (ProcessOutput(options, folder, context) != 0)
                         result = 1;
                 }
+                catch (CompilationException ce)
+                {
+                    result = 1;
+                    exceptions.Add(ce);
+                }
                 catch (Exception e)
                 {
                     result = 1;
-                    exceptions.Add(e);
+                    var contractName = context.ContractName ?? "the current contract";
+                    exceptions.Add(CompilationException.Unexpected($"processing contract '{contractName}' outputs", e));
                 }
-            foreach (Exception e in exceptions)
-                Console.Error.WriteLine(e.ToString());
+            foreach (CompilationException exception in exceptions)
+            {
+                Console.Error.WriteLine(exception.Diagnostic);
+
+                if (exception.Diagnostic.Id == DiagnosticId.UnexpectedCompilerError && exception.InnerException != null)
+                {
+                    Console.Error.WriteLine(exception.InnerException);
+                }
+            }
             return result;
         }
 
@@ -421,7 +438,6 @@ namespace Neo.Compiler
             if (context.Success)
             {
                 string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                string path = outputFolder;
                 string baseName = context.ContractName!;
 
                 NefFile nef;
@@ -437,29 +453,24 @@ namespace Neo.Compiler
                     return -1;
                 }
 
-                try
+                if (!TryFileOperation("create directory", outputFolder, () => Directory.CreateDirectory(outputFolder)))
                 {
-                    Directory.CreateDirectory(outputFolder);
-                    path = Path.Combine(path, $"{baseName}.nef");
-                    File.WriteAllBytes(path, nef.ToArray());
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
                     return 1;
                 }
-                Console.WriteLine($"Created {path}");
-                path = Path.Combine(outputFolder, $"{baseName}.manifest.json");
-                try
+
+                var nefPath = Path.Combine(outputFolder, $"{baseName}.nef");
+                if (!TryFileOperation("write", nefPath, () => File.WriteAllBytes(nefPath, nef.ToArray())))
                 {
-                    File.WriteAllBytes(path, manifest.ToJson().ToByteArray(false));
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Can't create {path}. {ex.Message}.");
                     return 1;
                 }
-                Console.WriteLine($"Created {path}");
+                Console.WriteLine($"Created {nefPath}");
+
+                var manifestPath = Path.Combine(outputFolder, $"{baseName}.manifest.json");
+                if (!TryFileOperation("write", manifestPath, () => File.WriteAllBytes(manifestPath, manifest.ToJson().ToByteArray(false))))
+                {
+                    return 1;
+                }
+                Console.WriteLine($"Created {manifestPath}");
 
                 if (options.GenerateArtifacts != Options.GenerateArtifactsKind.None)
                 {
@@ -467,9 +478,12 @@ namespace Neo.Compiler
 
                     if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Source))
                     {
-                        path = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
-                        File.WriteAllText(path, artifact);
-                        Console.WriteLine($"Created {path}");
+                        var artifactSourcePath = Path.Combine(outputFolder, $"{baseName}.artifacts.cs");
+                        if (!TryFileOperation("write", artifactSourcePath, () => File.WriteAllText(artifactSourcePath, artifact)))
+                        {
+                            return 1;
+                        }
+                        Console.WriteLine($"Created {artifactSourcePath}");
                     }
 
                     if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Library))
@@ -519,36 +533,52 @@ namespace Neo.Compiler
 
                                 // Write dll
 
-                                path = Path.Combine(outputFolder, $"{baseName}.artifacts.dll");
-                                File.WriteAllBytes(path, ms.ToArray());
-                                Console.WriteLine($"Created {path}");
+                                var artifactDllPath = Path.Combine(outputFolder, $"{baseName}.artifacts.dll");
+                                if (!TryFileOperation("write", artifactDllPath, () => File.WriteAllBytes(artifactDllPath, ms.ToArray())))
+                                {
+                                    return 1;
+                                }
+                                Console.WriteLine($"Created {artifactDllPath}");
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            Console.Error.WriteLine("Artifacts compilation error.");
+                            Console.Error.WriteLine($"Artifacts compilation error: {ex.Message}");
                         }
                     }
                 }
                 if (options.Debug != CompilationOptions.DebugType.None)
                 {
-                    path = Path.Combine(outputFolder, $"{baseName}.nefdbgnfo");
-                    using FileStream fs = new(path, FileMode.Create, FileAccess.Write);
-                    using ZipArchive archive = new(fs, ZipArchiveMode.Create);
-                    using Stream stream = archive.CreateEntry($"{baseName}.debug.json").Open();
-                    stream.Write(debugInfo.ToByteArray(false));
-                    Console.WriteLine($"Created {path}");
+                    var debugArchivePath = Path.Combine(outputFolder, $"{baseName}.nefdbgnfo");
+                    if (!TryFileOperation("write", debugArchivePath, () =>
+                    {
+                        using FileStream fs = new(debugArchivePath, FileMode.Create, FileAccess.Write);
+                        using ZipArchive archive = new(fs, ZipArchiveMode.Create);
+                        using Stream stream = archive.CreateEntry($"{baseName}.debug.json").Open();
+                        stream.Write(debugInfo.ToByteArray(false));
+                    }))
+                    {
+                        return 1;
+                    }
+                    Console.WriteLine($"Created {debugArchivePath}");
                 }
                 if (options.Assembly)
                 {
-                    path = Path.Combine(outputFolder, $"{baseName}.asm");
-                    File.WriteAllText(path, context.CreateAssembly());
-                    Console.WriteLine($"Created {path}");
+                    var asmPath = Path.Combine(outputFolder, $"{baseName}.asm");
+                    if (!TryFileOperation("write", asmPath, () => File.WriteAllText(asmPath, context.CreateAssembly())))
+                    {
+                        return 1;
+                    }
+                    Console.WriteLine($"Created {asmPath}");
                     try
                     {
-                        path = Path.Combine(outputFolder, $"{baseName}.nef.txt");
-                        File.WriteAllText(path, DumpNef.GenerateDumpNef(nef, debugInfo, manifest));
-                        Console.WriteLine($"Created {path}");
+                        var dumpNefContents = DumpNef.GenerateDumpNef(nef, debugInfo, manifest);
+                        var dumpNefPath = Path.Combine(outputFolder, $"{baseName}.nef.txt");
+                        if (!TryFileOperation("write", dumpNefPath, () => File.WriteAllText(dumpNefPath, dumpNefContents)))
+                        {
+                            return 1;
+                        }
+                        Console.WriteLine($"Created {dumpNefPath}");
                     }
                     catch (Exception ex)
                     {
@@ -564,7 +594,12 @@ namespace Neo.Compiler
                     {
                         SecurityAnalyzer.SecurityAnalyzer.AnalyzeWithPrint(nef, manifest, debugInfo);
                     }
-                    catch (Exception e) { Console.WriteLine(e); }
+                    catch (Exception ex)
+                    {
+                        var compEx = CompilationException.Unexpected("running security analysis", ex);
+                        Console.Error.WriteLine(compEx.Diagnostic);
+                        Console.Error.WriteLine(ex);
+                    }
                     Console.WriteLine("Finished security analysis.");
                     Console.WriteLine("There can be many false positives in the security analysis. Take it easy.");
                 }
@@ -579,12 +614,16 @@ namespace Neo.Compiler
                         try
                         {
                             var interfaceSource = ContractInterfaceGenerator.GenerateInterface(baseName, manifest, contractHash);
-                            File.WriteAllText(interfacePath, interfaceSource);
-                            Console.WriteLine($"Created contract interface: {interfacePath}");
+                            if (TryFileOperation("write", interfacePath, () => File.WriteAllText(interfacePath, interfaceSource)))
+                            {
+                                Console.WriteLine($"Created contract interface: {interfacePath}");
+                            }
                         }
                         catch (Exception ex)
                         {
-                            Console.Error.WriteLine($"Error generating contract interface: {ex.Message}");
+                            var compEx = CompilationException.Unexpected($"generating interface for contract '{baseName}'", ex);
+                            Console.Error.WriteLine(compEx.Diagnostic);
+                            Console.Error.WriteLine(ex);
                         }
                     }
                     else
@@ -599,6 +638,21 @@ namespace Neo.Compiler
             {
                 Console.Error.WriteLine("Compilation failed.");
                 return 1;
+            }
+        }
+
+        private static bool TryFileOperation(string operation, string target, Action action)
+        {
+            try
+            {
+                action();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var compEx = CompilationException.FileOperation(operation, target, innerException: ex);
+                Console.Error.WriteLine(compEx.Diagnostic);
+                return false;
             }
         }
     }
