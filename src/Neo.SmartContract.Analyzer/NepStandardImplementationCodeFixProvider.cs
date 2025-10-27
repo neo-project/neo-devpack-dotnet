@@ -88,7 +88,7 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
     private static async Task<Document> AddInterfaceAsync(Document document, ClassDeclarationSyntax classDeclaration, Diagnostic diagnostic, CancellationToken cancellationToken)
     {
         if (!diagnostic.Properties.TryGetValue("Interface", out var interfaceName) ||
-            string.IsNullOrWhiteSpace(interfaceName))
+            interfaceName is not { Length: > 0 })
         {
             return document;
         }
@@ -127,10 +127,10 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
     private static ImmutableArray<string> ParseMissingMembers(Diagnostic diagnostic)
     {
         if (!diagnostic.Properties.TryGetValue("MissingMembers", out var membersValue) ||
-            string.IsNullOrWhiteSpace(membersValue))
+            membersValue is not { Length: > 0 })
             return ImmutableArray<string>.Empty;
 
-        var members = membersValue!
+        var members = membersValue
             .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(static member => member.Trim())
             .Where(static member => member.Length > 0)
