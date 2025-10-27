@@ -734,9 +734,11 @@ Note: These methods are supported for both bool and bool? types unless otherwise
 8. **String Manipulation:**
    - [x] `string.ToUpper()`: Converts the string to uppercase.
    - [x] `string.ToLower()`: Converts the string to lowercase.
-   - [x] `string.Trim()`: Removes leading and trailing whitespace.
+   - [x] `string.Trim()`: Removes leading and trailing whitespace (supports `char` or single-element constant `char[]`).
+   - [x] `string.TrimStart()`: Removes leading whitespace (supports `char` or single-element constant `char[]`).
+   - [x] `string.TrimEnd()`: Removes trailing whitespace (supports `char` or single-element constant `char[]`).
 9. **String Splitting:**
-   - [x] `string.Split(delimiters)`: Splits a string into an array of substrings based on specified delimiters.
+   - [x] `string.Split(...)`: Supported for `char`/`string` separators and single-element `char[]`/`string[]` separators. `StringSplitOptions` must be `None` or `RemoveEmptyEntries`, and `count` must remain at the default value.
 10. **String Replacement:**
     - [x] `string.Replace(oldValue, newValue)`: Replaces all occurrences of `oldValue` with `newValue`.
 11. **String Empty or Null Check:**
