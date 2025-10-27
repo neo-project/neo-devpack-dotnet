@@ -289,6 +289,7 @@ namespace Neo.Compiler
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
             var allClassSymbols = new List<INamedTypeSymbol?>();
+            var classSymbols = new List<INamedTypeSymbol>();
             foreach (var tree in compilation.SyntaxTrees)
             {
                 var semanticModel = compilation.GetSemanticModel(tree);
@@ -298,19 +299,34 @@ namespace Neo.Compiler
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
                     allClassSymbols.Add(classSymbol);
+                    if (classSymbol is null) continue;
+
+                    classSymbols.Add(classSymbol);
                     if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = [];
-                        foreach (var member in classSymbol.GetMembers())
-                        {
-                            var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
-                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol) && !namedTypeSymbol.IsAbstract)
-                            {
-                                classDependencies[classSymbol].Add(namedTypeSymbol);
-                            }
-                        }
                     }
+                }
+            }
+
+            foreach (var classSymbol in classSymbols)
+            {
+                if (!allSmartContracts.Contains(classSymbol))
+                    continue;
+
+                foreach (var member in classSymbol.GetMembers())
+                {
+                    var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
+                    if (memberTypeSymbol is not INamedTypeSymbol namedTypeSymbol)
+                        continue;
+                    if (!allSmartContracts.Contains(namedTypeSymbol))
+                        continue;
+                    if (namedTypeSymbol.IsAbstract)
+                        continue;
+                    if (classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
+                        continue;
+                    classDependencies[classSymbol].Add(namedTypeSymbol);
                 }
             }
 
