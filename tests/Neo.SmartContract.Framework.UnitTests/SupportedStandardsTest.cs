@@ -30,7 +30,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void TestAttribute()
         {
-            CollectionAssert.AreEqual(Contract_SupportedStandards.Manifest.SupportedStandards, new string[] { "NEP-10", "NEP-5" });
+            CollectionAssert.AreEqual(Contract_SupportedStandards.Manifest.SupportedStandards, new string[] { "NEP-17", "NEP-9" });
         }
 
         [TestMethod]

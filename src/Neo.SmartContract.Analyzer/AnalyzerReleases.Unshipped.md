@@ -27,3 +27,5 @@ NC4024  | Usage    | Error    | MultipleCatchBlockAnalyzer
 NC4025  | Method   | Error    | EnumMethodsUsageAnalyzer                                
 NC4027  | Usage    | Warning  | CatchOnlySystemExceptionAnalyzer           
 NC4028  | Namespace| Error    | SystemThreadingUsageAnalyzer               
+NC4029  | Usage    | Warning  | NepStandardImplementationAnalyzer          
+NC4030  | Usage    | Warning  | NepStandardImplementationAnalyzer          
