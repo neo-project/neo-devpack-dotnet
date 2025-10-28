@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
@@ -17,8 +18,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     // Using enumeration-based standards avoids analyzer warnings.
     [SupportedStandards(NepStandard.Nep9, NepStandard.Nep17)]
-    public class Contract_SupportedStandards : SmartContract
+    public class Contract_SupportedStandards : Nep17Token
     {
+        [Safe]
+        public override string Symbol => "TestToken";
+
+        [Safe]
+        public override byte Decimals => 8;
+
         public static bool TestStandard()
         {
             return true;
