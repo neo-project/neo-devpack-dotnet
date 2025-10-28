@@ -263,19 +263,9 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
         if (constant.Type.TypeKind == TypeKind.Enum &&
             constant.Type.ToDisplayString() == "Neo.SmartContract.Framework.NepStandard")
         {
-            if (constant.Value is not null)
-            {
-                var enumMember = constant.Type
-                    .GetMembers()
-                    .OfType<IFieldSymbol>()
-                    .FirstOrDefault(field => field.HasConstantValue && Equals(field.ConstantValue, constant.Value));
-
-                if (enumMember?.Name is { Length: > 0 } enumName &&
-                    Enum.TryParse(enumName, ignoreCase: true, out NepStandardKind standard))
-                {
-                    standards.Add(standard);
-                }
-            }
+            var enumValue = constant.Value?.ToString();
+            if (Enum.TryParse<NepStandardKind>(enumValue, ignoreCase: true, out var standard))
+                standards.Add(standard);
             return;
         }
 
