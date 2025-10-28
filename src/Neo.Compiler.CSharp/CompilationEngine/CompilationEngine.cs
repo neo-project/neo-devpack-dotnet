@@ -320,9 +320,9 @@ namespace Neo.Compiler
                     var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
                     if (memberTypeSymbol is not INamedTypeSymbol namedTypeSymbol)
                         continue;
-                    if (!allSmartContracts.Contains(namedTypeSymbol))
-                        continue;
                     if (namedTypeSymbol.IsAbstract)
+                        continue;
+                    if (!allSmartContracts.Contains(namedTypeSymbol))
                         continue;
                     if (classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
                         continue;
