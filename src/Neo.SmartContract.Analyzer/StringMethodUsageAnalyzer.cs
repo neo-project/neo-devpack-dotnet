@@ -26,14 +26,12 @@ namespace Neo.SmartContract.Analyzer
         // Add string method names to this array as needed
         private readonly string[] _unsupportedStringMethods =
         {
-            "Clone", "Compare", "CompareOrdinal", "CompareTo",
+            "Clone", "CompareOrdinal", "CompareTo",
             "Copy", "CopyTo", "Format", "GetEnumerator",
             "GetHashCode", "GetType", "GetTypeCode",
-            "IndexOfAny", "Insert", "Intern", "IsInterned",
-            "IsNormalized", "Join", "LastIndexOf", "LastIndexOfAny",
-            "Normalize", "PadLeft", "PadRight", "Remove",
-            "Replace", "Split", "ToCharArray", "ToLowerInvariant",
-            "ToUpperInvariant", "TrimEnd", "TrimStart"
+            "IndexOfAny", "Intern", "IsInterned", "IsNormalized",
+            "Join", "LastIndexOfAny", "Normalize", "PadLeft",
+            "PadRight", "ToCharArray", "ToLowerInvariant", "ToUpperInvariant"
         };
 
         private static readonly DiagnosticDescriptor Rule = new(

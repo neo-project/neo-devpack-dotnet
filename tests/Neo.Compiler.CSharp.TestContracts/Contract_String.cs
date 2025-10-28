@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
@@ -50,6 +51,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return string.IsNullOrEmpty(str);
         }
 
+        public static bool TestIsNullOrWhiteSpace(string? str)
+        {
+            return string.IsNullOrWhiteSpace(str);
+        }
+
         public static bool TestEndWith(string str)
         {
             return str.EndsWith("world");
@@ -60,9 +66,24 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.Contains("world");
         }
 
+        public static bool TestStartsWith(string str)
+        {
+            return str.StartsWith("world");
+        }
+
+        public static int TestCompare(string left, string right)
+        {
+            return string.Compare(left, right);
+        }
+
         public static int TestIndexOf(string str)
         {
             return str.IndexOf("world");
+        }
+
+        public static int TestLastIndexOf(string str)
+        {
+            return str.LastIndexOf("world");
         }
 
         public static string TestInterpolatedStringHandler()
@@ -90,6 +111,41 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.Trim();
         }
 
+        public static string TestTrimStart(string str)
+        {
+            return str.TrimStart();
+        }
+
+        public static string TestTrimStartChar(string str, char trimChar)
+        {
+            return str.TrimStart(trimChar);
+        }
+
+        public static string TestTrimEnd(string str)
+        {
+            return str.TrimEnd();
+        }
+
+        public static string TestTrimEndChar(string str, char trimChar)
+        {
+            return str.TrimEnd(trimChar);
+        }
+
+        public static string TestTrimArray(string str)
+        {
+            return str.Trim(new[] { '*' });
+        }
+
+        public static string TestTrimStartArray(string str)
+        {
+            return str.TrimStart(new[] { '*' });
+        }
+
+        public static string TestTrimEndArray(string str)
+        {
+            return str.TrimEnd(new[] { '*' });
+        }
+
         public static char TestPickItem(string s, int index)
         {
             return s[index];
@@ -103,6 +159,41 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static string TestConcat(string? s1, string? s2)
         {
             return string.Concat(s1, s2);
+        }
+
+        public static string[] TestSplit(string str)
+        {
+            return str.Split(' ');
+        }
+
+        public static string[] TestSplitRemoveEmpty(string str)
+        {
+            return str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string[] TestSplitCharArray(string str)
+        {
+            return str.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string[] TestSplitStringArray(string str)
+        {
+            return str.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static string TestRemove(string str, int startIndex)
+        {
+            return str.Remove(startIndex);
+        }
+
+        public static string TestRemoveRange(string str, int startIndex, int count)
+        {
+            return str.Remove(startIndex, count);
+        }
+
+        public static string TestInsert(string str, int startIndex, string value)
+        {
+            return str.Insert(startIndex, value);
         }
 
         public static int TestIndexOfChar(string s, char c)
