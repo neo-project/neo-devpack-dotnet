@@ -111,7 +111,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(csContent.Contains("RequestOracleQuote"));
             Assert.IsTrue(csContent.Contains("SetOwner"));
             Assert.IsTrue(csContent.Contains("OracleDataReceived"));
-
         }
 
         [TestMethod]
