@@ -40,18 +40,30 @@ namespace Neo.Compiler
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title);
 
             // Add the 'new' subcommand for creating contracts from templates
+            var featuresOption = new Option<string[]>(["-f", "--features"], () => Array.Empty<string>(), "Optional feature flags (repeat or comma separated) to compose contracts, e.g. --features NEP17 Ownable Oracle")
+            {
+                AllowMultipleArgumentsPerToken = true
+            };
+
             var newCommand = new Command("new", "Create a new smart contract from a template")
             {
                 new Argument<string>("name", "The name of the new contract"),
                 new Option<ContractTemplate>(["-t", "--template"], () => ContractTemplate.Basic, "The template to use (Basic, NEP17, NEP11, Ownable, Oracle)"),
+                featuresOption,
                 new Option<string>(["-o", "--output"], () => Environment.CurrentDirectory, "The output directory for the new contract"),
                 new Option<string>("--author", () => "Author", "The author of the contract"),
                 new Option<string>("--email", () => $"email@example.com", "The author's email"),
                 new Option<string>("--description", "A description of the contract"),
-                new Option<bool>("--force", "Overwrite existing files")
+                new Option<bool>("--force", "Overwrite existing files"),
+                new Option<bool>("--with-tests", () => false, "Generate a companion MSTest project")
             };
-            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string, string, string, string, bool>(HandleNew);
+
+            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string[], string, string, string, string, bool, bool>(HandleNew);
             rootCommand.AddCommand(newCommand);
+
+            var templatesCommand = new Command("templates", "List available smart contract templates");
+            templatesCommand.Handler = CommandHandler.Create(HandleTemplateList);
+            rootCommand.AddCommand(templatesCommand);
 
             // Add compilation arguments (make them optional for backward compatibility)
             var pathsArgument = new Argument<string[]>("paths", "The path of the solution file, project file, project directory or source files.")
@@ -96,7 +108,7 @@ namespace Neo.Compiler
             return ret;
         }
 
-        private static int HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force)
+        private static int HandleNew(string name, ContractTemplate template, string[] features, string output, string author, string email, string? description, bool force, bool withTests)
         {
             try
             {
@@ -145,7 +157,16 @@ namespace Neo.Compiler
                 }
 
                 // Generate the contract from template
-                templateManager.GenerateContract(template, name, output, additionalReplacements);
+                var featureList = features?.Where(f => !string.IsNullOrWhiteSpace(f)).ToList() ?? new List<string>();
+
+                if (featureList.Count > 0)
+                {
+                    templateManager.GenerateContractFromFeatures(featureList, name, output, additionalReplacements, withTests);
+                }
+                else
+                {
+                    templateManager.GenerateContract(template, name, output, additionalReplacements, withTests);
+                }
                 return 0;
             }
             catch (Exception ex)
@@ -153,6 +174,19 @@ namespace Neo.Compiler
                 Console.Error.WriteLine($"Error creating contract: {ex.Message}");
                 return 1;
             }
+        }
+
+        private static void HandleTemplateList()
+        {
+            var manager = new TemplateManager();
+            Console.WriteLine("Available templates:\n");
+            foreach (var (template, name, description) in manager.GetAvailableTemplates())
+            {
+                Console.WriteLine($" - {template}: {name}\n     {description}");
+            }
+            Console.WriteLine();
+            Console.WriteLine("Use 'nccs new <Name> --template <Template>' to scaffold a contract.");
+            Console.WriteLine("Compose capabilities with 'nccs new <Name> --features NEP17 Ownable Oracle'.");
         }
 
         private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)

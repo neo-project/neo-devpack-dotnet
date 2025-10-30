@@ -61,11 +61,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     HashSet<int> writeAddrs = new();
                     foreach (VM.Instruction i in b.instructions)
                     {
-                        if (i.OpCode == VM.OpCode.SYSCALL
-                        && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                         || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
-                         || i.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
-                         || i.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash))
+                        if (i.OpCode == VM.OpCode.SYSCALL && IsStorageWrite(i.TokenU32))
                             writeAddrs.Add(a);
                         a += i.Size;
                     }
@@ -133,11 +129,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
             foreach (BasicBlock block in contractInBasicBlocks.sortedBasicBlocks)
                 foreach (VM.Instruction i in block.instructions)
-                    if (i.OpCode == VM.OpCode.SYSCALL
-                    && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                     || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
-                     || i.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
-                     || i.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash))
+                    if (i.OpCode == VM.OpCode.SYSCALL && IsStorageWrite(i.TokenU32))
                         allBasicBlocksWritingStorage.Add(block);
             foreach (TryCatchFinallySingleCoverage c in tryCatchFinallyCoverage.allTry.Values)
             {
@@ -186,6 +178,17 @@ namespace Neo.Compiler.SecurityAnalyzer
             public int Line { get; set; }
             public int Column { get; set; }
             public string? CodeSnippet { get; set; }
+        }
+
+        private static bool IsStorageWrite(uint syscallHash)
+        {
+            if (syscallHash == ApplicationEngine.System_Storage_Put.Hash || syscallHash == ApplicationEngine.System_Storage_Delete.Hash)
+                return true;
+
+            if (syscallHash == ApplicationEngine.System_Storage_Local_Put.Hash || syscallHash == ApplicationEngine.System_Storage_Local_Delete.Hash)
+                return true;
+
+            return false;
         }
 
         /// <summary>

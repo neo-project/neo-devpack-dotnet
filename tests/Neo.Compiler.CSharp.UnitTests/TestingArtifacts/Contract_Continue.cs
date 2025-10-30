@@ -11,7 +11,7 @@ public abstract class Contract_Continue(Neo.SmartContract.Testing.SmartContractI
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Continue"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""continueInTryCatch"",""parameters"":[{""name"":""exception"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.8.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Continue"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""continueInTryCatch"",""parameters"":[{""name"":""exception"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""$(NeoVersionPrefix)"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"

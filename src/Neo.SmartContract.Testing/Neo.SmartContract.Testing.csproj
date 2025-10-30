@@ -22,9 +22,24 @@
       <PackageReference Include="ReportGenerator.Core" Version="5.4.8" />
     </ItemGroup>
 
+    <PropertyGroup>
+      <NeoSourceRoot>..\..\neo\src</NeoSourceRoot>
+    </PropertyGroup>
+
     <ItemGroup>
-      <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
       <ProjectReference Include="..\Neo.Disassembler.CSharp\Neo.Disassembler.CSharp.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)$(NeoSourceRoot)\Neo\Neo.csproj')">
+      <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="!Exists('$(MSBuildThisFileDirectory)$(NeoSourceRoot)\Neo\Neo.csproj')">
+      <PackageReference Include="Neo" Version="$(NeoPackageVersion)" />
+      <PackageReference Include="Neo.Extensions" Version="$(NeoPackageVersion)" />
+      <PackageReference Include="Neo.IO" Version="$(NeoPackageVersion)" />
+      <PackageReference Include="Neo.Json" Version="$(NeoPackageVersion)" />
+      <PackageReference Include="Neo.VM" Version="$(NeoPackageVersion)" />
     </ItemGroup>
 
 </Project>
