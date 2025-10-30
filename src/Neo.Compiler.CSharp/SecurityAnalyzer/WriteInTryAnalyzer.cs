@@ -17,16 +17,12 @@ using Neo.SmartContract.Testing.Coverage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace Neo.Compiler.SecurityAnalyzer
 {
     public static class WriteInTryAnalzyer
     {
-        private static readonly uint StorageLocalPutHash = GetSyscallHashOrDefault("System_Storage_Local_Put");
-        private static readonly uint StorageLocalDeleteHash = GetSyscallHashOrDefault("System_Storage_Local_Delete");
-
         public class WriteInTryVulnerability
         {
             // key block writes storage; value blocks in try
@@ -189,38 +185,10 @@ namespace Neo.Compiler.SecurityAnalyzer
             if (syscallHash == ApplicationEngine.System_Storage_Put.Hash || syscallHash == ApplicationEngine.System_Storage_Delete.Hash)
                 return true;
 
-            if (StorageLocalPutHash != 0 && syscallHash == StorageLocalPutHash)
-                return true;
-
-            if (StorageLocalDeleteHash != 0 && syscallHash == StorageLocalDeleteHash)
+            if (syscallHash == ApplicationEngine.System_Storage_Local_Put.Hash || syscallHash == ApplicationEngine.System_Storage_Local_Delete.Hash)
                 return true;
 
             return false;
-        }
-
-        private static uint GetSyscallHashOrDefault(string memberName)
-        {
-            foreach (MemberInfo member in typeof(ApplicationEngine).GetMember(memberName, BindingFlags.Public | BindingFlags.Static))
-            {
-                object? value = member switch
-                {
-                    FieldInfo field => field.GetValue(null),
-                    PropertyInfo property => property.GetValue(null),
-                    _ => null
-                };
-
-                if (value is uint hash)
-                    return hash;
-
-                if (value is not null)
-                {
-                    PropertyInfo? hashProperty = value.GetType().GetProperty("Hash", BindingFlags.Public | BindingFlags.Instance);
-                    if (hashProperty?.GetValue(value) is uint nestedHash)
-                        return nestedHash;
-                }
-            }
-
-            return 0;
         }
 
         /// <summary>
