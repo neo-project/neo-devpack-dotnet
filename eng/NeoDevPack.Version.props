@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <NeoVersionPrefix>3.8.1</NeoVersionPrefix>
+    <NeoVersionSuffix>*</NeoVersionSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NeoPackageVersion Condition="'$(NeoVersionSuffix)' == ''">$(NeoVersionPrefix)</NeoPackageVersion>
+    <NeoPackageVersion Condition="'$(NeoVersionSuffix)' != ''">$(NeoVersionPrefix)-$(NeoVersionSuffix)</NeoPackageVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NeoAnalyzerVersion>$(NeoPackageVersion)</NeoAnalyzerVersion>
+  </PropertyGroup>
+</Project>

@@ -99,6 +99,159 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestGenerateCombinedTemplate()
+        {
+            string projectName = "ComboToken";
+            _templateManager.GenerateContractFromFeatures(new[] { "NEP17", "Ownable", "Oracle" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains("public class ComboToken : Nep17Token, IOracle"));
+            Assert.IsTrue(csContent.Contains("RequestOracleQuote"));
+            Assert.IsTrue(csContent.Contains("SetOwner"));
+            Assert.IsTrue(csContent.Contains("OracleDataReceived"));
+
+        }
+
+        [TestMethod]
+        public void TestGenerateOwnableOracleFeatureCombination()
+        {
+            string projectName = "OwnableOracleContract";
+            _templateManager.GenerateContractFromFeatures(new[] { "Ownable", "Oracle" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains("class OwnableOracleContract : SmartContract, IOracle"));
+            Assert.IsTrue(csContent.Contains("RequestOracleData"));
+            Assert.IsTrue(csContent.Contains("SetOwner"));
+            Assert.IsTrue(csContent.Contains("OracleResponseProcessed"));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesDefaultBasic()
+        {
+            string projectName = "FeatureBasic";
+            _templateManager.GenerateContractFromFeatures(Array.Empty<string>(), projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains($"public class {projectName} : SmartContract"));
+            Assert.IsTrue(csContent.Contains("SetMessage"));
+            Assert.IsTrue(csContent.Contains("GetOwner"));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesNep17Only()
+        {
+            string projectName = "FeatureNep17";
+            _templateManager.GenerateContractFromFeatures(new[] { "NEP17" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains($"public class {projectName} : Neo.SmartContract.Framework.Nep17Token"));
+            Assert.IsTrue(csContent.Contains("public override string Symbol"));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesOwnableOnly()
+        {
+            string projectName = "FeatureOwnable";
+            _templateManager.GenerateContractFromFeatures(new[] { "Ownable" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains("public static event OnSetOwnerDelegate OnSetOwner"));
+            Assert.IsTrue(csContent.Contains("AllowOperator"));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesNep11Ownable()
+        {
+            string projectName = "FeatureNep11Ownable";
+            _templateManager.GenerateContractFromFeatures(new[] { "NEP11", "Ownable" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains($"public class {projectName} : Nep11Token<TokenState>"));
+            Assert.IsTrue(csContent.Contains("public static event OnSetOwnerDelegate OnSetOwner"));
+            Assert.IsTrue(csContent.Contains("SetOwner"));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesInvalidTokenMix()
+        {
+            Assert.ThrowsException<ArgumentException>(() =>
+                _templateManager.GenerateContractFromFeatures(new[] { "NEP17", "NEP11" }, "InvalidTokenMix", _testOutputPath));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesNep17OracleWithoutOwnable()
+        {
+            Assert.ThrowsException<ArgumentException>(() =>
+                _templateManager.GenerateContractFromFeatures(new[] { "NEP17", "Oracle" }, "InvalidOracleMix", _testOutputPath));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesNep11OracleNotSupported()
+        {
+            Assert.ThrowsException<ArgumentException>(() =>
+                _templateManager.GenerateContractFromFeatures(new[] { "NEP11", "Oracle" }, "InvalidNep11Oracle", _testOutputPath));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesAliasParsing()
+        {
+            string projectName = "AliasCombo";
+            _templateManager.GenerateContractFromFeatures(new[] { "nep17+ownable", "oracle" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains($"public class {projectName} : Nep17Token, IOracle"));
+            Assert.IsTrue(csContent.Contains("OracleDataReceived"));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesBasicOracle()
+        {
+            string projectName = "BasicOracle";
+            _templateManager.GenerateContractFromFeatures(new[] { "basic", "oracle" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains($"public class {projectName} : SmartContract, IOracle"));
+            Assert.IsTrue(csContent.Contains("OnOracleResponse"));
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesUnknownThrows()
+        {
+            var ex = Assert.ThrowsException<ArgumentException>(() =>
+                _templateManager.GenerateContractFromFeatures(new[] { "UnknownFeature" }, "UnknownFeatures", _testOutputPath));
+            StringAssert.Contains(ex.Message, "Unknown feature");
+        }
+
+        [TestMethod]
+        public void TestGenerateFeaturesDuplicateHandled()
+        {
+            string projectName = "DuplicateMix";
+            _templateManager.GenerateContractFromFeatures(new[] { "NEP17", "nep17", "Ownable", "Ownable" }, projectName, _testOutputPath);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+
+            Assert.IsTrue(csContent.Contains($"public class {projectName} : Neo.SmartContract.Framework.Nep17Token"));
+            Assert.IsTrue(csContent.Contains("public override string Symbol"));
+        }
+
+        [TestMethod]
         public void TestGenerateNEP11Contract()
         {
             string projectName = "TestNFT";
@@ -186,7 +339,49 @@ namespace Neo.Compiler.CSharp.UnitTests
             string csprojContent = File.ReadAllText(csprojFilePath);
             Assert.IsTrue(csprojContent.Contains("<TargetFramework>net9.0</TargetFramework>"));
             Assert.IsTrue(csprojContent.Contains("<PackageReference Include=\"Neo.SmartContract.Framework\""));
-            Assert.IsTrue(csprojContent.Contains("Version=\"3.8.1-*\""));
+            Assert.IsTrue(csprojContent.Contains($"Version=\"{TemplateManager.DefaultFrameworkPackageVersion}\""));
+            Assert.IsTrue(csprojContent.Contains("dotnet tool run nccs"));
+        }
+
+        [TestMethod]
+        public void TestToolManifestGeneration()
+        {
+            string projectName = "ManifestContract";
+            _templateManager.GenerateContract(ContractTemplate.Basic, projectName, _testOutputPath);
+
+            string manifestPath = Path.Combine(_testOutputPath, projectName, ".config", "dotnet-tools.json");
+            Assert.IsTrue(File.Exists(manifestPath));
+
+            string manifestContent = File.ReadAllText(manifestPath);
+            Assert.IsTrue(manifestContent.Contains("\"neo.compiler.csharp\""));
+            Assert.IsTrue(manifestContent.Contains(TemplateManager.DefaultFrameworkPackageVersion));
+        }
+
+        [TestMethod]
+        public void TestGenerateContractWithTests()
+        {
+            string projectName = "ContractWithTests";
+            _templateManager.GenerateContract(
+                ContractTemplate.Basic,
+                projectName,
+                _testOutputPath,
+                new Dictionary<string, string> { { "{{Description}}", "Has tests" } },
+                includeTests: true);
+
+            string testProjectDir = Path.Combine(_testOutputPath, $"{projectName}.UnitTests");
+            Assert.IsTrue(Directory.Exists(testProjectDir));
+
+            string testCsprojPath = Path.Combine(testProjectDir, $"{projectName}.UnitTests.csproj");
+            Assert.IsTrue(File.Exists(testCsprojPath));
+
+            string testClassPath = Directory.GetFiles(testProjectDir, $"{projectName}Tests.cs", SearchOption.AllDirectories).FirstOrDefault();
+            Assert.IsNotNull(testClassPath);
+
+            string testClassContent = File.ReadAllText(testClassPath!);
+            Assert.IsTrue(testClassContent.Contains($"global::{projectName}.{projectName}"));
+
+            string testCsprojContent = File.ReadAllText(testCsprojPath);
+            Assert.IsTrue(testCsprojContent.Contains($"Version=\"{TemplateManager.DefaultFrameworkPackageVersion}\""));
         }
 
         [TestMethod]

@@ -98,7 +98,27 @@ For the best development experience, install:
 
 Let's create a simple "Hello World" smart contract.
 
-### Step 1: Create a New Project
+### Step 1 (Recommended): Scaffold with the CLI
+
+```bash
+# From the neo-devpack-dotnet repository root
+dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- templates
+dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- new HelloWorld --template Basic --with-tests
+
+cd HelloWorld
+dotnet tool restore
+dotnet build
+dotnet tool run nccs HelloWorld.csproj
+
+cd ../HelloWorld.UnitTests
+dotnet test
+```
+
+This creates both the contract and a MSTest project pre-wired with `Neo.SmartContract.Testing`.
+
+If you prefer to build things manually, follow the optional steps below.
+
+### Step 1 (Manual): Create a New Project
 
 ```bash
 # Create a new directory for your contract
@@ -120,7 +140,8 @@ Edit `HelloWorldContract.csproj`:
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="3.8.1" />
+    <!-- Use the version from eng/NeoDevPack.Version.props -->
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.8.1-*" />
   </ItemGroup>
 </Project>
 ```
@@ -206,8 +227,9 @@ From your project directory, compile the contract:
 # Build the project first
 dotnet build
 
-# Compile to NEO bytecode (from the neo-devpack-dotnet root directory)
-dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- HelloWorldContract/HelloWorldContract.csproj
+# Compile to NEO bytecode with the local tool manifest
+dotnet tool restore
+dotnet tool run nccs HelloWorldContract.csproj
 ```
 
 **Verify compilation:**

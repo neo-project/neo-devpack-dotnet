@@ -110,6 +110,44 @@ dotnet test
 
 ### Creating a New Smart Contract
 
+The `nccs` CLI can scaffold a ready-to-build project (and optional tests) in one step. If you have installed the tool globally you can run `nccs`; otherwise prefix commands with `dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj --`:
+
+```bash
+dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- templates
+dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- new HelloWorld --template Basic --with-tests
+cd HelloWorld
+dotnet tool restore
+dotnet build && dotnet tool run nccs HelloWorld.csproj
+cd ../HelloWorld.UnitTests
+dotnet test
+```
+
+Prefer a one-liner? Use the helper script:
+
+```bash
+./scripts/new_contract_with_tests.sh HelloWorld Basic
+```
+The second argument is optional (defaults to `Basic`). Available templates: `Basic`, `NEP17`, `NEP11`, `Ownable`, `Oracle`.
+
+To compose features, pass them after the template (or instead of it) and the helper will forward them as `--features`, for example:
+
+```bash
+./scripts/new_contract_with_tests.sh ComboToken Basic NEP17 Ownable Oracle
+```
+
+Looking for more than the starter contracts? The advanced templates ship with opinionated scaffolds:
+- Combine feature flags (for example `--features NEP17 Ownable Oracle`) to get an oracle-enabled token without memorising a dedicated template name.
+- Need owner rotation on NFTs? `--features NEP11 Ownable` scaffolds an NEP-11 contract with owner management built in.
+
+You can also compose features without memorising special template names. Mix and match with `--features`:
+
+```bash
+dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- \
+  new ComboToken --template Basic --features NEP17 Ownable Oracle
+```
+
+Prefer to wire things up manually? You can still:
+
 1. Create a new class library project targeting .NET 9.0 or later
 2. Add a reference to the Neo.SmartContract.Framework package
 3. Create a class that inherits from `SmartContract`
