@@ -26,7 +26,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Neo.VM.Types;
 using Array = System.Array;
 
 namespace Neo.Compiler
