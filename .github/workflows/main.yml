@@ -23,12 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
         submodules: recursive
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Check format
@@ -86,7 +86,7 @@ jobs:
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
     - name: Coveralls
-      uses: coverallsapp/github-action@v2.3.0
+      uses: coverallsapp/github-action@v2.3.6
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         format: lcov
@@ -98,12 +98,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
         submodules: recursive
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -195,7 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
         submodules: recursive
@@ -211,7 +211,7 @@ jobs:
         echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
     - name: Setup .NET Core
       if: steps.check_tag.outputs.statusCode == '404'
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build nccs compiler for multiple platforms
@@ -265,7 +265,7 @@ jobs:
     - name: Create release and upload binaries
       if: steps.check_tag.outputs.statusCode == '404'
       id: create_release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v2.4.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
