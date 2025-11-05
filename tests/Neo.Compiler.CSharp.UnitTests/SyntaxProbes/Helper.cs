@@ -10,35 +10,16 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler;
 using System;
-using System.IO;
 using System.Linq;
+using System.IO;
 using System.Text;
-using System.Threading;
 
 namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
 internal static class Helper
 {
-    private static readonly Lock EngineLock = new();
-    private static readonly Lazy<CompilationEngine> SharedEngine = new(() => new CompilationEngine(new CompilationOptions()
-    {
-        Debug = CompilationOptions.DebugType.Extended,
-        CompilerVersion = "TestingEngine",
-        Optimize = CompilationOptions.OptimizationType.All,
-        Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable,
-        SkipRestoreIfAssetsPresent = true
-    }));
-    private static readonly Lazy<CompilationSourceReferences> SharedReferences = new(() =>
-    {
-        var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-        var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-        return new CompilationSourceReferences
-        {
-            Projects = new[] { frameworkProject }
-        };
-    });
-
     internal static void TestCodeBlock(string codeBlock)
     {
         var source = BuildMethodBodySource(codeBlock);
@@ -150,15 +131,20 @@ internal static class Helper
 
     private static CompilationContext CompileSource(string sourceCode)
     {
+        var engine = new CompilationEngine(new CompilationOptions()
+        {
+            Debug = CompilationOptions.DebugType.Extended,
+            CompilerVersion = "TestingEngine",
+            Optimize = CompilationOptions.OptimizationType.All,
+            Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
+        });
+
         string tempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
         File.WriteAllText(tempPath, sourceCode);
 
         try
         {
-            lock (EngineLock)
-            {
-                return SharedEngine.Value.CompileSources(SharedReferences.Value, tempPath).First();
-            }
+            return engine.CompileSources(tempPath).First();
         }
         finally
         {
@@ -176,7 +162,6 @@ using System.Text;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Linq;
 
 namespace Neo.Compiler.CSharp.TestContracts;
 
@@ -199,7 +184,6 @@ using System.Text;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Linq;
 
 namespace Neo.Compiler.CSharp.TestContracts;
 
