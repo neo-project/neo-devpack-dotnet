@@ -1,5 +1,7 @@
 # C# 9 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-9
+
 The entries below document syntax introduced up to C# 9 and whether the Neo C# compiler supports it. Each section provides a short example that is also used by the automated syntax probes.
 
 ### record_type - Records

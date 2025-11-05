@@ -1,5 +1,7 @@
 # C# 12 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12
+
 C# 12 introduced several language features. The following probes capture their current support status.
 
 ### primary_constructors - Primary constructors

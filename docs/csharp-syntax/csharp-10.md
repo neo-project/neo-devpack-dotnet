@@ -1,5 +1,7 @@
 # C# 10 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-10
+
 Syntax features introduced with C# 10 are documented here with their support status in the Neo compiler.
 
 ### file_scoped_namespace - File-scoped namespace declarations

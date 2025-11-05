@@ -1,5 +1,7 @@
 # C# 7 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-7
+
 The Neo compiler still needs to accommodate projects targeting the C# 7 family. This checklist documents the most common language features introduced across C# 7.0–7.3 together with their support status.
 
 ### tuple_deconstruction - Tuple deconstruction

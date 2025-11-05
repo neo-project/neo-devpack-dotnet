@@ -1,5 +1,7 @@
 # C# 2 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-2
+
 C# 2 introduced generics, iterators, and partial types. These entries track how the Neo compiler treats them.
 
 ### generics - Generic methods

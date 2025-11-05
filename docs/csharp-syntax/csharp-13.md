@@ -1,5 +1,7 @@
 # C# 13 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-13
+
 C# 13 introduces several new language constructs alongside preview features. The Neo compiler currently targets earlier semantics, so these entries capture each feature for visibility and probing. Unless otherwise noted, the snippets are expected to fail to compile with Neo.
 
 ### params_collections - `params` collections

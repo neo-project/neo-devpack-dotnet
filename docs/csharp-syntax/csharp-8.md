@@ -1,5 +1,7 @@
 # C# 8 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-8
+
 C# 8 shipped with .NET Core 3.1. The following entries capture the syntax surface that matters for Neo contracts, along with the compiler support status validated by the automated probes.
 
 ### switch_expression - Switch expressions

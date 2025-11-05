@@ -1,5 +1,7 @@
 # C# 3 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-3
+
 C# 3 introduced LINQ and lambda expression syntax. The following probes capture their status in the Neo compiler.
 
 ### lambda_expression - Lambda expressions

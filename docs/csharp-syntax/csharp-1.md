@@ -1,5 +1,7 @@
 # C# 1 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-1
+
 The original C# language features remain the foundation for modern Neo contracts. These entries document core syntax that predates generics and LINQ.
 
 ### class_definition - Class declarations

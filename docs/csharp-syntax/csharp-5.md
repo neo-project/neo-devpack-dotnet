@@ -1,5 +1,7 @@
 # C# 5 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-5
+
 C# 5 introduced asynchronous programming features and caller info attributes. The entries below document how the Neo compiler handles them.
 
 ### async_method - Async method declarations

@@ -1,5 +1,7 @@
 # C# 6 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-6
+
 Older Neo contracts may still rely on syntax introduced with C# 6. This checklist captures those features and records whether the Neo compiler accepts them today.
 
 ### string_interpolation - String interpolation

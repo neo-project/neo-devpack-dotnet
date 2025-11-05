@@ -1,5 +1,7 @@
 # C# 11 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-11
+
 This checklist tracks new syntax from C# 11 and whether it compiles for Neo contracts.
 
 ### raw_string_literals - Raw string literals

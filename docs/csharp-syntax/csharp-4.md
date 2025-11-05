@@ -1,5 +1,7 @@
 # C# 4 Syntax Checklist
 
+Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-4
+
 C# 4 focused on dynamic binding and improvements to method invocation. These entries document current compiler behaviour.
 
 ### dynamic_binding - Dynamic binding
