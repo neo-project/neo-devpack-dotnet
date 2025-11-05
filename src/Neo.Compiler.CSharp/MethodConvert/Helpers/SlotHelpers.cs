@@ -93,7 +93,12 @@ internal partial class MethodConvert
             return AccessSlot(OpCode.LDSFLD, staticIndex);
         }
         // local parameter in current method
-        var index = _parameters[parameter];
+        // Roslyn may hand us reduced symbols (e.g. through record synthesized members) that differ from
+        // the ones we stored when we registered the signature. Fall back to the original definition before
+        // giving up so record-generated accessors continue to function.
+        if (!_parameters.TryGetValue(parameter, out var index) &&
+            !_parameters.TryGetValue(parameter.OriginalDefinition, out index))
+            throw new KeyNotFoundException(parameter.ToDisplayString());
         return AccessSlot(OpCode.LDARG, index);
     }
 
@@ -120,7 +125,11 @@ internal partial class MethodConvert
             return AccessSlot(OpCode.STSFLD, staticIndex);
         }
         // local parameter in current method
-        var index = _parameters[parameter];
+        // Same rationale as above: prefer the current symbol, but allow the original definition as a
+        // fallback for record-generated methods where the parameter symbol instance differs.
+        if (!_parameters.TryGetValue(parameter, out var index) &&
+            !_parameters.TryGetValue(parameter.OriginalDefinition, out index))
+            throw new KeyNotFoundException(parameter.ToDisplayString());
         return AccessSlot(OpCode.STARG, index);
     }
 

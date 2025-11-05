@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.IO;
 using Neo.VM;
+using System;
 using System.Linq;
 
 namespace Neo.Compiler;
@@ -27,6 +28,27 @@ internal partial class MethodConvert
         if (type.IsValueType) return;
         INamedTypeSymbol baseType = type.BaseType!;
         if (baseType.SpecialType == SpecialType.System_Object) return;
+        if (SyntaxNode is RecordDeclarationSyntax recordSyntax)
+        {
+            var baseCtorSyntax = recordSyntax.BaseList?.Types
+                .OfType<PrimaryConstructorBaseTypeSyntax>()
+                .FirstOrDefault();
+            if (baseCtorSyntax is not null)
+            {
+                var arguments = baseCtorSyntax.ArgumentList?.Arguments.ToArray() ?? Array.Empty<ArgumentSyntax>();
+                IMethodSymbol? baseCtor = baseType.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == arguments.Length);
+                if (baseCtor is not null)
+                {
+                    // Records invoke their base constructors through a primary-constructor clause (e.g. : base(arg)).
+                    // Emit the same call sequence we use for explicit constructor initializers so the positional
+                    // record layout is populated correctly.
+                    using (InsertSequencePoint(baseCtorSyntax))
+                        CallMethodWithInstanceExpression(model, baseCtor, null, arguments);
+                    return;
+                }
+            }
+        }
+
         ConstructorInitializerSyntax? initializer = ((ConstructorDeclarationSyntax?)SyntaxNode)?.Initializer;
         if (initializer is null)
         {

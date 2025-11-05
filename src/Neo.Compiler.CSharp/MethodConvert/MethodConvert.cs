@@ -149,6 +149,8 @@ namespace Neo.Compiler
                 if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
                     SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
 
+                RegisterMethodParameters();
+
                 // Step 3: Process method based on its kind
                 // This handles special cases for constructors and static constructors
                 // Examples:

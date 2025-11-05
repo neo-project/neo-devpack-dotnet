@@ -13,6 +13,7 @@ extern alias scfx;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,21 +25,34 @@ internal partial class MethodConvert
 {
     internal static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract|Neo\.SmartContract\.Framework\.Nep17Token|Neo\.SmartContract\.Framework\.TokenContract|Neo.SmartContract.Framework.Nep11Token<.*>)$");
 
-    private void ConvertSource(SemanticModel model)
+    private void RegisterMethodParameters()
     {
-        if (SyntaxNode is null) return;
+        if (_parameters.Count > 0)
+            return;
+
         for (byte i = 0; i < Symbol.Parameters.Length; i++)
         {
-            IParameterSymbol parameter = Symbol.Parameters[i].OriginalDefinition;
+            IParameterSymbol parameter = Symbol.Parameters[i];
+            IParameterSymbol original = parameter.OriginalDefinition;
             byte index = i;
             if (NeedInstanceConstructor(Symbol)) index++;
-            _parameters.Add(parameter, index);
+
+            _parameters.TryAdd(parameter, index);
+            if (!SymbolEqualityComparer.Default.Equals(parameter, original))
+            {
+                _parameters.TryAdd(original, index);
+            }
 
             if (parameter.RefKind == RefKind.Out)
             {
                 _context.GetOrAddCapturedStaticField(parameter);
             }
         }
+    }
+
+    private void ConvertSource(SemanticModel model)
+    {
+        if (SyntaxNode is null) return;
         switch (SyntaxNode)
         {
             case AccessorDeclarationSyntax syntax:
@@ -107,17 +121,65 @@ internal partial class MethodConvert
 
     private void ConvertDefaultRecordConstruct(RecordDeclarationSyntax recordDeclarationSyntax)
     {
-        if (Symbol.MethodKind == MethodKind.Constructor && Symbol.ContainingType.IsRecord)
+        if (Symbol.MethodKind != MethodKind.Constructor || !Symbol.ContainingType.IsRecord)
+            return;
+
+        // Only the primary (positional) parameters should be copied into the struct backing array.
+        // Secondary members (init-only properties, fields) keep their own initialization logic and must
+        // not shift the positional layout. We cache their names so we can ignore the rest of the members.
+        var positionalParameters = recordDeclarationSyntax.ParameterList?.Parameters
+            .Select(p => p.Identifier.ValueText)
+            .ToHashSet(StringComparer.Ordinal);
+        if (positionalParameters is null || positionalParameters.Count == 0)
+            return;
+
+        _initSlot = true;
+        INamedTypeSymbol type = Symbol.ContainingType;
+        IFieldSymbol[] fields = type.GetFields();
+        if (fields.Length == 0)
+            return;
+
+        // Struct layout is positional, so capture the field index to avoid repeated linear scans.
+        var fieldIndices = new Dictionary<IFieldSymbol, int>(SymbolEqualityComparer.Default);
+        for (int i = 0; i < fields.Length; i++)
         {
-            _initSlot = true;
-            IFieldSymbol[] fields = Symbol.ContainingType.GetFields();
-            for (byte i = 1; i <= fields.Length; i++)
+            fieldIndices[fields[i]] = i;
+        }
+
+        // Roslyn synthesizes a property for each primary parameter; in partial/extended records there may
+        // be user-defined members with the same name. Group by name so we can resolve the associated field
+        // even when multiple candidates exist (e.g. with explicit property implementations).
+        var propertiesByName = type.GetMembers()
+            .OfType<IPropertySymbol>()
+            .GroupBy(p => p.Name, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.Ordinal);
+
+        foreach (var parameter in Symbol.Parameters)
+        {
+            if (!positionalParameters.Contains(parameter.Name))
+                continue;
+
+            IFieldSymbol? backingField = null;
+
+            // Prefer the synthesized property backing field when available; otherwise fall back to the
+            // compiler-generated '<name>k__BackingField'. Record extensions may expose the property as
+            // part of a partial class, so we tolerate multiple candidates.
+            if (propertiesByName.TryGetValue(parameter.Name, out IPropertySymbol[]? candidates))
             {
-                AddInstruction(OpCode.LDARG0);
-                Push(i - 1);
-                AccessSlot(OpCode.LDARG, i);
-                AddInstruction(OpCode.SETITEM);
+                backingField = candidates
+                    .Select(prop => fields.FirstOrDefault(f => SymbolEqualityComparer.Default.Equals(f.AssociatedSymbol, prop)))
+                    .FirstOrDefault(f => f is not null);
             }
+
+            backingField ??= fields.FirstOrDefault(f => f.Name == $"<{parameter.Name}>k__BackingField");
+
+            if (backingField is null || !fieldIndices.TryGetValue(backingField, out int fieldIndex))
+                continue;
+
+            AddInstruction(OpCode.LDARG0);
+            Push(fieldIndex);
+            AccessSlot(OpCode.LDARG, (byte)(parameter.Ordinal + 1));
+            AddInstruction(OpCode.SETITEM);
         }
     }
 
