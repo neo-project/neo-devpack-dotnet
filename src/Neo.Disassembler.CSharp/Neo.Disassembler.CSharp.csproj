@@ -1,27 +1,30 @@
-﻿S<Project Sdk="Microsoft.NET.Sdk">
+S<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <Title>Neo.Disassembler.CSharp</Title>
-        <LangVersion>latest</LangVersion>
-        <AssemblyTitle>Neo.Disassembler.CSharp</AssemblyTitle>
-        <AssemblyName>Neo.Disassembler.CSharp</AssemblyName>
-        <RootNamespace>Neo.Disassembler.CSharp</RootNamespace>
-        <PackageId>Neo.Disassembler.CSharp</PackageId>
-        <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
-        <Description>Disassembler for NEO smart contract.</Description>
-        <IncludeContentInPack>true</IncludeContentInPack>
-        <ContentTargetFolders>content</ContentTargetFolders>
-        <Nullable>enable</Nullable>
-        <NoWarn>$(NoWarn);NU5128</NoWarn>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Title>Neo.Disassembler.CSharp</Title>
+		<LangVersion>latest</LangVersion>
+		<AssemblyTitle>Neo.Disassembler.CSharp</AssemblyTitle>
+		<AssemblyName>Neo.Disassembler.CSharp</AssemblyName>
+		<RootNamespace>Neo.Disassembler.CSharp</RootNamespace>
+		<PackageId>Neo.Disassembler.CSharp</PackageId>
+		<PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
+		<Description>Disassembler for NEO smart contract.</Description>
+		<IncludeContentInPack>true</IncludeContentInPack>
+		<ContentTargetFolders>content</ContentTargetFolders>
+		<Nullable>enable</Nullable>
+		<NoWarn>$(NoWarn);NU5128</NoWarn>
+	</PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo.IO\Neo.IO.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo.Json\Neo.Json.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo.VM\Neo.VM.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Neo.VM" Version="3.9.0-CI00344" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
+		<ProjectReference Include="..\..\neo\src\Neo.IO\Neo.IO.csproj" />
+		<ProjectReference Include="..\..\neo\src\Neo.Json\Neo.Json.csproj" />
+		<ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+	</ItemGroup>
 
 </Project>
