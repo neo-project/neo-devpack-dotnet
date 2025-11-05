@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System;
 using System.Linq;
 
 namespace Neo.Compiler;
@@ -28,12 +29,43 @@ internal partial class MethodConvert
     /// <param name="expression"></param>
     private void ConvertWithExpressionSyntax(SemanticModel model, WithExpressionSyntax expression)
     {
-        //load record
+        ITypeSymbol? type = model.GetTypeInfo(expression.Expression).Type;
+        if (type is null)
+            throw CompilationException.UnsupportedSyntax(expression, "Unable to resolve record type for with-expression.");
+
+        // Load the original record instance/value onto the stack
         ConvertExpression(model, expression.Expression);
-        //clone record struct
-        AddInstruction(new Instruction { OpCode = OpCode.UNPACK });
-        AddInstruction(new Instruction { OpCode = OpCode.PACKSTRUCT });
-        //convert InitializerExpression
+
+        if (!type.IsValueType)
+        {
+            var cloneMethod = type.GetMembers()
+                .OfType<IMethodSymbol>()
+                .FirstOrDefault(m => m.Name == "Clone" && m.Parameters.Length == 0 && !m.IsStatic)
+                ?? type.BaseType?.GetMembers()
+                    .OfType<IMethodSymbol>()
+                    .FirstOrDefault(m => m.Name == "Clone" && m.Parameters.Length == 0 && !m.IsStatic);
+
+            if (cloneMethod is not null)
+            {
+                CallInstanceMethod(model, cloneMethod, instanceOnStack: true, Array.Empty<ArgumentSyntax>());
+            }
+            else
+            {
+                // Fallback for sealed records that don't expose Clone. Behaves the
+                // same as the previous implementation by duplicating the struct
+                // representation.
+                AddInstruction(new Instruction { OpCode = OpCode.UNPACK });
+                AddInstruction(new Instruction { OpCode = OpCode.PACKSTRUCT });
+            }
+        }
+        else
+        {
+            // Value-type records are copied by value.
+            AddInstruction(new Instruction { OpCode = OpCode.UNPACK });
+            AddInstruction(new Instruction { OpCode = OpCode.PACKSTRUCT });
+        }
+
+        // Apply the object initializer on the cloned value.
         ConvertObjectCreationExpressionInitializer(model, expression.Initializer);
     }
 }
