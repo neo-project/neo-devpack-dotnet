@@ -1,6 +1,6 @@
 # C# Syntax Checklists
 
-The syntax checklist has been reorganized into .NET version specific documents. Each entry provides a short example along with the compiler support status. The automated syntax probe tests load these files directly, ensuring the documentation and test coverage remain consistent.
+The syntax checklist has been reorganized into C# version specific documents. Each entry provides a short example along with the compiler support status. The automated syntax probe tests load these files directly, ensuring the documentation and test coverage remain consistent.
 
 ## Version Index
 
