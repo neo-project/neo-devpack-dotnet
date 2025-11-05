@@ -25,9 +25,6 @@ internal partial class MethodConvert
 {
     internal static readonly Regex s_pattern = new(@"^(Neo\.SmartContract\.Framework\.SmartContract|SmartContract\.Framework\.SmartContract|Framework\.SmartContract|SmartContract|Neo\.SmartContract\.Framework\.Nep17Token|Neo\.SmartContract\.Framework\.TokenContract|Neo.SmartContract.Framework.Nep11Token<.*>)$");
 
-    private static bool IsByRef(RefKind refKind)
-        => refKind == RefKind.Ref || refKind == RefKind.Out;
-
     private void RegisterMethodParameters()
     {
         if (_parameters.Count > 0)
@@ -46,7 +43,7 @@ internal partial class MethodConvert
                 _parameters.TryAdd(original, index);
             }
 
-            if (IsByRef(parameter.RefKind))
+            if (parameter.RefKind == RefKind.Out)
             {
                 _context.GetOrAddCapturedStaticField(parameter);
             }
@@ -60,22 +57,11 @@ internal partial class MethodConvert
         {
             case AccessorDeclarationSyntax syntax:
                 if (syntax.Body is not null)
-                {
                     ConvertStatement(model, syntax.Body);
-                }
                 else if (syntax.ExpressionBody is not null)
-                {
                     ConvertExpression(model, syntax.ExpressionBody.Expression);
-                    if (Symbol.ReturnsVoid &&
-                        IsExpressionReturningValue(model, syntax.ExpressionBody.Expression))
-                    {
-                        AddInstruction(OpCode.DROP);
-                    }
-                }
                 else
-                {
                     ConvertNoBody(syntax);
-                }
                 break;
             case ArrowExpressionClauseSyntax syntax:
                 ConvertExpression(model, syntax.Expression);
@@ -220,12 +206,6 @@ internal partial class MethodConvert
 
         // For other types of BaseMethodDeclarationSyntax or cases without an expression body, default to no return value
         return false;
-    }
-
-    private static bool IsExpressionReturningValue(SemanticModel semanticModel, ExpressionSyntax expression)
-    {
-        var typeInfo = semanticModel.GetTypeInfo(expression);
-        return typeInfo.ConvertedType?.SpecialType != SpecialType.System_Void;
     }
 
     internal static ConcurrentDictionary<IMethodSymbol, bool> _cacheNeedInstanceConstructor = new ConcurrentDictionary<IMethodSymbol, bool>(SymbolEqualityComparer.Default);
