@@ -9,9 +9,12 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Akka.Util.Internal;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler;
 using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
@@ -19,18 +22,189 @@ internal static class Helper
 {
     internal static void TestCodeBlock(string codeBlock)
     {
-        var result = new CompilationEngine(new CompilationOptions()
+        var source = BuildMethodBodySource(codeBlock);
+        AssertCompilationResult(source, expectSuccess: true, "Expected snippet to compile successfully.");
+    }
+
+    internal static void AssertCompilationFails(string codeBlock, string message)
+    {
+        var source = BuildMethodBodySource(codeBlock);
+        AssertCompilationResult(source, expectSuccess: false, message);
+    }
+
+    internal static void AssertClassCompilationFails(string classMembers, string message)
+    {
+        var source = BuildClassSource(classMembers);
+        AssertCompilationResult(source, expectSuccess: false, message);
+    }
+
+    internal static void AssertClassCompilationSucceeds(string classMembers, string message)
+    {
+        var source = BuildClassSource(classMembers);
+        AssertCompilationResult(source, expectSuccess: true, message);
+    }
+
+    internal static void AssertRawCompilationFails(string sourceCode, string message)
+    {
+        AssertCompilationResult(sourceCode, expectSuccess: false, message);
+    }
+
+    internal static void AssertProbe(SyntaxProbeCase probe)
+    {
+        var messageBuilder = new StringBuilder()
+            .Append(probe.Version)
+            .Append(':')
+            .Append(probe.Id)
+            .Append(" - ")
+            .Append(probe.Title);
+
+        if (!string.IsNullOrWhiteSpace(probe.Notes))
+        {
+            messageBuilder.Append(" (").Append(probe.Notes).Append(')');
+        }
+
+        var message = messageBuilder.ToString();
+        var expectSuccess = probe.Status == SyntaxSupportStatus.Supported;
+        var sourceCode = probe.Scope switch
+        {
+            SyntaxProbeScope.Method => BuildMethodBodySource(probe.Snippet),
+            SyntaxProbeScope.Class => BuildClassSource(probe.Snippet),
+            SyntaxProbeScope.File => BuildFileSource(probe.Snippet),
+            _ => throw new ArgumentOutOfRangeException(nameof(probe.Scope), probe.Scope, "Unsupported scope for syntax probe.")
+        };
+
+        AssertCompilationResult(sourceCode, expectSuccess, message);
+    }
+
+    private static void AssertCompilationResult(string sourceCode, bool expectSuccess, string message)
+    {
+        CompilationContext? result = null;
+        Exception? compileException = null;
+
+        try
+        {
+            result = CompileSource(sourceCode);
+        }
+        catch (Exception ex)
+        {
+            compileException = ex;
+        }
+
+        if (compileException is not null)
+        {
+            if (expectSuccess)
+            {
+                const string redColor = "\u001b[31m";
+                const string resetColor = "\u001b[0m";
+                Console.WriteLine($"{redColor}Error compiling source :\n{sourceCode}{resetColor}");
+                Console.WriteLine(compileException);
+                Assert.Fail($"{message}{Environment.NewLine}Compilation failed unexpectedly: {compileException.Message}");
+            }
+
+            // Expected a failure and the compilation threw. Treat as success.
+            return;
+        }
+
+        if (result is null)
+        {
+            Assert.Fail("Compilation result was null.");
+            return;
+        }
+
+        if (result.Success == expectSuccess) return;
+
+        var diagnostics = string.Join(Environment.NewLine, result.Diagnostics.Select(d => d.ToString()));
+        const string failureColor = "\u001b[31m";
+        const string resetColorFinal = "\u001b[0m";
+        Console.WriteLine($"{failureColor}Error compiling source :\n{sourceCode}{resetColorFinal}");
+        Console.WriteLine(diagnostics);
+
+        if (expectSuccess)
+        {
+            Assert.Fail($"{message}{Environment.NewLine}Compilation failed unexpectedly.{Environment.NewLine}{diagnostics}");
+        }
+        else
+        {
+            Assert.Fail($"{message}{Environment.NewLine}Compilation succeeded but was expected to fail.");
+        }
+    }
+
+    private static CompilationContext CompileSource(string sourceCode)
+    {
+        var engine = new CompilationEngine(new CompilationOptions()
         {
             Debug = CompilationOptions.DebugType.Extended,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
             Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-        }).CompileFromCodeBlock(codeBlock).First();
-        if (result.Success) return;
+        });
 
-        result.Diagnostics.ForEach(Console.WriteLine);
-        const string redColor = "\u001b[31m";
-        const string resetColor = "\u001b[0m";
-        Console.WriteLine($"{redColor}Error compiling code block : {{\n\t{codeBlock.Replace("\n", "\n\t")}\n}}{resetColor}");
+        string tempPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
+        File.WriteAllText(tempPath, sourceCode);
+
+        try
+        {
+            return engine.CompileSources(tempPath).First();
+        }
+        finally
+        {
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
+        }
+    }
+
+    private static string BuildMethodBodySource(string codeBlock)
+    {
+        return @"using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.Text;
+using System.Numerics;
+using System.Linq;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+
+namespace Neo.Compiler.CSharp.TestContracts;
+
+public class CodeBlockTest : SmartContract.Framework.SmartContract
+{
+    public static void CodeBlock()
+    {
+" + Indent(codeBlock, 2) + @"
+    }
+}
+";
+    }
+
+    private static string BuildClassSource(string classMembers)
+    {
+        return @"using Neo.SmartContract.Framework.Native;
+using Neo.SmartContract.Framework.Services;
+using System;
+using System.Text;
+using System.Numerics;
+using System.Linq;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+
+namespace Neo.Compiler.CSharp.TestContracts;
+
+public class SyntaxProbe : SmartContract.Framework.SmartContract
+{
+" + Indent(classMembers, 1) + @"
+}
+";
+    }
+
+    private static string BuildFileSource(string source)
+    {
+        return source;
+    }
+
+    private static string Indent(string text, int level)
+    {
+        var indent = new string(' ', level * 4);
+        var lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+        return string.Join(Environment.NewLine, lines.Select(line => string.IsNullOrWhiteSpace(line) ? line : indent + line));
     }
 }
