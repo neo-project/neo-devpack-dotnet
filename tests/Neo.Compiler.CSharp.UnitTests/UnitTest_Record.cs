@@ -78,5 +78,78 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1679970);
             Assert.AreEqual(name, result);
         }
+
+        [TestMethod]
+        public void Test_CreateRecordWithExtras()
+        {
+            var name = "neo";
+            var tag = "tag";
+            var result = Contract.Test_CreateRecordWithExtras(name, tag)!;
+            AssertGasConsumed(1618380);
+            var arr = result as Struct;
+            Assert.IsNotNull(arr);
+            Assert.AreEqual(3, arr!.Count);
+            Assert.AreEqual(name, arr[0].GetString());
+            Assert.AreEqual(2025, arr[1].GetInteger());
+            Assert.AreEqual(tag, arr[2].GetString());
+        }
+
+        [TestMethod]
+        public void Test_WithRecordExtras()
+        {
+            var name = "client";
+            var tag = "tag";
+            var result = Contract.Test_WithRecordExtras(name, tag, 2)!;
+            AssertGasConsumed(2543340);
+            var arr = result as Struct;
+            Assert.IsNotNull(arr);
+            Assert.AreEqual(3, arr!.Count);
+            Assert.AreEqual(name, arr[0].GetString());
+            Assert.AreEqual(2027, arr[1].GetInteger());
+            Assert.AreEqual(tag + ":updated", arr[2].GetString());
+        }
+
+        [TestMethod]
+        public void Test_RecordStructWith()
+        {
+            var result = Contract.Test_RecordStructWith(1, 2, 3, 4)!;
+            AssertGasConsumed(2250930);
+            var arr = result as Struct;
+            Assert.IsNotNull(arr);
+            Assert.AreEqual(3, arr!.Count);
+            Assert.AreEqual(1, arr[0].GetInteger());
+            Assert.AreEqual(6, arr[1].GetInteger());
+            Assert.AreEqual(3, arr[2].GetInteger());
+        }
+
+        [TestMethod]
+        public void Test_DerivedRecordWith()
+        {
+            var result = Contract.Test_DerivedRecordWith("neo", 2, "silver", 1)!;
+            AssertGasConsumed(3578550);
+            var arr = result as Struct;
+            Assert.IsNotNull(arr);
+            Assert.AreEqual(4, arr!.Count);
+            Assert.AreEqual("neo", arr[0].GetString());
+            Assert.AreEqual(3, arr[1].GetInteger());
+            Assert.AreEqual("silver-VIP", arr[2].GetString());
+            Assert.AreEqual(30, arr[3].GetInteger());
+        }
+
+        [TestMethod]
+        public void Test_RecordEquality()
+        {
+            var result = Contract.Test_RecordEquality("neo", 5);
+            AssertGasConsumed(2190090);
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void Test_RecordStructIsolation()
+        {
+            var result = Contract.Test_RecordStructIsolation(1, 2, 3);
+            AssertGasConsumed(2297220);
+            Assert.IsTrue(result);
+        }
     }
 }
