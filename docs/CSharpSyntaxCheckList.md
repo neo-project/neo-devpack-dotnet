@@ -29,6 +29,6 @@ See [Unsupported C# Features in Neo Compiler](csharp-syntax/UnsupportedFeatures.
 To add new syntax coverage:
 
 1. Append a new section to the relevant version file following the established format.
-2. Run `python scripts/update_unsupported_features.py` to regenerate the consolidated unsupported list.
+2. Update `docs/csharp-syntax/UnsupportedFeatures.md` so every unsupported entry remains listed.
 3. Run `dotnet test tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj --filter "ClassName=Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests"` to verify the probe results.
 4. Update the release notes or documentation as needed.
