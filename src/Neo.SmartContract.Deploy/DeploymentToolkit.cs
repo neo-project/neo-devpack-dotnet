@@ -17,6 +17,7 @@ using Neo.SmartContract.Native;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using System.Numerics;
+using System.Globalization;
 using Neo.Compiler;
 using CompilationOptions = Neo.Compiler.CompilationOptions;
 
@@ -36,11 +37,16 @@ public class DeploymentToolkit : IDisposable
     private NetworkProfile _networkProfile = default!;
     private volatile string? _wifKey = null;
     private ProtocolSettings? _protocolSettings;
+    private bool _networkMagicFetchedFromRpc;
+    private bool _networkMagicFallbackActive;
+    private DateTime _networkMagicLastAttemptUtc;
     private bool _disposed = false;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
+
+    internal static TimeSpan NetworkMagicRetryInterval { get; set; } = TimeSpan.FromSeconds(30);
 
     /// <summary>
     /// Create a new DeploymentToolkit instance with automatic configuration
@@ -87,6 +93,9 @@ public class DeploymentToolkit : IDisposable
         _options = (options ?? new DeploymentOptions()).Clone();
 
         _networkProfile = ResolveInitialNetworkProfile();
+        _networkMagicFetchedFromRpc = false;
+        _networkMagicFallbackActive = false;
+        _networkMagicLastAttemptUtc = DateTime.MinValue;
     }
 
     /// <summary>
@@ -112,6 +121,9 @@ public class DeploymentToolkit : IDisposable
         _networkProfile = profile ?? throw new ArgumentNullException(nameof(profile));
         _options.Network = profile;
         _protocolSettings = null;
+        _networkMagicFetchedFromRpc = false;
+        _networkMagicFallbackActive = false;
+        _networkMagicLastAttemptUtc = DateTime.MinValue;
         return this;
     }
 
@@ -328,7 +340,9 @@ public class DeploymentToolkit : IDisposable
             request.WaitForConfirmation,
             request.ConfirmationRetries,
             request.ConfirmationDelaySeconds,
-            cancellationToken);
+            cancellationToken,
+            request.Signers,
+            request.TransactionSignerAsync);
     }
 
     public virtual Task<ContractDeploymentInfo> DeployArtifactsAsync(
@@ -338,7 +352,9 @@ public class DeploymentToolkit : IDisposable
         bool? waitForConfirmation = null,
         int? confirmationRetries = null,
         int? confirmationDelaySeconds = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IReadOnlyList<Signer>? signers = null,
+        Func<TransactionManager, CancellationToken, Task<Transaction>>? transactionSignerAsync = null)
     {
         EnsureNotDisposed();
         return DeployArtifactsInternalAsync(
@@ -348,7 +364,9 @@ public class DeploymentToolkit : IDisposable
             waitForConfirmation,
             confirmationRetries,
             confirmationDelaySeconds,
-            cancellationToken);
+            cancellationToken,
+            signers,
+            transactionSignerAsync);
     }
 
     private async Task<ContractDeploymentInfo> DeployArtifactsInternalAsync(
@@ -358,7 +376,9 @@ public class DeploymentToolkit : IDisposable
         bool? waitForConfirmation,
         int? confirmationRetries,
         int? confirmationDelaySeconds,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IReadOnlyList<Signer>? signers,
+        Func<TransactionManager, CancellationToken, Task<Transaction>>? transactionSignerAsync)
     {
         EnsureNotDisposed();
         cancellationToken.ThrowIfCancellationRequested();
@@ -375,33 +395,68 @@ public class DeploymentToolkit : IDisposable
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException("Manifest file not found.", manifestPath);
 
-        var wif = EnsureWif();
-
         var nefBytes = await File.ReadAllBytesAsync(nefPath, cancellationToken).ConfigureAwait(false);
         var manifestJson = await File.ReadAllTextAsync(manifestPath, cancellationToken).ConfigureAwait(false);
 
         // Compute expected contract hash
         var nef = NefFile.Parse(nefBytes, verify: true);
         var manifest = ContractManifest.FromJson((Neo.Json.JObject)Neo.Json.JToken.Parse(manifestJson)!);
-        var sender = await GetDeployerAccountAsync().ConfigureAwait(false);
+
+        var protocolSettings = await GetProtocolSettingsAsync().ConfigureAwait(false);
+        var resolvedSigners = ResolveSigners(signers, protocolSettings);
+
+        string? defaultWif = null;
+        UInt160 sender;
+        if (resolvedSigners.Count > 0)
+        {
+            sender = resolvedSigners[0].Account;
+        }
+        else
+        {
+            defaultWif = EnsureWif();
+            var keyPair = Neo.Network.RPC.Utility.GetKeyPair(defaultWif);
+            sender = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
+            resolvedSigners = new[]
+            {
+                new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry }
+            };
+        }
+
         var expectedHash = Neo.SmartContract.Helper.GetContractHash(sender, nef.CheckSum, manifest.Name);
 
         // Build deploy script
         var script = BuildDeployScript(nefBytes, manifestJson, initParams);
 
         var policy = ResolveConfirmationPolicy(waitForConfirmation, confirmationRetries, confirmationDelaySeconds);
+        var signerDelegate = transactionSignerAsync
+            ?? _options.TransactionSignerAsync;
+
+        if (signerDelegate is null)
+        {
+            if (string.IsNullOrEmpty(defaultWif))
+            {
+                throw new InvalidOperationException("No signing credentials available. Provide a WIF via SetWifKey(), configure DeploymentOptions.TransactionSignerAsync, or supply a transaction signer when calling DeployArtifactsAsync.");
+            }
+            var key = Neo.Network.RPC.Utility.GetKeyPair(defaultWif);
+            signerDelegate = (tm, ct) =>
+            {
+                tm.AddSignature(key);
+                return tm.SignAsync();
+            };
+        }
+
+        var signersArray = resolvedSigners is Signer[] direct
+            ? direct
+            : resolvedSigners.ToArray();
 
         return await WithRpcClientAsync(async (rpc, _, ct) =>
         {
             ct.ThrowIfCancellationRequested();
             // Build transaction
-            var signer = new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry };
-            var tm = await TransactionManager.MakeTransactionAsync(rpc, script, [signer]).ConfigureAwait(false);
+            var tm = await CreateTransactionManagerAsync(rpc, script.AsMemory(), signersArray, ct).ConfigureAwait(false);
 
             // Sign and send
-            var key = Neo.Network.RPC.Utility.GetKeyPair(wif);
-            tm.AddSignature(key);
-            var tx = await tm.SignAsync().ConfigureAwait(false);
+            var tx = await signerDelegate(tm, ct).ConfigureAwait(false);
             var txHash = await rpc.SendRawTransactionAsync(tx).ConfigureAwait(false);
 
             if (policy.WaitForConfirmation)
@@ -442,6 +497,16 @@ public class DeploymentToolkit : IDisposable
     }
 
     protected virtual CompilationEngine CreateCompilationEngine(CompilationOptions options) => new(options);
+
+    protected virtual Task<TransactionManager> CreateTransactionManagerAsync(
+        RpcClient rpcClient,
+        ReadOnlyMemory<byte> script,
+        Signer[] signers,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return TransactionManager.MakeTransactionAsync(rpcClient, script, signers);
+    }
 
     protected virtual Task<IReadOnlyList<CompiledContractArtifact>> CompileContractsAsync(
         string path,
@@ -515,7 +580,16 @@ public class DeploymentToolkit : IDisposable
             await File.WriteAllBytesAsync(nefPath, artifact.Nef.ToArray(), cancellationToken).ConfigureAwait(false);
             await File.WriteAllTextAsync(manifestPath, artifact.Manifest.ToJson().ToString(), cancellationToken).ConfigureAwait(false);
 
-            return await DeployArtifactsAsync(nefPath, manifestPath, initParams, null, null, null, cancellationToken).ConfigureAwait(false);
+            return await DeployArtifactsAsync(
+                nefPath,
+                manifestPath,
+                initParams,
+                waitForConfirmation: null,
+                confirmationRetries: null,
+                confirmationDelaySeconds: null,
+                cancellationToken: cancellationToken,
+                signers: null,
+                transactionSignerAsync: null).ConfigureAwait(false);
         }
         finally
         {
@@ -710,11 +784,16 @@ public class DeploymentToolkit : IDisposable
                     contractPolicy.WaitForConfirmation,
                     contractPolicy.ConfirmationRetries,
                     contractPolicy.ConfirmationDelaySeconds,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken,
+                    signers: null,
+                    transactionSignerAsync: null).ConfigureAwait(false);
 
                 var key = string.IsNullOrWhiteSpace(contract.Name)
                     ? Path.GetFileNameWithoutExtension(nefPath)
                     : contract.Name;
+
+                if (results.ContainsKey(key))
+                    throw new InvalidOperationException($"Duplicate deployment key '{key}' detected in manifest. Provide unique names or NEF paths.");
 
                 results[key] = deploymentInfo;
             }
@@ -771,7 +850,14 @@ public class DeploymentToolkit : IDisposable
     }
 
     private ToolkitSnapshot CaptureState()
-        => new(_networkProfile, _options.Clone(), _wifKey, _protocolSettings);
+        => new(
+            _networkProfile,
+            _options.Clone(),
+            _wifKey,
+            _protocolSettings,
+            _networkMagicFetchedFromRpc,
+            _networkMagicFallbackActive,
+            _networkMagicLastAttemptUtc);
 
     private void RestoreState(ToolkitSnapshot snapshot)
     {
@@ -780,6 +866,9 @@ public class DeploymentToolkit : IDisposable
         _options.Network = _networkProfile;
         _wifKey = snapshot.Wif;
         _protocolSettings = snapshot.ProtocolSettings;
+        _networkMagicFetchedFromRpc = snapshot.NetworkMagicResolved;
+        _networkMagicFallbackActive = snapshot.NetworkMagicFallbackActive;
+        _networkMagicLastAttemptUtc = snapshot.NetworkMagicLastAttemptUtc;
     }
 
     private IDisposable UseTemporaryWif(string? wif)
@@ -827,6 +916,23 @@ public class DeploymentToolkit : IDisposable
         return new ConfirmationPolicy(wait, retries, delay);
     }
 
+    private IReadOnlyList<Signer> ResolveSigners(
+        IReadOnlyList<Signer>? explicitSigners,
+        ProtocolSettings protocolSettings)
+    {
+        if (explicitSigners is { Count: > 0 })
+            return explicitSigners;
+
+        if (_options.SignerProvider is not null)
+        {
+            var provided = _options.SignerProvider(protocolSettings);
+            if (provided is { Count: > 0 })
+                return provided;
+        }
+
+        return Array.Empty<Signer>();
+    }
+
     private async Task<TResult> WithRpcClientAsync<TResult>(
         Func<RpcClient, ProtocolSettings, CancellationToken, Task<TResult>> action,
         CancellationToken cancellationToken)
@@ -844,14 +950,52 @@ public class DeploymentToolkit : IDisposable
     {
         EnsureNotDisposed();
 
-        if (_networkProfile.NetworkMagic.HasValue)
+        var configuredMagic = _configuration.GetValue<uint?>("Network:NetworkMagic", null);
+        var hasKnownProfile = NetworkProfile.TryGetKnown(_networkProfile.Identifier, out var knownProfile);
+        var now = DateTime.UtcNow;
+
+        if (_networkProfile.NetworkMagic.HasValue && _networkMagicFetchedFromRpc)
             return _networkProfile.NetworkMagic.Value;
 
-        var configuredMagic = _configuration.GetValue<uint?>("Network:NetworkMagic", null);
+        var shouldAttemptRpc = !_networkMagicFallbackActive
+            || _networkMagicLastAttemptUtc == DateTime.MinValue
+            || now - _networkMagicLastAttemptUtc >= NetworkMagicRetryInterval;
+
+        if (shouldAttemptRpc)
+        {
+            _networkMagicLastAttemptUtc = now;
+            var rpcResult = await TryResolveNetworkMagicFromRpcAsync().ConfigureAwait(false);
+            if (rpcResult.HasValue)
+                return rpcResult.Value;
+        }
+
+        var fallbackTimestamp = shouldAttemptRpc
+            ? now
+            : (_networkMagicLastAttemptUtc == DateTime.MinValue ? now : _networkMagicLastAttemptUtc);
+
+        if (_networkProfile.NetworkMagic.HasValue)
+        {
+            var optionMagic = _options.Network?.NetworkMagic;
+            var profileMagic = _networkProfile.NetworkMagic.Value;
+
+            if ((optionMagic.HasValue && optionMagic.Value == profileMagic) ||
+                (configuredMagic.HasValue && configuredMagic.Value == profileMagic) ||
+                (hasKnownProfile && knownProfile!.NetworkMagic.HasValue && knownProfile.NetworkMagic.Value == profileMagic))
+            {
+                _networkMagicFetchedFromRpc = false;
+                _networkMagicFallbackActive = true;
+                _networkMagicLastAttemptUtc = fallbackTimestamp;
+                return profileMagic;
+            }
+        }
+
         if (configuredMagic.HasValue)
         {
             _networkProfile = _networkProfile with { NetworkMagic = configuredMagic.Value };
             _options.Network = _networkProfile;
+            _networkMagicFetchedFromRpc = false;
+            _networkMagicFallbackActive = true;
+            _networkMagicLastAttemptUtc = fallbackTimestamp;
             return configuredMagic.Value;
         }
 
@@ -870,38 +1014,69 @@ public class DeploymentToolkit : IDisposable
                         AddressVersion = entry.Value.AddressVersion ?? _networkProfile.AddressVersion
                     };
                     _options.Network = _networkProfile;
+                    _networkMagicFetchedFromRpc = false;
+                    _networkMagicFallbackActive = true;
+                    _networkMagicLastAttemptUtc = fallbackTimestamp;
                     return magic;
                 }
             }
         }
 
+        if (hasKnownProfile && knownProfile!.NetworkMagic.HasValue)
+        {
+            _networkProfile = _networkProfile with
+            {
+                NetworkMagic = knownProfile.NetworkMagic,
+                AddressVersion = knownProfile.AddressVersion ?? _networkProfile.AddressVersion
+            };
+            _options.Network = _networkProfile;
+            _networkMagicFetchedFromRpc = false;
+            _networkMagicFallbackActive = true;
+            _networkMagicLastAttemptUtc = fallbackTimestamp;
+            return knownProfile.NetworkMagic.Value;
+        }
+
+        if (_networkProfile.NetworkMagic.HasValue)
+        {
+            _networkMagicFetchedFromRpc = false;
+            _networkMagicFallbackActive = true;
+            _networkMagicLastAttemptUtc = fallbackTimestamp;
+            return _networkProfile.NetworkMagic.Value;
+        }
+
+        const uint defaultMagic = 894710606; // TestNet magic fallback
+        _networkProfile = _networkProfile with { NetworkMagic = defaultMagic };
+        _options.Network = _networkProfile;
+        _networkMagicFetchedFromRpc = false;
+        _networkMagicFallbackActive = true;
+        _networkMagicLastAttemptUtc = fallbackTimestamp;
+        return defaultMagic;
+    }
+
+    private async Task<uint?> TryResolveNetworkMagicFromRpcAsync()
+    {
         try
         {
             var rpcUrl = GetCurrentRpcUrl();
             using var rpcClient = _rpcClientFactory.Create(new Uri(rpcUrl), ProtocolSettings.Default);
-            var version = await rpcClient.GetVersionAsync();
+            var version = await rpcClient.GetVersionAsync().ConfigureAwait(false);
             var magic = version.Protocol.Network;
-            _networkProfile = _networkProfile with { NetworkMagic = magic };
+            var addressVersion = version.Protocol.AddressVersion;
+
+            _networkProfile = _networkProfile with
+            {
+                NetworkMagic = magic,
+                AddressVersion = addressVersion == 0 ? _networkProfile.AddressVersion : addressVersion
+            };
             _options.Network = _networkProfile;
+            _networkMagicFetchedFromRpc = true;
+            _networkMagicFallbackActive = false;
+            _networkMagicLastAttemptUtc = DateTime.UtcNow;
             return magic;
         }
-        catch (Exception)
+        catch
         {
-            if (NetworkProfile.TryGetKnown(_networkProfile.Identifier, out var known) && known.NetworkMagic.HasValue)
-            {
-                _networkProfile = _networkProfile with
-                {
-                    NetworkMagic = known.NetworkMagic,
-                    AddressVersion = known.AddressVersion ?? _networkProfile.AddressVersion
-                };
-                _options.Network = _networkProfile;
-                return known.NetworkMagic.Value;
-            }
-
-            const uint defaultMagic = 894710606; // TestNet magic fallback
-            _networkProfile = _networkProfile with { NetworkMagic = defaultMagic };
-            _options.Network = _networkProfile;
-            return defaultMagic;
+            return null;
         }
     }
 
@@ -950,38 +1125,119 @@ public class DeploymentToolkit : IDisposable
 
     private static object?[] ConvertJsonArray(JsonElement array)
     {
-        var values = new List<object?>(array.GetArrayLength());
+        var values = new object?[array.GetArrayLength()];
+        var index = 0;
         foreach (var element in array.EnumerateArray())
         {
-            values.Add(ConvertJsonValue(element));
+            values[index++] = ConvertJsonValue(element);
         }
-        return values.ToArray();
+        return values;
     }
 
     private static object? ConvertJsonValue(JsonElement element) => element.ValueKind switch
     {
         JsonValueKind.String => element.GetString(),
-        JsonValueKind.Number => element.TryGetInt64(out var longValue)
-            ? longValue
-            : element.TryGetDecimal(out var decimalValue)
-                ? decimalValue
-                : element.GetDouble(),
+        JsonValueKind.Number => ConvertJsonNumberValue(element),
         JsonValueKind.True => true,
         JsonValueKind.False => false,
         JsonValueKind.Null => null,
-        JsonValueKind.Array => ConvertJsonArray(element),
-        JsonValueKind.Object => ConvertJsonObject(element),
-        _ => element.GetRawText()
+        JsonValueKind.Array => ConvertJsonArrayParameter(element),
+        JsonValueKind.Object => TryConvertContractParameter(element, out var parameter)
+            ? parameter
+            : ConvertJsonObjectParameter(element),
+        _ => throw new InvalidOperationException($"Unsupported JSON value '{element.GetRawText()}' in deployment manifest.")
     };
 
-    private static object ConvertJsonObject(JsonElement element)
+    private static object ConvertJsonNumberValue(JsonElement element)
     {
-        var dictionary = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+        var raw = element.GetRawText();
+        if (raw.IndexOfAny(new[] { '.', 'e', 'E' }) >= 0)
+            throw new InvalidOperationException($"Only integer values are supported in deployment parameters. Value '{raw}' is not an integer.");
+
+        if (!BigInteger.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+            throw new InvalidOperationException($"Unable to parse numeric value '{raw}' in deployment parameters.");
+
+        if (value >= long.MinValue && value <= long.MaxValue)
+            return (long)value;
+
+        return value;
+    }
+
+    private static bool TryConvertContractParameter(JsonElement element, out ContractParameter parameter)
+    {
+        parameter = default!;
+        if (element.ValueKind != JsonValueKind.Object)
+            return false;
+
+        if (!element.TryGetProperty("type", out var typeProperty) || typeProperty.ValueKind != JsonValueKind.String)
+            return false;
+
+        try
+        {
+            var raw = element.GetRawText();
+            if (Neo.Json.JToken.Parse(raw) is Neo.Json.JObject obj)
+            {
+                parameter = ContractParameter.FromJson(obj);
+                return true;
+            }
+        }
+        catch
+        {
+            // Ignore parse errors so fallback handlers can process the payload.
+        }
+
+        return false;
+    }
+
+    private static ContractParameter ConvertJsonArrayParameter(JsonElement array)
+    {
+        var parameter = new ContractParameter(ContractParameterType.Array);
+        var items = new List<ContractParameter>(array.GetArrayLength());
+        foreach (var child in array.EnumerateArray())
+        {
+            items.Add(ConvertJsonElementToContractParameter(child));
+        }
+        parameter.Value = items;
+        return parameter;
+    }
+
+    private static ContractParameter ConvertJsonObjectParameter(JsonElement element)
+    {
+        var parameter = new ContractParameter(ContractParameterType.Map);
+        var entries = new List<KeyValuePair<ContractParameter, ContractParameter>>();
         foreach (var property in element.EnumerateObject())
         {
-            dictionary[property.Name] = ConvertJsonValue(property.Value);
+            var key = new ContractParameter(ContractParameterType.String) { Value = property.Name };
+            var value = ConvertJsonElementToContractParameter(property.Value);
+            entries.Add(new KeyValuePair<ContractParameter, ContractParameter>(key, value));
         }
-        return dictionary;
+        parameter.Value = entries;
+        return parameter;
+    }
+
+    private static ContractParameter ConvertJsonElementToContractParameter(JsonElement element) => element.ValueKind switch
+    {
+        JsonValueKind.Null => new ContractParameter(ContractParameterType.Any) { Value = null },
+        JsonValueKind.True => new ContractParameter(ContractParameterType.Boolean) { Value = true },
+        JsonValueKind.False => new ContractParameter(ContractParameterType.Boolean) { Value = false },
+        JsonValueKind.String => new ContractParameter(ContractParameterType.String) { Value = element.GetString()! },
+        JsonValueKind.Number => ConvertJsonNumberParameter(element),
+        JsonValueKind.Array => ConvertJsonArrayParameter(element),
+        JsonValueKind.Object => TryConvertContractParameter(element, out var parameter)
+            ? parameter
+            : ConvertJsonObjectParameter(element),
+        _ => throw new InvalidOperationException($"Unsupported JSON element '{element.GetRawText()}' in deployment manifest.")
+    };
+
+    private static ContractParameter ConvertJsonNumberParameter(JsonElement element)
+    {
+        var value = ConvertJsonNumberValue(element);
+        return value switch
+        {
+            long l => new ContractParameter(ContractParameterType.Integer) { Value = new BigInteger(l) },
+            BigInteger bigInteger => new ContractParameter(ContractParameterType.Integer) { Value = bigInteger },
+            _ => throw new InvalidOperationException($"Unsupported numeric value '{value}' in deployment parameters.")
+        };
     }
 
     private static string ResolveArtifactPath(string baseDirectory, string path)
@@ -1114,7 +1370,10 @@ public class DeploymentToolkit : IDisposable
         NetworkProfile Network,
         DeploymentOptions Options,
         string? Wif,
-        ProtocolSettings? ProtocolSettings);
+        ProtocolSettings? ProtocolSettings,
+        bool NetworkMagicResolved,
+        bool NetworkMagicFallbackActive,
+        DateTime NetworkMagicLastAttemptUtc);
 
     private readonly record struct ConfirmationPolicy(
         bool WaitForConfirmation,

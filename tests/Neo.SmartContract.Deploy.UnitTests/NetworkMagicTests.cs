@@ -1,9 +1,10 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Xunit;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Deploy.UnitTests;
 
@@ -20,7 +21,7 @@ public class NetworkMagicTests : IDisposable
     }
 
     [Fact]
-    public void NetworkConfiguration_WithExplicitNetworkMagic_ShouldUseConfiguredValue()
+    public async Task NetworkConfiguration_WithExplicitNetworkMagic_ShouldUseConfiguredValue()
     {
         // Arrange
         var config = @"{
@@ -42,11 +43,13 @@ public class NetworkMagicTests : IDisposable
         // Assert
         // The network magic should be used from configuration when methods that require it are called
         // This is verified indirectly through the configuration loading
-        Assert.NotNull(toolkit);
+        Assert.Equal<uint?>(12345678, toolkit.CurrentNetwork.NetworkMagic);
+        var resolved = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(12345678, resolved);
     }
 
     [Fact]
-    public void NetworkConfiguration_WithoutNetworkMagic_ShouldAllowRpcRetrieval()
+    public async Task NetworkConfiguration_WithoutNetworkMagic_ShouldKeepValueUnsetUntilResolved()
     {
         // Arrange
         var config = @"{
@@ -65,13 +68,13 @@ public class NetworkMagicTests : IDisposable
         toolkit.SetNetwork("custom");
 
         // Assert
-        // When network magic is not configured, it should be retrieved from RPC
-        // This is the behavior we want to ensure is possible
-        Assert.NotNull(toolkit);
+        Assert.Null(toolkit.CurrentNetwork.NetworkMagic);
+        var resolved = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(894710606, resolved); // falls back to default when RPC unavailable
     }
 
     [Fact]
-    public void NetworkConfiguration_GlobalNetworkMagic_ShouldBeUsedAsFallback()
+    public async Task NetworkConfiguration_GlobalNetworkMagic_ShouldBeUsedAsFallback()
     {
         // Arrange
         var config = @"{
@@ -82,12 +85,10 @@ public class NetworkMagicTests : IDisposable
         }";
         File.WriteAllText(_tempConfigPath, config);
 
-        // Act
         var toolkit = new DeploymentToolkit(_tempConfigPath);
-
-        // Assert
-        // Global network magic should be used when no specific network is configured
-        Assert.NotNull(toolkit);
+        var resolved = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(87654321, resolved);
+        Assert.Equal<uint?>(87654321, toolkit.CurrentNetwork.NetworkMagic);
     }
 
     [Theory]
@@ -95,25 +96,18 @@ public class NetworkMagicTests : IDisposable
     [InlineData("testnet", 894710606)]
     [InlineData("MAINNET", 860833102)]
     [InlineData("TESTNET", 894710606)]
-    public void KnownNetworks_ShouldHaveCorrectDefaultNetworkMagic(string network, uint expectedMagic)
+    public async Task KnownNetworks_ShouldHaveCorrectDefaultNetworkMagic(string network, uint expectedMagic)
     {
-        // Arrange & Act
         var toolkit = new DeploymentToolkit();
         toolkit.SetNetwork(network);
 
-        // Assert
-        // These are the fallback values that should be used when RPC fails
-        // The actual test of this behavior would require mocking the RPC client
-        Assert.NotNull(toolkit);
-
-        // Note: expectedMagic parameter documents the expected fallback value
-        // when RPC is unavailable. In PR 2, when deployment is implemented,
-        // this will be tested through actual deployment operations.
-        _ = expectedMagic; // Acknowledge the parameter to avoid compiler warning
+        Assert.Equal<uint?>(expectedMagic, toolkit.CurrentNetwork.NetworkMagic);
+        var resolved = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(expectedMagic, resolved);
     }
 
     [Fact]
-    public void NetworkConfiguration_MixedConfiguration_ShouldPrioritizeCorrectly()
+    public async Task NetworkConfiguration_MixedConfiguration_ShouldPrioritizeCorrectly()
     {
         // Arrange
         var config = @"{
@@ -137,14 +131,16 @@ public class NetworkMagicTests : IDisposable
 
         // Test network1 - should use specific network magic
         toolkit.SetNetwork("network1");
-        // network1 has explicit NetworkMagic, so it should use 22222222
+        Assert.Equal<uint?>(22222222, toolkit.CurrentNetwork.NetworkMagic);
+        var network1Magic = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(22222222, network1Magic);
 
         // Test network2 - should fall back to global or RPC
         toolkit.SetNetwork("network2");
-        // network2 has no NetworkMagic, so it should use global 11111111 or retrieve from RPC
-
-        // Assert
-        Assert.NotNull(toolkit);
+        Assert.Null(toolkit.CurrentNetwork.NetworkMagic);
+        var network2Magic = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(11111111, network2Magic);
+        Assert.Equal<uint?>(11111111, toolkit.CurrentNetwork.NetworkMagic);
     }
 
     [Fact]
@@ -166,11 +162,22 @@ public class NetworkMagicTests : IDisposable
         Assert.Equal("http://custom:10332", toolkit.CurrentNetwork.RpcUrl);
     }
 
+    private static async Task<uint> InvokeGetNetworkMagicAsync(DeploymentToolkit toolkit)
+    {
+        var method = typeof(DeploymentToolkit).GetMethod("GetNetworkMagicAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("GetNetworkMagicAsync not found.");
+        var task = (Task<uint>)method.Invoke(toolkit, Array.Empty<object>())!;
+        return await task.ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_tempDir))
         {
             Directory.Delete(_tempDir, true);
         }
+
+        var intervalProp = typeof(DeploymentToolkit).GetProperty("NetworkMagicRetryInterval", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        intervalProp?.SetValue(null, TimeSpan.FromSeconds(30));
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Neo;
 using Neo.Network.RPC;
+using Neo.Network.P2P.Payloads;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using Neo.Json;
 using Neo.Cryptography.ECC;
 using Neo.Cryptography;
@@ -282,6 +286,63 @@ public class DeploymentToolkitTests : TestBase
     }
 
     [Fact]
+    public async Task DeployFromManifestAsync_WithTypedParameters_ShouldParseContractParameters()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            var nef = Path.Combine(tempDir, "Typed.nef");
+            var manifest = Path.Combine(tempDir, "Typed.manifest.json");
+            File.WriteAllText(nef, string.Empty);
+            File.WriteAllText(manifest, "{}");
+
+            var manifestPath = Path.Combine(tempDir, "deployment.json");
+            var manifestContent = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                contracts = new object?[]
+                {
+                    new
+                    {
+                        name = "Typed",
+                        nef = Path.GetFileName(nef),
+                        manifest = Path.GetFileName(manifest),
+                        initParams = new object[]
+                        {
+                            new { type = "Hash160", value = UInt160.Zero.ToString() },
+                            new { type = "Integer", value = "5" }
+                        }
+                    }
+                }
+            });
+            File.WriteAllText(manifestPath, manifestContent);
+
+            var toolkit = new TestDeploymentToolkit();
+            await toolkit.DeployFromManifestAsync(manifestPath);
+
+            var call = Assert.Single(toolkit.Calls);
+            Assert.NotNull(call.Parameters);
+            var parameters = call.Parameters!;
+
+            var hashParam = Assert.IsType<ContractParameter>(parameters[0]);
+            Assert.Equal(ContractParameterType.Hash160, hashParam.Type);
+            Assert.Equal(UInt160.Zero, hashParam.Value);
+
+            var intParam = Assert.IsType<ContractParameter>(parameters[1]);
+            Assert.Equal(ContractParameterType.Integer, intParam.Type);
+            Assert.Equal(new BigInteger(5), (BigInteger)intParam.Value);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir))
+            {
+                Directory.Delete(tempDir, true);
+            }
+        }
+    }
+
+    [Fact]
     public async Task DeployAsync_WithUnsupportedExtension_ShouldThrow()
     {
         // Arrange
@@ -401,10 +462,9 @@ public class DeploymentToolkitTests : TestBase
             })
         };
 
-        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
-        {
-            settings => new StubRpcClient(invokeResponses, settings)
-        });
+        var factory = CreateFactoryWithVersion(
+            NetworkProfile.TestNet.NetworkMagic ?? 894710606u,
+            settings => new StubRpcClient(invokeResponses, settings));
 
         var options = new DeploymentOptions { Network = NetworkProfile.TestNet };
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
@@ -500,10 +560,9 @@ public class DeploymentToolkitTests : TestBase
             ["getcontractstate"] = new Queue<JToken>(new[] { contractState.ToJson() })
         };
 
-        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
-        {
-            settings => new StubRpcClient(responses, settings)
-        });
+        var factory = CreateFactoryWithVersion(
+            NetworkProfile.TestNet.NetworkMagic ?? 894710606u,
+            settings => new StubRpcClient(responses, settings));
 
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
         var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
@@ -525,10 +584,9 @@ public class DeploymentToolkitTests : TestBase
             ["getcontractstate"] = _ => throw new InvalidOperationException("not found")
         };
 
-        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
-        {
-            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, handlers)
-        });
+        var factory = CreateFactoryWithVersion(
+            NetworkProfile.TestNet.NetworkMagic ?? 894710606u,
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, handlers));
 
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
         var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
@@ -540,9 +598,273 @@ public class DeploymentToolkitTests : TestBase
         Assert.False(exists);
     }
 
+    [Fact]
+    public async Task NetworkMagic_ShouldFallbackToKnownProfile_WhenRpcUnavailable()
+    {
+        // Arrange
+        var contractState = CreateDummyContractState("FallbackTest");
+        var responses = new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getcontractstate"] = new Queue<JToken>(new[] { contractState.ToJson() })
+        };
+
+        var failingHandlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getversion"] = _ => throw new InvalidOperationException("unavailable")
+        };
+
+        var successHandlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getversion"] = _ => CreateVersionResponse(NetworkProfile.TestNet.NetworkMagic ?? 894710606u)
+        };
+
+        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
+        {
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, failingHandlers),
+            settings => new StubRpcClient(responses, settings, successHandlers)
+        });
+
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
+
+        // Act
+        var exists = await toolkit.ContractExistsAsync(contractState.Hash.ToString());
+
+        // Assert
+        Assert.True(exists);
+        Assert.Equal(NetworkProfile.TestNet.NetworkMagic, toolkit.CurrentNetwork.NetworkMagic);
+    }
+
+    [Fact]
+    public async Task GetNetworkMagicAsync_ShouldThrottleRpcRetries()
+    {
+        var failingHandlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getversion"] = _ => throw new InvalidOperationException("RPC unavailable")
+        };
+
+        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
+        {
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, failingHandlers)
+        });
+
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
+
+        var intervalProp = typeof(DeploymentToolkit).GetProperty("NetworkMagicRetryInterval", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        var originalInterval = (TimeSpan)intervalProp!.GetValue(null)!;
+
+        try
+        {
+            intervalProp.SetValue(null, TimeSpan.FromSeconds(30));
+
+            var first = await InvokeNetworkMagicAsync(toolkit);
+            Assert.Equal<uint>(NetworkProfile.TestNet.NetworkMagic ?? 894710606, first);
+
+            var second = await InvokeNetworkMagicAsync(toolkit);
+            Assert.Equal(first, second);
+        }
+        finally
+        {
+            intervalProp.SetValue(null, originalInterval);
+        }
+    }
+
+    [Fact]
+    public async Task GetNetworkMagicAsync_ShouldRetryRpcAfterCooldown()
+    {
+        var failingHandlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getversion"] = _ => throw new InvalidOperationException("down")
+        };
+
+        var successMagic = 0x1234ABCDu;
+        var successHandlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getversion"] = _ => CreateVersionResponse(successMagic)
+        };
+
+        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
+        {
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, failingHandlers),
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, successHandlers)
+        });
+
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
+
+        var intervalProp = typeof(DeploymentToolkit).GetProperty("NetworkMagicRetryInterval", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        var originalInterval = (TimeSpan)intervalProp!.GetValue(null)!;
+
+        try
+        {
+            intervalProp.SetValue(null, TimeSpan.FromMilliseconds(50));
+
+            var first = await InvokeNetworkMagicAsync(toolkit);
+            Assert.Equal<uint>(NetworkProfile.TestNet.NetworkMagic ?? 894710606, first);
+
+            await Task.Delay((TimeSpan)intervalProp.GetValue(null)! + TimeSpan.FromMilliseconds(25));
+
+            var second = await InvokeNetworkMagicAsync(toolkit);
+            Assert.Equal<uint>(successMagic, second);
+            Assert.Equal<uint?>(successMagic, toolkit.CurrentNetwork.NetworkMagic);
+        }
+        finally
+        {
+            intervalProp.SetValue(null, originalInterval);
+        }
+    }
+
+    [Fact]
+    public async Task DeployArtifactsAsync_ShouldUseProvidedSignersAndTransactionSigner()
+    {
+        // Arrange
+        var artifact = CreateDummyArtifact("SignerUsage");
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+        var nefPath = Path.Combine(tempDir, "SignerUsage.nef");
+        var manifestPath = Path.Combine(tempDir, "SignerUsage.manifest.json");
+
+        using (var ms = new MemoryStream())
+        using (var writer = new BinaryWriter(ms, Encoding.UTF8, leaveOpen: true))
+        {
+            artifact.Nef.Serialize(writer);
+            writer.Flush();
+            File.WriteAllBytes(nefPath, ms.ToArray());
+        }
+
+        File.WriteAllText(manifestPath, artifact.Manifest.ToJson().ToString());
+
+        var options = new DeploymentOptions
+        {
+            WaitForConfirmation = false
+        };
+
+
+        var rpcHandlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getversion"] = _ => CreateVersionResponse(NetworkProfile.TestNet.NetworkMagic ?? 894710606u),
+            ["sendrawtransaction"] = _ => new JObject { ["hash"] = new JString(UInt256.Zero.ToString()) },
+            ["calculatenetworkfee"] = _ => new JObject { ["networkfee"] = new JNumber(0) }
+        };
+
+        var versionHandlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getversion"] = _ => CreateVersionResponse(NetworkProfile.TestNet.NetworkMagic ?? 894710606u)
+        };
+
+        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
+        {
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, versionHandlers),
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, rpcHandlers)
+        });
+
+        var toolkit = new RecordingDeploymentToolkit(options, factory);
+
+        var signerAccount = UInt160.Parse("0x0123456789abcdef0123456789abcdef01234567");
+        var signer = new Signer { Account = signerAccount, Scopes = WitnessScope.CalledByEntry };
+        var signerInvoked = false;
+
+        try
+        {
+            var result = await toolkit.DeployArtifactsAsync(
+                nefPath,
+                manifestPath,
+                initParams: null,
+                waitForConfirmation: false,
+                confirmationRetries: null,
+                confirmationDelaySeconds: null,
+                cancellationToken: CancellationToken.None,
+                signers: new[] { signer },
+                transactionSignerAsync: (tm, ct) =>
+                {
+                    signerInvoked = true;
+                    return Task.FromResult(new Transaction
+                    {
+                        Script = tm.Tx.Script,
+                        Signers = tm.Tx.Signers,
+                        Attributes = Array.Empty<TransactionAttribute>(),
+                        Witnesses = Array.Empty<Witness>()
+                    });
+                });
+
+            Assert.NotNull(result.TransactionHash);
+            Assert.NotNull(result.ContractHash);
+            Assert.True(signerInvoked);
+            Assert.NotNull(toolkit.ObservedSigners);
+            Assert.Single(toolkit.ObservedSigners!);
+            Assert.Equal(signerAccount, toolkit.ObservedSigners![0].Account);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public async Task DeployFromManifestAsync_ShouldThrowOnDuplicateContractKeys()
+    {
+        // Arrange
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            var nef1 = Path.Combine(tempDir, "Dup.nef");
+            var manifest1 = Path.Combine(tempDir, "Dup.manifest.json");
+            File.WriteAllText(nef1, string.Empty);
+            File.WriteAllText(manifest1, "{}");
+
+            var nef2 = Path.Combine(tempDir, "Dup2.nef");
+            var manifest2 = Path.Combine(tempDir, "Dup2.manifest.json");
+            File.WriteAllText(nef2, string.Empty);
+            File.WriteAllText(manifest2, "{}");
+
+            var manifestPath = Path.Combine(tempDir, "deployment.json");
+            var manifestContent = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                wif = ValidWif,
+                contracts = new object?[]
+                {
+                    new { name = "Duplicate", nef = Path.GetFileName(nef1), manifest = Path.GetFileName(manifest1) },
+                    new { name = "Duplicate", nef = Path.GetFileName(nef2), manifest = Path.GetFileName(manifest2) }
+                }
+            });
+            File.WriteAllText(manifestPath, manifestContent);
+
+            var toolkit = new TestDeploymentToolkit();
+            toolkit.SetWifKey(ValidWif);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => toolkit.DeployFromManifestAsync(manifestPath));
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
+
     #endregion
 
     #region Network Magic Tests
+
+    [Fact]
+    public async Task GetProtocolSettingsAsync_WithExplicitNetworkMagic_ShouldPreserveProfileValue()
+    {
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var profile = new NetworkProfile("custom", "http://localhost:50012", 123u, 0x42);
+        var options = new DeploymentOptions { Network = profile };
+
+        using var toolkit = new DeploymentToolkit(config, options, new NoopRpcClientFactory());
+        var method = typeof(DeploymentToolkit).GetMethod("GetProtocolSettingsAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("GetProtocolSettingsAsync not found.");
+
+        var task = (Task<ProtocolSettings>)method.Invoke(toolkit, Array.Empty<object>())!;
+        var settings = await task;
+
+        Assert.Equal(123u, settings.Network);
+        Assert.Equal(0x42, settings.AddressVersion);
+    }
 
     [Fact]
     public async Task CallAsync_ShouldRetrieveNetworkMagicFromRpc_WhenNotConfigured()
@@ -722,6 +1044,40 @@ namespace TestContract
         return contractPath;
     }
 
+    private sealed class RecordingDeploymentToolkit : DeploymentToolkit
+    {
+        public RecordingDeploymentToolkit(DeploymentOptions options, IRpcClientFactory factory)
+            : base(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build(), options, factory)
+        {
+        }
+
+        public Signer[]? ObservedSigners { get; private set; }
+
+        protected override Task<TransactionManager> CreateTransactionManagerAsync(RpcClient rpcClient, ReadOnlyMemory<byte> script, Signer[] signers, CancellationToken cancellationToken)
+        {
+            ObservedSigners = signers.ToArray();
+
+            var tx = new Transaction
+            {
+                Version = 0,
+                Signers = signers,
+                Script = script.ToArray(),
+                Attributes = Array.Empty<TransactionAttribute>(),
+                Witnesses = Array.Empty<Witness>()
+            };
+
+            return Task.FromResult<TransactionManager>(new FakeTransactionManager(tx, rpcClient));
+        }
+    }
+
+    private sealed class FakeTransactionManager : TransactionManager
+    {
+        public FakeTransactionManager(Transaction tx, RpcClient rpcClient)
+            : base(tx, rpcClient)
+        {
+        }
+    }
+
     private sealed class TestDeploymentToolkit : DeploymentToolkit
     {
         public List<DeploymentCall> Calls { get; } = new();
@@ -742,7 +1098,9 @@ namespace TestContract
                 request.WaitForConfirmation,
                 request.ConfirmationRetries,
                 request.ConfirmationDelaySeconds,
-                cancellationToken);
+                cancellationToken,
+                request.Signers,
+                request.TransactionSignerAsync);
         }
 
         protected override Task<IReadOnlyList<CompiledContractArtifact>> CompileContractsAsync(string path, CompilationOptions compilationOptions, string? targetContractName, CancellationToken cancellationToken)
@@ -755,7 +1113,7 @@ namespace TestContract
             return Task.FromResult(CompileArtifacts);
         }
 
-        public override Task<ContractDeploymentInfo> DeployArtifactsAsync(string nefPath, string manifestPath, object?[]? initParams = null, bool? waitForConfirmation = null, int? confirmationRetries = null, int? confirmationDelaySeconds = null, CancellationToken cancellationToken = default)
+        public override Task<ContractDeploymentInfo> DeployArtifactsAsync(string nefPath, string manifestPath, object?[]? initParams = null, bool? waitForConfirmation = null, int? confirmationRetries = null, int? confirmationDelaySeconds = null, CancellationToken cancellationToken = default, IReadOnlyList<Signer>? signers = null, Func<TransactionManager, CancellationToken, Task<Transaction>>? transactionSignerAsync = null)
         {
             Calls.Add(new DeploymentCall(
                 Path.GetFullPath(nefPath),
@@ -763,7 +1121,9 @@ namespace TestContract
                 initParams,
                 waitForConfirmation,
                 confirmationRetries,
-                confirmationDelaySeconds));
+                confirmationDelaySeconds,
+                signers,
+                transactionSignerAsync));
 
             return Task.FromResult(new ContractDeploymentInfo
             {
@@ -785,7 +1145,9 @@ namespace TestContract
         object?[]? Parameters,
         bool? WaitForConfirmation,
         int? ConfirmationRetries,
-        int? ConfirmationDelaySeconds);
+        int? ConfirmationDelaySeconds,
+        IReadOnlyList<Signer>? Signers,
+        Func<TransactionManager, CancellationToken, Task<Transaction>>? TransactionSignerAsync);
 
     private static DeploymentToolkit.CompiledContractArtifact CreateDummyArtifact(string name)
     {
@@ -851,6 +1213,52 @@ namespace TestContract
             Stack = stackItems
         };
         return result.ToJson();
+    }
+
+    private static QueueRpcClientFactory CreateFactoryWithVersion(uint networkMagic, params Func<ProtocolSettings, RpcClient>[] clients)
+    {
+        var creators = new List<Func<ProtocolSettings, RpcClient>>
+        {
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["getversion"] = new Queue<JToken>(new[] { CreateVersionResponse(networkMagic) })
+            }, settings)
+        };
+        creators.AddRange(clients);
+        return new QueueRpcClientFactory(creators);
+    }
+
+    private static JToken CreateVersionResponse(uint networkMagic)
+    {
+        var version = new RpcVersion
+        {
+            TcpPort = 20332,
+            Nonce = 1,
+            UserAgent = "/Neo:unit-test/",
+            Protocol = new RpcVersion.RpcProtocol
+            {
+                Network = networkMagic,
+                ValidatorsCount = 7,
+                MillisecondsPerBlock = 15000,
+                MaxValidUntilBlockIncrement = 86400000,
+                MaxTraceableBlocks = 100000,
+                AddressVersion = 0x35,
+                MaxTransactionsPerBlock = 512,
+                MemoryPoolMaxTransactions = 5000,
+                InitialGasDistribution = 5200000000000000,
+                Hardforks = new Dictionary<Hardfork, uint>(),
+                SeedList = Array.Empty<string>(),
+                StandbyCommittee = Array.Empty<ECPoint>()
+            }
+        };
+        return version.ToJson();
+    }
+
+    private static async Task<uint> InvokeNetworkMagicAsync(DeploymentToolkit toolkit)
+    {
+        var method = typeof(DeploymentToolkit).GetMethod("GetNetworkMagicAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("GetNetworkMagicAsync not found.");
+        return await ((Task<uint>)method.Invoke(toolkit, Array.Empty<object>())!).ConfigureAwait(false);
     }
 
     private sealed class QueueRpcClientFactory : IRpcClientFactory
