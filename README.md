@@ -323,7 +323,7 @@ Each example comes with corresponding unit tests that demonstrate how to properl
 
 ## Contract Deployment
 
-This PR implements deployment from compiled artifacts (`.nef` + manifest) and basic RPC interactions (call, invoke, GAS balance, contract existence). Deploying from source projects (compilation) and multi-contract manifest deployment will arrive in future iterations.
+This package supports deploying compiled artifacts (`.nef` + manifest), compiling and deploying from source projects, orchestrating multi-contract deployments via manifests, and basic RPC interactions (call, invoke, GAS balance, contract existence).
 
 The `Neo.SmartContract.Deploy` package provides a streamlined way to deploy contracts to the NEO blockchain using compiled artifacts.
 
@@ -376,7 +376,28 @@ var request = new DeploymentArtifactsRequest("MyContract.nef", "MyContract.manif
     .WithConfirmationPolicy(waitForConfirmation: true, retries: 20, delaySeconds: 2);
 
 await deployment.DeployArtifactsAsync(request, cancellationToken);
+
+var customSignerOptions = new DeploymentOptions
+{
+    SignerProvider = _ => new[]
+    {
+        new Signer
+        {
+            Account = UInt160.Parse("0x0123456789abcdef0123456789abcdef01234567"),
+            Scopes = WitnessScope.CalledByEntry
+        }
+    },
+    TransactionSignerAsync = (manager, ct) =>
+    {
+        // Attach additional witnesses or delegate to an external signer.
+        return manager.SignAsync();
+    }
+};
+
+var customSignerToolkit = new DeploymentToolkit(options: customSignerOptions);
 ```
+
+> **Note:** Smart-contract parameters must be serialisable to Neo stack items. When providing initialization arguments (directly or via JSON manifests), numeric values must be whole numbers. Encode fractional values as strings or scaled integers if required.
 
 ### Source Deployment
 
@@ -404,7 +425,7 @@ You can orchestrate multiple deployments via a JSON manifest:
       "name": "Token",
       "nef": "artifacts/Token.nef",
       "manifest": "artifacts/Token.manifest.json",
-      "initParams": ["admin", 1_000_000]
+      "initParams": ["admin", 1000000]
     },
     {
       "name": "Treasury",

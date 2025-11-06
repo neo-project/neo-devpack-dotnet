@@ -22,7 +22,7 @@ namespace Neo.SmartContract.Framework.TestContracts
     [ContractVersion("<Version String Here>")]
     [ContractPermission(Permission.Any, Method.Any)]
     [SupportedStandards(NepStandard.Nep26)]
-    public class Contract_SupportedStandard26 : SmartContract, INEP26
+    public class Contract_SupportedStandard26 : SmartContract, INEP26, Neo.SmartContract.Framework.Interfaces.INEP30
     {
         public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null)
         {
