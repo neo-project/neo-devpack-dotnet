@@ -17,10 +17,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Neo.VM" Version="3.9.0-CI00344" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
 		<ProjectReference Include="..\..\neo\src\Neo.IO\Neo.IO.csproj" />
 		<ProjectReference Include="..\..\neo\src\Neo.Json\Neo.Json.csproj" />
