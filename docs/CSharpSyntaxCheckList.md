@@ -30,5 +30,6 @@ To add new syntax coverage:
 
 1. Append a new section to the relevant version file following the established format.
 2. Update `docs/csharp-syntax/UnsupportedFeatures.md` so every unsupported entry remains listed.
-3. Run `dotnet test tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj --filter "ClassName=Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests"` to verify the probe results.
+3. Run the probe suite via\
+   `dotnet test tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj --filter "ClassName=Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests"`.
 4. Update the release notes or documentation as needed.
