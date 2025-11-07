@@ -22,8 +22,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using BigInteger = System.Numerics.BigInteger;
@@ -40,7 +40,7 @@ namespace Neo.Compiler
         private string? ProjectVersionPrefix;
         private string? ProjectVersionSuffix;
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
-        private readonly object tempProjectLock = new();
+        private readonly Lock tempProjectLock = new();
         private string? tempProjectDirectory;
         private string? tempProjectPath;
         private string? tempProjectNuGetConfig;
