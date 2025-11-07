@@ -20,7 +20,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
 internal static class Helper
 {
-    private static readonly object EngineLock = new();
+    private static readonly Lock EngineLock = new();
     private static readonly Lazy<CompilationEngine> SharedEngine = new(() => new CompilationEngine(new CompilationOptions()
     {
         Debug = CompilationOptions.DebugType.Extended,
