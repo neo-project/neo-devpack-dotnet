@@ -10,11 +10,11 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler;
 using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
