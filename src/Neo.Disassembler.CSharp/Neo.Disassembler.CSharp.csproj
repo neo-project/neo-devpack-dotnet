@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Title>Neo.Disassembler.CSharp</Title>
         <LangVersion>latest</LangVersion>
         <AssemblyTitle>Neo.Disassembler.CSharp</AssemblyTitle>
@@ -17,11 +17,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo.IO\Neo.IO.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo.Json\Neo.Json.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo.VM\Neo.VM.csproj" />
-      <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+        <ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
+        <ProjectReference Include="..\..\neo\src\Neo.IO\Neo.IO.csproj" />
+        <ProjectReference Include="..\..\neo\src\Neo.Json\Neo.Json.csproj" />
+        <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
     </ItemGroup>
 
 </Project>
