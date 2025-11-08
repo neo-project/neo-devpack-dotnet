@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest);
-            Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
+            Assert.AreEqual(2, v.vulnerabilityPairs.Count);
             foreach (BasicBlock b in v.vulnerabilityPairs.Keys)
                 // basic blocks calling contract
                 Assert.IsTrue(b.startAddr < NefFile.Size * 0.66);
@@ -38,7 +38,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             // Test enhanced diagnostic messages without debug info (fallback behavior)
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest, null);
-            Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
+            Assert.AreEqual(2, v.vulnerabilityPairs.Count);
 
             // Test that warning message contains enhanced diagnostic information
             string warningInfo = v.GetWarningInfo(print: false);

@@ -4,6 +4,5 @@ namespace Neo.Compiler.LIR;
 
 internal sealed partial class LirModule
 {
-    internal sealed record LirCompilation(VFunction ValueFunction, LirFunction StackFunction, NeoEmitter.EmitResult EmitResult);
+    internal sealed record LirCompilation(VFunction ValueFunction, LirFunction StackFunction, NeoEmitter.IntermediateResult Intermediate);
 }
-

@@ -11,6 +11,7 @@ namespace Neo.Compiler.LIR;
 internal sealed partial class LirModule
 {
     private readonly Dictionary<string, LirCompilation> _compilations = new(StringComparer.Ordinal);
+    private readonly List<string> _order = new();
     private readonly object _sync = new();
 
     internal IReadOnlyDictionary<string, LirCompilation> Compilations => _compilations;
@@ -24,6 +25,8 @@ internal sealed partial class LirModule
 
         lock (_sync)
         {
+            if (!_compilations.ContainsKey(functionName))
+                _order.Add(functionName);
             _compilations[functionName] = compilation;
         }
     }
@@ -36,6 +39,18 @@ internal sealed partial class LirModule
         lock (_sync)
         {
             return _compilations.TryGetValue(functionName, out compilation!);
+        }
+    }
+
+    internal IEnumerable<(string Name, LirCompilation Compilation)> Enumerate()
+    {
+        lock (_sync)
+        {
+            foreach (var name in _order)
+            {
+                if (_compilations.TryGetValue(name, out var compilation))
+                    yield return (name, compilation);
+            }
         }
     }
 }

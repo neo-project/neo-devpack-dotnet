@@ -42,7 +42,10 @@ internal sealed class MirFunction
         Source = source ?? throw new ArgumentNullException(nameof(source));
         Name = source.Name;
         Blocks.Clear();
-        Entry = new MirBlock(source.Entry.Label);
+        var entryLabel = source.Entry.Label;
+        if (!string.IsNullOrEmpty(Name))
+            entryLabel = Name;
+        Entry = new MirBlock(entryLabel);
         EntryTokenSeed = new MirTokenSeed();
         Entry.Append(EntryTokenSeed);
         EntryToken = EntryTokenSeed.Token;

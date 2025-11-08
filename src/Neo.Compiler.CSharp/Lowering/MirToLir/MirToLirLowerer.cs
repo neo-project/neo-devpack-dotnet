@@ -78,16 +78,8 @@ internal sealed class MirToLirLowerer
             throw new InvalidOperationException($"LIR verification failed for '{mirFunction.Name}':{Environment.NewLine}{message}");
         }
 
-        NeoEmitter.EmitResult emitResult;
-        try
-        {
-            emitResult = _emitter.Emit(schedulingResult.Function, schedulingResult.MaxStack);
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("Unknown label", StringComparison.Ordinal))
-        {
-            emitResult = new NeoEmitter.EmitResult(Array.Empty<byte>(), new Dictionary<int, NeoEmitter.SourceMapEntry>(), schedulingResult.MaxStack);
-        }
-        var compilation = new LirModule.LirCompilation(valueFunction, schedulingResult.Function, emitResult);
+        var intermediate = _emitter.EmitIntermediate(schedulingResult.Function, schedulingResult.MaxStack);
+        var compilation = new LirModule.LirCompilation(valueFunction, schedulingResult.Function, intermediate);
         module.Store(mirFunction.Name, compilation);
         return compilation;
     }

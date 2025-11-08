@@ -28,7 +28,7 @@ public class ManifestAttributeTest
     {
         var extra = Contract_ManifestAttribute.Manifest!.Extra;
 
-        Assert.AreEqual(6, extra.Count);
+        Assert.AreEqual(7, extra.Count);
         // ["nef"]["optimizations"]
         // [Author("core-dev")]
         // [Email("dev@neo.org")]
@@ -40,5 +40,6 @@ public class ManifestAttributeTest
         Assert.AreEqual("v3.6.3", extra["Version"]!.GetString());
         Assert.AreEqual("This is a test contract.", extra["Description"]!.GetString());
         Assert.AreEqual("ExtraValue", extra["ExtraKey"]!.GetString());
+        Assert.IsTrue(extra.ContainsProperty("reentrancyGuards"), "reentrancy guards section should be present in manifest extras.");
     }
 }

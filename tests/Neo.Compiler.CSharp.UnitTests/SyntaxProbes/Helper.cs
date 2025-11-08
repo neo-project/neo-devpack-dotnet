@@ -19,13 +19,17 @@ internal static class Helper
 {
     internal static void TestCodeBlock(string codeBlock)
     {
-        var result = new CompilationEngine(new CompilationOptions()
+        var options = new CompilationOptions()
         {
             Debug = CompilationOptions.DebugType.Extended,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
-            Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-        }).CompileFromCodeBlock(codeBlock).First();
+            Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable,
+            EnableHir = true
+        };
+
+        var result = new CompilationEngine(options).CompileFromCodeBlock(codeBlock).First();
+
         if (result.Success) return;
 
         result.Diagnostics.ForEach(Console.WriteLine);

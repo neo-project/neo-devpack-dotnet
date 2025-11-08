@@ -25,8 +25,13 @@ public class TestContract : SmartContract
 
             try
             {
-                var compilation = new CompilationEngine(new CompilationOptions()).CompileProject(projectFile);
+                var compilation = new CompilationEngine(new CompilationOptions { EnableHir = true }).CompileProject(projectFile);
                 Assert.AreEqual(1, compilation.Count);
+                Assert.IsNotNull(compilation[0].HirModule, "HIR module should be produced in tests.");
+                Assert.IsNotNull(compilation[0].MirModule, "MIR module should be produced in tests.");
+                var nef = compilation[0].CreateExecutable();
+                Assert.IsNotNull(nef, "NEF file should be generated when using the HIR pipeline.");
+                Assert.IsTrue(nef.Script.Length > 0, "Generated script should not be empty.");
 
                 ContractManifest manifest = compilation[0].CreateManifest();
                 Assert.IsNotNull(manifest.Extra);
@@ -59,8 +64,13 @@ public class TestContract : SmartContract
 
             try
             {
-                var compilation = new CompilationEngine(new CompilationOptions()).CompileProject(projectFile);
+                var compilation = new CompilationEngine(new CompilationOptions { EnableHir = true }).CompileProject(projectFile);
                 Assert.AreEqual(1, compilation.Count);
+                Assert.IsNotNull(compilation[0].HirModule, "HIR module should be produced in tests.");
+                Assert.IsNotNull(compilation[0].MirModule, "MIR module should be produced in tests.");
+                var nef = compilation[0].CreateExecutable();
+                Assert.IsNotNull(nef, "NEF file should be generated when using the HIR pipeline.");
+                Assert.IsTrue(nef.Script.Length > 0, "Generated script should not be empty.");
 
                 ContractManifest manifest = compilation[0].CreateManifest();
                 Assert.IsNotNull(manifest.Extra);
@@ -93,8 +103,13 @@ public class TestContract : SmartContract
 
             try
             {
-                var compilation = new CompilationEngine(new CompilationOptions()).CompileProject(projectFile);
+                var compilation = new CompilationEngine(new CompilationOptions { EnableHir = true }).CompileProject(projectFile);
                 Assert.AreEqual(1, compilation.Count);
+                Assert.IsNotNull(compilation[0].HirModule, "HIR module should be produced in tests.");
+                Assert.IsNotNull(compilation[0].MirModule, "MIR module should be produced in tests.");
+                var nef = compilation[0].CreateExecutable();
+                Assert.IsNotNull(nef, "NEF file should be generated when using the HIR pipeline.");
+                Assert.IsTrue(nef.Script.Length > 0, "Generated script should not be empty.");
 
                 ContractManifest manifest = compilation[0].CreateManifest();
                 Assert.IsNotNull(manifest.Extra);
@@ -127,8 +142,13 @@ public class TestContract : SmartContract
 
             try
             {
-                var compilation = new CompilationEngine(new CompilationOptions()).CompileProject(projectFile);
+                var compilation = new CompilationEngine(new CompilationOptions { EnableHir = true }).CompileProject(projectFile);
                 Assert.AreEqual(1, compilation.Count);
+                Assert.IsNotNull(compilation[0].HirModule, "HIR module should be produced in tests.");
+                Assert.IsNotNull(compilation[0].MirModule, "MIR module should be produced in tests.");
+                var nef = compilation[0].CreateExecutable();
+                Assert.IsNotNull(nef, "NEF file should be generated when using the HIR pipeline.");
+                Assert.IsTrue(nef.Script.Length > 0, "Generated script should not be empty.");
 
                 ContractManifest manifest = compilation[0].CreateManifest();
                 Assert.IsNotNull(manifest.Extra);
@@ -174,8 +194,13 @@ public class TestContract : SmartContract
                 // Create project file without version info
                 string projectFile = CreateTempProject(contractCode, projectDir: projectDir);
 
-                var compilation = new CompilationEngine(new CompilationOptions()).CompileProject(projectFile);
+                var compilation = new CompilationEngine(new CompilationOptions { EnableHir = true }).CompileProject(projectFile);
                 Assert.AreEqual(1, compilation.Count);
+                Assert.IsNotNull(compilation[0].HirModule, "HIR module should be produced in tests.");
+                Assert.IsNotNull(compilation[0].MirModule, "MIR module should be produced in tests.");
+                var nef = compilation[0].CreateExecutable();
+                Assert.IsNotNull(nef, "NEF file should be generated when using the HIR pipeline.");
+                Assert.IsTrue(nef.Script.Length > 0, "Generated script should not be empty.");
 
                 ContractManifest manifest = compilation[0].CreateManifest();
                 Assert.IsNotNull(manifest.Extra);

@@ -40,7 +40,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Debug = CompilationOptions.DebugType.Extended,
             CompilerVersion = "TestingEngine",
             Optimize = CompilationOptions.OptimizationType.All,
-            Nullable = NullableContextOptions.Enable
+            Nullable = NullableContextOptions.Enable,
+            EnableHir = true
         }));
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -106,12 +107,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                     Console.Error.WriteLine($"- {line}");
                 }
             }
+
         }
 
         internal static CompilationContext EnsureArtifactUpToDateInternal(string singleContractName)
         {
-            var result = _compilationEngine.Value.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName).FirstOrDefault()
-                ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
+            var result = CompileWithOptions(_compilationEngine.Value, singleContractName);
 
             if (result.ContractName != "Contract_DuplicateNames" && !result.Success)
             {
@@ -131,6 +132,11 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             return result;
         }
+
+        private static CompilationContext CompileWithOptions(CompilationEngine engine, string singleContractName)
+            => engine.CompileProject(TestContractsPath, _sortedClasses, _classDependencies, _allClassSymbols, singleContractName)
+               .FirstOrDefault()
+               ?? throw new InvalidOperationException($"No compilation result found for {singleContractName}");
 
         private static async Task<NeoDebugInfo?> CreateArtifactAsync(string typeName, CompilationContext context, string rootDebug, string artifactsPath)
         {

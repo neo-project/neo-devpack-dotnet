@@ -12,3 +12,5 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Neo.Compiler.CSharp.UnitTests")]
+[assembly: InternalsVisibleTo("Neo.Compiler.CSharp.IRTests")]
+[assembly: InternalsVisibleTo("Neo.Compiler.CSharp.MirHarness")]

@@ -105,6 +105,10 @@ internal sealed class InstructionSelector
                 EmitValue(constBuffer, new VConstBuffer(constBuffer.Value), target);
                 break;
 
+            case MirConstNull constNull:
+                EmitValue(constNull, new VConstNull(), target);
+                break;
+
             case MirArg arg:
                 EmitValue(arg, new VParam(arg.Index, MapType(arg.Type)), target);
                 break;
@@ -399,6 +403,11 @@ internal sealed class InstructionSelector
 
             case MirConstBuffer constBuffer:
                 node = new VConstBuffer(constBuffer.Value) { Span = constBuffer.Span };
+                _valueCache[value] = node;
+                return node;
+
+            case MirConstNull constNull:
+                node = new VConstNull { Span = constNull.Span };
                 _valueCache[value] = node;
                 return node;
         }

@@ -628,7 +628,7 @@ internal sealed partial class MirVerifier
     }
 
     private static bool IsConstant(MirValue value)
-        => value is MirConstInt or MirConstBool or MirConstByteString or MirConstBuffer;
+        => value is MirConstInt or MirConstBool or MirConstByteString or MirConstBuffer or MirConstNull;
 
     private static IEnumerable<MirValue> EnumerateOperands(MirInst inst)
     {

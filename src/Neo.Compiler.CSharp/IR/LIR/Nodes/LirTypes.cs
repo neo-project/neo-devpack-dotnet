@@ -13,4 +13,5 @@ internal abstract record LirType
     internal static readonly LirIntType TInt = new();
     internal static readonly LirByteStringType TByteString = new();
     internal static readonly LirBufferType TBuffer = new();
+    internal static readonly LirAnyType TAny = new();
 }

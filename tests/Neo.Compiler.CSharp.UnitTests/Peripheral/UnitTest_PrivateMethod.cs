@@ -10,6 +10,8 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler;
+using Neo.Compiler.CSharp.UnitTests.TestInfrastructure;
 using Neo.SmartContract.Testing;
 using System.IO;
 using System.Numerics;
@@ -29,14 +31,12 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
             // Compile without optimizations
 
             var testContractsPath = new FileInfo("../../../../Neo.Compiler.CSharp.TestContracts/Contract1.cs").FullName;
-            var results = new CompilationEngine(new CompilationOptions()
+            var results = CompilationTestHelper.CompileSource(testContractsPath, options =>
             {
-                Debug = CompilationOptions.DebugType.Extended,
-                CompilerVersion = "TestingEngine",
-                Optimize = CompilationOptions.OptimizationType.None,
-                Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
-            })
-            .CompileSources(testContractsPath);
+                options.Debug = CompilationOptions.DebugType.Extended;
+                options.CompilerVersion = "TestingEngine";
+                options.Optimize = CompilationOptions.OptimizationType.None;
+            });
 
             Assert.AreEqual(1, results.Count);
             Assert.IsTrue(results[0].Success);
