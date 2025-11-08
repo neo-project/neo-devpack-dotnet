@@ -166,3 +166,116 @@ unsafe
     *ptr = 10;
 }
 ```
+
+### string_methods - String helper methods
+
+Status: supported
+Scope: method
+Notes: Common `string` APIs such as indexing, substring, and replacement work as expected.
+```csharp
+string phrase = "neo compiler";
+int spaceIndex = phrase.IndexOf(' ');
+string prefix = phrase.Substring(0, spaceIndex);
+string suffix = phrase.Substring(spaceIndex + 1);
+string combined = prefix + "_" + suffix;
+int totalLength = combined.Length + prefix.IndexOf("neo");
+```
+
+### stringbuilder_methods - StringBuilder helpers
+
+Status: unsupported
+Scope: method
+Notes: `System.Text.StringBuilder` is trimmed from the Neo runtime, so append helpers are rejected.
+```csharp
+var builder = new System.Text.StringBuilder();
+builder.Append("neo");
+builder.Append(' ');
+builder.AppendLine("compiler");
+string result = builder.ToString();
+int length = builder.Length;
+```
+
+### biginteger_methods - BigInteger arithmetic helpers
+
+Status: supported
+Scope: method
+Notes: `System.Numerics.BigInteger` provides arithmetic and conversion helpers that compile successfully.
+```csharp
+var balance = new System.Numerics.BigInteger(1_000);
+balance += System.Numerics.BigInteger.Pow(2, 5);
+byte[] serialized = balance.ToByteArray();
+bool fits = balance < System.Numerics.BigInteger.Pow(2, 16);
+```
+
+### math_methods - Math library helpers
+
+Status: supported
+Scope: method
+Notes: `System.Math` intrinsic helpers compile and can be combined in expressions.
+```csharp
+int value = -42;
+int absolute = System.Math.Abs(value);
+int squared = absolute * absolute;
+int clamped = System.Math.Clamp(squared, 0, 10_000);
+int max = System.Math.Max(clamped, 100);
+```
+
+### numerics_bit_operations - BitOperations helpers
+
+Status: unsupported
+Scope: method
+Notes: `System.Numerics.BitOperations` helpers are trimmed from the runtime, so bit counting methods are rejected.
+```csharp
+uint value = 0b_0011_0000u;
+int leadingZeros = System.Numerics.BitOperations.LeadingZeroCount(value);
+int trailingZeros = System.Numerics.BitOperations.TrailingZeroCount(value);
+int popCount = System.Numerics.BitOperations.PopCount(value);
+bool hasSingleBit = System.Numerics.BitOperations.IsPow2(32);
+```
+
+### char_methods - Char helper methods
+
+Status: supported
+Scope: method
+Notes: `char` classification and casing helpers compile and behave like desktop C#.
+```csharp
+char symbol = 'n';
+bool isLetter = char.IsLetter(symbol);
+bool isUpper = char.IsUpper(symbol);
+char upper = char.ToUpper(symbol);
+bool equalsIgnoreCase = char.ToUpper(symbol) == char.ToUpper('N');
+```
+
+### datetime_methods - DateTime helpers
+
+Status: unsupported
+Scope: method
+Notes: Date and time helpers that rely on `double` parameters (such as `AddDays`/`AddHours`) are not part of the supported surface area.
+```csharp
+var created = new System.DateTime(2024, 1, 1, 0, 0, 0, System.DateTimeKind.Utc);
+var expires = created.AddDays(1);
+var ticks = created.Ticks;
+```
+
+### timespan_methods - TimeSpan helpers
+
+Status: unsupported
+Scope: method
+Notes: `System.TimeSpan` factory helpers are not available; the compiler reports missing methods for APIs like `FromMinutes`.
+```csharp
+var interval = System.TimeSpan.FromMinutes(90);
+var doubled = interval + interval;
+bool longDuration = doubled.TotalHours >= 3;
+```
+
+### convert_methods - Convert class helpers
+
+Status: unsupported
+Scope: method
+Notes: Most `System.Convert` helpers (including `ToInt32(string)` and hex helpers) are trimmed from the Neo runtime, so these APIs cannot be used.
+```csharp
+int number = System.Convert.ToInt32("42");
+byte[] bytes = System.Convert.FromHexString("0A0B0C");
+string hex = System.Convert.ToHexString(bytes);
+bool boolean = System.Convert.ToBoolean(1);
+```
