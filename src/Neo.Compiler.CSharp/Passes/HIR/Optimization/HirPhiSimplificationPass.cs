@@ -18,7 +18,7 @@ internal sealed class HirPhiSimplificationPass : IHirPass
             var phis = block.Phis.ToArray();
             foreach (var phi in phis)
             {
-                if (phi.Inputs.Count == 0)
+                if (phi.Inputs.Count == 0 || phi.IsLocalPhi)
                     continue;
 
                 var referenceValue = phi.Inputs[0].Value;

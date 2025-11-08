@@ -18,6 +18,8 @@ internal sealed class MirPhi : MirInst
 
     internal IReadOnlyList<(MirBlock Block, MirValue Value)> Inputs => _inputs;
     internal bool IsPinned { get; set; }
+    internal bool IsLocalPhi { get; set; }
+    internal HirLocal? Local { get; set; }
 
     internal void AddIncoming(MirBlock block, MirValue value)
     {

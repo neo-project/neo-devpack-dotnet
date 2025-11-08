@@ -65,6 +65,12 @@ internal sealed partial class HirMethodImporter
         if (_hirCurrentState is null)
             return;
 
+        if (!_hirLocals.ContainsKey(symbol))
+        {
+            var localType = MapType(symbol.Type);
+            _hirLocals[symbol] = new HirLocal(symbol.Name, localType);
+        }
+
         var prepared = _hirTryScopes.Count > 0 ? EnsureLocalisedValue(value) : value;
         _hirCurrentState.Assign(symbol, prepared);
     }
@@ -165,6 +171,11 @@ internal sealed partial class HirMethodImporter
             }
 
             var phi = new HirPhi(representative.Type);
+            if (symbol is ILocalSymbol localSymbol && _hirLocals.TryGetValue(localSymbol, out var hirLocal))
+            {
+                phi.IsLocalPhi = true;
+                phi.Local = hirLocal;
+            }
             foreach (var (block, value) in incoming)
             {
                 var materialised = MaterialiseValue(value);
@@ -173,10 +184,126 @@ internal sealed partial class HirMethodImporter
 
             builder.SetCurrentBlock(mergeBlock);
             builder.AppendPhi(phi);
+            if (!phi.IsLocalPhi)
+            {
+                if (s_dumpHirPhiDebug)
+                {
+                    Console.WriteLine($"[HIR-PHI] Merge block={mergeBlock.Label} symbol={symbol?.Name ?? "<null>"} initial local flag={phi.IsLocalPhi}");
+                }
+                TryPromoteLocalPhi(phi);
+            }
+            else if (s_dumpHirPhiDebug)
+            {
+                Console.WriteLine($"[HIR-PHI] Already local block={mergeBlock.Label} local={phi.Local?.Name}");
+            }
+            if (phi.IsLocalPhi && phi.Local is not null)
+                TrackLocalValue(phi.Local, phi);
             merged.Assign(symbol, phi);
         }
 
+        var localSet = new HashSet<HirLocal>(ReferenceEqualityComparer.Instance);
+        foreach (var local in baseline.LocalSymbols)
+            localSet.Add(local);
+        foreach (var state in states)
+        {
+            foreach (var local in state.State.LocalSymbols)
+                localSet.Add(local);
+        }
+
+        foreach (var local in localSet)
+        {
+            var incoming = new List<(HirBlock Block, HirValue Value)>();
+            foreach (var state in states)
+            {
+                if (state.State.TryGetValue(local, out var value))
+                    incoming.Add((state.Block, value!));
+            }
+            if (s_dumpHirPhiDebug)
+                Console.WriteLine($"[HIR-PHI] Local candidate block={mergeBlock.Label} local={local.Name} incoming={incoming.Count}");
+
+            if (incoming.Count == 0)
+                continue;
+
+            bool allSame = true;
+            var representative = incoming[0].Value;
+            for (int i = 1; i < incoming.Count; i++)
+            {
+                if (!ReferenceEquals(representative, incoming[i].Value))
+                {
+                    allSame = false;
+                    break;
+                }
+            }
+
+            if (incoming.Count == 1 && allSame)
+            {
+                merged.Assign(local, MaterialiseValue(representative));
+                continue;
+            }
+
+            var phi = new HirPhi(local.Type)
+            {
+                IsLocalPhi = true,
+                Local = local
+            };
+            if (s_dumpHirPhiDebug)
+                Console.WriteLine($"[HIR-PHI] Creating local phi block={mergeBlock.Label} local={local.Name} incoming={incoming.Count}");
+            foreach (var (block, value) in incoming)
+            {
+                var materialised = MaterialiseValue(value);
+                phi.AddIncoming(block, materialised);
+            }
+
+            builder.SetCurrentBlock(mergeBlock);
+            builder.AppendPhi(phi);
+            TrackLocalValue(local, phi);
+            merged.Assign(local, phi);
+        }
+
         return merged;
+    }
+
+    private void TryPromoteLocalPhi(HirPhi phi)
+    {
+        if (s_dumpHirPhiDebug)
+        {
+            var details = string.Join(
+                ", ",
+                phi.Inputs.Select(input =>
+                {
+                    var hasLocal = _hirLocalValueMap.TryGetValue(input.Value, out var mapped)
+                        ? mapped.Name
+                        : "<none>";
+                    return $"{input.Value.GetType().Name}->{hasLocal}";
+                }));
+            Console.WriteLine($"[HIR-PHI] Inspect Block={_hirBuilder?.CurrentBlock?.Label ?? "<unknown>"} Inputs={details}");
+        }
+
+        HirLocal? candidate = null;
+        foreach (var (_, value) in phi.Inputs)
+        {
+            if (!_hirLocalValueMap.TryGetValue(value, out var local))
+            {
+                if (s_dumpHirPhiDebug)
+                    Console.WriteLine($"[HIR-PHI] Input {value.GetType().Name} has no local mapping.");
+                return;
+            }
+            if (candidate is null)
+            {
+                candidate = local;
+                continue;
+            }
+
+            if (!ReferenceEquals(candidate, local))
+                return;
+        }
+
+        if (candidate is null)
+            return;
+
+        phi.IsLocalPhi = true;
+        phi.Local = candidate;
+        _hirLocalValueMap[phi] = candidate;
     }
 
     private static int GetFieldIndex(HirStructType structType, string fieldName)
@@ -227,7 +354,7 @@ internal sealed partial class HirMethodImporter
                     var clone = new HirArrayGet(array, index, arrayGet.Type);
                     _hirBuilder.Append(clone);
                     var captured = CreateSyntheticLocal("arrget_capture", clone.Type);
-                    _hirBuilder.Append(new HirStoreLocal(captured, clone));
+                    AppendStoreLocal(new HirStoreLocal(captured, clone));
                     return LoadLocal(captured);
                 }
             case HirArrayNew arrayNew:
@@ -236,13 +363,13 @@ internal sealed partial class HirMethodImporter
                     var clone = new HirArrayNew(length, arrayNew.Type);
                     _hirBuilder.Append(clone);
                     var captured = CreateSyntheticLocal("arrnew_capture", clone.Type);
-                    _hirBuilder.Append(new HirStoreLocal(captured, clone));
+                    AppendStoreLocal(new HirStoreLocal(captured, clone));
                     return LoadLocal(captured);
                 }
         }
 
         var scopeCapture = CreateSyntheticLocal("scope_capture", value.Type);
-        _hirBuilder.Append(new HirStoreLocal(scopeCapture, value));
+        AppendStoreLocal(new HirStoreLocal(scopeCapture, value));
         return LoadLocal(scopeCapture);
     }
 
@@ -276,7 +403,7 @@ internal sealed partial class HirMethodImporter
             if (prepared is HirLoadLocal loadLocal && ReferenceEquals(loadLocal.Local, slot))
                 continue;
             var store = new HirStoreLocal(slot, prepared);
-            _hirBuilder.Append(store);
+            AppendStoreLocal(store);
         }
     }
 
@@ -321,7 +448,7 @@ internal sealed partial class HirMethodImporter
         {
             var temp = CreateSyntheticLocal("phi_capture", value.Type);
             var store = new HirStoreLocal(temp, value);
-            _hirBuilder.Append(store);
+            AppendStoreLocal(store);
             return LoadLocal(temp);
         }
 
@@ -546,7 +673,7 @@ internal sealed partial class HirMethodImporter
 
             var slot = EnsureReturnValueSlot();
             var store = new HirStoreLocal(slot, value);
-            _hirBuilder.Append(store);
+            AppendStoreLocal(store);
         }
 
         var returnTarget = EnsureReturnDispatchBlock();
@@ -657,8 +784,40 @@ internal sealed partial class HirMethodImporter
     private HirValue LoadLocal(HirLocal local)
     {
         var load = new HirLoadLocal(local);
+        if (s_traceHirLocals && _hirBuilder is not null)
+        {
+            var blockLabel = _hirBuilder.CurrentBlock?.Label ?? "<null>";
+            Console.WriteLine($"[HIR-LOAD] Block={blockLabel} Local={local.Name}");
+        }
         _hirBuilder!.Append(load);
+        TrackLocalValue(local, load);
         return load;
+    }
+
+    private void TrackLocalValue(HirLocal local, HirValue value)
+    {
+        if (value is null)
+            return;
+        _hirLocalValueMap[value] = local;
+    }
+
+    private void AppendStoreLocal(HirStoreLocal store)
+    {
+        _hirBuilder!.Append(store);
+        TrackLocalValue(store.Local, store.Value);
+        AssignSyntheticLocal(store.Local, store.Value);
+    }
+
+    private void AssignSyntheticLocal(HirLocal local, HirValue value)
+    {
+        if (_hirCurrentState is null)
+            return;
+        _hirCurrentState.Assign(local, value);
+        if (s_traceHirLocals)
+        {
+            var blockLabel = _hirBuilder?.CurrentBlock?.Label ?? "<null>";
+            Console.WriteLine($"[HIR-LOCAL] Assign {local.Name} in block {blockLabel}");
+        }
     }
 
     private void LowerLocalDeclaration(SemanticModel model, LocalDeclarationStatementSyntax declaration)

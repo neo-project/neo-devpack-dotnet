@@ -11,11 +11,9 @@ internal sealed class HirStoreLocal : HirInst
     {
         Local = local ?? throw new ArgumentNullException(nameof(local));
         Value = value ?? throw new ArgumentNullException(nameof(value));
-        ConsumesMemoryToken = true;
-        ProducesMemoryToken = true;
     }
 
-    public override HirEffect Effect => HirEffect.Memory;
+    public override HirEffect Effect => HirEffect.None;
     public HirLocal Local { get; }
     public HirValue Value { get; set; }
 }

@@ -200,6 +200,10 @@ internal static class MirAnalysis
             case MirStaticFieldStore staticStore:
                 yield return staticStore.Value;
                 yield break;
+
+            case MirStoreLocal storeLocal:
+                yield return storeLocal.Value;
+                yield break;
         }
     }
 

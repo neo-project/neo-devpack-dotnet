@@ -390,7 +390,8 @@ internal sealed partial class HirMethodImporter
         var enumeratorLocal = CreateSyntheticLocal("enumerator", MapType(enumeratorType));
         var enumeratorValue = EmitInvocation(enumeratorInfo.GetEnumeratorMethod!, collectionValue, Array.Empty<HirValue>());
         var storeEnumerator = new HirStoreLocal(enumeratorLocal, enumeratorValue);
-        builder.Append(storeEnumerator);
+        AppendStoreLocal(storeEnumerator);
+        preLoopState = _hirCurrentState?.Clone();
 
         var conditionBlock = builder.CreateBlock(NewBlockLabel("foreach_cond"));
         var bodyBlock = builder.CreateBlock(NewBlockLabel("foreach_body"));
@@ -400,15 +401,16 @@ internal sealed partial class HirMethodImporter
         builder.SetCurrentBlock(conditionBlock);
         _hirCurrentState = _hirCurrentState?.Clone();
 
-        var enumerator = LoadLocal(enumeratorLocal);
-        var moveNext = EmitInvocation(enumeratorInfo.MoveNextMethod!, enumerator, Array.Empty<HirValue>());
+        var enumeratorForCondition = LoadLocal(enumeratorLocal);
+        var moveNext = EmitInvocation(enumeratorInfo.MoveNextMethod!, enumeratorForCondition, Array.Empty<HirValue>());
         AppendConditional(moveNext, bodyBlock, exitBlock);
 
         _hirBreakTargets.Push(new BranchTarget(exitBlock, _hirTryScopes.Count));
         _hirContinueTargets.Push(new BranchTarget(conditionBlock, _hirTryScopes.Count));
 
         builder.SetCurrentBlock(bodyBlock);
-        var current = EmitInvocation(enumeratorInfo.CurrentProperty!.GetMethod!, enumerator, Array.Empty<HirValue>());
+        var enumeratorForBody = LoadLocal(enumeratorLocal);
+        var current = EmitInvocation(enumeratorInfo.CurrentProperty!.GetMethod!, enumeratorForBody, Array.Empty<HirValue>());
         AssignForeachTarget(model, syntax, current);
 
         HirValue? bodyValue = null;
@@ -700,7 +702,7 @@ internal sealed partial class HirMethodImporter
                 ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
             var local = CreateSyntheticLocal("using_resource", MapType(expressionTypeSymbol));
             var store = new HirStoreLocal(local, expressionValue);
-            builder.Append(store);
+            AppendStoreLocal(store);
             resources.Add((null, local, expressionTypeSymbol));
         }
         else

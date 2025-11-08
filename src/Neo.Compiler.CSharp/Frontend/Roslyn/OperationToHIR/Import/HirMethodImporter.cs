@@ -35,6 +35,11 @@ internal sealed partial class HirMethodImporter
     private HirSsaState? _hirCurrentState;
     private HirBlock? _hirReturnBlock;
     private HirLocal? _hirReturnValueSlot;
+    private readonly Dictionary<HirValue, HirLocal> _hirLocalValueMap = new(ReferenceEqualityComparer.Instance);
+    private static readonly bool s_traceHirLocals =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_HIR_TRACE_LOCALS"), "1", StringComparison.OrdinalIgnoreCase);
+    private static readonly bool s_dumpHirPhiDebug =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_IR_DUMP_HIR_PHI"), "1", StringComparison.OrdinalIgnoreCase);
 
     internal HirMethodImporter(CompilationContext context, IMethodSymbol symbol, SemanticModel model)
     {
@@ -56,15 +61,19 @@ internal sealed partial class HirMethodImporter
     private sealed class HirSsaState
     {
         private readonly Dictionary<ISymbol, HirValue> _values;
+        private readonly Dictionary<HirLocal, HirValue> _locals;
 
         public HirSsaState()
+            : this(new Dictionary<ISymbol, HirValue>(SymbolEqualityComparer.Default), new Dictionary<HirLocal, HirValue>(ReferenceEqualityComparer.Instance))
         {
-            _values = new Dictionary<ISymbol, HirValue>(SymbolEqualityComparer.Default);
         }
 
-        private HirSsaState(Dictionary<ISymbol, HirValue> values)
+        private HirSsaState(
+            Dictionary<ISymbol, HirValue> values,
+            Dictionary<HirLocal, HirValue> locals)
         {
             _values = values;
+            _locals = locals;
         }
 
         public HirSsaState Clone()
@@ -72,7 +81,8 @@ internal sealed partial class HirMethodImporter
             var copy = new Dictionary<ISymbol, HirValue>(_values.Count, SymbolEqualityComparer.Default);
             foreach (var kvp in _values)
                 copy[kvp.Key] = kvp.Value;
-            return new HirSsaState(copy);
+            var localsCopy = new Dictionary<HirLocal, HirValue>(_locals, ReferenceEqualityComparer.Instance);
+            return new HirSsaState(copy, localsCopy);
         }
 
         public bool TryGetValue(ISymbol symbol, out HirValue value)
@@ -81,7 +91,15 @@ internal sealed partial class HirMethodImporter
         public void Assign(ISymbol symbol, HirValue value)
             => _values[symbol] = value;
 
+        public bool TryGetValue(HirLocal local, out HirValue value)
+            => _locals.TryGetValue(local, out value!);
+
+        public void Assign(HirLocal local, HirValue value)
+            => _locals[local] = value;
+
         public IEnumerable<ISymbol> Symbols => _values.Keys;
+        public IEnumerable<HirLocal> LocalSymbols => _locals.Keys;
+
     }
 
     private bool TryGetLambdaParameterValue(IParameterSymbol symbol, out HirValue value)

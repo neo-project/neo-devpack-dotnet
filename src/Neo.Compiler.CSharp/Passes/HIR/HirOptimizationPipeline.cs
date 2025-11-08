@@ -3,6 +3,8 @@ namespace Neo.Compiler.HIR.Optimization;
 
 internal sealed class HirOptimizationPipeline
 {
+    private static readonly bool s_traceLocalPhis =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_IR_DUMP_HIR_PHI"), "1", StringComparison.OrdinalIgnoreCase);
     private static readonly IHirPass[] s_passes =
     {
         new HirConstantFolderPass(),
@@ -34,6 +36,8 @@ internal sealed class HirOptimizationPipeline
                     changedIteration = true;
                     changedAny = true;
                 }
+                if (s_traceLocalPhis)
+                    TraceLocalPhis(function, pass.GetType().Name);
             }
             iteration++;
         } while (changedIteration);
@@ -46,5 +50,19 @@ internal sealed class HirOptimizationPipeline
             if (errors.Count > 0)
                 throw new InvalidOperationException($"HIR verification failed after optimisation:{Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
         }
+    }
+
+    private static void TraceLocalPhis(HirFunction function, string passName)
+    {
+        var count = 0;
+        foreach (var block in function.Blocks)
+        {
+            foreach (var phi in block.Phis)
+            {
+                if (phi.IsLocalPhi)
+                    count++;
+            }
+        }
+        Console.WriteLine($"[HIR-PHI] After {passName}: localPhiCount={count}");
     }
 }

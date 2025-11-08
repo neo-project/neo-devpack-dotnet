@@ -94,6 +94,10 @@ internal sealed class MirDeadCodeEliminationPass : IMirPass
             return false;
         if (inst.ProducesMemoryToken || inst.ConsumesMemoryToken)
             return false;
+        if (inst is MirStoreLocal)
+            return false;
+        if (inst is MirLoadLocal)
+            return false;
         if (inst is MirArrayGet)
             return false;
         return true;

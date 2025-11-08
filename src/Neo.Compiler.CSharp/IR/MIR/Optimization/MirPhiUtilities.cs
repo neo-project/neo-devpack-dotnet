@@ -43,4 +43,37 @@ internal static class MirPhiUtilities
             }
         }
     }
+
+    internal static void DeduplicateTokenInputs(MirFunction function)
+    {
+        if (function is null)
+            throw new ArgumentNullException(nameof(function));
+
+        foreach (var block in function.Blocks)
+        {
+            foreach (var phi in block.Phis)
+            {
+                if (phi.Type is not MirTokenType)
+                    continue;
+
+                var unique = new List<(MirBlock Block, MirValue Value)>();
+                var seen = new HashSet<MirValue>(ReferenceEqualityComparer.Instance);
+                foreach (var (pred, value) in phi.Inputs)
+                {
+                    if (value is null)
+                        continue;
+                    if (!seen.Add(value))
+                        continue;
+                    unique.Add((pred, value));
+                }
+
+                if (unique.Count == phi.Inputs.Count)
+                    continue;
+
+                phi.ResetInputs();
+                foreach (var (pred, value) in unique)
+                    phi.AddIncoming(pred, value);
+            }
+        }
+    }
 }

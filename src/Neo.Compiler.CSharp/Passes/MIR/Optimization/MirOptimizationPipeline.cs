@@ -10,6 +10,8 @@ internal sealed class MirOptimizationPipeline
     private const int MaxIterations = 32;
     private static readonly bool s_tracePipeline =
         string.Equals(Environment.GetEnvironmentVariable("NEO_IR_TRACE"), "1", StringComparison.OrdinalIgnoreCase);
+    private static readonly bool s_traceLocalLoads =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_IR_TRACE_LOCALS"), "1", StringComparison.OrdinalIgnoreCase);
 
     private static void Trace(string message)
     {
@@ -105,6 +107,8 @@ internal sealed class MirOptimizationPipeline
                     changedIteration = true;
                     changedAny = true;
                 }
+                if (s_traceLocalLoads)
+                    TraceLocalInstructions(function, passName);
             }
             Trace($"Function '{function.Name}': iteration {iteration} {(changedIteration ? "changed" : "stable")}");
             if (iteration >= MaxIterations && changedIteration)
@@ -328,4 +332,21 @@ internal sealed class MirOptimizationPipeline
         }
     }
 
+    private static void TraceLocalInstructions(MirFunction function, string passName)
+    {
+        var loads = 0;
+        var stores = 0;
+        foreach (var block in function.Blocks)
+        {
+            foreach (var inst in block.Instructions)
+            {
+                if (inst is MirLoadLocal)
+                    loads++;
+                else if (inst is MirStoreLocal)
+                    stores++;
+            }
+        }
+
+        Console.WriteLine($"[MIR-LOCALS] After {passName}: loads={loads} stores={stores}");
+    }
 }

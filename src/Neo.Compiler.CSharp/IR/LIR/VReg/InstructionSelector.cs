@@ -153,6 +153,20 @@ internal sealed class InstructionSelector
                 EmitValue(storeStatic, new VStaticStore(storeStatic.Slot, GetValue(storeStatic.Value), MapType(storeStatic.FieldType)), target);
                 break;
 
+            case MirLoadLocal loadLocal:
+                EmitValue(loadLocal, new VLoadLocal(loadLocal.Slot, MapType(loadLocal.Type)), target);
+                break;
+
+            case MirStoreLocal storeLocal:
+                {
+                    var node = new VStoreLocal(storeLocal.Slot, GetValue(storeLocal.Value))
+                    {
+                        Span = storeLocal.Span
+                    };
+                    target.Nodes.Add(node);
+                    break;
+                }
+
             case MirArrayNew arrayNew:
                 EmitValue(arrayNew, new VArrayNew(GetValue(arrayNew.Length), MapType(arrayNew.ElementType)), target);
                 break;

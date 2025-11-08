@@ -20,6 +20,9 @@ internal sealed class MirFunction
     internal List<MirBlock> Blocks { get; } = new();
     internal bool AggressiveInlineHint { get; private set; }
     internal MirCostSummary CostSummary { get; private set; } = MirCostSummary.Empty;
+    private readonly Dictionary<HirLocal, int> _localSlots = new(ReferenceEqualityComparer.Instance);
+    internal IReadOnlyDictionary<HirLocal, int> LocalSlots => _localSlots;
+    internal int LocalSlotCount => _localSlots.Count;
 
     internal MirBlock CreateBlock(string label)
     {
@@ -42,6 +45,7 @@ internal sealed class MirFunction
         Source = source ?? throw new ArgumentNullException(nameof(source));
         Name = source.Name;
         Blocks.Clear();
+        _localSlots.Clear();
         var entryLabel = source.Entry.Label;
         if (!string.IsNullOrEmpty(Name))
             entryLabel = Name;
@@ -55,4 +59,14 @@ internal sealed class MirFunction
     }
 
     internal void SetCostSummary(MirCostSummary summary) => CostSummary = summary;
+
+    internal int GetOrAddLocalSlot(HirLocal local)
+    {
+        if (_localSlots.TryGetValue(local, out var slot))
+            return slot;
+
+        slot = _localSlots.Count;
+        _localSlots[local] = slot;
+        return slot;
+    }
 }

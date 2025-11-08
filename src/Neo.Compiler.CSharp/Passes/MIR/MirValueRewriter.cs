@@ -54,7 +54,7 @@ internal static class MirValueRewriter
         replacement.CopyMemoryTokenStateFrom(original);
     }
 
-    private static MirInst ReplaceInInstruction(MirInst instruction, MirValue oldValue, MirValue newValue)
+    internal static MirInst ReplaceInInstruction(MirInst instruction, MirValue oldValue, MirValue newValue)
     {
         switch (instruction)
         {
@@ -104,6 +104,14 @@ internal static class MirValueRewriter
                 if (!ReplaceOperands(structPack.Fields, oldValue, newValue, out var newFields))
                     return instruction;
                 return new MirStructPack(newFields, (MirStructType)structPack.Type) { Span = instruction.Span };
+
+            case MirStoreLocal storeLocal:
+                {
+                    var value = ReferenceEquals(storeLocal.Value, oldValue) ? newValue : storeLocal.Value;
+                    if (ReferenceEquals(value, storeLocal.Value))
+                        return instruction;
+                    return new MirStoreLocal(storeLocal.Slot, value) { Span = instruction.Span };
+                }
 
             case MirArrayGet arrayGet:
                 {
@@ -211,7 +219,7 @@ internal static class MirValueRewriter
         return instruction;
     }
 
-    private static MirTerminator ReplaceInTerminator(MirTerminator terminator, MirValue oldValue, MirValue newValue)
+    internal static MirTerminator ReplaceInTerminator(MirTerminator terminator, MirValue oldValue, MirValue newValue)
     {
         switch (terminator)
         {

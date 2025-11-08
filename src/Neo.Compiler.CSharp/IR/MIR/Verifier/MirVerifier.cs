@@ -620,7 +620,8 @@ internal sealed partial class MirVerifier
 
         if (!definitions.TryGetValue(value, out var defBlock))
         {
-            _errors.Add($"Value '{value.GetType().Name}' used in block '{useBlock.Label}' has no defining block.");
+            var id = value is null ? "<null>" : $"{value.GetType().Name}#{value.GetHashCode():X}";
+            _errors.Add($"Value '{id}' used in block '{useBlock.Label}' has no defining block.");
             return false;
         }
 
@@ -719,6 +720,9 @@ internal sealed partial class MirVerifier
                 yield return bufferCopy.DestinationOffset;
                 yield return bufferCopy.SourceOffset;
                 yield return bufferCopy.Length;
+                break;
+            case MirStoreLocal storeLocal:
+                yield return storeLocal.Value;
                 break;
             case MirModMul modMul:
                 yield return modMul.Left;

@@ -10,7 +10,11 @@ using Neo.Compiler.MIR;
 using Neo.Compiler.MIR.Optimization;
 using Neo.SmartContract.Framework;
 
-string source = """
+var scenario = args.Length > 0 ? args[0].ToLowerInvariant() : "foreach";
+var (source, functionHint) = scenario switch
+{
+    "foreach" => (
+        """
 using Neo.SmartContract.Framework;
 
 namespace Neo.Compiler.CSharp.TestContracts
@@ -27,7 +31,43 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
     }
 }
-""";
+""",
+        "IntForeach"),
+    "abort" => (
+        """
+using Neo.SmartContract.Framework;
+
+namespace Neo.Compiler.CSharp.TestContracts
+{
+    public class AbortInFunctionPipelineContract : SmartContract.Framework.SmartContract
+    {
+        public static int TestAbortInFunction(bool flag)
+        {
+            int value = 0;
+            try
+            {
+                if (flag)
+                    value = 1;
+                else
+                    value = 2;
+            }
+            catch
+            {
+                value = -1;
+            }
+            finally
+            {
+                value++;
+            }
+
+            return value;
+        }
+    }
+}
+""",
+        "TestAbortInFunction"),
+    _ => throw new ArgumentException($"Unknown scenario '{scenario}'.")
+};
 
 var tempFile = Path.Combine(Path.GetTempPath(), $"foreach_{Guid.NewGuid():N}.cs");
 await File.WriteAllTextAsync(tempFile, source);
@@ -45,10 +85,24 @@ try
         return;
     }
 
-    var functionKey = context.MirModule.Functions.Keys.Single(k => k.Contains("IntForeach", StringComparison.Ordinal));
+    var functionKey = context.MirModule.Functions.Keys.Single(k => k.Contains(functionHint, StringComparison.Ordinal));
     var function = context.MirModule.Functions[functionKey];
 
     Log($"Loaded MIR function '{functionKey}' with {function.Blocks.Count} blocks.");
+
+    if (context.HirModule is not null && context.HirModule.Functions.TryGetValue(functionKey, out var hirFunction))
+    {
+        Log("=== HIR Blocks ===");
+        foreach (var block in hirFunction.Blocks)
+        {
+            Log($"HIR BLOCK {block.Label}");
+            foreach (var phi in block.Phis)
+                Log($"  PHI {phi.GetType().Name} Local={phi.Local?.Name ?? "<null>"} IsLocal={phi.IsLocalPhi}");
+            foreach (var inst in block.Instructions)
+                Log($"  INST {inst.GetType().Name}");
+            Log($"  TERM {block.Terminator?.GetType().Name ?? "<null>"}");
+        }
+    }
 
     RunPipelineWithDiagnostics(function);
 }

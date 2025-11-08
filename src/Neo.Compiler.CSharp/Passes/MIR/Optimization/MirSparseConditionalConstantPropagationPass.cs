@@ -90,11 +90,6 @@ internal sealed class MirSparseConditionalConstantPropagationPass : IMirPass
 
             var blockChanged = ProcessBlock(block);
             Trace($"Processed block {block.Label}, changed={blockChanged}, worklist={_worklist.Count}");
-            foreach (var successor in MirControlFlow.GetSuccessors(block))
-            {
-                if (blockChanged || !_reachable.Contains(successor))
-                    Enqueue(successor);
-            }
         }
 
         return ApplyResults(function);
@@ -354,6 +349,10 @@ internal sealed class MirSparseConditionalConstantPropagationPass : IMirPass
                     return Evaluation.Unknown;
                 }
 
+            case MirLoadLocal:
+            case MirStoreLocal:
+                return Evaluation.Unknown;
+
             case MirConstInt:
             case MirConstBool:
             case MirConstByteString:
@@ -427,6 +426,8 @@ internal sealed class MirSparseConditionalConstantPropagationPass : IMirPass
             for (int i = 0; i < block.Phis.Count; i++)
             {
                 var phi = block.Phis[i];
+                if (phi.IsPinned)
+                    continue;
                 var state = GetState(phi);
                 if (state.Kind == LatticeKind.Constant && TryCreateConstant(phi.Type, state.Value, out var constant))
                 {

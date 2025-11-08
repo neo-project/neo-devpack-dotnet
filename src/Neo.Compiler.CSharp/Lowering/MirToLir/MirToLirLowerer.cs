@@ -11,6 +11,8 @@ namespace Neo.Compiler.MiddleEnd.Lowering;
 
 internal sealed class MirToLirLowerer
 {
+    private static readonly bool s_dumpMir =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_IR_DUMP_MIR"), "1", StringComparison.OrdinalIgnoreCase);
     private readonly InstructionSelector _selector = new();
     private readonly StackScheduler _scheduler = new();
     private readonly LirVerifier _verifier = new();
@@ -25,6 +27,20 @@ internal sealed class MirToLirLowerer
             throw new ArgumentNullException(nameof(module));
 
         var valueFunction = _selector.Select(mirFunction);
+        if (s_dumpMir)
+        {
+            var mirDumpPath = Path.Combine(
+                Path.GetTempPath(),
+                $"mir_{SanitizeFileName(mirFunction.Name)}.txt");
+            File.WriteAllText(mirDumpPath, DumpMirFunction(mirFunction));
+        }
+        if (string.Equals(Environment.GetEnvironmentVariable("NEO_IR_DUMP_VREG"), "1", StringComparison.OrdinalIgnoreCase))
+        {
+            var dumpPath = Path.Combine(
+                Path.GetTempPath(),
+                $"vreg_{SanitizeFileName(mirFunction.Name)}.txt");
+            File.WriteAllText(dumpPath, DumpVFunction(valueFunction));
+        }
         StackScheduler.Result schedulingResult;
         try
         {
@@ -159,4 +175,71 @@ internal sealed class MirToLirLowerer
         var chars = name.Select(ch => invalid.Contains(ch) ? '_' : ch).ToArray();
         return new string(chars);
     }
+
+    private static string DumpMirFunction(MirFunction function)
+    {
+        using var writer = new StringWriter();
+        writer.WriteLine($"MirFunction {function.Name}");
+        foreach (var block in function.Blocks)
+        {
+            writer.WriteLine($"BLOCK {block.Label}");
+            foreach (var phi in block.Phis)
+            {
+                writer.WriteLine($"  PHI {phi.GetType().Name}");
+                foreach (var (pred, value) in phi.Inputs)
+                    writer.WriteLine($"    IN {pred.Label} -> {value.GetType().Name}");
+            }
+
+            foreach (var inst in block.Instructions)
+            {
+                writer.WriteLine($"  INST {DescribeMirInst(inst)}");
+            }
+
+            writer.WriteLine($"  TERM {DescribeMirTerminator(block.Terminator)}");
+        }
+        return writer.ToString();
+    }
+
+    private static string DescribeMirInst(MirInst inst) => inst switch
+    {
+        MirStoreLocal store => $"MirStoreLocal slot={store.Slot}",
+        MirLoadLocal load => $"MirLoadLocal slot={load.Slot}",
+        MirCall call => $"MirCall {call.Callee} args=[{string.Join(", ", call.Arguments.Select(arg => arg.GetType().Name))}]",
+        MirPointerCall pointerCall => $"MirPointerCall {pointerCall.Pointer}",
+        MirConstInt constInt => $"MirConstInt {constInt.Value}",
+        MirConstBool constBool => $"MirConstBool {constBool.Value}",
+        MirConstByteString constBytes => $"MirConstByteString len={constBytes.Value.Length}",
+        MirConstBuffer constBuffer => $"MirConstBuffer len={constBuffer.Value.Length}",
+        MirBinary binary => $"MirBinary {binary.OpCode}",
+        MirUnary unary => $"MirUnary {unary.OpCode}",
+        MirArraySet => "MirArraySet",
+        MirArrayNew => "MirArrayNew",
+        MirStructSet => "MirStructSet",
+        MirStructGet => "MirStructGet",
+        MirStaticFieldLoad loadStatic => $"MirStaticFieldLoad slot={loadStatic.Slot}",
+        MirStaticFieldStore storeStatic => $"MirStaticFieldStore slot={storeStatic.Slot}",
+        MirSyscall syscall => $"MirSyscall {syscall.Category}.{syscall.Name}",
+        MirTry => "MirTry",
+        MirCatch => "MirCatch",
+        MirFinally => "MirFinally",
+        MirGuardNull => "MirGuardNull",
+        MirGuardBounds => "MirGuardBounds",
+        _ => inst.GetType().Name
+    };
+
+    private static string DescribeMirTerminator(MirTerminator? terminator) => terminator switch
+    {
+        MirReturn ret => ret.Value is null ? "MirReturn void" : $"MirReturn {ret.Value.GetType().Name}",
+        MirBranch br => $"MirBranch -> {br.Target.Label}",
+        MirCondBranch cond => $"MirCondBranch true={cond.TrueTarget.Label} false={cond.FalseTarget.Label}",
+        MirSwitch @switch => $"MirSwitch cases={@switch.Cases.Count}",
+        MirAbort => "MirAbort",
+        MirAbortMsg => "MirAbortMsg",
+        MirLeave leave => $"MirLeave -> {leave.Target.Label}",
+        MirEndFinally endFinally => $"MirEndFinally -> {endFinally.Target.Label}",
+        MirUnreachable => "MirUnreachable",
+        MirCompareBranch cmp => $"MirCompareBranch true={cmp.TrueTarget.Label} false={cmp.FalseTarget.Label}",
+        null => "<null>",
+        _ => terminator.GetType().Name
+    };
 }

@@ -248,7 +248,7 @@ namespace Neo.Compiler
                     if (Options.SkipContractValidation)
                         Console.WriteLine($"[CompilationEngine] Candidate class: {classSymbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} accessibility={classSymbol?.DeclaredAccessibility} abstract={classSymbol?.IsAbstract}");
                     if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } &&
-                        (IsDerivedFromSmartContract(classSymbol) || Options.SkipContractValidation))
+                        IsDerivedFromSmartContract(classSymbol))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = [];
@@ -324,7 +324,7 @@ namespace Neo.Compiler
                     if (Options.SkipContractValidation)
                         Console.WriteLine($"[CompilationEngine] Candidate class (compile path): {classSymbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} accessibility={classSymbol?.DeclaredAccessibility} abstract={classSymbol?.IsAbstract}");
                     if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } &&
-                        (IsDerivedFromSmartContract(classSymbol) || Options.SkipContractValidation))
+                        IsDerivedFromSmartContract(classSymbol))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = [];

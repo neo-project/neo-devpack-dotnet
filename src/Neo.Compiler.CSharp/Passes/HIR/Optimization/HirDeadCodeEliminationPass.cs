@@ -22,6 +22,8 @@ internal sealed class HirDeadCodeEliminationPass : IHirPass
 
         foreach (var phi in analysis.PhiBlocks.Keys)
         {
+            if (phi.IsLocalPhi)
+                continue;
             if (useCounts.TryGetValue(phi, out var count) && count == 0)
                 worklist.Push(phi);
         }
@@ -90,7 +92,7 @@ internal sealed class HirDeadCodeEliminationPass : IHirPass
 
     private static bool IsCandidate(HirValue value) => value switch
     {
-        HirPhi => true,
+        HirPhi phi => !phi.IsLocalPhi,
         HirInst inst => IsRemovable(inst),
         _ => false
     };

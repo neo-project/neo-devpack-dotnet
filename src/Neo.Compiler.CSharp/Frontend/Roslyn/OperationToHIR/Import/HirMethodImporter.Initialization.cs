@@ -28,6 +28,7 @@ internal sealed partial class HirMethodImporter
         _hirBlockCounters.Clear();
         _hirTempCounter = 0;
         _hirCurrentState = new HirSsaState();
+        _hirLocalValueMap.Clear();
 
         _hirLocals.Clear();
         _hirArguments.Clear();

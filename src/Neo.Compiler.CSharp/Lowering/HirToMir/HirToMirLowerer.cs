@@ -10,6 +10,10 @@ namespace Neo.Compiler.MiddleEnd.Lowering;
 
 internal sealed class HirToMirLowerer
 {
+    private static readonly bool s_dumpLocalPhiDebug =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_IR_DUMP_HIR_PHI"), "1", StringComparison.OrdinalIgnoreCase);
+    private static readonly bool s_traceLocalLoads =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_HIR_TRACE_LOCALS"), "1", StringComparison.OrdinalIgnoreCase);
     internal MirFunction Lower(HirFunction hirFunction, MirModule module)
     {
         if (hirFunction is null)
@@ -37,13 +41,9 @@ internal sealed class HirToMirLowerer
         var tokenIncoming = new Dictionary<HirBlock, List<(HirBlock Pred, MirValue Token)>>();
         var tryScopeMap = new Dictionary<HirTryFinallyScope, MirTry>();
         var catchHandlerMap = new Dictionary<HirCatchClause, MirCatchHandler>();
-        var localIncoming = new Dictionary<HirBlock, List<(HirBlock Pred, Dictionary<HirLocal, MirValue> State)>>();
 
         foreach (var block in hirFunction.Blocks)
             tokenIncoming[block] = new List<(HirBlock, MirValue)>();
-
-        foreach (var block in hirFunction.Blocks)
-            localIncoming[block] = new List<(HirBlock, Dictionary<HirLocal, MirValue>)>();
 
         tokenIncoming[hirFunction.Entry].Add((hirFunction.Entry, mirFunction.EntryToken));
 
@@ -65,9 +65,7 @@ internal sealed class HirToMirLowerer
         foreach (var block in orderedBlocks)
         {
             var mirBlock = blockMap[block];
-            var incomingLocalStates = localIncoming[block];
-            var localValues = BuildEntryLocalState(block, mirBlock, incomingLocalStates, blockMap);
-            incomingLocalStates.Clear();
+            var localValues = new Dictionary<HirLocal, MirValue>(ReferenceEqualityComparer.Instance);
 
             var incomingTokens = tokenIncoming[block];
             MirValue currentToken;
@@ -83,9 +81,30 @@ internal sealed class HirToMirLowerer
 
             foreach (var phi in block.Phis)
             {
+                if (s_dumpLocalPhiDebug)
+                {
+                    var incomingKinds = string.Join(", ", phi.Inputs.Select(input => input.Value.GetType().Name));
+                    Console.WriteLine($"[HIR-PHI] Block={block.Label} Type={phi.Type.GetType().Name} IsLocal={phi.IsLocalPhi} Local={phi.Local?.Name ?? "<null>"} Inputs=[{incomingKinds}]");
+                }
+
+                if (phi.IsLocalPhi && phi.Local is not null)
+                {
+                    var slot = mirFunction.GetOrAddLocalSlot(phi.Local);
+                    var load = new MirLoadLocal(slot, MirTypeMapper.FromHirType(phi.Type))
+                    {
+                        Span = phi.Span
+                    };
+                    mirBlock.Append(load);
+                    valueMap[phi] = load;
+                    localValues[phi.Local] = load;
+                    continue;
+                }
+
                 var mirPhi = new MirPhi(MirTypeMapper.FromHirType(phi.Type))
                 {
-                    Span = phi.Span
+                    Span = phi.Span,
+                    IsLocalPhi = phi.IsLocalPhi,
+                    Local = phi.Local
                 };
                 mirBlock.AppendPhi(mirPhi);
                 valueMap[phi] = mirPhi;
@@ -94,7 +113,11 @@ internal sealed class HirToMirLowerer
             foreach (var inst in block.Instructions)
             {
                 if (valueMap.ContainsKey(inst))
+                {
+                    if (s_traceLocalLoads && inst is HirLoadLocal loadLocal)
+                        Console.WriteLine($"[MIR-LOAD] Skipping already lowered load '{loadLocal.Local.Name}' in block {block.Label}");
                     continue;
+                }
 
                 var (generatedInst, resultValue, updatedToken) = LowerInstruction(
                     inst,
@@ -130,8 +153,6 @@ internal sealed class HirToMirLowerer
                 if (!exists)
                     list.Add((block, currentToken));
 
-                var stateClone = CloneLocalState(localValues);
-                localIncoming[successor].Add((block, stateClone));
             }
 
             if (block.Terminator is HirLeave leaveTerm && tryScopeMap.TryGetValue(leaveTerm.Scope, out _))
@@ -139,8 +160,7 @@ internal sealed class HirToMirLowerer
                 var finallyBlock = leaveTerm.Scope.FinallyBlock;
                 if (finallyBlock is not null)
                 {
-                    var stateClone = CloneLocalState(localValues);
-                    localIncoming[finallyBlock].Add((block, stateClone));
+                    // finally blocks reload locals from slots on demand
                 }
             }
 
@@ -151,6 +171,9 @@ internal sealed class HirToMirLowerer
             var mirBlock = blockMap[block];
             foreach (var phi in block.Phis)
             {
+                if (phi.IsLocalPhi && phi.Local is not null)
+                    continue;
+
                 var mirPhi = (MirPhi)valueMap[phi];
                 mirPhi.ResetInputs();
                 foreach (var incoming in phi.Inputs)
@@ -176,10 +199,126 @@ internal sealed class HirToMirLowerer
             }
         }
 
+        InsertLocalPhiStores(hirFunction, hirPredecessors, blockMap, mirFunction, valueMap, argumentValues);
+        DematerializeLocalPhis(mirFunction);
         RebuildTokenPhis(tokenIncoming, blockMap, mirFunction.Entry, orderedBlocks);
+        MirPhiUtilities.DeduplicateTokenInputs(mirFunction);
         MirPhiUtilities.PruneNonPredecessorInputs(mirFunction);
 
         return mirFunction;
+    }
+
+    private static void InsertLocalPhiStores(
+        HirFunction hirFunction,
+        Dictionary<HirBlock, HashSet<HirBlock>> hirPredecessors,
+        Dictionary<HirBlock, MirBlock> blockMap,
+        MirFunction mirFunction,
+        Dictionary<HirValue, MirValue> valueMap,
+        Dictionary<HirArgument, MirValue> argumentValues)
+    {
+        var cache = new Dictionary<(MirBlock Block, int Slot), MirStoreLocal>();
+
+        foreach (var block in hirFunction.Blocks)
+        {
+            foreach (var phi in block.Phis)
+            {
+                if (!phi.IsLocalPhi || phi.Local is null)
+                    continue;
+
+                var slot = mirFunction.GetOrAddLocalSlot(phi.Local);
+
+                foreach (var incoming in phi.Inputs)
+                {
+                    var incomingPred = incoming.Block;
+                    if (hirPredecessors.TryGetValue(block, out var preds))
+                    {
+                        if (preds.Count == 0)
+                        {
+                            if (!ReferenceEquals(incomingPred, block))
+                                continue;
+                        }
+                        else if (!preds.Contains(incomingPred))
+                        {
+                            continue;
+                        }
+                    }
+
+                    if (!blockMap.TryGetValue(incomingPred, out var mirPred))
+                        continue;
+
+                    var mirValue = GetValue(incoming.Value, valueMap, argumentValues, null, mirFunction, mirPred);
+                    var key = (mirPred, slot);
+                    if (cache.TryGetValue(key, out var existing) && ReferenceEquals(existing.Value, mirValue))
+                        continue;
+
+                    var store = new MirStoreLocal(slot, mirValue)
+                    {
+                        Span = phi.Span
+                    };
+                    mirPred.Append(store);
+                    cache[key] = store;
+                }
+            }
+        }
+    }
+
+    private static void DematerializeLocalPhis(MirFunction function)
+    {
+        foreach (var block in function.Blocks)
+        {
+            for (int i = block.Phis.Count - 1; i >= 0; i--)
+            {
+                var phi = block.Phis[i];
+                if (!TryGetLocalSlot(function, phi, out var slot))
+                    continue;
+
+                var load = new MirLoadLocal(slot, phi.Type)
+                {
+                    Span = phi.Span
+                };
+                block.Instructions.Insert(0, load);
+                MirValueRewriter.Replace(function, phi, load);
+                block.RemovePhi(phi);
+            }
+        }
+    }
+
+    private static bool TryGetLocalSlot(MirFunction function, MirPhi phi, out int slot)
+    {
+        if (phi.IsLocalPhi && phi.Local is not null)
+        {
+            slot = function.GetOrAddLocalSlot(phi.Local);
+            return true;
+        }
+
+        if (TryGetUniformLoadSlot(phi, out slot))
+            return true;
+
+        slot = default;
+        return false;
+    }
+
+    private static bool TryGetUniformLoadSlot(MirPhi phi, out int slot)
+    {
+        slot = default;
+        MirLoadLocal? firstLoad = null;
+        foreach (var (_, value) in phi.Inputs)
+        {
+            if (value is not MirLoadLocal load)
+                return false;
+
+            if (firstLoad is null)
+            {
+                firstLoad = load;
+                slot = load.Slot;
+                continue;
+            }
+
+            if (load.Slot != slot)
+                return false;
+        }
+
+        return firstLoad is not null;
     }
 
     private static void RebuildTokenPhis(
@@ -329,74 +468,6 @@ internal sealed class HirToMirLowerer
         return order;
     }
 
-    private static Dictionary<HirLocal, MirValue> BuildEntryLocalState(
-        HirBlock block,
-        MirBlock mirBlock,
-        List<(HirBlock Pred, Dictionary<HirLocal, MirValue> State)> incomingStates,
-        Dictionary<HirBlock, MirBlock> blockMap)
-    {
-        var localValues = new Dictionary<HirLocal, MirValue>();
-        if (incomingStates.Count == 0)
-            return localValues;
-
-        var grouped = new Dictionary<HirLocal, List<(HirBlock Pred, MirValue Value)>>();
-        foreach (var (pred, state) in incomingStates)
-        {
-            foreach (var (local, value) in state)
-            {
-                if (!grouped.TryGetValue(local, out var list))
-                {
-                    list = new List<(HirBlock, MirValue)>();
-                    grouped[local] = list;
-                }
-
-                list.Add((pred, value));
-            }
-        }
-
-        foreach (var (local, entries) in grouped)
-        {
-            MirValue merged;
-            var requiresPhi = entries.Count > 1;
-            if (!requiresPhi && entries.Count == 1)
-            {
-                var (pred, _) = entries[0];
-                requiresPhi = !ReferenceEquals(pred, block);
-            }
-
-            if (!requiresPhi)
-            {
-                merged = entries[0].Value;
-            }
-            else
-            {
-                var first = entries[0].Value;
-                var phi = new MirPhi(first.Type)
-                {
-                    IsPinned = true
-                };
-
-                foreach (var (pred, value) in entries)
-                    phi.AddIncoming(blockMap[pred], value);
-
-                mirBlock.AppendPhi(phi);
-                merged = phi;
-            }
-
-            localValues[local] = merged;
-        }
-
-        return localValues;
-    }
-
-    private static Dictionary<HirLocal, MirValue> CloneLocalState(Dictionary<HirLocal, MirValue> state)
-    {
-        var clone = new Dictionary<HirLocal, MirValue>(state.Count);
-        foreach (var (local, value) in state)
-            clone[local] = value;
-        return clone;
-    }
-
     private (MirInst? GeneratedInst, MirValue? ResultValue, MirValue? TokenDelta) LowerInstruction(
         HirInst inst,
         Dictionary<HirValue, MirValue> valueMap,
@@ -451,9 +522,7 @@ internal sealed class HirToMirLowerer
                 return StoreArgument(storeArg, valueMap, argumentValues, localValues, function, currentMirBlock);
 
             case HirLoadLocal loadLocal:
-                if (valueMap.TryGetValue(loadLocal.Local, out var existingLocal))
-                    return (null, existingLocal, null);
-                return (null, GetLocalValue(loadLocal.Local, localValues, valueMap), null);
+                return (null, null, null);
 
             case HirStoreLocal storeLocal:
                 return StoreLocal(storeLocal, valueMap, argumentValues, localValues, function, currentMirBlock);
@@ -974,12 +1043,14 @@ internal sealed class HirToMirLowerer
                 return GetArgumentValue(argument, function, argumentValues, valueMap);
             case HirLoadArgument loadArg when argumentValues is not null && function is not null:
                 return GetArgumentValue(loadArg.Argument, function, argumentValues, valueMap);
-            case HirLocal local when localValues is not null:
-                if (localValues.TryGetValue(local, out var localValue))
-                    return localValue;
-                break;
-            case HirLoadLocal loadLocal when localValues is not null:
-                return GetLocalValue(loadLocal.Local, localValues, valueMap);
+            case HirLocal local when localValues is not null && function is not null && currentBlock is not null:
+                return GetLocalValue(local, localValues, valueMap, function, currentBlock);
+            case HirLoadLocal loadLocal when localValues is not null && function is not null && currentBlock is not null:
+                {
+                    var mirValue = GetLocalValue(loadLocal.Local, localValues, valueMap, function, currentBlock);
+                    valueMap[loadLocal] = mirValue;
+                    return mirValue;
+                }
             case HirConstInt constInt:
                 {
                     var hint = MirTypeMapper.FromHirType(constInt.Type) as MirIntType;
@@ -1302,15 +1373,26 @@ internal sealed class HirToMirLowerer
     private static MirValue GetLocalValue(
         HirLocal local,
         Dictionary<HirLocal, MirValue> localValues,
-        Dictionary<HirValue, MirValue> valueMap)
+        Dictionary<HirValue, MirValue> valueMap,
+        MirFunction function,
+        MirBlock currentBlock)
     {
         if (localValues.TryGetValue(local, out var value))
             return value;
 
-        if (valueMap.TryGetValue(local, out var cached))
-            return cached;
+        if (function is null || currentBlock is null)
+            throw new InvalidOperationException($"Local '{local.Name}' was read before assignment during HIR→MIR lowering.");
 
-        throw new InvalidOperationException($"Local '{local.Name}' was read before assignment during HIR→MIR lowering.");
+        var slot = function.GetOrAddLocalSlot(local);
+        var load = new MirLoadLocal(slot, MirTypeMapper.FromHirType(local.Type))
+        {
+            Span = local.Span
+        };
+        currentBlock.Append(load);
+        if (s_traceLocalLoads)
+            Console.WriteLine($"[MIR-LOAD] Emitting load for local '{local.Name}' in block {currentBlock.Label}");
+        localValues[local] = load;
+        return load;
     }
 
     private static (MirInst? GeneratedInst, MirValue? ResultValue, MirValue? TokenDelta) StoreLocal(
@@ -1324,19 +1406,25 @@ internal sealed class HirToMirLowerer
         MirValue value;
         if (storeLocal.Value is HirLoadLocal loadValue)
         {
-            value = GetLocalValue(loadValue.Local, localValues, valueMap);
+            value = GetLocalValue(loadValue.Local, localValues, valueMap, function, currentBlock);
         }
         else
         {
             value = GetValue(storeLocal.Value, valueMap, argumentValues, localValues, function, currentBlock);
         }
-        localValues[storeLocal.Local] = value;
-        var isScopeSlot = storeLocal.Local.Name.StartsWith("try_state_", StringComparison.Ordinal);
-        if (isScopeSlot)
-            valueMap.Remove(storeLocal.Local);
-        else
-            valueMap[storeLocal.Local] = value;
 
-        return (null, null, null);
+        if (function is null || currentBlock is null)
+            throw new InvalidOperationException("Attempted to store local outside of function context.");
+
+        var slot = function.GetOrAddLocalSlot(storeLocal.Local);
+        var storeInst = new MirStoreLocal(slot, value)
+        {
+            Span = storeLocal.Span
+        };
+        currentBlock.Append(storeInst);
+        localValues[storeLocal.Local] = value;
+        valueMap.Remove(storeLocal.Local);
+
+        return (storeInst, null, null);
     }
 }

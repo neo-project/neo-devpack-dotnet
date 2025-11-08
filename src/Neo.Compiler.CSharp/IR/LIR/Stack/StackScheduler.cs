@@ -13,6 +13,9 @@ namespace Neo.Compiler.LIR.Backend;
 /// </summary>
 internal sealed partial class StackScheduler
 {
+    private static readonly bool s_traceStack =
+        string.Equals(Environment.GetEnvironmentVariable("NEO_IR_TRACE_STACK"), "1", StringComparison.OrdinalIgnoreCase);
+
     private void EmitModMul(LirBlock block, VModMul node)
     {
         PrepareOperands(block, node.Span, (node.Left, false), (node.Right, false), (node.Modulus, false));
@@ -386,6 +389,13 @@ internal sealed partial class StackScheduler
                 AddUse(staticStore.Value);
                 break;
 
+            case VLoadLocal:
+                break;
+
+            case VStoreLocal storeLocal:
+                AddUse(storeLocal.Value);
+                break;
+
             case VSyscall syscall:
                 foreach (var arg in syscall.Arguments)
                     AddUse(arg);
@@ -671,6 +681,13 @@ internal sealed partial class StackScheduler
                 operands.Add(staticStore.Value);
                 break;
 
+            case VLoadLocal:
+                break;
+
+            case VStoreLocal storeLocal:
+                operands.Add(storeLocal.Value);
+                break;
+
             case VSyscall syscall:
                 operands.AddRange(syscall.Arguments);
                 break;
@@ -894,6 +911,14 @@ internal sealed partial class StackScheduler
 
             case VStaticStore staticStore:
                 EmitStaticStore(block, staticStore);
+                break;
+
+            case VLoadLocal loadLocal:
+                EmitLoadLocal(block, loadLocal);
+                break;
+
+            case VStoreLocal storeLocal:
+                EmitStoreLocal(block, storeLocal);
                 break;
 
             case VSyscall syscall:
@@ -1431,6 +1456,33 @@ internal sealed partial class StackScheduler
         EmitInstruction(block, inst);
     }
 
+    private void EmitLoadLocal(LirBlock block, VLoadLocal load)
+    {
+        var inst = new LirInst(LirOpcode.LDLOC)
+        {
+            Span = load.Span,
+            Immediate = new[] { unchecked((byte)load.Slot) }
+        };
+
+        EmitInstruction(block, inst);
+        TagResult(load);
+        DropIfDead(block, load);
+    }
+
+    private void EmitStoreLocal(LirBlock block, VStoreLocal store)
+    {
+        var reservations = BeginReservations();
+        PrepareOperand(block, store.Value, store.Span, forceDuplicate: false, reservations);
+
+        var inst = new LirInst(LirOpcode.STLOC)
+        {
+            Span = store.Span,
+            Immediate = new[] { unchecked((byte)store.Slot) }
+        };
+
+        EmitInstruction(block, inst);
+    }
+
     private void EmitSyscall(LirBlock block, VSyscall syscall)
     {
         var reservations = BeginReservations();
@@ -1940,6 +1992,8 @@ internal sealed partial class StackScheduler
             var slot = _stack[i];
             if (slot.Value is null)
                 continue;
+            if (slot.Value is VParam)
+                continue;
             if (GetRemainingUses(slot.Value) == 0)
                 continue;
             list.Add(slot.Value);
@@ -1948,31 +2002,61 @@ internal sealed partial class StackScheduler
         return list.Count == 0 ? Array.Empty<VNode>() : list;
     }
 
-    private void RecordEntryStack(VBlock successor, IReadOnlyList<VNode> values)
+    private void RecordEntryStack(VBlock current, VBlock successor, IReadOnlyList<VNode> values)
     {
-        if (values.Count == 0)
-            return;
-
         if (!_blockEntryStacks.TryGetValue(successor, out var existing))
         {
             _blockEntryStacks[successor] = new List<VNode>(values);
+            if (s_traceStack)
+                Console.WriteLine($"[STACK] Recording entry stack for {successor.Label} from {current.Label}: [{FormatStack(values)}]");
             return;
         }
 
         if (existing.Count != values.Count)
+        {
+            if (s_traceStack)
+            {
+                Console.WriteLine($"[STACK] Shape mismatch for {successor.Label}: existing=[{FormatStack(existing)}] incoming=[{FormatStack(values)}] (from {current.Label})");
+            }
             throw new InvalidOperationException($"Stack shape mismatch for block '{successor.Label}'.");
+        }
 
         for (int i = 0; i < existing.Count; i++)
         {
             if (!ReferenceEquals(existing[i], values[i]))
+            {
+                if (s_traceStack)
+                {
+                    Console.WriteLine($"[STACK] Value mismatch for {successor.Label} @ {i}: existing={DescribeVNode(existing[i])} incoming={DescribeVNode(values[i])} (from {current.Label})");
+                }
                 throw new InvalidOperationException($"Stack shape mismatch for block '{successor.Label}'.");
+            }
         }
+    }
+
+    private static string FormatStack(IReadOnlyList<VNode> nodes)
+        => string.Join(", ", nodes.Select(DescribeVNode));
+
+    private static string DescribeVNode(VNode? node)
+    {
+        if (node is null)
+            return "<null>";
+        return node switch
+        {
+            VLoadLocal load => $"LoadLocal(slot={load.Slot})",
+            VStoreLocal store => $"StoreLocal(slot={store.Slot})",
+            VConstInt constInt => $"ConstInt({constInt.Value})",
+            VConstBool constBool => $"ConstBool({constBool.Value})",
+            VCall call => $"Call({call.Callee})",
+            VBinary binary => $"Binary({binary.Op})",
+            _ => node.GetType().Name
+        };
     }
 
     private void AlignSuccessorStack(VBlock current, VBlock successor, LirBlock block, SourceSpan? span, int reservedTop = 0)
     {
         var values = GetTransferValues(current, successor, reservedTop);
-        RecordEntryStack(successor, values);
+        RecordEntryStack(current, successor, values);
         if (values.Count > 0)
             AlignValues(block, values, span, reservedTop);
     }
@@ -1991,8 +2075,8 @@ internal sealed partial class StackScheduler
                 throw new NotSupportedException("Conditional branch requires identical phi transfer order for both successors.");
         }
 
-        RecordEntryStack(trueTarget, trueValues);
-        RecordEntryStack(falseTarget, falseValues);
+        RecordEntryStack(current, trueTarget, trueValues);
+        RecordEntryStack(current, falseTarget, falseValues);
 
         if (trueValues.Count > 0)
             AlignValues(block, trueValues, span, reservedTop);

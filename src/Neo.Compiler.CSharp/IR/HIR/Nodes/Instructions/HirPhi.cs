@@ -6,6 +6,9 @@ namespace Neo.Compiler.HIR;
 
 internal sealed partial class HirPhi : HirInst
 {
+    public bool IsLocalPhi { get; set; }
+    public HirLocal? Local { get; set; }
+
     public HirPhi(HirType type)
         : base(type)
     {

@@ -35,55 +35,29 @@ internal sealed class HirLoweringPipeline
         using (var writer = new StreamWriter(beforePath, append: true))
         {
             writer.WriteLine($"=== MIR BEFORE OPT :: {hirFunction.Name} ===");
-            foreach (var block in mirFunction.Blocks)
-            {
-                writer.WriteLine($"BLOCK {block.Label}");
-                foreach (var phi in block.Phis)
-                    writer.WriteLine($"  PHI {phi.GetType().Name}");
-                for (int i = 0; i < block.Instructions.Count; i++)
-                {
-                    var inst = block.Instructions[i];
-                    writer.WriteLine($"  INST[{i}] {inst.GetType().Name} #{inst.GetHashCode():X}");
-                    if (inst.ConsumesMemoryToken || inst.ProducesMemoryToken)
-                    {
-                        var tokenIn = inst.TokenInput is null
-                            ? "<null>"
-                            : $"{inst.TokenInput.GetType().Name} #{inst.TokenInput.GetHashCode():X}";
-                        var tokenOut = inst.TokenOutput is null
-                            ? "<null>"
-                            : $"{inst.TokenOutput.GetType().Name} #{inst.TokenOutput.GetHashCode():X}";
-                        writer.WriteLine($"    TOKEN_IN {tokenIn}");
-                        writer.WriteLine($"    TOKEN_OUT {tokenOut}");
-                    }
-                    switch (inst)
-                    {
-                        case MirArrayNew arrayNew:
-                            writer.WriteLine($"    LENGTH {arrayNew.Length.GetType().Name} #{arrayNew.Length.GetHashCode():X}");
-                            break;
-                        case MirArraySet arraySet:
-                            writer.WriteLine($"    ARRAY {arraySet.Array.GetType().Name} #{arraySet.Array.GetHashCode():X}");
-                            writer.WriteLine($"    INDEX {arraySet.Index.GetType().Name} #{arraySet.Index.GetHashCode():X}");
-                            writer.WriteLine($"    VALUE {arraySet.Value.GetType().Name} #{arraySet.Value.GetHashCode():X}");
-                            break;
-                        case MirConvert convert:
-                            writer.WriteLine($"    VALUE {convert.Value.GetType().Name} #{convert.Value.GetHashCode():X}");
-                            break;
-                        case MirSyscall syscall:
-                            for (int argIndex = 0; argIndex < syscall.Arguments.Count; argIndex++)
-                            {
-                                var arg = syscall.Arguments[argIndex];
-                                writer.WriteLine($"    ARG[{argIndex}] {arg.GetType().Name} #{arg.GetHashCode():X}");
-                            }
-                            break;
-                    }
-                }
-                writer.WriteLine($"  TERM {block.Terminator?.GetType().Name ?? "<null>"}");
-            }
+            WriteMirFunction(writer, mirFunction);
             writer.WriteLine();
         }
 
         var mirOptimizer = new MirOptimizationPipeline();
         mirOptimizer.Run(mirFunction);
+
+        var loadMaterializer = new MirLocalLoadMaterializationPass();
+        if (loadMaterializer.Run(mirFunction))
+        {
+            if (string.Equals(Environment.GetEnvironmentVariable("NEO_IR_DUMP_MIR_MATERIALIZED"), "1", StringComparison.OrdinalIgnoreCase))
+            {
+                var matPath = Path.Combine(Path.GetTempPath(), "mir_materialized.txt");
+                using var dumpWriter = new StreamWriter(matPath, append: true);
+                dumpWriter.WriteLine($"=== MIR AFTER MATERIALIZER :: {hirFunction.Name} ===");
+                WriteMirFunction(dumpWriter, mirFunction);
+                dumpWriter.WriteLine();
+            }
+
+            MirMemoryTokenRetargeter.Retokenize(mirFunction);
+            MirPhiUtilities.DeduplicateTokenInputs(mirFunction);
+            MirPhiUtilities.PruneNonPredecessorInputs(mirFunction);
+        }
 
         var mirVerification = new MirVerifier().Verify(mirFunction);
         if (mirVerification.Count > 0)
@@ -98,42 +72,12 @@ internal sealed class HirLoweringPipeline
                 writer.WriteLine($"=== MIR VERIFY FAIL :: {hirFunction.Name} ===");
                 foreach (var error in mirVerification)
                     writer.WriteLine($"ERROR: {error}");
-
-                foreach (var block in mirFunction.Blocks)
-                {
-                    writer.WriteLine($"BLOCK {block.Label}");
-                    foreach (var phi in block.Phis)
-                        writer.WriteLine($"  PHI {phi.GetType().Name}");
-                    for (int i = 0; i < block.Instructions.Count; i++)
-                    {
-                        var inst = block.Instructions[i];
-                        writer.WriteLine($"  INST[{i}] {inst.GetType().Name} #{inst.GetHashCode():X}");
-                        if (inst.ConsumesMemoryToken || inst.ProducesMemoryToken)
-                        {
-                            var tokenIn = inst.TokenInput is null
-                                ? "<null>"
-                                : $"{inst.TokenInput.GetType().Name} #{inst.TokenInput.GetHashCode():X}";
-                            var tokenOut = inst.TokenOutput is null
-                                ? "<null>"
-                                : $"{inst.TokenOutput.GetType().Name} #{inst.TokenOutput.GetHashCode():X}";
-                            writer.WriteLine($"    TOKEN_IN {tokenIn}");
-                            writer.WriteLine($"    TOKEN_OUT {tokenOut}");
-                        }
-                    }
-                    writer.WriteLine($"  TERM {block.Terminator?.GetType().Name ?? "<null>"}");
-                }
+                WriteMirFunction(writer, mirFunction);
                 writer.WriteLine();
             }
 
-            foreach (var block in mirFunction.Blocks)
-            {
-                Console.WriteLine($"[MIR BLOCK] {block.Label}");
-                foreach (var phi in block.Phis)
-                    Console.WriteLine($"  [Phi] {phi.GetType().Name}");
-                foreach (var inst in block.Instructions)
-                    Console.WriteLine($"  [Inst] {inst.GetType().Name}");
-                Console.WriteLine($"  [Terminator] {block.Terminator?.GetType().Name ?? "<null>"}");
-            }
+            var consoleWriter = TextWriter.Synchronized(Console.Out);
+            WriteMirFunction(consoleWriter, mirFunction);
 
             var message = string.Join(Environment.NewLine, mirVerification);
             throw new InvalidOperationException($"MIR verification failed for '{hirFunction.Name}':{Environment.NewLine}{message}");
@@ -143,4 +87,94 @@ internal sealed class HirLoweringPipeline
 
         _mirToLir.Lower(mirFunction, lirModule);
     }
+
+    private static void WriteMirFunction(TextWriter writer, MirFunction function)
+    {
+        foreach (var block in function.Blocks)
+        {
+            writer.WriteLine($"BLOCK {block.Label}");
+            foreach (var phi in block.Phis)
+            {
+                writer.WriteLine($"  PHI {phi.GetType().Name} Type={phi.Type.GetType().Name} Inputs={phi.Inputs.Count}");
+                foreach (var (pred, value) in phi.Inputs)
+                    writer.WriteLine($"    IN {pred.Label}: {DescribeMirValue(value)}");
+            }
+
+            for (int i = 0; i < block.Instructions.Count; i++)
+            {
+                var inst = block.Instructions[i];
+                writer.WriteLine($"  INST[{i}] {inst.GetType().Name} #{inst.GetHashCode():X}");
+
+                if (inst.ConsumesMemoryToken || inst.ProducesMemoryToken)
+                {
+                    var tokenIn = inst.TokenInput is null ? "<null>" : DescribeMirValue(inst.TokenInput);
+                    var tokenOut = inst.TokenOutput is null ? "<null>" : DescribeMirValue(inst.TokenOutput);
+                    writer.WriteLine($"    TOKEN_IN {tokenIn}");
+                    writer.WriteLine($"    TOKEN_OUT {tokenOut}");
+                }
+
+                switch (inst)
+                {
+                    case MirArrayNew arrayNew:
+                        writer.WriteLine($"    LENGTH {DescribeMirValue(arrayNew.Length)}");
+                        break;
+                    case MirArraySet arraySet:
+                        writer.WriteLine($"    ARRAY {DescribeMirValue(arraySet.Array)}");
+                        writer.WriteLine($"    INDEX {DescribeMirValue(arraySet.Index)}");
+                        writer.WriteLine($"    VALUE {DescribeMirValue(arraySet.Value)}");
+                        break;
+                    case MirConvert convert:
+                        writer.WriteLine($"    VALUE {DescribeMirValue(convert.Value)}");
+                        break;
+                    case MirSyscall syscall:
+                        for (int argIndex = 0; argIndex < syscall.Arguments.Count; argIndex++)
+                            writer.WriteLine($"    ARG[{argIndex}] {DescribeMirValue(syscall.Arguments[argIndex])}");
+                        break;
+                    case MirLoadLocal loadLocal:
+                        writer.WriteLine($"    SLOT {loadLocal.Slot}");
+                        break;
+                    case MirStoreLocal storeLocal:
+                        writer.WriteLine($"    SLOT {storeLocal.Slot} VALUE {DescribeMirValue(storeLocal.Value)}");
+                        break;
+                    case MirCall call:
+                        for (int argIndex = 0; argIndex < call.Arguments.Count; argIndex++)
+                            writer.WriteLine($"    ARG[{argIndex}] {DescribeMirValue(call.Arguments[argIndex])}");
+                        break;
+                }
+            }
+
+            writer.WriteLine($"  TERM {block.Terminator?.GetType().Name ?? "<null>"}");
+            switch (block.Terminator)
+            {
+                case MirReturn ret when ret.Value is { } value:
+                    writer.WriteLine($"    VALUE {DescribeMirValue(value)}");
+                    break;
+                case MirCondBranch cond:
+                    writer.WriteLine($"    COND {DescribeMirValue(cond.Condition)}");
+                    writer.WriteLine($"    TRUE -> {cond.TrueTarget.Label}");
+                    writer.WriteLine($"    FALSE -> {cond.FalseTarget.Label}");
+                    break;
+                case MirCompareBranch cmp:
+                    writer.WriteLine($"    LEFT {DescribeMirValue(cmp.Left)} RIGHT {DescribeMirValue(cmp.Right)}");
+                    writer.WriteLine($"    TRUE -> {cmp.TrueTarget.Label}");
+                    writer.WriteLine($"    FALSE -> {cmp.FalseTarget.Label}");
+                    break;
+                case MirSwitch @switch:
+                    writer.WriteLine($"    KEY {DescribeMirValue(@switch.Key)}");
+                    foreach (var (value, target) in @switch.Cases)
+                        writer.WriteLine($"    CASE {value} -> {target.Label}");
+                    writer.WriteLine($"    DEFAULT -> {@switch.DefaultTarget.Label}");
+                    break;
+                case MirBranch branch:
+                    writer.WriteLine($"    TARGET -> {branch.Target.Label}");
+                    break;
+                case MirLeave leave:
+                    writer.WriteLine($"    TARGET -> {leave.Target.Label}");
+                    break;
+            }
+        }
+    }
+
+    private static string DescribeMirValue(MirValue? value)
+        => value is null ? "<null>" : $"{value.GetType().Name}#{value.GetHashCode():X}";
 }

@@ -277,7 +277,7 @@ internal sealed partial class HirMethodImporter
         var mergeBlock = builder.CreateBlock(NewBlockLabel("logic_merge"));
 
         var left = LowerExpression(model, binary.Left);
-        _hirBuilder!.Append(new HirStoreLocal(resultLocal, left));
+        AppendStoreLocal(new HirStoreLocal(resultLocal, left));
         if (binary.IsKind(SyntaxKind.LogicalAndExpression))
         {
             AppendConditional(left, rhsBlock, mergeBlock);
@@ -289,7 +289,7 @@ internal sealed partial class HirMethodImporter
 
         builder.SetCurrentBlock(rhsBlock);
         var right = LowerExpression(model, binary.Right);
-        _hirBuilder.Append(new HirStoreLocal(resultLocal, right));
+        AppendStoreLocal(new HirStoreLocal(resultLocal, right));
         AppendBranch(mergeBlock);
 
         builder.SetCurrentBlock(mergeBlock);
@@ -768,12 +768,12 @@ internal sealed partial class HirMethodImporter
 
         builder.SetCurrentBlock(trueBlock);
         var trueValue = LowerExpression(model, conditional.WhenTrue);
-        builder.Append(new HirStoreLocal(tempLocal, trueValue));
+        AppendStoreLocal(new HirStoreLocal(tempLocal, trueValue));
         AppendBranch(mergeBlock);
 
         builder.SetCurrentBlock(falseBlock);
         var falseValue = LowerExpression(model, conditional.WhenFalse);
-        builder.Append(new HirStoreLocal(tempLocal, falseValue));
+        AppendStoreLocal(new HirStoreLocal(tempLocal, falseValue));
         AppendBranch(mergeBlock);
 
         builder.SetCurrentBlock(mergeBlock);
