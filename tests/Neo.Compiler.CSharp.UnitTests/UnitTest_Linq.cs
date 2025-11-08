@@ -436,5 +436,21 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(100, result[1]);
             Assert.AreEqual(56, result[2]);
         }
+
+        [TestMethod]
+        public void Test_GenericLinqRegression()
+        {
+            var array = new List<object> { -5, 0, 4, 7 };
+
+            Assert.IsTrue(Contract.AnyGreaterThanZero(array));
+            Assert.IsFalse(Contract.AnyGreaterThan(array, 10));
+
+            var positives = (Array)Contract.WhereGreaterThanZero(array)!;
+            Assert.AreEqual(2, positives.Count);
+
+            var aggregate = Contract.AggregateSum(array);
+            Assert.IsNotNull(aggregate);
+            Assert.AreEqual(new BigInteger(6), aggregate);
+        }
     }
 }
