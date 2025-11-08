@@ -107,7 +107,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 _ when type == typeof(UInt256) => new UInt256(stackItem.GetSpan().ToArray()),
                 _ when type == typeof(ECPoint) => ECPoint.FromBytes(stackItem.GetSpan().ToArray(), ECCurve.Secp256r1),
                 _ when typeof(IInteroperable).IsAssignableFrom(type) => CreateInteroperable(stackItem, type),
-                _ when stackItem is InteropInterface it && it.GetInterface().GetType() == type => it.GetInterface(),
+                _ when stackItem is InteropInterface it && it.GetInterface<object>().GetType() == type => it.GetInterface<object>(),
 
                 _ when stackItem is VM.Types.Array ar => type switch
                 {

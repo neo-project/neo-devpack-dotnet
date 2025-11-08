@@ -56,6 +56,7 @@ namespace Neo.Compiler
         public string? BaseName { get; set; }
         public string CompilerVersion { get; set; }
         private CSharpParseOptions? parseOptions = null;
+        public bool SkipRestoreIfAssetsPresent { get; set; }
 
         public CSharpParseOptions GetParseOptions()
         {
