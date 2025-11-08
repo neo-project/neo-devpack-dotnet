@@ -21,17 +21,10 @@ namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 [TestClass]
 public class SyntaxTests
 {
-    private static readonly bool RunProbes = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RUN_SYNTAX_PROBES"));
-    private static readonly IReadOnlyList<SyntaxProbeCase> Probes = RunProbes ? SyntaxProbeLoader.Load() : Array.Empty<SyntaxProbeCase>();
+    private static readonly IReadOnlyList<SyntaxProbeCase> Probes = SyntaxProbeLoader.Load();
 
     public static IEnumerable<object[]> GetSyntaxProbes()
     {
-        if (!RunProbes)
-        {
-            yield return new object[] { (SyntaxProbeCase)null! };
-            yield break;
-        }
-
         foreach (var probe in Probes)
         {
             yield return new object[] { probe };
@@ -42,25 +35,12 @@ public class SyntaxTests
     [DynamicData(nameof(GetSyntaxProbes), DynamicDataSourceType.Method)]
     public void Syntax_Feature_Probe(SyntaxProbeCase probe)
     {
-        if (!RunProbes)
-        {
-            Assert.Inconclusive("Syntax probes are skipped unless RUN_SYNTAX_PROBES is set.");
-        }
-
-        if (probe is null)
-        {
-            Assert.Inconclusive("Syntax probes are skipped unless RUN_SYNTAX_PROBES is set.");
-        }
         Helper.AssertProbe(probe);
     }
 
     [TestMethod]
     public void Syntax_Probe_HasUniqueIds()
     {
-        if (!RunProbes)
-        {
-            Assert.Inconclusive("Syntax probes are skipped unless RUN_SYNTAX_PROBES is set.");
-        }
         var duplicates = Probes
             .GroupBy(p => p.Id)
             .Where(g => g.Count() > 1)
@@ -73,10 +53,6 @@ public class SyntaxTests
     [TestMethod]
     public void Unsupported_Syntax_Summary_Is_UpToDate()
     {
-        if (!RunProbes)
-        {
-            Assert.Inconclusive("Syntax probes are skipped unless RUN_SYNTAX_PROBES is set.");
-        }
         var unsupportedIds = Probes
             .Where(p => p.Status == SyntaxSupportStatus.Unsupported)
             .Select(p => p.Id)
@@ -96,4 +72,5 @@ public class SyntaxTests
         var unknown = referencedIds.Where(id => !unsupportedIds.Contains(id)).ToArray();
         CollectionAssert.AreEquivalent(Array.Empty<string>(), unknown, "UnsupportedFeatures.md references unexpected ids: " + string.Join(", ", unknown));
     }
+
 }
