@@ -11,7 +11,6 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
   - DateTime helpers (`datetime_methods`)
   - TimeSpan helpers (`timespan_methods`)
   - Convert class helpers (`convert_methods`)
-  - StringBuilder helpers (`stringbuilder_methods`)
 
 - **C# 2 Syntax Checklist**  
   - Anonymous methods (`anonymous_method`)

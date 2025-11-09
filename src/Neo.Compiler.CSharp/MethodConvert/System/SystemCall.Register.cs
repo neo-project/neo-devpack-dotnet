@@ -55,6 +55,7 @@ internal partial class MethodConvert
 
         // String handlers
         RegisterStringHandlers();
+        RegisterStringBuilderHandlers();
 
         // Array handlers
         RegisterArrayHandlers();
