@@ -194,5 +194,64 @@ namespace Neo.Compiler.CSharp.TestContracts
 
             return (a, b, twoD, twoDFromVariables);
         }
+
+        public static int[,] MultiDimensionalCreatedBySize()
+        {
+            var matrix = new int[2, 3];
+            matrix[0, 1] = 5;
+            matrix[1, 2] = 7;
+            return matrix;
+        }
+
+        public static int MultiDimensionalNewOnly()
+        {
+            var matrix = new int[2, 3];
+            return 42;
+        }
+
+        public static int[,] MultiDimensionalInitializer()
+        {
+            return new int[,] { { 1, 2 }, { 3, 4 } };
+        }
+
+        public static int[,] MultiDimensionalImplicitInitializer()
+        {
+            return new[,] { { 5, 6 }, { 7, 8 } };
+        }
+
+        public static int MultiDimensionalAssignments()
+        {
+            var matrix = new int[2, 2];
+            matrix[0, 0] = 3;
+            matrix[1, 1] = matrix[0, 0] + 2;
+            matrix[1, 1] += 5;
+            matrix[1, 1]--;
+            ++matrix[1, 1];
+            return matrix[1, 1];
+        }
+
+        public static string[,] MultiDimensionalCoalesce()
+        {
+            var matrix = new string[1, 2];
+            matrix[0, 0] ??= "left";
+            matrix[0, 1] ??= "right";
+            return matrix;
+        }
+
+        public static int MultiDimensionalForeachSum()
+        {
+            var matrix = new int[,] { { 1, 2, 3 }, { 4, 5, 6 } };
+            int sum = 0;
+            foreach (var value in matrix)
+            {
+                sum += value;
+            }
+            return sum;
+        }
+
+        public static byte[,] MultiDimensionalByteInitializer()
+        {
+            return new byte[,] { { 1, 2 }, { 3, 4 } };
+        }
     }
 }
