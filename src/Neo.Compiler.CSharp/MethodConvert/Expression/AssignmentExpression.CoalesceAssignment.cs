@@ -68,12 +68,12 @@ internal partial class MethodConvert
 
     private void ConvertElementAccessCoalesceAssignment(SemanticModel model, ElementAccessExpressionSyntax left, ExpressionSyntax right)
     {
-        if (left.ArgumentList.Arguments.Count != 1)
-            throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
         JumpTarget assignmentTarget = new();
         JumpTarget endTarget = new();
         if (model.GetSymbolInfo(left).Symbol is IPropertySymbol property)
         {
+            if (left.ArgumentList.Arguments.Count != 1)
+                throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
@@ -93,21 +93,47 @@ internal partial class MethodConvert
         }
         else
         {
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.ISNULL);
-            Jump(OpCode.JMPIF_L, assignmentTarget);
-            AddInstruction(OpCode.PICKITEM);
-            Jump(OpCode.JMP_L, endTarget);
-            assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
-            ConvertExpression(model, right);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            IArrayTypeSymbol? arrayType = model.GetTypeInfo(left.Expression).Type as IArrayTypeSymbol;
+            if (arrayType is not null && arrayType.Rank > 1)
+            {
+                EnsureMultiDimensionalArguments(left.ArgumentList.Arguments, arrayType.Rank, left.ArgumentList);
+                ConvertExpression(model, left.Expression);
+                EmitArrayDimensionNavigation(model, left.ArgumentList.Arguments, arrayType.Rank - 1);
+                ConvertExpression(model, left.ArgumentList.Arguments[left.ArgumentList.Arguments.Count - 1].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.PICKITEM);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
+            else
+            {
+                if (left.ArgumentList.Arguments.Count != 1)
+                    throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.ISNULL);
+                Jump(OpCode.JMPIF_L, assignmentTarget);
+                AddInstruction(OpCode.PICKITEM);
+                Jump(OpCode.JMP_L, endTarget);
+                assignmentTarget.Instruction = AddInstruction(OpCode.NOP);
+                ConvertExpression(model, right);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }

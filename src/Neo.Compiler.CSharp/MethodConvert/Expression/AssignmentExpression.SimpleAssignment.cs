@@ -94,20 +94,35 @@ internal partial class MethodConvert
 
     private void ConvertElementAccessAssignment(SemanticModel model, ElementAccessExpressionSyntax left)
     {
-        if (left.ArgumentList.Arguments.Count != 1)
-            throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
         if (model.GetSymbolInfo(left).Symbol is IPropertySymbol property)
         {
+            if (left.ArgumentList.Arguments.Count != 1)
+                throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             ConvertExpression(model, left.Expression);
             CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
         }
         else
         {
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.ROT);
-            AddInstruction(OpCode.SETITEM);
+            IArrayTypeSymbol? arrayType = model.GetTypeInfo(left.Expression).Type as IArrayTypeSymbol;
+            if (arrayType is not null && arrayType.Rank > 1)
+            {
+                EnsureMultiDimensionalArguments(left.ArgumentList.Arguments, arrayType.Rank, left.ArgumentList);
+                ConvertExpression(model, left.Expression);
+                EmitArrayDimensionNavigation(model, left.ArgumentList.Arguments, arrayType.Rank - 1);
+                ConvertExpression(model, left.ArgumentList.Arguments[left.ArgumentList.Arguments.Count - 1].Expression);
+                AddInstruction(OpCode.ROT);
+                AddInstruction(OpCode.SETITEM);
+            }
+            else
+            {
+                if (left.ArgumentList.Arguments.Count != 1)
+                    throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.ROT);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
     }
 

@@ -27,10 +27,9 @@ internal partial class MethodConvert
     /// </summary>
     /// <param name="model">The semantic model providing context and information about element access expression.</param>
     /// <param name="expression">The syntax representation of the element access expression statement being converted.</param>
-    /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
     /// <remarks>
     /// If the accessed element is a property, the method calls the property's getter.
-    /// If the accessed element is an array or a collection, the method generates OpCodes to fetch the element.
+    /// Arrays of any rank are supported: the compiler drills through each index and emits the necessary PICKITEM calls.
     /// </remarks>
     /// <example>
     /// The following example demonstrates how to access array elements:
@@ -47,17 +46,27 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/member-access-operators#indexer-operator-">Indexer operator []</seealso>
     private void ConvertElementAccessExpression(SemanticModel model, ElementAccessExpressionSyntax expression)
     {
-        if (expression.ArgumentList.Arguments.Count != 1)
-            throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
         if (model.GetSymbolInfo(expression).Symbol is IPropertySymbol property)
         {
             CallMethodWithInstanceExpression(model, property.GetMethod!, expression.Expression, expression.ArgumentList.Arguments.ToArray());
         }
         else
         {
-            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-            ConvertExpression(model, expression.Expression);
-            ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+            ITypeSymbol arrayExpressionType = model.GetTypeInfo(expression.Expression).Type!;
+            if (arrayExpressionType is IArrayTypeSymbol { Rank: > 1 } arrayType)
+            {
+                EnsureMultiDimensionalArguments(expression.ArgumentList.Arguments, arrayType.Rank, expression.ArgumentList);
+                ConvertExpression(model, expression.Expression);
+                EmitArrayDimensionNavigation(model, expression.ArgumentList.Arguments, arrayType.Rank);
+            }
+            else
+            {
+                if (expression.ArgumentList.Arguments.Count != 1)
+                    throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
+                ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+                ConvertExpression(model, expression.Expression);
+                ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+            }
         }
     }
 
@@ -66,7 +75,6 @@ internal partial class MethodConvert
     /// </summary>
     /// <param name="model">The semantic model providing context and information about element binding expression.</param>
     /// <param name="expression">The syntax representation of the element binding expression statement being converted.</param>
-    /// <exception cref="CompilationException">Only one-dimensional arrays are supported, otherwise an exception is thrown.</exception>
     /// <example>
     /// <code>
     /// var a = Ledger.GetBlock(10000);
@@ -78,10 +86,21 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertElementBindingExpression(SemanticModel model, ElementBindingExpressionSyntax expression)
     {
-        if (expression.ArgumentList.Arguments.Count != 1)
-            throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
-        ITypeSymbol type = model.GetTypeInfo(expression).Type!;
-        ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+        IArrayTypeSymbol? arrayType = expression.Parent is ConditionalAccessExpressionSyntax parent
+            ? model.GetTypeInfo(parent.Expression).Type as IArrayTypeSymbol
+            : null;
+        if (arrayType is not null && arrayType.Rank > 1)
+        {
+            EnsureMultiDimensionalArguments(expression.ArgumentList.Arguments, arrayType.Rank, expression.ArgumentList);
+            EmitArrayDimensionNavigation(model, expression.ArgumentList.Arguments, arrayType.Rank);
+        }
+        else
+        {
+            if (expression.ArgumentList.Arguments.Count != 1)
+                throw new CompilationException(expression.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {expression.ArgumentList.Arguments}");
+            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+            ConvertIndexOrRange(model, type, expression.ArgumentList.Arguments[0].Expression);
+        }
     }
 
     /// <summary>
@@ -168,6 +187,27 @@ internal partial class MethodConvert
         else
         {
             ConvertExpression(model, indexOrRange);
+            AddInstruction(OpCode.PICKITEM);
+        }
+    }
+
+    private void EnsureMultiDimensionalArguments(SeparatedSyntaxList<ArgumentSyntax> arguments, int expectedRank, SyntaxNode errorNode)
+    {
+        if (arguments.Count != expectedRank)
+            throw new CompilationException(errorNode, DiagnosticId.MultidimensionalArray, $"Expected {expectedRank} indices for multi-dimensional array access, but found {arguments.Count}.");
+
+        foreach (ArgumentSyntax argument in arguments)
+        {
+            if (argument.Expression is RangeExpressionSyntax)
+                throw new CompilationException(argument.Expression, DiagnosticId.MultidimensionalArray, "Range expressions are not supported for multi-dimensional arrays.");
+        }
+    }
+
+    private void EmitArrayDimensionNavigation(SemanticModel model, SeparatedSyntaxList<ArgumentSyntax> arguments, int dimensionsToTraverse)
+    {
+        for (int i = 0; i < dimensionsToTraverse; i++)
+        {
+            ConvertExpression(model, arguments[i].Expression);
             AddInstruction(OpCode.PICKITEM);
         }
     }

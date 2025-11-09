@@ -5,7 +5,6 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
 ## Summary by Version
 
 - **C# 1 Syntax Checklist**  
-  - Multi-dimensional arrays (`multi_dim_array`)
   - Unsafe code blocks (`unsafe_code`)
   - BitOperations helpers (`numerics_bit_operations`)
   - DateTime helpers (`datetime_methods`)
