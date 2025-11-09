@@ -1,0 +1,10 @@
+{
+  "defaultNetwork": "express",
+  "artifacts": {
+    "nef": "../TemplateContractProject/bin/sc/TemplateContractProject.nef",
+    "manifest": "../TemplateContractProject/bin/sc/TemplateContractProject.manifest.json",
+    "initParameters": []
+  },
+  "customNetworks": {},
+  "defaultWif": ""
+}

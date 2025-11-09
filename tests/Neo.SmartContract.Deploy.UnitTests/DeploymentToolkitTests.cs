@@ -576,12 +576,33 @@ public class DeploymentToolkitTests : TestBase
     }
 
     [Fact]
-    public async Task ContractExistsAsync_ShouldReturnFalse_WhenRpcThrows()
+    public async Task ContractExistsAsync_ShouldPropagate_WhenRpcThrowsUnexpectedError()
     {
         // Arrange
         var handlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
         {
             ["getcontractstate"] = _ => throw new InvalidOperationException("not found")
+        };
+
+        var factory = CreateFactoryWithVersion(
+            NetworkProfile.TestNet.NetworkMagic ?? 894710606u,
+            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, handlers));
+
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            toolkit.ContractExistsAsync("0x0123456789abcdef0123456789abcdef01234567"));
+    }
+
+    [Fact]
+    public async Task ContractExistsAsync_ShouldReturnFalse_WhenRpcReportsUnknownContract()
+    {
+        // Arrange
+        var handlers = new Dictionary<string, Func<JToken[], JToken>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["getcontractstate"] = _ => throw new RpcException(-102, "unknown contract")
         };
 
         var factory = CreateFactoryWithVersion(

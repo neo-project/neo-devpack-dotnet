@@ -27,5 +27,10 @@ namespace Neo.SmartContract.Framework.TestContracts
         public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null)
         {
         }
+
+        public static bool Verify(params object[] args)
+        {
+            return true;
+        }
     }
 }

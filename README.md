@@ -487,6 +487,24 @@ var exists = await deployment.ContractExistsAsync("contract-hash");
 var gasBalance = await deployment.GetGasBalanceAsync();
 ```
 
+### Deployment Project Template
+
+Scaffold a ready-to-run deployment helper alongside your solution:
+
+```bash
+dotnet new neodeploy --contract-project MyContract -n MyContract.Deploy
+cd MyContract.Deploy
+dotnet run -- deploy --network express --wif <your-wif>
+```
+
+The generated project keeps deployment settings inside `deploysettings.json`, which points at the compiled `.nef`/`.manifest.json` artifacts (defaulting to `../MyContract/bin/sc`). It exposes three commands:
+
+- `deploy` – Load the compiled artifacts file, deploy to Neo-Express, mainnet, testnet, or any custom RPC URL, and wait for confirmation (optional).
+- `invoke` – Send state-changing transactions to the deployed contract.
+- `call` – Perform read-only invocations and print the result (choose the return type via `--return`).
+
+Override networks on the fly via `--network mainnet` / `--network testnet` / `--network express` or provide any custom RPC URL with `--rpc http://host:port`. You can also register bespoke aliases under `customNetworks` within `deploysettings.json`.
+
 ### Configuration File Support
 
 Create an `appsettings.json` file for configuration:

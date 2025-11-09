@@ -29,6 +29,7 @@ namespace Neo.SmartContract.Deploy;
 public class DeploymentToolkit : IDisposable
 {
     private const string DefaultRpcUrl = "http://localhost:10332";
+    private const int RpcUnknownContractCode = -102;
 
     private IConfiguration _configuration = default!;
     private IRpcClientFactory _rpcClientFactory = default!;
@@ -40,6 +41,7 @@ public class DeploymentToolkit : IDisposable
     private bool _networkMagicFetchedFromRpc;
     private bool _networkMagicFallbackActive;
     private DateTime _networkMagicLastAttemptUtc;
+    private bool _networkMagicRetryPending;
     private bool _disposed = false;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -96,6 +98,7 @@ public class DeploymentToolkit : IDisposable
         _networkMagicFetchedFromRpc = false;
         _networkMagicFallbackActive = false;
         _networkMagicLastAttemptUtc = DateTime.MinValue;
+        _networkMagicRetryPending = false;
     }
 
     /// <summary>
@@ -124,6 +127,7 @@ public class DeploymentToolkit : IDisposable
         _networkMagicFetchedFromRpc = false;
         _networkMagicFallbackActive = false;
         _networkMagicLastAttemptUtc = DateTime.MinValue;
+        _networkMagicRetryPending = false;
         return this;
     }
 
@@ -405,7 +409,36 @@ public class DeploymentToolkit : IDisposable
         var protocolSettings = await GetProtocolSettingsAsync().ConfigureAwait(false);
         var resolvedSigners = ResolveSigners(signers, protocolSettings);
 
-        string? defaultWif = null;
+        KeyPair? defaultKeyPair = null;
+        UInt160? defaultSignerAccount = null;
+
+        if (!string.IsNullOrWhiteSpace(_wifKey))
+        {
+            defaultKeyPair = Neo.Network.RPC.Utility.GetKeyPair(_wifKey);
+            defaultSignerAccount = Neo.SmartContract.Contract.CreateSignatureContract(defaultKeyPair.PublicKey).ScriptHash;
+        }
+
+        KeyPair EnsureDefaultKeyPair()
+        {
+            if (defaultKeyPair is not null)
+                return defaultKeyPair;
+
+            var wif = EnsureWif();
+            defaultKeyPair = Neo.Network.RPC.Utility.GetKeyPair(wif);
+            defaultSignerAccount ??= Neo.SmartContract.Contract.CreateSignatureContract(defaultKeyPair.PublicKey).ScriptHash;
+            return defaultKeyPair;
+        }
+
+        UInt160 EnsureDefaultSignerAccount()
+        {
+            if (defaultSignerAccount is not null)
+                return defaultSignerAccount;
+
+            var key = EnsureDefaultKeyPair();
+            defaultSignerAccount = Neo.SmartContract.Contract.CreateSignatureContract(key.PublicKey).ScriptHash;
+            return defaultSignerAccount!;
+        }
+
         UInt160 sender;
         if (resolvedSigners.Count > 0)
         {
@@ -413,9 +446,7 @@ public class DeploymentToolkit : IDisposable
         }
         else
         {
-            defaultWif = EnsureWif();
-            var keyPair = Neo.Network.RPC.Utility.GetKeyPair(defaultWif);
-            sender = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
+            sender = EnsureDefaultSignerAccount();
             resolvedSigners = new[]
             {
                 new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry }
@@ -433,11 +464,19 @@ public class DeploymentToolkit : IDisposable
 
         if (signerDelegate is null)
         {
-            if (string.IsNullOrEmpty(defaultWif))
+            if (string.IsNullOrWhiteSpace(_wifKey))
             {
                 throw new InvalidOperationException("No signing credentials available. Provide a WIF via SetWifKey(), configure DeploymentOptions.TransactionSignerAsync, or supply a transaction signer when calling DeployArtifactsAsync.");
             }
-            var key = Neo.Network.RPC.Utility.GetKeyPair(defaultWif);
+
+            var key = EnsureDefaultKeyPair();
+            var wifAccount = EnsureDefaultSignerAccount();
+
+            if (!resolvedSigners.Any(s => s.Account == wifAccount))
+            {
+                throw new InvalidOperationException("Resolved signers do not contain the account derived from the configured WIF. Supply a TransactionSignerAsync or include a signer entry for that account.");
+            }
+
             signerDelegate = (tm, ct) =>
             {
                 tm.AddSignature(key);
@@ -612,7 +651,13 @@ public class DeploymentToolkit : IDisposable
     /// <param name="method">Method name</param>
     /// <param name="args">Method arguments</param>
     /// <returns>Method return value</returns>
-    public async Task<T> CallAsync<T>(string contractHashOrAddress, string method, params object[] args)
+    public Task<T> CallAsync<T>(string contractHashOrAddress, string method, params object[] args)
+        => CallAsync<T>(contractHashOrAddress, method, cancellationToken: default, args);
+
+    /// <summary>
+    /// Call a contract method (read-only) with cancellation support.
+    /// </summary>
+    public async Task<T> CallAsync<T>(string contractHashOrAddress, string method, CancellationToken cancellationToken, params object[] args)
     {
         EnsureNotDisposed();
 
@@ -632,7 +677,7 @@ public class DeploymentToolkit : IDisposable
             var item = result.Stack[0];
             object? value = ConvertStackItem<T>(item);
             return (T)value!;
-        }, CancellationToken.None).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -642,7 +687,13 @@ public class DeploymentToolkit : IDisposable
     /// <param name="method">Method name</param>
     /// <param name="args">Method arguments</param>
     /// <returns>Transaction hash</returns>
-    public async Task<UInt256> InvokeAsync(string contractHashOrAddress, string method, params object[] args)
+    public Task<UInt256> InvokeAsync(string contractHashOrAddress, string method, params object[] args)
+        => InvokeAsync(contractHashOrAddress, method, cancellationToken: default, args);
+
+    /// <summary>
+    /// Invoke a contract method (state-changing) with cancellation support.
+    /// </summary>
+    public async Task<UInt256> InvokeAsync(string contractHashOrAddress, string method, CancellationToken cancellationToken, params object[] args)
     {
         EnsureNotDisposed();
         var wif = EnsureWif();
@@ -661,7 +712,7 @@ public class DeploymentToolkit : IDisposable
             tm.AddSignature(key);
             var tx = await tm.SignAsync().ConfigureAwait(false);
             return await rpc.SendRawTransactionAsync(tx).ConfigureAwait(false);
-        }, CancellationToken.None).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -685,7 +736,13 @@ public class DeploymentToolkit : IDisposable
     /// </summary>
     /// <param name="address">Account address (null for default deployer)</param>
     /// <returns>GAS balance</returns>
-    public async Task<decimal> GetGasBalanceAsync(string? address = null)
+    public Task<decimal> GetGasBalanceAsync(string? address = null)
+        => GetGasBalanceAsync(address, CancellationToken.None);
+
+    /// <summary>
+    /// Get the current balance of an account with cancellation support.
+    /// </summary>
+    public async Task<decimal> GetGasBalanceAsync(string? address, CancellationToken cancellationToken)
     {
         EnsureNotDisposed();
 
@@ -701,7 +758,7 @@ public class DeploymentToolkit : IDisposable
             var decimals = await nep17.DecimalsAsync(NativeContract.GAS.Hash).ConfigureAwait(false);
             var factor = BigInteger.Pow(10, (int)decimals);
             return (decimal)balance / (decimal)factor;
-        }, CancellationToken.None).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -811,7 +868,13 @@ public class DeploymentToolkit : IDisposable
     /// </summary>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
     /// <returns>True if contract exists, false otherwise</returns>
-    public async Task<bool> ContractExistsAsync(string contractHashOrAddress)
+    public Task<bool> ContractExistsAsync(string contractHashOrAddress)
+        => ContractExistsAsync(contractHashOrAddress, CancellationToken.None);
+
+    /// <summary>
+    /// Check if a contract exists with cancellation support.
+    /// </summary>
+    public async Task<bool> ContractExistsAsync(string contractHashOrAddress, CancellationToken cancellationToken)
     {
         EnsureNotDisposed();
 
@@ -824,11 +887,11 @@ public class DeploymentToolkit : IDisposable
                 _ = await rpc.GetContractStateAsync(hash).ConfigureAwait(false);
                 return true;
             }
-            catch
+            catch (RpcException ex) when (ex.HResult == RpcUnknownContractCode)
             {
                 return false;
             }
-        }, CancellationToken.None).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     #region Private Methods
@@ -857,7 +920,8 @@ public class DeploymentToolkit : IDisposable
             _protocolSettings,
             _networkMagicFetchedFromRpc,
             _networkMagicFallbackActive,
-            _networkMagicLastAttemptUtc);
+            _networkMagicLastAttemptUtc,
+            _networkMagicRetryPending);
 
     private void RestoreState(ToolkitSnapshot snapshot)
     {
@@ -869,6 +933,7 @@ public class DeploymentToolkit : IDisposable
         _networkMagicFetchedFromRpc = snapshot.NetworkMagicResolved;
         _networkMagicFallbackActive = snapshot.NetworkMagicFallbackActive;
         _networkMagicLastAttemptUtc = snapshot.NetworkMagicLastAttemptUtc;
+        _networkMagicRetryPending = snapshot.NetworkMagicRetryPending;
     }
 
     private IDisposable UseTemporaryWif(string? wif)
@@ -967,6 +1032,8 @@ public class DeploymentToolkit : IDisposable
             var rpcResult = await TryResolveNetworkMagicFromRpcAsync().ConfigureAwait(false);
             if (rpcResult.HasValue)
                 return rpcResult.Value;
+
+            _networkMagicRetryPending = true;
         }
 
         var fallbackTimestamp = shouldAttemptRpc
@@ -1072,6 +1139,7 @@ public class DeploymentToolkit : IDisposable
             _networkMagicFetchedFromRpc = true;
             _networkMagicFallbackActive = false;
             _networkMagicLastAttemptUtc = DateTime.UtcNow;
+            _networkMagicRetryPending = false;
             return magic;
         }
         catch
@@ -1085,7 +1153,18 @@ public class DeploymentToolkit : IDisposable
         EnsureNotDisposed();
 
         if (_protocolSettings is not null)
-            return _protocolSettings;
+        {
+            if (!_networkMagicRetryPending)
+                return _protocolSettings;
+
+            if (_networkMagicLastAttemptUtc != DateTime.MinValue &&
+                DateTime.UtcNow - _networkMagicLastAttemptUtc < NetworkMagicRetryInterval)
+            {
+                return _protocolSettings;
+            }
+
+            _protocolSettings = null;
+        }
 
         var magic = await GetNetworkMagicAsync();
         var baseSettings = ProtocolSettings.Default;
@@ -1373,7 +1452,8 @@ public class DeploymentToolkit : IDisposable
         ProtocolSettings? ProtocolSettings,
         bool NetworkMagicResolved,
         bool NetworkMagicFallbackActive,
-        DateTime NetworkMagicLastAttemptUtc);
+        DateTime NetworkMagicLastAttemptUtc,
+        bool NetworkMagicRetryPending);
 
     private readonly record struct ConfirmationPolicy(
         bool WaitForConfirmation,

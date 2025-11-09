@@ -11,12 +11,12 @@ public abstract class Contract_SupportedStandard26(Neo.SmartContract.Testing.Sma
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_SupportedStandard26"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-26""],""abi"":{""methods"":[{""name"":""onNEP11Payment"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""tokenId"",""type"":""String""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":{""Description"":""\u003CDescription Here\u003E"",""Author"":""\u003CYour Name Or Company Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_SupportedStandard26"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-26""],""abi"":{""methods"":[{""name"":""onNEP11Payment"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""tokenId"",""type"":""String""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""verify"",""parameters"":[{""name"":""args"",""type"":""Array""}],""returntype"":""Boolean"",""offset"":4,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":{""Description"":""\u003CDescription Here\u003E"",""Author"":""\u003CYour Name Or Company Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARXAARAfMbDcA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlXAARAVwABCEAJ3eFM").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -32,6 +32,18 @@ public abstract class Contract_SupportedStandard26(Neo.SmartContract.Testing.Sma
     /// </remarks>
     [DisplayName("onNEP11Payment")]
     public abstract void OnNEP11Payment(UInt160? from, BigInteger? amount, string? tokenId, object? data = null);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABCEA=
+    /// INITSLOT 0001 [64 datoshi]
+    /// PUSHT [1 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("verify")]
+    public abstract bool? Verify(IList<object>? args);
 
     #endregion
 }

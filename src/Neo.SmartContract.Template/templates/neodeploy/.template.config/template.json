@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "The Neo Project",
+  "classifications": [ "NEO", "Blockchain", "Deployment" ],
+  "identity": "Neo.SmartContract.Template.Deploy",
+  "name": "Neo Smart Contract - Deployment Project",
+  "shortName": "neodeploy",
+  "sourceName": "DeployProject",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "NeoVersion": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "3.8.1-*"
+        }
+      ],
+      "defaultValue": "3.8.1-*",
+      "replaces": "TemplateNeoVersion"
+    },
+    "ContractProject": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "MyContract",
+      "replaces": "TemplateContractProject"
+    }
+  }
+}
