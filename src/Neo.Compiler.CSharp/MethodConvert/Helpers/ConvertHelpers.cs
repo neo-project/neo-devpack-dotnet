@@ -72,17 +72,14 @@ internal partial class MethodConvert
     // Helper methods
     private void InsertStaticFieldInitialization()
     {
-        if (_context.StaticFieldCount == 0)
-            return;
-
-        if (_instructions.Count > 0 && _instructions[0].OpCode == OpCode.INITSSLOT)
-            return;
-
-        _instructions.Insert(0, new Instruction
+        if (_context.StaticFieldCount > 0)
         {
-            OpCode = OpCode.INITSSLOT,
-            Operand = [(byte)_context.StaticFieldCount]
-        });
+            _instructions.Insert(0, new Instruction
+            {
+                OpCode = OpCode.INITSSLOT,
+                Operand = [(byte)_context.StaticFieldCount]
+            });
+        }
     }
 
     private void InitializeFieldsBasedOnMethodKind(SemanticModel model)
@@ -111,19 +108,22 @@ internal partial class MethodConvert
             InsertStaticFieldInitialization();
         }
 
-        if (_initSlot)
+        // Check if we need to add an INITSLOT instruction
+        if (!_initSlot) return;
+        byte pc = (byte)Symbol.Parameters.Length;
+        byte lc = (byte)_localsCount;
+        if (NeedInstanceConstructor(Symbol)) pc++;
+        // Only add INITSLOT if we have local variables or parameters
+        if (pc > 0 || lc > 0)
         {
-            byte pc = (byte)Symbol.Parameters.Length;
-            byte lc = (byte)_localsCount;
-            if (NeedInstanceConstructor(Symbol)) pc++;
-            if (pc > 0 || lc > 0)
+            // Insert INITSLOT at the beginning of the method
+            // lc: number of local variables
+            // pc: number of parameters (including 'this' for instance methods)
+            _instructions.Insert(0, new Instruction
             {
-                _instructions.Insert(0, new Instruction
-                {
-                    OpCode = OpCode.INITSLOT,
-                    Operand = [lc, pc]
-                });
-            }
+                OpCode = OpCode.INITSLOT,
+                Operand = [lc, pc]
+            });
         }
     }
 
