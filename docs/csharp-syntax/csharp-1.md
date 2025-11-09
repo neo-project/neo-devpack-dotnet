@@ -123,12 +123,19 @@ public class ConsoleLogger : Neo.SmartContract.Framework.SmartContract, ILogger
 
 ### multi_dim_array - Multi-dimensional arrays
 
-Status: unsupported
+Status: supported
 Scope: method
-Notes: Multi-dimensional arrays are not supported by the Neo compiler.
+Notes: The compiler lowers rectangular arrays into nested Neo VM arrays. Creation, assignment, indexing, `??=` and `foreach` all work as expected.
 ```csharp
-int[,] matrix = new int[2, 2];
+int?[,] matrix = new int?[2, 2];
 matrix[0, 1] = 5;
+matrix[1, 0] ??= 3;
+
+int sum = 0;
+foreach (var value in matrix)
+{
+    sum += value ?? 0;
+}
 ```
 
 ### array_initializer - Array initializers
