@@ -183,14 +183,16 @@ int totalLength = combined.Length + prefix.IndexOf("neo");
 
 ### stringbuilder_methods - StringBuilder helpers
 
-Status: unsupported
+Status: supported
 Scope: method
-Notes: `System.Text.StringBuilder` is trimmed from the Neo runtime, so append helpers are rejected.
+Notes: Common `StringBuilder` constructors and helpers (Append/AppendLine/Clear/Length/ToString) compile and are lowered to Neo VM string concatenations.
 ```csharp
 var builder = new System.Text.StringBuilder();
 builder.Append("neo");
 builder.Append(' ');
 builder.AppendLine("compiler");
+builder.AppendLine();
+builder.Append(new System.Text.StringBuilder("runtime"));
 string result = builder.ToString();
 int length = builder.Length;
 ```

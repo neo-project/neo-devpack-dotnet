@@ -11,6 +11,7 @@
 
 using System;
 using System.Numerics;
+using System.Text;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
@@ -219,6 +220,52 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int TestLength(string s)
         {
             return s.Length;
+        }
+
+        public static string TestStringBuilderBasic()
+        {
+            var builder = new StringBuilder();
+            builder.Append("neo");
+            builder.Append(' ');
+            builder.Append("compiler");
+            builder.AppendLine();
+            builder.AppendLine("runtime");
+            return builder.ToString();
+        }
+
+        public static int TestStringBuilderLength()
+        {
+            var builder = new StringBuilder("neo");
+            builder.Append(' ');
+            builder.Append("vm");
+
+            var suffix = new StringBuilder();
+            suffix.Append(' ');
+            suffix.Append("tooling");
+            builder.Append(suffix);
+
+            return builder.Length;
+        }
+
+        public static string TestStringBuilderClear()
+        {
+            var builder = new StringBuilder("prefix");
+            builder.Clear();
+            builder.AppendLine("neo");
+            builder.Append("contracts");
+            return builder.ToString();
+        }
+
+        public static string TestStringBuilderAppendBuilder()
+        {
+            var builder = new StringBuilder("neo");
+            var other = new StringBuilder(" compiler");
+            builder.Append(other);
+            builder.AppendLine();
+            var third = new StringBuilder();
+            third.Append("preview");
+            builder.Append(third);
+            return builder.ToString();
         }
     }
 }
