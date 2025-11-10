@@ -55,6 +55,11 @@ internal partial class MethodConvert
                 return false;
 
             ITypeSymbol? typeSymbol = GetTypeSymbol(syntaxNode, model);
+            if (typeSymbol is null)
+            {
+                var typeInfo = model.GetTypeInfo(syntax);
+                typeSymbol = typeInfo.ConvertedType ?? typeInfo.Type;
+            }
 
             if (typeSymbol != null)
             {

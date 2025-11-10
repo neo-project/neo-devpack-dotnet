@@ -30,4 +30,4 @@ NC4028  | Namespace| Error    | SystemThreadingUsageAnalyzer
 NC4029  | Usage    | Warning  | NepStandardImplementationAnalyzer          
 NC4030  | Usage    | Warning  | NepStandardImplementationAnalyzer          
 NC4031  | Usage    | Error    | StringBuilderUsageAnalyzer                 
-NC4032  | Usage    | Error    | LinqUsageAnalyzer                          
+NC4032  | Usage    | Error    | ReturnValueTypeAnalyzer                    
