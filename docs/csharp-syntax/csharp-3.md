@@ -82,9 +82,9 @@ int sum = point.X + point.Y;
 
 ### query_expression - LINQ query expressions
 
-Status: supported
+Status: unsupported
 Scope: method
-Notes: LINQ queries require `using Neo.SmartContract.Framework.Linq;` and are limited to a single `from` clause (plus optional `where` and final `select`). `System.Linq` is not supported.
+Notes: Query expressions are not lowered by the compiler yet. Use method-based helpers from `Neo.SmartContract.Framework.Linq` instead; `System.Linq` is not supported.
 ```csharp
 var numbers = new[] { 1, 2, 3 };
 var evens = from n in numbers
