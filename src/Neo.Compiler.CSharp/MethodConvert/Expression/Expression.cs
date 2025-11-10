@@ -63,7 +63,14 @@ internal partial class MethodConvert
 
             if (typeSymbol != null)
             {
-                value = ConvertComplexConstantTypes(typeSymbol, value, syntax);
+                try
+                {
+                    value = ConvertComplexConstantTypes(typeSymbol, value, syntax);
+                }
+                catch (FormatException) when (syntaxNode is null)
+                {
+                    // Defer to runtime conversion when not part of a definite declaration context.
+                }
             }
 
             Push(value);
