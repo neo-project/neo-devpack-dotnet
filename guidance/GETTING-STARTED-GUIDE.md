@@ -698,6 +698,9 @@ public class ProxyContract : SmartContract
 - Solution: Check that your contract follows NEO limitations (no float, limited LINQ, etc.)
 - Run with `--verbose` flag for detailed errors
 
+**Issue: "System.Linq" namespace not found**
+- Solution: LINQ helpers live in `Neo.SmartContract.Framework.Linq`. Add `using Neo.SmartContract.Framework.Linq;` and remove `System.Linq` from your contract.
+
 **Issue: "Insufficient GAS"**
 - Solution: Request more GAS from testnet faucet
 - Optimize your contract to use less GAS
