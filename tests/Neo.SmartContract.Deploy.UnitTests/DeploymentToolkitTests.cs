@@ -347,6 +347,7 @@ public class DeploymentToolkitTests : TestBase
     {
         // Arrange
         var toolkit = new DeploymentToolkit();
+        toolkit.SetNetwork("testnet");
         var tempFile = Path.GetTempFileName();
         var invalidPath = Path.ChangeExtension(tempFile, ".txt");
         File.Move(tempFile, invalidPath);
@@ -1105,7 +1106,10 @@ namespace TestContract
         public IReadOnlyList<CompiledContractArtifact>? CompileArtifacts { get; set; }
 
         public TestDeploymentToolkit(DeploymentOptions? options = null)
-            : base(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build(), options, new NoopRpcClientFactory())
+            : base(
+                new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build(),
+                options ?? new DeploymentOptions { Network = NetworkProfile.TestNet },
+                new NoopRpcClientFactory())
         {
         }
 

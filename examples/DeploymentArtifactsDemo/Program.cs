@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Numerics;
 using Neo.SmartContract.Deploy;
 using System.Text.Json;
 
@@ -75,14 +77,9 @@ try
                 var doc = JsonDocument.Parse(argsJson);
                 if (doc.RootElement.ValueKind == JsonValueKind.Array)
                 {
-                    callArgs = doc.RootElement.EnumerateArray().Select(el => el.ValueKind switch
-                    {
-                        JsonValueKind.String => (object)el.GetString()!,
-                        JsonValueKind.Number => el.TryGetInt64(out var l) ? (object)l : el.GetDouble(),
-                        JsonValueKind.True => true,
-                        JsonValueKind.False => false,
-                        _ => el.ToString()
-                    }).ToArray();
+                    callArgs = doc.RootElement.EnumerateArray()
+                        .Select(ConvertJsonArgument)
+                        .ToArray();
                 }
             }
             catch (Exception ex)
@@ -102,3 +99,27 @@ catch (Exception ex)
     Environment.ExitCode = 1;
 }
 
+static object? ConvertJsonArgument(JsonElement element) => element.ValueKind switch
+{
+    JsonValueKind.String => element.GetString(),
+    JsonValueKind.Number => ParseInteger(element),
+    JsonValueKind.True => true,
+    JsonValueKind.False => false,
+    JsonValueKind.Null => null,
+    _ => element.GetRawText()
+};
+
+static object ParseInteger(JsonElement element)
+{
+    var raw = element.GetRawText();
+    if (raw.IndexOfAny(new[] { '.', 'e', 'E' }) >= 0)
+        throw new InvalidOperationException($"Only integer numeric values are supported in --args. Value '{raw}' cannot be converted.");
+
+    if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var int64))
+        return int64;
+
+    if (BigInteger.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var big))
+        return big;
+
+    throw new InvalidOperationException($"Unable to parse numeric value '{raw}'.");
+}

@@ -69,8 +69,7 @@ public class NetworkMagicTests : IDisposable
 
         // Assert
         Assert.Null(toolkit.CurrentNetwork.NetworkMagic);
-        var resolved = await InvokeGetNetworkMagicAsync(toolkit);
-        Assert.Equal<uint>(894710606, resolved); // falls back to default when RPC unavailable
+        await Assert.ThrowsAsync<InvalidOperationException>(() => InvokeGetNetworkMagicAsync(toolkit));
     }
 
     [Fact]

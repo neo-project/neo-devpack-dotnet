@@ -325,7 +325,7 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Deploy a pre-compiled contract from NEF and manifest files (Stub - Implementation in PR 2)
+    /// Deploy a pre-compiled contract from NEF and manifest files.
     /// </summary>
     /// <param name="nefPath">Path to NEF file</param>
     /// <param name="manifestPath">Path to manifest file</param>
@@ -439,21 +439,19 @@ public class DeploymentToolkit : IDisposable
             return defaultSignerAccount!;
         }
 
-        UInt160 sender;
-        if (resolvedSigners.Count > 0)
+        if (resolvedSigners.Count == 0)
         {
-            sender = resolvedSigners[0].Account;
-        }
-        else
-        {
-            sender = EnsureDefaultSignerAccount();
             resolvedSigners = new[]
             {
-                new Signer { Account = sender, Scopes = WitnessScope.CalledByEntry }
+                new Signer { Account = EnsureDefaultSignerAccount(), Scopes = WitnessScope.CalledByEntry }
             };
         }
 
-        var expectedHash = Neo.SmartContract.Helper.GetContractHash(sender, nef.CheckSum, manifest.Name);
+        var signersArray = resolvedSigners is Signer[] direct
+            ? (Signer[])direct.Clone()
+            : resolvedSigners.ToArray();
+
+        UInt160? expectedSender = null;
 
         // Build deploy script
         var script = BuildDeployScript(nefBytes, manifestJson, initParams);
@@ -472,10 +470,18 @@ public class DeploymentToolkit : IDisposable
             var key = EnsureDefaultKeyPair();
             var wifAccount = EnsureDefaultSignerAccount();
 
-            if (!resolvedSigners.Any(s => s.Account == wifAccount))
+            var wifIndex = Array.FindIndex(signersArray, s => s.Account == wifAccount);
+            if (wifIndex < 0)
             {
                 throw new InvalidOperationException("Resolved signers do not contain the account derived from the configured WIF. Supply a TransactionSignerAsync or include a signer entry for that account.");
             }
+
+            if (wifIndex != 0)
+            {
+                (signersArray[0], signersArray[wifIndex]) = (signersArray[wifIndex], signersArray[0]);
+            }
+
+            expectedSender = signersArray[0].Account;
 
             signerDelegate = (tm, ct) =>
             {
@@ -483,10 +489,13 @@ public class DeploymentToolkit : IDisposable
                 return tm.SignAsync();
             };
         }
+        else
+        {
+            expectedSender = signersArray[0].Account;
+        }
 
-        var signersArray = resolvedSigners is Signer[] direct
-            ? direct
-            : resolvedSigners.ToArray();
+        var sender = expectedSender ?? signersArray[0].Account;
+        var expectedHash = Neo.SmartContract.Helper.GetContractHash(sender, nef.CheckSum, manifest.Name);
 
         return await WithRpcClientAsync(async (rpc, _, ct) =>
         {
@@ -644,7 +653,7 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Call a contract method (read-only) (Stub - Implementation in PR 2)
+    /// Call a contract method (read-only).
     /// </summary>
     /// <typeparam name="T">Return type</typeparam>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
@@ -681,7 +690,7 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Invoke a contract method (state-changing transaction) (Stub - Implementation in PR 2)
+    /// Invoke a contract method (state-changing transaction).
     /// </summary>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
     /// <param name="method">Method name</param>
@@ -732,7 +741,7 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Get the current balance of an account (Stub - Implementation in PR 2)
+    /// Get the current balance of an account.
     /// </summary>
     /// <param name="address">Account address (null for default deployer)</param>
     /// <returns>GAS balance</returns>
@@ -762,7 +771,7 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Deploy multiple contracts from a manifest file (Stub - Implementation in PR 2)
+    /// Deploy multiple contracts from a manifest file.
     /// </summary>
     /// <param name="manifestPath">Path to the deployment manifest JSON file</param>
     /// <returns>Dictionary of contract names to deployment information</returns>
@@ -864,7 +873,7 @@ public class DeploymentToolkit : IDisposable
     }
 
     /// <summary>
-    /// Check if a contract exists at the given address (Stub - Implementation in PR 2)
+    /// Check if a contract exists at the given address.
     /// </summary>
     /// <param name="contractHashOrAddress">Contract hash or address</param>
     /// <returns>True if contract exists, false otherwise</returns>
@@ -1111,13 +1120,7 @@ public class DeploymentToolkit : IDisposable
             return _networkProfile.NetworkMagic.Value;
         }
 
-        const uint defaultMagic = 894710606; // TestNet magic fallback
-        _networkProfile = _networkProfile with { NetworkMagic = defaultMagic };
-        _options.Network = _networkProfile;
-        _networkMagicFetchedFromRpc = false;
-        _networkMagicFallbackActive = true;
-        _networkMagicLastAttemptUtc = fallbackTimestamp;
-        return defaultMagic;
+        throw new InvalidOperationException($"Unable to determine network magic for '{_networkProfile.Identifier}'. Configure the value via DeploymentOptions, appsettings.json, or allow the toolkit to reach the RPC node so it can be discovered automatically.");
     }
 
     private async Task<uint?> TryResolveNetworkMagicFromRpcAsync()
