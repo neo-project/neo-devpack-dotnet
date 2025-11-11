@@ -28,7 +28,6 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
         [OpCode(OpCode.JMPIF, "09")]

@@ -40,7 +40,6 @@ namespace Neo.SmartContract.Framework
 
         public bool IsValidAndNotZero => IsValid && !IsZero;
 
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
         [OpCode(OpCode.JMPIF, "09")]
