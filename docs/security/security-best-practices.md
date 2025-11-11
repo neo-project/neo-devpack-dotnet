@@ -111,7 +111,7 @@ public class RoleBasedContract : SmartContract
 ```
 
 > **Note**  
-> When a script hash originates from runtime data, convert the value with `UInt160.Parse` (or cast from a validated byte array) before you return it. This keeps return statements strongly typed and prevents the NC4032 ReturnValueTypeAnalyzer from flagging implicit string conversions.
+> When a script hash or key originates from runtime data, convert the value with `UInt160.Parse`, `UInt256.Parse`, or `ECPoint.Parse` (or cast from a validated byte array) before you return it. This keeps return statements strongly typed and prevents the NC4032 ReturnValueTypeAnalyzer from flagging implicit string conversions.
 
 ### Multi-Signature Security
 
