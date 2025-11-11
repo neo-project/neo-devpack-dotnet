@@ -29,5 +29,20 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return value.ToAddress();
         }
+
+        public static byte[] ParseUInt160Bytes(byte[] value)
+        {
+            return (byte[])UInt160.Parse((string)(ByteString)value);
+        }
+
+        public static byte[] ParseUInt256Bytes(byte[] value)
+        {
+            return (byte[])UInt256.Parse((string)(ByteString)value);
+        }
+
+        public static byte[] ParseECPointBytes(byte[] value)
+        {
+            return (byte[])ECPoint.Parse((string)(ByteString)value);
+        }
     }
 }

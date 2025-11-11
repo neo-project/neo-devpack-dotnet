@@ -54,6 +54,17 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](UInt256 value);
 
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ISNULL)]
+        [OpCode(OpCode.JMPIF, "09")]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.SIZE)]
+        [OpCode(OpCode.PUSHINT8, "20")] // 0x20 == 32 bytes expected array size
+        [OpCode(OpCode.JMPEQ, "03")]
+        [OpCode(OpCode.THROW)]
+        public static extern UInt256 Parse(string value);
+
         /// <summary>
         /// Implicitly converts a hexadecimal string to a UInt256 object.
         /// Assumes the string is a valid hexadecimal representation.

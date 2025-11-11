@@ -56,6 +56,17 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](UInt160 value);
 
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ISNULL)]
+        [OpCode(OpCode.JMPIF, "09")]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.SIZE)]
+        [OpCode(OpCode.PUSHINT8, "14")] // 0x14 == 20 bytes expected array size
+        [OpCode(OpCode.JMPEQ, "03")]
+        [OpCode(OpCode.THROW)]
+        public static extern UInt160 Parse(string value);
+
         /// <summary>
         /// Converts the specified script hash to an address, using the current blockchain AddressVersion value.
         /// </summary>

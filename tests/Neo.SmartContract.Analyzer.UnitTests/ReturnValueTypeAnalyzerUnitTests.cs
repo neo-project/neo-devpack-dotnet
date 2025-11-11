@@ -27,14 +27,17 @@ namespace Neo.SmartContract.Framework
     {
         public static extern implicit operator UInt160(string value);
         public static extern explicit operator UInt160(byte[] value);
+        public static UInt160 Parse(string value) => throw null!;
     }
     public abstract class UInt256
     {
         public static extern implicit operator UInt256(string value);
+        public static UInt256 Parse(string value) => throw null!;
     }
     public abstract class ECPoint
     {
         public static extern implicit operator ECPoint(string value);
+        public static ECPoint Parse(string value) => throw null!;
     }
 }
 """;
@@ -144,6 +147,42 @@ class Contract : SmartContract
     }
 
     [TestMethod]
+    public async Task UInt160Parse_AllowsReturn()
+    {
+        var code = WithFrameworkStub("""
+using Neo.SmartContract.Framework;
+
+class Contract : SmartContract
+{
+    public static UInt160 Owner(string input)
+    {
+        return UInt160.Parse(input);
+    }
+}
+""");
+
+        await VerifyCS.VerifyAnalyzerAsync(code);
+    }
+
+    [TestMethod]
+    public async Task UInt256Parse_AllowsReturn()
+    {
+        var code = WithFrameworkStub("""
+using Neo.SmartContract.Framework;
+
+class Contract : SmartContract
+{
+    public static UInt256 Hash(string input)
+    {
+        return UInt256.Parse(input);
+    }
+}
+""");
+
+        await VerifyCS.VerifyAnalyzerAsync(code);
+    }
+
+    [TestMethod]
     public async Task ECPointReturnWithString_ReportsDiagnostic()
     {
         var code = WithFrameworkStub("""
@@ -174,6 +213,24 @@ class Contract : SmartContract
     {
         var bytes = new byte[20];
         return (UInt160)bytes;
+    }
+}
+""");
+
+        await VerifyCS.VerifyAnalyzerAsync(code);
+    }
+
+    [TestMethod]
+    public async Task ECPointParse_AllowsReturn()
+    {
+        var code = WithFrameworkStub("""
+using Neo.SmartContract.Framework;
+
+class Contract : SmartContract
+{
+    public static ECPoint PubKey(string input)
+    {
+        return ECPoint.Parse(input);
     }
 }
 """);

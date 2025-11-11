@@ -61,7 +61,7 @@ public static bool ProcessUserData(UInt160 user, string data, BigInteger amount)
 [DisplayName("RoleBasedContract")]
 public class RoleBasedContract : SmartContract
 {
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+    private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
     
     // Role definitions
     private const string ADMIN_ROLE = "admin";
@@ -109,6 +109,9 @@ public class RoleBasedContract : SmartContract
     public static event Action<UInt160, string> OnRoleGranted;
 }
 ```
+
+> **Note**  
+> When a script hash originates from runtime data, convert the value with `UInt160.Parse` (or cast from a validated byte array) before you return it. This keeps return statements strongly typed and prevents the NC4032 ReturnValueTypeAnalyzer from flagging implicit string conversions.
 
 ### Multi-Signature Security
 

@@ -24,7 +24,7 @@ public sealed class ReturnValueTypeAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId,
         "Return type must match declaration",
-        "Return statements for '{0}' must return '{0}' values, but the expression has type '{1}'. Convert explicitly to '{0}'.",
+        "Return statements for '{0}' must return '{0}' values, but the expression has type '{1}'. Convert explicitly to '{0}' (e.g., cast or parse the runtime value).",
         "Usage",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,

@@ -42,6 +42,17 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](ECPoint value);
 
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.ISNULL)]
+        [OpCode(OpCode.JMPIF, "09")]
+        [OpCode(OpCode.DUP)]
+        [OpCode(OpCode.SIZE)]
+        [OpCode(OpCode.PUSHINT8, "21")] // 0x21 == 33 bytes expected array size
+        [OpCode(OpCode.JMPEQ, "03")]
+        [OpCode(OpCode.THROW)]
+        public static extern ECPoint Parse(string value);
+
         /// <summary>
         /// Implicitly converts a hexadecimal string to a PublicKey object.
         /// Assumes the string is a valid hexadecimal representation.

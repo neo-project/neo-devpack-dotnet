@@ -97,24 +97,27 @@ public class SecurityTestPlan : TestBase<YourContract>
 public class SecurityTestAccounts
 {
     // Standard test accounts
-    public static readonly UInt160 Owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
-    public static readonly UInt160 ValidUser = "NXpRXq8e9gRaH5vVAEUkHQeXNHLZsUfz1G".ToScriptHash();
-    public static readonly UInt160 Attacker = "NVqXCjKHHi9xetyDhpEP6KtqCq8fHaXprC".ToScriptHash();
-    public static readonly UInt160 UnauthorizedUser = "Nb2CHYY4wTqPQv7hPYnKr6CjN4fEeX2vks".ToScriptHash();
+    public static readonly UInt160 Owner = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
+    public static readonly UInt160 ValidUser = UInt160.Parse("NXpRXq8e9gRaH5vVAEUkHQeXNHLZsUfz1G");
+    public static readonly UInt160 Attacker = UInt160.Parse("NVqXCjKHHi9xetyDhpEP6KtqCq8fHaXprC");
+    public static readonly UInt160 UnauthorizedUser = UInt160.Parse("Nb2CHYY4wTqPQv7hPYnKr6CjN4fEeX2vks");
     
     // Multi-sig test accounts
     public static readonly UInt160[] MultiSigSigners = new[]
     {
-        "NZNovmGqaNZF6P4qFUCcHzPE6GFU1F8ueT".ToScriptHash(),
-        "NeJSJ4YsH89g9XrEqwWM4yVMm8jYM4jHG9".ToScriptHash(),
-        "NbMKdHpJJ5T6K7gLhW2V8R9Q3wX5M8nTpN".ToScriptHash()
+        UInt160.Parse("NZNovmGqaNZF6P4qFUCcHzPE6GFU1F8ueT"),
+        UInt160.Parse("NeJSJ4YsH89g9XrEqwWM4yVMm8jYM4jHG9"),
+        UInt160.Parse("NbMKdHpJJ5T6K7gLhW2V8R9Q3wX5M8nTpN")
     };
     
     // Specialized test accounts
-    public static readonly UInt160 ContractCaller = "NYzKR3qP8BV5w2j8Q9VH6tXz5M7nXsY8Tp".ToScriptHash();
-    public static readonly UInt160 TokenHolder = "NQ5gR8pT9VX3j2m7W6hJ8kY5z4nP9qX7Bp".ToScriptHash();
+    public static readonly UInt160 ContractCaller = UInt160.Parse("NYzKR3qP8BV5w2j8Q9VH6tXz5M7nXsY8Tp");
+    public static readonly UInt160 TokenHolder = UInt160.Parse("NQ5gR8pT9VX3j2m7W6hJ8kY5z4nP9qX7Bp");
 }
 ```
+
+> **Note**  
+> The same `UInt160.Parse` helper is available inside contracts, so your tests can mimic the strongly typed returns enforced by analyzer NC4032.
 
 ## Unit Testing for Security
 
