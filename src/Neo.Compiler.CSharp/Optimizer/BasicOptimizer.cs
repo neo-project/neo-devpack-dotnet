@@ -11,6 +11,7 @@
 
 using Neo.VM;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler.Optimizer
 {
@@ -78,6 +79,43 @@ namespace Neo.Compiler.Optimizer
                 }
                 if (compressed) instructions.RebuildOffsets();
             } while (compressed);
+        }
+
+        public static void RemoveRedundantConversions(List<Instruction> instructions)
+        {
+            for (int i = 1; i < instructions.Count; i++)
+            {
+                var previous = instructions[i - 1];
+                var current = instructions[i];
+                if (current.OpCode != OpCode.CONVERT || previous.OpCode != OpCode.CONVERT)
+                    continue;
+
+                if (!SameOperand(previous, current))
+                    continue;
+
+                ReplaceInstruction(instructions, current, previous);
+                instructions.RemoveAt(i);
+                i--;
+            }
+        }
+
+        private static bool SameOperand(Instruction first, Instruction second)
+        {
+            if (first.Operand is null || second.Operand is null)
+                return first.Operand == second.Operand;
+
+            return first.Operand.SequenceEqual(second.Operand);
+        }
+
+        private static void ReplaceInstruction(IEnumerable<Instruction> instructions, Instruction removed, Instruction replacement)
+        {
+            foreach (var other in instructions)
+            {
+                if (other.Target?.Instruction == removed)
+                    other.Target.Instruction = replacement;
+                if (other.Target2?.Instruction == removed)
+                    other.Target2.Instruction = replacement;
+            }
         }
     }
 }

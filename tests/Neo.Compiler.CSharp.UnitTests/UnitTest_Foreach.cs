@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void EcpointForeachTest()
         {
             var array = Contract.ECPointForeach()!;
-            AssertGasConsumed(2038470);
+            AssertGasConsumed(1546950);
 
             Assert.AreEqual(array.Count, 2);
             Assert.AreEqual((array[0] as ByteString)!.GetSpan().ToHexString(), "024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");

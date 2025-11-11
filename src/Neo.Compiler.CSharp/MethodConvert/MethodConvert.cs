@@ -197,7 +197,10 @@ namespace Neo.Compiler
             // Step 10: Optimize the instructions if needed
             // Basic optimization to remove unnecessary NOP instructions
             if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+            {
                 BasicOptimizer.RemoveNops(_instructions);
+                BasicOptimizer.RemoveRedundantConversions(_instructions);
+            }
 
             // Step 11: Set the start target
             // Mark the first instruction as the entry point of the method
