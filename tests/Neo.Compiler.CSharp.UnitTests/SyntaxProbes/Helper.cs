@@ -176,6 +176,7 @@ using System.Text;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Linq;
 
 namespace Neo.Compiler.CSharp.TestContracts;
 
@@ -198,6 +199,7 @@ using System.Text;
 using System.Numerics;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Linq;
 
 namespace Neo.Compiler.CSharp.TestContracts;
 

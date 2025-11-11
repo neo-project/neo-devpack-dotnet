@@ -84,7 +84,7 @@ int sum = point.X + point.Y;
 
 Status: unsupported
 Scope: method
-Notes: Query expressions trigger unsupported syntax errors.
+Notes: Query expressions are not lowered by the compiler yet. Use method-based helpers from `Neo.SmartContract.Framework.Linq` instead; `System.Linq` is not supported.
 ```csharp
 var numbers = new[] { 1, 2, 3 };
 var evens = from n in numbers
