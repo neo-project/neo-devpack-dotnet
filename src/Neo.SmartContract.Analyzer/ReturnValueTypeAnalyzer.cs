@@ -19,7 +19,7 @@ namespace Neo.SmartContract.Analyzer;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ReturnValueTypeAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "NC4032";
+    public const string DiagnosticId = "NC4033";
 
     private static readonly DiagnosticDescriptor Rule = new(
         DiagnosticId,

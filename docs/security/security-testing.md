@@ -117,7 +117,7 @@ public class SecurityTestAccounts
 ```
 
 > **Note**  
-> The same `UInt160/UInt256/ECPoint.Parse` helpers are available inside contracts, so your tests can mimic the strongly typed returns enforced by analyzer NC4032.
+> The same `UInt160/UInt256/ECPoint.Parse` helpers are available inside contracts, so your tests can mimic the strongly typed returns enforced by analyzer NC4033.
 
 ## Unit Testing for Security
 
