@@ -238,5 +238,88 @@ namespace Neo.Compiler.CSharp.UnitTests
             Contract.TestElementBinding();
             AssertGasConsumed(5907840);
         }
+
+        [TestMethod]
+        public void Test_MultiDimensionalCreatedBySize()
+        {
+            var matrix = Contract.MultiDimensionalCreatedBySize();
+            AssertGasConsumed(2822370);
+
+            Assert.AreEqual(2, matrix?.Count);
+            var firstRow = (Array?)matrix?[0];
+            var secondRow = (Array?)matrix?[1];
+            CollectionAssert.AreEqual(new BigInteger[] { 0, 5, 0 }, firstRow?.Cast<PrimitiveType>().Select(u => u.GetInteger()).ToArray());
+            CollectionAssert.AreEqual(new BigInteger[] { 0, 0, 7 }, secondRow?.Cast<PrimitiveType>().Select(u => u.GetInteger()).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_MultiDimensionalInitializer()
+        {
+            var matrix = Contract.MultiDimensionalInitializer();
+            AssertGasConsumed(1969230);
+
+            var firstRow = (Array?)matrix?[0];
+            var secondRow = (Array?)matrix?[1];
+            CollectionAssert.AreEqual(new BigInteger[] { 1, 2 }, firstRow?.Cast<PrimitiveType>().Select(u => u.GetInteger()).ToArray());
+            CollectionAssert.AreEqual(new BigInteger[] { 3, 4 }, secondRow?.Cast<PrimitiveType>().Select(u => u.GetInteger()).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_MultiDimensionalImplicitInitializer()
+        {
+            var matrix = Contract.MultiDimensionalImplicitInitializer();
+            AssertGasConsumed(1969230);
+
+            var firstRow = (Array?)matrix?[0];
+            var secondRow = (Array?)matrix?[1];
+            CollectionAssert.AreEqual(new BigInteger[] { 5, 6 }, firstRow?.Cast<PrimitiveType>().Select(u => u.GetInteger()).ToArray());
+            CollectionAssert.AreEqual(new BigInteger[] { 7, 8 }, secondRow?.Cast<PrimitiveType>().Select(u => u.GetInteger()).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_MultiDimensionalAssignments()
+        {
+            var value = Contract.MultiDimensionalAssignments();
+            AssertGasConsumed(3582390);
+            Assert.AreEqual(new BigInteger(10), value);
+        }
+
+        [TestMethod]
+        public void Test_MultiDimensionalCoalesce()
+        {
+            var matrix = Contract.MultiDimensionalCoalesce();
+            AssertGasConsumed(2565450);
+
+            var row = (Array?)matrix?[0];
+            CollectionAssert.AreEqual(new[] { "left", "right" }, row?.Cast<PrimitiveType>().Select(u => u.GetString()).ToArray());
+        }
+
+        [TestMethod]
+        public void Test_MultiDimensionalForeachSum()
+        {
+            var sum = Contract.MultiDimensionalForeachSum();
+            AssertGasConsumed(1998450);
+            Assert.AreEqual(new BigInteger(21), sum);
+        }
+
+        [TestMethod]
+        public void Test_MultiDimensionalByteInitializer()
+        {
+            var matrix = Contract.MultiDimensionalByteInitializer();
+            AssertGasConsumed(2338170);
+
+            var firstRow = (byte[]?)matrix?[0];
+            var secondRow = (byte[]?)matrix?[1];
+            CollectionAssert.AreEqual(new byte[] { 1, 2 }, firstRow);
+            CollectionAssert.AreEqual(new byte[] { 3, 4 }, secondRow);
+        }
+
+        [TestMethod]
+        public void Test_MultiDimensionalNewOnly()
+        {
+            var value = Contract.MultiDimensionalNewOnly();
+            AssertGasConsumed(2326320);
+            Assert.AreEqual(new BigInteger(42), value);
+        }
     }
 }

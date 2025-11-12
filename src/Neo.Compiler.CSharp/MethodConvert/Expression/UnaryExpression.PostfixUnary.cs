@@ -75,10 +75,10 @@ internal partial class MethodConvert
 
     private void ConvertElementAccessPostIncrementOrDecrementExpression(SemanticModel model, SyntaxToken operatorToken, ElementAccessExpressionSyntax operand)
     {
-        if (operand.ArgumentList.Arguments.Count != 1)
-            throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
         if (model.GetSymbolInfo(operand).Symbol is IPropertySymbol property)
         {
+            if (operand.ArgumentList.Arguments.Count != 1)
+                throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
             ConvertExpression(model, operand.Expression);
             ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
@@ -92,16 +92,37 @@ internal partial class MethodConvert
         }
         else
         {
-            ConvertExpression(model, operand.Expression);
-            ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
-            AddInstruction(OpCode.SETITEM);
+            IArrayTypeSymbol? arrayType = model.GetTypeInfo(operand.Expression).Type as IArrayTypeSymbol;
+            if (arrayType is not null && arrayType.Rank > 1)
+            {
+                EnsureMultiDimensionalArguments(operand.ArgumentList.Arguments, arrayType.Rank, operand.ArgumentList);
+                ConvertExpression(model, operand.Expression);
+                EmitArrayDimensionNavigation(model, operand.ArgumentList.Arguments, arrayType.Rank - 1);
+                ConvertExpression(model, operand.ArgumentList.Arguments[operand.ArgumentList.Arguments.Count - 1].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
+                AddInstruction(OpCode.SETITEM);
+            }
+            else
+            {
+                if (operand.ArgumentList.Arguments.Count != 1)
+                    throw new CompilationException(operand.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {operand.ArgumentList.Arguments}");
+                ConvertExpression(model, operand.Expression);
+                ConvertExpression(model, operand.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                EmitIncrementOrDecrement(operatorToken, model.GetTypeInfo(operand).Type);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
     }
 

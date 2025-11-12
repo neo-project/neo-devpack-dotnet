@@ -51,18 +51,29 @@ internal partial class MethodConvert
 
     private void ConvertInitializerExpression(SemanticModel model, IArrayTypeSymbol type, InitializerExpressionSyntax expression)
     {
-        if (type.ElementType.SpecialType == SpecialType.System_Byte)
+        if (type.Rank > 1)
         {
-            Optional<object?>[] values = expression.Expressions.Select(p => model.GetConstantValue(p)).ToArray();
+            ConvertMultiDimensionalInitializer(model, type, expression);
+            return;
+        }
+
+        EmitOneDimensionalInitializer(model, type.ElementType, expression.Expressions);
+    }
+
+    private void EmitOneDimensionalInitializer(SemanticModel model, ITypeSymbol elementType, SeparatedSyntaxList<ExpressionSyntax> expressions)
+    {
+        if (elementType.SpecialType == SpecialType.System_Byte)
+        {
+            Optional<object?>[] values = expressions.Select(p => model.GetConstantValue(p)).ToArray();
             if (values.Any(p => !p.HasValue))
             {
                 Push(values.Length);
                 AddInstruction(OpCode.NEWBUFFER);
-                for (int i = 0; i < expression.Expressions.Count; i++)
+                for (int i = 0; i < expressions.Count; i++)
                 {
                     AddInstruction(OpCode.DUP);
                     Push(i);
-                    ConvertExpression(model, expression.Expressions[i]);
+                    ConvertExpression(model, expressions[i]);
                     AddInstruction(OpCode.SETITEM);
                 }
             }
@@ -75,9 +86,9 @@ internal partial class MethodConvert
         }
         else
         {
-            for (int i = expression.Expressions.Count - 1; i >= 0; i--)
-                ConvertExpression(model, expression.Expressions[i]);
-            Push(expression.Expressions.Count);
+            for (int i = expressions.Count - 1; i >= 0; i--)
+                ConvertExpression(model, expressions[i]);
+            Push(expressions.Count);
             AddInstruction(OpCode.PACK);
         }
     }

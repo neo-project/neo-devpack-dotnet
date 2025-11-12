@@ -205,7 +205,7 @@ internal partial class MethodConvert
 
         // Check if we need to add an INITSLOT instruction
         if (!_initSlot) return;
-        byte pc = (byte)_parameters.Count;
+        byte pc = (byte)Symbol.Parameters.Length;
         byte lc = (byte)_localsCount;
         if (NeedInstanceConstructor(Symbol)) pc++;
         // Only add INITSLOT if we have local variables or parameters

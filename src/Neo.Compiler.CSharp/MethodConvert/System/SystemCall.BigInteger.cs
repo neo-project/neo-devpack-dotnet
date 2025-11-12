@@ -338,7 +338,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate result
         methodConvert.Push0();                                     // Push 0 for comparison
         methodConvert.NumEqual();                                  // Check if remainder is 0
-        methodConvert.Jump(OpCode.JMPIFNOT, gcdTarget);            // Continue loop if not 0
+        methodConvert.JumpIfFalse(gcdTarget);            // Continue loop if not 0
         methodConvert.Drop();                                      // Drop the zero remainder
         methodConvert.Abs();                                       // Return absolute value
     }
@@ -410,12 +410,37 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerExplicitConversion(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue, sbyte.MaxValue);
+    }
+
+    /// <summary>
+    /// Shared helper that enforces a BigInteger value lies within the supplied inclusive range.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance.</param>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="symbol">The method symbol.</param>
+    /// <param name="instanceExpression">The instance expression (if any).</param>
+    /// <param name="arguments">Method arguments.</param>
+    /// <param name="minValue">Inclusive minimum accepted value.</param>
+    /// <param name="maxValue">Inclusive maximum accepted value.</param>
+    private static void HandleBigIntegerRangeCheckedConversion(
+        MethodConvert methodConvert,
+        SemanticModel model,
+        IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments,
+        BigInteger minValue,
+        BigInteger maxValue)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
         JumpTarget endTarget = new();
         methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
+        methodConvert.Within(minValue, maxValue);                  // Check if within configured range
+        methodConvert.JumpIfTrue(endTarget);                       // Jump if within range
         methodConvert.Throw();                                     // Throw if out of range
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -433,14 +458,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToSByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(sbyte.MinValue, sbyte.MaxValue);    // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, sbyte.MinValue, sbyte.MaxValue);
     }
 
     /// <summary>
@@ -456,14 +474,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToByte(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(byte.MinValue, byte.MaxValue);     // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, byte.MinValue, byte.MaxValue);
     }
 
     /// <summary>
@@ -479,14 +490,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(short.MinValue, short.MaxValue);    // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, short.MinValue, short.MaxValue);
     }
 
     /// <summary>
@@ -502,14 +506,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToUShort(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(ushort.MinValue, ushort.MaxValue);   // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, ushort.MinValue, ushort.MaxValue);
     }
 
     /// <summary>
@@ -525,14 +522,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(int.MinValue, int.MaxValue);         // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, int.MinValue, int.MaxValue);
     }
 
     /// <summary>
@@ -548,14 +538,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToUInt(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate value for range check
-        methodConvert.Within(uint.MinValue, uint.MaxValue);         // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, uint.MinValue, uint.MaxValue);
     }
 
     /// <summary>
@@ -571,14 +554,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToLong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                       // Duplicate result for range check
-        methodConvert.Within(long.MinValue, long.MaxValue);         // Check if within range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, long.MinValue, long.MaxValue);
     }
 
     /// <summary>
@@ -594,14 +570,7 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleBigIntegerToULong(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        JumpTarget endTarget = new();
-        methodConvert.Dup();                                                     // Duplicate value for range check
-        methodConvert.Within(ulong.MinValue, ulong.MaxValue);                 // Check if within ulong range
-        methodConvert.Jump(OpCode.JMPIF, endTarget);                          // Jump if within range
-        methodConvert.Throw();                                                   // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();                             // End target
+        HandleBigIntegerRangeCheckedConversion(methodConvert, model, symbol, instanceExpression, arguments, ulong.MinValue, ulong.MaxValue);
     }
 
     /// <summary>
@@ -747,18 +716,18 @@ internal partial class MethodConvert
         JumpTarget nonZero = new();
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPNE, nonZero);                 // Jump if non-zero
+        methodConvert.JumpIfNotEqual(nonZero);                 // Jump if non-zero
         methodConvert.Drop();                                      // Drop the value if zero
-        methodConvert.Jump(OpCode.JMP, endFalse);                  // Return false for zero
+        methodConvert.JumpAlways(endFalse);                  // Return false for zero
         nonZero.Instruction = methodConvert.Nop();                 // Non-zero target
         methodConvert.Dup();                                       // Duplicate value
         methodConvert.Dec();                                       // Decrement (n-1)
         methodConvert.And();                                       // Calculate n & (n-1)
         methodConvert.Push(0);
-        methodConvert.Jump(OpCode.JMPEQ, endTrue);                 // Jump if result is 0
+        methodConvert.JumpIfEqual(endTrue);                 // Jump if result is 0
         endFalse.Instruction = methodConvert.Nop();                // False case target
         methodConvert.Push(false);
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                 // Jump to end
         endTrue.Instruction = methodConvert.Nop();                 // True case target
         methodConvert.Push(true);
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -785,12 +754,12 @@ internal partial class MethodConvert
         JumpTarget endMethod = new();
         methodConvert.Dup();                                       // Duplicate value for negative check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGE, nonNegativeTarget);       // Jump if value >= 0
+        methodConvert.JumpIfGreaterOrEqual(nonNegativeTarget);       // Jump if value >= 0
         methodConvert.Throw();                                     // Throw if negative
         nonNegativeTarget.Instruction = methodConvert.Nop();       // Non-negative target
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPEQ, endMethod);               // Return 0 when input is 0
+        methodConvert.JumpIfEqual(endMethod);               // Return 0 when input is 0
         methodConvert.Push0();                                     // Initialize result to 0
         //input = 5 > 0; result = 0;
         //do
@@ -804,7 +773,7 @@ internal partial class MethodConvert
         methodConvert.Over();                                      // Copy result to top
         methodConvert.ShR();                                       // Right shift input by result
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGT, loopStart);               // Continue loop if result > 0
+        methodConvert.JumpIfGreater(loopStart);               // Continue loop if result > 0
         methodConvert.Nip();                                       // Remove the input, keep result
         methodConvert.Dec();                                       // Decrement result by 1
         endMethod.Instruction = methodConvert.Nop();               // End method target
@@ -836,9 +805,9 @@ internal partial class MethodConvert
         // if b==0 return abs(a)
         // return value has abs(value)==abs(a), sign(value)==sign(b)
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPLT, negativeTarget);          // Jump if b < 0
+        methodConvert.JumpIfLess(negativeTarget);          // Jump if b < 0
         methodConvert.Abs();                                       // Return abs(a) if b >= 0
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                 // Jump to end
         negativeTarget.Instruction = methodConvert.Nop();          // Negative target
         methodConvert.Abs();                                       // Get abs(a)
         methodConvert.Negate();                                    // Return -abs(a) if b < 0
@@ -899,21 +868,21 @@ internal partial class MethodConvert
         JumpTarget notNegative = new();
         methodConvert.Dup();                                       // Duplicate value for negative check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGE, notNegative);             // Jump if value >= 0
+        methodConvert.JumpIfGreaterOrEqual(notNegative);             // Jump if value >= 0
         methodConvert.Drop();                                      // Drop negative value
         methodConvert.Push0();                                     // Return 0 for negative values
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                 // Jump to end
         notNegative.Instruction = methodConvert.Nop();             // Target for non-negative values
         methodConvert.Push(0);                                     // Initialize count to 0
         loopStart.Instruction = methodConvert.Swap();              // Swap count and value
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);                 // Exit loop if value is 0
+        methodConvert.JumpIfEqual(endLoop);                 // Exit loop if value is 0
         methodConvert.Push1();                                     // Push 1 for right shift
         methodConvert.ShR();                                       // Right shift value by 1
         methodConvert.Swap();                                      // Swap value and count
         methodConvert.Inc();                                       // Increment count
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
         endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
         methodConvert.Push(256);                                   // Push 256 (estimated bit width)
         methodConvert.Swap();                                      // Swap 256 and count
@@ -997,13 +966,13 @@ internal partial class MethodConvert
         methodConvert.Dup();
         methodConvert.Within(int.MinValue, int.MaxValue);
         var endIntCheck = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endIntCheck);
+        methodConvert.JumpIfFalse(endIntCheck);
 
         // If within int range, mask with 0xFFFFFFFF
         methodConvert.Push(0xFFFFFFFF);
         methodConvert.And();
         var endMask = new JumpTarget();
-        methodConvert.Jump(OpCode.JMP, endMask);
+        methodConvert.JumpAlways(endMask);
 
         // If larger than int, throw exception, cause too many check will make the script too long.
         endIntCheck.Instruction = methodConvert.AddInstruction(OpCode.NOP);
@@ -1011,25 +980,6 @@ internal partial class MethodConvert
         methodConvert.Throw();
         endMask.Instruction = methodConvert.AddInstruction(OpCode.NOP);
 
-        // Initialize count to 0
-        methodConvert.Push(0);     // value count
-        methodConvert.Swap();      // count value
-        // Loop to count the number of 1 bit
-        JumpTarget loopStart = new();
-        JumpTarget endLoop = new();
-        loopStart.Instruction = methodConvert.Dup();    // count value value
-        methodConvert.Push0();     // count value value 0
-        methodConvert.Jump(OpCode.JMPEQ, endLoop);     // count value
-        methodConvert.Dup();       // count value value
-        methodConvert.Push1();     // count value value 1
-        methodConvert.And();       // count value (value & 1)
-        methodConvert.Rot();       // value (value & 1) count
-        methodConvert.Add();       // value count += (value & 1)
-        methodConvert.Swap();      // count value
-        methodConvert.Push1();     // count value 1
-        methodConvert.ShR();       // count value >>= 1
-        methodConvert.Jump(OpCode.JMP, loopStart);
-
-        endLoop.Instruction = methodConvert.Drop();     // Drop the remaining value
+        methodConvert.EmitPopCountFromMaskedValue();
     }
 }

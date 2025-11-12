@@ -40,5 +40,7 @@ namespace Neo.Compiler
         public const string InvalidType = "NC3008";
         public const string InvalidArgument = "NC3009";
         public const string SafeSetter = "NC3010";
+        public const string FileOperationFailed = "NC4001";
+        public const string UnexpectedCompilerError = "NC5001";
     }
 }

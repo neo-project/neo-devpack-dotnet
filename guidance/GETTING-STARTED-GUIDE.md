@@ -354,7 +354,7 @@ Edit `HelloWorldContract.Tests.csproj`:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
     <PackageReference Include="Neo.SmartContract.Testing" Version="3.8.1" />
@@ -697,6 +697,9 @@ public class ProxyContract : SmartContract
 **Issue: "Contract compilation failed"**
 - Solution: Check that your contract follows NEO limitations (no float, limited LINQ, etc.)
 - Run with `--verbose` flag for detailed errors
+
+**Issue: "System.Linq" namespace not found**
+- Solution: LINQ helpers live in `Neo.SmartContract.Framework.Linq`. Add `using Neo.SmartContract.Framework.Linq;` and remove `System.Linq` from your contract.
 
 **Issue: "Insufficient GAS"**
 - Solution: Request more GAS from testnet faucet

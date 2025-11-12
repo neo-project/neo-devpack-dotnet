@@ -10,79 +10,67 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 
 [TestClass]
 public class SyntaxTests
 {
-    [TestMethod]
-    public void CSharpSyntaxProbe()
+    private static readonly IReadOnlyList<SyntaxProbeCase> Probes = SyntaxProbeLoader.Load();
+
+    public static IEnumerable<object[]> GetSyntaxProbes()
     {
-        // Basic operations
-        Helper.TestCodeBlock("var a = 1+1;");
-        Helper.TestCodeBlock("var b = \"string test\";\nb.ToString();");
-        Helper.TestCodeBlock("var c = new object();\nc.ToString();");
-
-        // String method tests
-        Helper.TestCodeBlock(@"
-        string str1 = ""Hello"";
-        string str2 = ""World"";
-        int result = string.Compare(str1, str2);
-        bool contains = str1.Contains(""el"");
-        bool endsWith = str1.EndsWith(""lo"");
-        int index = str1.IndexOf(""l"");
-        string inserted = str1.Insert(5, "" "");
-        string joined = string.Join("", "", new string[] { str1, str2 });
-        string padded = str1.PadLeft(10);
-        string replaced = str1.Replace(""l"", ""L"");
-        string[] split = ""a,b,c"".Split(',');
-        string sub = str1.Substring(1, 3);
-        string lower = str1.ToLower();
-        string upper = str1.ToUpper();
-        string trimmed = "" Hello "".Trim();
-    ");
-
-        // String property tests
-        Helper.TestCodeBlock(@"
-        string str = ""Test String"";
-        int length = str.Length;
-        char firstChar = str[0];
-    ");
-
-        // Static fields and methods tests
-        Helper.TestCodeBlock(@"
-        string empty = string.Empty;
-        bool isNullOrEmpty = string.IsNullOrEmpty("""");
-        bool isNullOrWhiteSpace = string.IsNullOrWhiteSpace("" "");
-    ");
-
-        // String interpolation and verbatim string literals
-        Helper.TestCodeBlock(@"
-        int x = 10;
-        string interpolated = $""The value of x is {x}"";
-        string verbatim = @""This is a
-multiline string"";
-    ");
-
-        // String constants and escape sequences
-        Helper.TestCodeBlock(@"
-        string nullString = null;
-        string emptyString = """";
-        string whiteSpaceString = ""   "";
-        string withEscapes = ""\tHello\nWorld!"";
-    ");
-
-        // More complex string operations
-        Helper.TestCodeBlock(@"
-        string original = ""Hello, World!"";
-        string modified = original.Replace(""World"", ""C#"")
-                                  .ToUpper()
-                                  .Substring(0, 8)
-                                  .PadRight(10, '!')
-                                  .Trim('!');
-        bool startsWith = modified.StartsWith(""HELLO"");
-        int lastIndex = modified.LastIndexOf('L');
-    ");
+        foreach (var probe in Probes)
+        {
+            yield return new object[] { probe };
+        }
     }
+
+    [DataTestMethod]
+    [DynamicData(nameof(GetSyntaxProbes), DynamicDataSourceType.Method)]
+    public void Syntax_Feature_Probe(SyntaxProbeCase probe)
+    {
+        Helper.AssertProbe(probe);
+    }
+
+    [TestMethod]
+    public void Syntax_Probe_HasUniqueIds()
+    {
+        var duplicates = Probes
+            .GroupBy(p => p.Id)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToArray();
+
+        CollectionAssert.AreEquivalent(Array.Empty<string>(), duplicates, "Duplicate probe identifiers found.");
+    }
+
+    [TestMethod]
+    public void Unsupported_Syntax_Summary_Is_UpToDate()
+    {
+        var unsupportedIds = Probes
+            .Where(p => p.Status == SyntaxSupportStatus.Unsupported)
+            .Select(p => p.Id)
+            .Distinct()
+            .ToArray();
+
+        var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
+        var summaryPath = Path.Combine(repoRoot, "docs", "csharp-syntax", "UnsupportedFeatures.md");
+        var content = File.ReadAllText(summaryPath);
+        var referencedIds = Regex.Matches(content, @"\(`?([a-z0-9_]+)`?\)")
+            .Select(match => match.Groups[1].Value)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var missing = unsupportedIds.Where(id => !referencedIds.Contains(id)).ToArray();
+        CollectionAssert.AreEquivalent(Array.Empty<string>(), missing, "UnsupportedFeatures.md is missing entries: " + string.Join(", ", missing));
+
+        var unknown = referencedIds.Where(id => !unsupportedIds.Contains(id)).ToArray();
+        CollectionAssert.AreEquivalent(Array.Empty<string>(), unknown, "UnsupportedFeatures.md references unexpected ids: " + string.Join(", ", unknown));
+    }
+
 }

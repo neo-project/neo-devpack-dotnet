@@ -56,15 +56,26 @@ namespace Neo.Compiler
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
+        internal readonly struct OutSyncTarget
+        {
+            public OutSyncTarget(ISymbol symbol, byte? instanceSlot = null)
+            {
+                Symbol = symbol;
+                InstanceSlot = instanceSlot;
+            }
+
+            public ISymbol Symbol { get; }
+            public byte? InstanceSlot { get; }
+        }
+
         // This dictionary is used to sync value from key symbol to value symbol
         // We need to sync the value symbol to the key symbol when the key symbol is updated
-        internal Dictionary<ISymbol, System.Collections.Generic.List<ISymbol>> OutStaticFieldsSync { get; } = new Dictionary<ISymbol, System.Collections.Generic.List<ISymbol>>(SymbolEqualityComparer.Default);
+        internal Dictionary<ISymbol, System.Collections.Generic.List<OutSyncTarget>> OutStaticFieldsSync { get; } = new Dictionary<ISymbol, System.Collections.Generic.List<OutSyncTarget>>(SymbolEqualityComparer.Default);
         private byte[]? _script;
 
         public bool Success => _diagnostics.All(p => p.Severity != DiagnosticSeverity.Error);
         public IReadOnlyList<Diagnostic> Diagnostics => _diagnostics;
-        // TODO: basename should not work when multiple contracts exit in one project
-        public string? ContractName => _displayName ?? Options.BaseName ?? _className;
+        public string? ContractName => _displayName ?? (_allowBaseName ? Options.BaseName : null) ?? _className;
         private string? Source { get; set; }
 
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);
@@ -78,11 +89,14 @@ namespace Neo.Compiler
         /// <param name="engine"> CompilationEngine that contains the compilation syntax tree and compiled methods</param>
         /// <param name="targetContract">Contract to be compiled</param>
         /// <param name="nonDependencies">Classes that is not supposed to be compiled into current target contract.</param>
-        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null)
+        private readonly bool _allowBaseName;
+
+        internal CompilationContext(CompilationEngine engine, INamedTypeSymbol targetContract, System.Collections.Generic.List<INamedTypeSymbol>? nonDependencies = null, bool allowBaseName = true)
         {
             _engine = engine;
             _targetContract = targetContract;
             _nonDependencies = nonDependencies;
+            _allowBaseName = allowBaseName;
         }
 
         private void RemoveEmptyInitialize()

@@ -36,7 +36,6 @@ namespace Neo.Compiler.SecurityAnalyzer
             public readonly Dictionary<BasicBlock, HashSet<int>> callOtherContractInstructions;
             public readonly Dictionary<BasicBlock, HashSet<int>> writeStorageInstructions;
             public JToken? DebugInfo { get; init; }
-            // TODO: use debugInfo to GetWarningInfo with source codes
 
             public ReEntrancyVulnerabilityPair(
                 Dictionary<BasicBlock, HashSet<BasicBlock>> vulnerabilityPairs,
