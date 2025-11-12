@@ -95,16 +95,11 @@ public sealed class ReturnValueTypeAnalyzer : DiagnosticAnalyzer
 
     private static bool HasImplicitMismatchedConversion(IOperation value, ITypeSymbol expectedType)
     {
-        if (value is IConversionOperation conversion &&
+       return value is IConversionOperation conversion &&
             conversion.IsImplicit &&
             SymbolEqualityComparer.Default.Equals(conversion.Type, expectedType) &&
             conversion.Operand?.Type is { } operandType &&
-            !SymbolEqualityComparer.Default.Equals(operandType, expectedType))
-        {
-            return true;
-        }
-
-        return false;
+            !SymbolEqualityComparer.Default.Equals(operandType, expectedType);
     }
 
     private static string GetExpressionTypeDisplay(IOperation operation) =>
