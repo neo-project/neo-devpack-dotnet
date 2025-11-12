@@ -82,14 +82,13 @@ namespace Neo.Compiler
 
         static CompilationEngine()
         {
-            string coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
             CommonReferences =
             [
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.InteropServices.dll")),
-                MetadataReference.CreateFromFile(typeof(string).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(BigInteger).Assembly.Location)
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.Private.CoreLib.dll", typeof(object)),
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.dll"),
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.InteropServices.dll"),
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.ComponentModel.Primitives.dll"),
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll")
             ];
         }
 
