@@ -21,6 +21,7 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -96,6 +97,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     needs: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -193,6 +195,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     needs: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
     - name: Checkout
       uses: actions/checkout@v5

@@ -48,6 +48,18 @@ namespace Neo.Compiler
             {
                 ConvertIteratorForEachStatement(model, syntax);
             }
+            else if (syntax.Type is RefTypeSyntax)
+            {
+                if (type is IArrayTypeSymbol { Rank: 1 } || IsSpanType(type))
+                {
+                    ConvertRefArrayForEachStatement(model, syntax);
+                }
+                else
+                {
+                    throw CompilationException.UnsupportedSyntax(syntax,
+                        "ref foreach loops are currently supported only when iterating over single-dimensional arrays.");
+                }
+            }
             else
             {
                 ConvertArrayForEachStatement(model, syntax);
@@ -286,6 +298,76 @@ namespace Neo.Compiler
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
                 throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in foreach statement handling. This is a compiler bug that should be reported.");
+        }
+
+        private void ConvertRefArrayForEachStatement(SemanticModel model, ForEachStatementSyntax syntax)
+        {
+            ILocalSymbol elementSymbol = model.GetDeclaredSymbol(syntax)!;
+            JumpTarget startTarget = new();
+            JumpTarget continueTarget = new();
+            JumpTarget conditionTarget = new();
+            JumpTarget breakTarget = new();
+            byte arrayIndex = AddAnonymousVariable();
+            byte lengthIndex = AddAnonymousVariable();
+            byte iIndex = AddAnonymousVariable();
+            byte elementIndex = AddLocalVariable(elementSymbol);
+            byte bindingArraySlot = AddAnonymousVariable();
+            byte bindingIndexSlot = AddAnonymousVariable();
+            // The loop variable itself is just a ref alias. Record the underlying array + index slots
+            // so every `ref` use targets the same storage as the enumerator mutates the sequence.
+            SetRefBinding(elementSymbol, RefBinding.ArrayElement(bindingArraySlot, bindingIndexSlot));
+            PushContinueTarget(continueTarget);
+            PushBreakTarget(breakTarget);
+            StatementContext sc = new(syntax, breakTarget: breakTarget, continueTarget: continueTarget);
+            _generalStatementStack.Push(sc);
+            using (InsertSequencePoint(syntax.ForEachKeyword))
+            {
+                ConvertExpression(model, syntax.Expression);
+                AddInstruction(OpCode.DUP);
+                AccessSlot(OpCode.STLOC, arrayIndex);
+                AddInstruction(OpCode.SIZE);
+                AccessSlot(OpCode.STLOC, lengthIndex);
+                Push(0);
+                AccessSlot(OpCode.STLOC, iIndex);
+                Jump(OpCode.JMP_L, conditionTarget);
+            }
+            using (InsertSequencePoint(syntax.Identifier))
+            {
+                startTarget.Instruction = AccessSlot(OpCode.LDLOC, arrayIndex);
+                AccessSlot(OpCode.STLOC, bindingArraySlot);
+                AccessSlot(OpCode.LDLOC, iIndex);
+                AccessSlot(OpCode.STLOC, bindingIndexSlot);
+            }
+            ConvertStatement(model, syntax.Statement);
+            using (InsertSequencePoint(syntax.Expression))
+            {
+                continueTarget.Instruction = AccessSlot(OpCode.LDLOC, iIndex);
+                AddInstruction(OpCode.INC);
+                AccessSlot(OpCode.STLOC, iIndex);
+                conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, iIndex);
+                AccessSlot(OpCode.LDLOC, lengthIndex);
+                Jump(OpCode.JMPLT_L, startTarget);
+            }
+            breakTarget.Instruction = AddInstruction(OpCode.NOP);
+            RemoveAnonymousVariable(arrayIndex);
+            RemoveAnonymousVariable(lengthIndex);
+            RemoveAnonymousVariable(iIndex);
+            RemoveLocalVariable(elementSymbol);
+            PopContinueTarget();
+            PopBreakTarget();
+            if (_generalStatementStack.Pop() != sc)
+                throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in foreach statement handling. This is a compiler bug that should be reported.");
+        }
+
+        private static bool IsSpanType(ITypeSymbol type)
+        {
+            if (type is not INamedTypeSymbol named)
+                return false;
+
+            if (named.Name is not ("Span" or "ReadOnlySpan"))
+                return false;
+
+            return named.ContainingNamespace.ToDisplayString() == "System";
         }
 
         /// <summary>

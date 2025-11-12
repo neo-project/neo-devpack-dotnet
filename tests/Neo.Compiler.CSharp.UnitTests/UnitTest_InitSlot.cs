@@ -34,7 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 id.Contains("Contract_Lambda.Any", StringComparison.Ordinal) &&
                 id.Contains("System.Predicate", StringComparison.Ordinal);
 
-            var initSlot = GetFirstInstruction(context!, IsAnyGeneric);
+            var initSlot = GetInitSlotInstruction(context!, IsAnyGeneric);
 
             Assert.AreEqual(OpCode.INITSLOT, initSlot.OpCode, "The first instruction must initialize stack slots.");
             var operand = initSlot.Operand.Span;
@@ -42,7 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(2, operand[1], "Generic helpers must allocate exactly the declared parameter count.");
         }
 
-        private static Neo.VM.Instruction GetFirstInstruction(CompilationContext context, Func<string, bool> matchesMethod)
+        private static Neo.VM.Instruction GetInitSlotInstruction(CompilationContext context, Func<string, bool> matchesMethod)
         {
             var nef = context.CreateExecutable();
             var debugInfo = context.CreateDebugInformation();
@@ -61,9 +61,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             var startOffset = int.Parse(range[..dashIndex], CultureInfo.InvariantCulture);
             var script = (Script)nef.Script;
 
+            var started = false;
             foreach (var (address, instruction) in script.EnumerateInstructions())
             {
-                if (address == startOffset)
+                if (!started)
+                {
+                    if (address != startOffset)
+                        continue;
+                    started = true;
+                }
+
+                if (instruction.OpCode == OpCode.INITSLOT)
                     return instruction;
             }
 

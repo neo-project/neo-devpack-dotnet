@@ -41,10 +41,19 @@ namespace Neo.Compiler
         private void ConvertLocalDeclarationStatement(SemanticModel model, LocalDeclarationStatementSyntax syntax)
         {
             if (syntax.IsConst) return;
+            bool isRefDeclaration = syntax.Declaration.Type is RefTypeSyntax;
             foreach (VariableDeclaratorSyntax variable in syntax.Declaration.Variables)
             {
                 ILocalSymbol symbol = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
                 byte variableIndex = AddLocalVariable(symbol);
+                if (isRefDeclaration)
+                {
+                    if (variable.Initializer?.Value is not RefExpressionSyntax refExpression)
+                        throw CompilationException.UnsupportedSyntax(variable,
+                            "ref locals must be initialized with a ref expression (e.g., 'ref int x = ref buffer[0];').");
+                    BindRefLocal(model, symbol, refExpression);
+                    continue;
+                }
                 if (variable.Initializer is not null)
                     using (InsertSequencePoint(variable))
                     {

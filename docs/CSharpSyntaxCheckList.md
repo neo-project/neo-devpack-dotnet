@@ -17,6 +17,7 @@ The syntax checklist has been reorganized into C# version specific documents. Ea
 - [C# 11](csharp-syntax/csharp-11.md)
 - [C# 12](csharp-syntax/csharp-12.md)
 - [C# 13](csharp-syntax/csharp-13.md)
+- [C# 14](csharp-syntax/csharp-14.md)
 
 ## How the probes work
 
