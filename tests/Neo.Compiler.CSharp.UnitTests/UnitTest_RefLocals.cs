@@ -62,5 +62,4 @@ public class UnitTest_RefLocals
 
         Assert.AreEqual(13, contract.UpdateNestedHolder(10));
     }
-
 }

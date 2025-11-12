@@ -52,5 +52,4 @@ public class UnitTest_RefSupport
 
         Assert.AreEqual(21, contract.SwapDigits(1, 2));
     }
-
 }
