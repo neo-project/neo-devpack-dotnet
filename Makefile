@@ -5,6 +5,15 @@
 DOTNET = dotnet
 NCCS_PROJECT = src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
 NCCS_BINARY = src/Neo.Compiler.CSharp/bin/Release/net9.0/nccs
+PUBLISH_ARGS ?=
+
+ifeq ($(NO_RESTORE),true)
+    PUBLISH_ARGS += --no-restore
+endif
+
+ifeq ($(NO_BUILD),true)
+    PUBLISH_ARGS += --no-build
+endif
 DOCKER_IMAGE = neo-devpack-dotnet
 DOCKER_TAG = latest
 INSTALL_DIR = /usr/local/bin
@@ -58,6 +67,7 @@ help:
 	@echo "  make lint           - Run code analysis"
 	@echo "  make package        - Create NuGet packages"
 	@echo "  make publish        - Publish self-contained executable"
+	@echo "      Variables: NO_RESTORE=true (skip restore), NO_BUILD=true (requires prior build)"
 	@echo "  make version        - Show nccs version"
 
 # Build the compiler
@@ -173,7 +183,7 @@ package: build
 publish:
 	@echo "Publishing self-contained executable for $(RID)..."
 	@$(DOTNET) publish $(NCCS_PROJECT) -c Release -r $(RID) --self-contained true \
-		/p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./publish/$(RID)
+		/p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./publish/$(RID) $(PUBLISH_ARGS)
 	@echo "Published to ./publish/$(RID)/"
 
 # Publish for all platforms
