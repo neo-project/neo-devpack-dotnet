@@ -85,7 +85,6 @@ internal partial class MethodConvert
                 throw CompilationException.UnsupportedSyntax(expression.Left,
                     $"Assignment can only be performed on declarations, element access, identifiers, member access, or tuple expressions. Found: {expression.Left.GetType().Name}");
         }
-
     }
 
     private void ConvertFieldAssignment(SemanticModel model, FieldExpressionSyntax left)

@@ -72,5 +72,4 @@ public class Contract_FieldKeyword : SmartContract.Framework.SmartContract
         wallet.HasSeenPositive = second;
         return wallet.HasSeenPositive;
     }
-
 }
