@@ -26,6 +26,7 @@
     <img src="https://img.shields.io/twitter/follow/neo_blockchain?style=social" alt="Twitter Follow">
   </a>
   <img src="https://img.shields.io/badge/.NET-10.0-512BD4" alt=".NET Version">
+  <img src="https://img.shields.io/badge/C%23-14-512BD4?logo=csharp&logoColor=white" alt="C# 14 Support">
 </p>
 
 ## Overview
