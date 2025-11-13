@@ -116,8 +116,8 @@ internal sealed class Program
     private static async Task RunDeployAsync(DeploySettings settings, ArgSet options, CancellationToken cancellationToken)
     {
         using var toolkit = new DeploymentToolkit();
-        ConfigureNetwork(toolkit, settings, options);
-        EnsureWif(toolkit, settings, options);
+        var selection = ConfigureNetwork(toolkit, settings, options);
+        EnsureWif(toolkit, settings, options, selection);
 
         var artifacts = settings.ResolveArtifacts();
         var nef = settings.ResolvePath(options.Get("nef")) ?? artifacts.Nef;
@@ -163,8 +163,8 @@ internal sealed class Program
         var arguments = ParameterParser.ResolveArray(options.Get("args"), fallback: null);
 
         using var toolkit = new DeploymentToolkit();
-        ConfigureNetwork(toolkit, settings, options);
-        EnsureWif(toolkit, settings, options);
+        var selection = ConfigureNetwork(toolkit, settings, options);
+        EnsureWif(toolkit, settings, options, selection);
 
         Console.WriteLine($"Invoking {method} on {contract}...");
         var txHash = await toolkit.InvokeAsync(contract, method, cancellationToken, arguments ?? Array.Empty<object?>()).ConfigureAwait(false);
@@ -179,7 +179,7 @@ internal sealed class Program
         var arguments = ParameterParser.ResolveArray(options.Get("args"), fallback: null) ?? Array.Empty<object?>();
 
         using var toolkit = new DeploymentToolkit();
-        ConfigureNetwork(toolkit, settings, options);
+        _ = ConfigureNetwork(toolkit, settings, options);
 
         Console.WriteLine($"Calling {method} on {contract}...");
         var normalizedReturn = returnType.ToLowerInvariant();
@@ -196,57 +196,59 @@ internal sealed class Program
         Console.WriteLine($"Result ({normalizedReturn}): {result}");
     }
 
-    private static void ConfigureNetwork(DeploymentToolkit toolkit, DeploySettings settings, ArgSet options)
+    private static NetworkSelection ConfigureNetwork(DeploymentToolkit toolkit, DeploySettings settings, ArgSet options)
     {
         var rpcOverride = options.Get("rpc");
         if (!string.IsNullOrWhiteSpace(rpcOverride))
         {
             toolkit.SetNetwork(rpcOverride);
-            return;
+            return new NetworkSelection(null, null);
         }
 
         var requested = options.Get("network") ?? settings.DefaultNetwork;
         if (string.IsNullOrWhiteSpace(requested))
         {
             toolkit.UseNetwork(NetworkProfile.Local);
-            return;
+            return new NetworkSelection("local", settings.ResolveNetworkWif("local"));
         }
 
-        if (settings.TryGetCustomNetwork(requested, out var profile))
+        if (settings.TryGetCustomNetwork(requested, out var profile, out var configuredWif))
         {
             toolkit.UseNetwork(profile);
-            return;
+            return new NetworkSelection(requested, configuredWif);
         }
 
         switch (requested.ToLowerInvariant())
         {
             case "mainnet":
                 toolkit.UseNetwork(NetworkProfile.MainNet);
-                return;
+                return new NetworkSelection("mainnet", settings.ResolveNetworkWif("mainnet"));
             case "testnet":
                 toolkit.UseNetwork(NetworkProfile.TestNet);
-                return;
+                return new NetworkSelection("testnet", settings.ResolveNetworkWif("testnet"));
             case "express":
             case "local":
             case "private":
                 toolkit.UseNetwork(NetworkProfile.Local);
-                return;
+                return new NetworkSelection("local", settings.ResolveNetworkWif(requested));
         }
 
         if (Uri.TryCreate(requested, UriKind.Absolute, out _))
         {
             toolkit.SetNetwork(requested);
-            return;
+            return new NetworkSelection(null, null);
         }
 
         Console.WriteLine($"Unknown network '{requested}', falling back to express (local Neo-Express RPC).");
         toolkit.UseNetwork(NetworkProfile.Local);
+        return new NetworkSelection("local", settings.ResolveNetworkWif("local"));
     }
 
-    private static void EnsureWif(DeploymentToolkit toolkit, DeploySettings settings, ArgSet options)
+    private static void EnsureWif(DeploymentToolkit toolkit, DeploySettings settings, ArgSet options, NetworkSelection selection)
     {
         var wif = options.Get("wif")
                   ?? Environment.GetEnvironmentVariable("NEO_WIF")
+                  ?? selection.ConfiguredWif
                   ?? settings.DefaultWif;
 
         if (string.IsNullOrWhiteSpace(wif))
@@ -349,9 +351,10 @@ internal sealed class DeploySettings
             : Path.GetFullPath(Path.Combine(_baseDirectory, value));
     }
 
-    public bool TryGetCustomNetwork(string? name, out NetworkProfile profile)
+    public bool TryGetCustomNetwork(string? name, out NetworkProfile profile, out string? wif)
     {
         profile = default!;
+        wif = null;
         if (string.IsNullOrWhiteSpace(name))
             return false;
 
@@ -359,10 +362,21 @@ internal sealed class DeploySettings
             !string.IsNullOrWhiteSpace(custom.RpcUrl))
         {
             profile = new NetworkProfile(name, custom.RpcUrl, custom.NetworkMagic, custom.AddressVersion);
+            wif = string.IsNullOrWhiteSpace(custom.Wif) ? null : custom.Wif;
             return true;
         }
 
         return false;
+    }
+
+    public string? ResolveNetworkWif(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+
+        return CustomNetworks.TryGetValue(name, out var custom) && !string.IsNullOrWhiteSpace(custom.Wif)
+            ? custom.Wif
+            : null;
     }
 }
 
@@ -389,7 +403,10 @@ internal sealed class CustomNetwork
     public string RpcUrl { get; set; } = string.Empty;
     public uint? NetworkMagic { get; set; }
     public byte? AddressVersion { get; set; }
+    public string? Wif { get; set; }
 }
+
+internal sealed record NetworkSelection(string? Alias, string? ConfiguredWif);
 
 internal sealed class ArgSet
 {

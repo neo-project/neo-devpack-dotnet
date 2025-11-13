@@ -21,6 +21,7 @@ using Neo.Network.RPC.Models;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
+using Neo.Wallets;
 using Xunit;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using CompilationOptions = Neo.Compiler.CompilationOptions;
@@ -30,6 +31,8 @@ namespace Neo.SmartContract.Deploy.UnitTests;
 public class DeploymentToolkitTests : TestBase
 {
     private const string ValidWif = "KzjaqMvqzF1uup6KrTKRxTgjcXE7PbKLRH84e6ckyXDt3fu7afUb";
+    private const string AlternateWif = "KyXwTh1hB76RRMquSvnxZrJzQx7h9nQP2PCRL38v6VDb5ip3nf1p";
+    private const string SecondaryWif = "L2LGkrwiNmUAnWYb1XGd5mv7v2eDf6P4F3gHyXSrNJJR4ArmBp7Q";
 
     public DeploymentToolkitTests()
     {
@@ -525,6 +528,68 @@ public class DeploymentToolkitTests : TestBase
     }
 
     #region WIF Key Tests
+
+    [Fact]
+    public async Task ConfigureNetwork_ShouldApplyPerNetworkWif()
+    {
+        var values = new Dictionary<string, string?>
+        {
+            ["Network:Networks:mainnet:RpcUrl"] = "https://mainnet1.neo.coz.io:443",
+            ["Network:Networks:mainnet:Wif"] = ValidWif
+        };
+        var config = new ConfigurationBuilder().AddInMemoryCollection(values).Build();
+        var toolkit = new DeploymentToolkit(config);
+
+        toolkit.SetNetwork("mainnet");
+        var account = await toolkit.GetDeployerAccountAsync();
+
+        Assert.Equal(GetAccountFromWif(ValidWif), account);
+    }
+
+    [Fact]
+    public async Task ConfigureNetwork_ShouldSwapWifWhenSwitchingNetworks()
+    {
+        var values = new Dictionary<string, string?>
+        {
+            ["Network:Networks:mainnet:RpcUrl"] = NetworkProfile.MainNet.RpcUrl,
+            ["Network:Networks:mainnet:Wif"] = ValidWif,
+            ["Network:Networks:testnet:RpcUrl"] = NetworkProfile.TestNet.RpcUrl,
+            ["Network:Networks:testnet:Wif"] = AlternateWif
+        };
+        var config = new ConfigurationBuilder().AddInMemoryCollection(values).Build();
+        var toolkit = new DeploymentToolkit(config);
+
+        toolkit.SetNetwork("mainnet");
+        var mainnetAccount = await toolkit.GetDeployerAccountAsync();
+
+        toolkit.SetNetwork("testnet");
+        var testnetAccount = await toolkit.GetDeployerAccountAsync();
+
+        Assert.Equal(GetAccountFromWif(ValidWif), mainnetAccount);
+        Assert.Equal(GetAccountFromWif(AlternateWif), testnetAccount);
+    }
+
+    [Fact]
+    public async Task ManualWif_ShouldOverrideConfiguredNetworkWif()
+    {
+        var values = new Dictionary<string, string?>
+        {
+            ["Network:Networks:mainnet:RpcUrl"] = NetworkProfile.MainNet.RpcUrl,
+            ["Network:Networks:mainnet:Wif"] = ValidWif,
+            ["Network:Networks:testnet:RpcUrl"] = NetworkProfile.TestNet.RpcUrl,
+            ["Network:Networks:testnet:Wif"] = AlternateWif
+        };
+        var config = new ConfigurationBuilder().AddInMemoryCollection(values).Build();
+        var toolkit = new DeploymentToolkit(config);
+
+        toolkit.SetNetwork("mainnet");
+        toolkit.SetWifKey(SecondaryWif);
+
+        toolkit.SetNetwork("testnet");
+        var account = await toolkit.GetDeployerAccountAsync();
+
+        Assert.Equal(GetAccountFromWif(SecondaryWif), account);
+    }
 
     [Fact]
     public void SetWifKey_WithValidKey_ShouldSetKeySuccessfully()
@@ -1134,6 +1199,13 @@ namespace TestContract
         var contractPath = Path.Combine(tempDir, "TestContract.cs");
         File.WriteAllText(contractPath, contractCode);
         return contractPath;
+    }
+
+    private static UInt160 GetAccountFromWif(string wif)
+    {
+        var privateKey = Wallet.GetPrivateKeyFromWIF(wif);
+        var keyPair = new KeyPair(privateKey);
+        return Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
     }
 
     private sealed class RecordingDeploymentToolkit : DeploymentToolkit

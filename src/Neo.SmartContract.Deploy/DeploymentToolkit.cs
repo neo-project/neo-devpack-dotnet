@@ -43,6 +43,8 @@ public class DeploymentToolkit : IDisposable
     private DateTime _networkMagicLastAttemptUtc;
     private bool _networkMagicRetryPending;
     private bool _disposed = false;
+    private Dictionary<string, NetworkConfiguration> _configuredNetworks = new(StringComparer.OrdinalIgnoreCase);
+    private WifOrigin _wifOrigin = WifOrigin.None;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -92,7 +94,9 @@ public class DeploymentToolkit : IDisposable
         _rpcClientFactory = rpcClientFactory ?? new DefaultRpcClientFactory();
         _options = (options ?? new DeploymentOptions()).Clone();
 
+        LoadConfiguredNetworks();
         _networkProfile = ResolveInitialNetworkProfile();
+        ApplyConfiguredWifForNetwork(_networkProfile.Identifier, force: true);
         _networkMagicFetchedFromRpc = false;
         _networkMagicFallbackActive = false;
         _networkMagicLastAttemptUtc = DateTime.MinValue;
@@ -126,6 +130,7 @@ public class DeploymentToolkit : IDisposable
         _networkMagicFallbackActive = false;
         _networkMagicLastAttemptUtc = DateTime.MinValue;
         _networkMagicRetryPending = false;
+        ApplyConfiguredWifForNetwork(_networkProfile.Identifier);
         return this;
     }
 
@@ -144,6 +149,71 @@ public class DeploymentToolkit : IDisposable
         }
 
         return this;
+    }
+
+    private void LoadConfiguredNetworks()
+    {
+        var networksSection = _configuration.GetSection("Network:Networks");
+        var configuredNetworks = networksSection.Get<Dictionary<string, NetworkConfiguration>>();
+
+        if (configuredNetworks is null || configuredNetworks.Count == 0)
+        {
+            _configuredNetworks = new Dictionary<string, NetworkConfiguration>(StringComparer.OrdinalIgnoreCase);
+        }
+        else
+        {
+            _configuredNetworks = new Dictionary<string, NetworkConfiguration>(configuredNetworks.Count, StringComparer.OrdinalIgnoreCase);
+            foreach (var entry in configuredNetworks)
+            {
+                var key = entry.Key?.Trim();
+                if (string.IsNullOrWhiteSpace(key))
+                    continue;
+
+                _configuredNetworks[key] = entry.Value ?? new NetworkConfiguration();
+            }
+        }
+
+        var configuredName = _configuration["Network:Network"];
+        if (!string.IsNullOrWhiteSpace(configuredName))
+        {
+            var normalized = configuredName.Trim();
+            if (!_configuredNetworks.TryGetValue(normalized, out var config))
+            {
+                config = new NetworkConfiguration();
+                _configuredNetworks[normalized] = config;
+            }
+
+            config.Wif ??= _configuration["Network:Wif"];
+
+            var networkMagic = _configuration.GetValue<uint?>("Network:NetworkMagic", null);
+            if (networkMagic.HasValue && !config.NetworkMagic.HasValue)
+            {
+                config.NetworkMagic = networkMagic;
+            }
+
+            var addressVersion = _configuration.GetValue<byte?>("Network:AddressVersion", null);
+            if (addressVersion.HasValue && !config.AddressVersion.HasValue)
+            {
+                config.AddressVersion = addressVersion;
+            }
+
+            var rpcUrl = _configuration["Network:RpcUrl"];
+            if (!string.IsNullOrWhiteSpace(rpcUrl))
+            {
+                config.RpcUrl = rpcUrl.Trim();
+            }
+        }
+    }
+
+    private NetworkConfiguration GetOrCreateConfiguredNetwork(string identifier)
+    {
+        if (!_configuredNetworks.TryGetValue(identifier, out var config))
+        {
+            config = new NetworkConfiguration();
+            _configuredNetworks[identifier] = config;
+        }
+
+        return config;
     }
 
     private NetworkProfile ResolveInitialNetworkProfile()
@@ -192,7 +262,20 @@ public class DeploymentToolkit : IDisposable
             var normalized = configuredUrl.Trim();
             var magic = _configuration.GetValue<uint?>("Network:NetworkMagic", null);
             var addressVersion = _configuration.GetValue<byte?>("Network:AddressVersion", null);
-            return new NetworkProfile(configuredName ?? uri.Host, normalized, magic, addressVersion);
+            var identifier = configuredName ?? uri.Host;
+            var profile = new NetworkProfile(identifier, normalized, magic, addressVersion);
+
+            var config = GetOrCreateConfiguredNetwork(identifier);
+            config.RpcUrl ??= normalized;
+            if (magic.HasValue && !config.NetworkMagic.HasValue)
+                config.NetworkMagic = magic;
+            if (addressVersion.HasValue && !config.AddressVersion.HasValue)
+                config.AddressVersion = addressVersion;
+            var configuredWif = _configuration["Network:Wif"];
+            if (!string.IsNullOrWhiteSpace(configuredWif) && string.IsNullOrWhiteSpace(config.Wif))
+                config.Wif = configuredWif;
+
+            return profile;
         }
 
         return null;
@@ -207,32 +290,24 @@ public class DeploymentToolkit : IDisposable
             return new NetworkProfile(uri.Host, trimmed);
         }
 
-        var networksSection = _configuration.GetSection("Network:Networks");
-        var configuredNetworks = networksSection.Get<Dictionary<string, NetworkConfiguration>>();
-        if (configuredNetworks != null)
+        if (_configuredNetworks.TryGetValue(trimmed, out var configured))
         {
-            foreach (var entry in configuredNetworks)
+            var rpcUrl = configured.RpcUrl?.Trim();
+            if (!string.IsNullOrWhiteSpace(rpcUrl))
             {
-                if (string.Equals(entry.Key, trimmed, StringComparison.OrdinalIgnoreCase))
-                {
-                    var rpcUrl = entry.Value.RpcUrl?.Trim();
-                    if (!string.IsNullOrWhiteSpace(rpcUrl))
-                    {
-                        return new NetworkProfile(entry.Key, rpcUrl, entry.Value.NetworkMagic, entry.Value.AddressVersion);
-                    }
-
-                    if (NetworkProfile.TryGetKnown(trimmed, out var knownProfile))
-                    {
-                        return knownProfile with
-                        {
-                            NetworkMagic = entry.Value.NetworkMagic ?? knownProfile.NetworkMagic,
-                            AddressVersion = entry.Value.AddressVersion ?? knownProfile.AddressVersion
-                        };
-                    }
-
-                    throw new ArgumentException($"Network '{network}' is configured without an RpcUrl.", nameof(network));
-                }
+                return new NetworkProfile(trimmed, rpcUrl, configured.NetworkMagic, configured.AddressVersion);
             }
+
+            if (NetworkProfile.TryGetKnown(trimmed, out var knownProfile))
+            {
+                return knownProfile with
+                {
+                    NetworkMagic = configured.NetworkMagic ?? knownProfile.NetworkMagic,
+                    AddressVersion = configured.AddressVersion ?? knownProfile.AddressVersion
+                };
+            }
+
+            throw new ArgumentException($"Network '{network}' is configured without an RpcUrl.", nameof(network));
         }
 
         if (NetworkProfile.TryGetKnown(trimmed, out var known))
@@ -254,26 +329,60 @@ public class DeploymentToolkit : IDisposable
     /// <exception cref="ArgumentException">Thrown when WIF key is invalid</exception>
     public DeploymentToolkit SetWifKey(string wifKey)
     {
+        SetWifKeyInternal(wifKey, WifOrigin.Manual);
+        return this;
+    }
+
+    private void ApplyConfiguredWifForNetwork(string identifier, bool force = false)
+    {
+        if (string.IsNullOrWhiteSpace(identifier))
+            return;
+
+        if (_configuredNetworks.TryGetValue(identifier, out var configured) &&
+            !string.IsNullOrWhiteSpace(configured.Wif))
+        {
+            ApplyConfiguredWif(configured.Wif!, identifier, force);
+        }
+    }
+
+    private void ApplyConfiguredWif(string wif, string identifier, bool force)
+    {
+        if (!force && _wifOrigin == WifOrigin.Manual)
+            return;
+
+        try
+        {
+            SetWifKeyInternal(wif, WifOrigin.Configuration);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new InvalidOperationException($"Configured WIF for network '{identifier}' is invalid: {ex.Message}", ex);
+        }
+    }
+
+    private void SetWifKeyInternal(string wifKey, WifOrigin origin)
+    {
         EnsureNotDisposed();
 
         if (string.IsNullOrWhiteSpace(wifKey))
-            throw new ArgumentException("WIF key cannot be null or empty", nameof(wifKey));
+            throw new ArgumentException("WIF key cannot be null or empty.", nameof(wifKey));
+
+        var normalized = wifKey.Trim();
 
         try
         {
             // Validate the WIF key by attempting to create a KeyPair
-            var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(wifKey);
+            var privateKey = Neo.Wallets.Wallet.GetPrivateKeyFromWIF(normalized);
             var keyPair = new KeyPair(privateKey);
-            var account = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
+            _ = Neo.SmartContract.Contract.CreateSignatureContract(keyPair.PublicKey).ScriptHash;
 
-            _wifKey = wifKey;
+            _wifKey = normalized;
+            _wifOrigin = origin;
         }
         catch (Exception ex)
         {
             throw new ArgumentException($"Invalid WIF key: {ex.Message}", nameof(wifKey));
         }
-
-        return this;
     }
 
     /// <summary>
@@ -941,6 +1050,7 @@ public class DeploymentToolkit : IDisposable
             _networkProfile,
             _options.Clone(),
             _wifKey,
+            _wifOrigin,
             _protocolSettings,
             _networkMagicFetchedFromRpc,
             _networkMagicFallbackActive,
@@ -953,6 +1063,7 @@ public class DeploymentToolkit : IDisposable
         _options = snapshot.Options.Clone();
         _options.Network = _networkProfile;
         _wifKey = snapshot.Wif;
+        _wifOrigin = snapshot.WifOrigin;
         _protocolSettings = snapshot.ProtocolSettings;
         _networkMagicFetchedFromRpc = snapshot.NetworkMagicResolved;
         _networkMagicFallbackActive = snapshot.NetworkMagicFallbackActive;
@@ -967,18 +1078,13 @@ public class DeploymentToolkit : IDisposable
 
         EnsureNotDisposed();
         var previous = _wifKey;
+        var previousOrigin = _wifOrigin;
         SetWifKey(wif);
 
         return new DisposableAction(() =>
         {
-            if (!string.IsNullOrWhiteSpace(previous))
-            {
-                _wifKey = previous;
-            }
-            else
-            {
-                _wifKey = null;
-            }
+            _wifKey = previous;
+            _wifOrigin = previousOrigin;
         });
     }
 
@@ -1090,27 +1196,19 @@ public class DeploymentToolkit : IDisposable
             return configuredMagic.Value;
         }
 
-        var networksSection = _configuration.GetSection("Network:Networks");
-        var configuredNetworks = networksSection.Get<Dictionary<string, NetworkConfiguration>>();
-        if (configuredNetworks is not null)
+        if (_configuredNetworks.TryGetValue(_networkProfile.Identifier, out var configured) && configured.NetworkMagic.HasValue)
         {
-            foreach (var entry in configuredNetworks)
+            var magic = configured.NetworkMagic.Value;
+            _networkProfile = _networkProfile with
             {
-                if (string.Equals(entry.Key, _networkProfile.Identifier, StringComparison.OrdinalIgnoreCase) && entry.Value.NetworkMagic.HasValue)
-                {
-                    var magic = entry.Value.NetworkMagic.Value;
-                    _networkProfile = _networkProfile with
-                    {
-                        NetworkMagic = magic,
-                        AddressVersion = entry.Value.AddressVersion ?? _networkProfile.AddressVersion
-                    };
-                    _options.Network = _networkProfile;
-                    _networkMagicFetchedFromRpc = false;
-                    _networkMagicFallbackActive = true;
-                    _networkMagicLastAttemptUtc = fallbackTimestamp;
-                    return magic;
-                }
-            }
+                NetworkMagic = magic,
+                AddressVersion = configured.AddressVersion ?? _networkProfile.AddressVersion
+            };
+            _options.Network = _networkProfile;
+            _networkMagicFetchedFromRpc = false;
+            _networkMagicFallbackActive = true;
+            _networkMagicLastAttemptUtc = fallbackTimestamp;
+            return magic;
         }
 
         if (hasKnownProfile && knownProfile!.NetworkMagic.HasValue)
@@ -1464,10 +1562,18 @@ public class DeploymentToolkit : IDisposable
         return item.GetString();
     }
 
+    private enum WifOrigin
+    {
+        None = 0,
+        Configuration = 1,
+        Manual = 2
+    }
+
     private readonly record struct ToolkitSnapshot(
         NetworkProfile Network,
         DeploymentOptions Options,
         string? Wif,
+        WifOrigin WifOrigin,
         ProtocolSettings? ProtocolSettings,
         bool NetworkMagicResolved,
         bool NetworkMagicFallbackActive,
@@ -1504,9 +1610,10 @@ public class DeploymentToolkit : IDisposable
 
     internal class NetworkConfiguration
     {
-        public string RpcUrl { get; set; } = string.Empty;
+        public string? RpcUrl { get; set; }
         public uint? NetworkMagic { get; set; }
         public byte? AddressVersion { get; set; }
+        public string? Wif { get; set; }
     }
 
     public record ContractDeploymentInfo

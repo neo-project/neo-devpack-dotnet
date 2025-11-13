@@ -5,6 +5,22 @@
     "manifest": "../TemplateContractProject/bin/sc/TemplateContractProject.manifest.json",
     "initParameters": []
   },
-  "customNetworks": {},
+  "customNetworks": {
+    "mainnet": {
+      "rpcUrl": "https://mainnet1.neo.coz.io:443",
+      "networkMagic": 860833102,
+      "wif": ""
+    },
+    "testnet": {
+      "rpcUrl": "http://seed2t5.neo.org:20332",
+      "networkMagic": 894710606,
+      "wif": ""
+    },
+    "devnet": {
+      "rpcUrl": "http://localhost:50012",
+      "networkMagic": 123456789,
+      "wif": ""
+    }
+  },
   "defaultWif": ""
 }

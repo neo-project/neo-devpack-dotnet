@@ -512,18 +512,29 @@ Create an `appsettings.json` file for configuration:
 ```json
 {
   "Network": {
-    "RpcUrl": "https://testnet1.neo.coz.io:443",
-    "Network": "testnet"
+    "Network": "mainnet",
+    "Networks": {
+      "mainnet": {
+        "RpcUrl": "https://mainnet1.neo.coz.io:443",
+        "NetworkMagic": 860833102,
+        "Wif": "<optional-mainnet-wif>"
+      },
+      "devnet": {
+        "RpcUrl": "http://localhost:50012",
+        "NetworkMagic": 123456789,
+        "AddressVersion": 53,
+        "Wif": ""
+      }
+    }
   },
   "Deployment": {
     "GasLimit": 100000000,
     "WaitForConfirmation": true
-  },
-  "Wallet": {
-    "Path": "wallet.json"
   }
 }
 ```
+
+Entries under `Network:Networks` let you preconfigure RPC URLs, network magic numbers, address versions, and per-network signing keys. When a `Wif` is provided the toolkit automatically loads it as soon as you switch to that network, while still allowing runtime overrides via `SetWifKey`, environment variables, or CLI prompts.
 
 ## Documentation
 
