@@ -742,7 +742,8 @@ namespace Neo.Optimizer
                 return (nef, manifest, debugInfo);
 
             foreach (Instruction i in oldAddressToInstruction.Values)
-                if (OpCodeTypes.loadStaticFields.Contains(i.OpCode))
+                if (OpCodeTypes.loadStaticFields.Contains(i.OpCode) ||
+                    OpCodeTypes.storeStaticFields.Contains(i.OpCode))
                     return (nef, manifest, debugInfo);
 
             int currentAddr = 0;

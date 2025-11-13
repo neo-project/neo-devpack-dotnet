@@ -65,16 +65,16 @@ internal partial class MethodConvert
                 ConvertMemberAccessComplexAssignment(model, type, expression.OperatorToken, left, expression.Right);
                 break;
             default:
-                throw new CompilationException(expression.Left, DiagnosticId.SyntaxNotSupported, $"Unsupported assignment expression: {expression}");
+                throw CompilationException.UnsupportedSyntax(expression.Left, $"Complex assignment operators (+=, -=, etc.) can only be used with element access, identifiers, or member access expressions. Found: {expression.Left.GetType().Name}");
         }
     }
 
     private void ConvertElementAccessComplexAssignment(SemanticModel model, ITypeSymbol type, SyntaxToken operatorToken, ElementAccessExpressionSyntax left, ExpressionSyntax right)
     {
-        if (left.ArgumentList.Arguments.Count != 1)
-            throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
         if (model.GetSymbolInfo(left).Symbol is IPropertySymbol property)
         {
+            if (left.ArgumentList.Arguments.Count != 1)
+                throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
             ConvertExpression(model, left.Expression);
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             AddInstruction(OpCode.OVER);
@@ -88,17 +88,39 @@ internal partial class MethodConvert
         }
         else
         {
-            ConvertExpression(model, left.Expression);
-            ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.OVER);
-            AddInstruction(OpCode.PICKITEM);
-            ConvertExpression(model, right);
-            EmitComplexAssignmentOperator(type, operatorToken);
-            AddInstruction(OpCode.DUP);
-            AddInstruction(OpCode.REVERSE4);
-            AddInstruction(OpCode.REVERSE3);
-            AddInstruction(OpCode.SETITEM);
+            IArrayTypeSymbol? arrayType = model.GetTypeInfo(left.Expression).Type as IArrayTypeSymbol;
+            if (arrayType is not null && arrayType.Rank > 1)
+            {
+                EnsureMultiDimensionalArguments(left.ArgumentList.Arguments, arrayType.Rank, left.ArgumentList);
+                ConvertExpression(model, left.Expression);
+                EmitArrayDimensionNavigation(model, left.ArgumentList.Arguments, arrayType.Rank - 1);
+                ConvertExpression(model, left.ArgumentList.Arguments[left.ArgumentList.Arguments.Count - 1].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
+            else
+            {
+                if (left.ArgumentList.Arguments.Count != 1)
+                    throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
+                ConvertExpression(model, left.Expression);
+                ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.OVER);
+                AddInstruction(OpCode.PICKITEM);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                AddInstruction(OpCode.DUP);
+                AddInstruction(OpCode.REVERSE4);
+                AddInstruction(OpCode.REVERSE3);
+                AddInstruction(OpCode.SETITEM);
+            }
         }
     }
 
@@ -120,7 +142,7 @@ internal partial class MethodConvert
                 ConvertPropertyIdentifierNameComplexAssignment(model, type, operatorToken, property, right);
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Complex assignment operators cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -136,7 +158,7 @@ internal partial class MethodConvert
                 ConvertPropertyMemberAccessComplexAssignment(model, type, operatorToken, left, right, property);
                 break;
             default:
-                throw new CompilationException(left, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(left, $"Complex assignment operators cannot be applied to symbol type '{symbol.GetType().Name}'. Only fields, locals, parameters, and properties are supported.");
         }
     }
 
@@ -275,7 +297,7 @@ internal partial class MethodConvert
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
             "<<=" => (OpCode.SHL, true),
             ">>=" => (OpCode.SHR, true),
-            _ => throw new CompilationException(operatorToken, DiagnosticId.SyntaxNotSupported, $"Unsupported operator: {operatorToken}")
+            _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Complex assignment operator '{operatorToken.ValueText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
         };
         AddInstruction(opcode);
         if (opcode == OpCode.XOR && isBoolean)

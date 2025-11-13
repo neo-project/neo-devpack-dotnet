@@ -10,12 +10,37 @@
 // modifications are permitted.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Numerics;
+using System.Reflection;
 
 namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private static readonly Type[] s_numericCreateSourceTypes =
+    {
+        typeof(byte), typeof(sbyte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(char), typeof(BigInteger)
+    };
+
+    private static readonly MethodInfo s_registerUnaryHandlerMethod = typeof(MethodConvert)
+        .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+        .First(m => m.Name == nameof(RegisterHandler)
+                    && m.IsGenericMethodDefinition
+                    && m.GetGenericArguments().Length == 2
+                    && IsFunc2Expression(m.GetParameters()[0].ParameterType));
+
+    private static bool IsFunc2Expression(Type parameterType)
+    {
+        if (!parameterType.IsGenericType || parameterType.GetGenericTypeDefinition() != typeof(Expression<>))
+            return false;
+
+        var funcType = parameterType.GetGenericArguments()[0];
+        return funcType.IsGenericType && funcType.GetGenericTypeDefinition() == typeof(Func<,>);
+    }
+
     private static void RegisterSystemCallHandlers()
     {
         // BigInteger handlers
@@ -30,6 +55,7 @@ internal partial class MethodConvert
 
         // String handlers
         RegisterStringHandlers();
+        RegisterStringBuilderHandlers();
 
         // Array handlers
         RegisterArrayHandlers();
@@ -82,6 +108,11 @@ internal partial class MethodConvert
 
     private static void RegisterNumericTypeHandlers()
     {
+        foreach (var descriptor in s_numericTypeDescriptors)
+            RegisterNumericHandlers(descriptor);
+
+        RegisterCreateCheckedHandlers(typeof(BigInteger), HandleBigIntegerCreatedChecked);
+
         // Numeric explicit cast from BigInteger methods
         RegisterHandler((BigInteger b) => (sbyte)b, HandleBigIntegerToSByte);
         RegisterHandler((BigInteger b) => (byte)b, HandleBigIntegerToByte);
@@ -103,26 +134,6 @@ internal partial class MethodConvert
         RegisterHandler((uint i) => (BigInteger)i, HandleToBigInteger);
         RegisterHandler((long l) => (BigInteger)l, HandleToBigInteger);
         RegisterHandler((ulong l) => (BigInteger)l, HandleToBigInteger);
-
-        // Numeric RotateLeft methods
-        RegisterHandler((byte x, int y) => byte.RotateLeft(x, y), HandleByteRotateLeft);
-        RegisterHandler((sbyte x, int y) => sbyte.RotateLeft(x, y), HandleSByteRotateLeft);
-        RegisterHandler((short x, int y) => short.RotateLeft(x, y), HandleShortRotateLeft);
-        RegisterHandler((ushort x, int y) => ushort.RotateLeft(x, y), HandleUShortRotateLeft);
-        RegisterHandler((int x, int y) => int.RotateLeft(x, y), HandleIntRotateLeft);
-        RegisterHandler((uint x, int y) => uint.RotateLeft(x, y), HandleUIntRotateLeft);
-        RegisterHandler((long x, int y) => long.RotateLeft(x, y), HandleLongRotateLeft);
-        RegisterHandler((ulong x, int y) => ulong.RotateLeft(x, y), HandleULongRotateLeft);
-
-        // Numeric RotateRight methods
-        RegisterHandler((byte x, int y) => byte.RotateRight(x, y), HandleByteRotateRight);
-        RegisterHandler((sbyte x, int y) => sbyte.RotateRight(x, y), HandleSByteRotateRight);
-        RegisterHandler((short x, int y) => short.RotateRight(x, y), HandleShortRotateRight);
-        RegisterHandler((ushort x, int y) => ushort.RotateRight(x, y), HandleUShortRotateRight);
-        RegisterHandler((int x, int y) => int.RotateRight(x, y), HandleIntRotateRight);
-        RegisterHandler((uint x, int y) => uint.RotateRight(x, y), HandleUIntRotateRight);
-        RegisterHandler((long x, int y) => long.RotateRight(x, y), HandleLongRotateRight);
-        RegisterHandler((ulong x, int y) => ulong.RotateRight(x, y), HandleULongRotateRight);
 
         // Numeric IsEvenInteger methods
         RegisterHandler((byte x) => byte.IsEvenInteger(x), HandleBigIntegerIsEven);
@@ -171,15 +182,7 @@ internal partial class MethodConvert
         RegisterHandler((ulong x) => ulong.IsPow2(x), HandleBigIntegerIsPow2);
         RegisterHandler((BigInteger x) => BigInteger.IsPow2(x), HandleBigIntegerIsPow2);
 
-        // Numeric LeadingZeroCount methods
-        RegisterHandler((byte x) => byte.LeadingZeroCount(x), HandleByteLeadingZeroCount);
-        RegisterHandler((sbyte x) => sbyte.LeadingZeroCount(x), HandleSByteLeadingZeroCount);
-        RegisterHandler((short x) => short.LeadingZeroCount(x), HandleShortLeadingZeroCount);
-        RegisterHandler((ushort x) => ushort.LeadingZeroCount(x), HandleUShortLeadingZeroCount);
-        RegisterHandler((int x) => int.LeadingZeroCount(x), HandleIntLeadingZeroCount);
-        RegisterHandler((uint x) => uint.LeadingZeroCount(x), HandleUIntLeadingZeroCount);
-        RegisterHandler((long x) => long.LeadingZeroCount(x), HandleLongLeadingZeroCount);
-        RegisterHandler((ulong x) => ulong.LeadingZeroCount(x), HandleULongLeadingZeroCount);
+        // Numeric LeadingZeroCount method for BigInteger
         RegisterHandler((BigInteger x) => BigInteger.LeadingZeroCount(x), HandleBigIntegerLeadingZeroCount);
 
         // Numeric Log2 methods
@@ -225,232 +228,11 @@ internal partial class MethodConvert
         RegisterHandler((ulong value, ulong min, ulong max) => ulong.Clamp(value, min, max), HandleMathClamp);
         RegisterHandler((BigInteger value, BigInteger min, BigInteger max) => BigInteger.Clamp(value, min, max), HandleMathClamp);
 
-        // Numeric CopySign methods
-        #region CopySign
-        RegisterHandler((sbyte x, sbyte y) => sbyte.CopySign(x, y), HandleSByteCopySign);
-        RegisterHandler((short x, short y) => short.CopySign(x, y), HandleShortCopySign);
-        RegisterHandler((int x, int y) => int.CopySign(x, y), HandleIntCopySign);
-        RegisterHandler((long x, long y) => long.CopySign(x, y), HandleLongCopySign);
+        // Numeric CopySign method for BigInteger
         RegisterHandler((BigInteger x, BigInteger y) => BigInteger.CopySign(x, y), HandleBigIntegerCopySign);
-        #endregion CopySign
 
-        // Numeric CreateChecked methods
         #region CreateChecked
-        RegisterHandler((byte x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((sbyte x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((short x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((ushort x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((int x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((uint x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((long x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((ulong x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((char x) => byte.CreateChecked(x), HandleByteCreateChecked);
-        RegisterHandler((BigInteger x) => byte.CreateChecked(x), HandleByteCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((sbyte x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((short x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((ushort x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((int x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((uint x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((long x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((ulong x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((char x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-        RegisterHandler((BigInteger x) => sbyte.CreateChecked(x), HandleSByteCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((sbyte x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((short x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((ushort x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((int x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((uint x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((long x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((ulong x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((char x) => short.CreateChecked(x), HandleShortCreateChecked);
-        RegisterHandler((BigInteger x) => short.CreateChecked(x), HandleShortCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((sbyte x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((short x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((ushort x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((int x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((uint x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((long x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((ulong x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((char x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-        RegisterHandler((BigInteger x) => ushort.CreateChecked(x), HandleUShortCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((sbyte x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((short x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((ushort x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((int x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((uint x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((long x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((ulong x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((char x) => int.CreateChecked(x), HandleIntCreateChecked);
-        RegisterHandler((BigInteger x) => int.CreateChecked(x), HandleIntCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((sbyte x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((short x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((ushort x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((int x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((uint x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((long x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((ulong x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((char x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-        RegisterHandler((BigInteger x) => uint.CreateChecked(x), HandleUIntCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((sbyte x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((short x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((ushort x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((int x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((uint x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((long x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((ulong x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((char x) => long.CreateChecked(x), HandleLongCreateChecked);
-        RegisterHandler((BigInteger x) => long.CreateChecked(x), HandleLongCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((sbyte x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((short x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((ushort x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((int x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((uint x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((long x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((ulong x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((char x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-        RegisterHandler((BigInteger x) => ulong.CreateChecked(x), HandleULongCreateChecked);
-
-        // Numeric CreateChecked methods
-        RegisterHandler((byte x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((sbyte x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((short x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((ushort x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((int x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((uint x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((long x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((ulong x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
-        RegisterHandler((char x) => BigInteger.CreateChecked(x), HandleBigIntegerCreatedChecked);
         #endregion CreateChecked
-
-        // Numeric CreateSaturating methods
-        #region CreateSaturating
-        RegisterHandler((byte x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((sbyte x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((short x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((ushort x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((int x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((uint x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((long x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((ulong x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((char x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-        RegisterHandler((BigInteger x) => byte.CreateSaturating(x), HandleByteCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((sbyte x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((short x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((ushort x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((int x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((uint x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((long x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((ulong x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((char x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-        RegisterHandler((BigInteger x) => sbyte.CreateSaturating(x), HandleSByteCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((sbyte x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((short x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((ushort x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((int x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((uint x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((long x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((ulong x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((char x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-        RegisterHandler((BigInteger x) => short.CreateSaturating(x), HandleShortCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((sbyte x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((short x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((ushort x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((int x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((uint x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((long x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((ulong x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((char x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-        RegisterHandler((BigInteger x) => ushort.CreateSaturating(x), HandleUShortCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((sbyte x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((short x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((ushort x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((int x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((uint x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((long x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((ulong x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((char x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-        RegisterHandler((BigInteger x) => int.CreateSaturating(x), HandleIntCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((sbyte x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((short x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((ushort x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((int x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((uint x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((long x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((ulong x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((char x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-        RegisterHandler((BigInteger x) => uint.CreateSaturating(x), HandleUIntCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((sbyte x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((short x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((ushort x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((int x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((uint x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((long x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((ulong x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((char x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-        RegisterHandler((BigInteger x) => long.CreateSaturating(x), HandleLongCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((sbyte x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((short x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((ushort x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((int x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((uint x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((long x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((ulong x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((char x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-        RegisterHandler((BigInteger x) => ulong.CreateSaturating(x), HandleULongCreateSaturating);
-
-        // Numeric CreateSaturating methods
-        RegisterHandler((byte x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((sbyte x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((short x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((ushort x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((int x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((uint x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((long x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((ulong x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        RegisterHandler((char x) => BigInteger.CreateSaturating(x), HandleBigIntegerCreateSaturating);
-        #endregion CreateSaturating
 
         // Numeric ToString methods
         #region ToString()
@@ -484,30 +266,56 @@ internal partial class MethodConvert
 
         // Numeric Parse() methods
         #region Parse()
-        RegisterHandler((string s) => byte.Parse(s), HandleByteParse);
-        RegisterHandler((string s) => sbyte.Parse(s), HandleSByteParse);
-        RegisterHandler((string s) => short.Parse(s), HandleShortParse);
-        RegisterHandler((string s) => ushort.Parse(s), HandleUShortParse);
-        RegisterHandler((string s) => int.Parse(s), HandleIntParse);
-        RegisterHandler((string s) => uint.Parse(s), HandleUIntParse);
-        RegisterHandler((string s) => long.Parse(s), HandleLongParse);
-        RegisterHandler((string s) => ulong.Parse(s), HandleULongParse);
-        // RegisterHandler((string s) => bool.Parse(s), HandleBoolParse);
         RegisterHandler((string s) => BigInteger.Parse(s), HandleBigIntegerParse);
         #endregion
 
         // Numeric PopCount
         #region PopCount
-        RegisterHandler((byte value) => byte.PopCount(value), HandleBytePopCount);
-        RegisterHandler((sbyte value) => sbyte.PopCount(value), HandleSBytePopCount);
-        RegisterHandler((short value) => short.PopCount(value), HandleShortPopCount);
-        RegisterHandler((ushort value) => ushort.PopCount(value), HandleUShortPopCount);
-        RegisterHandler((int value) => int.PopCount(value), HandleIntPopCount);
-        RegisterHandler((uint value) => uint.PopCount(value), HandleUIntPopCount);
-        RegisterHandler((long value) => long.PopCount(value), HandleLongPopCount);
-        RegisterHandler((ulong value) => ulong.PopCount(value), HandleULongPopCount);
         RegisterHandler((BigInteger value) => BigInteger.PopCount(value), HandleBigIntegerPopCount);
         #endregion PopCount
+    }
+
+    private static void RegisterCreateCheckedHandlers(Type targetType, SystemCallHandler handler)
+    {
+        RegisterCreateNumericHandlers("CreateChecked", targetType, handler);
+    }
+
+    private static void RegisterCreateSaturatingHandlers(Type targetType, SystemCallHandler handler)
+    {
+        RegisterCreateNumericHandlers("CreateSaturating", targetType, handler);
+    }
+
+    private static void RegisterCreateNumericHandlers(string methodName, Type targetType, SystemCallHandler handler)
+    {
+        foreach (var sourceType in s_numericCreateSourceTypes)
+            RegisterCreateNumericHandler(methodName, targetType, sourceType, handler);
+    }
+
+    private static void RegisterCreateNumericHandler(string methodName, Type targetType, Type sourceType, SystemCallHandler handler)
+    {
+        var methodDefinition = targetType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .FirstOrDefault(m => m.Name == methodName && m.IsGenericMethodDefinition && m.GetParameters().Length == 1);
+        if (methodDefinition is null)
+        {
+            throw new InvalidOperationException($"Expected generic factory method '{targetType.FullName}.{methodName}<TValue>(TValue)' to exist for numeric system-call registration.");
+        }
+
+        MethodInfo method;
+        try
+        {
+            method = methodDefinition.MakeGenericMethod(sourceType);
+        }
+        catch (ArgumentException ex)
+        {
+            throw new InvalidOperationException($"Failed to create generic specialization '{targetType.FullName}.{methodName}<{sourceType.FullName}>' for numeric system-call registration.", ex);
+        }
+
+        var parameter = Expression.Parameter(sourceType, "value");
+        var call = Expression.Call(method, parameter);
+        var funcType = typeof(Func<,>).MakeGenericType(sourceType, targetType);
+        var lambda = Expression.Lambda(funcType, call, parameter);
+        var register = s_registerUnaryHandlerMethod.MakeGenericMethod(sourceType, targetType);
+        register.Invoke(null, new object?[] { lambda, handler, null });
     }
 
     private static void RegisterMathHandlers()
@@ -584,10 +392,45 @@ internal partial class MethodConvert
         RegisterHandler((string s) => s.ToString(), HandleStringToString);
 
         RegisterHandler((string? s) => string.IsNullOrEmpty(s), HandleStringIsNullOrEmpty);
+        RegisterHandler((string? s) => string.IsNullOrWhiteSpace(s), HandleStringIsNullOrWhiteSpace);
         RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
         RegisterHandler((string s, string value) => s.Contains(value), HandleStringContains);
+        RegisterHandler((string s, string value) => s.StartsWith(value), HandleStringStartsWith);
         RegisterHandler((string s, string value) => s.EndsWith(value), HandleStringEndsWith);
         RegisterHandler((string s, string value) => s.IndexOf(value), HandleStringIndexOf);
+        RegisterHandler((string s, string value) => s.LastIndexOf(value), HandleStringLastIndexOf);
+        RegisterHandler((string strA, string strB) => string.Compare(strA, strB), HandleStringCompare);
+        RegisterHandler((string s, char separator) => s.Split(separator, StringSplitOptions.None), HandleStringSplit);
+        RegisterHandler<string, char, StringSplitOptions, string[]>((s, separator, options) => s.Split(separator, options), HandleStringSplit);
+        SystemCallHandlers["string.Split(char, int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[], System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[], int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[])"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[], int)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[]?, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[]?, int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[]?)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(char[]?, int)"] = HandleStringSplit;
+        RegisterHandler<string, string?, string[]>((s, separator) => s.Split(separator, StringSplitOptions.None), HandleStringSplit);
+        RegisterHandler<string, string?, StringSplitOptions, string[]>((s, separator, options) => s.Split(separator, options), HandleStringSplit);
+        SystemCallHandlers["string.Split(string?, int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[], System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[], int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[])"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[], int)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[], System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[], int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[])"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[], int)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[]?, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[]?, int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[]?)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string[]?, int)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[]?, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[]?, int, System.StringSplitOptions)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[]?)"] = HandleStringSplit;
+        SystemCallHandlers["string.Split(string?[]?, int)"] = HandleStringSplit;
         RegisterHandler((string s, int index) => s[index], HandleStringPickItem);
         RegisterHandler((string s, int startIndex) => s.Substring(startIndex), HandleStringSubStringToEnd);
         RegisterHandler((string? s1, string? s2) => string.Concat(s1, s2), HandleStringConcat);
@@ -596,7 +439,29 @@ internal partial class MethodConvert
         RegisterHandler((string s) => s.ToUpper(), HandleStringToUpper);
         RegisterHandler((string s) => s.Trim(), HandleStringTrim);
         RegisterHandler((string s, char trimChar) => s.Trim(trimChar), HandleStringTrimChar);
+        RegisterHandler<string, char[], string>((s, trimChars) => s.Trim(trimChars), HandleStringTrimCharArray);
+        SystemCallHandlers["string.Trim(char[])"] = HandleStringTrimCharArray;
+        SystemCallHandlers["string.Trim(char[]?)"] = HandleStringTrimCharArray;
+        SystemCallHandlers["string.Trim(params char[])"] = HandleStringTrimCharArray;
+        SystemCallHandlers["string.Trim(params char[]?)"] = HandleStringTrimCharArray;
+        RegisterHandler((string s) => s.TrimStart(), HandleStringTrimStart);
+        RegisterHandler((string s, char trimChar) => s.TrimStart(trimChar), HandleStringTrimStartChar);
+        RegisterHandler<string, char[], string>((s, trimChars) => s.TrimStart(trimChars), HandleStringTrimStartCharArray);
+        SystemCallHandlers["string.TrimStart(char[])"] = HandleStringTrimStartCharArray;
+        SystemCallHandlers["string.TrimStart(char[]?)"] = HandleStringTrimStartCharArray;
+        SystemCallHandlers["string.TrimStart(params char[])"] = HandleStringTrimStartCharArray;
+        SystemCallHandlers["string.TrimStart(params char[]?)"] = HandleStringTrimStartCharArray;
+        RegisterHandler((string s) => s.TrimEnd(), HandleStringTrimEnd);
+        RegisterHandler((string s, char trimChar) => s.TrimEnd(trimChar), HandleStringTrimEndChar);
+        RegisterHandler<string, char[], string>((s, trimChars) => s.TrimEnd(trimChars), HandleStringTrimEndCharArray);
+        SystemCallHandlers["string.TrimEnd(char[])"] = HandleStringTrimEndCharArray;
+        SystemCallHandlers["string.TrimEnd(char[]?)"] = HandleStringTrimEndCharArray;
+        SystemCallHandlers["string.TrimEnd(params char[])"] = HandleStringTrimEndCharArray;
+        SystemCallHandlers["string.TrimEnd(params char[]?)"] = HandleStringTrimEndCharArray;
         RegisterHandler((string s, string oldValue, string newValue) => s.Replace(oldValue, newValue), HandleStringReplace);
+        RegisterHandler((string s, int startIndex) => s.Remove(startIndex), HandleStringRemove);
+        RegisterHandler((string s, int startIndex, int count) => s.Remove(startIndex, count), HandleStringRemove);
+        RegisterHandler((string s, int startIndex, string value) => s.Insert(startIndex, value), HandleStringInsert);
         RegisterHandler((string s) => s.Length, HandleStringLength);
     }
 
@@ -752,16 +617,8 @@ internal partial class MethodConvert
     private static void RegisterBitOperationsHandlers()
     {
         // Static Methods
-        RegisterHandler((uint value) => BitOperations.LeadingZeroCount(value), HandleUIntLeadingZeroCount);
-        RegisterHandler((ulong value) => BitOperations.LeadingZeroCount(value), HandleULongLeadingZeroCount);
         RegisterHandler((uint value) => BitOperations.Log2(value), HandleBigIntegerLog2);
         RegisterHandler((ulong value) => BitOperations.Log2(value), HandleBigIntegerLog2);
-        RegisterHandler((uint value) => BitOperations.PopCount(value), HandleUIntPopCount);
-        RegisterHandler((ulong value) => BitOperations.PopCount(value), HandleULongPopCount);
-        RegisterHandler((uint value, int offset) => BitOperations.RotateLeft(value, offset), HandleUIntRotateLeft);
-        RegisterHandler((ulong value, int offset) => BitOperations.RotateLeft(value, offset), HandleULongRotateLeft);
-        RegisterHandler((uint value, int offset) => BitOperations.RotateRight(value, offset), HandleUIntRotateRight);
-        RegisterHandler((ulong value, int offset) => BitOperations.RotateRight(value, offset), HandleULongRotateRight);
     }
 
     private static void RegisterEnumHandlers()

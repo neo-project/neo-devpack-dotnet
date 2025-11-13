@@ -55,12 +55,14 @@ internal partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.Dup();                                       // Duplicate value for null check
-        methodConvert.IsNull();                                    // Check if value is null
-        var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
-        methodConvert.Throw();                                     // Throw if null
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();                               // Duplicate value for null check
+                methodConvert.IsNull();                            // Check if value is null
+            },
+            () => methodConvert.Throw(),                           // Throw if null
+            fallThroughElse: true);
     }
 
     /// <summary>
@@ -78,13 +80,18 @@ internal partial class MethodConvert
     {
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
-        methodConvert.Dup();                                       // Duplicate value for null check
-        methodConvert.IsNull();                                    // Check if value is null
-        var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
-        methodConvert.Drop();                                      // Drop null value
-        methodConvert.Push(0);                                     // Push default value (0)
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.EmitIf(
+            () =>
+            {
+                methodConvert.Dup();                               // Duplicate value for null check
+                methodConvert.IsNull();                            // Check if value is null
+            },
+            () =>
+            {
+                methodConvert.Drop();                              // Drop null value
+                methodConvert.Push(0);                             // Push default value (0)
+            },
+            fallThroughElse: true);
     }
 
     /// <summary>
@@ -124,7 +131,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -147,7 +154,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -190,7 +197,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -213,7 +220,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -256,7 +263,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -279,7 +286,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -322,7 +329,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -345,7 +352,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -388,7 +395,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -411,7 +418,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -440,9 +447,9 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
-        methodConvert.Jump(OpCode.JMPIF, endTarget);               // Jump if null
+        methodConvert.JumpIfTrue(endTarget);               // Jump if null
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
-        methodConvert.Jump(OpCode.JMP_L, endTarget2);              // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget2);              // Jump to end
         endTarget.Instruction = methodConvert.Nop();               // Null case target
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push("");                                    // Push empty string
@@ -469,12 +476,12 @@ internal partial class MethodConvert
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget);            // Jump if null
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);            // Jump if true
+        methodConvert.JumpIfTrueLong(nullTarget);            // Jump if null
+        methodConvert.JumpIfTrueLong(trueTarget);            // Jump if true
         methodConvert.Push("False");                               // Push "False" for false values
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
         trueTarget.Instruction = methodConvert.Push("True");       // Push "True" for true values
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
         nullTarget.Instruction = methodConvert.Nop();              // Null case target
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push("");                                    // Push empty string
@@ -503,23 +510,23 @@ internal partial class MethodConvert
 
         methodConvert.Dup();                                       // x y
         methodConvert.IsNull();                                    // Check if y is null
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget1);           // Jump if y is null
+        methodConvert.JumpIfTrueLong(nullTarget1);           // Jump if y is null
 
         // y is not null
         methodConvert.Swap();                                      // y x
         methodConvert.Dup();                                       // y x x
         methodConvert.IsNull();                                    // y x (x == null)
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget2);           // Jump if x is null
+        methodConvert.JumpIfTrueLong(nullTarget2);           // Jump if x is null
 
         // y and x both are not null
         methodConvert.Equal();                                     // Check equality
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         // y is null, then return true if x is null, false otherwise
         nullTarget1.Instruction = methodConvert.Nop();             // Null target 1
         methodConvert.Drop();                                      // Drop y, keep x
         methodConvert.IsNull();                                    // Check if x is null
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         nullTarget2.Instruction = methodConvert.Nop();             // Null target 2
         methodConvert.Drop();                                      // Drop x
@@ -551,23 +558,23 @@ internal partial class MethodConvert
 
         methodConvert.Dup();                                       // x y
         methodConvert.IsNull();                                    // Check if y is null
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget1);           // Jump if y is null
+        methodConvert.JumpIfTrueLong(nullTarget1);           // Jump if y is null
 
         // y is not null
         methodConvert.Swap();                                      // y x
         methodConvert.Dup();                                       // y x x
         methodConvert.IsNull();                                    // y x (x == null)
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget2);           // Jump if x is null
+        methodConvert.JumpIfTrueLong(nullTarget2);           // Jump if x is null
 
         // y and x both are not null
         methodConvert.NumEqual();                                  // Check numeric equality
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         // y is null, then return true if x is null, false otherwise
         nullTarget1.Instruction = methodConvert.Nop();             // Null target 1
         methodConvert.Drop();                                      // Drop y, keep x
         methodConvert.IsNull();                                    // Check if x is null
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         nullTarget2.Instruction = methodConvert.Nop();             // Null target 2
         methodConvert.Drop();                                      // Drop x
@@ -599,19 +606,19 @@ internal partial class MethodConvert
 
         methodConvert.Dup();                                       // x y
         methodConvert.IsNull();                                    // Check if y is null
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget1);           // Jump if y is null
+        methodConvert.JumpIfTrueLong(nullTarget1);           // Jump if y is null
 
         methodConvert.Dup();                                       // x y y
         methodConvert.IsNull();                                    // x y (y == null)
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget2);           // Jump if y is null
+        methodConvert.JumpIfTrueLong(nullTarget2);           // Jump if y is null
 
         methodConvert.Equal();                                     // Check equality
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         nullTarget1.Instruction = methodConvert.Nop();             // Null target 1
         methodConvert.Drop();                                      // Drop y
         methodConvert.IsNull();                                    // Check if x is null
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         nullTarget2.Instruction = methodConvert.Nop();             // Null target 2
         methodConvert.Drop();                                      // Drop y
@@ -642,11 +649,11 @@ internal partial class MethodConvert
 
         methodConvert.Dup();                                       // x y
         methodConvert.IsNull();                                    // Check if y is null
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget);            // Jump if y is null
+        methodConvert.JumpIfTrueLong(nullTarget);            // Jump if y is null
 
         // y is not null
         methodConvert.NumEqual();                                  // Check numeric equality
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         // y is null, then return false
         nullTarget.Instruction = methodConvert.Nop();              // Null target
@@ -678,10 +685,10 @@ internal partial class MethodConvert
 
         methodConvert.Dup();                                       // x y
         methodConvert.IsNull();                                    // Check if y is null
-        methodConvert.Jump(OpCode.JMPIF_L, nullTarget);            // Jump if y is null
+        methodConvert.JumpIfTrueLong(nullTarget);            // Jump if y is null
 
         methodConvert.Equal();                                     // Check equality
-        methodConvert.Jump(OpCode.JMP_L, endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
         nullTarget.Instruction = methodConvert.Nop();              // Null target
         methodConvert.Drop();                                      // Drop y
@@ -727,7 +734,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -750,7 +757,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (false)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -793,7 +800,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -816,7 +823,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (null character)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -859,7 +866,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -882,7 +889,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -925,7 +932,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -948,7 +955,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target
@@ -991,7 +998,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Throw();                                     // Throw if null
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
@@ -1014,7 +1021,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.Jump(OpCode.JMPIFNOT, endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push(0);                                     // Push default value (0)
         endTarget.Instruction = methodConvert.Nop();               // End target

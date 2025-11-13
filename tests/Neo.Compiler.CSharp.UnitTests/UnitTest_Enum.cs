@@ -51,28 +51,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestEnumTryParse()
         {
             Assert.IsTrue(Contract.TestEnumTryParse("Value1"));
-            AssertGasConsumed(1049730);
+            AssertGasConsumed(1049610);
             Assert.IsTrue(Contract.TestEnumTryParse("Value2"));
-            AssertGasConsumed(1051050);
+            AssertGasConsumed(1050930);
             Assert.IsTrue(Contract.TestEnumTryParse("Value3"));
-            AssertGasConsumed(1052370);
+            AssertGasConsumed(1052250);
             Assert.IsFalse(Contract.TestEnumTryParse("InvalidValue"));
-            AssertGasConsumed(1052370);
+            AssertGasConsumed(1052250);
         }
 
         [TestMethod]
         public void TestEnumTryParseIgnoreCase()
         {
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("value1", true));
-            AssertGasConsumed(1688610);
+            AssertGasConsumed(1688490);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VALUE2", true));
-            AssertGasConsumed(1687350);
+            AssertGasConsumed(1687230);
             Assert.IsTrue(Contract.TestEnumTryParseIgnoreCase("VaLuE3", true));
-            AssertGasConsumed(1689930);
+            AssertGasConsumed(1689810);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("value1", false));
-            AssertGasConsumed(1050000);
+            AssertGasConsumed(1049880);
             Assert.IsFalse(Contract.TestEnumTryParseIgnoreCase("InvalidValue", true));
-            AssertGasConsumed(2083410);
+            AssertGasConsumed(2083290);
         }
 
         [TestMethod]

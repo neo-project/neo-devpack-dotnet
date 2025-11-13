@@ -86,8 +86,28 @@ internal partial class MethodConvert
                 CallMethodWithInstanceExpression(model, property.GetMethod!, instanceExpression);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Unsupported member access '{symbol.Name}' of type '{symbol.GetType().Name}'. Use supported members: fields, properties, constants, or enum values.");
         }
+    }
+
+    private void ConvertFieldExpression(SemanticModel model, FieldExpressionSyntax expression)
+    {
+        if (model.GetSymbolInfo(expression).Symbol is not IFieldSymbol fieldSymbol)
+        {
+            throw CompilationException.UnsupportedSyntax(expression, "Field expressions must resolve to a compiler-generated backing field.");
+        }
+
+        if (fieldSymbol.IsStatic)
+        {
+            byte index = _context.AddStaticField(fieldSymbol);
+            AccessSlot(OpCode.LDSFLD, index);
+            return;
+        }
+
+        int fieldIndex = Array.IndexOf(fieldSymbol.ContainingType.GetFields(), fieldSymbol);
+        AccessSlot(OpCode.LDARG, 0);
+        Push(fieldIndex);
+        AddInstruction(OpCode.PICKITEM);
     }
 
     /// <summary>
@@ -126,7 +146,7 @@ internal partial class MethodConvert
                 CallMethodWithConvention(model, property.GetMethod!);
                 break;
             default:
-                throw new CompilationException(expression, DiagnosticId.SyntaxNotSupported, $"Unsupported symbol: {symbol}");
+                throw CompilationException.UnsupportedSyntax(expression, $"Unsupported member access '{symbol.Name}' of type '{symbol.GetType().Name}'. Use supported members: fields, properties, constants, or enum values.");
         }
     }
 }

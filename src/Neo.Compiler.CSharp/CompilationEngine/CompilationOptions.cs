@@ -56,6 +56,7 @@ namespace Neo.Compiler
         public string? BaseName { get; set; }
         public string CompilerVersion { get; set; }
         private CSharpParseOptions? parseOptions = null;
+        public bool SkipRestoreIfAssetsPresent { get; set; }
 
         public CSharpParseOptions GetParseOptions()
         {
@@ -63,7 +64,7 @@ namespace Neo.Compiler
             {
                 List<string> preprocessorSymbols = new();
                 if (Debug != DebugType.None) preprocessorSymbols.Add("DEBUG");
-                parseOptions = new CSharpParseOptions(preprocessorSymbols: preprocessorSymbols);
+                parseOptions = new CSharpParseOptions(languageVersion: LanguageVersion.Preview, preprocessorSymbols: preprocessorSymbols);
             }
             return parseOptions;
         }

@@ -6,12 +6,6 @@ namespace Example.SmartContract.Exception.UnitTests
     [TestClass]
     public class ExceptionTests : TestBase<SampleException>
     {
-        [TestInitialize]
-        public void TestSetup()
-        {
-            var (nef, manifest) = TestCleanup.EnsureArtifactsUpToDateInternal();
-            TestBaseSetup(nef, manifest);
-        }
 
         [TestMethod]
         public void Test()

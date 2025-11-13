@@ -66,8 +66,7 @@ internal partial class MethodConvert
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return false;
+            throw CompilationException.Unexpected("evaluating constant expression during conversion", e);
         }
     }
 
@@ -118,6 +117,10 @@ internal partial class MethodConvert
             case ElementBindingExpressionSyntax expression:
                 // Example: obj?[0]
                 ConvertElementBindingExpression(model, expression);
+                break;
+            case FieldExpressionSyntax expression:
+                // Example: field (auto-property backing field access)
+                ConvertFieldExpression(model, expression);
                 break;
             case IdentifierNameSyntax expression:
                 // Example: myVariable
@@ -208,7 +211,7 @@ internal partial class MethodConvert
                 ConvertTypeOfExpression(model, expression);
                 break;
             default:
-                throw new CompilationException(syntax, DiagnosticId.SyntaxNotSupported, $"Unsupported syntax: {syntax}");
+                throw CompilationException.UnsupportedSyntax(syntax, $"Unsupported expression syntax '{syntax.GetType().Name}'. Consider using supported expressions: assignments, method calls, operators, or literal values.");
         }
     }
 
@@ -293,7 +296,7 @@ internal partial class MethodConvert
             "UInt32" => (uint.MinValue, uint.MaxValue, 0xffffffff),
             "UInt64" => (ulong.MinValue, ulong.MaxValue, 0xffffffffffffffff),
             //"Boolean" => (0, 1, 0x01),
-            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type: {type}")
+            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type '{type}'. Consider using supported types: int, string, byte[], BigInteger, UInt160, UInt256, or custom structs/classes.")
         };
 
         JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();

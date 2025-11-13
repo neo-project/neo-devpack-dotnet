@@ -25,6 +25,6 @@ namespace Neo.SmartContract.Framework.Native
         public static extern byte Decimals { get; }
         public static extern BigInteger TotalSupply();
         public static extern BigInteger BalanceOf(UInt160 account);
-        public static extern bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data = null);
+        public static extern bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null);
     }
 }

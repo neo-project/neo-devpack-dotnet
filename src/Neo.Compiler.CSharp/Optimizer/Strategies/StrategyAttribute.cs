@@ -14,7 +14,7 @@ using System;
 namespace Neo.Optimizer
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    class StrategyAttribute : Attribute
+    public class StrategyAttribute : Attribute
     {
         /// <summary>
         /// Strategy name

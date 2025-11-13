@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing.Coverage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,6 @@ namespace Neo.Compiler.SecurityAnalyzer
             // key block writes storage; value blocks in try
             public readonly Dictionary<BasicBlock, HashSet<int>> vulnerabilities;
             public JToken? DebugInfo { get; init; }
-            // TODO: use debugInfo to GetWarningInfo with source codes
 
             public WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
             {
@@ -39,6 +39,22 @@ namespace Neo.Compiler.SecurityAnalyzer
             {
                 StringBuilder result = new();
                 if (vulnerabilities.Count <= 0) return result.ToString();
+
+                // Parse debug info if available
+                NeoDebugInfo? debugInfo = null;
+                if (DebugInfo != null)
+                {
+                    try
+                    {
+                        if (DebugInfo is JObject jObj)
+                            debugInfo = NeoDebugInfo.FromDebugInfoJson(jObj);
+                    }
+                    catch
+                    {
+                        // Fallback to address-only warnings if debug info parsing fails
+                    }
+                }
+
                 foreach ((BasicBlock b, HashSet<int> tryAddr) in vulnerabilities)
                 {
                     int a = b.startAddr;
@@ -47,13 +63,46 @@ namespace Neo.Compiler.SecurityAnalyzer
                     {
                         if (i.OpCode == VM.OpCode.SYSCALL
                         && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                         || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
+                         || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                         || i.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                         || i.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash))
                             writeAddrs.Add(a);
                         a += i.Size;
                     }
+
                     StringBuilder additional = new();
-                    additional.AppendLine($"[SEC] Writing storage in `try` (address {{{string.Join(", ", tryAddr)}}}), at instruction address:");
-                    additional.AppendLine($"\t{string.Join(", ", writeAddrs)}");
+                    additional.AppendLine($"[SEC] Writing storage in `try` block is risky - writes may not be properly reverted on exceptions");
+
+                    // Add source location information if available
+                    if (debugInfo != null)
+                    {
+                        foreach (int writeAddr in writeAddrs)
+                        {
+                            var sourceLocation = GetSourceLocation(writeAddr, debugInfo);
+                            if (sourceLocation != null)
+                            {
+                                additional.AppendLine($"  At: {sourceLocation.FileName}:{sourceLocation.Line}:{sourceLocation.Column}");
+                                if (!string.IsNullOrEmpty(sourceLocation.CodeSnippet))
+                                    additional.AppendLine($"  Code: {sourceLocation.CodeSnippet}");
+                            }
+                            else
+                            {
+                                additional.AppendLine($"  At instruction address: {writeAddr}");
+                            }
+                        }
+
+                        additional.AppendLine($"  Try block addresses: {{{string.Join(", ", tryAddr)}}}");
+                    }
+                    else
+                    {
+                        // Fallback to address-only format
+                        additional.AppendLine($"  Try block addresses: {{{string.Join(", ", tryAddr)}}}");
+                        additional.AppendLine($"  Write instruction addresses: {string.Join(", ", writeAddrs)}");
+                    }
+
+                    additional.AppendLine($"  Recommendation: Ensure storage writes are properly handled in catch/finally blocks or avoid writing in try blocks");
+                    additional.AppendLine();
+
                     if (print)
                         Console.Write(additional.ToString());
                     result.Append(additional);
@@ -86,7 +135,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                 foreach (VM.Instruction i in block.instructions)
                     if (i.OpCode == VM.OpCode.SYSCALL
                     && (i.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                     || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash))
+                     || i.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                     || i.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                     || i.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash))
                         allBasicBlocksWritingStorage.Add(block);
             foreach (TryCatchFinallySingleCoverage c in tryCatchFinallyCoverage.allTry.Values)
             {
@@ -124,6 +175,52 @@ namespace Neo.Compiler.SecurityAnalyzer
                     }
             }
             return new(result, debugInfo);
+        }
+
+        /// <summary>
+        /// Represents source code location information for diagnostic messages
+        /// </summary>
+        private class SourceLocation
+        {
+            public string FileName { get; set; } = string.Empty;
+            public int Line { get; set; }
+            public int Column { get; set; }
+            public string? CodeSnippet { get; set; }
+        }
+
+        /// <summary>
+        /// Gets source code location information for an instruction address
+        /// </summary>
+        /// <param name="instructionAddress">The instruction address to look up</param>
+        /// <param name="debugInfo">Debug information containing source mappings</param>
+        /// <returns>Source location information if found, null otherwise</returns>
+        private static SourceLocation? GetSourceLocation(int instructionAddress, NeoDebugInfo debugInfo)
+        {
+            // Find the sequence point that covers this instruction address
+            foreach (var method in debugInfo.Methods)
+            {
+                if (instructionAddress >= method.Range.Start && instructionAddress <= method.Range.End)
+                {
+                    // Find the closest sequence point at or before this address
+                    var sequencePoint = method.SequencePoints
+                        .Where(sp => sp.Address <= instructionAddress)
+                        .OrderByDescending(sp => sp.Address)
+                        .FirstOrDefault();
+
+                    if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
+                    {
+                        var fileName = debugInfo.Documents[sequencePoint.Document];
+                        return new SourceLocation
+                        {
+                            FileName = System.IO.Path.GetFileName(fileName),
+                            Line = sequencePoint.Start.Line,
+                            Column = sequencePoint.Start.Column,
+                            CodeSnippet = null // Could be enhanced to read actual source code
+                        };
+                    }
+                }
+            }
+            return null;
         }
 
         public static HashSet<BasicBlock> FindAllBasicBlocksWritingStorageInTryCatchFinally

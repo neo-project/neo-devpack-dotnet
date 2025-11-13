@@ -26,7 +26,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Neo.VM.Types;
 using Array = System.Array;
 
 namespace Neo.Compiler
@@ -149,6 +148,8 @@ namespace Neo.Compiler
                 // Set syntax node if available
                 if (!Symbol.DeclaringSyntaxReferences.IsEmpty)
                     SyntaxNode = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
+
+                RegisterMethodParameters();
 
                 // Step 3: Process method based on its kind
                 // This handles special cases for constructors and static constructors

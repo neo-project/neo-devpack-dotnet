@@ -25,7 +25,8 @@
   <a href="https://twitter.com/neo_blockchain">
     <img src="https://img.shields.io/twitter/follow/neo_blockchain?style=social" alt="Twitter Follow">
   </a>
-  <img src="https://img.shields.io/badge/.NET-9.0-512BD4" alt=".NET Version">
+  <img src="https://img.shields.io/badge/.NET-10.0-512BD4" alt=".NET Version">
+  <img src="https://img.shields.io/badge/C%23-14-512BD4?logo=csharp&logoColor=white" alt="C# 14 Support">
 </p>
 
 ## Overview
@@ -82,7 +83,7 @@ Project templates for creating new NEO smart contracts with the proper structure
 
 ### Prerequisites
 
-- [.NET SDK](https://dotnet.microsoft.com/download) 9.0 or later
+- [.NET SDK](https://dotnet.microsoft.com/download) 10.0 or later
 - [Visual Studio](https://visualstudio.microsoft.com/) or [Visual Studio Code](https://code.visualstudio.com/) (optional but recommended)
 
 ### Installation
@@ -110,7 +111,7 @@ dotnet test
 
 ### Creating a New Smart Contract
 
-1. Create a new class library project targeting .NET 9.0 or later
+1. Create a new class library project targeting .NET 10.0 or later
 2. Add a reference to the Neo.SmartContract.Framework package
 3. Create a class that inherits from `SmartContract`
 4. Implement your contract logic

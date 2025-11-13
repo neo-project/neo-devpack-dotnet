@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.SecurityAnalyzer;
+using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 
@@ -29,6 +30,29 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 // basic blocks calling contract
                 Assert.IsTrue(b.startAddr < NefFile.Size * 0.66);
             v.GetWarningInfo(print: false);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyWithEnhancedDiagnostics()
+        {
+            // Test enhanced diagnostic messages without debug info (fallback behavior)
+            ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
+                ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest, null);
+            Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
+
+            // Test that warning message contains enhanced diagnostic information
+            string warningInfo = v.GetWarningInfo(print: false);
+
+            // Verify enhanced diagnostic format
+            Assert.IsTrue(warningInfo.Contains("[SEC] Potential Re-entrancy vulnerability detected"));
+            Assert.IsTrue(warningInfo.Contains("External contract calls:"));
+            Assert.IsTrue(warningInfo.Contains("Storage writes that occur after external calls:"));
+            Assert.IsTrue(warningInfo.Contains("Recommendation:"));
+            Assert.IsTrue(warningInfo.Contains("allowing potential re-entrancy attacks"));
+            Assert.IsTrue(warningInfo.Contains("reentrancy guards"));
+
+            // Message should be more detailed than just addresses
+            Assert.IsTrue(warningInfo.Length > 300, "Enhanced diagnostic message should be more detailed than simple address listing");
         }
     }
 }

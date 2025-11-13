@@ -10,10 +10,11 @@
 // modifications are permitted.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using System.Collections.Generic;
 using Neo.SmartContract.Testing.Exceptions;
+using PrimitiveStackItem = Neo.VM.Types.PrimitiveType;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -96,6 +97,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestIsNullOrWhiteSpace()
+        {
+            Assert.IsTrue(Contract.TestIsNullOrWhiteSpace("   "));
+            AssertGasConsumed(1061910);
+
+            Assert.IsTrue(Contract.TestIsNullOrWhiteSpace(null));
+            AssertGasConsumed(1047300);
+
+            Assert.IsFalse(Contract.TestIsNullOrWhiteSpace("hello world"));
+            AssertGasConsumed(1052250);
+        }
+
+        [TestMethod]
         public void Test_TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith("hello world"));
@@ -119,6 +133,32 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestStartsWith()
+        {
+            Assert.IsTrue(Contract.TestStartsWith("worldwide"));
+            AssertGasConsumed(2032710);
+
+            Assert.IsFalse(Contract.TestStartsWith("hello world"));
+            AssertGasConsumed(2032710);
+        }
+
+        [TestMethod]
+        public void Test_TestCompare()
+        {
+            var compare = Contract_String.Manifest.Abi.GetMethod("testCompare", 2);
+            Assert.IsNotNull(compare);
+
+            Assert.AreEqual(0, Contract.TestCompare("alpha", "alpha"));
+            AssertGasConsumed(1047900);
+
+            Assert.IsTrue(Contract.TestCompare("alpha", "beta") < 0);
+            AssertGasConsumed(1047900);
+
+            Assert.IsTrue(Contract.TestCompare("beta", "alpha") > 0);
+            AssertGasConsumed(1047900);
+        }
+
+        [TestMethod]
         public void Test_TestIndexOf()
         {
             Assert.AreEqual(6, Contract.TestIndexOf("hello world"));
@@ -126,6 +166,19 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(-1, Contract.TestIndexOf("hello"));
             AssertGasConsumed(2032470);
+        }
+
+        [TestMethod]
+        public void Test_TestLastIndexOf()
+        {
+            var method = Contract_String.Manifest.Abi.GetMethod("testLastIndexOf", 1);
+            Assert.IsNotNull(method);
+
+            Assert.AreEqual(6, Contract.TestLastIndexOf("hello world"));
+
+            Assert.AreEqual(-1, Contract.TestLastIndexOf("hello"));
+
+            Assert.AreEqual(12, Contract.TestLastIndexOf("world hello world"));
         }
 
         [TestMethod]
@@ -155,6 +208,73 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual("Mix of Whitespace", Contract.TestTrim(" \t \n \r Mix of Whitespace \r \n \t "));
             AssertGasConsumed(1180710);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimStart()
+        {
+            Assert.AreEqual("Hello", Contract.TestTrimStart("   Hello"));
+            AssertGasConsumed(1127010);
+
+            Assert.AreEqual("Hello", Contract.TestTrimStart("Hello"));
+            AssertGasConsumed(1113600);
+
+            Assert.AreEqual("", Contract.TestTrimStart("   "));
+            AssertGasConsumed(1123260);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimStartChar()
+        {
+            Assert.AreEqual("Hello", Contract.TestTrimStartChar("***Hello", '*'));
+            AssertGasConsumed(1121760);
+
+            Assert.AreEqual("Hello", Contract.TestTrimStartChar("Hello", '*'));
+            AssertGasConsumed(1112400);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimEnd()
+        {
+            Assert.AreEqual("Hello", Contract.TestTrimEnd("Hello   "));
+            AssertGasConsumed(1127940);
+
+            Assert.AreEqual("Hello", Contract.TestTrimEnd("Hello"));
+            AssertGasConsumed(1114620);
+
+            Assert.AreEqual("", Contract.TestTrimEnd("   "));
+            AssertGasConsumed(1062720);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimEndChar()
+        {
+            Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello***", '*'));
+            AssertGasConsumed(1122690);
+
+            Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello", '*'));
+            AssertGasConsumed(1113420);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimArray()
+        {
+            Assert.AreEqual("Hello", Contract.TestTrimArray("***Hello***"));
+            AssertGasConsumed(1195470);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimStartArray()
+        {
+            Assert.AreEqual("Hello***", Contract.TestTrimStartArray("***Hello***"));
+            AssertGasConsumed(1183050);
+        }
+
+        [TestMethod]
+        public void Test_TestTrimEndArray()
+        {
+            Assert.AreEqual("***Hello", Contract.TestTrimEndArray("***Hello***"));
+            AssertGasConsumed(1183980);
         }
 
         [TestMethod]
@@ -201,6 +321,70 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Test with empty strings
             Assert.AreEqual("", Contract.TestConcat("", ""));
             AssertGasConsumed(1109400);
+        }
+
+        [TestMethod]
+        public void Test_TestSplit()
+        {
+            CollectionAssert.AreEqual(new[] { "hello", "world" }, ConvertToStrings(Contract.TestSplit("hello world")));
+            CollectionAssert.AreEqual(new[] { "", "leading", "space" }, ConvertToStrings(Contract.TestSplit(" leading space")));
+        }
+
+        [TestMethod]
+        public void Test_TestSplitRemoveEmpty()
+        {
+            CollectionAssert.AreEqual(new[] { "hello", "world" }, ConvertToStrings(Contract.TestSplitRemoveEmpty("hello  world")));
+            CollectionAssert.AreEqual(System.Array.Empty<string>(), ConvertToStrings(Contract.TestSplitRemoveEmpty("   ")));
+        }
+
+        [TestMethod]
+        public void Test_TestSplitCharArray()
+        {
+            CollectionAssert.AreEqual(new[] { "hello", "world" }, ConvertToStrings(Contract.TestSplitCharArray("hello  world")));
+            AssertGasConsumed(2591820);
+        }
+
+        [TestMethod]
+        public void Test_TestSplitStringArray()
+        {
+            CollectionAssert.AreEqual(new[] { "hello", "world" }, ConvertToStrings(Contract.TestSplitStringArray("hello  world")));
+            AssertGasConsumed(2592240);
+        }
+
+        [TestMethod]
+        public void Test_TestRemove()
+        {
+            Assert.AreEqual("Hello", Contract.TestRemove("HelloWorld", 5));
+            AssertGasConsumed(1354920);
+
+            Assert.AreEqual("", Contract.TestRemove("Neo", 0));
+            AssertGasConsumed(1354920);
+
+            Assert.AreEqual("HelloWorld", Contract.TestRemove("HelloWorld", 10));
+            AssertGasConsumed(1354920);
+        }
+
+        [TestMethod]
+        public void Test_TestRemoveRange()
+        {
+            Assert.AreEqual("HeWorld", Contract.TestRemoveRange("HelloWorld", 2, 3));
+            AssertGasConsumed(1479450);
+
+            Assert.AreEqual("Hello", Contract.TestRemoveRange("HelloWorld", 5, 5));
+            AssertGasConsumed(1479450);
+        }
+
+        [TestMethod]
+        public void Test_TestInsert()
+        {
+            Assert.AreEqual("Hello Neo World", Contract.TestInsert("Hello World", 6, "Neo "));
+            AssertGasConsumed(1786890);
+
+            Assert.AreEqual(">>>Hello World", Contract.TestInsert("Hello World", 0, ">>>"));
+            AssertGasConsumed(1786890);
+
+            Assert.AreEqual("Hello World<<<", Contract.TestInsert("Hello World", 11, "<<<"));
+            AssertGasConsumed(1786890);
         }
 
         [TestMethod]
@@ -271,6 +455,53 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Test with very long string
             Assert.AreEqual(1000, Contract.TestLength(new string('a', 1000)));
             AssertGasConsumed(1062480);
+        }
+
+        [TestMethod]
+        public void Test_StringBuilderBasic()
+        {
+            Assert.AreEqual("neo compiler\nruntime\n", Contract.TestStringBuilderBasic());
+            AssertGasConsumed(2908200);
+        }
+
+        [TestMethod]
+        public void Test_StringBuilderLength()
+        {
+            Assert.AreEqual(14, Contract.TestStringBuilderLength());
+            AssertGasConsumed(3156150);
+        }
+
+        [TestMethod]
+        public void Test_StringBuilderClear()
+        {
+            Assert.AreEqual("neo\ncontracts", Contract.TestStringBuilderClear());
+            AssertGasConsumed(1978680);
+        }
+
+        [TestMethod]
+        public void Test_StringBuilderAppendBuilder()
+        {
+            Assert.AreEqual("neo compiler\npreview", Contract.TestStringBuilderAppendBuilder());
+            AssertGasConsumed(2418510);
+        }
+        private static string[] ConvertToStrings(IList<object>? items)
+        {
+            if (items is null)
+                return System.Array.Empty<string>();
+
+            var result = new string[items.Count];
+            for (int i = 0; i < items.Count; i++)
+            {
+                result[i] = items[i] switch
+                {
+                    string s => s,
+                    byte[] bytes => System.Text.Encoding.UTF8.GetString(bytes),
+                    PrimitiveStackItem primitive => primitive.GetString() ?? throw new AssertFailedException("Unexpected null string stack item."),
+                    _ => throw new AssertFailedException($"Unexpected stack item type: {items[i]?.GetType().FullName}")
+                };
+            }
+
+            return result;
         }
     }
 }

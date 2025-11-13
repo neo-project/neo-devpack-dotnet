@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
@@ -21,6 +22,14 @@ namespace Neo.Compiler;
 
 internal partial class MethodConvert
 {
+    private enum SplitSeparatorKind
+    {
+        Char,
+        String,
+        CharArray,
+        StringArray,
+    }
+
     private static void HandleStringPickItem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
         IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -51,6 +60,17 @@ internal partial class MethodConvert
         methodConvert.Ge();
     }
 
+    private static void HandleStringStartsWith(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+        methodConvert.Push(0);
+        methodConvert.NumEqual();
+    }
+
     private static void HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
@@ -58,6 +78,324 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+    }
+
+    private static void HandleStringLastIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        byte valueSlot = methodConvert.AddAnonymousVariable();
+        byte strLenSlot = methodConvert.AddAnonymousVariable();
+        byte valueLenSlot = methodConvert.AddAnonymousVariable();
+        byte startSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.STLOC, valueLenSlot);
+
+        JumpTarget valueNotEmptyTarget = new();
+        JumpTarget canSearchTarget = new();
+        JumpTarget endTarget = new();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
+        methodConvert.Push(0);
+        methodConvert.NumEqual();
+        methodConvert.JumpIfFalse(valueNotEmptyTarget);
+        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
+        methodConvert.JumpAlways(endTarget);
+        valueNotEmptyTarget.Instruction = methodConvert.Nop();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
+        methodConvert.Lt();
+        methodConvert.JumpIfFalse(canSearchTarget);
+        methodConvert.Push(-1);
+        methodConvert.JumpAlways(endTarget);
+        canSearchTarget.Instruction = methodConvert.Nop();
+
+        byte currentSlot = methodConvert.AddAnonymousVariable();
+        byte nextSlot = methodConvert.AddAnonymousVariable();
+        byte lastSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
+        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
+
+        JumpTarget notFoundTarget = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
+        methodConvert.Push(-1);
+        methodConvert.NumEqual();
+        methodConvert.JumpIfTrue(notFoundTarget);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
+
+        JumpTarget loopStart = new();
+        JumpTarget loopEnd = new();
+
+        loopStart.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
+        methodConvert.Push(1);
+        methodConvert.Add();
+        methodConvert.AccessSlot(OpCode.STLOC, startSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 3, true);
+        methodConvert.AccessSlot(OpCode.STLOC, nextSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
+        methodConvert.Push(-1);
+        methodConvert.NumEqual();
+        methodConvert.JumpIfTrue(loopEnd);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
+        methodConvert.JumpAlways(loopStart);
+
+        loopEnd.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, lastSlot);
+        methodConvert.JumpAlways(endTarget);
+
+        notFoundTarget.Instruction = methodConvert.Nop();
+        methodConvert.Push(-1);
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static void HandleStringSplit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (symbol.Parameters.Length == 0)
+            throw new CompilationException(DiagnosticId.SyntaxNotSupported, "string.Split() without separators is not supported.");
+
+        var separatorParameterType = symbol.Parameters[0].Type;
+        SplitSeparatorKind separatorKind = separatorParameterType switch
+        {
+            { SpecialType: SpecialType.System_Char } => SplitSeparatorKind.Char,
+            { SpecialType: SpecialType.System_String } => SplitSeparatorKind.String,
+            IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Char } => SplitSeparatorKind.CharArray,
+            IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_String } => SplitSeparatorKind.StringArray,
+            _ => throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported string.Split separator type '{separatorParameterType}'.")
+        };
+
+        var parameters = symbol.Parameters;
+        int optionsParameterIndex = -1;
+        int countParameterIndex = -1;
+        for (int i = 1; i < parameters.Length; i++)
+        {
+            ITypeSymbol paramType = parameters[i].Type;
+            if (paramType.SpecialType == SpecialType.System_Int32)
+            {
+                countParameterIndex = i;
+                continue;
+            }
+            if (paramType.ToDisplayString() == "System.StringSplitOptions")
+            {
+                optionsParameterIndex = i;
+                continue;
+            }
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported parameter type '{paramType}' in string.Split overload.");
+        }
+
+        bool hasOptions = optionsParameterIndex >= 0;
+        bool hasCount = countParameterIndex >= 0;
+
+        bool substituteArraySeparator = separatorKind is SplitSeparatorKind.CharArray or SplitSeparatorKind.StringArray;
+        char? arrayCharSeparator = null;
+        string? arrayStringSeparator = null;
+
+        if (substituteArraySeparator)
+        {
+            if (arguments is null)
+                throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Unable to analyze separator array for string.Split.");
+
+            var separatorArgument = arguments[0] as ArgumentSyntax
+                ?? throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Unsupported argument syntax for string.Split separator.");
+
+            if (!TryExtractSingleSeparator(model, separatorArgument.Expression, separatorKind, out arrayCharSeparator, out arrayStringSeparator, out var errorNode))
+                throw new CompilationException(errorNode, DiagnosticId.SyntaxNotSupported, "Only single-element constant separator arrays are supported for string.Split.");
+
+            separatorKind = separatorKind == SplitSeparatorKind.CharArray ? SplitSeparatorKind.Char : SplitSeparatorKind.String;
+        }
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        byte separatorSlot = methodConvert.AddAnonymousVariable();
+        byte optionsSlot = hasOptions ? methodConvert.AddAnonymousVariable() : (byte)0;
+        byte countSlot = hasCount ? methodConvert.AddAnonymousVariable() : (byte)0;
+
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+        if (hasOptions)
+        {
+            methodConvert.AccessSlot(OpCode.STLOC, optionsSlot);
+            if (hasCount)
+                methodConvert.AccessSlot(OpCode.STLOC, countSlot);
+        }
+        methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+
+        if (substituteArraySeparator)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+            methodConvert.Drop();
+
+            if (arrayCharSeparator.HasValue)
+                methodConvert.Push((ushort)arrayCharSeparator.Value);
+            else
+                methodConvert.Push(arrayStringSeparator!);
+
+            methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+        }
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AccessSlot(OpCode.STLOC, separatorSlot);
+
+        if (!hasOptions)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+            methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "stringSplit", 2, true);
+            return;
+        }
+
+        bool removeEmptyEntries = false;
+        if (hasOptions && TryGetArgument(arguments, optionsParameterIndex, out var optionSyntax))
+        {
+            var constantValue = model.GetConstantValue(optionSyntax.Expression);
+            if (!constantValue.HasValue)
+                throw new CompilationException(optionSyntax, DiagnosticId.SyntaxNotSupported, "StringSplitOptions must be a compile-time constant.");
+
+            int optionInt = constantValue.Value switch
+            {
+                int i => i,
+                StringSplitOptions opt => (int)opt,
+                _ => throw new CompilationException(optionSyntax, DiagnosticId.SyntaxNotSupported, "Unsupported StringSplitOptions value."),
+            };
+
+            var options = (StringSplitOptions)optionInt;
+            if ((options & ~StringSplitOptions.RemoveEmptyEntries) != 0)
+                throw new CompilationException(optionSyntax, DiagnosticId.SyntaxNotSupported, "Only StringSplitOptions.None and RemoveEmptyEntries are supported.");
+
+            removeEmptyEntries = options.HasFlag(StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        if (hasCount && TryGetArgument(arguments, countParameterIndex, out var countSyntax))
+        {
+            var countValue = model.GetConstantValue(countSyntax.Expression);
+            if (!countValue.HasValue || countValue.Value is not int countInt || countInt != int.MaxValue)
+                throw new CompilationException(countSyntax, DiagnosticId.SyntaxNotSupported, "Only the default count value is supported for string.Split.");
+        }
+
+        if (removeEmptyEntries)
+            methodConvert.PushT();
+        else
+            methodConvert.PushF();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, separatorSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "stringSplit", 3, true);
+
+        static bool TryGetArgument(IReadOnlyList<SyntaxNode>? args, int index, out ArgumentSyntax argument)
+        {
+            if (args is not null && index >= 0 && index < args.Count && args[index] is ArgumentSyntax argSyntax)
+            {
+                argument = argSyntax;
+                return true;
+            }
+            argument = null!;
+            return false;
+        }
+
+        static bool TryExtractSingleSeparator(SemanticModel semanticModel, ExpressionSyntax expression, SplitSeparatorKind kind, out char? charSeparator, out string? stringSeparator, out SyntaxNode errorNode)
+        {
+            charSeparator = null;
+            stringSeparator = null;
+            errorNode = expression;
+
+            static SeparatedSyntaxList<ExpressionSyntax>? GetInitializerExpressions(ExpressionSyntax expr) =>
+                expr switch
+                {
+                    ArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
+                    ImplicitArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
+                    InitializerExpressionSyntax initializer => initializer.Expressions,
+                    _ => null
+                };
+
+            var initializerExpressions = GetInitializerExpressions(expression);
+            if (initializerExpressions is null || initializerExpressions.Value.Count != 1)
+                return false;
+
+            var elementExpression = initializerExpressions.Value[0];
+            var elementValue = semanticModel.GetConstantValue(elementExpression);
+            if (!elementValue.HasValue)
+            {
+                errorNode = elementExpression;
+                return false;
+            }
+
+            switch (kind)
+            {
+                case SplitSeparatorKind.CharArray:
+                    if (elementValue.Value is char c)
+                    {
+                        charSeparator = c;
+                        return true;
+                    }
+                    if (elementValue.Value is string s && s.Length == 1)
+                    {
+                        charSeparator = s[0];
+                        return true;
+                    }
+                    errorNode = elementExpression;
+                    return false;
+
+                case SplitSeparatorKind.StringArray:
+                    if (elementValue.Value is string strValue)
+                    {
+                        stringSeparator = strValue;
+                        return true;
+                    }
+                    if (elementValue.Value is char charValue)
+                    {
+                        stringSeparator = charValue.ToString();
+                        return true;
+                    }
+                    errorNode = elementExpression;
+                    return false;
+
+                default:
+                    return false;
+            }
+        }
     }
 
     /// <summary>
@@ -91,13 +429,13 @@ internal partial class MethodConvert
         methodConvert.Sub();                                       // Calculate start position
         methodConvert.Dup();                                       // Duplicate for bounds check
         methodConvert.Push(0);                                     // Push 0 for comparison
-        methodConvert.Jump(OpCode.JMPGT, validCountTarget);        // Jump if position > 0
+        methodConvert.JumpIfGreater(validCountTarget);        // Jump if position > 0
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack
         methodConvert.PushF();                                     // Push false result
-        methodConvert.Jump(OpCode.JMP, endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                 // Jump to end
         validCountTarget.Instruction = methodConvert.Nop();        // Valid position target
         methodConvert.Push(3);                                     // Push 3 for ROLL operation
         methodConvert.Roll();                                      // Roll stack elements
@@ -140,13 +478,85 @@ internal partial class MethodConvert
         JumpTarget nullOrEmptyTarget = new();
         methodConvert.Dup();
         methodConvert.IsNull();
-        methodConvert.Jump(OpCode.JMPIF, nullOrEmptyTarget);
+        methodConvert.JumpIfTrue(nullOrEmptyTarget);
         methodConvert.Size();
         methodConvert.Push(0);
         methodConvert.NumEqual();
-        methodConvert.Jump(OpCode.JMP, endTarget);
+        methodConvert.JumpAlways(endTarget);
         nullOrEmptyTarget.Instruction = methodConvert.Drop();
         methodConvert.PushT();
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static void HandleStringIsNullOrWhiteSpace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        JumpTarget nullTarget = new();
+        JumpTarget emptyTarget = new();
+        JumpTarget loopStart = new();
+        JumpTarget allWhitespaceTarget = new();
+        JumpTarget nonWhitespaceTarget = new();
+        JumpTarget endTarget = new();
+
+        methodConvert.Dup();
+        methodConvert.IsNull();
+        methodConvert.JumpIfTrue(nullTarget);
+
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        byte lengthSlot = methodConvert.AddAnonymousVariable();
+        byte indexSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.Dup();
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+        methodConvert.Drop();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Push(0);
+        methodConvert.NumEqual();
+        methodConvert.JumpIfTrue(emptyTarget);
+
+        methodConvert.Push(0);
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+
+        loopStart.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Lt();
+        methodConvert.JumpIfFalse(allWhitespaceTarget);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.PickItem();
+
+        CheckWithinWhiteSpace(methodConvert, nonWhitespaceTarget);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.Inc();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+
+        methodConvert.JumpAlways(loopStart);
+
+        nonWhitespaceTarget.Instruction = methodConvert.PushF();
+        methodConvert.JumpAlways(endTarget);
+
+        allWhitespaceTarget.Instruction = methodConvert.PushT();
+        methodConvert.JumpAlways(endTarget);
+
+        emptyTarget.Instruction = methodConvert.PushT();
+        methodConvert.JumpAlways(endTarget);
+
+        nullTarget.Instruction = methodConvert.Drop();
+        methodConvert.PushT();
+        methodConvert.JumpAlways(endTarget);
+
         endTarget.Instruction = methodConvert.Nop();
     }
 
@@ -172,9 +582,9 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         JumpTarget trueTarget = new(), endTarget = new();
-        methodConvert.Jump(OpCode.JMPIF_L, trueTarget);
+        methodConvert.JumpIfTrueLong(trueTarget);
         methodConvert.Push("False");
-        methodConvert.Jump(OpCode.JMP_L, endTarget);
+        methodConvert.JumpAlwaysLong(endTarget);
         trueTarget.Instruction = methodConvert.Push("True");
         endTarget.Instruction = methodConvert.Nop();
     }
@@ -272,7 +682,7 @@ internal partial class MethodConvert
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.Lt();                                        // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if done
+        methodConvert.JumpIfFalse(loopEnd);              // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -280,13 +690,13 @@ internal partial class MethodConvert
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
         methodConvert.Within('A', 'Z');                            // Check if uppercase
-        methodConvert.Jump(OpCode.JMPIF, charIsLower);             // Jump if uppercase
+        methodConvert.JumpIfTrue(charIsLower);             // Jump if uppercase
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append original character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Uppercase processing
         methodConvert.Push((ushort)'A');                           // Push 'A'
@@ -298,7 +708,7 @@ internal partial class MethodConvert
         methodConvert.Cat();                                       // Append lowercase character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
@@ -345,7 +755,7 @@ internal partial class MethodConvert
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.Lt();                                        // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if done
+        methodConvert.JumpIfFalse(loopEnd);              // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -353,13 +763,13 @@ internal partial class MethodConvert
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
         methodConvert.Within('a', 'z');                     // Check if lowercase
-        methodConvert.Jump(OpCode.JMPIF, charIsLower);             // Jump if lowercase
+        methodConvert.JumpIfTrue(charIsLower);             // Jump if lowercase
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append original character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Lowercase processing
         methodConvert.Push((ushort)'a');                           // Push 'a'
@@ -371,7 +781,7 @@ internal partial class MethodConvert
         methodConvert.Cat();                                       // Append uppercase character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
@@ -469,7 +879,7 @@ internal partial class MethodConvert
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         GetStrLen(methodConvert, strLen);                          // Get string length
         methodConvert.Lt();                                        // Check if index < length
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not less than
+        methodConvert.JumpIfFalse(loopEnd);              // Exit if not less than
     }
 
     /// <summary>
@@ -486,7 +896,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, startIndex);        // Load start index
         methodConvert.Inc();                                       // Increment by 1
         methodConvert.AccessSlot(OpCode.STLOC, startIndex);        // Store back
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
     }
 
     /// <summary>
@@ -518,7 +928,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, endIndex);          // Load end index
         methodConvert.Dec();                                       // Decrement by 1
         methodConvert.AccessSlot(OpCode.STLOC, endIndex);          // Store back
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
     }
 
     /// <summary>
@@ -539,7 +949,7 @@ internal partial class MethodConvert
         methodConvert.Equal();                                     // Check if equals space
         methodConvert.BoolOr();                                    // Combine checks with OR
 
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not whitespace
+        methodConvert.JumpIfFalse(loopEnd);              // Exit if not whitespace
     }
 
     /// <summary>
@@ -550,11 +960,14 @@ internal partial class MethodConvert
     /// <remarks>
     /// Algorithm: Compares character with the specified trim character
     /// </remarks>
-    private static void CheckTrimChar(MethodConvert methodConvert, JumpTarget loopEnd)
+    private static void CheckTrimChar(MethodConvert methodConvert, JumpTarget loopEnd, char? constantTrimChar)
     {
-        methodConvert.LdArg1();                                    // Load trim character
+        if (constantTrimChar.HasValue)
+            methodConvert.Push((ushort)constantTrimChar.Value);
+        else
+            methodConvert.LdArg1();                                // Load trim character
         methodConvert.NumEqual();                                  // Check equality
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not equal
+        methodConvert.JumpIfFalse(loopEnd);              // Exit if not equal
     }
 
     /// <summary>
@@ -572,7 +985,21 @@ internal partial class MethodConvert
         GetEndIndex(methodConvert, endIndex);                      // Get end index
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         methodConvert.Gt();                                        // Check if end > start
-        methodConvert.Jump(OpCode.JMPIFNOT, loopEnd);              // Exit if not greater
+        methodConvert.JumpIfFalse(loopEnd);              // Exit if not greater
+    }
+
+    /// <summary>
+    /// Checks if end index is non-negative and exits loop if not.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="loopEnd">Jump target for loop end</param>
+    /// <param name="endIndex">Variable containing end index</param>
+    private static void CheckEndIndexNonNegative(MethodConvert methodConvert, JumpTarget loopEnd, byte endIndex)
+    {
+        GetEndIndex(methodConvert, endIndex);
+        methodConvert.Push(-1);
+        methodConvert.Gt();
+        methodConvert.JumpIfFalse(loopEnd);
     }
 
     /// <summary>
@@ -656,6 +1083,20 @@ internal partial class MethodConvert
     /// Algorithm: Finds first and last characters that don't match the trim character
     /// </remarks>
     private static void HandleStringTrimChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+        => HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, null);
+
+    private static void HandleStringTrimCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null || arguments.Count == 0 || arguments[0] is not ArgumentSyntax separatorArgument)
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Unsupported trim array usage.");
+
+        if (!TryGetSingleCharFromArray(model, separatorArgument.Expression, out var trimChar, out var errorNode))
+            throw new CompilationException(errorNode, DiagnosticId.SyntaxNotSupported, "Only single-element constant trim arrays are supported for string trim operations.");
+
+        HandleStringTrimCharInternal(methodConvert, model, symbol, instanceExpression, arguments, trimChar);
+    }
+
+    private static void HandleStringTrimCharInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, char? constantTrimChar)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
@@ -667,7 +1108,7 @@ internal partial class MethodConvert
         InitStrLen(methodConvert, strLen);                         // strLen = string.Length
         InitStartIndex(methodConvert, startIndex);                 // startIndex = 0
         InitEndIndex(methodConvert, endIndex, strLen);             // endIndex = string.Length - 1
-        methodConvert.Drop();                                      // Clean up stack
+        methodConvert.Drop();                                      // Clean up stack (remove argument from evaluation stack)
 
         // Loop to trim leading characters
         var loopStart = new JumpTarget();
@@ -675,7 +1116,7 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();               // Loop start marker
         CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
         PickCharStart(methodConvert, startIndex);                  // Pick character to check
-        CheckTrimChar(methodConvert, loopEnd);
+        CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
         MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
 
@@ -685,7 +1126,7 @@ internal partial class MethodConvert
         loopStart2.Instruction = methodConvert.Nop();              // Second loop start
         CheckEndIndex(methodConvert, loopEnd2, endIndex, startIndex);
         PickCharEnd(methodConvert, endIndex);                      // Pick character to check
-        CheckTrimChar(methodConvert, loopEnd2);
+        CheckTrimChar(methodConvert, loopEnd2, constantTrimChar);
         MoveEndIndexAndLoop(methodConvert, loopStart2, endIndex);
         loopEnd2.Instruction = methodConvert.Nop();                // Second loop end
 
@@ -697,6 +1138,162 @@ internal partial class MethodConvert
         methodConvert.Sub();                                       // Calculate length
         methodConvert.Inc();                                       // Increment for inclusive end
         methodConvert.SubStr();                                    // Extract substring
+    }
+
+    private static void HandleStringTrimStart(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+        => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
+
+    private static void HandleStringTrimStartChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+        => HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+
+    private static void HandleStringTrimStartCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null || arguments.Count == 0 || arguments[0] is not ArgumentSyntax trimArgument)
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Unsupported trim array usage.");
+
+        if (!TryGetSingleCharFromArray(model, trimArgument.Expression, out var trimChar, out var errorNode))
+            throw new CompilationException(errorNode, DiagnosticId.SyntaxNotSupported, "Only single-element constant trim arrays are supported for string trim operations.");
+
+        HandleStringTrimStartInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
+
+    private static void HandleStringTrimStartInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        var strLen = methodConvert.AddAnonymousVariable();
+        var startIndex = methodConvert.AddAnonymousVariable();
+
+        InitStrLen(methodConvert, strLen);
+        InitStartIndex(methodConvert, startIndex);
+
+        if (useTrimChar)
+        {
+            methodConvert.Drop();
+        }
+
+        var loopStart = new JumpTarget();
+        var loopEnd = new JumpTarget();
+        loopStart.Instruction = methodConvert.Nop();
+        CheckStartIndex(methodConvert, loopEnd, startIndex, strLen);
+        PickCharStart(methodConvert, startIndex);
+        if (useTrimChar)
+            CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
+        else
+            CheckWithinWhiteSpace(methodConvert, loopEnd);
+        MoveStartIndexAndLoop(methodConvert, loopStart, startIndex);
+        loopEnd.Instruction = methodConvert.Nop();
+
+        GetString(methodConvert);
+        GetStartIndex(methodConvert, startIndex);
+        GetStrLen(methodConvert, strLen);
+        GetStartIndex(methodConvert, startIndex);
+        methodConvert.Sub();
+        methodConvert.SubStr();
+    }
+
+    private static void HandleStringTrimEnd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+        => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: false, constantTrimChar: null);
+
+    private static void HandleStringTrimEndChar(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+        => HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: null);
+
+    private static void HandleStringTrimEndCharArray(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null || arguments.Count == 0 || arguments[0] is not ArgumentSyntax trimArgument)
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Unsupported trim array usage.");
+
+        if (!TryGetSingleCharFromArray(model, trimArgument.Expression, out var trimChar, out var errorNode))
+            throw new CompilationException(errorNode, DiagnosticId.SyntaxNotSupported, "Only single-element constant trim arrays are supported for string trim operations.");
+
+        HandleStringTrimEndInternal(methodConvert, model, symbol, instanceExpression, arguments, useTrimChar: true, constantTrimChar: trimChar);
+    }
+
+    private static void HandleStringTrimEndInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        var strLen = methodConvert.AddAnonymousVariable();
+        var endIndex = methodConvert.AddAnonymousVariable();
+
+        InitStrLen(methodConvert, strLen);
+        InitEndIndex(methodConvert, endIndex, strLen);
+
+        if (useTrimChar)
+        {
+            methodConvert.Drop();
+        }
+
+        var loopStart = new JumpTarget();
+        var loopEnd = new JumpTarget();
+        loopStart.Instruction = methodConvert.Nop();
+        CheckEndIndexNonNegative(methodConvert, loopEnd, endIndex);
+        PickCharEnd(methodConvert, endIndex);
+        if (useTrimChar)
+            CheckTrimChar(methodConvert, loopEnd, constantTrimChar);
+        else
+            CheckWithinWhiteSpace(methodConvert, loopEnd);
+        MoveEndIndexAndLoop(methodConvert, loopStart, endIndex);
+        loopEnd.Instruction = methodConvert.Nop();
+
+        JumpTarget allTrimmed = new();
+        JumpTarget endTarget = new();
+
+        GetEndIndex(methodConvert, endIndex);
+        methodConvert.Push(-1);
+        methodConvert.Equal();
+        methodConvert.JumpIfTrue(allTrimmed);
+
+        GetString(methodConvert);
+        methodConvert.Push0();
+        GetEndIndex(methodConvert, endIndex);
+        methodConvert.Inc();
+        methodConvert.SubStr();
+        methodConvert.JumpAlways(endTarget);
+
+        allTrimmed.Instruction = methodConvert.Nop();
+        methodConvert.Push("");
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static bool TryGetSingleCharFromArray(SemanticModel model, ExpressionSyntax expression, out char value, out SyntaxNode errorNode)
+    {
+        errorNode = expression;
+        value = default;
+
+        static SeparatedSyntaxList<ExpressionSyntax>? GetInitializerExpressions(ExpressionSyntax expr) =>
+            expr switch
+            {
+                ArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
+                ImplicitArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
+                InitializerExpressionSyntax initializer => initializer.Expressions,
+                _ => null
+            };
+
+        var initializerExpressions = GetInitializerExpressions(expression);
+        if (initializerExpressions is null || initializerExpressions.Value.Count != 1)
+            return false;
+
+        var elementExpression = initializerExpressions.Value[0];
+        errorNode = elementExpression;
+
+        var constantValue = model.GetConstantValue(elementExpression);
+        if (!constantValue.HasValue)
+            return false;
+
+        switch (constantValue.Value)
+        {
+            case char c:
+                value = c;
+                return true;
+            case string s when s.Length == 1:
+                value = s[0];
+                return true;
+            default:
+                return false;
+        }
     }
 
     /// <summary>
@@ -735,7 +1332,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate result
         methodConvert.PushM1();                                    // Push -1 for comparison
         methodConvert.Equal();                                     // Check if not found
-        methodConvert.Jump(OpCode.JMPIF, loopEnd);                 // Exit if not found
+        methodConvert.JumpIfTrue(loopEnd);                 // Exit if not found
 
         // Get the index of the substring
         methodConvert.Dup();                                       // Duplicate string
@@ -756,11 +1353,146 @@ internal partial class MethodConvert
         replaceEnd.Instruction = methodConvert.Nop();              // Replace end marker
 
         // Continue the loop
-        methodConvert.Jump(OpCode.JMP, loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                 // Continue loop
 
         // End of the loop
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Clean up stack
+    }
+
+    private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        bool hasCount = symbol.Parameters.Length == 2;
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        byte startSlot = methodConvert.AddAnonymousVariable();
+        byte countSlot = hasCount ? methodConvert.AddAnonymousVariable() : (byte)0;
+
+        if (hasCount)
+        {
+            methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+            methodConvert.AccessSlot(OpCode.STLOC, startSlot);
+            methodConvert.AccessSlot(OpCode.STLOC, countSlot);
+        }
+        else
+        {
+            methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+            methodConvert.AccessSlot(OpCode.STLOC, startSlot);
+        }
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+
+        if (!hasCount)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+            methodConvert.Push0();
+            methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+            methodConvert.SubStr();
+            return;
+        }
+
+        byte prefixSlot = methodConvert.AddAnonymousVariable();
+        byte suffixSlot = methodConvert.AddAnonymousVariable();
+        byte strLenSlot = methodConvert.AddAnonymousVariable();
+        byte suffixStartSlot = methodConvert.AddAnonymousVariable();
+        byte suffixLengthSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.SubStr();
+        methodConvert.AccessSlot(OpCode.STLOC, prefixSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
+        methodConvert.Add();
+        methodConvert.AccessSlot(OpCode.STLOC, suffixStartSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, suffixStartSlot);
+        methodConvert.Sub();
+        methodConvert.AccessSlot(OpCode.STLOC, suffixLengthSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, suffixStartSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, suffixLengthSlot);
+        methodConvert.SubStr();
+        methodConvert.AccessSlot(OpCode.STLOC, suffixSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, prefixSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, suffixSlot);
+        methodConvert.Cat();
+    }
+
+    private static void HandleStringInsert(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
+
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        byte startSlot = methodConvert.AddAnonymousVariable();
+        byte valueSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.Dup();
+        methodConvert.IsNull();
+        methodConvert.Not();
+        methodConvert.Assert();
+        methodConvert.ChangeType(StackItemType.ByteString);
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+
+        byte prefixSlot = methodConvert.AddAnonymousVariable();
+        byte suffixSlot = methodConvert.AddAnonymousVariable();
+        byte strLenSlot = methodConvert.AddAnonymousVariable();
+        byte suffixLengthSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.STLOC, strLenSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.SubStr();
+        methodConvert.AccessSlot(OpCode.STLOC, prefixSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.Sub();
+        methodConvert.AccessSlot(OpCode.STLOC, suffixLengthSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, startSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, suffixLengthSlot);
+        methodConvert.SubStr();
+        methodConvert.AccessSlot(OpCode.STLOC, suffixSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, prefixSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
+        methodConvert.Cat();
+        methodConvert.AccessSlot(OpCode.LDLOC, suffixSlot);
+        methodConvert.Cat();
     }
 
     /// <summary>

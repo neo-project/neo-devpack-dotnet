@@ -22,6 +22,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using BigInteger = System.Numerics.BigInteger;
@@ -38,6 +40,12 @@ namespace Neo.Compiler
         private string? ProjectVersionPrefix;
         private string? ProjectVersionSuffix;
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
+        private readonly Lock tempProjectLock = new();
+        private string? tempProjectDirectory;
+        private string? tempProjectPath;
+        private string? tempProjectNuGetConfig;
+        private string? tempProjectReferencesKey;
+        private bool tempProjectCleanupRegistered;
 
         /// <summary>
         /// Gets the version that was extracted from the project
@@ -126,30 +134,117 @@ namespace Neo.Compiler
         {
             return CompileSources(new CompilationSourceReferences()
             {
-                Packages = [new("Neo.SmartContract.Framework", "3.7.4-*")]
+                Packages = [new("Neo.SmartContract.Framework", "3.8.1")]
             },
             sourceFiles);
         }
 
         public List<CompilationContext> CompileSources(CompilationSourceReferences references, params string[] sourceFiles)
         {
-            // Generate a dummy csproj
+            if (sourceFiles is null || sourceFiles.Length == 0)
+            {
+                throw new ArgumentException("At least one source file must be provided.", nameof(sourceFiles));
+            }
 
-            var packageGroup = references.Packages is null ? "" : $@"
+            lock (tempProjectLock)
+            {
+                var referencesKey = BuildReferencesKey(references);
+                if (Options.SkipRestoreIfAssetsPresent)
+                {
+                    EnsurePersistentTempProject(referencesKey);
+                }
+                else
+                {
+                    PrepareTransientTempProject();
+                }
+
+                WriteTempProject(references, sourceFiles);
+
+                Compilation = null;
+                try
+                {
+                    return CompileProject(tempProjectPath!);
+                }
+                finally
+                {
+                    if (!Options.SkipRestoreIfAssetsPresent)
+                    {
+                        CleanupTempProjectDirectory();
+                    }
+                }
+            }
+        }
+
+        private void PrepareTransientTempProject()
+        {
+            CleanupTempProjectDirectory();
+            tempProjectDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempProjectDirectory);
+            tempProjectPath = Path.Combine(tempProjectDirectory, "TempProject.csproj");
+            tempProjectNuGetConfig = Path.Combine(tempProjectDirectory, "nuget.config");
+            WriteNuGetConfig(tempProjectNuGetConfig);
+            tempProjectReferencesKey = null;
+        }
+
+        private void EnsurePersistentTempProject(string referencesKey)
+        {
+            var directoryExists = tempProjectDirectory is not null && Directory.Exists(tempProjectDirectory);
+            if (!directoryExists || tempProjectReferencesKey != referencesKey)
+            {
+                CleanupTempProjectDirectory();
+                tempProjectDirectory = Path.Combine(Path.GetTempPath(), "Neo.Compiler", "CompileSources", Guid.NewGuid().ToString("N"));
+                Directory.CreateDirectory(tempProjectDirectory);
+                tempProjectPath = Path.Combine(tempProjectDirectory, "TempProject.csproj");
+                tempProjectNuGetConfig = Path.Combine(tempProjectDirectory, "nuget.config");
+                WriteNuGetConfig(tempProjectNuGetConfig);
+                tempProjectReferencesKey = referencesKey;
+                RegisterTempProjectCleanup();
+            }
+        }
+
+        private void WriteTempProject(CompilationSourceReferences references, string[] sourceFiles)
+        {
+            if (tempProjectDirectory is null)
+            {
+                throw new InvalidOperationException("Temporary project directory must be initialized before writing the project file.");
+            }
+
+            tempProjectPath ??= Path.Combine(tempProjectDirectory, "TempProject.csproj");
+            tempProjectNuGetConfig ??= Path.Combine(tempProjectDirectory, "nuget.config");
+
+            var csproj = BuildTempProjectContent(references, sourceFiles);
+            File.WriteAllText(tempProjectPath, csproj);
+
+            if (!File.Exists(tempProjectNuGetConfig))
+            {
+                WriteNuGetConfig(tempProjectNuGetConfig);
+            }
+        }
+
+        private static string BuildTempProjectContent(CompilationSourceReferences references, string[] sourceFiles)
+        {
+            var packages = references.Packages;
+            var packageGroup = packages is null || packages.Length == 0
+                ? string.Empty
+                : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references.Packages!.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
+        {string.Join(Environment.NewLine, packages.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
     </ItemGroup>";
 
-            var projectsGroup = references.Projects is null ? "" : $@"
+            var projects = references.Projects;
+            var projectsGroup = projects is null || projects.Length == 0
+                ? string.Empty
+                : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, references.Projects!.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
+        {string.Join(Environment.NewLine, projects.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
     </ItemGroup>";
 
-            var csproj = $@"
+            return $@"
 <Project Sdk=""Microsoft.NET.Sdk"">
 
     <PropertyGroup>
-        <TargetFramework>{AppContext.TargetFrameworkName!}</TargetFramework>
+        <TargetFramework>{GetTargetFrameworkMoniker()}</TargetFramework>
+        <LangVersion>preview</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -168,21 +263,100 @@ namespace Neo.Compiler
     {projectsGroup}
 
 </Project>";
+        }
 
-            // Write and compile
+        private void WriteNuGetConfig(string nugetConfigPath)
+        {
+            const string nugetConfigContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key=""NuGet.org"" value=""https://api.nuget.org/v3/index.json"" protocolVersion=""3"" />
+  </packageSources>
+</configuration>";
 
-            var path = Path.GetTempFileName();
-            File.WriteAllText(path, csproj);
+            File.WriteAllText(nugetConfigPath, nugetConfigContent);
+        }
+
+        private static string BuildReferencesKey(CompilationSourceReferences references)
+        {
+            var builder = new StringBuilder();
+
+            if (references.Packages is { Length: > 0 })
+            {
+                foreach (var (packageName, packageVersion) in references.Packages
+                             .OrderBy(p => p.packageName, StringComparer.Ordinal))
+                {
+                    builder.Append("pkg:")
+                        .Append(packageName)
+                        .Append('@')
+                        .Append(packageVersion)
+                        .Append(';');
+                }
+            }
+
+            builder.Append('|');
+
+            if (references.Projects is { Length: > 0 })
+            {
+                foreach (var project in references.Projects
+                             .Select(p => Path.GetFullPath(p))
+                             .OrderBy(p => p, StringComparer.OrdinalIgnoreCase))
+                {
+                    builder.Append("proj:")
+                        .Append(project)
+                        .Append(';');
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        private void RegisterTempProjectCleanup()
+        {
+            if (tempProjectCleanupRegistered)
+            {
+                return;
+            }
+
+            tempProjectCleanupRegistered = true;
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupTempProjectDirectory();
+        }
+
+        private void CleanupTempProjectDirectory()
+        {
+            if (tempProjectDirectory is null)
+            {
+                return;
+            }
 
             try
             {
-                return CompileProject(path);
+                if (Directory.Exists(tempProjectDirectory))
+                {
+                    Directory.Delete(tempProjectDirectory, true);
+                }
             }
-            finally { File.Delete(path); }
+            catch (IOException)
+            {
+                // Best-effort cleanup; ignore IO failures.
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Best-effort cleanup; ignore permission failures.
+            }
+
+            tempProjectDirectory = null;
+            tempProjectPath = null;
+            tempProjectNuGetConfig = null;
+            tempProjectReferencesKey = null;
         }
+
+        private static string GetTargetFrameworkMoniker() => "net10.0";
 
         public List<CompilationContext> CompileProject(string csproj)
         {
+            Contexts.Clear();
             Compilation ??= GetCompilation(csproj);
             return CompileProjectContracts(Compilation);
         }
@@ -193,6 +367,7 @@ namespace Neo.Compiler
             {
                 throw new InvalidOperationException("Please call PrepareProjectContracts before calling CompileProject with sortedClasses, classDependencies and allClassSymbols parameters.");
             }
+            Contexts.Clear();
             Compilation ??= GetCompilation(csproj);
             return targetContractName == null ? CompileProjectContractsWithPrepare(sortedClasses, classDependencies, allClassSymbols) : [CompileProjectContractWithPrepare(sortedClasses, classDependencies, allClassSymbols, targetContractName)];
         }
@@ -242,18 +417,20 @@ namespace Neo.Compiler
                 ?? throw new ArgumentException($"targetContractName '{targetContractName}' was not found");
             var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
             var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-            var context = new CompilationContext(this, c, classesNotInDependencies!);
+            var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName: true);
             context.Compile();
             return context;
         }
 
         private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
         {
+            Contexts.Clear();
+            bool allowBaseName = sortedClasses.Count <= 1;
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies!);
+                var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName);
                 context.Compile();
                 // Process the target contract add this compilation context
                 Contexts.TryAdd(c, context);
@@ -264,9 +441,11 @@ namespace Neo.Compiler
 
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)
         {
+            Contexts.Clear();
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
             var allClassSymbols = new List<INamedTypeSymbol?>();
+            var classSymbols = new List<INamedTypeSymbol>();
             foreach (var tree in compilation.SyntaxTrees)
             {
                 var semanticModel = compilation.GetSemanticModel(tree);
@@ -276,19 +455,34 @@ namespace Neo.Compiler
                 {
                     var classSymbol = semanticModel.GetDeclaredSymbol(classNode);
                     allClassSymbols.Add(classSymbol);
+                    if (classSymbol is null) continue;
+
+                    classSymbols.Add(classSymbol);
                     if (classSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public } && IsDerivedFromSmartContract(classSymbol))
                     {
                         allSmartContracts.Add(classSymbol);
                         classDependencies[classSymbol] = [];
-                        foreach (var member in classSymbol.GetMembers())
-                        {
-                            var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
-                            if (memberTypeSymbol is INamedTypeSymbol namedTypeSymbol && allSmartContracts.Contains(namedTypeSymbol) && !namedTypeSymbol.IsAbstract)
-                            {
-                                classDependencies[classSymbol].Add(namedTypeSymbol);
-                            }
-                        }
                     }
+                }
+            }
+
+            foreach (var classSymbol in classSymbols)
+            {
+                if (!allSmartContracts.Contains(classSymbol))
+                    continue;
+
+                foreach (var member in classSymbol.GetMembers())
+                {
+                    var memberTypeSymbol = (member as IFieldSymbol)?.Type ?? (member as IPropertySymbol)?.Type;
+                    if (memberTypeSymbol is not INamedTypeSymbol namedTypeSymbol)
+                        continue;
+                    if (namedTypeSymbol.IsAbstract)
+                        continue;
+                    if (!allSmartContracts.Contains(namedTypeSymbol))
+                        continue;
+                    if (classDependencies[classSymbol].Any(p => SymbolEqualityComparer.Default.Equals(p, namedTypeSymbol)))
+                        continue;
+                    classDependencies[classSymbol].Add(namedTypeSymbol);
                 }
             }
 
@@ -297,11 +491,12 @@ namespace Neo.Compiler
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
 
+            bool allowBaseName = sortedClasses.Count <= 1;
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies!);
+                var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName);
                 context.Compile();
                 // Process the target contract add this compilation context
                 Contexts.TryAdd(c, context);
@@ -373,12 +568,24 @@ namespace Neo.Compiler
             // Restore project
 
             string folder = Path.GetDirectoryName(csproj)!;
-            Process.Start(new ProcessStartInfo
+            var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
+            var shouldSkipRestore = Options.SkipRestoreIfAssetsPresent && File.Exists(assetsPath);
+
+            if (!shouldSkipRestore)
             {
-                FileName = "dotnet",
-                Arguments = $"restore \"{csproj}\" --source \"https://www.myget.org/F/neo/api/v3/index.json\"",
-                WorkingDirectory = folder
-            })!.WaitForExit();
+                using var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "dotnet",
+                    Arguments = $"restore \"{csproj}\"",
+                    WorkingDirectory = folder
+                });
+                process?.WaitForExit();
+            }
+
+            if (!File.Exists(assetsPath))
+            {
+                throw new FileNotFoundException($"Unable to locate '{assetsPath}'. Ensure the project has been restored.");
+            }
 
             // Parse csproj
 
@@ -406,7 +613,6 @@ namespace Neo.Compiler
             }
 
             sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
-            var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
             List<MetadataReference> references = new(CommonReferences);
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);

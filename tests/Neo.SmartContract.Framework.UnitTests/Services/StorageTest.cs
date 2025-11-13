@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
+using Org.BouncyCastle.Math;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -67,6 +68,29 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Delete
 
             Contract.TestDeleteByte(key);
+            EnsureChanges(prefix, key, 0);
+        }
+
+        [TestMethod]
+        public void Test_IncreaseDecrease()
+        {
+            var prefix = new byte[] { 0xA0, 0xAF };
+            var key = new byte[] { 0x01, 0x02, 0x03 };
+
+            // Put
+
+            Assert.AreEqual(Contract.TestIncrease(key), 1);
+            EnsureChanges(prefix, key, BigInteger.One.ToByteArray(), 1);
+
+            Assert.AreEqual(Contract.TestIncrease(key), 2);
+            EnsureChanges(prefix, key, BigInteger.Two.ToByteArray(), 1);
+
+            // Decrease
+
+            Assert.AreEqual(Contract.TestDecrease(key), 1);
+            EnsureChanges(prefix, key, BigInteger.One.ToByteArray(), 1);
+
+            Assert.AreEqual(Contract.TestDecrease(key), 0);
             EnsureChanges(prefix, key, 0);
         }
 

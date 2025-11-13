@@ -85,6 +85,9 @@ namespace Neo.Compiler.CSharp.UnitTests
         [AssemblyCleanup]
         public static void EnsureCoverage()
         {
+            if (Environment.GetEnvironmentVariable("NEO_SKIP_TEST_COVERAGE") == "1")
+                return;
+
             if (UpdatedArtifactNames.Count > 0)
                 Assert.Fail($"Some artifacts were updated: {string.Join(", ", UpdatedArtifactNames)}. Please rerun the tests.");
 
