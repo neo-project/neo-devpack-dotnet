@@ -86,8 +86,6 @@ public class DeploymentToolkit : IDisposable
 
     public DeploymentOptions Options => _options.Clone();
 
-    internal string? CurrentWif => _wifKey;
-
     private void Initialize(IConfiguration configuration, DeploymentOptions? options, IRpcClientFactory? rpcClientFactory)
     {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -530,18 +528,21 @@ public class DeploymentToolkit : IDisposable
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<CompilationOptions> CreateCompilationOptionsAsync(string baseName, CancellationToken cancellationToken)
+    private Task<CompilationOptions> CreateCompilationOptionsAsync(string baseName, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var protocolSettings = await GetProtocolSettingsAsync().ConfigureAwait(false);
 
-        return new CompilationOptions
+        var addressVersion = ResolveAddressVersionForCompilation();
+
+        var options = new CompilationOptions
         {
-            AddressVersion = protocolSettings.AddressVersion,
+            AddressVersion = addressVersion,
             BaseName = baseName,
             Nullable = NullableContextOptions.Enable,
             Optimize = CompilationOptions.OptimizationType.Basic
         };
+
+        return Task.FromResult(options);
     }
 
     protected virtual CompilationEngine CreateCompilationEngine(CompilationOptions options) => new(options);
@@ -1396,12 +1397,13 @@ public class DeploymentToolkit : IDisposable
         }
         else
         {
+            sb.Emit(OpCode.PUSHNULL);
             // manifest
             sb.EmitPush(manifestJson);
             // nef bytes
             sb.EmitPush(nefBytes);
-            // pack [nef, manifest]
-            sb.EmitPush(2);
+            // pack [nef, manifest, data=null]
+            sb.EmitPush(3);
             sb.Emit(OpCode.PACK);
         }
 
@@ -1520,10 +1522,31 @@ public class DeploymentToolkit : IDisposable
     {
         if (!_disposed)
         {
-            // no managed resources to dispose
+            _wifKey = null;
+            _protocolSettings = null;
 
             _disposed = true;
         }
+    }
+
+    private byte ResolveAddressVersionForCompilation()
+    {
+        if (_options.Network?.AddressVersion is byte optionAddress)
+        {
+            return optionAddress;
+        }
+
+        if (_networkProfile.AddressVersion.HasValue)
+        {
+            return _networkProfile.AddressVersion.Value;
+        }
+
+        if (NetworkProfile.TryGetKnown(_networkProfile.Identifier, out var known) && known.AddressVersion.HasValue)
+        {
+            return known.AddressVersion.Value;
+        }
+
+        return ProtocolSettings.Default.AddressVersion;
     }
 
     #endregion

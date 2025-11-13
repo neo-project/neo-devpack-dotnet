@@ -1,7 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
 using Neo;
 using Neo.Network.RPC;
 using Neo.Network.P2P.Payloads;
@@ -451,6 +448,42 @@ public class DeploymentToolkitTests : TestBase
     }
 
     [Fact]
+    public async Task CompileAsync_ShouldNotRequireNetworkMagic()
+    {
+        using var toolkit = new TestDeploymentToolkit(new DeploymentOptions());
+        toolkit.CompileArtifacts = new[] { CreateDummyArtifact("OfflineContract") };
+
+        var tempSource = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".cs");
+        File.WriteAllText(tempSource, "// offline");
+
+        try
+        {
+            var artifacts = await toolkit.CompileAsync(tempSource);
+            Assert.Single(artifacts);
+            Assert.Equal("OfflineContract", artifacts[0].ContractName);
+        }
+        finally
+        {
+            if (File.Exists(tempSource)) File.Delete(tempSource);
+        }
+    }
+
+    [Fact]
+    public void BuildDeployScript_ShouldAlwaysIncludeDataArgument()
+    {
+        var nefBytes = new byte[] { (byte)OpCode.RET };
+        const string manifestJson = "{\"name\":\"test\"}";
+
+        var script = InvokeBuildDeployScript(nefBytes, manifestJson, Array.Empty<object?>());
+
+        var pushNullIndex = Array.LastIndexOf(script, (byte)OpCode.PUSHNULL);
+        Assert.True(pushNullIndex >= 0);
+
+        var pushCountIndex = Array.LastIndexOf(script, (byte)OpCode.PUSH3);
+        Assert.True(pushCountIndex > pushNullIndex);
+    }
+
+    [Fact]
     public async Task GetGasBalanceAsync_ShouldReturnValueFromNep17()
     {
         // Arrange
@@ -532,6 +565,20 @@ public class DeploymentToolkitTests : TestBase
         // Act & Assert
         Assert.Throws<ArgumentException>(() => toolkit.SetWifKey(""));
         Assert.Throws<ArgumentException>(() => toolkit.SetWifKey(null!));
+    }
+
+    [Fact]
+    public void Dispose_ShouldClearWifKey()
+    {
+        var toolkit = new DeploymentToolkit();
+        toolkit.SetWifKey(ValidWif);
+
+        toolkit.Dispose();
+
+        var field = typeof(DeploymentToolkit).GetField("_wifKey", BindingFlags.Instance | BindingFlags.NonPublic)
+                   ?? throw new InvalidOperationException("Field '_wifKey' not found.");
+        var storedWif = (string?)field.GetValue(toolkit);
+        Assert.Null(storedWif);
     }
 
     [Fact]
@@ -1284,6 +1331,13 @@ namespace TestContract
         var method = typeof(DeploymentToolkit).GetMethod("GetNetworkMagicAsync", BindingFlags.Instance | BindingFlags.NonPublic)
             ?? throw new InvalidOperationException("GetNetworkMagicAsync not found.");
         return await ((Task<uint>)method.Invoke(toolkit, Array.Empty<object>())!).ConfigureAwait(false);
+    }
+
+    private static byte[] InvokeBuildDeployScript(byte[] nef, string manifestJson, object?[]? initParams)
+    {
+        var method = typeof(DeploymentToolkit).GetMethod("BuildDeployScript", BindingFlags.NonPublic | BindingFlags.Static)
+                     ?? throw new InvalidOperationException("BuildDeployScript not found.");
+        return (byte[])method.Invoke(null, new object?[] { nef, manifestJson, initParams })!;
     }
 
     private sealed class QueueRpcClientFactory : IRpcClientFactory
