@@ -8,6 +8,8 @@ This project wraps the `Neo.SmartContract.Deploy` toolkit so you can deploy and 
 2. Update `deploysettings.json` to point to the artifact paths. The defaults assume your contract project lives next to this deployment project.
 3. Declare the networks you plan to target under `customNetworks` inside `deploysettings.json` (mainnet/testnet/devnet are scaffolded for you). Each network can specify its RPC URL, network magic, and optional `wif`. If a network does not have a `wif`, you can still pass one via `--wif` or the `NEO_WIF` environment variable and the CLI will prompt as a fallback.
 
+> Tip: If you're already using `nccs` to scaffold your contract you can generate this project alongside it via `nccs new MyContract --deploy MyContract.Deploy`.
+
 ## Common Commands
 
 ```bash

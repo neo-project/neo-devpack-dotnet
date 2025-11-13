@@ -48,9 +48,11 @@ namespace Neo.Compiler
                 new Option<string>("--author", () => "Author", "The author of the contract"),
                 new Option<string>("--email", () => $"email@example.com", "The author's email"),
                 new Option<string>("--description", "A description of the contract"),
-                new Option<bool>("--force", "Overwrite existing files")
+                new Option<bool>("--force", "Overwrite existing files"),
+                new Option<string?>("--deploy", description: "Optional deployment helper project name to generate alongside the contract"),
+                new Option<string?>("--deploy-contract", description: "Contract project name referenced by the deployment helper (defaults to the smart contract name)")
             };
-            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string, string, string, string, bool>(HandleNew);
+            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string, string, string, string, bool, string?, string?>(HandleNew);
             rootCommand.AddCommand(newCommand);
 
             // Add compilation arguments (make them optional for backward compatibility)
@@ -96,7 +98,7 @@ namespace Neo.Compiler
             return ret;
         }
 
-        private static int HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force)
+        private static int HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force, string? deploy, string? deployContract)
         {
             try
             {
@@ -146,11 +148,21 @@ namespace Neo.Compiler
 
                 // Generate the contract from template
                 templateManager.GenerateContract(template, name, output, additionalReplacements);
+
+                var deployProjectName = string.IsNullOrWhiteSpace(deploy) ? null : deploy.Trim();
+                if (!string.IsNullOrWhiteSpace(deployProjectName))
+                {
+                    var deployContractName = string.IsNullOrWhiteSpace(deployContract)
+                        ? name
+                        : deployContract!.Trim();
+
+                    templateManager.GenerateDeploymentProject(deployProjectName, output, deployContractName, force);
+                }
                 return 0;
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"Error creating contract: {ex.Message}");
+                Console.Error.WriteLine($"Error creating project: {ex.Message}");
                 return 1;
             }
         }

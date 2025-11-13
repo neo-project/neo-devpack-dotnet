@@ -489,13 +489,19 @@ var gasBalance = await deployment.GetGasBalanceAsync();
 
 ### Deployment Project Template
 
-Scaffold a ready-to-run deployment helper alongside your solution:
+Scaffold a ready-to-run deployment helper alongside your solution. You can generate it directly when creating a contract via `nccs` or by using the standalone template:
 
 ```bash
+# Contract + deployment helper in one go
+nccs new MyContract --template Basic --deploy MyContract.Deploy
+
+# Standalone deploy helper
 dotnet new neodeploy --contract-project MyContract -n MyContract.Deploy
 cd MyContract.Deploy
 dotnet run -- deploy --network express --wif <your-wif>
 ```
+
+Pass `--deploy-contract <ExistingProjectName>` if the helper should point at a different contract project inside your solution.
 
 The generated project keeps deployment settings inside `deploysettings.json`, which points at the compiled `.nef`/`.manifest.json` artifacts (defaulting to `../MyContract/bin/sc`). It exposes three commands:
 

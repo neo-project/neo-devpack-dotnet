@@ -217,6 +217,32 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestGenerateDeploymentProject()
+        {
+            var deployName = "MyContractDeploy";
+            var contractName = "MyContract";
+
+            _templateManager.GenerateDeploymentProject(deployName, _testOutputPath, contractName, force: false);
+
+            var deployPath = Path.Combine(_testOutputPath, deployName);
+            Assert.IsTrue(Directory.Exists(deployPath));
+
+            var csproj = Path.Combine(deployPath, $"{deployName}.csproj");
+            var program = Path.Combine(deployPath, "Program.cs");
+            var settings = Path.Combine(deployPath, "deploysettings.json");
+
+            Assert.IsTrue(File.Exists(csproj));
+            Assert.IsTrue(File.Exists(program));
+            Assert.IsTrue(File.Exists(settings));
+
+            var programContent = File.ReadAllText(program);
+            Assert.IsTrue(programContent.Contains($"namespace {deployName};"));
+
+            var settingsContent = File.ReadAllText(settings);
+            Assert.IsTrue(settingsContent.Contains($"../{contractName}/bin/sc/{contractName}.nef"));
+        }
+
+        [TestMethod]
         public void TestTemplateTokenReplacement()
         {
             string projectName = "TokenTest";
