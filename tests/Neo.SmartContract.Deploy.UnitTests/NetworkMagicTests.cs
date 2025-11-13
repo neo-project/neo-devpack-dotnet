@@ -1,10 +1,12 @@
 using System;
 using System.IO;
-using Xunit;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Neo.Network.RPC;
+using Neo.Network.P2P.Payloads;
+using Xunit;
 
 namespace Neo.SmartContract.Deploy.UnitTests;
 
@@ -91,18 +93,68 @@ public class NetworkMagicTests : IDisposable
     }
 
     [Theory]
-    [InlineData("mainnet", 860833102)]
-    [InlineData("testnet", 894710606)]
-    [InlineData("MAINNET", 860833102)]
-    [InlineData("TESTNET", 894710606)]
-    public async Task KnownNetworks_ShouldHaveCorrectDefaultNetworkMagic(string network, uint expectedMagic)
+    [InlineData("mainnet", 860833102u)]
+    [InlineData("testnet", 894710606u)]
+    [InlineData("MAINNET", 860833102u)]
+    [InlineData("TESTNET", 894710606u)]
+    public async Task KnownNetworks_ShouldUseBuiltInMagicWhenRpcUnavailable(string network, uint expectedMagic)
     {
-        var toolkit = new DeploymentToolkit();
+        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var toolkit = new DeploymentToolkit(config, options: null, rpcClientFactory: new ThrowingRpcClientFactory());
         toolkit.SetNetwork(network);
 
         Assert.Equal<uint?>(expectedMagic, toolkit.CurrentNetwork.NetworkMagic);
         var resolved = await InvokeGetNetworkMagicAsync(toolkit);
         Assert.Equal<uint>(expectedMagic, resolved);
+    }
+
+    [Fact]
+    public async Task KnownNetwork_ConfigurationOverride_ShouldBeUsed()
+    {
+        var config = @"{
+            ""Network"": {
+                ""Networks"": {
+                    ""mainnet"": {
+                        ""RpcUrl"": ""https://custom-mainnet.neo.org:10332"",
+                        ""NetworkMagic"": 99999999,
+                        ""AddressVersion"": 42
+                    }
+                }
+            }
+        }";
+        File.WriteAllText(_tempConfigPath, config);
+
+        var toolkit = new DeploymentToolkit(_tempConfigPath, options: null, rpcClientFactory: new ThrowingRpcClientFactory());
+        toolkit.SetNetwork("mainnet");
+
+        Assert.Equal("https://custom-mainnet.neo.org:10332", toolkit.CurrentNetwork.RpcUrl);
+        Assert.Equal<byte?>(42, toolkit.CurrentNetwork.AddressVersion);
+        var resolved = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(99999999, resolved);
+        Assert.Equal<uint?>(99999999, toolkit.CurrentNetwork.NetworkMagic);
+    }
+
+    [Fact]
+    public async Task KnownNetwork_ConfigurationMagicWithoutRpc_ShouldOverlayDefaults()
+    {
+        var config = @"{
+            ""Network"": {
+                ""Networks"": {
+                    ""testnet"": {
+                        ""NetworkMagic"": 12341234
+                    }
+                }
+            }
+        }";
+        File.WriteAllText(_tempConfigPath, config);
+
+        var toolkit = new DeploymentToolkit(_tempConfigPath, options: null, rpcClientFactory: new ThrowingRpcClientFactory());
+        toolkit.SetNetwork("testnet");
+
+        Assert.Equal("http://seed2t5.neo.org:20332", toolkit.CurrentNetwork.RpcUrl);
+        var resolved = await InvokeGetNetworkMagicAsync(toolkit);
+        Assert.Equal<uint>(12341234, resolved);
+        Assert.Equal<uint?>(12341234, toolkit.CurrentNetwork.NetworkMagic);
     }
 
     [Fact]
@@ -179,4 +231,10 @@ public class NetworkMagicTests : IDisposable
         var intervalProp = typeof(DeploymentToolkit).GetProperty("NetworkMagicRetryInterval", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
         intervalProp?.SetValue(null, TimeSpan.FromSeconds(30));
     }
+}
+
+internal sealed class ThrowingRpcClientFactory : IRpcClientFactory
+{
+    public RpcClient Create(Uri uri, ProtocolSettings protocolSettings)
+        => throw new InvalidOperationException("RPC unavailable for test.");
 }

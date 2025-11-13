@@ -668,7 +668,7 @@ public class DeploymentToolkitTests : TestBase
     }
 
     [Fact]
-    public async Task NetworkMagic_ShouldFallbackToKnownProfile_WhenRpcUnavailable()
+    public async Task NetworkMagic_ShouldFallbackToKnownProfileWhenRpcUnavailable()
     {
         // Arrange
         var contractState = CreateDummyContractState("FallbackTest");
@@ -701,7 +701,7 @@ public class DeploymentToolkitTests : TestBase
 
         // Assert
         Assert.True(exists);
-        Assert.Equal(NetworkProfile.TestNet.NetworkMagic, toolkit.CurrentNetwork.NetworkMagic);
+        Assert.Equal<uint?>(NetworkProfile.TestNet.NetworkMagic, toolkit.CurrentNetwork.NetworkMagic);
     }
 
     [Fact]
@@ -712,12 +712,16 @@ public class DeploymentToolkitTests : TestBase
             ["getversion"] = _ => throw new InvalidOperationException("RPC unavailable")
         };
 
-        var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
-        {
-            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, failingHandlers)
-        });
+        var factory = new CountingFailingRpcClientFactory(settings =>
+            new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, failingHandlers));
 
-        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var expectedMagic = (NetworkProfile.TestNet.NetworkMagic ?? 894710606u).ToString();
+        var configValues = new Dictionary<string, string?>
+        {
+            ["Network:NetworkMagic"] = expectedMagic,
+            ["Network:RpcUrl"] = NetworkProfile.TestNet.RpcUrl
+        };
+        var config = new ConfigurationBuilder().AddInMemoryCollection(configValues).Build();
         var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
 
         var intervalProp = typeof(DeploymentToolkit).GetProperty("NetworkMagicRetryInterval", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
@@ -729,9 +733,11 @@ public class DeploymentToolkitTests : TestBase
 
             var first = await InvokeNetworkMagicAsync(toolkit);
             Assert.Equal<uint>(NetworkProfile.TestNet.NetworkMagic ?? 894710606, first);
+            Assert.Equal(1, factory.CreateCount);
 
             var second = await InvokeNetworkMagicAsync(toolkit);
             Assert.Equal(first, second);
+            Assert.Equal(1, factory.CreateCount);
         }
         finally
         {
@@ -753,13 +759,28 @@ public class DeploymentToolkitTests : TestBase
             ["getversion"] = _ => CreateVersionResponse(successMagic)
         };
 
+        var invocationCount = 0;
         var factory = new QueueRpcClientFactory(new Func<ProtocolSettings, RpcClient>[]
         {
-            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, failingHandlers),
-            settings => new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, successHandlers)
+            settings =>
+            {
+                invocationCount++;
+                return new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, failingHandlers);
+            },
+            settings =>
+            {
+                invocationCount++;
+                return new StubRpcClient(new Dictionary<string, Queue<JToken>>(StringComparer.OrdinalIgnoreCase), settings, successHandlers);
+            }
         });
 
-        var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        var expectedMagic = (NetworkProfile.TestNet.NetworkMagic ?? 894710606u).ToString();
+        var configValues = new Dictionary<string, string?>
+        {
+            ["Network:NetworkMagic"] = expectedMagic,
+            ["Network:RpcUrl"] = NetworkProfile.TestNet.RpcUrl
+        };
+        var config = new ConfigurationBuilder().AddInMemoryCollection(configValues).Build();
         var toolkit = new DeploymentToolkit(config, new DeploymentOptions { Network = NetworkProfile.TestNet }, factory);
 
         var intervalProp = typeof(DeploymentToolkit).GetProperty("NetworkMagicRetryInterval", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
@@ -771,12 +792,14 @@ public class DeploymentToolkitTests : TestBase
 
             var first = await InvokeNetworkMagicAsync(toolkit);
             Assert.Equal<uint>(NetworkProfile.TestNet.NetworkMagic ?? 894710606, first);
+            Assert.Equal(1, invocationCount);
 
             await Task.Delay((TimeSpan)intervalProp.GetValue(null)! + TimeSpan.FromMilliseconds(25));
 
             var second = await InvokeNetworkMagicAsync(toolkit);
             Assert.Equal<uint>(successMagic, second);
             Assert.Equal<uint?>(successMagic, toolkit.CurrentNetwork.NetworkMagic);
+            Assert.Equal(2, invocationCount);
         }
         finally
         {
@@ -1209,6 +1232,24 @@ namespace TestContract
     {
         public RpcClient Create(Uri uri, ProtocolSettings protocolSettings)
             => throw new InvalidOperationException("RPC should not be invoked during unit tests.");
+    }
+
+    private sealed class CountingFailingRpcClientFactory : IRpcClientFactory
+    {
+        private readonly Func<ProtocolSettings, RpcClient> _clientFactory;
+
+        public CountingFailingRpcClientFactory(Func<ProtocolSettings, RpcClient> clientFactory)
+        {
+            _clientFactory = clientFactory;
+        }
+
+        public int CreateCount { get; private set; }
+
+        public RpcClient Create(Uri uri, ProtocolSettings protocolSettings)
+        {
+            CreateCount++;
+            return _clientFactory(protocolSettings);
+        }
     }
 
     private sealed record DeploymentCall(

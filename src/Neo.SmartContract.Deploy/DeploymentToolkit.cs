@@ -207,23 +207,37 @@ public class DeploymentToolkit : IDisposable
             return new NetworkProfile(uri.Host, trimmed);
         }
 
-        if (NetworkProfile.TryGetKnown(trimmed, out var known))
-        {
-            return known;
-        }
-
         var networksSection = _configuration.GetSection("Network:Networks");
         var configuredNetworks = networksSection.Get<Dictionary<string, NetworkConfiguration>>();
         if (configuredNetworks != null)
         {
             foreach (var entry in configuredNetworks)
             {
-                if (string.Equals(entry.Key, trimmed, StringComparison.OrdinalIgnoreCase) &&
-                    !string.IsNullOrWhiteSpace(entry.Value.RpcUrl))
+                if (string.Equals(entry.Key, trimmed, StringComparison.OrdinalIgnoreCase))
                 {
-                    return new NetworkProfile(entry.Key, entry.Value.RpcUrl, entry.Value.NetworkMagic, entry.Value.AddressVersion);
+                    var rpcUrl = entry.Value.RpcUrl?.Trim();
+                    if (!string.IsNullOrWhiteSpace(rpcUrl))
+                    {
+                        return new NetworkProfile(entry.Key, rpcUrl, entry.Value.NetworkMagic, entry.Value.AddressVersion);
+                    }
+
+                    if (NetworkProfile.TryGetKnown(trimmed, out var knownProfile))
+                    {
+                        return knownProfile with
+                        {
+                            NetworkMagic = entry.Value.NetworkMagic ?? knownProfile.NetworkMagic,
+                            AddressVersion = entry.Value.AddressVersion ?? knownProfile.AddressVersion
+                        };
+                    }
+
+                    throw new ArgumentException($"Network '{network}' is configured without an RpcUrl.", nameof(network));
                 }
             }
+        }
+
+        if (NetworkProfile.TryGetKnown(trimmed, out var known))
+        {
+            return known;
         }
 
         throw new ArgumentException($"Unknown network '{network}'. Provide a known network name or an RPC URL.", nameof(network));

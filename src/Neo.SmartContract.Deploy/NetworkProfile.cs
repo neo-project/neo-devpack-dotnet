@@ -33,8 +33,8 @@ public sealed record NetworkProfile
 
     public byte EffectiveAddressVersion => AddressVersion ?? ProtocolSettings.Default.AddressVersion;
 
-    public static NetworkProfile MainNet { get; } = new("mainnet", "https://mainnet1.neo.coz.io:443", 860833102, 0x35);
-    public static NetworkProfile TestNet { get; } = new("testnet", "http://seed2t5.neo.org:20332", 894710606, 0x35);
+    public static NetworkProfile MainNet { get; } = new("mainnet", "https://mainnet1.neo.coz.io:443", 860833102u);
+    public static NetworkProfile TestNet { get; } = new("testnet", "http://seed2t5.neo.org:20332", 894710606u);
     public static NetworkProfile Local { get; } = new("local", "http://localhost:50012");
     public static NetworkProfile Private { get; } = new("private", "http://localhost:50012");
 
