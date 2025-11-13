@@ -494,11 +494,12 @@ namespace Neo.Compiler
 
                             var references = new MetadataReference[]
                             {
-                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Private.CoreLib.dll", typeof(object)),
                                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.dll"),
                                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.InteropServices.dll"),
                                 RuntimeAssemblyResolver.CreateFrameworkReference("System.ComponentModel.Primitives.dll"),
                                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Collections.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Memory.dll"),
                                 MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(NeoSystem))),
                                 MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(SmartContract.Testing.TestEngine)))
                             };

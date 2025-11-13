@@ -84,11 +84,12 @@ namespace Neo.Compiler
         {
             CommonReferences =
             [
-                RuntimeAssemblyResolver.CreateFrameworkReference("System.Private.CoreLib.dll", typeof(object)),
                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.dll"),
                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.InteropServices.dll"),
                 RuntimeAssemblyResolver.CreateFrameworkReference("System.ComponentModel.Primitives.dll"),
-                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll")
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll"),
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.Collections.dll"),
+                RuntimeAssemblyResolver.CreateFrameworkReference("System.Memory.dll")
             ];
         }
 

@@ -5,13 +5,11 @@
 
 using Microsoft.CodeAnalysis;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 
 namespace Neo.Compiler
@@ -20,8 +18,9 @@ namespace Neo.Compiler
     {
         private static readonly Lazy<string> CoreDirectory = new(ResolveCoreDirectory, LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<IReadOnlyDictionary<string, string>> TrustedAssemblies = new(BuildTrustedAssemblyMap, LazyThreadSafetyMode.ExecutionAndPublication);
-        private static readonly ConcurrentDictionary<Assembly, MetadataReference> AssemblyMetadataCache = new();
-
+        private static readonly Lazy<string?> CompilerBaseDirectory = new(GetCompilerBaseDirectory, LazyThreadSafetyMode.ExecutionAndPublication);
+        private static readonly Lazy<string?> ReferencePackDirectory = new(GetReferencePackDirectory, LazyThreadSafetyMode.ExecutionAndPublication);
+        private static readonly Lazy<string> TargetFrameworkMoniker = new(GetTargetFrameworkMoniker, LazyThreadSafetyMode.ExecutionAndPublication);
         private static IReadOnlyDictionary<string, string> BuildTrustedAssemblyMap()
         {
             var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -79,16 +78,11 @@ namespace Neo.Compiler
             throw new FileNotFoundException($"Unable to locate framework assembly '{fileName}'.", path);
         }
 
-        internal static MetadataReference CreateFrameworkReference(string fileName, Type? fallbackType = null)
+        internal static MetadataReference CreateFrameworkReference(string fileName)
         {
             if (TryResolveFrameworkAssemblyPath(fileName, out var path) && path is not null)
             {
                 return MetadataReference.CreateFromFile(path);
-            }
-
-            if (fallbackType is not null)
-            {
-                return CreateMetadataReferenceFromAssembly(fallbackType.Assembly);
             }
 
             throw new FileNotFoundException($"Unable to locate framework assembly '{fileName}'.");
@@ -115,19 +109,35 @@ namespace Neo.Compiler
 
         private static bool TryResolveFrameworkAssemblyPath(string fileName, out string? path)
         {
-            if (!string.IsNullOrEmpty(AppContext.BaseDirectory))
+            foreach (var baseDir in EnumerateBaseDirectories())
             {
-                var refsPath = Path.Combine(AppContext.BaseDirectory, "refs", fileName);
+                if (string.IsNullOrEmpty(baseDir))
+                {
+                    continue;
+                }
+
+                var refsPath = Path.Combine(baseDir, "refs", fileName);
                 if (File.Exists(refsPath))
                 {
                     path = refsPath;
                     return true;
                 }
 
-                var localPath = Path.Combine(AppContext.BaseDirectory, fileName);
+                var localPath = Path.Combine(baseDir, fileName);
                 if (File.Exists(localPath))
                 {
                     path = localPath;
+                    return true;
+                }
+            }
+
+            var referencePack = ReferencePackDirectory.Value;
+            if (!string.IsNullOrEmpty(referencePack))
+            {
+                var packPath = Path.Combine(referencePack, fileName);
+                if (File.Exists(packPath))
+                {
+                    path = packPath;
                     return true;
                 }
             }
@@ -149,29 +159,67 @@ namespace Neo.Compiler
             return false;
         }
 
-        private static MetadataReference CreateMetadataReferenceFromAssembly(Assembly assembly)
+        private static IEnumerable<string?> EnumerateBaseDirectories()
         {
-            return AssemblyMetadataCache.GetOrAdd(assembly, static asm =>
-            {
+            yield return CompilerBaseDirectory.Value;
+            yield return AppContext.BaseDirectory;
+        }
+
+        private static string? GetCompilerBaseDirectory()
+        {
 #pragma warning disable IL3000
-                if (!string.IsNullOrEmpty(asm.Location) && File.Exists(asm.Location))
-                {
-                    return MetadataReference.CreateFromFile(asm.Location);
-                }
+            var location = typeof(RuntimeAssemblyResolver).Assembly.Location;
 #pragma warning restore IL3000
+            if (!string.IsNullOrEmpty(location))
+            {
+                return Path.GetDirectoryName(location);
+            }
 
-                unsafe
+            return null;
+        }
+
+        private static string? GetReferencePackDirectory()
+        {
+            var coreDir = CoreDirectory.Value;
+            if (string.IsNullOrEmpty(coreDir))
+            {
+                return null;
+            }
+
+            var coreDirInfo = new DirectoryInfo(coreDir);
+            var version = coreDirInfo.Name;
+            var sharedFrameworkDir = coreDirInfo.Parent;
+            if (sharedFrameworkDir is null || !string.Equals(sharedFrameworkDir.Name, "Microsoft.NETCore.App", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            var dotnetRoot = sharedFrameworkDir.Parent?.Parent;
+            if (dotnetRoot is null)
+            {
+                return null;
+            }
+
+            var tfm = TargetFrameworkMoniker.Value;
+            var referencePackPath = Path.Combine(dotnetRoot.FullName, "packs", "Microsoft.NETCore.App.Ref", version, "ref", tfm);
+            return Directory.Exists(referencePackPath) ? referencePackPath : null;
+        }
+
+        private static string GetTargetFrameworkMoniker()
+        {
+            var attribute = typeof(RuntimeAssemblyResolver).Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+            if (attribute?.FrameworkName is { Length: > 0 } frameworkName)
+            {
+                const string prefix = ".NETCoreApp,Version=v";
+                if (frameworkName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (!asm.TryGetRawMetadata(out byte* blob, out int length))
-                    {
-                        throw new InvalidOperationException($"Unable to access metadata for assembly '{asm.FullName}'.");
-                    }
-
-                    var span = new ReadOnlySpan<byte>(blob, length);
-                    var copy = span.ToArray();
-                    return MetadataReference.CreateFromImage(ImmutableArray.Create(copy));
+                    var version = frameworkName[prefix.Length..];
+                    return $"net{version}";
                 }
-            });
+            }
+
+            var runtimeVersion = Environment.Version;
+            return $"net{runtimeVersion.Major}.{runtimeVersion.Minor}";
         }
     }
 }

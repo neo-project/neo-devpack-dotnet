@@ -16,7 +16,6 @@
     <Description>Neo.Compiler.CSharp</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +38,8 @@
     <CompilerFrameworkReference Include="System.Runtime.InteropServices.dll" />
     <CompilerFrameworkReference Include="System.ComponentModel.Primitives.dll" />
     <CompilerFrameworkReference Include="System.Runtime.Numerics.dll" />
+    <CompilerFrameworkReference Include="System.Collections.dll" />
+    <CompilerFrameworkReference Include="System.Memory.dll" />
   </ItemGroup>
 
   <Target Name="PrepareCompilerFrameworkReferences" AfterTargets="ResolveFrameworkReferences">
