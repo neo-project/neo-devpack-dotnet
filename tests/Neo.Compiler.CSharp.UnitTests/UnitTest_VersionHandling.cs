@@ -213,7 +213,7 @@ public class TestContract : SmartContract
 
             // Create the project file with version information
             XElement propertyGroup = new XElement("PropertyGroup",
-                new XElement("TargetFramework", "net9.0"),
+                new XElement("TargetFramework", "net10.0"),
                 new XElement("ImplicitUsings", "enable"),
                 new XElement("Nullable", "enable")
             );
@@ -236,7 +236,7 @@ public class TestContract : SmartContract
                 new XAttribute("Sdk", "Microsoft.NET.Sdk"),
                 propertyGroup,
                 new XElement("PropertyGroup",
-                    new XElement("TargetFramework", "net9.0"),
+                    new XElement("TargetFramework", "net10.0"),
                     new XElement("RestoreSources", "https://api.nuget.org/v3/index.json;https://www.myget.org/F/neo/api/v3/index.json")
                 ),
                 new XElement("ItemGroup",
