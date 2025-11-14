@@ -9,8 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-#pragma warning disable NC4041 // switch expression patterns are intentional in this test
-
 using System.Runtime.CompilerServices;
 using Neo.SmartContract.Framework;
 
@@ -107,5 +105,3 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
     }
 }
-
-#pragma warning restore NC4041

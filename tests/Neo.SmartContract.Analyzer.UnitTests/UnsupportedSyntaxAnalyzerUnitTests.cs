@@ -139,7 +139,7 @@ public class UnsupportedSyntaxAnalyzerUnitTests
     }
 
     [TestMethod]
-    public async Task PatternMatching_IsFlagged()
+    public async Task PatternMatching_IsAllowed()
     {
         var test = """
                    class Test
@@ -148,12 +148,11 @@ public class UnsupportedSyntaxAnalyzerUnitTests
                    }
                    """;
 
-        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.PatternMatchingRuleId).WithSpan(3, 33, 3, 47);
-        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     [TestMethod]
-    public async Task PatternMatching_InSwitchStatement_IsFlagged()
+    public async Task PatternMatching_InSwitchStatement_IsAllowed()
     {
         var test = """
                    class Test
@@ -171,8 +170,7 @@ public class UnsupportedSyntaxAnalyzerUnitTests
                    }
                    """;
 
-        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.PatternMatchingRuleId).WithSpan(7, 13, 7, 29);
-        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     [TestMethod]
@@ -200,7 +198,7 @@ public class UnsupportedSyntaxAnalyzerUnitTests
     }
 
     [TestMethod]
-    public async Task RangeExpression_IsFlagged()
+    public async Task RangeExpression_IsAllowed()
     {
         var test = """
                    class Test
@@ -209,13 +207,7 @@ public class UnsupportedSyntaxAnalyzerUnitTests
                    }
                    """;
 
-        var expected = new[]
-        {
-            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.RangeExpressionRuleId).WithLocation(0),
-            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.RangeExpressionRuleId).WithSpan(3, 42, 3, 44),
-        };
-
-        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     [TestMethod]
@@ -282,7 +274,7 @@ public class UnsupportedSyntaxAnalyzerUnitTests
     }
 
     [TestMethod]
-    public async Task RefLocal_IsFlagged()
+    public async Task RefLocal_IsAllowed()
     {
         var test = """
                    class Test
@@ -294,13 +286,7 @@ public class UnsupportedSyntaxAnalyzerUnitTests
                    }
                    """;
 
-        var expected = new[]
-        {
-            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.RefLocalOrReturnRuleId).WithLocation(0),
-            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.RefLocalOrReturnRuleId).WithLocation(1),
-        };
-
-        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     [TestMethod]
@@ -395,12 +381,7 @@ public class UnsupportedSyntaxAnalyzerUnitTests
                    }
                    """;
 
-        var expected = new[]
-        {
-            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.PatternMatchingRuleId).WithLocation(0),
-            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.ListPatternRuleId).WithSpan(3, 45, 3, 54)
-        };
-
+        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.ListPatternRuleId).WithSpan(3, 45, 3, 54);
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 

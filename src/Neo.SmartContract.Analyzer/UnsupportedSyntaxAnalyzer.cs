@@ -32,10 +32,7 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
     public const string AsyncMethodRuleId = "NC4038";
     public const string AwaitExpressionRuleId = "NC4039";
     public const string ExceptionFilterRuleId = "NC4040";
-    public const string PatternMatchingRuleId = "NC4041";
     public const string LocalFunctionRuleId = "NC4042";
-    public const string RefLocalOrReturnRuleId = "NC4043";
-    public const string RangeExpressionRuleId = "NC4044";
     public const string AwaitForEachRuleId = "NC4045";
     public const string NativeIntRuleId = "NC4046";
     public const string TopLevelStatementRuleId = "NC4047";
@@ -87,25 +84,10 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         "Exception filters are not supported",
         "Exception filters (when clauses) are not supported by the Neo compiler.");
 
-    private static readonly DiagnosticDescriptor PatternMatchingRule = CreateDescriptor(
-        PatternMatchingRuleId,
-        "Pattern matching is not supported",
-        "Pattern matching expressions are not supported by the Neo compiler.");
-
     private static readonly DiagnosticDescriptor LocalFunctionRule = CreateDescriptor(
         LocalFunctionRuleId,
         "Local functions are not supported",
         "Local function declarations are not supported by the Neo compiler.");
-
-    private static readonly DiagnosticDescriptor RefLocalOrReturnRule = CreateDescriptor(
-        RefLocalOrReturnRuleId,
-        "Ref locals and returns are not supported",
-        "Ref locals, ref returns, and ref expressions are not supported by the Neo compiler.");
-
-    private static readonly DiagnosticDescriptor RangeExpressionRule = CreateDescriptor(
-        RangeExpressionRuleId,
-        "Index and range operators are not supported",
-        "Index (^) and range (..) operators are not supported by the Neo compiler.");
 
     private static readonly DiagnosticDescriptor AwaitForEachRule = CreateDescriptor(
         AwaitForEachRuleId,
@@ -169,10 +151,7 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         AsyncMethodRule,
         AwaitExpressionRule,
         ExceptionFilterRule,
-        PatternMatchingRule,
         LocalFunctionRule,
-        RefLocalOrReturnRule,
-        RangeExpressionRule,
         AwaitForEachRule,
         NativeIntRule,
         TopLevelStatementRule,
@@ -197,10 +176,7 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(AwaitExpressionRule), SyntaxKind.AwaitExpression);
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(ExceptionFilterRule), SyntaxKind.CatchFilterClause);
-        context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(PatternMatchingRule), SyntaxKind.IsPatternExpression, SyntaxKind.SwitchExpression);
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(LocalFunctionRule), SyntaxKind.LocalFunctionStatement);
-        context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(RefLocalOrReturnRule), SyntaxKind.RefType, SyntaxKind.RefExpression);
-        context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(RangeExpressionRule), SyntaxKind.RangeExpression, SyntaxKind.IndexExpression);
         context.RegisterSyntaxNodeAction(AnalyzeForEachStatement, SyntaxKind.ForEachStatement, SyntaxKind.ForEachVariableStatement);
         context.RegisterSyntaxNodeAction(AnalyzeNativeSizedIntegers, SyntaxKind.IdentifierName);
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(TopLevelStatementRule), SyntaxKind.GlobalStatement);
@@ -208,7 +184,6 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(AnalyzeUsingDirective, SyntaxKind.UsingDirective);
         context.RegisterSyntaxNodeAction(AnalyzeUsingStatement, SyntaxKind.UsingStatement);
         context.RegisterSyntaxNodeAction(AnalyzeUsingLocalDeclaration, SyntaxKind.LocalDeclarationStatement);
-        context.RegisterSyntaxNodeAction(AnalyzeSwitchStatement, SyntaxKind.SwitchStatement);
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(ListPatternRule), SyntaxKind.ListPattern);
         context.RegisterSyntaxNodeAction(AnalyzeUtf8Literal, SyntaxKind.Utf8StringLiteralExpression, SyntaxKind.StringLiteralExpression);
         context.RegisterSyntaxNodeAction(AnalyzeTypeDeclaration, SyntaxKind.ClassDeclaration, SyntaxKind.StructDeclaration, SyntaxKind.InterfaceDeclaration, SyntaxKind.RecordDeclaration, SyntaxKind.RecordStructDeclaration, SyntaxKind.EnumDeclaration);
@@ -315,20 +290,6 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         }
 
         context.ReportDiagnostic(Diagnostic.Create(AwaitExpressionRule, awaitToken.GetLocation()));
-    }
-
-    private static void AnalyzeSwitchStatement(SyntaxNodeAnalysisContext context)
-    {
-        if (context.Node is not SwitchStatementSyntax switchStatement)
-            return;
-
-        foreach (var label in switchStatement.Sections.SelectMany(static section => section.Labels))
-        {
-            if (label is CasePatternSwitchLabelSyntax patternLabel)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(PatternMatchingRule, patternLabel.GetLocation()));
-            }
-        }
     }
 
     private static void AnalyzeUtf8Literal(SyntaxNodeAnalysisContext context)

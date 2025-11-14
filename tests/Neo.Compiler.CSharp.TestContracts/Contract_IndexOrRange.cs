@@ -9,8 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-#pragma warning disable NC4044 // index/range operators are intentionally exercised by this test contract
-
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
@@ -64,5 +62,3 @@ namespace Neo.Compiler.CSharp.TestContracts
         }
     }
 }
-
-#pragma warning restore NC4044
