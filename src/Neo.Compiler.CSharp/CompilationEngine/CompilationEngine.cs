@@ -244,6 +244,7 @@ namespace Neo.Compiler
 
     <PropertyGroup>
         <TargetFramework>{GetTargetFrameworkMoniker()}</TargetFramework>
+        <LangVersion>preview</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -351,7 +352,7 @@ namespace Neo.Compiler
             tempProjectReferencesKey = null;
         }
 
-        private static string GetTargetFrameworkMoniker() => "net9.0";
+        private static string GetTargetFrameworkMoniker() => RuntimeAssemblyResolver.CompilerTargetFrameworkMoniker;
 
         public List<CompilationContext> CompileProject(string csproj)
         {

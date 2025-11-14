@@ -21,6 +21,8 @@ namespace Neo.Compiler
         private static readonly Lazy<string?> CompilerBaseDirectory = new(GetCompilerBaseDirectory, LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<string?> ReferencePackDirectory = new(GetReferencePackDirectory, LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<string> TargetFrameworkMoniker = new(GetTargetFrameworkMoniker, LazyThreadSafetyMode.ExecutionAndPublication);
+
+        internal static string CompilerTargetFrameworkMoniker => TargetFrameworkMoniker.Value;
         private static IReadOnlyDictionary<string, string> BuildTrustedAssemblyMap()
         {
             var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
