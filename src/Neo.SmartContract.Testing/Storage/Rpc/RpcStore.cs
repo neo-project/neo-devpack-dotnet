@@ -34,11 +34,6 @@ public class RpcStore : IStore
     public event IStore.OnNewSnapshotDelegate? OnNewSnapshot;
 
     /// <summary>
-    /// Event raised when a new snapshot is created
-    /// </summary>
-    public event IStore.OnNewSnapshotDelegate? OnNewSnapshot;
-
-    /// <summary>
     /// Url
     /// </summary>
     public Uri Url { get; set; }
