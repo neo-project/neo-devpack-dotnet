@@ -492,15 +492,16 @@ namespace Neo.Compiler
                         {
                             // Try to compile the artifacts into a dll
 
-                            var coreDir = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
                             var references = new MetadataReference[]
                             {
-                                MetadataReference.CreateFromFile(Path.Combine(coreDir, "System.Runtime.dll")),
-                                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                                MetadataReference.CreateFromFile(typeof(DisplayNameAttribute).Assembly.Location),
-                                MetadataReference.CreateFromFile(typeof(System.Numerics.BigInteger).Assembly.Location),
-                                MetadataReference.CreateFromFile(typeof(NeoSystem).Assembly.Location),
-                                MetadataReference.CreateFromFile(typeof(SmartContract.Testing.TestEngine).Assembly.Location)
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.InteropServices.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.ComponentModel.Primitives.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Collections.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Memory.dll"),
+                                MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(NeoSystem))),
+                                MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(SmartContract.Testing.TestEngine)))
                             };
 
                             CSharpCompilationOptions csOptions = new(

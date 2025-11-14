@@ -33,4 +33,35 @@
     <ProjectReference Include="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <CompilerFrameworkReference Include="System.Runtime.dll" />
+    <CompilerFrameworkReference Include="System.Runtime.InteropServices.dll" />
+    <CompilerFrameworkReference Include="System.ComponentModel.Primitives.dll" />
+    <CompilerFrameworkReference Include="System.Runtime.Numerics.dll" />
+    <CompilerFrameworkReference Include="System.Collections.dll" />
+    <CompilerFrameworkReference Include="System.Memory.dll" />
+  </ItemGroup>
+
+  <Target Name="PrepareCompilerFrameworkReferences" AfterTargets="ResolveFrameworkReferences">
+    <ItemGroup>
+      <CoreFrameworkPack Include="@(ResolvedTargetingPack)" Condition="'%(ResolvedTargetingPack.Identity)' == 'Microsoft.NETCore.App'">
+        <PackRoot>%(ResolvedTargetingPack.Path)</PackRoot>
+      </CoreFrameworkPack>
+    </ItemGroup>
+    <PropertyGroup Condition="'$(CompilerFrameworkPackRoot)' == '' and '@(CoreFrameworkPack)' != ''">
+      <CompilerFrameworkPackRoot>@(CoreFrameworkPack->'%(PackRoot)')</CompilerFrameworkPackRoot>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(CompilerFrameworkPackRoot)' != ''">
+      <CompilerFrameworkReferenceSource Include="@(CompilerFrameworkReference->'$(CompilerFrameworkPackRoot)/ref/$(TargetFramework)/%(Identity)')" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="CopyCompilerFrameworkReferences" AfterTargets="Publish" DependsOnTargets="PrepareCompilerFrameworkReferences">
+    <PropertyGroup>
+      <CompilerReferenceOutputDir>$(PublishDir)refs</CompilerReferenceOutputDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(CompilerReferenceOutputDir)" Condition="'$(CompilerReferenceOutputDir)' != '' and '@(CompilerFrameworkReferenceSource)' != ''" />
+    <Copy SourceFiles="@(CompilerFrameworkReferenceSource)" DestinationFiles="@(CompilerFrameworkReferenceSource->'$(CompilerReferenceOutputDir)/%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(CompilerFrameworkReferenceSource)' != ''" />
+  </Target>
+
 </Project>
