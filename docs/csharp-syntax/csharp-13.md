@@ -158,17 +158,14 @@ public class OverloadPriority
 
 ### the_field_keyword - `field` contextual keyword
 
-Status: unsupported
+Status: supported
 Scope: class
-Notes: The preview `field` keyword exposes auto-property backing fields when enabled. Roslyn rewrites `field` accessors to refer to the synthesized backing field before Neo compiles the property.
+Notes: Accessors can reference the compiler-generated backing field via the `field` contextual keyword. Roslyn binds the auto-property field and Neo now loads or stores it directly.
 ```csharp
-public class FieldBacked
+public int Count
 {
-    public int Count
-    {
-        get => field;
-        init => field = value >= 0 ? value : 0;
-    }
+    get => field;
+    init => field = value >= 0 ? value : 0;
 }
 ```
 
