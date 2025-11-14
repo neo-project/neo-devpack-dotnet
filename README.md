@@ -249,31 +249,6 @@ namespace Example.SmartContract.MyContract.UnitTests
 }
 ```
 
-### Deployment Projects
-
-For scripted deployments and post-deploy invocations you can scaffold a dedicated project that references the `Neo.SmartContract.Deploy` toolkit:
-
-```sh
-nccs new MyContract.Deploy --deploy
-```
-
-The generated project contains:
-
-- `Program.cs` with boilerplate logic that loads a compiled `.nef`/`.manifest.json`, deploys it to the selected network, and performs a read-only invocation.
-- `deploysettings.json`, which stores RPC endpoints, network magics, address versions, and per-network private keys. Each entry supports `rpcUrls`, `networkMagic`, `addressVersion`, and `privateKey`.
-
-Update `deploysettings.json` with the RPC URLs you plan to use and either embed a private key for each network or call `toolkit.UseConsolePrivateKeyPrompt()` to supply it at runtime. You can then run the deployment workflow:
-
-```sh
-dotnet run --project MyContract.Deploy/MyContract.Deploy.csproj -- \
-    --network testnet \
-    --nef ../MyContract/bin/Debug/net10.0/MyContract.nef \
-    --manifest ../MyContract/bin/Debug/net10.0/MyContract.manifest.json \
-    --rpc https://testnet1.neo.org:443
-```
-
-If your machine cannot reach the RPC endpoint, the toolkit still knows the baked-in network magic for mainnet/testnet, which keeps air-gapped deployments working. For custom devnets you can add entries to `deploysettings.json` with explicit `networkMagic` values.
-
 #### Key Testing Features
 
 1. **TestBase<T> Class**: Provides a base class for contract testing with access to the contract, storage, and notifications.

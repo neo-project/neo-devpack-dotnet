@@ -48,10 +48,9 @@ namespace Neo.Compiler
                 new Option<string>("--author", () => "Author", "The author of the contract"),
                 new Option<string>("--email", () => $"email@example.com", "The author's email"),
                 new Option<string>("--description", "A description of the contract"),
-                new Option<bool>("--force", "Overwrite existing files"),
-                new Option<bool>("--deploy", "Create a deployment toolkit project instead of a contract")
+                new Option<bool>("--force", "Overwrite existing files")
             };
-            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string, string, string, string, bool, bool>(HandleNew);
+            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string, string, string, string, bool>(HandleNew);
             rootCommand.AddCommand(newCommand);
 
             // Add compilation arguments (make them optional for backward compatibility)
@@ -97,7 +96,7 @@ namespace Neo.Compiler
             return ret;
         }
 
-        private static int HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force, bool deploy)
+        private static int HandleNew(string name, ContractTemplate template, string output, string author, string email, string? description, bool force)
         {
             try
             {
@@ -120,11 +119,6 @@ namespace Neo.Compiler
                 {
                     Console.Error.WriteLine($"Error: Directory '{projectPath}' already exists. Use --force to overwrite.");
                     return 1;
-                }
-
-                if (deploy)
-                {
-                    return DeploymentProjectGenerator.Generate(name, output, force);
                 }
 
                 // Create the template manager and generate the contract
