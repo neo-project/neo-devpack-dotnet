@@ -154,8 +154,8 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
 
     private static readonly DiagnosticDescriptor RefReadonlyParameterRule = CreateDescriptor(
         RefReadonlyParameterRuleId,
-        "'ref readonly' parameters are not supported",
-        "'ref readonly' parameters are not supported by the Neo compiler.");
+        "'ref readonly' or 'in' parameters are not supported",
+        "'ref readonly' or 'in' parameters are not supported by the Neo compiler.");
 
     private static DiagnosticDescriptor CreateDescriptor(string id, string title, string message) =>
         new(id, title, message, Category, DiagnosticSeverity.Error, isEnabledByDefault: true, description: message);
@@ -206,6 +206,9 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(TopLevelStatementRule), SyntaxKind.GlobalStatement);
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(FunctionPointerRule), SyntaxKind.FunctionPointerType);
         context.RegisterSyntaxNodeAction(AnalyzeUsingDirective, SyntaxKind.UsingDirective);
+        context.RegisterSyntaxNodeAction(AnalyzeUsingStatement, SyntaxKind.UsingStatement);
+        context.RegisterSyntaxNodeAction(AnalyzeUsingLocalDeclaration, SyntaxKind.LocalDeclarationStatement);
+        context.RegisterSyntaxNodeAction(AnalyzeSwitchStatement, SyntaxKind.SwitchStatement);
         context.RegisterSyntaxNodeAction(ReportSimpleDiagnostic(ListPatternRule), SyntaxKind.ListPattern);
         context.RegisterSyntaxNodeAction(AnalyzeUtf8Literal, SyntaxKind.Utf8StringLiteralExpression, SyntaxKind.StringLiteralExpression);
         context.RegisterSyntaxNodeAction(AnalyzeTypeDeclaration, SyntaxKind.ClassDeclaration, SyntaxKind.StructDeclaration, SyntaxKind.InterfaceDeclaration, SyntaxKind.RecordDeclaration, SyntaxKind.RecordStructDeclaration, SyntaxKind.EnumDeclaration);
@@ -282,6 +285,52 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    private static void AnalyzeUsingStatement(SyntaxNodeAnalysisContext context)
+    {
+        if (context.Node is UsingStatementSyntax usingStatement && !usingStatement.AwaitKeyword.IsKind(SyntaxKind.None))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(AwaitExpressionRule, usingStatement.AwaitKeyword.GetLocation()));
+        }
+    }
+
+    private static void AnalyzeUsingLocalDeclaration(SyntaxNodeAnalysisContext context)
+    {
+        if (context.Node is not LocalDeclarationStatementSyntax localDeclaration)
+        {
+            return;
+        }
+
+        if (localDeclaration.UsingKeyword.IsKind(SyntaxKind.None))
+        {
+            return;
+        }
+
+        var awaitToken = !localDeclaration.AwaitKeyword.IsKind(SyntaxKind.None)
+            ? localDeclaration.AwaitKeyword
+            : localDeclaration.DescendantTokens().FirstOrDefault(token => token.IsKind(SyntaxKind.AwaitKeyword));
+
+        if (awaitToken.IsKind(SyntaxKind.None))
+        {
+            return;
+        }
+
+        context.ReportDiagnostic(Diagnostic.Create(AwaitExpressionRule, awaitToken.GetLocation()));
+    }
+
+    private static void AnalyzeSwitchStatement(SyntaxNodeAnalysisContext context)
+    {
+        if (context.Node is not SwitchStatementSyntax switchStatement)
+            return;
+
+        foreach (var label in switchStatement.Sections.SelectMany(static section => section.Labels))
+        {
+            if (label is CasePatternSwitchLabelSyntax patternLabel)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(PatternMatchingRule, patternLabel.GetLocation()));
+            }
+        }
+    }
+
     private static void AnalyzeUtf8Literal(SyntaxNodeAnalysisContext context)
     {
         if (context.Node is not LiteralExpressionSyntax literal)
@@ -310,9 +359,18 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
             return;
 
         var modifiers = parameter.Modifiers;
-        if (modifiers.Any(SyntaxKind.RefKeyword) && modifiers.Any(SyntaxKind.ReadOnlyKeyword))
+        bool hasRefReadonly = modifiers.Any(SyntaxKind.RefKeyword) && modifiers.Any(SyntaxKind.ReadOnlyKeyword);
+        bool hasInModifier = modifiers.Any(SyntaxKind.InKeyword);
+
+        if (!hasRefReadonly && !hasInModifier)
         {
-            context.ReportDiagnostic(Diagnostic.Create(RefReadonlyParameterRule, modifiers.First(m => m.IsKind(SyntaxKind.RefKeyword)).GetLocation()));
+            return;
         }
+
+        var location = hasRefReadonly
+            ? modifiers.First(m => m.IsKind(SyntaxKind.RefKeyword)).GetLocation()
+            : modifiers.First(m => m.IsKind(SyntaxKind.InKeyword)).GetLocation();
+
+        context.ReportDiagnostic(Diagnostic.Create(RefReadonlyParameterRule, location));
     }
 }

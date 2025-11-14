@@ -148,7 +148,30 @@ public class UnsupportedSyntaxAnalyzerUnitTests
                    }
                    """;
 
-        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.PatternMatchingRuleId).WithLocation(0);
+        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.PatternMatchingRuleId).WithSpan(3, 33, 3, 47);
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task PatternMatching_InSwitchStatement_IsFlagged()
+    {
+        var test = """
+                   class Test
+                   {
+                       int Parse(object value)
+                       {
+                           switch (value)
+                           {
+                               case {|#0:int number|}:
+                                   return number;
+                               default:
+                                   return 0;
+                           }
+                       }
+                   }
+                   """;
+
+        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.PatternMatchingRuleId).WithSpan(7, 13, 7, 29);
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 
@@ -211,6 +234,50 @@ public class UnsupportedSyntaxAnalyzerUnitTests
                    """;
 
         var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.LocalFunctionRuleId).WithLocation(0);
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task AwaitUsing_IsFlagged()
+    {
+        var test = """
+                   using System;
+                   using System.Threading.Tasks;
+
+                   class Disposable : IAsyncDisposable
+                   {
+                       public ValueTask DisposeAsync() => new ValueTask();
+                   }
+
+                   class Test
+                   {
+                       public {|#1:async|} Task Run()
+                       {
+                           {|#0:await|} using var disposable = new Disposable();
+                       }
+                   }
+                   """;
+
+        var expected = new[]
+        {
+            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.AwaitExpressionRuleId).WithLocation(0),
+            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.AsyncMethodRuleId).WithLocation(1)
+        };
+
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task InParameter_IsFlagged()
+    {
+        var test = """
+                   class Test
+                   {
+                       void Run({|#0:in|} int value) { }
+                   }
+                   """;
+
+        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.RefReadonlyParameterRuleId).WithLocation(0);
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 
