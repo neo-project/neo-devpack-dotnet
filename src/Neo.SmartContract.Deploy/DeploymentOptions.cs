@@ -25,12 +25,12 @@ public class DeploymentOptions
     public Func<TransactionManager, CancellationToken, Task<Transaction>>? TransactionSignerAsync { get; set; } = null;
 
     public DeploymentOptions Clone() => new()
-        {
-            Network = Network,
-            WaitForConfirmation = WaitForConfirmation,
-            ConfirmationRetries = ConfirmationRetries,
-            ConfirmationDelaySeconds = ConfirmationDelaySeconds,
-            SignerProvider = SignerProvider,
-            TransactionSignerAsync = TransactionSignerAsync
-        };
+    {
+        Network = Network,
+        WaitForConfirmation = WaitForConfirmation,
+        ConfirmationRetries = ConfirmationRetries,
+        ConfirmationDelaySeconds = ConfirmationDelaySeconds,
+        SignerProvider = SignerProvider,
+        TransactionSignerAsync = TransactionSignerAsync
+    };
 }
