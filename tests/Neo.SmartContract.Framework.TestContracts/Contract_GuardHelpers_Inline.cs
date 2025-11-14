@@ -1,3 +1,5 @@
+#pragma warning disable NC4041 // pattern matching is intentional in guard helper tests
+
 using System.Numerics;
 using Neo.SmartContract.Framework.Services;
 using System;
@@ -163,3 +165,5 @@ namespace Neo.SmartContract.Framework.TestContracts
         }
     }
 }
+
+#pragma warning restore NC4041
