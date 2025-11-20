@@ -31,8 +31,8 @@ namespace Neo.SmartContract.Analyzer
             Title,
             MessageFormat,
             Category,
-            DiagnosticSeverity.Hidden,
-            isEnabledByDefault: false,
+            DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
             description: Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
@@ -50,9 +50,15 @@ namespace Neo.SmartContract.Analyzer
             {
                 foreach (var parameter in methodDeclaration.ParameterList.Parameters)
                 {
-                    if (parameter.Modifiers.Any(SyntaxKind.RefKeyword))
+                    // Report only on unsupported ref readonly / in parameters (regular ref/out are allowed)
+                    if (parameter.Modifiers.Any(SyntaxKind.InKeyword))
                     {
-                        var diagnostic = Diagnostic.Create(Rule, parameter.GetLocation(), "method declaration");
+                        var diagnostic = Diagnostic.Create(Rule, parameter.GetLocation(), "method declaration ('in' parameter)");
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                    else if (parameter.Modifiers.Any(SyntaxKind.RefKeyword) && parameter.Modifiers.Any(SyntaxKind.ReadOnlyKeyword))
+                    {
+                        var diagnostic = Diagnostic.Create(Rule, parameter.GetLocation(), "method declaration ('ref readonly' parameter)");
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
@@ -61,9 +67,10 @@ namespace Neo.SmartContract.Analyzer
             {
                 foreach (var argument in invocationExpression.ArgumentList.Arguments)
                 {
-                    if (argument.RefOrOutKeyword.IsKind(SyntaxKind.RefKeyword))
+                    // Report only on unsupported 'in' arguments (regular ref/out are supported)
+                    if (argument.RefOrOutKeyword.IsKind(SyntaxKind.InKeyword))
                     {
-                        var diagnostic = Diagnostic.Create(Rule, argument.GetLocation(), "method invocation");
+                        var diagnostic = Diagnostic.Create(Rule, argument.GetLocation(), "method invocation ('in' argument)");
                         context.ReportDiagnostic(diagnostic);
                     }
                 }

@@ -28,7 +28,3 @@ dotnet_diagnostic.RS1038.severity = none
 
 # RS1041: Compiler extensions should be implemented in assemblies targeting netstandard2.0
 dotnet_diagnostic.RS1041.severity = none
-
-# Local analyzers currently unsupported in tooling flows
-dotnet_diagnostic.NC4010.severity = none
-dotnet_diagnostic.NC4012.severity = none

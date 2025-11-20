@@ -39,8 +39,8 @@ namespace Neo.SmartContract.Analyzer
             "Unsupported Char method is used",
             "Unsupported Char method: {0}",
             "Method",
-            DiagnosticSeverity.Hidden,
-            isEnabledByDefault: false);
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
             ImmutableArray.Create(Rule);
