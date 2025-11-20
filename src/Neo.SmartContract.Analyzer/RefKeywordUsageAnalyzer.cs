@@ -31,8 +31,8 @@ namespace Neo.SmartContract.Analyzer
             Title,
             MessageFormat,
             Category,
-            DiagnosticSeverity.Warning,  // or DiagnosticSeverity.Error based on your requirements
-            isEnabledByDefault: true,
+            DiagnosticSeverity.Hidden,
+            isEnabledByDefault: false,
             description: Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);

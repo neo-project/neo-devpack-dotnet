@@ -10,9 +10,9 @@ NC4006  | Method   | Error    | BigIntegerUsageAnalyzer
 NC4007  | Method   | Error    | StringMethodUsageAnalyzer                  
 NC4008  | Usage    | Error    | BigIntegerCreationAnalyzer                 
 NC4009  | Usage    | Info     | InitialValueAnalyzer                       
-NC4010  | Usage    | Warning  | RefKeywordUsageAnalyzer                    
+NC4010 | Usage | Disabled | RefKeywordUsageAnalyzer
 NC4011  | Usage    | Error    | LinqUsageAnalyzer                          
-NC4012  | Method   | Error    | CharMethodsUsageAnalyzer                   
+NC4012  | Method   | Disabled | CharMethodsUsageAnalyzer                   
 NC4013  | Type     | Error    | CollectionTypesUsageAnalyzer               
 NC4014  | Usage    | Warning  | VolatileKeywordUsageAnalyzer               
 NC4015  | Usage    | Error    | KeywordUsageAnalyzer                       

@@ -26,9 +26,9 @@ namespace Neo.SmartContract.Analyzer
         private readonly string[] _unsupportedCharMethods = {
             "CompareTo", "Equals", "GetHashCode",
             "GetType", "GetTypeCode",
-            "IsNumber", "IsSeparator", "Parse",
+            "IsNumber", "IsSeparator",
             "ToLowerInvariant",
-            "ToUpperInvariant", "TryParse",
+            "ToUpperInvariant",
             "ConvertFromUtf32", "ConvertToUtf32",
             "GetUnicodeCategory",
             "IsSurrogatePair"
@@ -39,8 +39,8 @@ namespace Neo.SmartContract.Analyzer
             "Unsupported Char method is used",
             "Unsupported Char method: {0}",
             "Method",
-            DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
+            DiagnosticSeverity.Hidden,
+            isEnabledByDefault: false);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
             ImmutableArray.Create(Rule);

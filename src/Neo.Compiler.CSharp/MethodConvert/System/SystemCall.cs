@@ -294,6 +294,51 @@ internal partial class MethodConvert
             return true;
         }
 
+        if (symbol.ContainingType.SpecialType == SpecialType.System_Enum)
+        {
+            if (symbol.IsGenericMethod && symbol.Name == "Parse")
+            {
+                if (symbol.Parameters.Length == 1)
+                    HandleEnumParseGeneric(this, model, symbol, instanceExpression, arguments);
+                else
+                    HandleEnumParseGenericIgnoreCase(this, model, symbol, instanceExpression, arguments);
+                return true;
+            }
+
+            if (symbol.IsGenericMethod && symbol.Name == "TryParse")
+            {
+                if (symbol.Parameters.Length == 2)
+                    HandleEnumTryParseGeneric(this, model, symbol, instanceExpression, arguments);
+                else
+                    HandleEnumTryParseGenericIgnoreCase(this, model, symbol, instanceExpression, arguments);
+                return true;
+            }
+
+            if (symbol.IsGenericMethod && symbol.Name == "GetValues")
+            {
+                HandleEnumGetValuesGeneric(this, model, symbol, instanceExpression, arguments);
+                return true;
+            }
+
+            if (symbol.IsGenericMethod && symbol.Name == "GetNames")
+            {
+                HandleEnumGetNamesGeneric(this, model, symbol, instanceExpression, arguments);
+                return true;
+            }
+
+            if (symbol.Name == "HasFlag" && symbol.Parameters.Length == 1)
+            {
+                HandleEnumHasFlag(this, model, symbol, instanceExpression, arguments);
+                return true;
+            }
+
+            if (symbol.Name == "ToString" && symbol.Parameters.Length == 0 && instanceExpression is not null)
+            {
+                HandleEnumToString(this, model, symbol, instanceExpression, arguments);
+                return true;
+            }
+        }
+
         var key = symbol.ToString()!.Replace("out ", "");
         key = (from parameter in symbol.Parameters let parameterType = parameter.Type.ToString() where !parameter.Type.IsValueType && parameterType!.EndsWith('?') select parameterType).Aggregate(key, (current, parameterType) => current.Replace(parameterType, parameterType[..^1]));
         if (key == "string.ToString()") key = "object.ToString()";

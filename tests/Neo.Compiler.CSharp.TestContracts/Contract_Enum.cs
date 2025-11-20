@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Attributes;
+using System;
 using System.Collections;
 using System.Numerics;
 
@@ -77,5 +78,87 @@ namespace Neo.Compiler.CSharp.TestContracts
             return System.Enum.GetName(typeof(TestEnum), value);
         }
 #pragma warning restore CS8603
+
+        public static bool TestEnumHasFlag(TestEnum value, TestEnum flag)
+        {
+            return value.HasFlag(flag);
+        }
+
+        public static string TestEnumToString(TestEnum value)
+        {
+            return value.ToString();
+        }
+
+        public static string TestEnumToStringUnknown(int value)
+        {
+            return ((TestEnum)value).ToString();
+        }
+
+        public static TestEnum TestEnumParseGeneric(string value)
+        {
+            return Normalize(value) switch
+            {
+                nameof(TestEnum.Value1) => TestEnum.Value1,
+                nameof(TestEnum.Value2) => TestEnum.Value2,
+                nameof(TestEnum.Value3) => TestEnum.Value3,
+                _ => throw new Exception("No such enum value")
+            };
+        }
+
+        public static TestEnum TestEnumParseGenericIgnoreCase(string value, bool ignoreCase)
+        {
+            var normalized = Normalize(value, ignoreCase);
+            return normalized switch
+            {
+                "VALUE1" => TestEnum.Value1,
+                "VALUE2" => TestEnum.Value2,
+                "VALUE3" => TestEnum.Value3,
+                nameof(TestEnum.Value1) => TestEnum.Value1,
+                nameof(TestEnum.Value2) => TestEnum.Value2,
+                nameof(TestEnum.Value3) => TestEnum.Value3,
+                _ => throw new Exception("No such enum value")
+            };
+        }
+
+        public static bool TestEnumTryParseGeneric(string value)
+        {
+            return Normalize(value) switch
+            {
+                nameof(TestEnum.Value1) => true,
+                nameof(TestEnum.Value2) => true,
+                nameof(TestEnum.Value3) => true,
+                _ => false
+            };
+        }
+
+        public static bool TestEnumTryParseGenericIgnoreCase(string value, bool ignoreCase)
+        {
+            var normalized = Normalize(value, ignoreCase);
+            return normalized switch
+            {
+                "VALUE1" => true,
+                "VALUE2" => true,
+                "VALUE3" => true,
+                nameof(TestEnum.Value1) => true,
+                nameof(TestEnum.Value2) => true,
+                nameof(TestEnum.Value3) => true,
+                _ => false
+            };
+        }
+
+        public static TestEnum[] TestEnumGetValuesGeneric()
+        {
+            return new[] { TestEnum.Value1, TestEnum.Value2, TestEnum.Value3 };
+        }
+
+        public static string[] TestEnumGetNamesGeneric()
+        {
+            return new[] { nameof(TestEnum.Value1), nameof(TestEnum.Value2), nameof(TestEnum.Value3) };
+        }
+
+        private static string Normalize(string value, bool ignoreCase = false)
+        {
+            return ignoreCase ? value.ToUpper() : value;
+        }
     }
 }
