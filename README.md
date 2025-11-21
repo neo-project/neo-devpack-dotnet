@@ -366,9 +366,9 @@ var artifactsResult = await deployment.DeployArtifactsAsync(
 
 Console.WriteLine($"Tx: {artifactsResult.TransactionHash}");
 Console.WriteLine($"Expected Contract Hash: {artifactsResult.ContractHash}");
+```
 
 Example app: See `examples/DeploymentArtifactsDemo` for a minimal console that deploys from NEF + manifest and performs read-only calls.
-```
 
 ```csharp
 var request = new DeploymentArtifactsRequest("MyContract.nef", "MyContract.manifest.json")
@@ -532,15 +532,11 @@ Create an `appsettings.json` file for configuration:
         "Wif": ""
       }
     }
-  },
-  "Deployment": {
-    "GasLimit": 100000000,
-    "WaitForConfirmation": true
   }
 }
 ```
 
-Entries under `Network:Networks` let you preconfigure RPC URLs, network magic numbers, address versions, and per-network signing keys. When a `Wif` is provided the toolkit automatically loads it as soon as you switch to that network, while still allowing runtime overrides via `SetWifKey`, environment variables, or CLI prompts.
+Entries under `Network:Networks` let you preconfigure RPC URLs, network magic numbers, address versions, and per-network signing keys. When a `Wif` is provided the toolkit automatically loads it as soon as you switch to that network, while still allowing runtime overrides via `SetWifKey`, environment variables, or CLI prompts. Runtime deployment behaviours (e.g., confirmation polling, signer selection) are configured via `DeploymentOptions` in code.
 
 ## Documentation
 

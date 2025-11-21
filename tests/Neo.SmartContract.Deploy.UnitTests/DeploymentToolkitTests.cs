@@ -994,6 +994,46 @@ public class DeploymentToolkitTests : TestBase
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(() => toolkit.DeployFromManifestAsync(manifestPath));
+            Assert.Empty(toolkit.Calls);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public async Task DeployFromManifestAsync_ShouldRejectDuplicateArtifactsWithDistinctNames()
+    {
+        // Arrange
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        try
+        {
+            var nef = Path.Combine(tempDir, "Shared.nef");
+            var manifest = Path.Combine(tempDir, "Shared.manifest.json");
+            File.WriteAllText(nef, string.Empty);
+            File.WriteAllText(manifest, "{}");
+
+            var manifestPath = Path.Combine(tempDir, "deployment.json");
+            var manifestContent = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                wif = ValidWif,
+                contracts = new object?[]
+                {
+                    new { name = "First", nef = Path.GetFileName(nef), manifest = Path.GetFileName(manifest) },
+                    new { name = "Second", nef = Path.GetFileName(nef), manifest = Path.GetFileName(manifest) }
+                }
+            });
+            File.WriteAllText(manifestPath, manifestContent);
+
+            var toolkit = new TestDeploymentToolkit();
+            toolkit.SetWifKey(ValidWif);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => toolkit.DeployFromManifestAsync(manifestPath));
+            Assert.Empty(toolkit.Calls);
         }
         finally
         {
