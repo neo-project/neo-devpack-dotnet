@@ -20,6 +20,15 @@ public partial class DeploymentToolkit
     /// </summary>
     /// <param name="manifestPath">Path to the deployment manifest JSON file</param>
     /// <returns>Dictionary of contract names to deployment information</returns>
+    /// <example>
+    /// <code>
+    /// var deployments = await toolkit.DeployFromManifestAsync("deployment.json");
+    /// foreach (var (name, info) in deployments)
+    /// {
+    ///     Console.WriteLine($"{name}: {info.ContractHash}");
+    /// }
+    /// </code>
+    /// </example>
     public async Task<Dictionary<string, ContractDeploymentInfo>> DeployFromManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         EnsureNotDisposed();

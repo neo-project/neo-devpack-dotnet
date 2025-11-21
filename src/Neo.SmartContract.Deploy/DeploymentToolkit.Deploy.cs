@@ -31,6 +31,14 @@ public partial class DeploymentToolkit
     /// <param name="targetContract">Optional contract name when the project builds multiple contracts.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Deployment information.</returns>
+    /// <example>
+    /// <code>
+    /// using var toolkit = new DeploymentToolkit()
+    ///     .SetNetwork("testnet")
+    ///     .SetWifKey("<wif>");
+    /// var deployment = await toolkit.DeployAsync("Contracts/MyContract.csproj", new object?[] { "owner", 1000 });
+    /// </code>
+    /// </example>
     public virtual async Task<ContractDeploymentInfo> DeployAsync(
         string path,
         object?[]? initParams = null,
@@ -90,6 +98,14 @@ public partial class DeploymentToolkit
     /// <param name="manifestPath">Path to manifest file</param>
     /// <param name="initParams">Optional initialization parameters</param>
     /// <returns>Deployment information</returns>
+    /// <example>
+    /// <code>
+    /// var request = new DeploymentArtifactsRequest("Token.nef", "Token.manifest.json")
+    ///     .WithInitParams("admin", 10_000);
+    /// using var toolkit = new DeploymentToolkit().SetNetwork("local").SetWifKey("<wif>");
+    /// var result = await toolkit.DeployArtifactsAsync(request);
+    /// </code>
+    /// </example>
     public virtual Task<ContractDeploymentInfo> DeployArtifactsAsync(
         DeploymentArtifactsRequest request,
         CancellationToken cancellationToken = default)
@@ -108,6 +124,24 @@ public partial class DeploymentToolkit
             request.TransactionSignerAsync);
     }
 
+    /// <summary>
+    /// Deploy a pre-compiled contract from NEF and manifest files with customization options.
+    /// </summary>
+    /// <param name="nefPath">Path to NEF file.</param>
+    /// <param name="manifestPath">Path to manifest file.</param>
+    /// <param name="initParams">Optional initialization parameters.</param>
+    /// <param name="waitForConfirmation">Whether to poll for confirmation after submission.</param>
+    /// <param name="confirmationRetries">Number of confirmation polls.</param>
+    /// <param name="confirmationDelaySeconds">Delay between confirmation polls (seconds).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <param name="signers">Optional signers.</param>
+    /// <param name="transactionSignerAsync">Custom transaction signer.</param>
+    /// <example>
+    /// <code>
+    /// using var toolkit = new DeploymentToolkit().SetNetwork("http://localhost:50012").SetWifKey("<wif>");
+    /// var info = await toolkit.DeployArtifactsAsync("My.nef", "My.manifest.json", new object?[] { "owner" }, waitForConfirmation: true);
+    /// </code>
+    /// </example>
     public virtual Task<ContractDeploymentInfo> DeployArtifactsAsync(
         string nefPath,
         string manifestPath,
