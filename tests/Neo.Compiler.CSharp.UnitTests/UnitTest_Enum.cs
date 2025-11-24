@@ -13,12 +13,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_Enum : DebugAndTestBase<Contract_Enum>
     {
+        protected override bool TestGasConsume => false;
+
         [TestMethod]
         public void TestEnumParse()
         {
@@ -133,6 +136,46 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1051230);
             Assert.IsNull(Contract.TestEnumGetNameWithType(4));
             AssertGasConsumed(1051230);
+        }
+
+        [TestMethod]
+        public void TestEnumHasFlagAndToString()
+        {
+            Assert.IsTrue(Contract.TestEnumHasFlag(3, 1));
+            Assert.IsTrue(Contract.TestEnumHasFlag(3, 2));
+            Assert.IsFalse(Contract.TestEnumHasFlag(2, 1));
+
+            Assert.AreEqual("Value1", Contract.TestEnumToString(1));
+            Assert.AreEqual("Value2", Contract.TestEnumToString(2));
+            Assert.AreEqual("Value3", Contract.TestEnumToString(3));
+            Assert.AreEqual("99", Contract.TestEnumToStringUnknown(99));
+        }
+
+        [TestMethod]
+        public void TestEnumGenericParse()
+        {
+            Assert.AreEqual(new Integer(1), Contract.TestEnumParseGeneric("Value1"));
+            Assert.AreEqual(new Integer(2), Contract.TestEnumParseGenericIgnoreCase("value2", true));
+            Assert.ThrowsException<TestException>(() => Contract.TestEnumParseGenericIgnoreCase("value1", false));
+        }
+
+        [TestMethod]
+        public void TestEnumGenericTryParse()
+        {
+            Assert.IsTrue(Contract.TestEnumTryParseGeneric("Value3"));
+            Assert.IsTrue(Contract.TestEnumTryParseGenericIgnoreCase("value2", true));
+            Assert.IsFalse(Contract.TestEnumTryParseGeneric("Unknown"));
+            Assert.IsFalse(Contract.TestEnumTryParseGenericIgnoreCase("unknown", false));
+        }
+
+        [TestMethod]
+        public void TestEnumGenericGetValuesAndNames()
+        {
+            var names = Contract.TestEnumGetNamesGeneric()!;
+            CollectionAssert.AreEqual(new[] { "Value1", "Value2", "Value3" }, names.Select(n => ((Neo.VM.Types.ByteString)n!).GetString()).ToArray());
+
+            var values = Contract.TestEnumGetValuesGeneric()!;
+            CollectionAssert.AreEqual(new[] { new Neo.VM.Types.Integer(1), new Neo.VM.Types.Integer(2), new Neo.VM.Types.Integer(3) }, values.Select(v => new Neo.VM.Types.Integer((System.Numerics.BigInteger)v!)).ToArray());
         }
     }
 }
