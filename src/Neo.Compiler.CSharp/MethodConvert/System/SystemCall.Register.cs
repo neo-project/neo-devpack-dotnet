@@ -504,6 +504,11 @@ internal partial class MethodConvert
         RegisterHandler((char c) => char.IsAscii(c), HandleCharIsAscii);
         RegisterHandler((char c) => char.IsAsciiDigit(c), HandleCharIsAsciiDigit);
         RegisterHandler((char c) => char.IsAsciiLetter(c), HandleCharIsAsciiLetter);
+        RegisterHandler((string s) => char.Parse(s), HandleCharParse);
+
+#pragma warning disable CS8625
+        RegisterHandler((string? value, char result) => char.TryParse(value, out result), HandleCharTryParseWithOut);
+#pragma warning restore CS8625
     }
 
     private static void RegisterNullableTypeHandlers()
@@ -637,6 +642,8 @@ internal partial class MethodConvert
         RegisterHandler((Type enumType, string name) => Enum.IsDefined(enumType, name), HandleEnumIsDefinedByName);
         RegisterHandler((Enum value) => Enum.GetName(value.GetType(), value), HandleEnumGetName, "System.Enum.GetName<>()");
         RegisterHandler((Type enumType, object value) => Enum.GetName(enumType, value), HandleEnumGetNameWithType, "System.Enum.GetName()");
+        RegisterHandler((Enum value) => value.ToString(), HandleEnumToString, "System.Enum.ToString()");
+        RegisterHandler((Enum value, Enum flag) => value.HasFlag(flag), HandleEnumHasFlag, "System.Enum.HasFlag(System.Enum)");
 
         // these two methods will not be supported, since we cannot apply format logic.
         // RegisterHandler((Enum value) => Enum.Format(value.GetType(), value, "G"), HandleEnumFormat);

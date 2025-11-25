@@ -15,6 +15,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Neo.SmartContract.Native;
 using Neo.VM;
 
 namespace Neo.Compiler;
@@ -34,6 +35,14 @@ internal partial class MethodConvert
         if (metadata is null)
             throw new CompilationException(symbol, DiagnosticId.InvalidArgument, $"Unexpected symbol location metadata module for {symbolInfo}");
         return metadata;
+    }
+
+    private static IFieldSymbol[] GetEnumFields(INamedTypeSymbol enumTypeSymbol)
+    {
+        return enumTypeSymbol.GetMembers()
+            .OfType<IFieldSymbol>()
+            .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false })
+            .ToArray();
     }
 
     /// <summary>
@@ -759,5 +768,304 @@ internal partial class MethodConvert
         methodConvert.Drop();
         methodConvert.Drop();                                      // Remove the duplicated value
         methodConvert.Push(false);
+    }
+
+    private static INamedTypeSymbol EnsureEnumTypeArgument(IMethodSymbol symbol, int index, SyntaxNode? errorNode)
+    {
+        if (symbol.TypeArguments.Length <= index) throw new CompilationException(symbol, DiagnosticId.InvalidType, "Generic enum operation requires an enum type argument.");
+        if (symbol.TypeArguments[index] is not INamedTypeSymbol enumType)
+            throw new CompilationException(symbol, DiagnosticId.InvalidType, "Generic enum operation requires an enum type argument.");
+        if (enumType.TypeKind != TypeKind.Enum)
+        {
+            if (errorNode is not null)
+                throw new CompilationException(errorNode, DiagnosticId.InvalidType, "Type argument must be an enum.");
+            throw new CompilationException(symbol, DiagnosticId.InvalidType, "Type argument must be an enum.");
+        }
+        return enumType;
+    }
+
+    private static void HandleEnumToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is null)
+            throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Enum.ToString requires an instance.");
+
+        methodConvert.ConvertExpression(model, instanceExpression);
+        var enumType = model.GetTypeInfo(instanceExpression).Type as INamedTypeSymbol
+                       ?? throw new CompilationException(symbol, DiagnosticId.InvalidType, "Unable to determine enum type for ToString.");
+        if (enumType.TypeKind != TypeKind.Enum)
+            throw new CompilationException(symbol, DiagnosticId.InvalidType, "Enum.ToString is only supported on enum values.");
+
+        var enumMembers = GetEnumFields(enumType);
+
+        foreach (var member in enumMembers)
+        {
+            methodConvert.Dup();
+            methodConvert.Push(member.ConstantValue);
+            methodConvert.Equal();
+
+            var next = new JumpTarget();
+            methodConvert.JumpIfFalse(next);
+            methodConvert.Drop();
+            methodConvert.Push(member.Name);
+            methodConvert.Ret();
+            next.Instruction = methodConvert.Nop();
+        }
+
+        // Fallback to numeric representation
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+    }
+
+    private static void HandleEnumHasFlag(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (instanceExpression is null)
+            throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Enum.HasFlag requires an instance.");
+
+        methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        // Stack: [value, flag]
+        byte flagSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, flagSlot); // store flag, keep value on stack
+        methodConvert.AccessSlot(OpCode.LDLOC, flagSlot);
+        methodConvert.And();
+        methodConvert.AccessSlot(OpCode.LDLOC, flagSlot);
+        methodConvert.Equal();
+    }
+
+    private static void HandleEnumParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
+        var members = GetEnumFields(enumType);
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        byte resultSlot = methodConvert.AddAnonymousVariable();
+        JumpTarget success = new();
+
+        foreach (var member in members)
+        {
+            methodConvert.Dup();
+            methodConvert.Push(member.Name);
+            methodConvert.Equal();
+
+            JumpTarget next = new();
+            methodConvert.JumpIfFalse(next);
+            methodConvert.Drop();
+            methodConvert.Push(member.ConstantValue);
+            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+            methodConvert.JumpAlways(success);
+            next.Instruction = methodConvert.Nop();
+        }
+
+        methodConvert.Drop();
+        methodConvert.Push("No such enum value");
+        methodConvert.Throw();
+
+        success.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        methodConvert.Ret();
+    }
+
+    private static void HandleEnumParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
+        var members = GetEnumFields(enumType);
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        byte resultSlot = methodConvert.AddAnonymousVariable();
+        JumpTarget success = new();
+        byte ignoreSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot); // store bool, keep input string
+
+        JumpTarget skipUpper = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+        methodConvert.JumpIfFalse(skipUpper);
+        ConvertToUpper(methodConvert);
+        skipUpper.Instruction = methodConvert.Nop();
+
+        foreach (var member in members)
+        {
+            methodConvert.Dup();
+            JumpTarget lowerCaseName = new();
+            JumpTarget endChoose = new();
+            methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+            methodConvert.JumpIfFalse(lowerCaseName);
+            methodConvert.Push(member.Name.ToUpper());
+            methodConvert.Jump(endChoose);
+            lowerCaseName.Instruction = methodConvert.Nop();
+            methodConvert.Push(member.Name);
+            endChoose.Instruction = methodConvert.Nop();
+
+            methodConvert.Equal();
+            var next = new JumpTarget();
+            methodConvert.JumpIfFalse(next);
+            methodConvert.Drop();
+            methodConvert.Push(member.ConstantValue);
+            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+            methodConvert.JumpAlways(success);
+            next.Instruction = methodConvert.Nop();
+        }
+
+        methodConvert.Drop();
+        methodConvert.Push("No such enum value");
+        methodConvert.Throw();
+
+        success.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        methodConvert.Ret();
+    }
+
+    private static void HandleEnumTryParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
+        var members = GetEnumFields(enumType);
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index))
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+
+        methodConvert.Drop(); // drop out-parameter placeholder
+
+        byte resultSlot = methodConvert.AddAnonymousVariable();
+        byte successSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.Push(0);
+        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+        methodConvert.Push(false);
+        methodConvert.AccessSlot(OpCode.STLOC, successSlot);
+
+        foreach (var member in members)
+        {
+            methodConvert.Dup();
+            methodConvert.Push(member.Name);
+            methodConvert.Equal();
+
+            var next = new JumpTarget();
+            methodConvert.JumpIfFalse(next);
+            methodConvert.Drop();
+            methodConvert.Push(member.ConstantValue);
+            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+            methodConvert.Push(true);
+            methodConvert.AccessSlot(OpCode.STLOC, successSlot);
+            JumpTarget end = new();
+            methodConvert.JumpAlways(end);
+            end.Instruction = methodConvert.Nop();
+            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+            methodConvert.AccessSlot(OpCode.STSFLD, index);
+            methodConvert.AccessSlot(OpCode.LDLOC, successSlot);
+            methodConvert.Ret();
+            next.Instruction = methodConvert.Nop();
+        }
+
+        methodConvert.Drop();
+        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        methodConvert.AccessSlot(OpCode.STSFLD, index);
+        methodConvert.AccessSlot(OpCode.LDLOC, successSlot);
+        methodConvert.Ret();
+    }
+
+    private static void HandleEnumTryParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
+        var members = GetEnumFields(enumType);
+
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[2], out var index))
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+
+        methodConvert.Drop(); // drop out-parameter placeholder
+
+        byte resultSlot = methodConvert.AddAnonymousVariable();
+        byte successSlot = methodConvert.AddAnonymousVariable();
+        byte ignoreSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, ignoreSlot); // store bool, keep input string
+
+        methodConvert.Push(0);
+        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+        methodConvert.Push(false);
+        methodConvert.AccessSlot(OpCode.STLOC, successSlot);
+
+        JumpTarget skipUpper = new();
+        methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+        methodConvert.JumpIfFalse(skipUpper);
+        ConvertToUpper(methodConvert);
+        skipUpper.Instruction = methodConvert.Nop();
+
+        foreach (var member in members)
+        {
+            methodConvert.Dup();
+            JumpTarget lowerCaseName = new();
+            JumpTarget endChoose = new();
+            methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
+            methodConvert.JumpIfFalse(lowerCaseName);
+            methodConvert.Push(member.Name.ToUpper());
+            methodConvert.Jump(endChoose);
+            lowerCaseName.Instruction = methodConvert.Nop();
+            methodConvert.Push(member.Name);
+            endChoose.Instruction = methodConvert.Nop();
+
+            methodConvert.Equal();
+            var next = new JumpTarget();
+            methodConvert.JumpIfFalse(next);
+            methodConvert.Drop();
+            methodConvert.Push(member.ConstantValue);
+            methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+            methodConvert.Push(true);
+            methodConvert.AccessSlot(OpCode.STLOC, successSlot);
+            JumpTarget end = new();
+            methodConvert.JumpAlways(end);
+            end.Instruction = methodConvert.Nop();
+            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+            methodConvert.AccessSlot(OpCode.STSFLD, index);
+            methodConvert.AccessSlot(OpCode.LDLOC, successSlot);
+            methodConvert.Ret();
+            next.Instruction = methodConvert.Nop();
+        }
+
+        methodConvert.Drop();
+        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        methodConvert.AccessSlot(OpCode.STSFLD, index);
+        methodConvert.AccessSlot(OpCode.LDLOC, successSlot);
+        methodConvert.Ret();
+    }
+
+    private static void HandleEnumGetValuesGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
+        var members = GetEnumFields(enumType);
+
+        foreach (var member in members.Reverse())
+            methodConvert.Push(member.ConstantValue);
+
+        methodConvert.Pack(members.Length);
+        methodConvert.Ret();
+    }
+
+    private static void HandleEnumGetNamesGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
+        var members = GetEnumFields(enumType);
+
+        foreach (var member in members.Reverse())
+            methodConvert.Push(member.Name);
+
+        methodConvert.Pack(members.Length);
+        methodConvert.Ret();
     }
 }

@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract.Native;
@@ -33,14 +34,69 @@ internal partial class MethodConvert
     private static void HandleCharParse(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+
+        // Ensure the input is a single-character string
+        methodConvert.Dup();
+        methodConvert.IsNull();
+        JumpTarget notNull = new();
+        methodConvert.JumpIfFalse(notNull);
+        methodConvert.Throw();
+        notNull.Instruction = methodConvert.Nop();
+
+        methodConvert.Dup();
+        methodConvert.Size();
+        methodConvert.Push(1);
+        methodConvert.NumEqual();
+        JumpTarget sizeOk = new();
+        methodConvert.JumpIfTrue(sizeOk);
+        methodConvert.Throw();
+        sizeOk.Instruction = methodConvert.Nop();
+
+        // Extract the first byte
+        methodConvert.Push(0);
+        methodConvert.PickItem();
+    }
+
+    private static void HandleCharTryParseWithOut(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (arguments is null) return;
+        methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index))
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
+
+        JumpTarget failTarget = new();
         JumpTarget endTarget = new();
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-        methodConvert.Dup();                                       // Duplicate result for range check
-        methodConvert.Within(char.MinValue, char.MaxValue);        // Check if value is within char range
-        methodConvert.JumpIfTrue(endTarget);               // Jump if within range
-        methodConvert.Throw();                                     // Throw if out of range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+
+        // Drop the captured static field placeholder, keep the input string on stack
+        methodConvert.Swap();
+        methodConvert.Drop();
+
+        // null -> false
+        methodConvert.Dup();
+        methodConvert.IsNull();
+        methodConvert.JumpIfTrueLong(failTarget);
+
+        // length must be exactly 1
+        methodConvert.Dup();
+        methodConvert.Size();
+        methodConvert.Push(1);
+        methodConvert.NumEqual();
+        methodConvert.JumpIfFalseLong(failTarget);
+
+        // take the first byte as the resulting char
+        methodConvert.Push(0);
+        methodConvert.PickItem();
+        methodConvert.AccessSlot(OpCode.STSFLD, index);
+        methodConvert.Push(true);
+        methodConvert.JumpAlwaysLong(endTarget);
+
+        failTarget.Instruction = methodConvert.Drop();
+        methodConvert.Push(0);
+        methodConvert.AccessSlot(OpCode.STSFLD, index);
+        methodConvert.Push(false);
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     /// <summary>

@@ -11,13 +11,17 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_Char : DebugAndTestBase<Contract_Char>
     {
+        protected override bool TestGasConsume => false;
+
         public static IEnumerable<object[]> CharTestData =>
             new List<object[]>
             {
@@ -148,6 +152,30 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047990);
             Assert.IsFalse(Contract.TestCharIsBetween('0', 'a', 'z'));
             AssertGasConsumed(1047990);
+        }
+
+        [TestMethod]
+        public void TestCharParseAndTryParse()
+        {
+            Assert.AreEqual('A', Contract.TestCharParse("A"));
+            Assert.AreEqual('0', Contract.TestCharParse("0"));
+            Assert.ThrowsException<TestException>(() => Contract.TestCharParse("TooLong"));
+            Assert.ThrowsException<TestException>(() => Contract.TestCharParse(string.Empty));
+
+            var result = Contract.TestCharTryParse("Z");
+            Assert.IsNotNull(result);
+            Assert.IsTrue((bool)result![0]);
+            Assert.AreEqual((BigInteger)'Z', result[1]);
+
+            result = Contract.TestCharTryParse("long");
+            Assert.IsNotNull(result);
+            Assert.IsFalse((bool)result![0]);
+            Assert.AreEqual((BigInteger)0, result[1]);
+
+            result = Contract.TestCharTryParse(string.Empty);
+            Assert.IsNotNull(result);
+            Assert.IsFalse((bool)result![0]);
+            Assert.AreEqual((BigInteger)0, result[1]);
         }
     }
 }

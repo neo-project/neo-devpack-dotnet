@@ -92,4 +92,15 @@ public class Contract_Char : SmartContract.Framework.SmartContract
     {
         return char.IsBetween(c, lower, upper);
     }
+
+    public static char TestCharParse(string value)
+    {
+        return char.Parse(value);
+    }
+
+    public static (bool, char) TestCharTryParse(string value)
+    {
+        bool success = char.TryParse(value, out char result);
+        return (success, result);
+    }
 }
