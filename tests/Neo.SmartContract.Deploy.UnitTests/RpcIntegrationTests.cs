@@ -27,8 +27,9 @@ public class RpcIntegrationTests
     {
         // Arrange
         var version = CreateVersionModel(TESTNET_MAGIC);
+        using var httpClient = new HttpClient(new JsonRpcMessageHandler(version.ToJson()));
         using var rpcClient = new RpcClient(
-            new HttpClient(new JsonRpcMessageHandler(version.ToJson())),
+            httpClient,
             new Uri(NEO_TESTNET_URL),
             ProtocolSettings.Default);
 
