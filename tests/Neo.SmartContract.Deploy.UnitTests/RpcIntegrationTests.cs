@@ -63,8 +63,9 @@ public class RpcIntegrationTests
     {
         // Arrange
         var version = CreateVersionModel(expectedMagic);
+        using var httpClient = new HttpClient(new JsonRpcMessageHandler(version.ToJson()));
         using var rpcClient = new RpcClient(
-            new HttpClient(new JsonRpcMessageHandler(version.ToJson())),
+            httpClient,
             new Uri(rpcUrl),
             ProtocolSettings.Default);
 
