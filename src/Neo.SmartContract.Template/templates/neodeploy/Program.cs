@@ -299,7 +299,7 @@ internal sealed class Program
 internal sealed class DeploySettings
 {
     [System.Text.Json.Serialization.JsonIgnore]
-    private string _baseDirectory = Directory.GetCurrentDirectory();
+    private readonly string _baseDirectory = Directory.GetCurrentDirectory();
 
     public ArtifactSettings Artifacts { get; set; } = new();
     public string DefaultNetwork { get; set; } = "express";
