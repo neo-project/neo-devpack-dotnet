@@ -57,6 +57,18 @@ public abstract class Policy(SmartContractInitialize initialize) : SmartContract
     [DisplayName("isBlocked")]
     public abstract bool IsBlocked(UInt160 account);
 
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("getMaxValidUntilBlockIncrement")]
+    public abstract uint GetMaxValidUntilBlockIncrement();
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("getMaxTraceableBlocks")]
+    public abstract uint GetMaxTraceableBlocks();
+
     #endregion
 
     #region Unsafe methods

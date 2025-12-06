@@ -12,6 +12,7 @@
 #pragma warning disable CS0626
 
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework;
 
 namespace Neo.SmartContract.Framework.Native
 {
@@ -26,5 +27,14 @@ namespace Neo.SmartContract.Framework.Native
         public static extern bool IsBlocked(UInt160 account);
         public static extern uint GetAttributeFee(TransactionAttributeType attributeType);
         public static extern void SetAttributeFee(TransactionAttributeType attributeType, uint value);
+        public static extern void SetFeePerByte(long value);
+        public static extern void SetExecFeeFactor(uint value);
+        public static extern void SetStoragePrice(uint value);
+        public static extern bool BlockAccount(UInt160 account);
+        public static extern bool UnblockAccount(UInt160 account);
+        public static extern uint GetMaxValidUntilBlockIncrement();
+        public static extern void SetMaxValidUntilBlockIncrement(uint value);
+        public static extern uint GetMaxTraceableBlocks();
+        public static extern void SetMaxTraceableBlocks(uint value);
     }
 }

@@ -10,12 +10,14 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo;
 using Neo.Cryptography.ECC;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM.Types;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
 {
@@ -56,6 +58,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             Assert.AreEqual(1000L, Contract.Policy_GetFeePerByte());
             Assert.IsFalse(Contract.Policy_IsBlocked(Alice.Account));
+            var maxValidUntilBlockIncrement = Engine.Native.Policy.GetMaxValidUntilBlockIncrement();
+            var maxTraceableBlocks = Engine.Native.Policy.GetMaxTraceableBlocks();
+            Assert.AreEqual((BigInteger)maxValidUntilBlockIncrement, Contract.Policy_GetMaxValidUntilBlockIncrement()!.Value);
+            Assert.AreEqual((BigInteger)maxTraceableBlocks, Contract.Policy_GetMaxTraceableBlocks()!.Value);
         }
     }
 }
