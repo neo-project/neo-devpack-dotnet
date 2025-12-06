@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Nullable>enable</Nullable>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyTitle>Neo.SmartContract.Framework</AssemblyTitle>
     <AssemblyName>Neo.SmartContract.Framework</AssemblyName>

@@ -52,6 +52,22 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/member-access-operators#null-conditional-operators--and-">Null-conditional operators ?. and ?[]</seealso>
     private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
     {
+        if (expression.WhenNotNull is AssignmentExpressionSyntax assignment &&
+            assignment.Kind() == SyntaxKind.SimpleAssignmentExpression)
+        {
+            // Assignment targets must be handled by a single lowering routine so every ?. hop
+            // shares the same guarded receiver/value bookkeeping. We materialize the RHS once,
+            // stash it in a temp slot, and let the assignment helper drive the entire chain.
+            ITypeSymbol assignedType = model.GetTypeInfo(assignment).Type
+                ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
+            ConvertExpression(model, assignment.Right);
+            byte valueSlot = AddAnonymousVariable();
+            AccessSlot(OpCode.STLOC, valueSlot);
+            ConvertConditionalAccessAssignment(model, expression, assignment, valueSlot, assignedType);
+            RemoveAnonymousVariable(valueSlot);
+            return;
+        }
+
         ITypeSymbol type = model.GetTypeInfo(expression).Type!;
         JumpTarget nullTarget = new();
         ConvertExpression(model, expression.Expression);

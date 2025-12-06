@@ -47,6 +47,7 @@ internal partial class MethodConvert
     private void ConvertIdentifierNameExpression(SemanticModel model, IdentifierNameSyntax expression)
     {
         ISymbol symbol = model.GetSymbolInfo(expression).Symbol!;
+        // Temporary debug
         switch (symbol)
         {
             case IFieldSymbol field:

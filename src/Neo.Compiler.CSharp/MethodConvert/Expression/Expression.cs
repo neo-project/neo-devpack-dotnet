@@ -118,6 +118,10 @@ internal partial class MethodConvert
                 // Example: obj?[0]
                 ConvertElementBindingExpression(model, expression);
                 break;
+            case FieldExpressionSyntax expression:
+                // Example: field (auto-property backing field access)
+                ConvertFieldExpression(model, expression);
+                break;
             case IdentifierNameSyntax expression:
                 // Example: myVariable
                 ConvertIdentifierNameExpression(model, expression);

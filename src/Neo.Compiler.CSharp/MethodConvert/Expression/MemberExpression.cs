@@ -90,6 +90,26 @@ internal partial class MethodConvert
         }
     }
 
+    private void ConvertFieldExpression(SemanticModel model, FieldExpressionSyntax expression)
+    {
+        if (model.GetSymbolInfo(expression).Symbol is not IFieldSymbol fieldSymbol)
+        {
+            throw CompilationException.UnsupportedSyntax(expression, "Field expressions must resolve to a compiler-generated backing field.");
+        }
+
+        if (fieldSymbol.IsStatic)
+        {
+            byte index = _context.AddStaticField(fieldSymbol);
+            AccessSlot(OpCode.LDSFLD, index);
+            return;
+        }
+
+        int fieldIndex = Array.IndexOf(fieldSymbol.ContainingType.GetFields(), fieldSymbol);
+        AccessSlot(OpCode.LDARG, 0);
+        Push(fieldIndex);
+        AddInstruction(OpCode.PICKITEM);
+    }
+
     /// <summary>
     /// Further conversion of the ?. statement in the <see cref="ConvertConditionalAccessExpression"/> method
     /// </summary>

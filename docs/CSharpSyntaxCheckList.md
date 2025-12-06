@@ -17,6 +17,7 @@ The syntax checklist has been reorganized into C# version specific documents. Ea
 - [C# 11](csharp-syntax/csharp-11.md)
 - [C# 12](csharp-syntax/csharp-12.md)
 - [C# 13](csharp-syntax/csharp-13.md)
+- [C# 14](csharp-syntax/csharp-14.md)
 
 ## How the probes work
 
@@ -30,5 +31,6 @@ To add new syntax coverage:
 
 1. Append a new section to the relevant version file following the established format.
 2. Update `docs/csharp-syntax/UnsupportedFeatures.md` so every unsupported entry remains listed.
-3. Run `dotnet test tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj --filter "ClassName=Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests"` to verify the probe results.
+3. Run the probe suite via\
+   `dotnet test tests/Neo.Compiler.CSharp.UnitTests/Neo.Compiler.CSharp.UnitTests.csproj --filter "ClassName=Neo.Compiler.CSharp.UnitTests.Syntax.SyntaxTests"`.
 4. Update the release notes or documentation as needed.

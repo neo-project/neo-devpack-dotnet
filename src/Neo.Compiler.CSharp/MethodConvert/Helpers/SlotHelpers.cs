@@ -62,6 +62,8 @@ internal partial class MethodConvert
 
     private void RemoveLocalVariable(ILocalSymbol symbol)
     {
+        if (HasRefBinding(symbol))
+            RemoveRefBinding(symbol);
         if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
             _localVariables.Remove(symbol);
     }
@@ -141,6 +143,9 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the load operation.</returns>
     private Instruction LdLocSlot(ILocalSymbol local)
     {
+        if (TryGetRefBinding(local, out RefBinding binding))
+            return LoadRefBinding(binding);
+
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
             //using created static fields
@@ -168,6 +173,9 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the store operation.</returns>
     private Instruction StLocSlot(ILocalSymbol local)
     {
+        if (TryGetRefBinding(local, out RefBinding binding))
+            return StoreRefBinding(binding);
+
         if (_context.TryGetCapturedStaticField(local, out var staticFieldIndex))
         {
             //using created static fields
@@ -218,12 +226,13 @@ internal partial class MethodConvert
         // 3. Process each parameter
         foreach (var parameter in parameters)
         {
-            if (parameter.RefKind == RefKind.Out)
+            if (IsByRef(parameter.RefKind))
             {
-                // c. Out Arguments
-                // Example: MethodCall(Out value)
-                // Where method signature is: void MethodCall(Out int value)
-                ProcessOutArgument(model, symbol, argumentMap, parameter);
+                if (!argumentMap.TryGetValue(parameter, out var argument))
+                    throw new CompilationException(DiagnosticId.SyntaxNotSupported,
+                        $"Missing argument for by-ref parameter '{parameter.Name}'.");
+
+                ProcessByRefArgument(model, symbol, parameter, argument);
                 continue;
             }
 
@@ -309,24 +318,6 @@ internal partial class MethodConvert
         }
         Push(arguments.Count - parameter.Ordinal);
         AddInstruction(OpCode.PACK);
-    }
-
-    private void ProcessOutArgument(SemanticModel model, IMethodSymbol methodSymbol, IReadOnlyDictionary<IParameterSymbol, ArgumentSyntax> argumentMap, IParameterSymbol parameter)
-    {
-        try
-        {
-            LdArgSlot(parameter);
-        }
-        catch
-        {
-            if (!argumentMap.TryGetValue(parameter, out var argument))
-                throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Out parameter '{parameter.Name}' is missing at call site.");
-
-            if (argument.Expression is not IdentifierNameSyntax { Identifier.ValueText: "_" })
-                throw CompilationException.UnsupportedSyntax(argument,
-                    $"In method '{Symbol.Name}', out parameter must be a discard '_'. Neo VM does not support out parameters. Use discard syntax: 'out _'");
-            LdArgSlot(parameter);
-        }
     }
 
     private void ProcessRegularArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
