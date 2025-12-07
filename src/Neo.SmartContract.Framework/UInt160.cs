@@ -9,7 +9,9 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Helpers;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
@@ -75,6 +77,30 @@ namespace Neo.SmartContract.Framework
             byte[] data = { version };
             data = Helper.Concat(data, this);
             return StdLib.Base58CheckEncode((ByteString)data);
+        }
+
+        /// <summary>
+        /// Parses a string into a <see cref="UInt160"/>. Accepts either a 20-byte hex string
+        /// (optionally prefixed with <c>0x</c>) or a Base58Check address matching the current
+        /// <see cref="Runtime.AddressVersion"/>.
+        /// </summary>
+        /// <param name="value">Hex string or Base58Check address.</param>
+        /// <returns>The parsed <see cref="UInt160"/> value.</returns>
+        /// <exception cref="FormatException">Thrown when the input cannot be parsed.</exception>
+        public static UInt160 Parse(string value)
+        {
+            if (value is null) throw new FormatException("Value cannot be null.");
+
+            var valueBytes = value.ToByteArray();
+            int offset = ParseHelper.GetHexPrefixLength(valueBytes);
+            int hexLength = valueBytes.Length - offset;
+
+            if (hexLength == 40)
+            {
+                return (UInt160)ParseHelper.ParseHex(valueBytes, offset, 20).Reverse();
+            }
+
+            return (UInt160)ParseHelper.ParseAddress(value, Runtime.AddressVersion);
         }
 
         /// <summary>

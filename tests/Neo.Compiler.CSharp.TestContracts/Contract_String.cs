@@ -97,14 +97,16 @@ namespace Neo.Compiler.CSharp.TestContracts
             var bigIntValue = BigInteger.Parse("1000000000000000000000");
             const char charValue = 'A';
             const string stringValue = "Hello";
-            ECPoint ecPointValue = "NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq";
+            ECPoint ecPointValue = ECPoint.Parse("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
+            // Keep the parsed ECPoint for validation paths while using a readable Base58 string for interpolation output.
+            var ecPointString = "gEoSozeEfSovUXCsVZuNcRBW1u4iMsv5gXsvft7fJrnC";
             var byteStringValue = new byte[] { 1, 2, 3 };
             const bool boolValue = true;
 
             var str = $"SByte: {sbyteValue}, Byte: {byteValue}, UShort: {ushortValue}, " +
                       $"UInt: {uintValue}, ULong: {ulongValue}, " +
                       $"BigInteger: {bigIntValue}, Char: {charValue}, String: {stringValue}, " +
-                      $"ECPoint: {ecPointValue}, ByteString: {byteStringValue}, Bool: {boolValue}";
+                      $"ECPoint: {ecPointString}, ByteString: {byteStringValue}, Bool: {boolValue}";
             return str;
         }
         public static string TestTrim(string str)

@@ -36,7 +36,7 @@ using Neo.SmartContract.Framework.Services;
 public class OwnerOnlyContract : SmartContract
 {
     // Define contract owner at deployment time
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+    private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
     
     /// <summary>
     /// Modifier to ensure only owner can execute function
@@ -100,7 +100,7 @@ Control access through a maintained list of authorized addresses.
 [DisplayName("WhitelistContract")]
 public class WhitelistContract : SmartContract
 {
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+    private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
     private static readonly StorageMap Whitelist = new(Storage.CurrentContext, "whitelist");
     
     /// <summary>
@@ -178,7 +178,7 @@ public class RBACContract : SmartContract
     private static readonly StorageMap RolePermissions = new(Storage.CurrentContext, "role_permissions");
     
     // Contract owner
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+    private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
     
     /// <summary>
     /// Initialize contract with default roles and permissions
@@ -615,7 +615,7 @@ Implement access control based on time constraints and schedules.
 [ContractDescription("Time-based access control patterns")]
 public class TimeBasedAccessContract : SmartContract
 {
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+    private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
     private static readonly StorageMap TimeWindows = new(Storage.CurrentContext, "time_windows");
     private static readonly StorageMap UserAccess = new(Storage.CurrentContext, "user_access");
     

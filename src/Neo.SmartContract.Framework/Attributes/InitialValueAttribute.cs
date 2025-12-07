@@ -38,6 +38,13 @@ namespace Neo.SmartContract.Framework.Attributes
     /// private static readonly byte[] validUInt256 = default;
     /// </code>
     ///
+    /// <para>
+    /// New contracts should prefer Parse-based initialization (for example
+    /// <c>UInt160.Parse("...")</c> or <c>ECPoint.Parse("...")</c>) so values are
+    /// parsed at compile time when possible. This attribute remains available for
+    /// backward compatibility.
+    /// </para>
+    ///
     /// Currently supported types are:
     ///     <see cref="ContractParameterType.String"/>
     ///     <see cref="ContractParameterType.ByteArray"/>

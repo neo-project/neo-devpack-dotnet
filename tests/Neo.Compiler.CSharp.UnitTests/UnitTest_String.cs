@@ -184,8 +184,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void Test_TestInterpolatedStringHandler()
         {
-            Assert.AreEqual("SByte: -42, Byte: 42, UShort: 1000, UInt: 1000000, ULong: 1000000000000, BigInteger: 1000000000000000000000, Char: A, String: Hello, ECPoint: NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq, ByteString: System.Byte[], Bool: True", Contract.TestInterpolatedStringHandler());
-            Assert.AreEqual(11313480, Engine.FeeConsumed.Value);
+            Assert.AreEqual("SByte: -42, Byte: 42, UShort: 1000, UInt: 1000000, ULong: 1000000000000, BigInteger: 1000000000000000000000, Char: A, String: Hello, ECPoint: gEoSozeEfSovUXCsVZuNcRBW1u4iMsv5gXsvft7fJrnC, ByteString: System.Byte[], Bool: True", Contract.TestInterpolatedStringHandler());
+            Assert.AreEqual(11313780, Engine.FeeConsumed.Value);
         }
 
         [TestMethod]

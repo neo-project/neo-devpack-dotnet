@@ -29,5 +29,59 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return value.ToAddress();
         }
+
+        public static UInt160 ParseUInt160(string value)
+        {
+            return UInt160.Parse(value);
+        }
+
+        public static UInt256 ParseUInt256(string value)
+        {
+            return UInt256.Parse(value);
+        }
+
+        public static ECPoint ParseECPoint(string value)
+        {
+            return ECPoint.Parse(value);
+        }
+
+        public static bool TryParseUInt160(string value)
+        {
+            try
+            {
+                _ = UInt160.Parse(value);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool TryParseUInt256(string value)
+        {
+            try
+            {
+                _ = UInt256.Parse(value);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool TryParseECPoint(string value)
+        {
+            try
+            {
+                _ = ECPoint.Parse(value);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

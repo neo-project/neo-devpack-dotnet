@@ -10,14 +10,12 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Attributes;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_UIntTypes : SmartContract.Framework.SmartContract
     {
-        [Hash160("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB")]
-        static readonly UInt160 Owner = default!;
+        static readonly UInt160 Owner = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
 
         public static bool checkOwner(UInt160 owner) { return owner == Owner; }
         public static bool checkZeroStatic(UInt160 owner) { return owner == UInt160.Zero; }

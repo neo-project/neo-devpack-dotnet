@@ -20,9 +20,8 @@ namespace Neo.Compiler.CSharp.TestContracts
         private static readonly ByteString invalidECpoint = default!;
         [ByteArray("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9")]
         private static readonly ByteString byteString2Ecpoint = default!;
-        [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
-        private static readonly ByteString validUInt160 = default!;
-        private static readonly UInt256 validUInt256 = "edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925";
+        private static readonly ByteString validUInt160 = (ByteString)UInt160.Parse("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq");
+        private static readonly UInt256 validUInt256 = UInt256.Parse("edcf8679104ec2911a4fe29ad7db232a493e5b990fb1da7af0c7b989948c8925");
 
         public static int try01(bool throwException, bool enterCatch, bool enterFinally)
         {
