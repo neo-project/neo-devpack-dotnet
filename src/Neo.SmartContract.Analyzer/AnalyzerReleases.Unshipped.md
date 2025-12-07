@@ -50,3 +50,4 @@ NC4051  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (UTF-8 string literals
 NC4052  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (default interface members)
 NC4053  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (file-local types)
 NC4054  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (ref readonly parameters)
+NC4055  | Usage    | Warning  | InitialValueAnalyzer (Parse enforcement)
