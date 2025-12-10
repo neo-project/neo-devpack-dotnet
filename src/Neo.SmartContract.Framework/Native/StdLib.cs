@@ -42,6 +42,22 @@ namespace Neo.SmartContract.Framework.Native
 
         public static extern ByteString Base58CheckDecode(string input);
 
+        /// <summary>
+        /// Converts a byte-string/bytes to its equivalent lower case hexadecimal representation.
+        /// Available since HF_Faun.
+        /// </summary>
+        /// <param name="input">The byte array to be encoded. It cannot be null.</param>
+        /// <returns>The encoded <see cref="string"/>.</returns>
+        public static extern string HexEncode(ByteString input);
+
+        /// <summary>
+        /// Converts a case-insensitive hexadecimal string to a byte-string/bytes.
+        /// Available since HF_Faun.
+        /// </summary>
+        /// <param name="input">The hexadecimal string to be decoded. It cannot be null.</param>
+        /// <returns>The decoded byte array.</returns>
+        public static extern ByteString HexDecode(string input);
+
         public static extern string Itoa(BigInteger value, int @base = 10);
 
         public static extern string Itoa(int value, int @base = 10);
