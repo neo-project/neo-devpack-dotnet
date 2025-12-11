@@ -41,6 +41,12 @@ namespace Neo.SmartContract.Framework.Helpers
 
         internal static byte[] ParseAddress(string value, byte addressVersion)
         {
+            if (string.IsNullOrEmpty(value))
+                throw new FormatException("Invalid address.");
+
+            if (value.Length < 4)
+                throw new FormatException("Invalid address length.");
+
             var decoded = (byte[])StdLib.Base58CheckDecode(value);
             if (decoded.Length != 21)
                 throw new FormatException("Invalid address length.");

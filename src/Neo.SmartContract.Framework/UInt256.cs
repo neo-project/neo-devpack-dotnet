@@ -76,6 +76,7 @@ namespace Neo.SmartContract.Framework
         /// Parses a 32-byte hex string (optionally prefixed with <c>0x</c>) into a <see cref="UInt256"/>.
         /// </summary>
         /// <param name="value">Hex string representing the 32-byte value.</param>
+        /// <remarks>Hex strings should be in Neo standard (big-endian) representation; the returned value uses the framework's internal format.</remarks>
         /// <returns>The parsed <see cref="UInt256"/>.</returns>
         /// <exception cref="FormatException">Thrown when the input is not a 32-byte hex string.</exception>
         public static UInt256 Parse(string value)

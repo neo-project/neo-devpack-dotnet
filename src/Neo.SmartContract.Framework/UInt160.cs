@@ -85,6 +85,7 @@ namespace Neo.SmartContract.Framework
         /// <see cref="Runtime.AddressVersion"/>.
         /// </summary>
         /// <param name="value">Hex string or Base58Check address.</param>
+        /// <remarks>Hex strings should be in Neo standard (big-endian) representation; the returned value uses the framework's internal format.</remarks>
         /// <returns>The parsed <see cref="UInt160"/> value.</returns>
         /// <exception cref="FormatException">Thrown when the input cannot be parsed.</exception>
         public static UInt160 Parse(string value)
