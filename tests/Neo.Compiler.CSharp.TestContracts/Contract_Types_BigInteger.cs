@@ -9,15 +9,13 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.SmartContract.Framework.Attributes;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Types_BigInteger : SmartContract.Framework.SmartContract
     {
-        [Integer("100000000000000000000000000")]
-        private static readonly BigInteger publicBigInteger = default!;
+        private static readonly BigInteger publicBigInteger = BigInteger.Parse("100000000000000000000000000");
 
         public static BigInteger SumOne()
         {

@@ -19,6 +19,14 @@ Comprehensive testing frameworks and methodologies for validating security imple
 
 ## Security Testing Fundamentals
 
+Use validated parsing helpers for any fixed inputs to align tests with production safety:
+
+```csharp
+private static readonly UInt160 Owner = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
+private static readonly UInt256 AssetId = UInt256.Parse("0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f");
+private static readonly ECPoint AdminKey = ECPoint.Parse("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
+```
+
 ### Testing Pyramid for Smart Contract Security
 
 ```
@@ -97,22 +105,22 @@ public class SecurityTestPlan : TestBase<YourContract>
 public class SecurityTestAccounts
 {
     // Standard test accounts
-    public static readonly UInt160 Owner = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
-    public static readonly UInt160 ValidUser = "NXpRXq8e9gRaH5vVAEUkHQeXNHLZsUfz1G".ToScriptHash();
-    public static readonly UInt160 Attacker = "NVqXCjKHHi9xetyDhpEP6KtqCq8fHaXprC".ToScriptHash();
-    public static readonly UInt160 UnauthorizedUser = "Nb2CHYY4wTqPQv7hPYnKr6CjN4fEeX2vks".ToScriptHash();
+    public static readonly UInt160 Owner = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
+    public static readonly UInt160 ValidUser = UInt160.Parse("NXpRXq8e9gRaH5vVAEUkHQeXNHLZsUfz1G");
+    public static readonly UInt160 Attacker = UInt160.Parse("NVqXCjKHHi9xetyDhpEP6KtqCq8fHaXprC");
+    public static readonly UInt160 UnauthorizedUser = UInt160.Parse("Nb2CHYY4wTqPQv7hPYnKr6CjN4fEeX2vks");
     
     // Multi-sig test accounts
     public static readonly UInt160[] MultiSigSigners = new[]
     {
-        "NZNovmGqaNZF6P4qFUCcHzPE6GFU1F8ueT".ToScriptHash(),
-        "NeJSJ4YsH89g9XrEqwWM4yVMm8jYM4jHG9".ToScriptHash(),
-        "NbMKdHpJJ5T6K7gLhW2V8R9Q3wX5M8nTpN".ToScriptHash()
+        UInt160.Parse("NZNovmGqaNZF6P4qFUCcHzPE6GFU1F8ueT"),
+        UInt160.Parse("NeJSJ4YsH89g9XrEqwWM4yVMm8jYM4jHG9"),
+        UInt160.Parse("NbMKdHpJJ5T6K7gLhW2V8R9Q3wX5M8nTpN")
     };
     
     // Specialized test accounts
-    public static readonly UInt160 ContractCaller = "NYzKR3qP8BV5w2j8Q9VH6tXz5M7nXsY8Tp".ToScriptHash();
-    public static readonly UInt160 TokenHolder = "NQ5gR8pT9VX3j2m7W6hJ8kY5z4nP9qX7Bp".ToScriptHash();
+    public static readonly UInt160 ContractCaller = UInt160.Parse("NYzKR3qP8BV5w2j8Q9VH6tXz5M7nXsY8Tp");
+    public static readonly UInt160 TokenHolder = UInt160.Parse("NQ5gR8pT9VX3j2m7W6hJ8kY5z4nP9qX7Bp");
 }
 ```
 

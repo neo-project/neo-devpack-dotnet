@@ -17,6 +17,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract;
 using Neo.VM;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.Compiler;
@@ -32,6 +33,10 @@ internal partial class MethodConvert
     {
         ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
         ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
+
+        if (symbol is IMethodSymbol methodSymbol && TryOptimizeParseInvocation(model, methodSymbol, arguments))
+            return;
+
         switch (symbol)
         {
             case IEventSymbol @event:
@@ -43,6 +48,43 @@ internal partial class MethodConvert
             default:
                 ConvertDelegateInvocationExpression(model, expression.Expression, arguments);
                 break;
+        }
+    }
+
+    private bool TryOptimizeParseInvocation(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
+    {
+        if (symbol.Name != "Parse" || symbol.Parameters.Length != 1 || arguments.Count != 1)
+            return false;
+
+        ArgumentSyntax argument = arguments[0];
+        if (argument.NameColon is not null)
+            return false;
+
+        Optional<object?> constant = model.GetConstantValue(argument.Expression);
+        if (!constant.HasValue || constant.Value is not string stringValue)
+            return false;
+
+        try
+        {
+            using var sequence = InsertSequencePoint(argument.Expression);
+            switch (symbol.ContainingType.ToString())
+            {
+                case "Neo.SmartContract.Framework.UInt160":
+                    Push(ConvertToUInt160(stringValue));
+                    return true;
+                case "Neo.SmartContract.Framework.UInt256":
+                    Push(ConvertToUInt256(stringValue, argument.Expression));
+                    return true;
+                case "Neo.SmartContract.Framework.ECPoint":
+                    Push(ConvertToECPoint(stringValue));
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        catch (Exception ex) when (ex is FormatException or CompilationException)
+        {
+            throw new CompilationException(argument.Expression, DiagnosticId.InvalidInitialValue, $"Invalid {symbol.ContainingType.Name} literal: {stringValue}");
         }
     }
 

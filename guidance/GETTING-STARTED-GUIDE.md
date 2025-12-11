@@ -144,8 +144,7 @@ namespace HelloWorld
     public class HelloWorld : SmartContract
     {
         // Contract owner - ⚠️ REPLACE "NiHURyS..." WITH YOUR WALLET ADDRESS ⚠️
-        [InitialValue("{{YOUR_WALLET_ADDRESS}}", ContractParameterType.Hash160)]
-        private static readonly UInt160 Owner = default;
+        private static readonly UInt160 Owner = UInt160.Parse("{{YOUR_WALLET_ADDRESS}}");
 
         // Simple greeting method
         [Safe]

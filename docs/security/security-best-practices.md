@@ -57,11 +57,18 @@ public static bool ProcessUserData(UInt160 user, string data, BigInteger amount)
 
 ### Implement Role-Based Access Control
 
+Use explicit parsing APIs for any hard-coded script hashes or keys to enforce validation:
+
+```csharp
+private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
+private static readonly ECPoint ADMIN_KEY = ECPoint.Parse("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9");
+```
+
 ```csharp
 [DisplayName("RoleBasedContract")]
 public class RoleBasedContract : SmartContract
 {
-    private static readonly UInt160 OWNER = "NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB".ToScriptHash();
+    private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
     
     // Role definitions
     private const string ADMIN_ROLE = "admin";

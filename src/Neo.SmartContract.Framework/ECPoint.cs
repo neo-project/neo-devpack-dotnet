@@ -11,6 +11,7 @@
 
 using System;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Helpers;
 
 namespace Neo.SmartContract.Framework
 {
@@ -41,6 +42,26 @@ namespace Neo.SmartContract.Framework
 
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](ECPoint value);
+
+        /// <summary>
+        /// Parses a compressed public key (66 hex characters, optional <c>0x</c> prefix) into an <see cref="ECPoint"/>.
+        /// </summary>
+        /// <param name="value">Hex string representing the compressed public key.</param>
+        /// <returns>The parsed <see cref="ECPoint"/>.</returns>
+        /// <exception cref="FormatException">Thrown when the input is not a 33-byte compressed key.</exception>
+        public static ECPoint Parse(string value)
+        {
+            if (value is null) throw new FormatException("Value cannot be null.");
+
+            var valueBytes = value.ToByteArray();
+            int offset = ParseHelper.GetHexPrefixLength(valueBytes);
+            int hexLength = valueBytes.Length - offset;
+
+            if (hexLength != 66)
+                throw new FormatException("ECPoint must be 33 bytes long.");
+
+            return (ECPoint)ParseHelper.ParseHex(valueBytes, offset, 33);
+        }
 
         /// <summary>
         /// Implicitly converts a hexadecimal string to a PublicKey object.

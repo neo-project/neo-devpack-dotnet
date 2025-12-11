@@ -9,7 +9,9 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Helpers;
 
 namespace Neo.SmartContract.Framework
 {
@@ -69,5 +71,25 @@ namespace Neo.SmartContract.Framework
 #pragma warning disable CS0626 // Method, operator, or accessor is marked external and has no attributes on it
         public static extern implicit operator UInt256(string value);
 #pragma warning restore CS0626 // Method, operator, or accessor is marked external and has no attributes on it
+
+        /// <summary>
+        /// Parses a 32-byte hex string (optionally prefixed with <c>0x</c>) into a <see cref="UInt256"/>.
+        /// </summary>
+        /// <param name="value">Hex string representing the 32-byte value.</param>
+        /// <returns>The parsed <see cref="UInt256"/>.</returns>
+        /// <exception cref="FormatException">Thrown when the input is not a 32-byte hex string.</exception>
+        public static UInt256 Parse(string value)
+        {
+            if (value is null) throw new FormatException("Value cannot be null.");
+
+            var valueBytes = value.ToByteArray();
+            int offset = ParseHelper.GetHexPrefixLength(valueBytes);
+            int hexLength = valueBytes.Length - offset;
+
+            if (hexLength != 64)
+                throw new FormatException("UInt256 must be 32 bytes long.");
+
+            return (UInt256)ParseHelper.ParseHex(valueBytes, offset, 32).Reverse();
+        }
     }
 }

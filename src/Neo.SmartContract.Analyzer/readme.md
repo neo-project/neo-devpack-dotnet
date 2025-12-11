@@ -22,7 +22,7 @@
 - [DoubleUsageAnalyzer.cs](DoubleUsageAnalyzer.cs) – rejects `double`.
 - [EnumMethodsUsageAnalyzer.cs](EnumMethodsUsageAnalyzer.cs) – flags unsupported `Enum` helper calls.
 - [FloatUsageAnalyzer.cs](FloatUsageAnalyzer.cs) – rejects `float`.
-- [InitialValueAnalyzer.cs](InitialValueAnalyzer.cs) – suggests literal initialization where attributes are unsupported.
+- [InitialValueAnalyzer.cs](InitialValueAnalyzer.cs) – suggests replacing InitialValue attributes with Parse-based initialization and warns when UInt160/UInt256/ECPoint are initialized without `Parse`.
 - [KeywordUsageAnalyzer.cs](KeywordUsageAnalyzer.cs) – guards against restricted C# keywords.
 - [LinqUsageAnalyzer.cs](LinqUsageAnalyzer.cs) – disallows LINQ extension usage.
 - [MultipleCatchBlockAnalyzer.cs](MultipleCatchBlockAnalyzer.cs) – restricts multiple `catch` clauses in a single `try`.
