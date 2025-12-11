@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework
             if (!ParseHelper.TryParseHex(value.ToByteArray(), out var data))
                 throw new FormatException("Invalid hex value.");
 
-            if (data.Length != 66)
+            if (data.Length != 33)
                 throw new FormatException("ECPoint must be 33 bytes long.");
 
             return (ECPoint)data;
