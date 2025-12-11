@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Framework.Helpers
         {
             var offset = GetHexPrefixLength(valueBytes);
 
-            if (valueBytes.Length - offset % 2 != 0)
+            if ((valueBytes.Length - offset) % 2 != 0)
             {
                 result = [];
                 return false;
