@@ -63,7 +63,7 @@ public class ArithmeticSafetyDemo : SmartContract
         BigInteger result = large1 + large2;
         
         // Always validate results against business logic constraints
-        Assert(result <= MAX_SAFE_VALUE, "Result exceeds safe limits");
+        ExecutionEngine.Assert(result <= MAX_SAFE_VALUE, "Result exceeds safe limits");
     }
 }
 ```
@@ -81,16 +81,16 @@ public class SafeAddition : SmartContract
     public static BigInteger SafeAdd(BigInteger a, BigInteger b)
     {
         // Input validation
-        Assert(a >= 0, "First operand must be non-negative");
-        Assert(b >= 0, "Second operand must be non-negative");
+        ExecutionEngine.Assert(a >= 0, "First operand must be non-negative");
+        ExecutionEngine.Assert(b >= 0, "Second operand must be non-negative");
         
         // Check against business logic limits (VM handles 256-bit overflow automatically)
-        Assert(a <= MAX_SAFE_VALUE - b, "Addition would exceed business logic limits");
+        ExecutionEngine.Assert(a <= MAX_SAFE_VALUE - b, "Addition would exceed business logic limits");
         
         BigInteger result = a + b;
         
         // Post-condition check
-        Assert(result >= a && result >= b, "Addition result validation failed");
+        ExecutionEngine.Assert(result >= a && result >= b, "Addition result validation failed");
         
         return result;
     }
@@ -100,12 +100,12 @@ public class SafeAddition : SmartContract
     /// </summary>
     public static BigInteger SafeAddTokens(BigInteger currentBalance, BigInteger amount)
     {
-        Assert(currentBalance >= 0, "Current balance cannot be negative");
-        Assert(amount > 0, "Amount must be positive");
-        Assert(amount <= MAX_TOKEN_AMOUNT, "Amount exceeds maximum token limit");
+        ExecutionEngine.Assert(currentBalance >= 0, "Current balance cannot be negative");
+        ExecutionEngine.Assert(amount > 0, "Amount must be positive");
+        ExecutionEngine.Assert(amount <= MAX_TOKEN_AMOUNT, "Amount exceeds maximum token limit");
         
         // Check total won't exceed maximum supply
-        Assert(currentBalance <= MAX_TOKEN_AMOUNT - amount, "Addition would exceed maximum token supply");
+        ExecutionEngine.Assert(currentBalance <= MAX_TOKEN_AMOUNT - amount, "Addition would exceed maximum token supply");
         
         return currentBalance + amount;
     }
@@ -115,14 +115,14 @@ public class SafeAddition : SmartContract
     /// </summary>
     public static BigInteger SafeAddBatch(BigInteger[] values)
     {
-        Assert(values != null && values.Length > 0, "Values array required");
-        Assert(values.Length <= 100, "Too many values in batch");
+        ExecutionEngine.Assert(values != null && values.Length > 0, "Values array required");
+        ExecutionEngine.Assert(values.Length <= 100, "Too many values in batch");
         
         BigInteger total = 0;
         
         foreach (BigInteger value in values)
         {
-            Assert(value >= 0, "All values must be non-negative");
+            ExecutionEngine.Assert(value >= 0, "All values must be non-negative");
             total = SafeAdd(total, value);
         }
         
@@ -135,13 +135,13 @@ public class SafeAddition : SmartContract
     public static BigInteger SafeAddWithPercentageLimit(BigInteger base_, BigInteger addition, 
                                                        int maxPercentageIncrease)
     {
-        Assert(base_ > 0, "Base value must be positive");
-        Assert(addition >= 0, "Addition must be non-negative");
-        Assert(maxPercentageIncrease > 0 && maxPercentageIncrease <= 10000, "Invalid percentage limit"); // 100.00%
+        ExecutionEngine.Assert(base_ > 0, "Base value must be positive");
+        ExecutionEngine.Assert(addition >= 0, "Addition must be non-negative");
+        ExecutionEngine.Assert(maxPercentageIncrease > 0 && maxPercentageIncrease <= 10000, "Invalid percentage limit"); // 100.00%
         
         // Calculate maximum allowed addition (as percentage of base)
         BigInteger maxAddition = (base_ * maxPercentageIncrease) / 10000;
-        Assert(addition <= maxAddition, $"Addition exceeds {maxPercentageIncrease / 100}% limit");
+        ExecutionEngine.Assert(addition <= maxAddition, $"Addition exceeds {maxPercentageIncrease / 100}% limit");
         
         return SafeAdd(base_, addition);
     }
@@ -160,15 +160,15 @@ public class SafeSubtraction : SmartContract
     /// </summary>
     public static BigInteger SafeSubtract(BigInteger a, BigInteger b)
     {
-        Assert(a >= 0, "Minuend must be non-negative");
-        Assert(b >= 0, "Subtrahend must be non-negative");
-        Assert(a >= b, "Subtraction would cause underflow");
+        ExecutionEngine.Assert(a >= 0, "Minuend must be non-negative");
+        ExecutionEngine.Assert(b >= 0, "Subtrahend must be non-negative");
+        ExecutionEngine.Assert(a >= b, "Subtraction would cause underflow");
         
         BigInteger result = a - b;
         
         // Post-condition validation
-        Assert(result >= 0, "Result must be non-negative");
-        Assert(result <= a, "Result must not exceed original value");
+        ExecutionEngine.Assert(result >= 0, "Result must be non-negative");
+        ExecutionEngine.Assert(result <= a, "Result must not exceed original value");
         
         return result;
     }
@@ -178,15 +178,15 @@ public class SafeSubtraction : SmartContract
     /// </summary>
     public static BigInteger SafeSubtractBalance(BigInteger currentBalance, BigInteger amount)
     {
-        Assert(currentBalance >= 0, "Current balance cannot be negative");
-        Assert(amount > 0, "Amount must be positive");
-        Assert(currentBalance >= amount, "Insufficient balance");
+        ExecutionEngine.Assert(currentBalance >= 0, "Current balance cannot be negative");
+        ExecutionEngine.Assert(amount > 0, "Amount must be positive");
+        ExecutionEngine.Assert(currentBalance >= amount, "Insufficient balance");
         
         BigInteger newBalance = currentBalance - amount;
         
         // Ensure balance integrity
-        Assert(newBalance >= 0, "New balance cannot be negative");
-        Assert(newBalance == currentBalance - amount, "Balance calculation error");
+        ExecutionEngine.Assert(newBalance >= 0, "New balance cannot be negative");
+        ExecutionEngine.Assert(newBalance == currentBalance - amount, "Balance calculation error");
         
         return newBalance;
     }
@@ -197,11 +197,11 @@ public class SafeSubtraction : SmartContract
     public static BigInteger SafeSubtractWithMinimum(BigInteger current, BigInteger amount, 
                                                    BigInteger minimumRequired)
     {
-        Assert(current >= minimumRequired, "Current value below minimum");
-        Assert(amount > 0, "Amount must be positive");
+        ExecutionEngine.Assert(current >= minimumRequired, "Current value below minimum");
+        ExecutionEngine.Assert(amount > 0, "Amount must be positive");
         
         BigInteger remaining = SafeSubtract(current, amount);
-        Assert(remaining >= minimumRequired, "Operation would leave value below minimum threshold");
+        ExecutionEngine.Assert(remaining >= minimumRequired, "Operation would leave value below minimum threshold");
         
         return remaining;
     }
@@ -211,12 +211,12 @@ public class SafeSubtraction : SmartContract
     /// </summary>
     public static BigInteger SafeSubtractBatch(BigInteger initial, BigInteger[] amounts)
     {
-        Assert(amounts != null && amounts.Length > 0, "Amounts array required");
-        Assert(amounts.Length <= 50, "Too many amounts in batch");
+        ExecutionEngine.Assert(amounts != null && amounts.Length > 0, "Amounts array required");
+        ExecutionEngine.Assert(amounts.Length <= 50, "Too many amounts in batch");
         
         // Pre-validate that total subtraction is possible
         BigInteger totalToSubtract = SafeAddBatch(amounts);
-        Assert(initial >= totalToSubtract, "Insufficient value for batch subtraction");
+        ExecutionEngine.Assert(initial >= totalToSubtract, "Insufficient value for batch subtraction");
         
         BigInteger current = initial;
         foreach (BigInteger amount in amounts)
@@ -225,7 +225,7 @@ public class SafeSubtraction : SmartContract
         }
         
         // Verify final result matches expected calculation
-        Assert(current == initial - totalToSubtract, "Batch subtraction result mismatch");
+        ExecutionEngine.Assert(current == initial - totalToSubtract, "Batch subtraction result mismatch");
         
         return current;
     }
@@ -235,8 +235,8 @@ public class SafeSubtraction : SmartContract
     /// </summary>
     public static BigInteger SafeSubtractPercentage(BigInteger amount, int percentageToDeduct)
     {
-        Assert(amount >= 0, "Amount must be non-negative");
-        Assert(percentageToDeduct >= 0 && percentageToDeduct <= 10000, "Invalid percentage"); // 0-100.00%
+        ExecutionEngine.Assert(amount >= 0, "Amount must be non-negative");
+        ExecutionEngine.Assert(percentageToDeduct >= 0 && percentageToDeduct <= 10000, "Invalid percentage"); // 0-100.00%
         
         BigInteger deduction = (amount * percentageToDeduct) / 10000;
         return SafeSubtract(amount, deduction);
@@ -256,7 +256,7 @@ public class SafeMultiplication : SmartContract
     /// </summary>
     public static BigInteger SafeMultiply(BigInteger a, BigInteger b)
     {
-        Assert(a >= 0 && b >= 0, "Both operands must be non-negative");
+        ExecutionEngine.Assert(a >= 0 && b >= 0, "Both operands must be non-negative");
         
         // Special cases
         if (a == 0 || b == 0) return 0;
@@ -264,12 +264,12 @@ public class SafeMultiplication : SmartContract
         if (b == 1) return a;
         
         // Check against business logic limits (VM handles 256-bit overflow automatically)
-        Assert(a <= MAX_SAFE_VALUE / b, "Multiplication would exceed business logic limits");
+        ExecutionEngine.Assert(a <= MAX_SAFE_VALUE / b, "Multiplication would exceed business logic limits");
         
         BigInteger result = a * b;
         
         // Verify result integrity
-        Assert(result / a == b, "Multiplication result verification failed");
+        ExecutionEngine.Assert(result / a == b, "Multiplication result verification failed");
         
         return result;
     }
@@ -280,9 +280,9 @@ public class SafeMultiplication : SmartContract
     public static BigInteger SafeMultiplyFinancial(BigInteger principal, BigInteger rate, 
                                                  BigInteger timePeriods)
     {
-        Assert(principal > 0, "Principal must be positive");
-        Assert(rate >= 0, "Rate must be non-negative");
-        Assert(timePeriods >= 0, "Time periods must be non-negative");
+        ExecutionEngine.Assert(principal > 0, "Principal must be positive");
+        ExecutionEngine.Assert(rate >= 0, "Rate must be non-negative");
+        ExecutionEngine.Assert(timePeriods >= 0, "Time periods must be non-negative");
         
         // Perform multiplication in safe order (smallest first)
         BigInteger temp = SafeMultiply(rate, timePeriods);
@@ -294,9 +294,9 @@ public class SafeMultiplication : SmartContract
     /// </summary>
     public static BigInteger SafePower(BigInteger base_, int exponent)
     {
-        Assert(base_ >= 0, "Base must be non-negative");
-        Assert(exponent >= 0, "Exponent must be non-negative");
-        Assert(exponent <= 64, "Exponent too large"); // Reasonable limit
+        ExecutionEngine.Assert(base_ >= 0, "Base must be non-negative");
+        ExecutionEngine.Assert(exponent >= 0, "Exponent must be non-negative");
+        ExecutionEngine.Assert(exponent <= 64, "Exponent too large"); // Reasonable limit
         
         if (exponent == 0) return 1;
         if (exponent == 1) return base_;
@@ -331,15 +331,15 @@ public class SafeMultiplication : SmartContract
     /// </summary>
     public static BigInteger SafeScale(BigInteger amount, BigInteger numerator, BigInteger denominator)
     {
-        Assert(amount >= 0, "Amount must be non-negative");
-        Assert(numerator >= 0, "Numerator must be non-negative");
-        Assert(denominator > 0, "Denominator must be positive");
+        ExecutionEngine.Assert(amount >= 0, "Amount must be non-negative");
+        ExecutionEngine.Assert(numerator >= 0, "Numerator must be non-negative");
+        ExecutionEngine.Assert(denominator > 0, "Denominator must be positive");
         
         // Handle zero cases
         if (amount == 0 || numerator == 0) return 0;
         
         // Check for potential overflow in multiplication
-        Assert(amount <= MAX_SAFE_VALUE / numerator, "Scaling would cause overflow");
+        ExecutionEngine.Assert(amount <= MAX_SAFE_VALUE / numerator, "Scaling would cause overflow");
         
         BigInteger scaledAmount = SafeMultiply(amount, numerator);
         return SafeDivide(scaledAmount, denominator);
@@ -359,14 +359,14 @@ public class SafeDivision : SmartContract
     /// </summary>
     public static BigInteger SafeDivide(BigInteger dividend, BigInteger divisor)
     {
-        Assert(dividend >= 0, "Dividend must be non-negative");
-        Assert(divisor > 0, "Divisor must be positive");
+        ExecutionEngine.Assert(dividend >= 0, "Dividend must be non-negative");
+        ExecutionEngine.Assert(divisor > 0, "Divisor must be positive");
         
         BigInteger result = dividend / divisor;
         
         // Verify division integrity
-        Assert(result * divisor <= dividend, "Division result verification failed");
-        Assert((result + 1) * divisor > dividend, "Division precision verification failed");
+        ExecutionEngine.Assert(result * divisor <= dividend, "Division result verification failed");
+        ExecutionEngine.Assert((result + 1) * divisor > dividend, "Division precision verification failed");
         
         return result;
     }
@@ -377,15 +377,15 @@ public class SafeDivision : SmartContract
     public static (BigInteger quotient, BigInteger remainder) SafeDivideWithRemainder(
         BigInteger dividend, BigInteger divisor)
     {
-        Assert(dividend >= 0, "Dividend must be non-negative");
-        Assert(divisor > 0, "Divisor must be positive");
+        ExecutionEngine.Assert(dividend >= 0, "Dividend must be non-negative");
+        ExecutionEngine.Assert(divisor > 0, "Divisor must be positive");
         
         BigInteger quotient = dividend / divisor;
         BigInteger remainder = dividend % divisor;
         
         // Verify division identity: dividend = quotient * divisor + remainder
-        Assert(dividend == quotient * divisor + remainder, "Division identity verification failed");
-        Assert(remainder < divisor, "Remainder must be less than divisor");
+        ExecutionEngine.Assert(dividend == quotient * divisor + remainder, "Division identity verification failed");
+        ExecutionEngine.Assert(remainder < divisor, "Remainder must be less than divisor");
         
         return (quotient, remainder);
     }
@@ -420,8 +420,8 @@ public class SafeDivision : SmartContract
     /// </summary>
     public static BigInteger SafePercentage(BigInteger amount, int percentage)
     {
-        Assert(amount >= 0, "Amount must be non-negative");
-        Assert(percentage >= 0 && percentage <= 10000, "Percentage must be 0-10000 (0-100.00%)");
+        ExecutionEngine.Assert(amount >= 0, "Amount must be non-negative");
+        ExecutionEngine.Assert(percentage >= 0 && percentage <= 10000, "Percentage must be 0-10000 (0-100.00%)");
         
         if (percentage == 0) return 0;
         if (percentage == 10000) return amount;
@@ -435,19 +435,19 @@ public class SafeDivision : SmartContract
     /// </summary>
     public static BigInteger[] SafeDistribute(BigInteger totalAmount, BigInteger[] weights)
     {
-        Assert(totalAmount >= 0, "Total amount must be non-negative");
-        Assert(weights != null && weights.Length > 0, "Weights array required");
-        Assert(weights.Length <= 100, "Too many distribution targets");
+        ExecutionEngine.Assert(totalAmount >= 0, "Total amount must be non-negative");
+        ExecutionEngine.Assert(weights != null && weights.Length > 0, "Weights array required");
+        ExecutionEngine.Assert(weights.Length <= 100, "Too many distribution targets");
         
         // Validate all weights are positive
         BigInteger totalWeight = 0;
         foreach (BigInteger weight in weights)
         {
-            Assert(weight > 0, "All weights must be positive");
+            ExecutionEngine.Assert(weight > 0, "All weights must be positive");
             totalWeight = SafeAdd(totalWeight, weight);
         }
         
-        Assert(totalWeight > 0, "Total weight must be positive");
+        ExecutionEngine.Assert(totalWeight > 0, "Total weight must be positive");
         
         BigInteger[] distributions = new BigInteger[weights.Length];
         BigInteger distributed = 0;
@@ -464,7 +464,7 @@ public class SafeDivision : SmartContract
         
         // Verify total distribution equals input
         BigInteger verifyTotal = SafeAddBatch(distributions);
-        Assert(verifyTotal == totalAmount, "Distribution total mismatch");
+        ExecutionEngine.Assert(verifyTotal == totalAmount, "Distribution total mismatch");
         
         return distributions;
     }
@@ -494,8 +494,8 @@ public class SafePercentageOperations : SmartContract
     /// </summary>
     public static BigInteger CalculatePercentageBasisPoints(BigInteger amount, int basisPoints)
     {
-        Assert(amount >= 0, "Amount must be non-negative");
-        Assert(basisPoints >= 0 && basisPoints <= BASIS_POINTS_SCALE, 
+        ExecutionEngine.Assert(amount >= 0, "Amount must be non-negative");
+        ExecutionEngine.Assert(basisPoints >= 0 && basisPoints <= BASIS_POINTS_SCALE, 
                "Basis points must be 0-10000");
         
         if (basisPoints == 0) return 0;
@@ -511,9 +511,9 @@ public class SafePercentageOperations : SmartContract
     public static BigInteger ApplyCompoundPercentage(BigInteger principal, int annualBasisPoints, 
                                                    int periods)
     {
-        Assert(principal > 0, "Principal must be positive");
-        Assert(annualBasisPoints >= 0, "Interest rate must be non-negative");
-        Assert(periods >= 0 && periods <= 100, "Invalid number of periods");
+        ExecutionEngine.Assert(principal > 0, "Principal must be positive");
+        ExecutionEngine.Assert(annualBasisPoints >= 0, "Interest rate must be non-negative");
+        ExecutionEngine.Assert(periods >= 0 && periods <= 100, "Invalid number of periods");
         
         if (periods == 0 || annualBasisPoints == 0) return principal;
         
@@ -525,7 +525,7 @@ public class SafePercentageOperations : SmartContract
             current = SafeAdd(current, interest);
             
             // Prevent runaway growth
-            Assert(current <= principal * 1000, "Compound growth exceeds safety limits");
+            ExecutionEngine.Assert(current <= principal * 1000, "Compound growth exceeds safety limits");
         }
         
         return current;
@@ -536,17 +536,17 @@ public class SafePercentageOperations : SmartContract
     /// </summary>
     public static BigInteger CalculateWeightedAverage(BigInteger[] values, BigInteger[] weights)
     {
-        Assert(values != null && weights != null, "Arrays cannot be null");
-        Assert(values.Length == weights.Length, "Arrays must have equal length");
-        Assert(values.Length > 0, "Arrays cannot be empty");
+        ExecutionEngine.Assert(values != null && weights != null, "Arrays cannot be null");
+        ExecutionEngine.Assert(values.Length == weights.Length, "Arrays must have equal length");
+        ExecutionEngine.Assert(values.Length > 0, "Arrays cannot be empty");
         
         BigInteger weightedSum = 0;
         BigInteger totalWeight = 0;
         
         for (int i = 0; i < values.Length; i++)
         {
-            Assert(values[i] >= 0, $"Value at index {i} must be non-negative");
-            Assert(weights[i] > 0, $"Weight at index {i} must be positive");
+            ExecutionEngine.Assert(values[i] >= 0, $"Value at index {i} must be non-negative");
+            ExecutionEngine.Assert(weights[i] > 0, $"Weight at index {i} must be positive");
             
             BigInteger weightedValue = SafeMultiply(values[i], weights[i]);
             weightedSum = SafeAdd(weightedSum, weightedValue);
@@ -562,10 +562,10 @@ public class SafePercentageOperations : SmartContract
     public static BigInteger CalculateProRataShare(BigInteger totalPool, BigInteger userShare, 
                                                  BigInteger totalShares)
     {
-        Assert(totalPool >= 0, "Total pool must be non-negative");
-        Assert(userShare >= 0, "User share must be non-negative");
-        Assert(totalShares > 0, "Total shares must be positive");
-        Assert(userShare <= totalShares, "User share cannot exceed total shares");
+        ExecutionEngine.Assert(totalPool >= 0, "Total pool must be non-negative");
+        ExecutionEngine.Assert(userShare >= 0, "User share must be non-negative");
+        ExecutionEngine.Assert(totalShares > 0, "Total shares must be positive");
+        ExecutionEngine.Assert(userShare <= totalShares, "User share cannot exceed total shares");
         
         if (userShare == 0) return 0;
         if (userShare == totalShares) return totalPool;
@@ -594,8 +594,8 @@ public class FixedPointArithmetic : SmartContract
     /// </summary>
     public static BigInteger ToFixedPoint(BigInteger value, int decimals = DECIMALS_8)
     {
-        Assert(value >= 0, "Value must be non-negative");
-        Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
+        ExecutionEngine.Assert(value >= 0, "Value must be non-negative");
+        ExecutionEngine.Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
         
         BigInteger scale = decimals == DECIMALS_8 ? SCALE_8 : SCALE_18;
         return SafeMultiply(value, scale);
@@ -606,8 +606,8 @@ public class FixedPointArithmetic : SmartContract
     /// </summary>
     public static BigInteger FromFixedPoint(BigInteger fixedValue, int decimals = DECIMALS_8)
     {
-        Assert(fixedValue >= 0, "Fixed value must be non-negative");
-        Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
+        ExecutionEngine.Assert(fixedValue >= 0, "Fixed value must be non-negative");
+        ExecutionEngine.Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
         
         BigInteger scale = decimals == DECIMALS_8 ? SCALE_8 : SCALE_18;
         return SafeDivide(fixedValue, scale);
@@ -618,7 +618,7 @@ public class FixedPointArithmetic : SmartContract
     /// </summary>
     public static BigInteger AddFixedPoint(BigInteger a, BigInteger b, int decimals = DECIMALS_8)
     {
-        Assert(a >= 0 && b >= 0, "Fixed-point values must be non-negative");
+        ExecutionEngine.Assert(a >= 0 && b >= 0, "Fixed-point values must be non-negative");
         return SafeAdd(a, b);
     }
     
@@ -627,8 +627,8 @@ public class FixedPointArithmetic : SmartContract
     /// </summary>
     public static BigInteger MultiplyFixedPoint(BigInteger a, BigInteger b, int decimals = DECIMALS_8)
     {
-        Assert(a >= 0 && b >= 0, "Fixed-point values must be non-negative");
-        Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
+        ExecutionEngine.Assert(a >= 0 && b >= 0, "Fixed-point values must be non-negative");
+        ExecutionEngine.Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
         
         BigInteger scale = decimals == DECIMALS_8 ? SCALE_8 : SCALE_18;
         BigInteger product = SafeMultiply(a, b);
@@ -640,9 +640,9 @@ public class FixedPointArithmetic : SmartContract
     /// </summary>
     public static BigInteger DivideFixedPoint(BigInteger a, BigInteger b, int decimals = DECIMALS_8)
     {
-        Assert(a >= 0, "Dividend must be non-negative");
-        Assert(b > 0, "Divisor must be positive");
-        Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
+        ExecutionEngine.Assert(a >= 0, "Dividend must be non-negative");
+        ExecutionEngine.Assert(b > 0, "Divisor must be positive");
+        ExecutionEngine.Assert(decimals == DECIMALS_8 || decimals == DECIMALS_18, "Unsupported decimal precision");
         
         BigInteger scale = decimals == DECIMALS_8 ? SCALE_8 : SCALE_18;
         BigInteger scaledDividend = SafeMultiply(a, scale);
@@ -654,7 +654,7 @@ public class FixedPointArithmetic : SmartContract
     /// </summary>
     public static BigInteger SqrtFixedPoint(BigInteger fixedValue, int decimals = DECIMALS_8)
     {
-        Assert(fixedValue >= 0, "Cannot calculate square root of negative number");
+        ExecutionEngine.Assert(fixedValue >= 0, "Cannot calculate square root of negative number");
         
         if (fixedValue == 0) return 0;
         

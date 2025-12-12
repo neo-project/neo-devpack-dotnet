@@ -26,7 +26,15 @@ namespace Neo.SmartContract.Framework.Native
 
         public static extern ByteString Ripemd160(ByteString value);
 
+        [Obsolete("Use Keccak256 instead.")]
         public static extern ByteString keccak256(ByteString value);
+
+        public static ByteString Keccak256(ByteString value)
+        {
+#pragma warning disable CS0618
+            return keccak256(value);
+#pragma warning restore CS0618
+        }
 
         public static extern ByteString Murmur32(ByteString value, uint seed);
 

@@ -290,7 +290,7 @@ neo> list asset
 public static bool UpgradeContract(ByteString nefFile, string manifest)
 {
     // Step 1: Verify authorization
-    Assert(Runtime.CheckWitness(GetOwner()), "Unauthorized");
+    ExecutionEngine.Assert(Runtime.CheckWitness(GetOwner()), "Unauthorized");
     
     // Step 2: Save critical state
     var criticalData = new Map<string, object>();
@@ -353,7 +353,7 @@ echo "Issue: <description>" >> incident.log
 public static bool EmergencyPause()
 {
     // Multi-sig requirement for emergency
-    Assert(IsEmergencyAuthorized(), "Unauthorized");
+    ExecutionEngine.Assert(IsEmergencyAuthorized(), "Unauthorized");
     
     Storage.Put(Storage.CurrentContext, "emergency_pause", 1);
     OnEmergencyPause(Runtime.Time);
@@ -485,18 +485,18 @@ public static class NetworkConfig
 {
     public static NetworkSettings GetSettings()
     {
-        var network = Runtime.Platform;
+        uint network = Runtime.GetNetwork();
         
         return network switch
         {
-            "MainNet" => new NetworkSettings
+            860833102u => new NetworkSettings // MainNet
             {
                 MaxTransactionSize = 100_000,
                 GasPrice = 0.00001m,
                 StoragePrice = 0.001m,
                 OraclePrice = 0.01m
             },
-            "TestNet" => new NetworkSettings
+            894710606u => new NetworkSettings // TestNet
             {
                 MaxTransactionSize = 1_000_000,
                 GasPrice = 0.00000001m,
@@ -541,7 +541,9 @@ public class GovernanceContract : SmartContract
     
     public static BigInteger CreateProposal(string description, ByteString actionData)
     {
-        Assert(GetBalance(Runtime.CallingScriptHash) >= PROPOSAL_THRESHOLD, 
+        UInt160 caller = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
+        ExecutionEngine.Assert(GetBalance(caller) >= PROPOSAL_THRESHOLD, 
                "Insufficient tokens to create proposal");
         
         var proposalId = GetNextProposalId();
@@ -564,10 +566,10 @@ public class GovernanceContract : SmartContract
     public static bool ExecuteProposal(BigInteger proposalId)
     {
         var proposal = GetProposal(proposalId);
-        Assert(Runtime.Time > proposal.EndTime, "Voting period not ended");
-        Assert(!proposal.Executed, "Already executed");
-        Assert(proposal.VotesFor > proposal.VotesAgainst, "Proposal rejected");
-        Assert(proposal.VotesFor >= QUORUM, "Quorum not reached");
+        ExecutionEngine.Assert(Runtime.Time > proposal.EndTime, "Voting period not ended");
+        ExecutionEngine.Assert(!proposal.Executed, "Already executed");
+        ExecutionEngine.Assert(proposal.VotesFor > proposal.VotesAgainst, "Proposal rejected");
+        ExecutionEngine.Assert(proposal.VotesFor >= QUORUM, "Quorum not reached");
         
         // Execute the proposed action
         Contract.Call(Runtime.ExecutingScriptHash, "executeAction", 

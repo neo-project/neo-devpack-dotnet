@@ -100,6 +100,38 @@ namespace Neo.SmartContract.Analyzer.Test
         }
 
         [TestMethod]
+        public async Task UnsupportedSystemListType_ShouldReportDiagnostic_AndFixToList()
+        {
+            var test = TestNamespace + """
+
+                                       class TestClass
+                                       {
+                                           public void TestMethod()
+                                           {
+                                               System.Collections.Generic.List<int> list = new System.Collections.Generic.List<int>();
+                                           }
+                                       }
+                                       """;
+
+            const string fixTest = TestNamespace + """
+
+                                                   class TestClass
+                                                   {
+                                                       public void TestMethod()
+                                                       {
+                                                           List<int> list = new List<int>();
+                                                       }
+                                                   }
+                                                   """;
+
+            var expectedDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(18, 9)
+                .WithArguments("System.Collections.Generic.List<T>", "List<T>");
+
+            await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixTest);
+        }
+
+        [TestMethod]
         public async Task SupportedCollectionType_ShouldNotReportDiagnostic()
         {
             var test = TestNamespace + """

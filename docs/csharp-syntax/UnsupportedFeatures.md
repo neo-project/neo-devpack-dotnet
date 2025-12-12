@@ -61,7 +61,6 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
 
 - **C# 13 Syntax Checklist**  
   - New `lock` type semantics (`new_lock_object`)
-  - Implicit indexer access in object initializers (`implicit_index_access`)
   - `ref` locals and unsafe contexts in iterators and async methods (`ref_and_unsafe_in_iterators_and_async_methods`)
   - Extension types (`extension_types`)
 

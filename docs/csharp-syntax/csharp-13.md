@@ -23,15 +23,12 @@ public class ParamsCollections : Neo.SmartContract.Framework.SmartContract
 
 Status: unsupported
 Scope: method
-Notes: Using the new `System.Threading.Lock` synchronization primitive requires the C# 13 compiler pipeline. Roslyn selects the appropriate Lock API and emits the IL before Neo executes it.
+Notes: `lock` statements are rejected by the Neo compiler because contracts execute single-threaded. Even with the new `System.Threading.Lock` semantics, avoid `lock` in contracts.
 ```csharp
-public static void UseLock()
+var sync = new System.Threading.Lock();
+lock (sync)
 {
-    var sync = new System.Threading.Lock();
-    lock (sync)
-    {
-        Neo.SmartContract.Framework.Services.Runtime.Log("locked");
-    }
+    Neo.SmartContract.Framework.Services.Runtime.Log("locked");
 }
 ```
 
@@ -67,11 +64,11 @@ public class MethodGroupExample : Neo.SmartContract.Framework.SmartContract
 
 ### implicit_index_access - Implicit indexer access in object initializers
 
-Status: unsupported
+Status: supported
 Scope: method
-Notes: Using the `^` operator inside an object initializer is a C# 13 addition. Roslyn rewrites implicit indexers into explicit element access before Neo compiles the initializer.
+Notes: Implicit indexer access in object initializers compiles when targeting Neo framework collections. Roslyn rewrites the implicit indexer into an explicit element access statement that Neo can lower.
 ```csharp
-var sample = new System.Collections.Generic.List<int>
+var sample = new Neo.SmartContract.Framework.List<int>
 {
     [^1] = 42
 };

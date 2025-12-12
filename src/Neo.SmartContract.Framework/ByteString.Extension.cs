@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System;
 using Neo.SmartContract.Framework.Native;
 namespace Neo.SmartContract.Framework;
 
@@ -91,7 +92,19 @@ public static class ByteStringExtension
     /// <param name="byteString">Array where to search.</param>
     /// <param name="byteToFind">Array to search.</param>
     /// <returns>True if start with</returns>
+    [Obsolete("Use StartsWith instead.")]
     public static bool StartWith(this ByteString byteString, ByteString byteToFind)
+    {
+        return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind), 0);
+    }
+
+    /// <summary>
+    /// Determines whether the beginning of this string instance matches the specified string.
+    /// </summary>
+    /// <param name="byteString">Array where to search.</param>
+    /// <param name="byteToFind">Array to search.</param>
+    /// <returns>True if starts with</returns>
+    public static bool StartsWith(this ByteString byteString, ByteString byteToFind)
     {
         return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind), 0);
     }
@@ -104,7 +117,22 @@ public static class ByteStringExtension
     /// <returns>True if ends with</returns>
     public static bool EndsWith(this ByteString byteString, ByteString byteToFind)
     {
-        return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind) + byteToFind.Length, byteString.Length);
+        if (byteToFind.Length == 0) return true;
+        int startIndex = byteString.Length - byteToFind.Length;
+        if (startIndex < 0) return false;
+        return Helper.NumEqual(StdLib.MemorySearch(byteString, byteToFind, startIndex), startIndex);
+    }
+
+    /// <summary>
+    /// Determines whether the end of this string instance matches a specified string.
+    /// </summary>
+    /// <param name="byteString">Array where to search.</param>
+    /// <param name="byteToFind">Array to search.</param>
+    /// <returns>True if ends with</returns>
+    [Obsolete("Use EndsWith instead.")]
+    public static bool EndWith(this ByteString byteString, ByteString byteToFind)
+    {
+        return byteString.EndsWith(byteToFind);
     }
 
     /// <summary>

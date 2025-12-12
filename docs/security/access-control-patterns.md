@@ -43,7 +43,7 @@ public class OwnerOnlyContract : SmartContract
     /// </summary>
     private static void OnlyOwner()
     {
-        Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
+        ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
     }
     
     /// <summary>
@@ -65,8 +65,8 @@ public class OwnerOnlyContract : SmartContract
     public static bool TransferOwnership(UInt160 newOwner)
     {
         OnlyOwner();
-        Assert(newOwner != OWNER, "New owner must be different");
-        Assert(Runtime.CheckWitness(newOwner), "New owner must authorize the transfer");
+        ExecutionEngine.Assert(newOwner != OWNER, "New owner must be different");
+        ExecutionEngine.Assert(Runtime.CheckWitness(newOwner), "New owner must authorize the transfer");
         
         // Update owner in storage for future reference
         Storage.Put(Storage.CurrentContext, "owner", newOwner);
@@ -108,8 +108,8 @@ public class WhitelistContract : SmartContract
     /// </summary>
     public static bool AddToWhitelist(UInt160 address)
     {
-        Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
-        Assert(address != null && address.IsValid, "Invalid address");
+        ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
+        ExecutionEngine.Assert(address != null && address.IsValid, "Invalid address");
         
         Whitelist.Put(address, 1);
         OnWhitelistUpdated(address, true);
@@ -121,8 +121,8 @@ public class WhitelistContract : SmartContract
     /// </summary>
     public static bool RemoveFromWhitelist(UInt160 address)
     {
-        Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
-        Assert(address != null && address.IsValid, "Invalid address");
+        ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
+        ExecutionEngine.Assert(address != null && address.IsValid, "Invalid address");
         
         Whitelist.Delete(address);
         OnWhitelistUpdated(address, false);
@@ -144,9 +144,9 @@ public class WhitelistContract : SmartContract
     /// </summary>
     public static bool WhitelistedFunction(string data)
     {
-        UInt160 caller = (UInt160)Runtime.ScriptContainer.Sender;
-        Assert(IsWhitelisted(caller), "Access denied: Not whitelisted");
-        Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
+        UInt160 caller = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(IsWhitelisted(caller), "Access denied: Not whitelisted");
+        ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
         
         // Perform whitelisted operation
         Storage.Put(Storage.CurrentContext, "data_" + caller, data);
@@ -222,9 +222,11 @@ public class RBACContract : SmartContract
     /// </summary>
     public static bool GrantRole(UInt160 user, string role)
     {
-        Assert(HasPermission(Runtime.CallingScriptHash, "grant_role"), "Access denied: No grant permission");
-        Assert(user != null && user.IsValid, "Invalid user address");
-        Assert(IsValidRole(role), "Invalid role");
+        UInt160 caller = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
+        ExecutionEngine.Assert(HasPermission(caller, "grant_role"), "Access denied: No grant permission");
+        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user address");
+        ExecutionEngine.Assert(IsValidRole(role), "Invalid role");
         
         UserRoles.Put(user + role, 1);
         OnRoleGranted(user, role);
@@ -236,9 +238,11 @@ public class RBACContract : SmartContract
     /// </summary>
     public static bool RevokeRole(UInt160 user, string role)
     {
-        Assert(HasPermission(Runtime.CallingScriptHash, "revoke_role"), "Access denied: No revoke permission");
-        Assert(user != null && user.IsValid, "Invalid user address");
-        Assert(role != ADMIN_ROLE || user != OWNER, "Cannot revoke admin role from owner");
+        UInt160 caller = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
+        ExecutionEngine.Assert(HasPermission(caller, "revoke_role"), "Access denied: No revoke permission");
+        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user address");
+        ExecutionEngine.Assert(role != ADMIN_ROLE || user != OWNER, "Cannot revoke admin role from owner");
         
         UserRoles.Delete(user + role);
         OnRoleRevoked(user, role);
@@ -280,9 +284,9 @@ public class RBACContract : SmartContract
     /// </summary>
     public static bool ManageContract(string action, string parameter)
     {
-        UInt160 caller = (UInt160)Runtime.ScriptContainer.Sender;
-        Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
-        Assert(HasPermission(caller, "manage_contract"), "Access denied: No management permission");
+        UInt160 caller = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
+        ExecutionEngine.Assert(HasPermission(caller, "manage_contract"), "Access denied: No management permission");
         
         Storage.Put(Storage.CurrentContext, "last_action", action + ":" + parameter);
         OnContractManaged(caller, action, parameter);
@@ -295,13 +299,13 @@ public class RBACContract : SmartContract
     [Safe]
     public static string[] GetAuditLog(UInt160 requester, int limit)
     {
-        Assert(HasPermission(requester, "view_audit"), "Access denied: No audit permission");
-        Assert(limit > 0 && limit <= 100, "Invalid limit");
+        ExecutionEngine.Assert(HasPermission(requester, "view_audit"), "Access denied: No audit permission");
+        ExecutionEngine.Assert(limit > 0 && limit <= 100, "Invalid limit");
         
         // Return audit information (implementation depends on audit log structure)
-        List<string> auditEntries = new List<string>();
+        Neo.SmartContract.Framework.List<string> auditEntries = new Neo.SmartContract.Framework.List<string>();
         
-        var iterator = Storage.Find(Storage.CurrentContext, "audit_", FindOptions.None);
+        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "audit_", FindOptions.ValuesOnly);
         int count = 0;
         
         while (iterator.Next() && count < limit)
@@ -310,7 +314,7 @@ public class RBACContract : SmartContract
             count++;
         }
         
-        return auditEntries.ToArray();
+        return auditEntries;
     }
     
     /// <summary>
@@ -369,19 +373,19 @@ public class MultiSigContract : SmartContract
     /// </summary>
     public static bool InitializeSigners(UInt160[] initialSigners)
     {
-        Assert(initialSigners.Length >= MIN_SIGNERS && initialSigners.Length <= MAX_SIGNERS, 
+        ExecutionEngine.Assert(initialSigners.Length >= MIN_SIGNERS && initialSigners.Length <= MAX_SIGNERS, 
                $"Signer count must be between {MIN_SIGNERS} and {MAX_SIGNERS}");
         
         // Verify all signers are valid and unique
         for (int i = 0; i < initialSigners.Length; i++)
         {
-            Assert(initialSigners[i] != null && initialSigners[i].IsValid, $"Invalid signer at index {i}");
-            Assert(Runtime.CheckWitness(initialSigners[i]), $"Signer {i} must authorize initialization");
+            ExecutionEngine.Assert(initialSigners[i] != null && initialSigners[i].IsValid, $"Invalid signer at index {i}");
+            ExecutionEngine.Assert(Runtime.CheckWitness(initialSigners[i]), $"Signer {i} must authorize initialization");
             
             // Check for duplicates
             for (int j = i + 1; j < initialSigners.Length; j++)
             {
-                Assert(initialSigners[i] != initialSigners[j], "Duplicate signers not allowed");
+                ExecutionEngine.Assert(initialSigners[i] != initialSigners[j], "Duplicate signers not allowed");
             }
             
             AuthorizedSigners.Put(initialSigners[i], 1);
@@ -398,24 +402,24 @@ public class MultiSigContract : SmartContract
     public static bool ProposeOperation(string operationId, string action, ByteString data, 
                                       UInt160[] proposedSigners, long expiryTime)
     {
-        UInt160 proposer = (UInt160)Runtime.ScriptContainer.Sender;
-        Assert(Runtime.CheckWitness(proposer), "Access denied: Invalid signature");
-        Assert(IsAuthorizedSigner(proposer), "Access denied: Not authorized signer");
+        UInt160 proposer = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(proposer), "Access denied: Invalid signature");
+        ExecutionEngine.Assert(IsAuthorizedSigner(proposer), "Access denied: Not authorized signer");
         
-        Assert(!string.IsNullOrEmpty(operationId), "Operation ID required");
-        Assert(!string.IsNullOrEmpty(action), "Action required");
-        Assert(proposedSigners.Length >= REQUIRED_SIGNATURES, "Insufficient proposed signers");
-        Assert(expiryTime > Runtime.Time, "Expiry time must be in future");
+        ExecutionEngine.Assert(!string.IsNullOrEmpty(operationId), "Operation ID required");
+        ExecutionEngine.Assert(!string.IsNullOrEmpty(action), "Action required");
+        ExecutionEngine.Assert(proposedSigners.Length >= REQUIRED_SIGNATURES, "Insufficient proposed signers");
+        ExecutionEngine.Assert(expiryTime > Runtime.Time, "Expiry time must be in future");
         
         // Verify all proposed signers are authorized
         foreach (var signer in proposedSigners)
         {
-            Assert(IsAuthorizedSigner(signer), "Unauthorized signer in proposal");
+            ExecutionEngine.Assert(IsAuthorizedSigner(signer), "Unauthorized signer in proposal");
         }
         
         // Check if operation already exists
         ByteString existingOp = PendingOperations.Get(operationId);
-        Assert(existingOp == null, "Operation already exists");
+        ExecutionEngine.Assert(existingOp == null, "Operation already exists");
         
         // Create operation
         MultiSigOperation operation = new MultiSigOperation
@@ -440,23 +444,23 @@ public class MultiSigContract : SmartContract
     /// </summary>
     public static bool SignOperation(string operationId)
     {
-        UInt160 signer = (UInt160)Runtime.ScriptContainer.Sender;
-        Assert(Runtime.CheckWitness(signer), "Access denied: Invalid signature");
-        Assert(IsAuthorizedSigner(signer), "Access denied: Not authorized signer");
+        UInt160 signer = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(signer), "Access denied: Invalid signature");
+        ExecutionEngine.Assert(IsAuthorizedSigner(signer), "Access denied: Not authorized signer");
         
         // Get pending operation
         ByteString operationData = PendingOperations.Get(operationId);
-        Assert(operationData != null, "Operation not found");
+        ExecutionEngine.Assert(operationData != null, "Operation not found");
         
         MultiSigOperation operation = (MultiSigOperation)StdLib.Deserialize(operationData);
         
         // Check expiry
-        Assert(Runtime.Time <= operation.ExpiryTime, "Operation expired");
+        ExecutionEngine.Assert(Runtime.Time <= operation.ExpiryTime, "Operation expired");
         
         // Check if already signed
         foreach (var existingSigner in operation.Signers)
         {
-            Assert(existingSigner != signer, "Already signed by this signer");
+            ExecutionEngine.Assert(existingSigner != signer, "Already signed by this signer");
         }
         
         // Add signature
@@ -487,7 +491,7 @@ public class MultiSigContract : SmartContract
     /// </summary>
     private static bool ExecuteOperation(MultiSigOperation operation)
     {
-        Assert(operation.Signers.Length >= operation.RequiredSigs, "Insufficient signatures");
+        ExecutionEngine.Assert(operation.Signers.Length >= operation.RequiredSigs, "Insufficient signatures");
         
         // Execute based on action type
         bool success = false;
@@ -506,7 +510,7 @@ public class MultiSigContract : SmartContract
                 success = ExecuteRemoveSigner(operation.Data);
                 break;
             default:
-                Assert(false, "Unknown operation action");
+                ExecutionEngine.Assert(false, "Unknown operation action");
                 break;
         }
         
@@ -536,7 +540,7 @@ public class MultiSigContract : SmartContract
     public static MultiSigOperation GetPendingOperation(string operationId)
     {
         ByteString operationData = PendingOperations.Get(operationId);
-        Assert(operationData != null, "Operation not found");
+        ExecutionEngine.Assert(operationData != null, "Operation not found");
         return (MultiSigOperation)StdLib.Deserialize(operationData);
     }
     
@@ -558,11 +562,11 @@ public class MultiSigContract : SmartContract
     private static bool ExecuteAddSigner(ByteString data)
     {
         UInt160 newSigner = (UInt160)data;
-        Assert(newSigner != null && newSigner.IsValid, "Invalid signer address");
-        Assert(!IsAuthorizedSigner(newSigner), "Signer already authorized");
+        ExecutionEngine.Assert(newSigner != null && newSigner.IsValid, "Invalid signer address");
+        ExecutionEngine.Assert(!IsAuthorizedSigner(newSigner), "Signer already authorized");
         
         int currentCount = (int)Storage.Get(Storage.CurrentContext, "signer_count");
-        Assert(currentCount < MAX_SIGNERS, "Maximum signers reached");
+        ExecutionEngine.Assert(currentCount < MAX_SIGNERS, "Maximum signers reached");
         
         AuthorizedSigners.Put(newSigner, 1);
         Storage.Put(Storage.CurrentContext, "signer_count", currentCount + 1);
@@ -574,10 +578,10 @@ public class MultiSigContract : SmartContract
     private static bool ExecuteRemoveSigner(ByteString data)
     {
         UInt160 signerToRemove = (UInt160)data;
-        Assert(IsAuthorizedSigner(signerToRemove), "Signer not found");
+        ExecutionEngine.Assert(IsAuthorizedSigner(signerToRemove), "Signer not found");
         
         int currentCount = (int)Storage.Get(Storage.CurrentContext, "signer_count");
-        Assert(currentCount > MIN_SIGNERS, "Cannot go below minimum signers");
+        ExecutionEngine.Assert(currentCount > MIN_SIGNERS, "Cannot go below minimum signers");
         
         AuthorizedSigners.Delete(signerToRemove);
         Storage.Put(Storage.CurrentContext, "signer_count", currentCount - 1);
@@ -637,11 +641,11 @@ public class TimeBasedAccessContract : SmartContract
     public static bool GrantTimeLimitedAccess(UInt160 user, long startTime, long endTime, 
                                             string[] permissions)
     {
-        Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
-        Assert(user != null && user.IsValid, "Invalid user address");
-        Assert(startTime >= Runtime.Time, "Start time must be in future");
-        Assert(endTime > startTime, "End time must be after start time");
-        Assert(permissions.Length > 0, "At least one permission required");
+        ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
+        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user address");
+        ExecutionEngine.Assert(startTime >= Runtime.Time, "Start time must be in future");
+        ExecutionEngine.Assert(endTime > startTime, "End time must be after start time");
+        ExecutionEngine.Assert(permissions.Length > 0, "At least one permission required");
         
         string accessId = user.ToString() + "_" + startTime.ToString();
         
@@ -670,7 +674,10 @@ public class TimeBasedAccessContract : SmartContract
         long currentTime = Runtime.Time;
         
         // Check all access windows for this user
-        var iterator = Storage.Find(TimeWindows.Context, user.ToString(), FindOptions.None);
+        var iterator = (Iterator<ByteString>)Storage.Find(
+            Storage.CurrentContext,
+            "time_windows" + user.ToString(),
+            FindOptions.ValuesOnly);
         while (iterator.Next())
         {
             AccessWindow window = (AccessWindow)StdLib.Deserialize(iterator.Value);
@@ -696,11 +703,11 @@ public class TimeBasedAccessContract : SmartContract
     /// </summary>
     public static bool EmergencyAccess(string action, string justification)
     {
-        UInt160 caller = (UInt160)Runtime.ScriptContainer.Sender;
-        Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
+        UInt160 caller = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
         
         // Check if caller has emergency access permission
-        Assert(HasTimeBasedPermission(caller, "emergency"), "Access denied: No emergency permission");
+        ExecutionEngine.Assert(HasTimeBasedPermission(caller, "emergency"), "Access denied: No emergency permission");
         
         // Log emergency access
         Storage.Put(Storage.CurrentContext, "emergency_" + Runtime.Time, 
@@ -715,11 +722,11 @@ public class TimeBasedAccessContract : SmartContract
     /// </summary>
     public static bool RevokeAccess(UInt160 user, long startTime)
     {
-        Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
+        ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
         
         string accessId = user.ToString() + "_" + startTime.ToString();
         ByteString windowData = TimeWindows.Get(accessId);
-        Assert(windowData != null, "Access window not found");
+        ExecutionEngine.Assert(windowData != null, "Access window not found");
         
         AccessWindow window = (AccessWindow)StdLib.Deserialize(windowData);
         window.IsActive = false;
@@ -734,20 +741,22 @@ public class TimeBasedAccessContract : SmartContract
     /// </summary>
     public static bool CleanupExpiredWindows(int maxCleanup)
     {
-        Assert(maxCleanup > 0 && maxCleanup <= 100, "Invalid cleanup count");
+        ExecutionEngine.Assert(maxCleanup > 0 && maxCleanup <= 100, "Invalid cleanup count");
         
         long currentTime = Runtime.Time;
         int cleaned = 0;
-        List<ByteString> toDelete = new List<ByteString>();
+        Neo.SmartContract.Framework.List<ByteString> toDelete = new Neo.SmartContract.Framework.List<ByteString>();
         
-        var iterator = Storage.Find(TimeWindows.Context, "", FindOptions.None);
+        var iterator = Storage.Find(Storage.CurrentContext, "time_windows", FindOptions.None);
         while (iterator.Next() && cleaned < maxCleanup)
         {
-            AccessWindow window = (AccessWindow)StdLib.Deserialize(iterator.Value);
-            
+            object[] pair = (object[])iterator.Value;
+            ByteString key = (ByteString)pair[0];
+            AccessWindow window = (AccessWindow)StdLib.Deserialize((ByteString)pair[1]);
+
             if (currentTime > window.EndTime)
             {
-                toDelete.Add(iterator.Key);
+                toDelete.Add(key);
                 cleaned++;
             }
         }
@@ -755,7 +764,7 @@ public class TimeBasedAccessContract : SmartContract
         // Delete expired windows
         foreach (ByteString key in toDelete)
         {
-            TimeWindows.Delete(key);
+            Storage.Delete(Storage.CurrentContext, key);
         }
         
         OnExpiredWindowsCleaned(cleaned);
@@ -794,7 +803,7 @@ public class TimeBasedAccessContract : SmartContract
 // ❌ WRONG: Only checking sender without witness verification
 public static bool WrongAccessControl()
 {
-    UInt160 sender = (UInt160)Runtime.ScriptContainer.Sender;
+    UInt160 sender = Runtime.Transaction.Sender;
     if (sender == OWNER) // This can be spoofed!
     {
         return PerformAdminAction();
@@ -805,7 +814,7 @@ public static bool WrongAccessControl()
 // ✅ CORRECT: Always verify witness
 public static bool CorrectAccessControl()
 {
-    Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
+    ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
     return PerformAdminAction();
 }
 
@@ -819,8 +828,8 @@ public static bool WrongDataAccess(UInt160 user, ByteString sensitiveData)
 // ✅ CORRECT: Proper access control for sensitive operations
 public static bool CorrectDataAccess(UInt160 user, ByteString sensitiveData)
 {
-    Assert(Runtime.CheckWitness(user), "Access denied: Invalid signature");
-    Assert(HasPermission(user, "write_sensitive"), "Access denied: No permission");
+    ExecutionEngine.Assert(Runtime.CheckWitness(user), "Access denied: Invalid signature");
+    ExecutionEngine.Assert(HasPermission(user, "write_sensitive"), "Access denied: No permission");
     
     Storage.Put(Storage.CurrentContext, "sensitive_" + user, sensitiveData);
     return true;
@@ -830,20 +839,12 @@ public static bool CorrectDataAccess(UInt160 user, ByteString sensitiveData)
 ### 3. Performance Considerations
 
 ```csharp
-// Optimize frequent access control checks
-private static readonly Dictionary<UInt160, bool> _adminCache = new();
-
 [Safe]
 public static bool IsAdminCached(UInt160 user)
 {
-    // Use cache for frequently checked permissions
-    if (_adminCache.ContainsKey(user))
-        return _adminCache[user];
-    
-    bool isAdmin = Storage.Get(Storage.CurrentContext, "admin_" + user) != null;
-    _adminCache[user] = isAdmin;
-    
-    return isAdmin;
+    // Contracts should read storage directly. If you need memoization,
+    // cache results off-chain before invoking.
+    return Storage.Get(Storage.CurrentContext, "admin_" + user) != null;
 }
 ```
 
