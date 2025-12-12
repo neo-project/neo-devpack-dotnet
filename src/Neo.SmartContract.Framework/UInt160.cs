@@ -21,6 +21,8 @@ namespace Neo.SmartContract.Framework
     {
         public static extern UInt160 Zero { [OpCode(OpCode.PUSHDATA1, "140000000000000000000000000000000000000000")] get; }
 
+        public static int Size => 20;
+
         public extern bool IsZero
         {
             [OpCode(OpCode.PUSH0)]
@@ -91,13 +93,12 @@ namespace Neo.SmartContract.Framework
         {
             if (value is null) throw new FormatException("Value cannot be null.");
 
-            var valueBytes = value.ToByteArray();
-            int offset = ParseHelper.GetHexPrefixLength(valueBytes);
-            int hexLength = valueBytes.Length - offset;
+            if (!ParseHelper.TryParseHex(value.ToByteArray(), out var data))
+                throw new FormatException("Invalid hex value.");
 
-            if (hexLength == 40)
+            if (data.Length == UInt160.Size)
             {
-                return (UInt160)ParseHelper.ParseHex(valueBytes, offset, 20).Reverse();
+                return (UInt160)data.Reverse();
             }
 
             return (UInt160)ParseHelper.ParseAddress(value, Runtime.AddressVersion);
