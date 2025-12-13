@@ -26,14 +26,15 @@ namespace Neo.SmartContract.Framework.Native
         /// Recovers the public key from a secp256k1 signature in bytes format.
         /// Available from HF_Echidna.
         /// </summary>
-        /// <param name="messageHash">The hash of the message that was signed. It cannot be null.</param>
+        /// <param name="messageHash">The 32-byte hash of the message that was signed. It cannot be null.</param>
         /// <param name="signature">
-        /// The signature in raw bytes format if it's length is 64.
-        /// Otherwise, it's the 65-byte signature in format: r[32] + s[32] + v[1]. 64-bytes for eip-2098, where v must be 27 or 28.
+        /// The signature, either:
+        /// - 65 bytes: r[32] + s[32] + v[1], where v is in [0..3] or [27..30], or
+        /// - 64 bytes (EIP-2098 compact): r[32] + yParityAndS[32] (highest bit encodes parity).
         /// It cannot be null.
         /// </param>
         /// <returns>The recovered public key in compressed format, or null if recovery fails.</returns>
-        public static extern ByteString RecoverSecp256K1(ByteString messageHash, ByteString signature);
+        public static extern ByteString? RecoverSecp256K1(ByteString messageHash, ByteString signature);
 
         public static extern ByteString Sha256(ByteString value);
 

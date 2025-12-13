@@ -14,6 +14,7 @@ using Neo.Cryptography;
 using Neo.Network.P2P;
 using Neo.SmartContract.Testing;
 using Neo.Wallets;
+using System;
 using System.Security.Cryptography;
 using System.Text;
 using Neo.Extensions;
@@ -99,6 +100,74 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Test_RecoverSecp256K1()
+        {
+            // Test vectors adapted from neo's UT_Crypto / UT_CryptoLib
+            var messageHash1 = "5ae8317d34d1e595e3fa7247db80c0af4320cce1116de187f8f7e2e099c0d8d0".HexToBytes();
+            var signature1 = ("45c0b7f8c09a9e1f1cea0c25785594427b6bf8f9f878a8af0b1abbb48e16d092" +
+                              "0d8becd0c220f67c51217eecfd7184ef0732481c843857e6bc7fc095c4f6b78801").HexToBytes();
+            var expectedPubKey1 = "034a071e8a6e10aada2b8cf39fa3b5fb3400b04e99ea8ae64ceea1a977dbeaf5d5".HexToBytes();
+
+            // 65-byte signature where v is in [0..3]
+            CollectionAssert.AreEqual(expectedPubKey1, Contract.RecoverSecp256K1(messageHash1, signature1));
+
+            // 65-byte signature with Ethereum-style v in [27..30]
+            var signature1EthV = new byte[signature1.Length];
+            Buffer.BlockCopy(signature1, 0, signature1EthV, 0, signature1.Length);
+            signature1EthV[64] += 27;
+            CollectionAssert.AreEqual(expectedPubKey1, Contract.RecoverSecp256K1(messageHash1, signature1EthV));
+
+            // 64-byte compact signature (r[32] || yParityAndS[32]) per EIP-2098
+            var privateKey = "1234567890123456789012345678901234567890123456789012345678901234".HexToBytes();
+            var expectedPubKey2 = (Cryptography.ECC.ECCurve.Secp256k1.G * privateKey).EncodePoint(true);
+            var messageHash2 = GetEthereumSignedMessageHash(Encoding.UTF8.GetBytes("It's a small(er) world"));
+            var signature2 = new byte[64];
+            Buffer.BlockCopy("9328da16089fcba9bececa81663203989f2df5fe1faa6291a45381c81bd17f76".HexToBytes(), 0, signature2, 0, 32);
+            Buffer.BlockCopy("939c6d6b623b42da56557e5e734a43dc83345ddfadec52cbe24d0cc64f550793".HexToBytes(), 0, signature2, 32, 32);
+            CollectionAssert.AreEqual(expectedPubKey2, Contract.RecoverSecp256K1(messageHash2, signature2));
+
+            // Invalid inputs should return null
+            Assert.IsNull(Contract.RecoverSecp256K1(messageHash1[..31], signature1));
+            Assert.IsNull(Contract.RecoverSecp256K1(messageHash1, signature1[..63]));
+
+            var invalidRecoverySignature = new byte[signature1.Length];
+            Buffer.BlockCopy(signature1, 0, invalidRecoverySignature, 0, signature1.Length);
+            invalidRecoverySignature[64] = 29;
+            Assert.IsNull(Contract.RecoverSecp256K1(messageHash1, invalidRecoverySignature));
+        }
+
+        [TestMethod]
+        public void Test_VerifyWithEd25519()
+        {
+            byte[] publicKey = "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a".HexToBytes();
+            byte[] message = Array.Empty<byte>();
+            byte[] signature = ("e5564300c360ac729086e2cc806e828a84877f1eb8e5d974d873e06522490155" +
+                                "5fb8821590a33bacc61e39701cf9b46bd25bf5f0595bbe24655141438e7a100b").HexToBytes();
+
+            // Verify using Ed25519 directly
+            Assert.IsTrue(Ed25519.Verify(publicKey, message, signature));
+
+            // Verify using CryptoLib.VerifyWithEd25519
+            Assert.IsTrue(Contract.VerifyWithEd25519(message, publicKey, signature));
+
+            // Test with a different message
+            byte[] differentMessage = Encoding.UTF8.GetBytes("Different message");
+            Assert.IsFalse(Contract.VerifyWithEd25519(differentMessage, publicKey, signature));
+
+            // Test with an invalid signature
+            byte[] invalidSignature = new byte[signature.Length];
+            Buffer.BlockCopy(signature, 0, invalidSignature, 0, signature.Length);
+            invalidSignature[0] ^= 0x01; // Flip one bit
+            Assert.IsFalse(Contract.VerifyWithEd25519(message, publicKey, invalidSignature));
+
+            // Test with an invalid public key
+            byte[] invalidPublicKey = new byte[publicKey.Length];
+            Buffer.BlockCopy(publicKey, 0, invalidPublicKey, 0, publicKey.Length);
+            invalidPublicKey[0] ^= 0x01; // Flip one bit
+            Assert.IsFalse(Contract.VerifyWithEd25519(message, invalidPublicKey, signature));
+        }
+
+        [TestMethod]
         public void Test_Bls12381Serialize_And_Deserialize()
         {
             byte[] g1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb".ToLower().HexToBytes();
@@ -155,6 +224,16 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var result = Contract.Bls12381Pairing(item1, item2);
 
             Assert.IsNotNull(result);
+        }
+
+        private static byte[] GetEthereumSignedMessageHash(byte[] messageBody)
+        {
+            var prefix = Encoding.UTF8.GetBytes($"Ethereum Signed Message:\n{messageBody.Length}");
+            var message = new byte[1 + prefix.Length + messageBody.Length];
+            message[0] = 0x19;
+            Buffer.BlockCopy(prefix, 0, message, 1, prefix.Length);
+            Buffer.BlockCopy(messageBody, 0, message, 1 + prefix.Length, messageBody.Length);
+            return message.Keccak256();
         }
     }
 }
