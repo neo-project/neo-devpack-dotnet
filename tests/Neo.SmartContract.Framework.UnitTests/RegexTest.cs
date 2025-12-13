@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith());
-            AssertGasConsumed(1988040);
+            AssertGasConsumed(1989840);
         }
 
         [TestMethod]

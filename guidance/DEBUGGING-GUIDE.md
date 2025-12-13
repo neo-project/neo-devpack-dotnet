@@ -74,7 +74,7 @@ public static BigInteger CalculateInterest(BigInteger principal)
 var filtered = items.Where(x => x > 10).ToList();
 
 // ✅ Use manual iteration
-List<int> filtered = new();
+Neo.SmartContract.Framework.List<int> filtered = new();
 foreach (var item in items)
 {
     if (item > 10) filtered.Add(item);
@@ -202,8 +202,9 @@ public class StorageDebugger : SmartContract
         
         while (iterator.Next())
         {
-            var key = (ByteString)iterator.Value[0];
-            var value = iterator.Value[1];
+            object[] pair = (object[])iterator.Value;
+            var key = (ByteString)pair[0];
+            var value = pair[1];
             result[key] = value;
         }
         
@@ -251,7 +252,7 @@ public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
     Runtime.Log($"Transfer: {from} -> {to}, amount: {amount}");
     
     // This might fail with ASSERT
-    Assert(Runtime.CheckWitness(from), "Witness check failed");
+    ExecutionEngine.Assert(Runtime.CheckWitness(from), "Witness check failed");
     
     // Debug: Witness passed
     Runtime.Log("Witness verified");
@@ -260,7 +261,7 @@ public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
     Runtime.Log($"Balance: {balance}");
     
     // This might fail with ASSERT
-    Assert(balance >= amount, $"Insufficient balance: {balance} < {amount}");
+    ExecutionEngine.Assert(balance >= amount, $"Insufficient balance: {balance} < {amount}");
     
     // Continue with transfer...
 }
@@ -424,19 +425,19 @@ public class EventDebugContract : SmartContract
 ```csharp
 public static class TestDataGenerator
 {
-    public static UInt160 GenerateAddress(int seed)
+    public static Neo.UInt160 GenerateAddress(int seed)
     {
         var bytes = new byte[20];
         for (int i = 0; i < 20; i++)
         {
             bytes[i] = (byte)((seed + i) % 256);
         }
-        return new UInt160(bytes);
+        return new Neo.UInt160(bytes);
     }
     
-    public static List<(UInt160, BigInteger)> GenerateBalances(int count)
+    public static List<(Neo.UInt160, BigInteger)> GenerateBalances(int count)
     {
-        var result = new List<(UInt160, BigInteger)>();
+        var result = new List<(Neo.UInt160, BigInteger)>();
         for (int i = 0; i < count; i++)
         {
             var address = GenerateAddress(i);
@@ -519,18 +520,18 @@ public void Debug_MemoryUsage()
 ```csharp
 public static bool TraceableOperation()
 {
-    var stack = new Stack<string>();
-    stack.Push("TraceableOperation:Start");
+    var stack = new Neo.SmartContract.Framework.List<string>();
+    stack.Add("TraceableOperation:Start");
     
     try
     {
-        stack.Push("ValidationPhase");
+        stack.Add("ValidationPhase");
         ValidateInputs();
-        stack.Pop();
+        stack.PopItem();
         
-        stack.Push("ProcessingPhase");
+        stack.Add("ProcessingPhase");
         ProcessData();
-        stack.Pop();
+        stack.PopItem();
         
         return true;
     }
@@ -539,7 +540,7 @@ public static bool TraceableOperation()
         // Log call stack on error
         while (stack.Count > 0)
         {
-            Runtime.Log($"Stack: {stack.Pop()}");
+            Runtime.Log($"Stack: {stack.PopItem()}");
         }
         throw;
     }

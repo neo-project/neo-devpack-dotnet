@@ -39,10 +39,10 @@ public class GasBombVulnerable : SmartContract
     public static bool ProcessAllUsers()
     {
         // Dangerous: Unbounded loop that can exceed gas limit
-        var iterator = Storage.Find(Storage.CurrentContext, "user_", FindOptions.None);
+        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "user_", FindOptions.ValuesOnly);
         while (iterator.Next())
         {
-            ProcessUser(iterator.Key, iterator.Value);
+            ProcessUser(iterator.Value);
         }
         return true;
     }
@@ -69,20 +69,20 @@ public class GasBombSecure : SmartContract
     
     public static bool ProcessUsersPaginated(int startIndex, int count)
     {
-        Assert(count > 0 && count <= MAX_ITERATION_COUNT, "Invalid count range");
-        Assert(startIndex >= 0, "Invalid start index");
+        ExecutionEngine.Assert(count > 0 && count <= MAX_ITERATION_COUNT, "Invalid count range");
+        ExecutionEngine.Assert(startIndex >= 0, "Invalid start index");
         
         int processed = 0;
         int currentIndex = 0;
         
-        var iterator = Storage.Find(Storage.CurrentContext, "user_", FindOptions.None);
+        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "user_", FindOptions.ValuesOnly);
         while (iterator.Next() && processed < count)
         {
             if (currentIndex >= startIndex)
             {
-                if (!ProcessUserSafely(iterator.Key, iterator.Value))
+                if (!ProcessUserSafely(iterator.Value))
                 {
-                    OnUserProcessingFailed(iterator.Key);
+                    OnUserProcessingFailed(iterator.Value);
                     break; // Stop on first failure to prevent cascading issues
                 }
                 processed++;
@@ -96,13 +96,13 @@ public class GasBombSecure : SmartContract
     
     public static bool BatchTransferSecure(UInt160[] recipients, BigInteger[] amounts)
     {
-        Assert(recipients.Length == amounts.Length, "Array length mismatch");
-        Assert(recipients.Length <= MAX_BATCH_SIZE, $"Batch size exceeds limit of {MAX_BATCH_SIZE}");
+        ExecutionEngine.Assert(recipients.Length == amounts.Length, "Array length mismatch");
+        ExecutionEngine.Assert(recipients.Length <= MAX_BATCH_SIZE, $"Batch size exceeds limit of {MAX_BATCH_SIZE}");
         
         // Pre-validate all inputs to fail fast
         for (int i = 0; i < recipients.Length; i++)
         {
-            Assert(recipients[i] != null && amounts[i] > 0, $"Invalid input at index {i}");
+            ExecutionEngine.Assert(recipients[i] != null && amounts[i] > 0, $"Invalid input at index {i}");
         }
         
         // Track gas usage per operation
@@ -122,13 +122,13 @@ public class GasBombSecure : SmartContract
         return successCount == recipients.Length;
     }
     
-    private static bool ProcessUserSafely(ByteString key, ByteString value)
+    private static bool ProcessUserSafely(ByteString userData)
     {
         // Implement efficient, bounded processing
         try
         {
             // Minimal, gas-efficient operations only
-            UpdateUserLastSeen(key);
+            UpdateUserLastSeen(userData);
             return true;
         }
         catch
@@ -169,7 +169,7 @@ public class GasGriefingVulnerable : SmartContract
         BigInteger result = 1;
         for (BigInteger i = 0; i < input; i++)
         {
-            result = result * i + CryptoLib.Sha256(result.ToByteArray());
+            result = result * i + (BigInteger)CryptoLib.Sha256((ByteString)result);
         }
         return true;
     }
@@ -186,7 +186,7 @@ public class GasGriefingSecure : SmartContract
     
     public static bool ProcessUserRequestsSafely(UInt160[] users)
     {
-        Assert(users.Length <= 20, "Too many users in batch");
+        ExecutionEngine.Assert(users.Length <= 20, "Too many users in batch");
         
         foreach (var user in users)
         {
@@ -214,7 +214,7 @@ public class GasGriefingSecure : SmartContract
     public static bool BoundedCalculation(BigInteger input)
     {
         // Secure: Bound computation complexity
-        Assert(input >= 0 && input <= MAX_COMPUTATION_ITERATIONS, 
+        ExecutionEngine.Assert(input >= 0 && input <= MAX_COMPUTATION_ITERATIONS, 
                $"Input must be between 0 and {MAX_COMPUTATION_ITERATIONS}");
         
         BigInteger result = 1;
@@ -243,40 +243,24 @@ public class GasGriefingSecure : SmartContract
 ```csharp
 public class OptimizedStorage : SmartContract
 {
-    // Use storage caching for frequently accessed data
-    private static readonly Dictionary<UInt160, BigInteger> _balanceCache = new();
-    private static readonly Dictionary<string, bool> _configCache = new();
-    
     public static BigInteger GetBalanceOptimized(UInt160 user)
     {
-        // Check cache first
-        if (_balanceCache.ContainsKey(user))
-        {
-            return _balanceCache[user];
-        }
-        
-        // Load from storage and cache
+        // Load from storage
         StorageMap balances = new(Storage.CurrentContext, "balances");
-        BigInteger balance = (BigInteger)balances.Get(user) ?? 0;
-        _balanceCache[user] = balance;
-        
-        return balance;
+        return (BigInteger)balances.Get(user);
     }
     
     public static void SetBalanceOptimized(UInt160 user, BigInteger amount)
     {
         StorageMap balances = new(Storage.CurrentContext, "balances");
         balances.Put(user, amount);
-        
-        // Update cache
-        _balanceCache[user] = amount;
     }
     
     // Batch storage operations to reduce gas costs
     public static bool BatchUpdateBalances(UInt160[] users, BigInteger[] amounts)
     {
-        Assert(users.Length == amounts.Length, "Array length mismatch");
-        Assert(users.Length <= 50, "Batch too large");
+        ExecutionEngine.Assert(users.Length == amounts.Length, "Array length mismatch");
+        ExecutionEngine.Assert(users.Length <= 50, "Batch too large");
         
         StorageMap balances = new(Storage.CurrentContext, "balances");
         
@@ -284,7 +268,6 @@ public class OptimizedStorage : SmartContract
         for (int i = 0; i < users.Length; i++)
         {
             balances.Put(users[i], amounts[i]);
-            _balanceCache[users[i]] = amounts[i]; // Update cache
         }
         
         OnBatchBalanceUpdate(users.Length);
@@ -313,7 +296,7 @@ public class OptimizedComputation : SmartContract
         }
         
         // Fallback to calculation for larger exponents with bounds
-        Assert(exponent <= 64, "Exponent too large");
+        ExecutionEngine.Assert(exponent <= 64, "Exponent too large");
         
         BigInteger result = 1;
         BigInteger baseValue = 2;
@@ -369,12 +352,12 @@ public class OptimizedEvents : SmartContract
     public static bool EfficientTransfer(UInt160 from, UInt160 to, BigInteger amount)
     {
         // Validate inputs
-        Assert(from != null && to != null, "Invalid addresses");
-        Assert(amount > 0, "Invalid amount");
+        ExecutionEngine.Assert(from != null && to != null, "Invalid addresses");
+        ExecutionEngine.Assert(amount > 0, "Invalid amount");
         
         // Perform transfer logic
         BigInteger fromBalance = GetBalance(from);
-        Assert(fromBalance >= amount, "Insufficient balance");
+        ExecutionEngine.Assert(fromBalance >= amount, "Insufficient balance");
         
         SetBalance(from, fromBalance - amount);
         SetBalance(to, GetBalance(to) + amount);
@@ -387,7 +370,7 @@ public class OptimizedEvents : SmartContract
     
     public static bool BatchTransferEfficient(TransferData[] transfers)
     {
-        Assert(transfers.Length <= 50, "Batch too large");
+        ExecutionEngine.Assert(transfers.Length <= 50, "Batch too large");
         
         bool allSuccessful = true;
         
@@ -429,14 +412,14 @@ public class GasLimitProtection : SmartContract
     
     public static bool RateLimitedOperation(UInt160 user, int operationCount)
     {
-        Assert(operationCount <= MAX_OPERATIONS_PER_CALL, "Too many operations");
+        ExecutionEngine.Assert(operationCount <= MAX_OPERATIONS_PER_CALL, "Too many operations");
         
         // Check user's recent activity
         BigInteger lastCallTime = GetLastCallTime(user);
         BigInteger currentTime = Runtime.Time;
         
         // Rate limiting: minimum 1 second between calls
-        Assert(currentTime >= lastCallTime + 1000, "Rate limit exceeded");
+        ExecutionEngine.Assert(currentTime >= lastCallTime + 1000, "Rate limit exceeded");
         
         SetLastCallTime(user, currentTime);
         
@@ -462,13 +445,13 @@ public class EconomicDoSProtection : SmartContract
     public static bool CostEfficientOperation(UInt160 user, byte[] data)
     {
         // Validate input size to prevent excessive gas usage
-        Assert(data.Length <= 1024, "Data too large");
+        ExecutionEngine.Assert(data.Length <= 1024, "Data too large");
         
         // Use efficient algorithms
         ByteString hash = CryptoLib.Sha256(data); // Single hash operation
         
         // Store efficiently
-        Storage.Put(Storage.CurrentContext, user + hash[..8], data); // Use partial hash as key
+        Storage.Put(Storage.CurrentContext, user.Concat((ByteString)((byte[])hash).Take(8)), data); // Use partial hash as key
         
         return true;
     }
@@ -519,7 +502,7 @@ public class GasMonitoring : SmartContract
     public static bool ValidateGasBudget(string operation, int expectedMaxGas)
     {
         int initialGas = (int)Runtime.GasLeft;
-        Assert(initialGas >= expectedMaxGas, "Insufficient gas for operation");
+        ExecutionEngine.Assert(initialGas >= expectedMaxGas, "Insufficient gas for operation");
         
         return true;
     }

@@ -566,8 +566,8 @@ public class ContractFactory : SmartContract
     
     public static UInt160 CreateContract(string name, ByteString nefFile, string manifest)
     {
-        Assert(Runtime.CheckWitness(GetOwner()), "Unauthorized");
-        Assert(!ContractExists(name), "Contract already exists");
+        ExecutionEngine.Assert(Runtime.CheckWitness(GetOwner()), "Unauthorized");
+        ExecutionEngine.Assert(!ContractExists(name), "Contract already exists");
         
         // Deploy new contract
         UInt160 contractHash = ContractManagement.Deploy(nefFile, manifest);
@@ -601,7 +601,7 @@ public class UpgradeableContract : SmartContract
     
     public static bool Upgrade(ByteString nefFile, string manifest, object data)
     {
-        Assert(Runtime.CheckWitness(GetOwner()), "Only owner can upgrade");
+        ExecutionEngine.Assert(Runtime.CheckWitness(GetOwner()), "Only owner can upgrade");
         
         // Save current state if needed
         var currentVersion = GetVersion();
@@ -644,14 +644,14 @@ public class ProxyContract : SmartContract
     public static object Main(string operation, object[] args)
     {
         var implementation = GetImplementation();
-        Assert(implementation != null, "Implementation not set");
+        ExecutionEngine.Assert(implementation != null, "Implementation not set");
         
         return Contract.Call(implementation, operation, CallFlags.All, args);
     }
     
     public static bool SetImplementation(UInt160 newImplementation)
     {
-        Assert(Runtime.CheckWitness(GetOwner()), "Unauthorized");
+        ExecutionEngine.Assert(Runtime.CheckWitness(GetOwner()), "Unauthorized");
         Storage.Put(Storage.CurrentContext, IMPLEMENTATION_KEY, newImplementation);
         return true;
     }
