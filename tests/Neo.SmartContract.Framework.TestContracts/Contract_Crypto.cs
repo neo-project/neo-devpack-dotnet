@@ -53,6 +53,16 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return CryptoLib.VerifyWithECDsa((ByteString)message, pubkey, (ByteString)signature, NamedCurveHash.secp256k1Keccak256);
         }
 
+        public static ByteString? RecoverSecp256K1(byte[] messageHash, byte[] signature)
+        {
+            return CryptoLib.RecoverSecp256K1((ByteString)messageHash, (ByteString)signature);
+        }
+
+        public static bool VerifyWithEd25519(byte[] message, byte[] pubkey, byte[] signature)
+        {
+            return CryptoLib.VerifyWithEd25519((ByteString)message, (ByteString)pubkey, (ByteString)signature);
+        }
+
         public static byte[] Bls12381Serialize(object data)
         {
             return CryptoLib.Bls12381Serialize(data);
