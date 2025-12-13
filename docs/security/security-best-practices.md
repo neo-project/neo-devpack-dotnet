@@ -19,25 +19,25 @@ public static class InputValidator
 {
     public static void ValidateAddress(UInt160 address, string paramName = "address")
     {
-        Assert(address != null && address.IsValid, $"Invalid {paramName}");
+        ExecutionEngine.Assert(address != null && address.IsValid, $"Invalid {paramName}");
     }
     
     public static void ValidateAmount(BigInteger amount, BigInteger max = 0, string paramName = "amount")
     {
-        Assert(amount > 0, $"{paramName} must be positive");
-        if (max > 0) Assert(amount <= max, $"{paramName} exceeds maximum");
+        ExecutionEngine.Assert(amount > 0, $"{paramName} must be positive");
+        if (max > 0) ExecutionEngine.Assert(amount <= max, $"{paramName} exceeds maximum");
     }
     
     public static void ValidateString(string input, int maxLength = 1024, bool allowEmpty = false)
     {
-        if (!allowEmpty) Assert(!string.IsNullOrEmpty(input), "Input cannot be empty");
-        if (input != null) Assert(input.Length <= maxLength, "Input too long");
+        if (!allowEmpty) ExecutionEngine.Assert(!string.IsNullOrEmpty(input), "Input cannot be empty");
+        if (input != null) ExecutionEngine.Assert(input.Length <= maxLength, "Input too long");
     }
     
     public static void ValidateArray<T>(T[] array, int maxLength = 100)
     {
-        Assert(array != null && array.Length > 0, "Array required");
-        Assert(array.Length <= maxLength, "Array too large");
+        ExecutionEngine.Assert(array != null && array.Length > 0, "Array required");
+        ExecutionEngine.Assert(array.Length <= maxLength, "Array too large");
     }
 }
 
@@ -47,7 +47,7 @@ public static bool ProcessUserData(UInt160 user, string data, BigInteger amount)
     InputValidator.ValidateAddress(user, "user");
     InputValidator.ValidateString(data, 512);
     InputValidator.ValidateAmount(amount, MAX_TOKEN_AMOUNT);
-    Assert(Runtime.CheckWitness(user), "Unauthorized");
+    ExecutionEngine.Assert(Runtime.CheckWitness(user), "Unauthorized");
     
     return ProcessData(user, data, amount);
 }
@@ -76,17 +76,20 @@ public class RoleBasedContract : SmartContract
     private const string USER_ROLE = "user";
     
     // Role hierarchy (admins can do everything, moderators have subset, etc.)
-    private static readonly Dictionary<string, string[]> RoleHierarchy = new()
+    private static bool RoleImplies(string userRole, string requiredRole) => userRole switch
     {
-        [ADMIN_ROLE] = new[] { ADMIN_ROLE, MODERATOR_ROLE, USER_ROLE },
-        [MODERATOR_ROLE] = new[] { MODERATOR_ROLE, USER_ROLE },
-        [USER_ROLE] = new[] { USER_ROLE }
+        ADMIN_ROLE => true,
+        MODERATOR_ROLE => requiredRole == MODERATOR_ROLE || requiredRole == USER_ROLE,
+        USER_ROLE => requiredRole == USER_ROLE,
+        _ => false
     };
     
     public static bool GrantRole(UInt160 user, string role)
     {
-        Assert(HasRole(Runtime.CallingScriptHash, ADMIN_ROLE), "Only admins can grant roles");
-        Assert(IsValidRole(role), "Invalid role");
+        UInt160 caller = Runtime.Transaction.Sender;
+        ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
+        ExecutionEngine.Assert(HasRole(caller, ADMIN_ROLE), "Only admins can grant roles");
+        ExecutionEngine.Assert(IsValidRole(role), "Invalid role");
         
         StorageMap roles = new(Storage.CurrentContext, "roles");
         roles.Put(user, role);
@@ -103,8 +106,7 @@ public class RoleBasedContract : SmartContract
         if (user == OWNER) return true; // Owner has all roles
         if (string.IsNullOrEmpty(userRole)) return false;
         
-        return RoleHierarchy.ContainsKey(userRole) && 
-               RoleHierarchy[userRole].Contains(role);
+        return RoleImplies(userRole, role);
     }
     
     private static bool IsValidRole(string role)
@@ -127,20 +129,25 @@ public class MultiSigContract : SmartContract
     
     public static bool ExecuteMultiSigOperation(UInt160[] signers, ByteString operation)
     {
-        Assert(signers != null && signers.Length >= REQUIRED_SIGNATURES, 
+        ExecutionEngine.Assert(signers != null && signers.Length >= REQUIRED_SIGNATURES, 
                $"Minimum {REQUIRED_SIGNATURES} signatures required");
-        Assert(signers.Length <= MAX_SIGNERS, "Too many signers");
+        ExecutionEngine.Assert(signers.Length <= MAX_SIGNERS, "Too many signers");
         
         // Verify all signers are authorized
         foreach (var signer in signers)
         {
-            Assert(IsAuthorizedSigner(signer), "Unauthorized signer");
-            Assert(Runtime.CheckWitness(signer), "Invalid signature");
+            ExecutionEngine.Assert(IsAuthorizedSigner(signer), "Unauthorized signer");
+            ExecutionEngine.Assert(Runtime.CheckWitness(signer), "Invalid signature");
         }
         
-        // Check for duplicate signers
-        var uniqueSigners = signers.Distinct().ToArray();
-        Assert(uniqueSigners.Length == signers.Length, "Duplicate signers not allowed");
+        // Check for duplicate signers (avoid LINQ/HashSet)
+        for (int i = 0; i < signers.Length; i++)
+        {
+            for (int j = i + 1; j < signers.Length; j++)
+            {
+                ExecutionEngine.Assert(signers[i] != signers[j], "Duplicate signers not allowed");
+            }
+        }
         
         return ExecuteOperation(operation);
     }
@@ -160,16 +167,9 @@ public class MultiSigContract : SmartContract
 ```csharp
 public class SecureStorage : SmartContract
 {
-    // Use separate storage contexts for different data types
-    private static StorageContext UserContext => new StorageContext()
-    {
-        Prefix = (byte)StoragePrefix.User
-    };
-    
-    private static StorageContext BalanceContext => new StorageContext()
-    {
-        Prefix = (byte)StoragePrefix.Balance
-    };
+    // Use StorageMap/explicit prefixes to separate data under one context
+    private static StorageContext UserContext => Storage.CurrentContext;
+    private static StorageContext BalanceContext => Storage.CurrentContext;
     
     private enum StoragePrefix : byte
     {
@@ -181,11 +181,11 @@ public class SecureStorage : SmartContract
     
     public static bool SecurelyStoreUserData(UInt160 user, ByteString data)
     {
-        Assert(Runtime.CheckWitness(user), "Unauthorized");
-        Assert(data.Length <= 1024, "Data too large");
+        ExecutionEngine.Assert(Runtime.CheckWitness(user), "Unauthorized");
+        ExecutionEngine.Assert(data.Length <= 1024, "Data too large");
         
         // Use user-specific key with namespace isolation
-        ByteString key = CryptoLib.Sha256(user + data[..32]); // Use hash for privacy
+        ByteString key = CryptoLib.Sha256(user.Concat((ByteString)((byte[])data).Take(32))); // Use hash for privacy
         Storage.Put(UserContext, key, data);
         
         return true;
@@ -199,7 +199,7 @@ public class SecureStorage : SmartContract
         BigInteger toBalance = GetBalance(to);
         
         // Validate operation
-        Assert(fromBalance >= amount, "Insufficient balance");
+        ExecutionEngine.Assert(fromBalance >= amount, "Insufficient balance");
         
         // Perform atomic update
         try
@@ -208,8 +208,8 @@ public class SecureStorage : SmartContract
             SetBalance(to, toBalance + amount);
             
             // Verify final state
-            Assert(GetBalance(from) == fromBalance - amount, "From balance mismatch");
-            Assert(GetBalance(to) == toBalance + amount, "To balance mismatch");
+            ExecutionEngine.Assert(GetBalance(from) == fromBalance - amount, "From balance mismatch");
+            ExecutionEngine.Assert(GetBalance(to) == toBalance + amount, "To balance mismatch");
             
             return true;
         }
@@ -233,14 +233,14 @@ public class RaceConditionSafe : SmartContract
     public static bool SafeCriticalOperation(UInt160 user, BigInteger amount)
     {
         // Acquire lock
-        Assert(!IsLocked(), "Operation in progress, try again");
+        ExecutionEngine.Assert(!IsLocked(), "Operation in progress, try again");
         SetLock(true);
         
         try
         {
             // Critical section
             BigInteger balance = GetBalance(user);
-            Assert(balance >= amount, "Insufficient balance");
+            ExecutionEngine.Assert(balance >= amount, "Insufficient balance");
             
             // Simulate complex operation that might be interrupted
             SetBalance(user, balance - amount);
@@ -280,8 +280,8 @@ public class SafeInteractions : SmartContract
     public static bool SafeExternalCall(UInt160 targetContract, string method, object[] args)
     {
         // Validate target contract
-        Assert(IsWhitelistedContract(targetContract), "Contract not whitelisted");
-        Assert(!string.IsNullOrEmpty(method), "Invalid method");
+        ExecutionEngine.Assert(IsWhitelistedContract(targetContract), "Contract not whitelisted");
+        ExecutionEngine.Assert(!string.IsNullOrEmpty(method), "Invalid method");
         
         // Set call limits
         const int MAX_GAS = 1_000_000;
@@ -321,7 +321,7 @@ public class ReentrancyGuard : SmartContract
     public static bool NonReentrant(UInt160 user, BigInteger amount)
     {
         // Check if already executing
-        Assert(!IsExecuting(), "Reentrant call detected");
+        ExecutionEngine.Assert(!IsExecuting(), "Reentrant call detected");
         
         // Set guard
         SetExecuting(true);
@@ -330,7 +330,7 @@ public class ReentrancyGuard : SmartContract
         {
             // External interactions after state changes
             BigInteger balance = GetBalance(user);
-            Assert(balance >= amount, "Insufficient balance");
+            ExecutionEngine.Assert(balance >= amount, "Insufficient balance");
             
             // Update state BEFORE external calls
             SetBalance(user, balance - amount);
@@ -392,16 +392,17 @@ public class SecureErrorHandling : SmartContract
             // Perform operation
             return ProcessUserData(user, data);
         }
-        catch (Exception ex) when (ex.Message.Contains("Invalid input"))
+        catch (Exception ex)
         {
-            // Handle specific known errors
-            OnInputValidationFailed(user);
-            return false;
-        }
-        catch (Exception)
-        {
-            // Generic error handling - don't expose internal details
-            OnOperationFailed(user);
+            // Neo contracts do not support exception filters; branch manually.
+            if (ex.Message.Contains("Invalid input"))
+            {
+                OnInputValidationFailed(user);
+            }
+            else
+            {
+                OnOperationFailed(user);
+            }
             return false;
         }
     }
@@ -434,35 +435,22 @@ public class SecureErrorHandling : SmartContract
 ```csharp
 public class GasEfficientSecurity : SmartContract
 {
-    // Cache frequently accessed data
-    private static readonly Dictionary<UInt160, bool> _adminCache = new();
-    
     public static bool IsAdmin(UInt160 user)
     {
-        // Check cache first to save gas
-        if (_adminCache.ContainsKey(user))
-            return _adminCache[user];
-        
-        // Load from storage only if not cached
         StorageMap admins = new(Storage.CurrentContext, "admins");
-        bool isAdmin = admins.Get(user) != null;
-        
-        // Cache the result
-        _adminCache[user] = isAdmin;
-        
-        return isAdmin;
+        return admins.Get(user) != null;
     }
     
     // Batch operations to reduce gas costs
     public static bool BatchProcess(UInt160[] users, BigInteger[] amounts)
     {
-        Assert(users.Length == amounts.Length, "Array length mismatch");
-        Assert(users.Length <= 100, "Batch too large"); // Prevent gas limit issues
+        ExecutionEngine.Assert(users.Length == amounts.Length, "Array length mismatch");
+        ExecutionEngine.Assert(users.Length <= 100, "Batch too large"); // Prevent gas limit issues
         
         // Validate all inputs first (fail fast)
         for (int i = 0; i < users.Length; i++)
         {
-            Assert(users[i] != null && amounts[i] > 0, $"Invalid input at index {i}");
+            ExecutionEngine.Assert(users[i] != null && amounts[i] > 0, $"Invalid input at index {i}");
         }
         
         // Process batch

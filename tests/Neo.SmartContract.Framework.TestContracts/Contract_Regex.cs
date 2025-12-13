@@ -15,7 +15,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
     {
         public static bool TestStartWith()
         {
-            return ((ByteString)"Hello World").StartWith("Hello");
+            return ((ByteString)"Hello World").StartsWith("Hello");
         }
 
         public static int TestIndexOf()

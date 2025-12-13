@@ -63,16 +63,14 @@ public class StorageOptimized : SmartContract
     
     public static void BatchUpdateBalances(UInt160[] users, BigInteger[] amounts)
     {
-        Assert(users.Length == amounts.Length, "Array length mismatch");
+        ExecutionEngine.Assert(users.Length == amounts.Length, "Array length mismatch");
         
-        using var snapshot = Storage.CurrentSnapshot;
         for (int i = 0; i < users.Length; i++)
         {
             var key = CreateKey("balance", users[i]);
-            var currentBalance = (BigInteger)(snapshot.Get(key) ?? 0);
-            snapshot.Put(key, currentBalance + amounts[i]);
+            BigInteger currentBalance = (BigInteger)(Storage.Get(BalanceContext, key) ?? 0);
+            Storage.Put(BalanceContext, key, currentBalance + amounts[i]);
         }
-        snapshot.Commit();
     }
 }
 ```
@@ -82,40 +80,32 @@ public class StorageOptimized : SmartContract
 ```csharp
 public class CachingContract : SmartContract
 {
-    // Cache expensive computations
-    private static readonly Dictionary<ByteString, object> _cache = new();
+    // Persistent cache in contract storage
+    private static readonly StorageMap Cache = new(Storage.CurrentContext, "cache");
     
     public static BigInteger GetExpensiveCalculation(ByteString input)
     {
         // Check cache first
-        if (_cache.TryGetValue(input, out var cached))
+        ByteString cached = Cache.Get(input);
+        if (cached != null)
         {
             return (BigInteger)cached;
         }
         
         // Perform expensive calculation
-        var result = PerformExpensiveCalculation(input);
+        BigInteger result = PerformExpensiveCalculation(input);
         
-        // Cache for future use (within transaction)
-        _cache[input] = result;
+        // Cache for future calls
+        Cache.Put(input, result);
         
         return result;
     }
     
-    // Cache witness checks
-    private static readonly Dictionary<UInt160, bool> _witnessCache = new();
-    
     public static bool IsAuthorized(UInt160 user)
     {
-        if (_witnessCache.TryGetValue(user, out var isAuthorized))
-        {
-            return isAuthorized;
-        }
-        
-        isAuthorized = Runtime.CheckWitness(user);
-        _witnessCache[user] = isAuthorized;
-        
-        return isAuthorized;
+        // Witness checks are syscalls. Call once and reuse the result
+        // rather than checking repeatedly.
+        return Runtime.CheckWitness(user);
     }
 }
 ```
@@ -217,16 +207,17 @@ public class KeyOptimization : SmartContract
     
     public static void SetBalanceGood(UInt160 user, BigInteger balance)
     {
-        var key = new byte[21];
-        key[0] = BALANCE_PREFIX;
-        user.ToArray().CopyTo(key, 1);
+        // Prefix (1 byte) + address (20 bytes)
+        byte[] key = BALANCE_PREFIX.ToByteArray().Concat(user);
         Storage.Put(Storage.CurrentContext, key, balance);
     }
     
     // ✅ BEST: Composite keys for efficient querying
     public static ByteString CreateCompositeKey(byte prefix, UInt160 address, BigInteger tokenId)
     {
-        return prefix + address + tokenId.ToByteArray();
+        return ((ByteString)prefix.ToByteArray())
+            .Concat(address)
+            .Concat((ByteString)tokenId);
     }
 }
 ```
@@ -328,13 +319,14 @@ public class AlgorithmOptimization : SmartContract
         return false;
     }
     
-    // ✅ GOOD: O(n) with hash set
+    // ✅ GOOD: O(n) with Map as a set
     public static bool HasDuplicatesGood(BigInteger[] values)
     {
-        var seen = new HashSet<BigInteger>();
+        var seen = new Map<BigInteger, bool>();
         foreach (var value in values)
         {
-            if (!seen.Add(value)) return true;
+            if (seen.HasKey(value)) return true;
+            seen[value] = true;
         }
         return false;
     }
@@ -379,7 +371,7 @@ public class BatchOperations : SmartContract
         var totalAmount = amountEach * recipients.Length;
         var fromBalance = GetBalance(from);
         
-        Assert(fromBalance >= totalAmount, "Insufficient balance");
+        ExecutionEngine.Assert(fromBalance >= totalAmount, "Insufficient balance");
         
         // Update sender balance once
         SetBalance(from, fromBalance - totalAmount);
@@ -413,19 +405,14 @@ public class BatchStateUpdate : SmartContract
     
     public static void BatchUpdate(StateUpdate[] updates)
     {
-        // Sort updates to minimize storage context switches
-        var sortedUpdates = updates.OrderBy(u => u.Key).ToArray();
-        
-        // Apply updates in batch
-        using var snapshot = Storage.CurrentSnapshot;
-        foreach (var update in sortedUpdates)
+        // If ordering matters, sort `updates` off-chain before calling.
+        foreach (var update in updates)
         {
             if (update.IsDelete)
-                snapshot.Delete(update.Key);
+                Storage.Delete(Storage.CurrentContext, update.Key);
             else
-                snapshot.Put(update.Key, update.Value);
+                Storage.Put(Storage.CurrentContext, update.Key, update.Value);
         }
-        snapshot.Commit();
     }
 }
 ```
@@ -647,15 +634,16 @@ public static string BuildMessage(string[] parts)
     return result;
 }
 
-// ✅ GOOD: Use StringBuilder pattern or avoid strings
-public static ByteString BuildMessage(ByteString[] parts)
+// ✅ GOOD: Use StringBuilder for repeated concatenation
+public static string BuildMessageGood(string[] parts)
 {
-    var result = new ByteString();
+    var sb = new System.Text.StringBuilder();
     foreach (var part in parts)
     {
-        result = result + part + ",";
+        sb.Append(part);
+        sb.Append(',');
     }
-    return result;
+    return sb.ToString();
 }
 ```
 

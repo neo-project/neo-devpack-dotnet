@@ -19,7 +19,12 @@ Random number generation and runtime security are critical aspects of smart cont
 ### Understanding Neo Runtime Environment
 
 ```csharp
+using System;
+using System.ComponentModel;
+using System.Numerics;
 using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 
 [DisplayName("RuntimeSecurityDemo")]
@@ -33,19 +38,21 @@ public class RuntimeSecurityDemo : SmartContract
     public static void DemonstrateRuntimeInfo()
     {
         // Safe runtime properties - these are deterministic and secure
-        uint blockIndex = Runtime.Platform;              // Current block index
-        long timestamp = Runtime.Time;                   // Current block timestamp
+        uint blockIndex = Ledger.CurrentIndex;            // Current block index
+        ulong timestamp = Runtime.Time;                   // Current block timestamp (milliseconds)
+        string platform = Runtime.Platform;              // Platform identifier
         UInt160 scriptHash = Runtime.ExecutingScriptHash; // Current contract hash
         UInt160 callingHash = Runtime.CallingScriptHash;  // Calling contract hash
         
         // Transaction context information
-        var transaction = Runtime.ScriptContainer;
+        var transaction = Runtime.Transaction;
         UInt160 sender = transaction.Sender;
         
         // Validate runtime state
-        Assert(blockIndex > 0, "Invalid block index");
-        Assert(timestamp > 0, "Invalid timestamp");
-        Assert(scriptHash != null, "Invalid script hash");
+        ExecutionEngine.Assert(blockIndex > 0, "Invalid block index");
+        ExecutionEngine.Assert(timestamp > 0, "Invalid timestamp");
+        ExecutionEngine.Assert(!string.IsNullOrEmpty(platform), "Invalid platform");
+        ExecutionEngine.Assert(scriptHash != null && scriptHash.IsValid, "Invalid script hash");
     }
     
     /// <summary>
@@ -54,16 +61,16 @@ public class RuntimeSecurityDemo : SmartContract
     public static bool SecureRuntimeValidation(UInt160 expectedCaller)
     {
         // Verify caller identity
-        Assert(Runtime.CheckWitness(expectedCaller), "Invalid caller witness");
+        ExecutionEngine.Assert(Runtime.CheckWitness(expectedCaller), "Invalid caller witness");
         
         // Verify execution context
-        Assert(Runtime.CallingScriptHash == expectedCaller || 
+        ExecutionEngine.Assert(Runtime.CallingScriptHash == expectedCaller || 
                Runtime.CallingScriptHash == Runtime.ExecutingScriptHash, 
                "Invalid calling context");
         
         // Verify transaction authenticity
-        var tx = Runtime.ScriptContainer;
-        Assert(tx != null, "Invalid transaction context");
+        var tx = Runtime.Transaction;
+        ExecutionEngine.Assert(tx != null, "Invalid transaction context");
         
         return true;
     }
@@ -80,11 +87,11 @@ public class RuntimeSecurityPatterns : SmartContract
     /// </summary>
     public static bool ValidateTimestamp(long expectedTime, long toleranceSeconds = 300)
     {
-        long currentTime = Runtime.Time;
+        long currentTime = (long)Runtime.Time;
         long timeDifference = currentTime > expectedTime ? 
             currentTime - expectedTime : expectedTime - currentTime;
         
-        Assert(timeDifference <= toleranceSeconds * 1000, // Convert to milliseconds
+        ExecutionEngine.Assert(timeDifference <= toleranceSeconds * 1000, // Convert to milliseconds
                $"Timestamp difference too large: {timeDifference}ms");
         
         return true;
@@ -101,14 +108,14 @@ public class RuntimeSecurityPatterns : SmartContract
         if (callingContract == Runtime.ExecutingScriptHash)
         {
             // Direct call - validate transaction sender
-            var tx = Runtime.ScriptContainer;
-            Assert(Runtime.CheckWitness(tx.Sender), "Invalid transaction signature");
+            var tx = Runtime.Transaction;
+            ExecutionEngine.Assert(Runtime.CheckWitness(tx.Sender), "Invalid transaction signature");
             return true;
         }
         else
         {
             // Contract call - validate calling contract
-            Assert(callingContract == allowedContract, "Unauthorized contract call");
+            ExecutionEngine.Assert(callingContract == allowedContract, "Unauthorized contract call");
             return true;
         }
     }
@@ -119,12 +126,12 @@ public class RuntimeSecurityPatterns : SmartContract
     public static bool ValidateExecutionEnvironment()
     {
         // Verify we're running in valid Neo environment
-        Assert(Runtime.Platform > 0, "Invalid platform");
-        Assert(Runtime.Time > 1609459200000, "Invalid timestamp (before 2021)"); // Basic sanity check
+        ExecutionEngine.Assert(!string.IsNullOrEmpty(Runtime.Platform), "Invalid platform");
+        ExecutionEngine.Assert(Runtime.Time > 1609459200000UL, "Invalid timestamp (before 2021)"); // Basic sanity check
         
         // Verify contract state consistency
         UInt160 currentHash = Runtime.ExecutingScriptHash;
-        Assert(currentHash != null && currentHash.IsValid, "Invalid contract hash");
+        ExecutionEngine.Assert(currentHash != null && currentHash.IsValid, "Invalid contract hash");
         
         return true;
     }
@@ -152,14 +159,14 @@ public class InsecureRandomness : SmartContract
     public static int BadRandom2()
     {
         // Block index is completely predictable
-        return (int)(Runtime.Platform % 100);
+        return (int)(Ledger.CurrentIndex % 100);
     }
     
     // ❌ INSECURE: Using transaction hash alone
     public static int BadRandom3()
     {
         // Transaction hash can be influenced by attacker
-        var tx = Runtime.ScriptContainer;
+        var tx = Runtime.Transaction;
         return (int)(tx.Hash[0] % 100);
     }
     
@@ -167,7 +174,7 @@ public class InsecureRandomness : SmartContract
     public static int BadRandom4()
     {
         // Combining predictable values doesn't make them unpredictable
-        return (int)((Runtime.Time + Runtime.Platform) % 100);
+        return (int)((Runtime.Time + Ledger.CurrentIndex) % 100);
     }
 }
 ```
@@ -191,15 +198,12 @@ public class Neo3RandomnessPatterns : SmartContract
         var currentBlockHash = Ledger.CurrentHash;
         
         // Get transaction hash
-        var txHash = Runtime.ScriptContainer.Hash;
-        
-        // Combine with timestamp for additional entropy
-        long timestamp = Runtime.Time;
+        var txHash = Runtime.Transaction.Hash;
         
         // Create composite entropy
         ByteString entropy = currentBlockHash
             .Concat(txHash)
-            .Concat(timestamp.ToByteArray());
+            .Concat((ByteString)(System.Numerics.BigInteger)Runtime.Time);
         
         // Hash the combined entropy
         ByteString randomBytes = CryptoLib.Sha256(entropy);
@@ -212,8 +216,8 @@ public class Neo3RandomnessPatterns : SmartContract
     /// </summary>
     public static int GetRandomInRange(int min, int max)
     {
-        Assert(min < max, "Invalid range: min must be less than max");
-        Assert(max - min < 1000000, "Range too large for secure random generation");
+        ExecutionEngine.Assert(min < max, "Invalid range: min must be less than max");
+        ExecutionEngine.Assert(max - min < 1000000, "Range too large for secure random generation");
         
         BigInteger randomValue = GetSecureRandom();
         
@@ -229,11 +233,11 @@ public class Neo3RandomnessPatterns : SmartContract
     /// </summary>
     public static ByteString GetRandomBytes(int length)
     {
-        Assert(length > 0 && length <= 64, "Invalid length for random bytes");
+        ExecutionEngine.Assert(length > 0 && length <= 64, "Invalid length for random bytes");
         
         // Generate base randomness
         BigInteger baseRandom = GetSecureRandom();
-        ByteString baseBytes = baseRandom.ToByteArray();
+        ByteString baseBytes = (ByteString)baseRandom;
         
         // If we need more bytes, generate additional entropy
         if (length > baseBytes.Length)
@@ -246,7 +250,7 @@ public class Neo3RandomnessPatterns : SmartContract
         }
         
         // Return requested length
-        return baseBytes[..length];
+        return (ByteString)((byte[])baseBytes).Take(length);
     }
 }
 ```
@@ -262,7 +266,7 @@ public class EnhancedRandomness : SmartContract
     public static BigInteger GenerateHighQualityRandom(UInt160 userSeed = null)
     {
         // Collect entropy from multiple sources
-        List<ByteString> entropySources = new List<ByteString>();
+        Neo.SmartContract.Framework.List<ByteString> entropySources = new Neo.SmartContract.Framework.List<ByteString>();
         
         // Source 1: Current block hash
         entropySources.Add(Ledger.CurrentHash);
@@ -279,7 +283,7 @@ public class EnhancedRandomness : SmartContract
         }
         
         // Source 3: Transaction hash and sender
-        var tx = Runtime.ScriptContainer;
+        var tx = Runtime.Transaction;
         entropySources.Add(tx.Hash);
         entropySources.Add(tx.Sender);
         
@@ -288,7 +292,7 @@ public class EnhancedRandomness : SmartContract
         entropySources.Add(Runtime.CallingScriptHash);
         
         // Source 5: Timestamp with microsecond precision if available
-        entropySources.Add(Runtime.Time.ToByteArray());
+        entropySources.Add((ByteString)(System.Numerics.BigInteger)Runtime.Time);
         
         // Source 6: User-provided seed (if any)
         if (userSeed != null)
@@ -304,7 +308,7 @@ public class EnhancedRandomness : SmartContract
         }
         
         // Combine all entropy sources
-        ByteString combinedEntropy = new ByteString();
+        ByteString combinedEntropy = ByteString.Empty;
         foreach (var source in entropySources)
         {
             combinedEntropy = combinedEntropy.Concat(source);
@@ -316,7 +320,7 @@ public class EnhancedRandomness : SmartContract
         ByteString finalHash = CryptoLib.Sha256(round1.Concat(round2));
         
         // Update stored entropy for future use
-        Storage.Put(Storage.CurrentContext, "entropy_pool", finalHash[..16]);
+        Storage.Put(Storage.CurrentContext, "entropy_pool", (ByteString)((byte[])finalHash).Take(16));
         
         return (BigInteger)finalHash;
     }
@@ -326,7 +330,7 @@ public class EnhancedRandomness : SmartContract
     /// </summary>
     public static BigInteger[] GenerateMultipleRandom(int count, ByteString salt = null)
     {
-        Assert(count > 0 && count <= 100, "Invalid count for random generation");
+        ExecutionEngine.Assert(count > 0 && count <= 100, "Invalid count for random generation");
         
         BigInteger[] results = new BigInteger[count];
         ByteString currentSalt = salt ?? GetRandomBytes(16);
@@ -334,10 +338,10 @@ public class EnhancedRandomness : SmartContract
         for (int i = 0; i < count; i++)
         {
             // Use index and previous results as additional entropy
-            ByteString indexEntropy = i.ToByteArray();
+            ByteString indexEntropy = (ByteString)(BigInteger)i;
             if (i > 0)
             {
-                indexEntropy = indexEntropy.Concat(results[i - 1].ToByteArray());
+                indexEntropy = indexEntropy.Concat((ByteString)results[i - 1]);
             }
             
             ByteString roundSalt = CryptoLib.Sha256(currentSalt.Concat(indexEntropy));
@@ -366,8 +370,8 @@ public class CommitRevealRandom : SmartContract
     {
         public UInt160 User;
         public ByteString Commitment;
-        public long CommitTimestamp;
-        public long RevealDeadline;
+        public ulong CommitTimestamp;
+        public ulong RevealDeadline;
         public bool IsRevealed;
         public BigInteger RevealedValue;
     }
@@ -379,15 +383,15 @@ public class CommitRevealRandom : SmartContract
     /// </summary>
     public static bool CommitRandom(UInt160 user, ByteString commitment, int validityHours = 24)
     {
-        Assert(Runtime.CheckWitness(user), "Invalid user signature");
-        Assert(commitment.Length == 32, "Commitment must be 32 bytes (SHA256 hash)");
-        Assert(validityHours > 0 && validityHours <= 168, "Validity period must be 1-168 hours");
+        ExecutionEngine.Assert(Runtime.CheckWitness(user), "Invalid user signature");
+        ExecutionEngine.Assert(commitment.Length == 32, "Commitment must be 32 bytes (SHA256 hash)");
+        ExecutionEngine.Assert(validityHours > 0 && validityHours <= 168, "Validity period must be 1-168 hours");
         
         string commitmentId = user.ToString() + "_" + Runtime.Time.ToString();
         
         // Check for existing unrevealed commitments
         var existingCommitment = GetUserCommitment(user);
-        Assert(existingCommitment.Commitment == null || existingCommitment.IsRevealed || 
+        ExecutionEngine.Assert(existingCommitment.Commitment == null || existingCommitment.IsRevealed || 
                Runtime.Time > existingCommitment.RevealDeadline,
                "User has pending unrevealed commitment");
         
@@ -396,7 +400,7 @@ public class CommitRevealRandom : SmartContract
             User = user,
             Commitment = commitment,
             CommitTimestamp = Runtime.Time,
-            RevealDeadline = Runtime.Time + (validityHours * 3600 * 1000), // Convert to milliseconds
+            RevealDeadline = Runtime.Time + (ulong)(validityHours * 3600 * 1000), // Convert to milliseconds
             IsRevealed = false,
             RevealedValue = 0
         };
@@ -412,18 +416,16 @@ public class CommitRevealRandom : SmartContract
     /// </summary>
     public static BigInteger RevealRandom(UInt160 user, BigInteger randomValue, ByteString nonce)
     {
-        Assert(Runtime.CheckWitness(user), "Invalid user signature");
+        ExecutionEngine.Assert(Runtime.CheckWitness(user), "Invalid user signature");
         
         var commitment = GetUserCommitment(user);
-        Assert(commitment.Commitment != null, "No commitment found for user");
-        Assert(!commitment.IsRevealed, "Commitment already revealed");
-        Assert(Runtime.Time <= commitment.RevealDeadline, "Reveal deadline exceeded");
+        ExecutionEngine.Assert(commitment.Commitment != null, "No commitment found for user");
+        ExecutionEngine.Assert(!commitment.IsRevealed, "Commitment already revealed");
+        ExecutionEngine.Assert(Runtime.Time <= commitment.RevealDeadline, "Reveal deadline exceeded");
         
         // Verify commitment
-        ByteString expectedCommitment = CryptoLib.Sha256(
-            randomValue.ToByteArray().Concat(nonce)
-        );
-        Assert(expectedCommitment == commitment.Commitment, "Invalid reveal - commitment mismatch");
+        ByteString expectedCommitment = CryptoLib.Sha256(((ByteString)randomValue).Concat(nonce));
+        ExecutionEngine.Assert(expectedCommitment == commitment.Commitment, "Invalid reveal - commitment mismatch");
         
         // Update commitment with revealed value
         commitment.IsRevealed = true;
@@ -434,9 +436,7 @@ public class CommitRevealRandom : SmartContract
         
         // Generate final random number combining user input with block entropy
         BigInteger blockEntropy = GenerateHighQualityRandom();
-        BigInteger finalRandom = CryptoLib.Sha256(
-            randomValue.ToByteArray().Concat(blockEntropy.ToByteArray())
-        );
+        BigInteger finalRandom = (BigInteger)CryptoLib.Sha256(((ByteString)randomValue).Concat((ByteString)blockEntropy));
         
         OnRandomRevealed(user, randomValue, finalRandom);
         return finalRandom;
@@ -448,7 +448,7 @@ public class CommitRevealRandom : SmartContract
     public static BigInteger GenerateCollectiveRandom(UInt160[] participants, 
                                                      string sessionId)
     {
-        Assert(participants.Length >= 2 && participants.Length <= 10, 
+        ExecutionEngine.Assert(participants.Length >= 2 && participants.Length <= 10, 
                "Invalid number of participants");
         
         // Verify all participants have revealed their commitments
@@ -456,16 +456,14 @@ public class CommitRevealRandom : SmartContract
         foreach (var participant in participants)
         {
             var commitment = GetUserCommitment(participant);
-            Assert(commitment.IsRevealed, $"Participant {participant} has not revealed");
+            ExecutionEngine.Assert(commitment.IsRevealed, $"Participant {participant} has not revealed");
             
             combinedRandom ^= commitment.RevealedValue;
         }
         
         // Add block entropy for additional security
         BigInteger blockEntropy = GenerateHighQualityRandom();
-        BigInteger finalRandom = (BigInteger)CryptoLib.Sha256(
-            combinedRandom.ToByteArray().Concat(blockEntropy.ToByteArray())
-        );
+        BigInteger finalRandom = (BigInteger)CryptoLib.Sha256(((ByteString)combinedRandom).Concat((ByteString)blockEntropy));
         
         OnCollectiveRandomGenerated(sessionId, participants, finalRandom);
         return finalRandom;
@@ -474,7 +472,7 @@ public class CommitRevealRandom : SmartContract
     private static RandomCommitment GetUserCommitment(UInt160 user)
     {
         // Find most recent commitment for user
-        var iterator = Storage.Find(Commitments.Context, user.ToString(), FindOptions.None);
+        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "commitments" + user.ToString(), FindOptions.ValuesOnly);
         RandomCommitment latest = new RandomCommitment();
         
         while (iterator.Next())
@@ -490,7 +488,7 @@ public class CommitRevealRandom : SmartContract
     }
     
     [DisplayName("RandomCommitted")]
-    public static event Action<UInt160, ByteString, long> OnRandomCommitted;
+    public static event Action<UInt160, ByteString, ulong> OnRandomCommitted;
     
     [DisplayName("RandomRevealed")]
     public static event Action<UInt160, BigInteger, BigInteger> OnRandomRevealed;
@@ -513,14 +511,14 @@ public class TimeBasedSecurity : SmartContract
     public static bool ValidateTimeWindow(long startTime, long endTime, 
                                         long toleranceMs = 30000)
     {
-        long currentTime = Runtime.Time;
+        long currentTime = (long)Runtime.Time;
         
-        Assert(startTime < endTime, "Invalid time window");
-        Assert(endTime - startTime <= 86400000, "Time window too large (max 24 hours)");
+        ExecutionEngine.Assert(startTime < endTime, "Invalid time window");
+        ExecutionEngine.Assert(endTime - startTime <= 86400000, "Time window too large (max 24 hours)");
         
         // Allow slight tolerance for network latency
-        Assert(currentTime >= startTime - toleranceMs, "Operation too early");
-        Assert(currentTime <= endTime + toleranceMs, "Operation too late");
+        ExecutionEngine.Assert(currentTime >= startTime - toleranceMs, "Operation too early");
+        ExecutionEngine.Assert(currentTime <= endTime + toleranceMs, "Operation too late");
         
         return true;
     }
@@ -531,16 +529,16 @@ public class TimeBasedSecurity : SmartContract
     public static bool TimeLockedOperation(UInt160 user, string operationId, 
                                          long scheduledTime, long windowMs = 3600000)
     {
-        Assert(Runtime.CheckWitness(user), "Invalid user signature");
+        ExecutionEngine.Assert(Runtime.CheckWitness(user), "Invalid user signature");
         
         // Validate operation is within allowed time window
-        long currentTime = Runtime.Time;
-        Assert(currentTime >= scheduledTime, "Operation scheduled for future");
-        Assert(currentTime <= scheduledTime + windowMs, "Operation window expired");
+        long currentTime = (long)Runtime.Time;
+        ExecutionEngine.Assert(currentTime >= scheduledTime, "Operation scheduled for future");
+        ExecutionEngine.Assert(currentTime <= scheduledTime + windowMs, "Operation window expired");
         
         // Ensure operation hasn't been executed
         string operationKey = "timelock_" + user.ToString() + "_" + operationId;
-        Assert(Storage.Get(Storage.CurrentContext, operationKey) == null, 
+        ExecutionEngine.Assert(Storage.Get(Storage.CurrentContext, operationKey) == null, 
                "Operation already executed");
         
         // Mark operation as executed
@@ -562,10 +560,10 @@ public class TimeBasedSecurity : SmartContract
         if (timerData == null)
         {
             // Start new timer
-            long startTime = Runtime.Time;
+            long startTime = (long)Runtime.Time;
             long endTime = startTime + durationMs;
             
-            var timer = new { StartTime = startTime, EndTime = endTime };
+            object[] timer = new object[] { startTime, endTime };
             Storage.Put(Storage.CurrentContext, timerKey, StdLib.Serialize(timer));
             
             OnCountdownStarted(timerId, startTime, endTime);
@@ -574,17 +572,19 @@ public class TimeBasedSecurity : SmartContract
         else
         {
             // Check existing timer
-            var timer = (dynamic)StdLib.Deserialize(timerData);
-            long currentTime = Runtime.Time;
+            object[] timer = (object[])StdLib.Deserialize(timerData);
+            long startTime = (long)timer[0];
+            long endTime = (long)timer[1];
+            long currentTime = (long)Runtime.Time;
             
-            if (allowEarlyTrigger && currentTime >= timer.StartTime + (durationMs / 2))
+            if (allowEarlyTrigger && currentTime >= startTime + (durationMs / 2))
             {
                 // Allow trigger after half the duration
                 Storage.Delete(Storage.CurrentContext, timerKey);
                 OnCountdownTriggered(timerId, currentTime, true);
                 return true;
             }
-            else if (currentTime >= timer.EndTime)
+            else if (currentTime >= endTime)
             {
                 // Timer expired naturally
                 Storage.Delete(Storage.CurrentContext, timerKey);
@@ -619,21 +619,21 @@ public class BlockDataSecurity : SmartContract
     /// </summary>
     public static BigInteger GetBlockBasedEntropy(int blockOffset = 1)
     {
-        Assert(blockOffset >= 1 && blockOffset <= 10, "Invalid block offset");
+        ExecutionEngine.Assert(blockOffset >= 1 && blockOffset <= 10, "Invalid block offset");
         
         uint currentIndex = Ledger.CurrentIndex;
-        Assert(currentIndex >= blockOffset, "Insufficient block history");
+        ExecutionEngine.Assert(currentIndex >= blockOffset, "Insufficient block history");
         
         // Use historical block data for entropy (harder to manipulate)
         uint targetIndex = currentIndex - (uint)blockOffset;
         var targetBlock = Ledger.GetBlock(targetIndex);
-        Assert(targetBlock != null, "Block not found");
+        ExecutionEngine.Assert(targetBlock != null, "Block not found");
         
         // Combine multiple block properties for better entropy
         ByteString entropy = targetBlock.Hash
             .Concat(targetBlock.PrevHash)
-            .Concat(targetBlock.Timestamp.ToByteArray())
-            .Concat(targetBlock.Index.ToByteArray());
+            .Concat((ByteString)(BigInteger)targetBlock.Timestamp)
+            .Concat((ByteString)(BigInteger)targetBlock.Index);
         
         return (BigInteger)CryptoLib.Sha256(entropy);
     }
@@ -643,12 +643,12 @@ public class BlockDataSecurity : SmartContract
     /// </summary>
     public static BigInteger GetMultiBlockEntropy(int blockCount = 3)
     {
-        Assert(blockCount >= 1 && blockCount <= 10, "Invalid block count");
+        ExecutionEngine.Assert(blockCount >= 1 && blockCount <= 10, "Invalid block count");
         
         uint currentIndex = Ledger.CurrentIndex;
-        Assert(currentIndex >= blockCount, "Insufficient block history");
+        ExecutionEngine.Assert(currentIndex >= blockCount, "Insufficient block history");
         
-        ByteString combinedEntropy = new ByteString();
+        ByteString combinedEntropy = ByteString.Empty;
         
         for (int i = 1; i <= blockCount; i++)
         {
@@ -671,10 +671,10 @@ public class BlockDataSecurity : SmartContract
     /// </summary>
     public static bool ValidateEntropyQuality(BigInteger entropy)
     {
-        ByteString entropyBytes = entropy.ToByteArray();
+        ByteString entropyBytes = (ByteString)entropy;
         
         // Basic entropy quality checks
-        Assert(entropyBytes.Length >= 16, "Entropy too short");
+        ExecutionEngine.Assert(entropyBytes.Length >= 16, "Entropy too short");
         
         // Check for obvious patterns (all zeros, all ones, etc.)
         bool allSame = true;
@@ -689,7 +689,7 @@ public class BlockDataSecurity : SmartContract
             }
         }
         
-        Assert(!allSame, "Entropy has insufficient randomness");
+        ExecutionEngine.Assert(!allSame, "Entropy has insufficient randomness");
         
         return true;
     }

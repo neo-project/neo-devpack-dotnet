@@ -50,7 +50,7 @@ While Neo uses `BigInteger`, you must still validate ranges and prevent unexpect
 Improper access control allows unauthorized users to perform privileged operations.
 
 ### Key Vulnerabilities
-- Using `Runtime.ScriptContainer.Sender` instead of `Runtime.CheckWitness()`
+- Using `Runtime.Transaction.Sender` instead of `Runtime.CheckWitness()`
 - Missing role validation
 - Insufficient multi-signature verification
 - Weak permission hierarchies

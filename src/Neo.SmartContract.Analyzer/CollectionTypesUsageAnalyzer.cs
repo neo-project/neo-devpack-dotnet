@@ -34,6 +34,7 @@ namespace Neo.SmartContract.Analyzer
 
         private readonly string[] _unsupportedCollectionTypes = {
             "System.Collections.Generic.Dictionary<TKey, TValue>",
+            "System.Collections.Generic.List<T>",
             "System.Collections.Generic.Stack<T>",
             "System.Collections.Generic.Queue<T>",
             "System.Collections.Generic.HashSet<T>",

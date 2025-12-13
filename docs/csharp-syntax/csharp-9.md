@@ -31,7 +31,7 @@ Status: supported
 Scope: method
 Notes: Target-typed new works when the target type is a known framework type. Roslyn infers the constructor call and emits the resolved type before Neo executes the code.
 ```csharp
-System.Collections.Generic.List<int> items = new();
+Neo.SmartContract.Framework.List<int> items = new();
 ```
 
 ### with_expression - With expressions for records
