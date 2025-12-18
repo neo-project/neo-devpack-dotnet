@@ -343,7 +343,7 @@ namespace Neo.Compiler
             }
             if (!lowercase)
                 return symbol.Name;
-            else if (symbol.Name.StartsWith('_'))
+            else if (symbol.Name.Length > 1 && symbol.Name.StartsWith('_'))
                 return "_" + symbol.Name[1..2].ToLowerInvariant() + symbol.Name[2..];
             else
                 return symbol.Name[..1].ToLowerInvariant() + symbol.Name[1..];
