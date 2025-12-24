@@ -288,7 +288,7 @@ namespace Neo.Compiler
 
         private JObject CreateAbiMethod(AbiMethod method)
         {
-            return new JObject
+            var json = new JObject
             {
                 ["name"] = method.Name,
                 ["offset"] = GetAbiOffset(method.Symbol),
@@ -296,6 +296,28 @@ namespace Neo.Compiler
                 ["returntype"] = method.ReturnType,
                 ["parameters"] = method.Parameters.Select(p => p.ToJson()).ToArray()
             };
+
+            if (method.Fee != null)
+            {
+                var feeJson = new JObject
+                {
+                    ["mode"] = method.Fee.Mode,
+                    ["beneficiary"] = method.Fee.Beneficiary
+                };
+
+                if (method.Fee.Mode == "fixed")
+                {
+                    feeJson["amount"] = method.Fee.Amount;
+                }
+                else if (method.Fee.Mode == "dynamic" && !string.IsNullOrEmpty(method.Fee.DynamicScriptHash))
+                {
+                    feeJson["dynamicScriptHash"] = method.Fee.DynamicScriptHash;
+                }
+
+                json["fee"] = feeJson;
+            }
+
+            return json;
         }
 
         public JObject CreateDebugInformation(string folder = "")
