@@ -184,7 +184,20 @@ namespace Neo.SmartContract.Framework.Services
         public static extern void BurnGas(long gas);
 
         /// <summary>
-        /// Gets the next random number. The random number is determinstic.
+        /// Mints GAS to the executing contract by increasing the transaction's system fee.
+        /// The minted amount is credited to Runtime.ExecutingScriptHash.
+        /// </summary>
+        /// <param name="amount">The amount of GAS to mint (in datoshi, 1 GAS = 100000000 datoshi)</param>
+        /// <remarks>
+        /// - Amount must be non-negative.
+        /// - If SystemFee + amount exceeds MaxSystemFee, the VM will FAULT.
+        /// - Can only be used in Application trigger.
+        /// </remarks>
+        [Syscall("System.Runtime.MintGas")]
+        public static extern void MintGas(BigInteger amount);
+
+        /// <summary>
+        /// Gets the next random number. The random number is deterministic.
         /// </summary>
         [Syscall("System.Runtime.GetRandom")]
         public static extern BigInteger GetRandom();

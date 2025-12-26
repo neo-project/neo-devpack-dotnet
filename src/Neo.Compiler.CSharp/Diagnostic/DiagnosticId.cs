@@ -40,10 +40,6 @@ namespace Neo.Compiler
         public const string InvalidType = "NC3008";
         public const string InvalidArgument = "NC3009";
         public const string SafeSetter = "NC3010";
-        public const string FeeMissingBeneficiary = "NC3011";
-        public const string FeeInvalidBeneficiary = "NC3012";
-        public const string FeeMissingCalculator = "NC3013";
-        public const string FeeHighAmount = "NC3014";
         public const string FileOperationFailed = "NC4001";
         public const string UnexpectedCompilerError = "NC5001";
     }

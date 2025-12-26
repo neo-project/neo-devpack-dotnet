@@ -40,7 +40,6 @@ namespace Neo.SmartContract.Testing
         public delegate UInt160? OnGetScriptHash(UInt160? current, UInt160? expected);
 
         internal readonly List<FeeWatcher> _feeWatchers = [];
-        internal readonly List<ContractFeeWatcher> _contractFeeWatchers = [];
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = [];
         private readonly Dictionary<UInt160, List<SmartContract>> _contracts = [];
         private readonly Dictionary<UInt160, Dictionary<string, CustomMock>> _customMocks = [];
@@ -366,15 +365,6 @@ namespace Neo.SmartContract.Testing
         public FeeWatcher CreateGasWatcher()
         {
             return new FeeWatcher(this);
-        }
-
-        /// <summary>
-        /// Create contract fee watcher for tracking custom contract fees
-        /// </summary>
-        /// <returns>Contract fee watcher</returns>
-        public ContractFeeWatcher CreateContractFeeWatcher()
-        {
-            return new ContractFeeWatcher(this);
         }
 
         /// <summary>
