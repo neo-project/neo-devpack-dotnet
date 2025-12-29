@@ -20,11 +20,49 @@ namespace Neo.SmartContract.Framework.Native
     {
         [ContractHash]
         public static extern UInt160 Hash { get; }
+
+        /// <summary>
+        /// Get the network fee per transaction byte in the unit of datoshi, 1 datoshi = 1e-8 GAS
+        /// </summary>
         public static extern long GetFeePerByte();
+
+        /// <summary>
+        /// Get the execution fee factor.
+        /// The system fee is the base-fee multiplied by the execution fee factor.
+        /// </summary>
         public static extern uint GetExecFeeFactor();
+
+        /// <summary>
+        /// Get the storage price for per storage byte in the unit of datoshi, 1 datoshi = 1e-8 GAS
+        /// </summary>
         public static extern uint GetStoragePrice();
+
+        /// <summary>
+        /// Check if the account is blocked. True if the account is blocked, false otherwise.
+        /// <para>
+        /// The execution will fail if 'account' is null.
+        /// </para>
+        /// </summary>
         public static extern bool IsBlocked(UInt160 account);
+
+        /// <summary>
+        /// Get the attribute fee in the unit of datoshi, 1 datoshi = 1e-8 GAS
+        /// <para>
+        /// The execution will fail if 'attributeType' is not a valid TransactionAttributeType.
+        /// </para>
+        /// </summary>
         public static extern uint GetAttributeFee(TransactionAttributeType attributeType);
+
+        /// <summary>
+        /// Set the attribute fee in the unit of datoshi, 1 datoshi = 1e-8 GAS.
+        /// Only committee members can call this method.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. 'attributeType' is not a valid TransactionAttributeType.
+        ///  2. 'value' is greater than MaxAttributeFee(the default value is 10_0000_0000).
+        ///  3. The caller is not a committee member.
+        /// </para>
+        /// </summary>
         public static extern void SetAttributeFee(TransactionAttributeType attributeType, uint value);
     }
 }
