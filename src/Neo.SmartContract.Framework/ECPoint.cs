@@ -53,12 +53,9 @@ namespace Neo.SmartContract.Framework
         {
             if (value is null) throw new FormatException("Value cannot be null.");
 
-            if (!ParseHelper.TryParseHex(value.ToByteArray(), out var data))
-                throw new FormatException("Invalid hex value.");
-
+            byte[] data = ParseHelper.ParseHex(value.ToByteArray());
             if (data.Length != 33)
                 throw new FormatException("ECPoint must be 33 bytes long.");
-
             return (ECPoint)data;
         }
 
