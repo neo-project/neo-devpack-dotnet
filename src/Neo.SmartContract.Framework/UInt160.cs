@@ -93,15 +93,18 @@ namespace Neo.SmartContract.Framework
         {
             if (value is null) throw new FormatException("Value cannot be null.");
 
-            if (!ParseHelper.TryParseHex(value.ToByteArray(), out var data))
-                throw new FormatException("Invalid hex value.");
-
-            if (data.Length == UInt160.Size)
+            try
             {
+                byte[] data = ParseHelper.ParseHex(value.ToByteArray());
+                if (data.Length != UInt160.Size)
+                    throw new FormatException("UInt160 must be 20 bytes long.");
                 return (UInt160)data.Reverse();
             }
+            catch (FormatException) { }
 
-            return (UInt160)ParseHelper.ParseAddress(value, Runtime.AddressVersion);
+            if (value.Length == 34) // The address is 34 characters base58check encoded (20 bytes + 1 version byte)
+                return (UInt160)ParseHelper.ParseAddress(value, Runtime.AddressVersion);
+            throw new FormatException("Invalid UInt160 string format.");
         }
 
         /// <summary>
