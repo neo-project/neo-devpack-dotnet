@@ -22,27 +22,21 @@ namespace Neo.SmartContract.Framework.Helpers
             return valueBytes[0] == (byte)'0' && (valueBytes[1] == (byte)'x' || valueBytes[1] == (byte)'X') ? 2 : 0;
         }
 
-        internal static bool TryParseHex(byte[] valueBytes, out byte[] result)
+        internal static byte[] ParseHex(byte[] valueBytes)
         {
             var offset = GetHexPrefixLength(valueBytes);
-
             if ((valueBytes.Length - offset) % 2 != 0)
-            {
-                result = [];
-                return false;
-            }
+                throw new FormatException("Invalid hex string length.");
 
             var expectedLength = (valueBytes.Length - offset) / 2;
-            result = new byte[expectedLength];
-
+            var result = new byte[expectedLength];
             for (int i = 0; i < expectedLength; i++)
             {
                 byte high = FromHexByte(valueBytes[offset + i * 2]);
                 byte low = FromHexByte(valueBytes[offset + i * 2 + 1]);
                 result[i] = (byte)((high << 4) | low);
             }
-
-            return true;
+            return result;
         }
 
         internal static byte[] ParseAddress(string value, byte addressVersion)

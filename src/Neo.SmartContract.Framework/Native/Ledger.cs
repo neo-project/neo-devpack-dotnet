@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Get the block(without detailed transactions data) with the specified hash,
         /// or null if the block is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
         /// <para>
-        /// It will fail if 'hash' is null.
+        /// The execution will fail if 'hash' is null.
         /// </para>
         /// </summary>
         public static extern Block GetBlock(UInt256 hash);
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Get the transaction with the specified hash,
         /// or null if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
         /// <para>
-        /// It will fail if 'hash' is null.
+        /// The execution will fail if 'hash' is null.
         /// </para>
         /// </summary>
         public static extern Transaction? GetTransaction(UInt256 hash);
@@ -60,7 +60,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Get the 'txIndex'-th transaction from the block with the specified hash,
         /// or null if the block is not found or ('blockHash' - currentHash) is greater than MaxTraceableBlocks.
         /// <para>
-        /// It will fail if:
+        /// The execution will fail if:
         ///  1. The 'blockHash' is null.
         ///  2. The 'txIndex' is less than zero or greater than the number of transactions in the block.
         /// </para>
@@ -71,7 +71,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Get the 'txIndex'-th transaction from the block at the specified height,
         /// or null if the block is not found or ('blockHeight' - currentHeight) is greater than MaxTraceableBlocks.
         /// <para>
-        /// It will fail if the 'txIndex' is less than zero or greater than the number of transactions in the block.
+        /// The execution will fail if the 'txIndex' is less than zero or greater than the number of transactions in the block.
         /// </para>
         /// </summary>
         public static extern Transaction? GetTransactionFromBlock(uint blockHeight, int txIndex);
@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Returns the height of the block that contains the transaction with the specified hash,
         /// or -1 if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
         /// <para>
-        /// It will fail if 'hash' is null.
+        /// The execution will fail if 'hash' is null.
         /// </para>
         /// </summary>
         public static extern int GetTransactionHeight(UInt256 hash);
@@ -89,7 +89,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Returns the signers of the transaction with the specified hash,
         /// or null if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
         /// <para>
-        /// It will fail if 'hash' is null.
+        /// The execution will fail if 'hash' is null.
         /// </para>
         /// </summary>
         public static extern Signer[]? GetTransactionSigners(UInt256 hash);
@@ -98,7 +98,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Returns the VM state of the transaction with the specified hash,
         /// or VMState.NONE if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
         /// <para>
-        /// It will fail if 'hash' is null.
+        /// The execution will fail if 'hash' is null.
         /// </para>
         /// </summary>
         public static extern VMState GetTransactionVMState(UInt256 hash);

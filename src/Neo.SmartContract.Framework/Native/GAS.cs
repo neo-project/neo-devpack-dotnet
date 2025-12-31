@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Returns the balance of the specified account.
         /// <para>
-        /// It will fail if 'account' is null.
+        /// The execution will fail if 'account' is null.
         /// </para>
         /// </summary>
         public static extern BigInteger BalanceOf(UInt160 account);
@@ -40,7 +40,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Transfers a specified amount of GAS from one account to another.
         /// <para>
-        /// It will fail if:
+        /// The execution will fail if:
         ///   1. The 'from', 'to' or 'amount' is null.
         ///   2. The 'amount' is less than zero.
         /// </para>

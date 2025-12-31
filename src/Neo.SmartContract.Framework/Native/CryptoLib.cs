@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Computes the SHA-256 hash in bytes of the input value.
         /// <para>
-        /// It will fail if 'value' is null.
+        /// The execution will fail if 'value' is null.
         /// </para>
         /// </summary>
         public static extern ByteString Sha256(ByteString value);
@@ -47,7 +47,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Computes the RIPEMD-160 hash in bytes of the input value.
         /// <para>
-        /// It will fail if 'value' is null.
+        /// The execution will fail if 'value' is null.
         /// </para>
         /// </summary>
         public static extern ByteString Ripemd160(ByteString value);
@@ -56,14 +56,14 @@ namespace Neo.SmartContract.Framework.Native
         /// Computes the Keccak-256 hash in bytes of the input value.
         /// Available from HF_Cockatrice.
         /// <para>
-        /// It will fail if 'value' is null.
+        /// The execution will fail if 'value' is null.
         /// </para>
         /// </summary>
         public static extern ByteString Keccak256(ByteString value);
 
         /// <summary>
         /// Computes the Murmur32 hash of the input value with the specified seed.
-        /// It will fail if 'value' is null.
+        /// The execution will fail if 'value' is null.
         /// </summary>
         /// <returns>The Murmur32 hash of the input value in bytes format.</returns>
         public static extern ByteString Murmur32(ByteString value, uint seed);
@@ -75,7 +75,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Verifies that a digital signature is appropriate for the provided key and message using the ECDSA algorithm.
         /// Available from HF_Cockatrice.
         /// <para>
-        /// It will fail if:
+        /// The execution will fail if:
         ///  1. 'message', 'pubkey', or 'signature' is null.
         ///  2. The 'pubkey' is not a valid ECPoint.
         ///  3. The 'curveHash' is not valid NamedCurveHash value.
@@ -87,7 +87,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Verifies that a digital signature is appropriate for the provided key and message using the Ed25519 algorithm.
         /// Available from HF_Echidna.
         /// <para>
-        /// It will fail if:
+        /// The execution will fail if:
         ///  1. 'message', 'pubkey', or 'signature' is null.
         /// </para>
         /// </summary>
