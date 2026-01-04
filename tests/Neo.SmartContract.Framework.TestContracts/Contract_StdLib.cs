@@ -36,6 +36,16 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return StdLib.Base64Encode((ByteString)input);
         }
 
+        public static byte[] base64UrlDecode(string input)
+        {
+            return (byte[])StdLib.Base64UrlDecode(input);
+        }
+
+        public static string base64UrlEncode(byte[] input)
+        {
+            return StdLib.Base64UrlEncode((ByteString)input);
+        }
+
         public static byte[] base58Decode(string input)
         {
             return (byte[])StdLib.Base58Decode(input);
