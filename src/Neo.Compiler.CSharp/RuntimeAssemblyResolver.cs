@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2025 The Neo Project.
+// Copyright (C) 2015-2026 The Neo Project.
 //
 // RuntimeAssemblyResolver helps locate framework assemblies when running
 // in trimmed or single-file deployments where Assembly.Location is empty.
