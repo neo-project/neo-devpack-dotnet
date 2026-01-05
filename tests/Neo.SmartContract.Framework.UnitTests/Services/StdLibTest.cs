@@ -45,6 +45,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void Base64Url()
+        {
+            Assert.AreEqual("test", Encoding.UTF8.GetString(Contract.Base64UrlDecode("dGVzdA")!));
+            Assert.AreEqual("dGVzdA", Contract.Base64UrlEncode(Encoding.UTF8.GetBytes("test")));
+            Assert.AreEqual("MDA_", Contract.Base64UrlEncode(Encoding.UTF8.GetBytes("00?")));
+            Assert.AreEqual("00?", Encoding.UTF8.GetString(Contract.Base64UrlDecode("MDA_")!));
+        }
+
+        [TestMethod]
         public void Base58DecodeTest()
         {
             Assert.AreEqual("test", Encoding.UTF8.GetString(Contract.Base58Decode("3yZe7d")!));
