@@ -90,6 +90,28 @@ namespace Neo.SmartContract.Framework.Native
         /// </summary>
         public static extern string Base64Encode(ByteString input);
 
+
+        /// <summary>
+        /// Decodes a base64Url-encoded string to a byte-string.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. The 'input' is null.
+        ///  2. The 'input.length' exceeds the MaxInputLength limits(the default value is 1024-byte).
+        ///  3. The 'input' is not a valid base64Url-encoded string.
+        /// </para>
+        /// </summary>
+        public static extern ByteString Base64UrlDecode(string input);
+
+        /// <summary>
+        /// Encodes a byte-string/bytes to a base64Url-encoded string.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. The 'input' is null.
+        ///  2. The 'input.length' exceeds the MaxInputLength limits(the default value is 1024-byte).
+        /// </para>
+        /// </summary>
+        public static extern string Base64UrlEncode(ByteString input);
+
         /// <summary>
         /// Encodes a byte-string/bytes to a base64-encoded string with checksum.
         /// <para>
