@@ -135,7 +135,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Wrong pubKey
 
             var exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(null));
-            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
+            Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
             exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidLength));
             Assert.IsInstanceOfType<IndexOutOfRangeException>(exception.InnerException);
             exception = Assert.ThrowsException<TestException>(() => Contract.CreateStandardAccount(InvalidECPoint.InvalidType));
