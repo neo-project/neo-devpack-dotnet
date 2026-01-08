@@ -68,7 +68,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(hash.ToArray(), item[2]); // Hash
             Assert.AreEqual(Contract_Create.Nef.ToJson().AsString(), item[3].GetSpan().ToArray().AsSerializable<NefFile>().ToJson().AsString()); // Nef
 
-            var ritem = new ContractManifest();
+            var ritem = new ContractManifest()
+            {
+                Abi = new ContractAbi() { Events = [], Methods = [] },
+                Groups = [],
+                Name = "",
+                Permissions = [],
+                SupportedStandards = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
             ((IInteroperable)ritem).FromStackItem(item[4]);
             Assert.AreEqual(Contract_Create.Manifest.ToString(), ritem.ToString()); // Manifest
 
