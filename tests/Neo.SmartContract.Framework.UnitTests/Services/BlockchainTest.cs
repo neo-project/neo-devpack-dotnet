@@ -238,7 +238,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var item = Contract.GetContract(Contract.Hash, "Manifest") as Struct;
             Assert.IsNotNull(item);
 
-            var ritem = new ContractManifest();
+            var ritem = new ContractManifest()
+            {
+                Abi = new ContractAbi() { Events = [], Methods = [] },
+                Groups = [],
+                Name = "",
+                Permissions = [],
+                SupportedStandards = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
             ((IInteroperable)ritem).FromStackItem(item);
             Assert.AreEqual(Contract_Blockchain.Manifest.ToJson().ToString(), ritem.ToJson().ToString());
 
