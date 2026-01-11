@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
+using System;
 using System.Reflection;
 
 namespace Neo.SmartContract.Framework.UnitTests.Services
@@ -30,7 +31,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Empty Serialize
 
             var exception = Assert.ThrowsException<TestException>(() => Contract.Deserialize(null));
-            Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
+            Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
 
             // Serialize
 
@@ -39,14 +40,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             // Deserialize
 
             var item = Contract.Deserialize("[null,true,\"asd\"]");
-            Assert.IsInstanceOfType(item, typeof(Array));
+            Assert.IsInstanceOfType(item, typeof(VM.Types.Array));
 
-            var entry = ((Array)item)[0];
+            var entry = ((VM.Types.Array)item)[0];
             Assert.IsInstanceOfType(entry, typeof(Null));
-            entry = ((Array)item)[1];
-            Assert.IsInstanceOfType(entry, typeof(Boolean));
+            entry = ((VM.Types.Array)item)[1];
+            Assert.IsInstanceOfType(entry, typeof(VM.Types.Boolean));
             Assert.AreEqual(true, entry.GetBoolean());
-            entry = ((Array)item)[2];
+            entry = ((VM.Types.Array)item)[2];
             Assert.IsInstanceOfType(entry, typeof(ByteString));
             Assert.AreEqual("asd", entry.GetString());
         }

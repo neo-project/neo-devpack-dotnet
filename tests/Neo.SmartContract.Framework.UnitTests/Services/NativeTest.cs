@@ -29,7 +29,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(5_0000_0000, Contract.NEO_GetGasPerBlock());
             Assert.IsNull(Contract.NEO_GetAccountState(Bob.Account));
             Assert.AreEqual(100_000_000, Contract.NEO_BalanceOf(Engine.ValidatorsAddress));
-            Assert.AreEqual(0, Contract.NEO_UnclaimedGas(Bob.Account, 0));
+            Assert.AreEqual(0, Contract.NEO_UnclaimedGas(Bob.Account, 1));
             Assert.IsFalse(Contract.NEO_Transfer(Bob.Account, Bob.Account, 0));
 
             // Before RegisterCandidate

@@ -28,7 +28,7 @@ public class ManifestAttributeTest
     {
         var extra = Contract_ManifestAttribute.Manifest!.Extra;
 
-        Assert.AreEqual(6, extra.Count);
+        Assert.AreEqual(6, extra!.Count);
         // ["nef"]["optimizations"]
         // [Author("core-dev")]
         // [Email("dev@neo.org")]
