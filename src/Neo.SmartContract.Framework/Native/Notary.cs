@@ -22,12 +22,85 @@ namespace Neo.SmartContract.Framework.Native
     {
         [ContractHash]
         public static extern UInt160 Hash { get; }
+
+        /// <summary>
+        /// Locks a deposit until the specified block height.
+        /// The deposit is created by transferring GAS to the Notary contract.
+        /// <para>
+        /// The execution will fail if account is null.
+        /// </para>
+        /// </summary>
+        /// <param name="account">The account to lock the deposit.</param>
+        /// <param name="till">The block height to lock the deposit until.</param>
+        /// <returns>
+        /// True if the `till` value is updated successfully, false if
+        ///  1. the account is not witness;
+        ///  2. the deposit is not found;
+        ///  3. The `till` is less than the current block height + 2 or less than the previous lock height;
+        /// </returns>
         public static extern bool LockDepositUntil(UInt160 account, uint till);
+
+        /// <summary>
+        /// Withdraw all deposited GAS for "from" address to "to" address. If "to" address is not specified, then "from" will be used as a sender.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. the 'from' is null;
+        ///  2. the GAS transfer calling fails.
+        /// </para>
+        /// </summary>
+        /// <returns>
+        /// True if the withdrawal is successful, false if
+        ///  1. the 'from' is not witness;
+        ///  2. the deposit is not found;
+        ///  3. The current block height is less than the deposit's lock height.
+        /// </returns>
         public static extern bool Withdraw(UInt160 from, UInt160 to);
+
+        /// <summary>
+        /// ExpirationOf returns deposit lock height for specified address.
+        /// <para>
+        /// The execution will fail if the 'account' is null.
+        /// </para>
+        /// </summary>
         public static extern BigInteger BalanceOf(UInt160 account);
+
+        /// <summary>
+        /// ExpirationOf returns deposit lock height for specified address.
+        /// <para>
+        /// The execution will fail if the 'account' is null.
+        /// </para>
+        /// </summary>
         public static extern uint ExpirationOf(UInt160 account);
-        public static extern bool Verify(byte[] sig);
+
+        /// <summary>
+        /// Verify checks whether the transaction is signed by one of the notaries and
+        /// ensures whether deposited amount of GAS is enough to pay the actual sender's fee.
+        /// </summary>
+        /// <returns>
+        /// It returns false if:
+        ///  1. The 'signature' is not valid;
+        ///  2. The calling source is not a transaction or no NotaryAssisted attributed.
+        ///  3. If one signer of the transaction is the Notary contract, but the WitnessScope is not None.
+        ///  4. if the sender is the Notary contract, but the deposited GAS of the second signer is not enough to pay the fee.
+        ///  5. The transaction is not signed by one of the notaries.
+        /// </returns>
+        public static extern bool Verify(byte[] signature);
+
+        /// <summary>
+        /// returns the maximum NotValidBefore delta
+        /// </summary>
         public static extern uint GetMaxNotValidBeforeDelta();
+
+        /// <summary>
+        /// SetMaxNotValidBeforeDelta is Notary contract method and sets the maximum NotValidBefore delta.
+        /// Only the committee can call this method.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. the 'value' is greater than MaxValidUntilBlockIncrement / 2;
+        ///  2. the 'value' is less than the number of validators;
+        ///  3. Not the committee.
+        /// </para>
+        /// </summary>
         public static extern void SetMaxNotValidBeforeDelta(uint value);
     }
 }
