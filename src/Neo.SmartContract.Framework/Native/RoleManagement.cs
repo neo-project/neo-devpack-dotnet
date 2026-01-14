@@ -20,6 +20,16 @@ namespace Neo.SmartContract.Framework.Native
     {
         [ContractHash]
         public static extern UInt160 Hash { get; }
+
+        /// <summary>
+        /// Gets the list of nodes(public keys) for the specified role.
+        /// If no such role is designated, an empty array will be returned.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. The 'role' is not a valid Role value.
+        ///  2. The 'index' greater than the current_index + 1.
+        /// </para>
+        /// </summary>
         public static extern ECPoint[] GetDesignatedByRole(Role role, uint index);
     }
 }
