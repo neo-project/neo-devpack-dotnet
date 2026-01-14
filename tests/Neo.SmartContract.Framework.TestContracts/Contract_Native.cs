@@ -84,5 +84,11 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return Policy.IsBlocked(account);
         }
+
+        [DisplayName("ContractManagement_IsContract")]
+        public static bool ContractManagement_IsContract(UInt160 hash)
+        {
+            return ContractManagement.IsContract(hash);
+        }
     }
 }
