@@ -57,5 +57,14 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Assert.AreEqual(1000L, Contract.Policy_GetFeePerByte());
             Assert.IsFalse(Contract.Policy_IsBlocked(Alice.Account));
         }
+
+        [TestMethod]
+        public void Test_ContractManagementIsContract()
+        {
+            Assert.IsFalse(Contract.ContractManagement_IsContract(Alice.Account));
+
+            var contractManagementHash = UInt160.Parse("0xfffdc93764dbaddd97c48f252a53ea4643faa3fd");
+            Assert.IsTrue(Contract.ContractManagement_IsContract(contractManagementHash));
+        }
     }
 }
