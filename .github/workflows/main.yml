@@ -2,7 +2,7 @@ name: .NET Core Test and Publish
 
 on:
   push:
-    branches: [master]
+    branches: [master, master-n3]
   pull_request:
   workflow_dispatch:
 
@@ -94,7 +94,7 @@ jobs:
         file: ${{ github.workspace }}/coverage/lcov.info
 
   PublishPackage:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'
     needs: Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
