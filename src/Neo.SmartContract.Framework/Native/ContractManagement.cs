@@ -36,6 +36,15 @@ namespace Neo.SmartContract.Framework.Native
         public static extern Contract GetContract(UInt160 hash);
 
         /// <summary>
+        /// Checks if the contract with the specified hash exists.
+        /// Available since HF_Echidna.
+        /// <para>
+        /// The execution will fail if the 'hash' is null.
+        /// </para>
+        /// </summary>
+        public static extern bool IsContract(UInt160 hash);
+
+        /// <summary>
         /// Gets the contract by the specified id, null if not found.
         /// </summary>
         public static extern Contract GetContractById(int id);
