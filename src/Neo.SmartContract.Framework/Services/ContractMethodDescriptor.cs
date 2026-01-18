@@ -11,6 +11,10 @@
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Represents a method in the ABI of a contract.
+    /// Including name, parameters, return type, the offset in the contract NEF file and  it's safe or not.
+    /// </summary>
     public struct ContractMethodDescriptor
     {
         public string Name;

@@ -11,6 +11,9 @@
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Represents an event in the ABI of a contract.
+    /// </summary>
     public struct ContractEventDescriptor
     {
         public string Name;
