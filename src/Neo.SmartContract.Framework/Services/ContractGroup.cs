@@ -11,9 +11,23 @@
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Represents a set of mutually trusted contracts.
+    /// A contract will trust and allow any contract in the same group to invoke it,
+    /// and the user interface will not give any warnings.
+    /// A group is identified by a public key and must be accompanied by a signature 
+    /// for the contract hash to prove that the contract is indeed included in the group.
+    /// </summary>
     public struct ContractGroup
     {
+        /// <summary>
+        /// The public key of the group.
+        /// </summary>
         public ECPoint PubKey;
+
+        /// <summary>
+        /// The signature of the contract hash which can be verified by the `PubKey`.
+        /// </summary>
         public ByteString Signature;
     }
 }

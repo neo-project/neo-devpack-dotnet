@@ -11,6 +11,9 @@
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Represents a parameter of an event or method in ABI, including name and type.
+    /// </summary>
     public struct ContractParameterDefinition
     {
         public string Name;
