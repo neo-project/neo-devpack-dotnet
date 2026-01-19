@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Testing
             {
                 Name = TestingSyscall.Name,
                 Handler = typeof(TestingApplicationEngine).GetMethod(nameof(InvokeTestingSyscall),
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!,
                 FixedPrice = 0,
                 RequiredCallFlags = CallFlags.None,
             };
@@ -66,7 +66,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Override CallingScriptHash
         /// </summary>
-        public override UInt160 CallingScriptHash
+        public override UInt160? CallingScriptHash
         {
             get
             {
@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Override EntryScriptHash
         /// </summary>
-        public override UInt160 EntryScriptHash
+        public override UInt160? EntryScriptHash
         {
             get
             {

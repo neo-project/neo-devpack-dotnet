@@ -289,7 +289,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 properties.Add((getter, setter));
                 methodList.Remove(getter);
 
-                if (setter != null)
+                if (setter is not null)
                 {
                     methodList.Remove(setter);
                 }
@@ -431,7 +431,7 @@ namespace Neo.SmartContract.Testing.Extensions
             if (debugInfo != null && nefFile != null)
             {
                 var debugMethod = Disassembler.CSharp.Disassembler.GetMethod(method, debugInfo);
-                if (debugMethod != null)
+                if (debugMethod is not null)
                 {
                     var (start, end) = Disassembler.CSharp.Disassembler.GetMethodStartEndAddress(debugMethod);
                     var instructions = Disassembler.CSharp.Disassembler.ConvertMethodToInstructions(nefFile, start, end);
@@ -530,7 +530,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
                 foreach (var entry in compilerArray)
                 {
-                    if (entry == null) continue;
+                    if (entry is null) continue;
                     if (first) first = false;
                     else builder.Append(',');
                     builder.Append($"{entry["file"]?.AsString()}:{entry["line"]}({entry["method"]?.AsString()})");
