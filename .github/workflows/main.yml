@@ -5,6 +5,15 @@ on:
     branches: [master, master-n3]
   pull_request:
   workflow_dispatch:
+    inputs:
+      version_suffix:
+        description: Optional NuGet version suffix (defaults to test.<run_id> for dispatch)
+        required: false
+        default: ""
+      wait_for_packages:
+        description: Wait for NuGet indexing before proceeding (true/false)
+        required: false
+        default: "false"
 
 env:
   DOTNET_VERSION: 10.0.x
@@ -192,10 +201,13 @@ jobs:
             --no-service-endpoint;
 
   Release:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
     needs: Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
+      packages: write
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -213,7 +225,7 @@ jobs:
         STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})
         echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
     - name: Setup .NET Core
-      if: steps.check_tag.outputs.statusCode == '404'
+      if: steps.check_tag.outputs.statusCode == '404' || github.event_name == 'workflow_dispatch'
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
@@ -283,10 +295,13 @@ jobs:
           nccs-osx-arm64.tar.gz
           checksums.txt
     - name: Publish packages to NuGet (ordered)
-      if: steps.check_tag.outputs.statusCode == '404'
+      if: steps.check_tag.outputs.statusCode == '404' || github.event_name == 'workflow_dispatch'
       env:
         NUGET_SOURCE: https://api.nuget.org/v3/index.json
         NUGET_API_KEY: ${{ secrets.NUGET_TOKEN }}
+        EVENT_NAME: ${{ github.event_name }}
+        VERSION_SUFFIX_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version_suffix || '' }}
+        WAIT_FOR_PACKAGES_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.wait_for_packages || '' }}
       run: |
         set -euo pipefail
 
@@ -295,12 +310,25 @@ jobs:
           exit 1
         fi
 
+        VERSION_SUFFIX=""
+        if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+          if [[ -n "${VERSION_SUFFIX_INPUT:-}" ]]; then
+            VERSION_SUFFIX="${VERSION_SUFFIX_INPUT}"
+          else
+            VERSION_SUFFIX="test.${GITHUB_RUN_ID}"
+          fi
+        fi
+
         OUTPUT_DIR="./pub"
         rm -rf "$OUTPUT_DIR"
         mkdir -p "$OUTPUT_DIR"
 
         VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
-        echo "Version to release: $VERSION"
+        RELEASE_VERSION="$VERSION"
+        if [[ -n "$VERSION_SUFFIX" ]]; then
+          RELEASE_VERSION="${VERSION}-${VERSION_SUFFIX}"
+        fi
+        echo "Version to release: $RELEASE_VERSION"
 
         echo "Preparing solution..."
         cp neo-devpack-dotnet.sln neo-devpack-dotnet.release.sln
@@ -325,11 +353,17 @@ jobs:
         PACKAGE_BASE=$("$PYTHON_BIN" -c 'import json,sys,urllib.request as u; data=json.load(u.urlopen(sys.argv[1])); resources=data.get("resources", []); pkg=next((r for r in resources if any(t.startswith("PackageBaseAddress") for t in (lambda x: [x] if isinstance(x, str) else (x or []))(r.get("@type")))), None); print(pkg.get("@id","").rstrip("/")) if pkg else sys.exit(2)' "$NUGET_SOURCE") || true
 
         WAIT_FOR_PACKAGES=true
+        if [[ "${EVENT_NAME}" == "workflow_dispatch" && "${WAIT_FOR_PACKAGES_INPUT}" == "false" ]]; then
+          WAIT_FOR_PACKAGES=false
+        fi
         if [[ -z "$PACKAGE_BASE" ]]; then
           WAIT_FOR_PACKAGES=false
           echo "Warning: Could not resolve PackageBaseAddress from $NUGET_SOURCE; skipping package availability checks."
         else
           echo "Package base address: $PACKAGE_BASE"
+        fi
+        if [[ "$WAIT_FOR_PACKAGES" == "false" ]]; then
+          echo "Package availability checks disabled."
         fi
 
         pack_and_push() {
@@ -340,10 +374,15 @@ jobs:
           echo ""
           echo "Processing $project_name..."
           echo "-------------------------------------------------"
+          local version_suffix_arg=()
+          if [[ -n "$VERSION_SUFFIX" ]]; then
+            version_suffix_arg=(--version-suffix "$VERSION_SUFFIX")
+          fi
           dotnet pack "$project_path" \
             --configuration Release \
             --output "$OUTPUT_DIR" \
-            --no-restore
+            --no-restore \
+            "${version_suffix_arg[@]}"
 
           echo "Publishing $project_name to $NUGET_SOURCE..."
           dotnet nuget push "$OUTPUT_DIR/$project_name.*.nupkg" \
@@ -382,7 +421,7 @@ jobs:
         }
 
         pack_and_push "./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj"
-        wait_for_package "Neo.SmartContract.Framework" "$VERSION"
+        wait_for_package "Neo.SmartContract.Framework" "$RELEASE_VERSION"
 
         pack_and_push "./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj"
         pack_and_push "./src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj"
@@ -419,7 +458,7 @@ jobs:
         dotnet restore ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
 
         pack_and_push "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
-        wait_for_package "Neo.SmartContract.Testing" "$VERSION"
+        wait_for_package "Neo.SmartContract.Testing" "$RELEASE_VERSION"
 
         mv "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup" \
           "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
