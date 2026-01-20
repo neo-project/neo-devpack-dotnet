@@ -7,7 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        
+
         <!-- Force PackageReference project style -->
         <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
         <OutputType>Library</OutputType>
