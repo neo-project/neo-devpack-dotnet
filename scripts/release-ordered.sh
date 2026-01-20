@@ -7,7 +7,7 @@
 # Usage: ./scripts/release-ordered.sh [--dry-run] [--source <nuget-source>] [--api-key <key>]
 #
 
-set -euo pipefail
+set -e
 
 # Default values
 DRY_RUN=false
@@ -15,9 +15,6 @@ NUGET_SOURCE="https://api.nuget.org/v3/index.json"
 API_KEY=""
 CONFIG="Release"
 OUTPUT_DIR="./pub"
-PYTHON_BIN="python3"
-PACKAGE_BASE=""
-WAIT_FOR_PACKAGES=true
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -65,51 +62,7 @@ echo "Dry Run: $DRY_RUN"
 echo "================================================="
 
 # Create output directory
-rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
-
-# Resolve Python interpreter for JSON parsing
-if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
-    PYTHON_BIN="python"
-fi
-if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
-    echo "Error: python3 (or python) is required to parse NuGet service index."
-    exit 1
-fi
-
-# Resolve PackageBaseAddress from NuGet service index
-resolve_package_base() {
-    "$PYTHON_BIN" - "$NUGET_SOURCE" <<'PY'
-import json
-import sys
-import urllib.request
-
-url = sys.argv[1]
-try:
-    with urllib.request.urlopen(url) as response:
-        data = json.load(response)
-except Exception:
-    sys.exit(1)
-
-resources = data.get("resources", [])
-for resource in resources:
-    types = resource.get("@type", [])
-    if isinstance(types, str):
-        types = [types]
-    if any(t.startswith("PackageBaseAddress") for t in types):
-        print(resource.get("@id", "").rstrip("/"))
-        sys.exit(0)
-sys.exit(2)
-PY
-}
-
-PACKAGE_BASE=$(resolve_package_base || true)
-if [[ -z "$PACKAGE_BASE" ]]; then
-    WAIT_FOR_PACKAGES=false
-    echo "Warning: Could not resolve PackageBaseAddress from $NUGET_SOURCE; skipping package availability checks."
-else
-    echo "Package base address: $PACKAGE_BASE"
-fi
 
 # Function to pack and push a project
 pack_and_push() {
@@ -152,35 +105,11 @@ wait_for_package() {
     if [[ "$DRY_RUN" == "true" ]]; then
         return 0
     fi
-    if [[ "$WAIT_FOR_PACKAGES" == "false" ]]; then
-        return 0
-    fi
     
     echo "Waiting for $package_name version $version to be available..."
     
     for i in $(seq 1 $max_attempts); do
-        local package_id
-        package_id=$(echo "$package_name" | tr '[:upper:]' '[:lower:]')
-        if "$PYTHON_BIN" - "$PACKAGE_BASE" "$package_id" "$version" <<'PY'
-import json
-import sys
-import urllib.request
-
-base, package_id, version = sys.argv[1], sys.argv[2], sys.argv[3]
-url = f"{base}/{package_id}/index.json"
-try:
-    with urllib.request.urlopen(url) as response:
-        data = json.load(response)
-except Exception:
-    sys.exit(1)
-
-versions = data.get("versions", [])
-target = version.lower()
-if any(v.lower() == target for v in versions):
-    sys.exit(0)
-sys.exit(1)
-PY
-        then
+        if dotnet nuget list source "$NUGET_SOURCE" --take 1 "$package_name" --exact-match --prerelease | grep -q "$version"; then
             echo "✓ Package $package_name $version is now available"
             return 0
         fi
@@ -201,7 +130,7 @@ echo ""
 echo "Preparing solution..."
 echo "-------------------------------------------------"
 cp neo-devpack-dotnet.sln neo-devpack-dotnet.release.sln
-dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo/Neo.csproj || true
+dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/neo/neo.csproj || true
 dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Cryptography.BLS12_381/Neo.Cryptography.BLS12_381.csproj || true
 dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Extensions/Neo.Extensions.csproj || true
 dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.IO/Neo.IO.csproj || true
@@ -254,8 +183,6 @@ dotnet add ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj pack
 echo "Fixing RpcStore.cs for package reference compatibility..."
 sed -i.bak 's/public event IStore\.OnNewSnapshotDelegate/public event Action<IStore, IStoreSnapshot>/g' \
     "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
-
-dotnet restore ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
 
 pack_and_push "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
 wait_for_package "Neo.SmartContract.Testing" "$VERSION"
