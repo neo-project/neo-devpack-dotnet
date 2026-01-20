@@ -408,9 +408,13 @@ jobs:
         dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj' || true
         dotnet add ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version "$NEO_VERSION"
 
-        echo "Fixing RpcStore.cs for package reference compatibility..."
-        sed -i.bak 's/public event IStore\.OnNewSnapshotDelegate/public event Action<IStore, IStoreSnapshot>/g' \
-          "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
+        if grep -q "delegate void OnNewSnapshotDelegate" ./neo/src/Neo/Persistence/IStore.cs; then
+          echo "Neo uses OnNewSnapshotDelegate; keeping RpcStore event signature."
+        else
+          echo "Neo uses Action signature; updating RpcStore event signature."
+          sed -i.bak 's/public event IStore\.OnNewSnapshotDelegate/public event Action<IStore, IStoreSnapshot>/g' \
+            "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
+        fi
 
         dotnet restore ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
 
@@ -419,8 +423,10 @@ jobs:
 
         mv "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup" \
           "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
-        mv "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs.bak" \
-          "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
+        if [[ -f "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs.bak" ]]; then
+          mv "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs.bak" \
+            "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
+        fi
 
         pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
         pack_and_push "./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj"
