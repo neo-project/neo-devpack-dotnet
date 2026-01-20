@@ -18,15 +18,25 @@ namespace Neo.SmartContract.Framework.Services
 {
     public class Iterator : IApiInterface, IEnumerable
     {
+        /// <summary>
+        /// Moves the iterator to the next element.
+        /// </summary>
         [Syscall("System.Iterator.Next")]
         public extern bool Next();
 
+        /// <summary>
+        /// The current value of the iterator.
+        /// It called must be after the `Next` method is called.
+        /// </summary>
         public extern object Value
         {
             [Syscall("System.Iterator.Value")]
             get;
         }
 
+        /// <summary>
+        /// Just for code compatibility. Don't use this method.
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator()
         {
             throw new NotImplementedException();
@@ -35,12 +45,19 @@ namespace Neo.SmartContract.Framework.Services
 
     public class Iterator<T> : Iterator, IEnumerable<T>
     {
+        /// <summary>
+        /// The current value of the iterator.
+        /// It called must be after the `Next` method is called.
+        /// </summary>
         public extern new T Value
         {
             [Syscall("System.Iterator.Value")]
             get;
         }
 
+        /// <summary>
+        /// Just for code compatibility. Don't use this method.
+        /// </summary>
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             throw new NotImplementedException();

@@ -11,6 +11,12 @@
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Represents the manifest of a smart contract.
+    /// When a smart contract is deployed, it must explicitly declare the features and permissions it will use.
+    /// When it is running, it will be limited by its declared list of features and permissions, and cannot make any behavior beyond the scope of the list.
+    /// </summary>
+    /// <remarks>For more details, see NEP-15.</remarks>
     public struct ContractManifest
     {
         public string Name;

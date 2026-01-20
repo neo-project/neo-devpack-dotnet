@@ -11,6 +11,9 @@
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Represents the ABI of a contract. Includes methods and events definitions.
+    /// </summary>
     public struct ContractAbi
     {
         public ContractMethodDescriptor[] Methods;
