@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Testing
             {
                 Name = TestingSyscall.Name,
                 Handler = typeof(TestingApplicationEngine).GetMethod(nameof(InvokeTestingSyscall),
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!,
                 FixedPrice = 0,
                 RequiredCallFlags = CallFlags.None,
             };

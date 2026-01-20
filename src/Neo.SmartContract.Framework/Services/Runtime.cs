@@ -81,7 +81,7 @@ namespace Neo.SmartContract.Framework.Services
         }
 
         /// <summary>
-        /// Gets the unixtimestamp in seconds of the current block.
+        /// Gets the unixtimestamp in milliseconds of the current block.
         /// </summary>
         public static extern ulong Time
         {

@@ -76,11 +76,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Ledger()
         {
             var genesisBlock = NativeContract.Ledger.GetBlock(Engine.Storage.Snapshot, 0);
+            Assert.IsNotNull(genesisBlock);
             Assert.AreEqual(NativeContract.Ledger.Hash, Contract.LedgerHash());
             AssertGasConsumed(984270);
             Assert.AreEqual(0, Contract.LedgerCurrentIndex());
             AssertGasConsumed(2950140);
-            Assert.AreEqual(genesisBlock.Hash, Contract.LedgerCurrentHash());
+
+            var currentHash = Contract.LedgerCurrentHash();
+            Assert.IsNotNull(currentHash);
+            Assert.AreEqual(genesisBlock.Hash, currentHash);
             AssertGasConsumed(2950140);
         }
     }

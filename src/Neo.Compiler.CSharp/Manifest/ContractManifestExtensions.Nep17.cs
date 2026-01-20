@@ -31,7 +31,7 @@ internal static partial class ContractManifestExtensions
         var transferMethod = manifest.Abi.GetMethod("transfer", 4);
 
         // Check symbol method
-        if (symbolMethod == null)
+        if (symbolMethod is null)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: symbol, it is not found in the ABI"));
 
@@ -39,12 +39,12 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: symbol, it is not safe, you should add a 'Safe' attribute to the symbol method"));
 
-        if (symbolMethod != null && symbolMethod.ReturnType != ContractParameterType.String)
+        if (symbolMethod is not null && symbolMethod.ReturnType != ContractParameterType.String)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: symbol, it's return type is not a String"));
 
         // Check decimals method
-        if (decimalsMethod == null)
+        if (decimalsMethod is null)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: decimals, it is not found in the ABI"));
 
@@ -52,12 +52,12 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: decimals, it is not safe, you should add a 'Safe' attribute to the decimals method"));
 
-        if (decimalsMethod != null && decimalsMethod.ReturnType != ContractParameterType.Integer)
+        if (decimalsMethod is not null && decimalsMethod.ReturnType != ContractParameterType.Integer)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: decimals, it's return type is not an Integer"));
 
         // Check totalSupply method
-        if (totalSupplyMethod == null)
+        if (totalSupplyMethod is null)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: totalSupply, it is not found in the ABI"));
 
@@ -65,12 +65,12 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: totalSupply, it is not safe, you should add a 'Safe' attribute to the totalSupply method"));
 
-        if (totalSupplyMethod != null && totalSupplyMethod.ReturnType != ContractParameterType.Integer)
+        if (totalSupplyMethod is not null && totalSupplyMethod.ReturnType != ContractParameterType.Integer)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: totalSupply, it's return type is not an Integer"));
 
         // Check balanceOf method
-        if (balanceOfMethod == null)
+        if (balanceOfMethod is null)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: balanceOf, it is not found in the ABI"));
 
@@ -78,37 +78,37 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: balanceOf, it is not safe, you should add a 'Safe' attribute to the balanceOf method"));
 
-        if (balanceOfMethod != null && balanceOfMethod.ReturnType != ContractParameterType.Integer)
+        if (balanceOfMethod is not null && balanceOfMethod.ReturnType != ContractParameterType.Integer)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: balanceOf, it's return type is not an Integer"));
 
-        if (balanceOfMethod != null && balanceOfMethod.Parameters.Length != 1)
+        if (balanceOfMethod is not null && balanceOfMethod.Parameters.Length != 1)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: balanceOf, it's parameters length is not 1"));
 
-        if (balanceOfMethod != null && balanceOfMethod.Parameters[0].Type != ContractParameterType.Hash160)
+        if (balanceOfMethod is not null && balanceOfMethod.Parameters[0].Type != ContractParameterType.Hash160)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: balanceOf, it's parameter type is not a Hash160"));
 
         // Check transfer method
-        if (transferMethod == null)
+        if (transferMethod is null)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: transfer, it is not found in the ABI"));
 
         // Note: transfer method should NOT be safe as per NEP-17 standard
-        if (transferMethod != null && transferMethod.Safe)
+        if (transferMethod is not null && transferMethod.Safe)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: transfer, it should not be marked as Safe"));
 
-        if (transferMethod != null && transferMethod.ReturnType != ContractParameterType.Boolean)
+        if (transferMethod is not null && transferMethod.ReturnType != ContractParameterType.Boolean)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: transfer, it's return type is not a Boolean"));
 
-        if (transferMethod != null && transferMethod.Parameters.Length != 4)
+        if (transferMethod is not null && transferMethod.Parameters.Length != 4)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep17.ToStandard()} implementation: transfer, it's parameters length is not 4"));
 
-        if (transferMethod != null && transferMethod.Parameters.Length == 4)
+        if (transferMethod is not null && transferMethod.Parameters.Length == 4)
         {
             if (transferMethod.Parameters[0].Type != ContractParameterType.Hash160)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
@@ -128,12 +128,12 @@ internal static partial class ContractManifestExtensions
         }
 
         // Check Transfer event
-        var transferEvent = manifest.Abi.Events.FirstOrDefault(e =>
-            e.Name == "Transfer");
-
-        if (transferEvent == null)
+        var transferEvent = manifest.Abi.Events.FirstOrDefault(e => e.Name == "Transfer");
+        if (transferEvent is null)
+        {
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event is not found in the ABI"));
+        }
         else
         {
             if (transferEvent.Parameters.Length != 3)
