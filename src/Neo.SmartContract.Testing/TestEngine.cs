@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Testing
 {
     public class TestEngine
     {
-        public delegate UInt160? OnGetScriptHash(UInt160 current, UInt160 expected);
+        public delegate UInt160? OnGetScriptHash(UInt160? current, UInt160? expected);
 
         internal readonly List<FeeWatcher> _feeWatchers = [];
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = [];

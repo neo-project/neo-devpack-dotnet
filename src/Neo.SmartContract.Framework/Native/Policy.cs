@@ -12,6 +12,8 @@
 #pragma warning disable CS0626
 
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
+using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Native
 {
@@ -33,6 +35,11 @@ namespace Neo.SmartContract.Framework.Native
         public static extern uint GetExecFeeFactor();
 
         /// <summary>
+        /// Get the execution fee factor in picoGAS, 1 picoGAS = 1e-12 GAS.
+        /// </summary>
+        public static extern BigInteger GetExecPicoFeeFactor();
+
+        /// <summary>
         /// Get the storage price for per storage byte in the unit of datoshi, 1 datoshi = 1e-8 GAS
         /// </summary>
         public static extern uint GetStoragePrice();
@@ -44,6 +51,16 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         public static extern bool IsBlocked(UInt160 account);
+
+        /// <summary>
+        /// Returns an iterator of blocked accounts.
+        /// </summary>
+        public static extern Iterator GetBlockedAccounts();
+
+        /// <summary>
+        /// Recovers blocked funds to the Treasury contract.
+        /// </summary>
+        public static extern bool RecoverFund(UInt160 account, UInt160 token);
 
         /// <summary>
         /// Get the attribute fee in the unit of datoshi, 1 datoshi = 1e-8 GAS
@@ -64,5 +81,20 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         public static extern void SetAttributeFee(TransactionAttributeType attributeType, uint value);
+
+        /// <summary>
+        /// Sets a whitelisted method to pay a fixed execution fee.
+        /// </summary>
+        public static extern void SetWhitelistFeeContract(UInt160 contractHash, string method, int argCount, long fixedFee);
+
+        /// <summary>
+        /// Removes a whitelisted fixed execution fee entry.
+        /// </summary>
+        public static extern void RemoveWhitelistFeeContract(UInt160 contractHash, string method, int argCount);
+
+        /// <summary>
+        /// Returns an iterator over whitelisted fee contracts.
+        /// </summary>
+        public static extern Iterator GetWhitelistFeeContracts();
     }
 }

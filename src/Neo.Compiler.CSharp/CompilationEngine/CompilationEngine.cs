@@ -132,11 +132,17 @@ namespace Neo.Compiler
 
         public List<CompilationContext> CompileSources(params string[] sourceFiles)
         {
-            return CompileSources(new CompilationSourceReferences()
+            var references = new CompilationSourceReferences();
+            if (TryGetLocalFrameworkProject(out var frameworkProject))
             {
-                Packages = [new("Neo.SmartContract.Framework", "3.8.1")]
-            },
-            sourceFiles);
+                references.Projects = [frameworkProject];
+            }
+            else
+            {
+                references.Packages = [new("Neo.SmartContract.Framework", "3.9.0")];
+            }
+
+            return CompileSources(references, sourceFiles);
         }
 
         public List<CompilationContext> CompileSources(CompilationSourceReferences references, params string[] sourceFiles)
@@ -663,7 +669,7 @@ namespace Neo.Compiler
                     case "project":
                         string msbuildProject = assets["libraries"]![name]!["msbuildProject"]!.GetString();
                         msbuildProject = Path.GetFullPath(msbuildProject, folder);
-                        reference = GetCompilation(msbuildProject).ToMetadataReference();
+                        reference = GetCompilationPreservingVersion(msbuildProject).ToMetadataReference();
                         break;
                     default:
                         throw new NotSupportedException();
@@ -671,6 +677,52 @@ namespace Neo.Compiler
                 MetaReferences.Add(name, reference);
             }
             return reference;
+        }
+
+        private static bool TryGetLocalFrameworkProject(out string frameworkProject)
+        {
+            var searchRoots = new[]
+            {
+                Directory.GetCurrentDirectory(),
+                AppContext.BaseDirectory,
+                Path.GetDirectoryName(typeof(CompilationEngine).Assembly.Location) ?? string.Empty
+            };
+
+            foreach (var root in searchRoots.Where(r => !string.IsNullOrEmpty(r)))
+            {
+                var directory = new DirectoryInfo(root);
+                while (directory is not null)
+                {
+                    var candidate = Path.Combine(directory.FullName, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
+                    if (File.Exists(candidate))
+                    {
+                        frameworkProject = candidate;
+                        return true;
+                    }
+
+                    directory = directory.Parent;
+                }
+            }
+
+            frameworkProject = string.Empty;
+            return false;
+        }
+
+        private Compilation GetCompilationPreservingVersion(string csproj)
+        {
+            string? projectVersion = ProjectVersion;
+            string? projectVersionPrefix = ProjectVersionPrefix;
+            string? projectVersionSuffix = ProjectVersionSuffix;
+            try
+            {
+                return GetCompilation(csproj);
+            }
+            finally
+            {
+                ProjectVersion = projectVersion;
+                ProjectVersionPrefix = projectVersionPrefix;
+                ProjectVersionSuffix = projectVersionSuffix;
+            }
         }
 
         /// <summary>
