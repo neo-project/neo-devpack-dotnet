@@ -710,6 +710,9 @@ namespace Neo.Compiler
 
         private Compilation GetCompilationPreservingVersion(string csproj)
         {
+            bool preserveProjectVersion = !string.IsNullOrEmpty(ProjectVersion) ||
+                !string.IsNullOrEmpty(ProjectVersionPrefix) ||
+                !string.IsNullOrEmpty(ProjectVersionSuffix);
             string? projectVersion = ProjectVersion;
             string? projectVersionPrefix = ProjectVersionPrefix;
             string? projectVersionSuffix = ProjectVersionSuffix;
@@ -719,9 +722,12 @@ namespace Neo.Compiler
             }
             finally
             {
-                ProjectVersion = projectVersion;
-                ProjectVersionPrefix = projectVersionPrefix;
-                ProjectVersionSuffix = projectVersionSuffix;
+                if (preserveProjectVersion)
+                {
+                    ProjectVersion = projectVersion;
+                    ProjectVersionPrefix = projectVersionPrefix;
+                    ProjectVersionSuffix = projectVersionSuffix;
+                }
             }
         }
 
