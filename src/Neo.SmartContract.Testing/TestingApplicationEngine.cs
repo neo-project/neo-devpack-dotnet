@@ -66,7 +66,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Override CallingScriptHash
         /// </summary>
-        public override UInt160 CallingScriptHash
+        public override UInt160? CallingScriptHash
         {
             get
             {
@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Override EntryScriptHash
         /// </summary>
-        public override UInt160 EntryScriptHash
+        public override UInt160? EntryScriptHash
         {
             get
             {
@@ -251,7 +251,7 @@ namespace Neo.SmartContract.Testing
                     // Do the same logic as ApplicationEngine
 
                     ValidateCallFlags(descriptor.RequiredCallFlags);
-                    AddFee(descriptor.FixedPrice * ExecFeeFactor);
+                    AddFee(descriptor.FixedPrice * ExecFeePicoFactor);
 
                     if (method.StartsWith('_')) throw new ArgumentException($"Invalid Method Name: {method}");
                     if ((callFlags & ~CallFlags.All) != 0)

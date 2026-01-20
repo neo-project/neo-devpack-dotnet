@@ -160,13 +160,13 @@ namespace Neo.Compiler
             return @"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.8.1"" />
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.9.0"" />
   </ItemGroup>
 
   <Target Name=""PostBuild"" AfterTargets=""PostBuildEvent"">
