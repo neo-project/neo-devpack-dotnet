@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Testing
 {
     public class TestEngine
     {
-        public delegate UInt160? OnGetScriptHash(UInt160 current, UInt160 expected);
+        public delegate UInt160? OnGetScriptHash(UInt160? current, UInt160? expected);
 
         internal readonly List<FeeWatcher> _feeWatchers = [];
         internal readonly Dictionary<UInt160, CoveredContract> Coverage = [];
@@ -301,7 +301,10 @@ namespace Neo.SmartContract.Testing
                 if (Storage.IsInitialized)
                 {
                     var currentHash = NativeContract.Ledger.CurrentHash(Storage.Snapshot);
-                    PersistingBlock = new PersistingBlock(this, NativeContract.Ledger.GetBlock(Storage.Snapshot, currentHash));
+                    var block = NativeContract.Ledger.GetBlock(Storage.Snapshot, currentHash);
+                    if (block is null) throw new InvalidOperationException($"Can't get the current block {currentHash}");
+
+                    PersistingBlock = new PersistingBlock(this, block);
                 }
                 else
                 {
