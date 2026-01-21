@@ -24,7 +24,7 @@ namespace Neo.Compiler
             CheckNep29Compliant(this ContractManifest manifest)
         {
             var deployMethod = manifest.Abi.GetMethod("_deploy", 2);
-            var deployValid = deployMethod != null &&
+            var deployValid = deployMethod is not null &&
                               deployMethod.ReturnType == ContractParameterType.Void &&
                               deployMethod.Parameters.Length == 2 &&
                               deployMethod.Parameters[0].Type == ContractParameterType.Any &&
@@ -40,7 +40,7 @@ namespace Neo.Compiler
             CheckNep30Compliant(this ContractManifest manifest)
         {
             var verifyMethod = manifest.Abi.GetMethod("verify", -1);
-            var verifyValid = verifyMethod != null && verifyMethod.Safe &&
+            var verifyValid = verifyMethod is not null && verifyMethod.Safe &&
                                 verifyMethod.ReturnType == ContractParameterType.Boolean;
 
             System.Collections.Generic.List<CompilationException> errors = [];

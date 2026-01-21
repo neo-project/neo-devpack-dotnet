@@ -26,7 +26,7 @@ internal static partial class ContractManifestExtensions
         var royaltyInfoMethod = manifest.Abi.GetMethod("royaltyInfo", 3);
 
         // Check if method exists
-        if (royaltyInfoMethod == null)
+        if (royaltyInfoMethod is null)
         {
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep24.ToStandard()} implementation: royaltyInfo, it is not found in the ABI"));

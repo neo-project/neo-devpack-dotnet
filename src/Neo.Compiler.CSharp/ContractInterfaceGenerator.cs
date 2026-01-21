@@ -75,7 +75,7 @@ namespace Neo.Compiler
                         sourceCode.WriteLine($"        [Safe]");
                     }
 
-                    if (property.setter != null)
+                    if (property.setter is not null)
                     {
                         sourceCode.WriteLine($"        {returnType} {propertyName} {{ get; set; }}");
                     }
@@ -157,7 +157,7 @@ namespace Neo.Compiler
                 string propertyName = getter.Name.Substring(4);
                 var setter = methods.FirstOrDefault(m => m.Name == $"set_{propertyName}");
 
-                if (setter != null)
+                if (setter is not null)
                     remainingMethods.Remove(setter);
 
                 properties.Add((getter, setter));

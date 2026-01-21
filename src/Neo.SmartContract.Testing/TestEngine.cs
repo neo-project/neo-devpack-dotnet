@@ -301,7 +301,10 @@ namespace Neo.SmartContract.Testing
                 if (Storage.IsInitialized)
                 {
                     var currentHash = NativeContract.Ledger.CurrentHash(Storage.Snapshot);
-                    PersistingBlock = new PersistingBlock(this, NativeContract.Ledger.GetBlock(Storage.Snapshot, currentHash));
+                    var block = NativeContract.Ledger.GetBlock(Storage.Snapshot, currentHash);
+                    if (block is null) throw new InvalidOperationException($"Can't get the current block {currentHash}");
+
+                    PersistingBlock = new PersistingBlock(this, block);
                 }
                 else
                 {
