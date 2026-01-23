@@ -23,22 +23,16 @@ namespace Neo.Compiler.SecurityAnalyzer
 {
     public static class WriteInTryAnalzyer
     {
-        public class WriteInTryVulnerability
+        public class WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
         {
             // key block writes storage; value blocks in try
-            public readonly Dictionary<BasicBlock, HashSet<int>> vulnerabilities;
-            public JToken? DebugInfo { get; init; }
-
-            public WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
-            {
-                this.vulnerabilities = vulnerabilities;
-                DebugInfo = debugInfo;
-            }
+            public Dictionary<BasicBlock, HashSet<int>> Vulnerabilities { get; init; } = vulnerabilities;
+            public JToken? DebugInfo { get; init; } = debugInfo;
 
             public string GetWarningInfo(bool print = false)
             {
                 StringBuilder result = new();
-                if (vulnerabilities.Count <= 0) return result.ToString();
+                if (Vulnerabilities.Count <= 0) return result.ToString();
 
                 // Parse debug info if available
                 NeoDebugInfo? debugInfo = null;
@@ -55,7 +49,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     }
                 }
 
-                foreach ((BasicBlock b, HashSet<int> tryAddr) in vulnerabilities)
+                foreach ((BasicBlock b, HashSet<int> tryAddr) in Vulnerabilities)
                 {
                     int a = b.startAddr;
                     HashSet<int> writeAddrs = new();
@@ -78,7 +72,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     {
                         foreach (int writeAddr in writeAddrs)
                         {
-                            var sourceLocation = GetSourceLocation(writeAddr, debugInfo);
+                            var sourceLocation = debugInfo.GetSourceLocation(writeAddr);
                             if (sourceLocation != null)
                             {
                                 additional.AppendLine($"  At: {sourceLocation.FileName}:{sourceLocation.Line}:{sourceLocation.Column}");
@@ -175,52 +169,6 @@ namespace Neo.Compiler.SecurityAnalyzer
                     }
             }
             return new(result, debugInfo);
-        }
-
-        /// <summary>
-        /// Represents source code location information for diagnostic messages
-        /// </summary>
-        private class SourceLocation
-        {
-            public string FileName { get; set; } = string.Empty;
-            public int Line { get; set; }
-            public int Column { get; set; }
-            public string? CodeSnippet { get; set; }
-        }
-
-        /// <summary>
-        /// Gets source code location information for an instruction address
-        /// </summary>
-        /// <param name="instructionAddress">The instruction address to look up</param>
-        /// <param name="debugInfo">Debug information containing source mappings</param>
-        /// <returns>Source location information if found, null otherwise</returns>
-        private static SourceLocation? GetSourceLocation(int instructionAddress, NeoDebugInfo debugInfo)
-        {
-            // Find the sequence point that covers this instruction address
-            foreach (var method in debugInfo.Methods)
-            {
-                if (instructionAddress >= method.Range.Start && instructionAddress <= method.Range.End)
-                {
-                    // Find the closest sequence point at or before this address
-                    var sequencePoint = method.SequencePoints
-                        .Where(sp => sp.Address <= instructionAddress)
-                        .OrderByDescending(sp => sp.Address)
-                        .FirstOrDefault();
-
-                    if (sequencePoint.Document >= 0 && sequencePoint.Document < debugInfo.Documents.Count)
-                    {
-                        var fileName = debugInfo.Documents[sequencePoint.Document];
-                        return new SourceLocation
-                        {
-                            FileName = System.IO.Path.GetFileName(fileName),
-                            Line = sequencePoint.Start.Line,
-                            Column = sequencePoint.Start.Column,
-                            CodeSnippet = null // Could be enhanced to read actual source code
-                        };
-                    }
-                }
-            }
-            return null;
         }
 
         public static HashSet<BasicBlock> FindAllBasicBlocksWritingStorageInTryCatchFinally
