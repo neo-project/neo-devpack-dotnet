@@ -20,6 +20,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <!--
+      System.CommandLine is currently in beta (2.0.0-beta4).
+      This is the official Microsoft CLI parsing library and is stable enough for production use.
+      Track https://github.com/dotnet/command-line-api for stable release updates.
+      Alternative: Spectre.Console.Cli if a stable package is required.
+    -->
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
