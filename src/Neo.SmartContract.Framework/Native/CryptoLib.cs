@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Recovers the public key in compressed format from messageHash and signature, or null if cannot recover the public key.
-        /// Available from HF_Echidna.
+        /// Available since HF_Echidna.
         /// </summary>
         /// <param name="messageHash">The 32-byte hash of the message that was signed. It cannot be null.</param>
         /// <param name="signature">
@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Computes the Keccak-256 hash in bytes of the input value.
-        /// Available from HF_Cockatrice.
+        /// Available since HF_Cockatrice.
         /// <para>
         /// The execution will fail if 'value' is null.
         /// </para>
@@ -73,7 +73,7 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Verifies that a digital signature is appropriate for the provided key and message using the ECDSA algorithm.
-        /// Available from HF_Cockatrice.
+        /// Available since HF_Cockatrice.
         /// <para>
         /// The execution will fail if:
         ///  1. 'message', 'pubkey', or 'signature' is null.
@@ -85,7 +85,7 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Verifies that a digital signature is appropriate for the provided key and message using the Ed25519 algorithm.
-        /// Available from HF_Echidna.
+        /// Available since HF_Echidna.
         /// <para>
         /// The execution will fail if:
         ///  1. 'message', 'pubkey', or 'signature' is null.
