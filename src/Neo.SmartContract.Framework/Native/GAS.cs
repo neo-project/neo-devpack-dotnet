@@ -21,16 +21,26 @@ namespace Neo.SmartContract.Framework.Native
     {
         [ContractHash]
         public static extern UInt160 Hash { get; }
+
+        /// <summary>
+        /// Returns the symbol of the GAS token.
+        /// </summary>
         public static extern string Symbol { get; }
+
+        /// <summary>
+        /// Returns the number of decimal places of the GAS token.
+        /// </summary>
         public static extern byte Decimals { get; }
 
         /// <summary>
         /// Returns the total supply of the GAS token.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern BigInteger TotalSupply();
 
         /// <summary>
         /// Returns the balance of the specified account.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if 'account' is null.
         /// </para>
@@ -39,6 +49,7 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Transfers a specified amount of GAS from one account to another.
+        /// CallFlags requirement: CallFlags.States | CallFlags.AllowCall | CallFlags.AllowNotify.
         /// <para>
         /// The execution will fail if:
         ///   1. The 'from', 'to' or 'amount' is null.
@@ -49,7 +60,7 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         /// <returns>
-        /// True if the transfer is successful;
+        /// True if the transfer is successful.
         /// It will return false if:
         ///   1. The 'from' is not the caller.
         ///   2. The 'from' hasn't witnessed the current transaction.
