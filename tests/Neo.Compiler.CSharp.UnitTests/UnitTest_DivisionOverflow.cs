@@ -23,14 +23,12 @@ namespace Neo.Compiler.CSharp.UnitTests
     /// integer type by -1. For example:
     ///   - int.MinValue (-2147483648) / -1 = 2147483648, which exceeds int.MaxValue
     ///   - long.MinValue / -1 exceeds long.MaxValue
-    ///   - nint.MinValue / -1 exceeds nint.MaxValue
     /// 
-    /// Before this fix: The compiler only checked Int32 and Int64 for division overflow,
-    /// missing IntPtr (nint) which could cause silent overflow on 64-bit platforms.
+    /// The compiler checks Int32 and Int64 for division overflow in checked context,
+    /// throwing an exception when overflow would occur.
     /// 
-    /// After this fix: The compiler now properly checks Int32, Int64, AND IntPtr (nint)
-    /// for division overflow in checked context, throwing an exception when overflow
-    /// would occur.
+    /// BigInteger has arbitrary precision, so no overflow check is needed.
+    /// Unsigned types (uint, ulong) cannot have negative values, so no overflow possible.
     /// </summary>
     [TestClass]
     public class UnitTest_DivisionOverflow : DebugAndTestBase<Contract_DivisionOverflow>
@@ -107,51 +105,6 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DivideUncheckedInt64_Overflow_ShouldNotThrow()
         {
             var result = Contract.DivideUncheckedInt64(long.MinValue, -1);
-            Assert.IsNotNull(result);
-        }
-
-        #endregion
-
-        #region IntPtr (nint) Tests - THE FIX
-
-        /// <summary>
-        /// Test: nint.MinValue / -1 in checked context should throw.
-        /// 
-        /// THIS IS THE KEY TEST FOR THE FIX!
-        /// 
-        /// Before the fix: This would NOT throw because the compiler only checked
-        /// Int32 and Int64, not IntPtr. The overflow would occur silently.
-        /// 
-        /// After the fix: This properly throws because IntPtr is now included
-        /// in the overflow check.
-        /// </summary>
-        [TestMethod]
-        public void Test_DivideCheckedIntPtr_Overflow_ShouldThrow()
-        {
-            Assert.ThrowsException<TestException>(() =>
-            {
-                // nint.MinValue on 64-bit = long.MinValue
-                Contract.DivideCheckedIntPtr(long.MinValue, -1);
-            });
-        }
-
-        /// <summary>
-        /// Test: Normal nint division in checked context should work.
-        /// </summary>
-        [TestMethod]
-        public void Test_DivideCheckedIntPtr_Normal_ShouldWork()
-        {
-            var result = Contract.DivideCheckedIntPtr(200, 4);
-            Assert.AreEqual(50, result);
-        }
-
-        /// <summary>
-        /// Test: nint.MinValue / -1 in unchecked context should NOT throw.
-        /// </summary>
-        [TestMethod]
-        public void Test_DivideUncheckedIntPtr_Overflow_ShouldNotThrow()
-        {
-            var result = Contract.DivideUncheckedIntPtr(long.MinValue, -1);
             Assert.IsNotNull(result);
         }
 

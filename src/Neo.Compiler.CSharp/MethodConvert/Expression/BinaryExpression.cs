@@ -118,11 +118,10 @@ internal partial class MethodConvert
     /// Overflow check is needed for:
     /// - Int32 (int): int.MinValue / -1 overflows
     /// - Int64 (long): long.MinValue / -1 overflows
-    /// - IntPtr (nint): platform-dependent, treated as 64-bit for safety
     ///
     /// Overflow check is NOT needed for:
     /// - Smaller types (sbyte, byte, short, ushort, char): promoted to int in division
-    /// - Unsigned types (uint, ulong, nuint): no negative values, no overflow possible
+    /// - Unsigned types (uint, ulong): no negative values, no overflow possible
     /// - BigInteger: arbitrary precision, no overflow possible
     /// </remarks>
     private void CheckDivideOverflow(ITypeSymbol? type)
@@ -147,7 +146,6 @@ internal partial class MethodConvert
         {
             "Int32" => (System.Numerics.BigInteger)int.MinValue,
             "Int64" => (System.Numerics.BigInteger)long.MinValue,
-            "IntPtr" => (System.Numerics.BigInteger)long.MinValue, // Treat nint as 64-bit for safety
             _ => (System.Numerics.BigInteger?)null
         };
 

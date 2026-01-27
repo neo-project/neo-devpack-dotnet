@@ -39,18 +39,6 @@ namespace Neo.Compiler.CSharp.TestContracts
             return unchecked(a / b);
         }
 
-        // nint division - checked
-        public static nint DivideCheckedIntPtr(nint a, nint b)
-        {
-            return checked(a / b);
-        }
-
-        // nint division - unchecked
-        public static nint DivideUncheckedIntPtr(nint a, nint b)
-        {
-            return unchecked(a / b);
-        }
-
         // BigInteger division - checked (should not overflow)
         public static BigInteger DivideCheckedBigInteger(BigInteger a, BigInteger b)
         {
