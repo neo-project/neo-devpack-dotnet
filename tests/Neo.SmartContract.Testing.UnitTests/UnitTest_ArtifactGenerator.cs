@@ -21,7 +21,7 @@ public class UnitTest_ArtifactGenerator
     {
         // Try to find test artifacts in various locations
         var baseDir = Path.GetDirectoryName(typeof(UnitTest_ArtifactGenerator).Assembly.Location)!;
-        
+
         // Look for Compiler.CSharp.UnitTests TestingArtifacts
         var searchPaths = new[]
         {
