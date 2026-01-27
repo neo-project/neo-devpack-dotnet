@@ -6,6 +6,58 @@ The Neo Compiler includes a powerful bytecode optimizer that reduces contract si
 
 The optimizer runs after initial compilation and applies various strategies to improve the generated NeoVM bytecode. Each strategy can be enabled/disabled independently.
 
+## Optimization Types
+
+The compiler supports different optimization levels through the `OptimizationType` enum:
+
+```csharp
+[Flags]
+public enum OptimizationType : byte
+{
+    None = 0,
+    Basic = 1,
+    Experimental = 2,
+    All = Basic | Experimental
+}
+```
+
+### Available Options
+
+| Option | Value | Description |
+|--------|-------|-------------|
+| `None` | 0 | No optimization. Outputs raw compiled bytecode without any optimization passes. |
+| `Basic` | 1 | Safe, well-tested optimizations. Recommended for production use. Includes peephole optimization, jump compression, and dead code elimination. |
+| `Experimental` | 2 | Advanced optimizations that may be more aggressive. Use with caution and thorough testing. |
+| `All` | 3 | Enables all available optimizations (Basic + Experimental). Maximum optimization level. |
+
+### Usage Examples
+
+```csharp
+// Programmatic usage
+var options = new CompilationOptions
+{
+    Optimize = OptimizationType.Basic  // Safe optimizations only
+};
+
+var options = new CompilationOptions
+{
+    Optimize = OptimizationType.All    // Maximum optimization
+};
+
+var options = new CompilationOptions
+{
+    Optimize = OptimizationType.None   // No optimization
+};
+```
+
+```bash
+# Command line usage
+nccs MyContract.csproj --optimize none         # No optimization
+nccs MyContract.csproj --optimize basic        # Basic optimizations (default)
+nccs MyContract.csproj --optimize experimental # Experimental only
+nccs MyContract.csproj --optimize all          # All optimizations
+```
+
 ## Optimization Strategies
 
 ### 1. Peephole Optimization (`Peephole.cs`)
