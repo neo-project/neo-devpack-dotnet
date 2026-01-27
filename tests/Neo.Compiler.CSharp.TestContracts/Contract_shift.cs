@@ -33,5 +33,35 @@ namespace Neo.Compiler.CSharp.TestContracts
             var v4 = v >> 2;
             return new System.Numerics.BigInteger[] { v1, v2, v3, v4 };
         }
+
+        // Checked shift operations - should throw on invalid shift amounts
+        public static int ShiftLeftChecked(int value, int shift)
+        {
+            return checked(value << shift);
+        }
+
+        // Unchecked shift operations - should not throw
+        public static int ShiftLeftUnchecked(int value, int shift)
+        {
+            return unchecked(value << shift);
+        }
+
+        // Checked shift with long type
+        public static long ShiftLeftCheckedLong(long value, int shift)
+        {
+            return checked(value << shift);
+        }
+
+        // Checked shift with byte type
+        public static int ShiftLeftCheckedByte(byte value, int shift)
+        {
+            return checked(value << shift);
+        }
+
+        // BigInteger shift (no limit)
+        public static System.Numerics.BigInteger ShiftLeftBigInteger(System.Numerics.BigInteger value, int shift)
+        {
+            return value << shift;
+        }
     }
 }
