@@ -11,14 +11,17 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
     public class UnitTest_NewCommand
     {
+        private static readonly object ConsoleLock = new();
         private string _testOutputPath = null!;
         private string _compilerPath = null!;
 
@@ -175,6 +178,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             // Try to compile the generated contract
             string projectPath = Path.Combine(_testOutputPath, contractName, $"{contractName}.csproj");
+            UseLocalFrameworkReference(projectPath);
             var compileResult = RunCompilerCommand($"\"{projectPath}\"");
 
             // Check if compilation was successful
@@ -187,27 +191,89 @@ namespace Neo.Compiler.CSharp.UnitTests
 
         private CommandResult RunCompilerCommand(string arguments)
         {
-            var process = new Process
+            var args = SplitArgs(arguments);
+            var stdout = new StringWriter();
+            var stderr = new StringWriter();
+            int exitCode;
+
+            lock (ConsoleLock)
             {
-                StartInfo = new ProcessStartInfo
+                var originalOut = Console.Out;
+                var originalErr = Console.Error;
+                try
                 {
-                    FileName = "dotnet",
-                    Arguments = $"run --project \"{_compilerPath}\" -- {arguments}",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
+                    Console.SetOut(stdout);
+                    Console.SetError(stderr);
+                    exitCode = Program.Main(args);
                 }
-            };
+                finally
+                {
+                    Console.SetOut(originalOut);
+                    Console.SetError(originalErr);
+                }
+            }
 
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
+            return new CommandResult(exitCode, stdout.ToString(), stderr.ToString());
+        }
 
-            return new CommandResult(process.ExitCode, output, error);
+        private void UseLocalFrameworkReference(string projectPath)
+        {
+            string compilerDirectory = Path.GetDirectoryName(_compilerPath)!;
+            string repoRoot = Path.GetFullPath(Path.Combine(compilerDirectory, "..", ".."));
+            string frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
+            if (!File.Exists(frameworkProject))
+            {
+                return;
+            }
+
+            string content = File.ReadAllText(projectPath);
+            string updated = Regex.Replace(
+                content,
+                "<PackageReference\\s+Include=\"Neo\\.SmartContract\\.Framework\"\\s+Version=\"[^\"]+\"\\s*/>",
+                $"<ProjectReference Include=\"{frameworkProject}\" />");
+
+            if (updated != content)
+            {
+                File.WriteAllText(projectPath, updated);
+            }
         }
 
         private sealed record CommandResult(int ExitCode, string StdOut, string StdErr);
+
+        private static string[] SplitArgs(string commandLine)
+        {
+            var args = new List<string>();
+            var current = new StringBuilder();
+            bool inQuotes = false;
+
+            foreach (char c in commandLine)
+            {
+                if (c == '"')
+                {
+                    inQuotes = !inQuotes;
+                    continue;
+                }
+
+                if (char.IsWhiteSpace(c) && !inQuotes)
+                {
+                    if (current.Length > 0)
+                    {
+                        args.Add(current.ToString());
+                        current.Clear();
+                    }
+                }
+                else
+                {
+                    current.Append(c);
+                }
+            }
+
+            if (current.Length > 0)
+            {
+                args.Add(current.ToString());
+            }
+
+            return args.ToArray();
+        }
     }
 }

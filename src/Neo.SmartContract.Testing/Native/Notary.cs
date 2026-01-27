@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.SmartContract.Native;
 using System.ComponentModel;
 using System.Numerics;
 
@@ -18,7 +19,8 @@ public abstract class Notary(SmartContractInitialize initialize) : SmartContract
 {
     #region Compiled data
 
-    public static Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Notary"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-27""],""abi"":{""methods"":[{""name"":""balanceOf"",""parameters"":[{""name"":""account"",""type"":""Hash160""}],""returntype"":""Integer"",""offset"":0,""safe"":true},{""name"":""expirationOf"",""parameters"":[{""name"":""account"",""type"":""Hash160""}],""returntype"":""Integer"",""offset"":7,""safe"":true},{""name"":""getMaxNotValidBeforeDelta"",""parameters"":[],""returntype"":""Integer"",""offset"":14,""safe"":true},{""name"":""lockDepositUntil"",""parameters"":[{""name"":""account"",""type"":""Hash160""},{""name"":""till"",""type"":""Integer""}],""returntype"":""Boolean"",""offset"":21,""safe"":false},{""name"":""onNEP17Payment"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":28,""safe"":false},{""name"":""setMaxNotValidBeforeDelta"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Void"",""offset"":35,""safe"":false},{""name"":""verify"",""parameters"":[{""name"":""signature"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":42,""safe"":true},{""name"":""withdraw"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""to"",""type"":""Hash160""}],""returntype"":""Boolean"",""offset"":49,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":null}");
+    public static Manifest.ContractManifest Manifest { get; } =
+        NativeContract.Notary.GetContractState(ProtocolSettings.Default, uint.MaxValue).Manifest;
 
     #endregion
 

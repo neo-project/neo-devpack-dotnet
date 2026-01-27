@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.SmartContract.Iterators;
 using Neo.SmartContract.Native;
 using System.ComponentModel;
 using System.Numerics;
@@ -57,6 +58,24 @@ public abstract class Policy(SmartContractInitialize initialize) : SmartContract
     [DisplayName("isBlocked")]
     public abstract bool IsBlocked(UInt160 account);
 
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("getExecPicoFeeFactor")]
+    public abstract BigInteger GetExecPicoFeeFactor();
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("getBlockedAccounts")]
+    public abstract IIterator GetBlockedAccounts();
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("getWhitelistFeeContracts")]
+    public abstract IIterator GetWhitelistFeeContracts();
+
     #endregion
 
     #region Unsafe methods
@@ -78,6 +97,24 @@ public abstract class Policy(SmartContractInitialize initialize) : SmartContract
     /// </summary>
     [DisplayName("unblockAccount")]
     public abstract bool UnblockAccount(UInt160 account);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("recoverFund")]
+    public abstract bool? RecoverFund(UInt160 account, UInt160 token);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("setWhitelistFeeContract")]
+    public abstract void SetWhitelistFeeContract(UInt160 contractHash, string method, int argCount, long fixedFee);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    [DisplayName("removeWhitelistFeeContract")]
+    public abstract void RemoveWhitelistFeeContract(UInt160 contractHash, string method, int argCount);
 
     #endregion
 }

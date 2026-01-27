@@ -54,7 +54,7 @@ namespace Neo.SmartContract.Framework.Native
         ///  2. the deposit is not found;
         ///  3. The current block height is less than the deposit's lock height.
         /// </returns>
-        public static extern bool Withdraw(UInt160 from, UInt160 to);
+        public static extern bool Withdraw(UInt160 from, UInt160? to = null);
 
         /// <summary>
         /// ExpirationOf returns deposit lock height for specified address.

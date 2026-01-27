@@ -74,6 +74,11 @@ namespace Neo.SmartContract.Testing.Native
         public Notary Notary { get; }
 
         /// <summary>
+        /// Treasury
+        /// </summary>
+        public Treasury Treasury { get; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="engine">Engine</param>
@@ -91,6 +96,7 @@ namespace Neo.SmartContract.Testing.Native
             RoleManagement = _engine.FromHash<RoleManagement>(Neo.SmartContract.Native.NativeContract.RoleManagement.Hash, Neo.SmartContract.Native.NativeContract.RoleManagement.Id);
             StdLib = _engine.FromHash<StdLib>(Neo.SmartContract.Native.NativeContract.StdLib.Hash, Neo.SmartContract.Native.NativeContract.StdLib.Id);
             Notary = _engine.FromHash<Notary>(Neo.SmartContract.Native.NativeContract.Notary.Hash, Neo.SmartContract.Native.NativeContract.Notary.Id);
+            Treasury = _engine.FromHash<Treasury>(Neo.SmartContract.Native.NativeContract.Treasury.Hash, Neo.SmartContract.Native.NativeContract.Treasury.Id);
         }
 
         /// <summary>
