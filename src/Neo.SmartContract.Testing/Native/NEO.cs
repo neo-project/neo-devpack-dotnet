@@ -114,7 +114,7 @@ public abstract class NEO(SmartContractInitialize initialize) : SmartContract(in
     /// Safe method
     /// </summary>
     [DisplayName("getAccountState")]
-    public abstract Governance.NeoAccountState GetAccountState(UInt160 account);
+    public abstract NeoAccountState GetAccountState(UInt160 account);
 
     /// <summary>
     /// Safe method
@@ -157,4 +157,25 @@ public abstract class NEO(SmartContractInitialize initialize) : SmartContract(in
     public abstract bool Vote(UInt160 account, ECPoint? voteTo);
 
     #endregion
+
+    /// <summary>
+    /// Represents the state of a NEO account.
+    /// </summary>
+    public class NeoAccountState
+    {
+        /// <summary>
+        /// The block height when the balance changed.
+        /// </summary>
+        public uint BalanceHeight;
+
+        /// <summary>
+        /// The voting target of the account.
+        /// </summary>
+        public ECPoint? VoteTo;
+
+        /// <summary>
+        /// The last GAS per vote value.
+        /// </summary>
+        public BigInteger LastGasPerVote;
+    }
 }
