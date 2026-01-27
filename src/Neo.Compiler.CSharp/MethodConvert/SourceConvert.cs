@@ -212,7 +212,8 @@ internal partial class MethodConvert
             var expression = methodDeclaration.ExpressionBody.Expression;
 
             // Use the semantic model to get the type information of the expression
-            var typeInfo = semanticModel.GetTypeInfo(expression);
+            var correctModel = semanticModel.GetModelForNode(expression);
+            var typeInfo = correctModel.GetTypeInfo(expression);
 
             // Check if the expression's type is not void, meaning the expression has a return value
             return typeInfo.ConvertedType?.SpecialType != SpecialType.System_Void;
@@ -224,7 +225,8 @@ internal partial class MethodConvert
 
     private static bool IsExpressionReturningValue(SemanticModel semanticModel, ExpressionSyntax expression)
     {
-        var typeInfo = semanticModel.GetTypeInfo(expression);
+        var correctModel = semanticModel.GetModelForNode(expression);
+        var typeInfo = correctModel.GetTypeInfo(expression);
         return typeInfo.ConvertedType?.SpecialType != SpecialType.System_Void;
     }
 

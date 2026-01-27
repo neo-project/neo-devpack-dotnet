@@ -31,6 +31,12 @@ internal partial class MethodConvert
     /// <param name="expression">The syntax representation of the invocation expression statement being converted.</param>
     private void ConvertInvocationExpression(SemanticModel model, InvocationExpressionSyntax expression)
     {
+        // Get the correct semantic model for this expression's syntax tree
+        if (!model.SyntaxTree.Equals(expression.SyntaxTree))
+        {
+            model = model.Compilation.GetSemanticModel(expression.SyntaxTree);
+        }
+
         ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
         ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
 

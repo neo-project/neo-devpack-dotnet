@@ -49,6 +49,10 @@ internal partial class MethodConvert
     {
         try
         {
+            // Check if syntax node is in the semantic model's syntax tree (fixes partial class issues)
+            if (!model.SyntaxTree.Equals(syntax.SyntaxTree))
+                return false;
+
             var constant = model.GetConstantValue(syntax);
             var value = constant.Value;
             if (value == null)
