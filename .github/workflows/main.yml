@@ -169,3 +169,66 @@ jobs:
             --api-key "${{ secrets.MYGET_TOKEN }}" \
             --disable-buffering \
             --no-service-endpoint;
+
+  Release:
+    if: github.ref == 'refs/heads/master'
+    needs: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - name: Get version
+      id: get_version
+      run: |
+        sudo apt install xmlstarlet
+        find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('version=v',//i:VersionPrefix/text())" >> $GITHUB_OUTPUT
+    - name: Check tag
+      id: check_tag
+      run: |
+        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})
+        echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
+    - name: Setup .NET Core
+      if: steps.check_tag.outputs.statusCode == '404'
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Build nccs compiler for multiple platforms
+      if: steps.check_tag.outputs.statusCode == '404'
+      run: |
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-win-x64
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-linux-x64
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-x64
+        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-arm64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-arm64
+        [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ] && mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
+        [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ] && mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
+        [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
+        [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
+        cd nccs-win-x64 && zip -r ../nccs-win-x64.zip * && cd ..
+        cd nccs-linux-x64 && tar -czf ../nccs-linux-x64.tar.gz * && cd ..
+        cd nccs-osx-x64 && tar -czf ../nccs-osx-x64.tar.gz * && cd ..
+        cd nccs-osx-arm64 && tar -czf ../nccs-osx-arm64.tar.gz * && cd ..
+        sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
+    - name: Create release and upload binaries
+      if: steps.check_tag.outputs.statusCode == '404'
+      uses: softprops/action-gh-release@v2.4.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.version }}
+        name: ${{ steps.get_version.outputs.version }}
+        prerelease: ${{ contains(steps.get_version.outputs.version, '-') }}
+        generate_release_notes: true
+        files: |
+          nccs-win-x64.zip
+          nccs-linux-x64.tar.gz
+          nccs-osx-x64.tar.gz
+          nccs-osx-arm64.tar.gz
+          checksums.txt
+    - name: Run ordered release script
+      if: steps.check_tag.outputs.statusCode == '404'
+      run: |
+        chmod +x ./scripts/release-ordered.sh
+        ./scripts/release-ordered.sh --api-key "${{ secrets.NUGET_TOKEN }}"
