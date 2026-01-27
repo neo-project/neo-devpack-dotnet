@@ -3,8 +3,8 @@
 
     <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
-        <VersionPrefix>3.8.1</VersionPrefix>
-        <TargetFramework>net9.0</TargetFramework>
+        <VersionPrefix>3.9.0</VersionPrefix>
+        <TargetFramework>net10.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
         <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet/examples</PackageProjectUrl>
@@ -34,18 +34,34 @@
         <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
         <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
         
-        <!-- 
+        <NeoPackageVersion>3.9.0</NeoPackageVersion>
+
+        <!--
         Analyzer Configuration:
-        Set UseLocalAnalyzer to 'false' when Neo.SmartContract.Analyzer 3.8.1+ is available on NuGet
+        Set UseLocalAnalyzer to 'false' when Neo.SmartContract.Analyzer 3.9.0+ is available on NuGet
         Set UseLocalAnalyzer to 'true' to use the local project reference (current default)
         -->
         <UseLocalAnalyzer>true</UseLocalAnalyzer>
-        <NeoAnalyzerVersion>3.8.1</NeoAnalyzerVersion>
+        <NeoAnalyzerVersion>3.9.0</NeoAnalyzerVersion>
+
+        <!--
+        Framework/Testing Configuration:
+        Set UseLocalFramework/UseLocalTesting to 'false' when Neo.SmartContract.Framework/Testing 3.9.0+ are available on NuGet
+        -->
+        <UseLocalFramework>true</UseLocalFramework>
+        <UseLocalTesting>true</UseLocalTesting>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-        <PackageReference Include="Neo.SmartContract.Framework" Version="3.8.1"/>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="3.8.1"/>
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj"
+                          Condition="'$(UseLocalFramework)' == 'true'"/>
+        <PackageReference Include="Neo.SmartContract.Framework" Version="$(NeoPackageVersion)"
+                          Condition="'$(UseLocalFramework)' != 'true'"/>
+
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj"
+                          Condition="'$(UseLocalTesting)' == 'true'"/>
+        <PackageReference Include="Neo.SmartContract.Testing" Version="$(NeoPackageVersion)"
+                          Condition="'$(UseLocalTesting)' != 'true'"/>
         
         <!-- 
         Local Project Reference for Analyzer (Current - when UseLocalAnalyzer=true)
@@ -70,7 +86,8 @@
         </PackageReference>
     </ItemGroup>
 
-    <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent" Condition="'$(IsTestProject)' != 'true'">
+    <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent"
+            Condition="'$(IsTestProject)' != 'true' AND '$(MSBuildProjectName)' != 'TestContract' AND '$(DisableArtifactGeneration)' != 'true'">
         <PropertyGroup>
             <NccsProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj</NccsProject>
         </PropertyGroup>
