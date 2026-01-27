@@ -139,6 +139,54 @@ internal partial class MethodConvert
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
+    /// <summary>
+    /// Checks for left shift overflow in checked context.
+    /// Validates that the shift amount is non-negative and within the bit width of the left operand type.
+    /// </summary>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="expression">The binary expression containing the shift operation.</param>
+    private void CheckShiftOverflow(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        var leftType = model.GetTypeInfo(expression.Left).Type;
+        if (leftType is null) return;
+
+        while (leftType.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            leftType = ((INamedTypeSymbol)leftType).TypeArguments.First();
+        }
+
+        // Determine the bit width based on the type
+        var maxShift = leftType.Name switch
+        {
+            "SByte" or "Byte" => 8,
+            "Int16" or "UInt16" or "Char" => 16,
+            "Int32" or "UInt32" => 32,
+            "Int64" or "UInt64" => 64,
+            "BigInteger" => -1, // No limit for BigInteger
+            _ => 32 // Default to 32 for unknown types
+        };
+
+        // BigInteger has no shift limit
+        if (maxShift == -1) return;
+
+        var endTarget = new JumpTarget();
+        var checkUpperTarget = new JumpTarget();
+
+        // Check if shift amount is negative (top of stack is shift amount)
+        AddInstruction(OpCode.DUP);
+        Push(0);
+        Jump(OpCode.JMPGE_L, checkUpperTarget);
+        AddInstruction(OpCode.THROW);
+
+        // Check if shift amount exceeds type bit width
+        checkUpperTarget.Instruction = AddInstruction(OpCode.DUP);
+        Push(maxShift);
+        Jump(OpCode.JMPLT_L, endTarget);
+        AddInstruction(OpCode.THROW);
+
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
+    }
+
     private void ConvertLogicalOrExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
     {
         JumpTarget rightTarget = new();
