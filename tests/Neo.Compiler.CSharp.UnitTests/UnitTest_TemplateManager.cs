@@ -184,9 +184,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(File.Exists(csprojFilePath));
 
             string csprojContent = File.ReadAllText(csprojFilePath);
-            Assert.IsTrue(csprojContent.Contains("<TargetFramework>net9.0</TargetFramework>"));
+            Assert.IsTrue(csprojContent.Contains("<TargetFramework>net10.0</TargetFramework>"));
             Assert.IsTrue(csprojContent.Contains("<PackageReference Include=\"Neo.SmartContract.Framework\""));
-            Assert.IsTrue(csprojContent.Contains("Version=\"3.8.1-*\""));
+            Assert.IsTrue(csprojContent.Contains("Version=\"3.9.0\""));
         }
 
         [TestMethod]

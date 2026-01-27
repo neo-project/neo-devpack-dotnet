@@ -89,6 +89,18 @@ public abstract class StdLib(SmartContractInitialize initialize) : SmartContract
     /// <summary>
     /// Safe method
     /// </summary>
+    [DisplayName("hexEncode")]
+    public abstract string HexEncode(byte[] data);
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
+    [DisplayName("hexDecode")]
+    public abstract byte[] HexDecode(string data);
+
+    /// <summary>
+    /// Safe method
+    /// </summary>
     [DisplayName("deserialize")]
     public abstract object? Deserialize(byte[]? data);
 

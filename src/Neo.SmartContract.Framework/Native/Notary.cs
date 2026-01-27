@@ -26,6 +26,8 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Locks a deposit until the specified block height.
         /// The deposit is created by transferring GAS to the Notary contract.
+        /// Available since HF_Echidna.
+        /// CallFlags requirement: CallFlags.States.
         /// <para>
         /// The execution will fail if account is null.
         /// </para>
@@ -41,7 +43,10 @@ namespace Neo.SmartContract.Framework.Native
         public static extern bool LockDepositUntil(UInt160 account, uint till);
 
         /// <summary>
-        /// Withdraw all deposited GAS for "from" address to "to" address. If "to" address is not specified, then "from" will be used as a sender.
+        /// Withdraw all deposited GAS for "from" address to "to" address.
+        /// If "to" address is not specified, then "from" will be used as a sender.
+        /// Available since HF_Echidna.
+        /// CallFlags requirement: CallFlags.All.
         /// <para>
         /// The execution will fail if:
         ///  1. the 'from' is null;
@@ -54,10 +59,12 @@ namespace Neo.SmartContract.Framework.Native
         ///  2. the deposit is not found;
         ///  3. The current block height is less than the deposit's lock height.
         /// </returns>
-        public static extern bool Withdraw(UInt160 from, UInt160 to);
+        public static extern bool Withdraw(UInt160 from, UInt160? to = null);
 
         /// <summary>
         /// ExpirationOf returns deposit lock height for specified address.
+        /// Available since HF_Echidna.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if the 'account' is null.
         /// </para>
@@ -66,6 +73,8 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// ExpirationOf returns deposit lock height for specified address.
+        /// Available since HF_Echidna.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if the 'account' is null.
         /// </para>
@@ -75,6 +84,8 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Verify checks whether the transaction is signed by one of the notaries and
         /// ensures whether deposited amount of GAS is enough to pay the actual sender's fee.
+        /// Available since HF_Echidna.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         /// <returns>
         /// It returns false if:
@@ -87,13 +98,17 @@ namespace Neo.SmartContract.Framework.Native
         public static extern bool Verify(byte[] signature);
 
         /// <summary>
-        /// returns the maximum NotValidBefore delta
+        /// Returns the maximum NotValidBefore delta.
+        /// Available since HF_Echidna.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern uint GetMaxNotValidBeforeDelta();
 
         /// <summary>
         /// SetMaxNotValidBeforeDelta is Notary contract method and sets the maximum NotValidBefore delta.
         /// Only the committee can call this method.
+        /// Available since HF_Echidna.
+        /// CallFlags requirement: CallFlags.States.
         /// <para>
         /// The execution will fail if:
         ///  1. the 'value' is greater than MaxValidUntilBlockIncrement / 2;
