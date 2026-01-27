@@ -25,8 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
-    <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+    <PackageReference Include="Neo" Version="4.0.0-CI02011" />
+    <PackageReference Include="Neo.Extensions" Version="4.0.0-CI02011" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>

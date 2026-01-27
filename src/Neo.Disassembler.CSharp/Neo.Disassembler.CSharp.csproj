@@ -17,10 +17,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\neo\src\Neo.Extensions\Neo.Extensions.csproj" />
-        <ProjectReference Include="..\..\neo\src\Neo.IO\Neo.IO.csproj" />
-        <ProjectReference Include="..\..\neo\src\Neo.Json\Neo.Json.csproj" />
-        <ProjectReference Include="..\..\neo\src\Neo\Neo.csproj" />
+        <PackageReference Include="Neo" Version="4.0.0-CI02011" />
+        <PackageReference Include="Neo.Extensions" Version="4.0.0-CI02011" />
+        <PackageReference Include="Neo.IO" Version="4.0.0-CI02011" />
+        <PackageReference Include="Neo.Json" Version="4.0.0-CI02011" />
     </ItemGroup>
 
 </Project>
