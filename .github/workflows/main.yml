@@ -5,6 +5,15 @@ on:
     branches: [master, master-n3]
   pull_request:
   workflow_dispatch:
+    inputs:
+      version_suffix:
+        description: Optional NuGet version suffix (defaults to test.<run_id> for dispatch)
+        required: false
+        default: ""
+      wait_for_packages:
+        description: Wait for NuGet indexing before proceeding (true/false)
+        required: false
+        default: "false"
 
 env:
   DOTNET_VERSION: 10.0.x
@@ -171,10 +180,13 @@ jobs:
             --no-service-endpoint;
 
   Release:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
     needs: Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
+      packages: write
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -191,7 +203,7 @@ jobs:
         STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})
         echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
     - name: Setup .NET Core
-      if: steps.check_tag.outputs.statusCode == '404'
+      if: steps.check_tag.outputs.statusCode == '404' || github.event_name == 'workflow_dispatch'
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
@@ -227,8 +239,180 @@ jobs:
           nccs-osx-x64.tar.gz
           nccs-osx-arm64.tar.gz
           checksums.txt
-    - name: Run ordered release script
-      if: steps.check_tag.outputs.statusCode == '404'
+    - name: Publish packages to NuGet (ordered)
+      if: steps.check_tag.outputs.statusCode == '404' || github.event_name == 'workflow_dispatch'
+      env:
+        NUGET_SOURCE: https://api.nuget.org/v3/index.json
+        NUGET_API_KEY: ${{ secrets.NUGET_TOKEN }}
+        EVENT_NAME: ${{ github.event_name }}
+        VERSION_SUFFIX_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version_suffix || '' }}
+        WAIT_FOR_PACKAGES_INPUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.wait_for_packages || '' }}
       run: |
-        chmod +x ./scripts/release-ordered.sh
-        ./scripts/release-ordered.sh --api-key "${{ secrets.NUGET_TOKEN }}"
+        set -euo pipefail
+
+        if [[ -z "${NUGET_API_KEY:-}" ]]; then
+          echo "Error: NUGET_TOKEN is required for publishing."
+          exit 1
+        fi
+
+        VERSION_SUFFIX=""
+        if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
+          if [[ -n "${VERSION_SUFFIX_INPUT:-}" ]]; then
+            VERSION_SUFFIX="${VERSION_SUFFIX_INPUT}"
+          else
+            VERSION_SUFFIX="test.${GITHUB_RUN_ID}"
+          fi
+        fi
+
+        OUTPUT_DIR="./pub"
+        rm -rf "$OUTPUT_DIR"
+        mkdir -p "$OUTPUT_DIR"
+
+        VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+        RELEASE_VERSION="$VERSION"
+        if [[ -n "$VERSION_SUFFIX" ]]; then
+          RELEASE_VERSION="${VERSION}-${VERSION_SUFFIX}"
+        fi
+        echo "Version to release: $RELEASE_VERSION"
+
+        echo "Preparing solution..."
+        cp neo-devpack-dotnet.sln neo-devpack-dotnet.release.sln
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo/Neo.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Cryptography.BLS12_381/Neo.Cryptography.BLS12_381.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Extensions/Neo.Extensions.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.IO/Neo.IO.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Json/Neo.Json.csproj || true
+        dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.VM/Neo.VM.csproj || true
+
+        dotnet restore neo-devpack-dotnet.release.sln
+
+        PYTHON_BIN="python3"
+        if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+          PYTHON_BIN="python"
+        fi
+        if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+          echo "Error: python3 (or python) is required to parse NuGet service index."
+          exit 1
+        fi
+
+        PACKAGE_BASE=$("$PYTHON_BIN" -c 'import json,sys,urllib.request as u; data=json.load(u.urlopen(sys.argv[1])); resources=data.get("resources", []); pkg=next((r for r in resources if any(t.startswith("PackageBaseAddress") for t in (lambda x: [x] if isinstance(x, str) else (x or []))(r.get("@type")))), None); print(pkg.get("@id","").rstrip("/")) if pkg else sys.exit(2)' "$NUGET_SOURCE") || true
+
+        WAIT_FOR_PACKAGES=true
+        if [[ "${EVENT_NAME}" == "workflow_dispatch" && "${WAIT_FOR_PACKAGES_INPUT}" == "false" ]]; then
+          WAIT_FOR_PACKAGES=false
+        fi
+        if [[ -z "$PACKAGE_BASE" ]]; then
+          WAIT_FOR_PACKAGES=false
+          echo "Warning: Could not resolve PackageBaseAddress from $NUGET_SOURCE; skipping package availability checks."
+        else
+          echo "Package base address: $PACKAGE_BASE"
+        fi
+        if [[ "$WAIT_FOR_PACKAGES" == "false" ]]; then
+          echo "Package availability checks disabled."
+        fi
+
+        pack_and_push() {
+          local project_path=$1
+          local project_name
+          project_name=$(basename "$project_path" .csproj)
+
+          echo ""
+          echo "Processing $project_name..."
+          echo "-------------------------------------------------"
+          local version_suffix_arg=()
+          if [[ -n "$VERSION_SUFFIX" ]]; then
+            version_suffix_arg=(--version-suffix "$VERSION_SUFFIX")
+          fi
+          dotnet pack "$project_path" \
+            --configuration Release \
+            --output "$OUTPUT_DIR" \
+            --no-restore \
+            "${version_suffix_arg[@]}"
+
+          echo "Publishing $project_name to $NUGET_SOURCE..."
+          dotnet nuget push "$OUTPUT_DIR/$project_name.*.nupkg" \
+            --source "$NUGET_SOURCE" \
+            --api-key "$NUGET_API_KEY" \
+            --skip-duplicate \
+            --no-service-endpoint
+
+          echo "✓ $project_name completed"
+        }
+
+        wait_for_package() {
+          local package_name=$1
+          local version=$2
+          local max_attempts=30
+          local wait_time=10
+
+          if [[ "$WAIT_FOR_PACKAGES" == "false" ]]; then
+            return 0
+          fi
+
+          echo "Waiting for $package_name version $version to be available..."
+          for i in $(seq 1 $max_attempts); do
+            local package_id
+            package_id=$(echo "$package_name" | tr '[:upper:]' '[:lower:]')
+            if "$PYTHON_BIN" -c 'import json,sys,urllib.request as u; base,package_id,version=sys.argv[1],sys.argv[2],sys.argv[3]; data=json.load(u.urlopen(f"{base}/{package_id}/index.json")); versions=data.get("versions", []); target=version.lower(); sys.exit(0) if any(v.lower()==target for v in versions) else sys.exit(1)' "$PACKAGE_BASE" "$package_id" "$version"; then
+              echo "✓ Package $package_name $version is now available"
+              return 0
+            fi
+            echo "Attempt $i/$max_attempts: Package not yet available, waiting ${wait_time}s..."
+            sleep $wait_time
+          done
+
+          echo "Error: Package $package_name $version did not become available after $((max_attempts * wait_time)) seconds"
+          return 1
+        }
+
+        pack_and_push "./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj"
+        wait_for_package "Neo.SmartContract.Framework" "$RELEASE_VERSION"
+
+        pack_and_push "./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj"
+        pack_and_push "./src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj"
+
+        echo ""
+        echo "Special handling for Neo.SmartContract.Testing..."
+        echo "-------------------------------------------------"
+
+        rm -f "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup"
+        cp "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj" \
+          "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup"
+
+        NEO_VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./neo/src/Directory.Build.props | head -1)
+        if [[ -z "$NEO_VERSION" ]]; then
+          NEO_VERSION=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' ./neo/src/Directory.Build.props | head -1)
+        fi
+        if [[ -z "$NEO_VERSION" ]]; then
+          echo "Error: Unable to determine Neo package version."
+          exit 1
+        fi
+        echo "Neo package version: $NEO_VERSION"
+
+        dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj' || true
+        dotnet add ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version "$NEO_VERSION"
+
+        if grep -q "delegate void OnNewSnapshotDelegate" ./neo/src/Neo/Persistence/IStore.cs; then
+          echo "Neo uses OnNewSnapshotDelegate; keeping RpcStore event signature."
+        else
+          echo "Neo uses Action signature; updating RpcStore event signature."
+          sed -i.bak 's/public event IStore\.OnNewSnapshotDelegate/public event Action<IStore, IStoreSnapshot>/g' \
+            "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
+        fi
+
+        dotnet restore ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
+
+        pack_and_push "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
+        wait_for_package "Neo.SmartContract.Testing" "$RELEASE_VERSION"
+
+        mv "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup" \
+          "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
+        if [[ -f "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs.bak" ]]; then
+          mv "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs.bak" \
+            "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
+        fi
+
+        pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
+        pack_and_push "./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj"
+
+        rm -f neo-devpack-dotnet.release.sln
