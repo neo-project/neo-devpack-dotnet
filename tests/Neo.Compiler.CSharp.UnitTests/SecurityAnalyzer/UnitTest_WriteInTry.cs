@@ -29,7 +29,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 
             WriteInTryAnalzyer.WriteInTryVulnerability v =
                 WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest);
-            Assert.AreEqual(v.vulnerabilities.Count, 0);
+            Assert.AreEqual(v.Vulnerabilities.Count, 0);
             v.GetWarningInfo(print: false);
         }
     }
@@ -47,7 +47,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             WriteInTryAnalzyer.WriteInTryVulnerability v =
                 WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest);
             // because most try throws or aborts in catch, or has no catch, or throws or aborts in finally
-            Assert.AreEqual(v.vulnerabilities.Count, 2);
+            Assert.AreEqual(v.Vulnerabilities.Count, 2);
             v.GetWarningInfo(print: false);
         }
 
@@ -57,7 +57,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             // Test enhanced diagnostic messages without debug info (fallback behavior)
             WriteInTryAnalzyer.WriteInTryVulnerability v =
                 WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest, null);
-            Assert.AreEqual(v.vulnerabilities.Count, 2);
+            Assert.AreEqual(v.Vulnerabilities.Count, 2);
 
             // Test that warning message contains enhanced diagnostic information
             string warningInfo = v.GetWarningInfo(print: false);

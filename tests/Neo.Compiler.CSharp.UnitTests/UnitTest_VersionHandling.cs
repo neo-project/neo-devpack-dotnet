@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.CSharp.UnitTests.Syntax;
 using Neo.SmartContract.Manifest;
 using System;
 using System.IO;
@@ -201,15 +202,33 @@ public class TestContract : SmartContract
             string contractPath = Path.Combine(directory, "TestContract.cs");
             File.WriteAllText(contractPath, contractCode);
 
-            // Create NuGet.config file
-            string nugetConfigContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
+            string? frameworkProject = null;
+            try
+            {
+                var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
+                frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
+                if (!File.Exists(frameworkProject))
+                {
+                    frameworkProject = null;
+                }
+            }
+            catch
+            {
+                frameworkProject = null;
+            }
+
+            if (frameworkProject is null)
+            {
+                // Create NuGet.config file to ensure package restore uses the test version overrides
+                string nugetConfigContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
   <packageSources>
     <add key=""nuget.org"" value=""https://api.nuget.org/v3/index.json"" />
     <add key=""neo"" value=""https://www.myget.org/F/neo/api/v3/index.json"" />
   </packageSources>
 </configuration>";
-            File.WriteAllText(Path.Combine(directory, "NuGet.config"), nugetConfigContent);
+                File.WriteAllText(Path.Combine(directory, "NuGet.config"), nugetConfigContent);
+            }
 
             // Create the project file with version information
             XElement propertyGroup = new XElement("PropertyGroup",
@@ -232,19 +251,32 @@ public class TestContract : SmartContract
                 propertyGroup.Add(new XElement("VersionSuffix", versionSuffix));
             }
 
+            XElement propertyGroupFallback = new XElement("PropertyGroup",
+                new XElement("TargetFramework", "net10.0")
+            );
+            if (frameworkProject is null)
+            {
+                propertyGroupFallback.Add(new XElement("RestoreSources", "https://api.nuget.org/v3/index.json;https://www.myget.org/F/neo/api/v3/index.json"));
+            }
+
+            XElement itemGroup = frameworkProject is null
+                ? new XElement("ItemGroup",
+                    new XElement("PackageReference",
+                        new XAttribute("Include", "Neo.SmartContract.Framework"),
+                        new XAttribute("Version", "3.9.0")
+                    )
+                )
+                : new XElement("ItemGroup",
+                    new XElement("ProjectReference",
+                        new XAttribute("Include", frameworkProject)
+                    )
+                );
+
             XElement project = new XElement("Project",
                 new XAttribute("Sdk", "Microsoft.NET.Sdk"),
                 propertyGroup,
-                new XElement("PropertyGroup",
-                    new XElement("TargetFramework", "net10.0"),
-                    new XElement("RestoreSources", "https://api.nuget.org/v3/index.json;https://www.myget.org/F/neo/api/v3/index.json")
-                ),
-                new XElement("ItemGroup",
-                    new XElement("PackageReference",
-                        new XAttribute("Include", "Neo.SmartContract.Framework"),
-                        new XAttribute("Version", "3.8.1")
-                    )
-                )
+                propertyGroupFallback,
+                itemGroup
             );
 
             string projectPath = Path.Combine(directory, "TestProject.csproj");

@@ -31,6 +31,12 @@ internal partial class MethodConvert
     /// <param name="expression">The syntax representation of the invocation expression statement being converted.</param>
     private void ConvertInvocationExpression(SemanticModel model, InvocationExpressionSyntax expression)
     {
+        // Get the correct semantic model for this expression's syntax tree
+        if (!model.SyntaxTree.Equals(expression.SyntaxTree))
+        {
+            model = model.Compilation.GetSemanticModel(expression.SyntaxTree);
+        }
+
         ArgumentSyntax[] arguments = expression.ArgumentList.Arguments.ToArray();
         ISymbol symbol = model.GetSymbolInfo(expression.Expression).Symbol!;
 
@@ -123,9 +129,37 @@ internal partial class MethodConvert
                 CallMethodWithInstanceExpression(model, symbol, null, arguments);
                 break;
             case MemberAccessExpressionSyntax syntax:
+                // Handle Event?.Invoke() pattern - check if this is calling Invoke on an event
+                if (symbol.Name == "Invoke" && syntax.Expression is IdentifierNameSyntax identifier)
+                {
+                    var receiverSymbol = model.GetSymbolInfo(identifier).Symbol;
+                    if (receiverSymbol is IEventSymbol eventSymbol)
+                    {
+                        ConvertEventInvocationExpression(model, eventSymbol, arguments);
+                        return;
+                    }
+                }
                 CallMethodWithInstanceExpression(model, symbol, symbol.IsStatic ? null : syntax.Expression, arguments);
                 break;
             case MemberBindingExpressionSyntax:
+                // Handle Event?.Invoke() pattern in conditional access
+                if (symbol.Name == "Invoke" && symbol.ContainingType.TypeKind == TypeKind.Delegate)
+                {
+                    // Find the event symbol from the parent conditional access expression
+                    var parent = expression.Parent?.Parent;
+                    if (parent is InvocationExpressionSyntax invocation &&
+                        invocation.Parent is ConditionalAccessExpressionSyntax conditional)
+                    {
+                        var receiverSymbol = model.GetSymbolInfo(conditional.Expression).Symbol;
+                        if (receiverSymbol is IEventSymbol eventSymbol)
+                        {
+                            // Drop the duplicated receiver from the stack (from ConditionalAccessExpression)
+                            AddInstruction(OpCode.DROP);
+                            ConvertEventInvocationExpression(model, eventSymbol, arguments);
+                            return;
+                        }
+                    }
+                }
                 CallInstanceMethod(model, symbol, true, arguments);
                 break;
             default:

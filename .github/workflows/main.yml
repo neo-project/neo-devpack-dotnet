@@ -198,43 +198,21 @@ jobs:
     - name: Build nccs compiler for multiple platforms
       if: steps.check_tag.outputs.statusCode == '404'
       run: |
-        echo "Building nccs for Windows x64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-win-x64
-        
-        echo "Building nccs for Linux x64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-linux-x64
-        
-        echo "Building nccs for macOS x64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-x64
-        
-        echo "Building nccs for macOS ARM64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-arm64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-arm64
-        
-        # Rename executables
-        if [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ]; then
-          mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
-        fi
-        if [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ]; then
-          mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
-        fi
-        if [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ]; then
-          mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
-        fi
-        if [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ]; then
-          mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
-        fi
-        
-        # Create archives
+        [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ] && mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
+        [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ] && mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
+        [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
+        [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
         cd nccs-win-x64 && zip -r ../nccs-win-x64.zip * && cd ..
         cd nccs-linux-x64 && tar -czf ../nccs-linux-x64.tar.gz * && cd ..
         cd nccs-osx-x64 && tar -czf ../nccs-osx-x64.tar.gz * && cd ..
         cd nccs-osx-arm64 && tar -czf ../nccs-osx-arm64.tar.gz * && cd ..
-        
-        # Generate checksums
         sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
     - name: Create release and upload binaries
       if: steps.check_tag.outputs.statusCode == '404'
-      id: create_release
       uses: softprops/action-gh-release@v2.4.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

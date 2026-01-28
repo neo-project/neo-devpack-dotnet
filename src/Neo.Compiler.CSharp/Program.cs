@@ -501,6 +501,7 @@ namespace Neo.Compiler
                                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll"),
                                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Collections.dll"),
                                 RuntimeAssemblyResolver.CreateFrameworkReference("System.Memory.dll"),
+                                MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(IO.MemoryReader))),
                                 MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(NeoSystem))),
                                 MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(SmartContract.Testing.TestEngine)))
                             };

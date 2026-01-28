@@ -12,6 +12,7 @@
 extern alias scfx;
 
 using System.Linq;
+using System.Numerics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -106,6 +107,23 @@ internal partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Checks for division overflow in checked context.
+    /// Division overflow occurs when dividing the minimum value of a signed integer type by -1,
+    /// as the result would exceed the maximum value of that type.
+    /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
+    /// </summary>
+    /// <param name="type">The result type of the division expression.</param>
+    /// <remarks>
+    /// Overflow check is needed for:
+    /// - Int32 (int): int.MinValue / -1 overflows
+    /// - Int64 (long): long.MinValue / -1 overflows
+    ///
+    /// Overflow check is NOT needed for:
+    /// - Smaller types (sbyte, byte, short, ushort, char): promoted to int in division
+    /// - Unsigned types (uint, ulong): no negative values, no overflow possible
+    /// - BigInteger: arbitrary precision, no overflow possible
+    /// </remarks>
     private void CheckDivideOverflow(ITypeSymbol? type)
     {
         if (type is null) return;
@@ -119,12 +137,21 @@ internal partial class MethodConvert
         // In C#, division overflow is checked or not in `unchecked` statement depends on the implementation.
         if (!_checkedStack.Peek()) return;
 
-        // Only check overflow for int32 and int64
+        // Determine the minimum value based on the type
         // NOTE: short / short -> int, ushort / ushort -> int, char / char -> int,
-        // sbyte / sbyte -> int, byte / byte -> int, so overflow check is not needed.
-        if (type.Name != "Int32" && type.Name != "Int64") return;
+        // sbyte / sbyte -> int, byte / byte -> int, so overflow check is not needed for small types.
+        // Unsigned types (uint, ulong, nuint) cannot overflow in division.
+        // BigInteger has arbitrary precision, so no overflow is possible.
+        var minValue = type.Name switch
+        {
+            "Int32" => (System.Numerics.BigInteger)int.MinValue,
+            "Int64" => (System.Numerics.BigInteger)long.MinValue,
+            _ => (System.Numerics.BigInteger?)null
+        };
 
-        var minValue = type.Name == "Int64" ? long.MinValue : int.MinValue;
+        // Skip if type doesn't need overflow check
+        if (minValue is null) return;
+
         var endTarget = new JumpTarget();
 
         AddInstruction(OpCode.DUP);
@@ -132,7 +159,7 @@ internal partial class MethodConvert
         Jump(OpCode.JMPNE_L, endTarget);
 
         AddInstruction(OpCode.OVER);
-        Push(minValue);
+        Push(minValue.Value);
         Jump(OpCode.JMPNE_L, endTarget);
 
         AddInstruction(OpCode.THROW);

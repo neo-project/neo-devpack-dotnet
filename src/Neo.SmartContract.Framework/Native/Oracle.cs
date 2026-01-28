@@ -24,6 +24,7 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Gets the price in the unit of datoshi, 1 datoshi = 1e-8 GAS for the Oracle request.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern long GetPrice();
 
@@ -31,6 +32,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Requests an Oracle response from the specified URL.
         /// The `gasForResponse` is in the unit of datoshi(1 datoshi = 1e-8 GAS),
         /// and must greater than the price of the Oracle request(see `GetPrice`).
+        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
         /// <para>
         /// The execution will fail if:
         ///  1. The 'url' is null or length exceeds MaxUrlLength(the default value is 256 bytes).

@@ -143,6 +143,8 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("using System.ComponentModel;");
             sourceCode.WriteLine("using System.Numerics;");
             sourceCode.WriteLine("");
+            sourceCode.WriteLine("#pragma warning disable CS0067");
+            sourceCode.WriteLine("");
             sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
             sourceCode.WriteLine("");
             sourceCode.WriteLine($"public abstract class {name}({typeof(SmartContractInitialize).FullName} initialize) : " + FormatInheritance(inheritance, "initialize") + ", IContractInfo");
