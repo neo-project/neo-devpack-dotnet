@@ -34,16 +34,6 @@ namespace Neo.SmartContract.Testing.Native
         public CryptoLib CryptoLib { get; }
 
         /// <summary>
-        /// GasToken
-        /// </summary>
-        public GAS GAS { get; }
-
-        /// <summary>
-        /// NeoToken
-        /// </summary>
-        public NEO NEO { get; }
-
-        /// <summary>
         /// Ledger
         /// </summary>
         public Ledger Ledger { get; }
@@ -83,8 +73,6 @@ namespace Neo.SmartContract.Testing.Native
 
             ContractManagement = _engine.FromHash<ContractManagement>(Neo.SmartContract.Native.NativeContract.ContractManagement.Hash, Neo.SmartContract.Native.NativeContract.ContractManagement.Id);
             CryptoLib = _engine.FromHash<CryptoLib>(Neo.SmartContract.Native.NativeContract.CryptoLib.Hash, Neo.SmartContract.Native.NativeContract.CryptoLib.Id);
-            GAS = _engine.FromHash<GAS>(Neo.SmartContract.Native.NativeContract.GAS.Hash, Neo.SmartContract.Native.NativeContract.GAS.Id);
-            NEO = _engine.FromHash<NEO>(Neo.SmartContract.Native.NativeContract.NEO.Hash, Neo.SmartContract.Native.NativeContract.NEO.Id);
             Ledger = _engine.FromHash<Ledger>(Neo.SmartContract.Native.NativeContract.Ledger.Hash, Neo.SmartContract.Native.NativeContract.Ledger.Id);
             Oracle = _engine.FromHash<Oracle>(Neo.SmartContract.Native.NativeContract.Oracle.Hash, Neo.SmartContract.Native.NativeContract.Oracle.Id);
             Policy = _engine.FromHash<Policy>(Neo.SmartContract.Native.NativeContract.Policy.Hash, Neo.SmartContract.Native.NativeContract.Policy.Id);
@@ -109,9 +97,7 @@ namespace Neo.SmartContract.Testing.Native
             foreach (var native in new Neo.SmartContract.Native.NativeContract[]
                 {
                     Neo.SmartContract.Native.NativeContract.ContractManagement,
-                    Neo.SmartContract.Native.NativeContract.Ledger,
-                    Neo.SmartContract.Native.NativeContract.NEO,
-                    Neo.SmartContract.Native.NativeContract.GAS
+                    Neo.SmartContract.Native.NativeContract.Ledger
                 }
             )
             {

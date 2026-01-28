@@ -277,7 +277,7 @@ public class Nep17Tests<T> : TestBase<T>
         // Ensure that was called
 
         Engine.SetTransactionSigners(Alice);
-        Assert.IsTrue(Contract.Transfer(Alice.Account, mock.Hash, 3, mock.Hash.ToArray()));
+        Assert.IsTrue(Contract.Transfer(Alice.Account, mock.Hash, 3, mock.Hash.GetSpan().ToArray()));
 
         Assert.AreEqual(Alice.Account, calledFrom);
         Assert.AreEqual(mock.Hash, calledData);

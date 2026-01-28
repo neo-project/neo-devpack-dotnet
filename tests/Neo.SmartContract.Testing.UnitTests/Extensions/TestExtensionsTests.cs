@@ -35,7 +35,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
         public void TestClass()
         {
             var point = ECCurve.Secp256r1.G;
-            StackItem stackItem = new Array(new StackItem[] { point.ToArray(), BigInteger.One });
+            StackItem stackItem = new Array(new StackItem[] { point.GetSpan().ToArray(), BigInteger.One });
 
             var ret = (Candidate)stackItem.ConvertTo(typeof(Candidate))!;
 

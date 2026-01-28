@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Cryptography.ECC;
 using Neo.Extensions;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Storage;
@@ -69,9 +70,9 @@ namespace Neo.SmartContract.Testing
 
             ConvertArgs(script, args, ref dynArgument);
 
-            script.EmitPush(Engine.CallFlags);
+            script.EmitPush((int)Engine.CallFlags);
             script.EmitPush(methodName);
-            script.EmitPush(Hash);
+            script.EmitPush(Hash.GetSpan().ToArray());
             script.EmitSysCall(ApplicationEngine.System_Contract_Call);
 
             // Execute
@@ -125,7 +126,8 @@ namespace Neo.SmartContract.Testing
                         // We create a syscall in order to detect it and push the item
 
                         testingSyscall ??= new TestingSyscall();
-                        script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => e.Push(interop)));
+                        script.EmitPush(testingSyscall.Add((e) => e.Push(interop)));
+                        script.EmitSysCall(TestingSyscall.Hash);
                         continue;
                     }
                     else if (arg is Action<ApplicationEngine> onItem)
@@ -133,7 +135,8 @@ namespace Neo.SmartContract.Testing
                         // We create a syscall in order to detect it and push the item
 
                         testingSyscall ??= new TestingSyscall();
-                        script.EmitSysCall(TestingSyscall.Hash, testingSyscall.Add((e) => onItem(e)));
+                        script.EmitPush(testingSyscall.Add((e) => onItem(e)));
+                        script.EmitSysCall(TestingSyscall.Hash);
                         continue;
                     }
                     else if (arg is PrimitiveType)
@@ -152,7 +155,42 @@ namespace Neo.SmartContract.Testing
                         }
                     }
 
-                    script.EmitPush(arg);
+                    // Handle different types for EmitPush
+                    switch (arg)
+                    {
+                        case bool b:
+                            script.EmitPush(b);
+                            break;
+                        case byte[] bytes:
+                            script.EmitPush(bytes);
+                            break;
+                        case string s:
+                            script.EmitPush(s);
+                            break;
+                        case BigInteger bi:
+                            script.EmitPush(bi);
+                            break;
+                        case int intVal:
+                            script.EmitPush(intVal);
+                            break;
+                        case long longVal:
+                            script.EmitPush(longVal);
+                            break;
+                        case UInt160 u160:
+                            script.EmitPush(u160.GetSpan().ToArray());
+                            break;
+                        case UInt256 u256:
+                            script.EmitPush(u256.GetSpan().ToArray());
+                            break;
+                        case ECPoint ecPoint:
+                            script.EmitPush(ecPoint.GetSpan().ToArray());
+                            break;
+                        case null:
+                            script.Emit(OpCode.PUSHNULL);
+                            break;
+                        default:
+                            throw new NotSupportedException($"Unsupported argument type: {arg?.GetType()}");
+                    }
                 }
                 script.EmitPush(args.Length);
                 script.Emit(OpCode.PACK);

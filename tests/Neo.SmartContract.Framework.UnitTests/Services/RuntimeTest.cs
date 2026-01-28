@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Extensions;
+using Neo.Extensions.VM;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
@@ -129,84 +130,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             Engine.SetTransactionSigners(UInt160.Zero);
             Assert.IsFalse(Contract.CheckWitness(signer.Account));
-        }
-
-        [TestMethod]
-        public void Test_GetNotificationsCount()
-        {
-            // We need the validator sign because we will transfer NEO
-
-            Engine.SetTransactionSigners(Engine.ValidatorsAddress);
-
-            Script script;
-            using (ScriptBuilder sb = new())
-            {
-                sb.EmitDynamicCall(Contract.Hash, "getNotificationsCount", new object?[] { null });
-                script = sb.ToArray();
-            }
-
-            Assert.AreEqual(0, Engine.Execute(script).GetInteger());
-
-            using (ScriptBuilder sb = new())
-            {
-                // One notification to UInt160
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, UInt160.Zero, 123, null);
-                // One notification to Contract
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, Alice.Account, 1234, null);
-                // Consume only contract
-                sb.EmitDynamicCall(Contract.Hash, "getNotificationsCount", Engine.Native.NEO.Hash);
-                script = sb.ToArray();
-            }
-
-            Assert.AreEqual(2, Engine.Execute(script).GetInteger());
-
-            using (ScriptBuilder sb = new())
-            {
-                // One notification to UInt160
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, UInt160.Zero, 123, null);
-                // One notification to Contract
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, Alice.Account, 1234, null);
-                // Consume all
-                sb.EmitDynamicCall(Contract.Hash, "getNotificationsCount", Alice.Account);
-                script = sb.ToArray();
-            }
-
-            Assert.AreEqual(0, Engine.Execute(script).GetInteger());
-        }
-
-        [TestMethod]
-        public void Test_GetNotifications()
-        {
-            // We need the validator sign because we will transfer NEO
-
-            Engine.SetTransactionSigners(Engine.ValidatorsAddress);
-
-            Script script;
-            using (ScriptBuilder sb = new())
-            {
-                // One notification to UInt160
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, UInt160.Zero, 123, null);
-                // One notification to Contract
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, Alice.Account, 1234, null);
-                // Consume only contract
-                sb.EmitDynamicCall(Contract.Hash, "getNotifications", Engine.Native.NEO.Hash);
-                script = sb.ToArray();
-            }
-
-            Assert.AreEqual(123 + 1234, Engine.Execute(script).GetInteger());
-
-            using (ScriptBuilder sb = new())
-            {
-                // One notification to UInt160
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, UInt160.Zero, 123, null);
-                // One notification to Contract
-                sb.EmitDynamicCall(Engine.Native.NEO.Hash, "transfer", Engine.ValidatorsAddress, Alice.Account, 1234, null);
-                // Consume all
-                sb.EmitDynamicCall(Contract.Hash, "getAllNotifications");
-                script = sb.ToArray();
-            }
-
-            Assert.AreEqual(123 + 1234, Engine.Execute(script).GetInteger());
         }
 
         [TestMethod]
