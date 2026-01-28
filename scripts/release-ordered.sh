@@ -145,19 +145,16 @@ echo "================================================="
 
 # 1. Neo.SmartContract.Framework (no dependencies)
 pack_and_push "./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj"
-wait_for_package "Neo.SmartContract.Framework" "$VERSION"
 
 # 2. Neo.SmartContract.Analyzer (depends on Framework)
 pack_and_push "./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj"
 
 # 3. Neo.Disassembler.CSharp (depends on external Neo libs only)
 pack_and_push "./src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj"
-wait_for_package "Neo.Disassembler.CSharp" "$VERSION"
 
 # 4. Neo.SmartContract.Testing (depends on Disassembler and Neo package)
 # Note: Now uses NuGet package references for Neo, no special handling needed
 pack_and_push "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
-wait_for_package "Neo.SmartContract.Testing" "$VERSION"
 
 # 5. Neo.Compiler.CSharp (depends on Framework and Testing)
 pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
