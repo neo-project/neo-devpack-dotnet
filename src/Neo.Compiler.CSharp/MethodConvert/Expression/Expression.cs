@@ -49,6 +49,9 @@ internal partial class MethodConvert
     {
         try
         {
+            // Get the correct model for the syntax node (fixes partial class issues)
+            model = model.GetModelForNode(syntax);
+
             var constant = model.GetConstantValue(syntax);
             var value = constant.Value;
             if (value == null)
