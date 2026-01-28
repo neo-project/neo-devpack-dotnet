@@ -24,23 +24,27 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Get the hash of the current block.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern UInt256 CurrentHash { get; }
 
         /// <summary>
         /// Get the index of the current block.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern uint CurrentIndex { get; }
 
         /// <summary>
         /// Get the block(without detailed transactions data) with the specified index,
         /// or null if the block is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern Block GetBlock(uint index);
 
         /// <summary>
         /// Get the block(without detailed transactions data) with the specified hash,
         /// or null if the block is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if 'hash' is null.
         /// </para>
@@ -50,6 +54,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Get the transaction with the specified hash,
         /// or null if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if 'hash' is null.
         /// </para>
@@ -59,6 +64,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Get the 'txIndex'-th transaction from the block with the specified hash,
         /// or null if the block is not found or ('blockHash' - currentHash) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if:
         ///  1. The 'blockHash' is null.
@@ -70,6 +76,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Get the 'txIndex'-th transaction from the block at the specified height,
         /// or null if the block is not found or ('blockHeight' - currentHeight) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if the 'txIndex' is less than zero or greater than the number of transactions in the block.
         /// </para>
@@ -79,6 +86,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Returns the height of the block that contains the transaction with the specified hash,
         /// or -1 if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if 'hash' is null.
         /// </para>
@@ -88,6 +96,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Returns the signers of the transaction with the specified hash,
         /// or null if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if 'hash' is null.
         /// </para>
@@ -97,6 +106,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Returns the VM state of the transaction with the specified hash,
         /// or VMState.NONE if the transaction is not found or (The height of the block - currentHeight) is greater than MaxTraceableBlocks.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if 'hash' is null.
         /// </para>
