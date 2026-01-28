@@ -102,16 +102,35 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
+    
+    - name: Check if version already exists on NuGet
+      id: check_version
+      run: |
+        VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+        echo "Version: $VERSION"
+        # Check if Neo.SmartContract.Framework version exists on NuGet
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --head "https://api.nuget.org/v3-flatcontainer/neo.smartcontract.framework/${VERSION}/neo.smartcontract.framework.${VERSION}.nupkg" || echo "404")
+        if [[ "$HTTP_CODE" == "200" ]]; then
+          echo "Version $VERSION already exists on NuGet, skipping publish"
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "Version $VERSION does not exist on NuGet, proceeding with publish"
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Setup .NET Core
+      if: steps.check_version.outputs.exists != 'true'
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Set Version (dev-pack)
+      if: steps.check_version.outputs.exists != 'true'
       run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
 
     # Build and publish packages in dependency order
     - name: Pack Neo.SmartContract.Framework
+      if: steps.check_version.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Framework \
         --configuration Debug \
@@ -119,6 +138,7 @@ jobs:
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
     - name: Pack Neo.SmartContract.Analyzer
+      if: steps.check_version.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Analyzer \
         --configuration Debug \
@@ -126,6 +146,7 @@ jobs:
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
     - name: Pack Neo.Disassembler.CSharp
+      if: steps.check_version.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.Disassembler.CSharp \
         --configuration Debug \
@@ -133,6 +154,7 @@ jobs:
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
     - name: Pack Neo.SmartContract.Testing
+      if: steps.check_version.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Testing \
         --configuration Debug \
@@ -140,6 +162,7 @@ jobs:
         --version-suffix ${{ env.VERSION_SUFFIX }}
            
     - name: Pack Neo.Compiler.CSharp
+      if: steps.check_version.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.Compiler.CSharp \
         --configuration Debug \
@@ -147,6 +170,7 @@ jobs:
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
     - name: Pack Neo.SmartContract.Template
+      if: steps.check_version.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Template \
         --configuration Debug \
@@ -154,6 +178,7 @@ jobs:
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
     - name: Publish to Github Packages
+      if: steps.check_version.outputs.exists != 'true'
       working-directory: ./out
       run: |
         dotnet nuget push * \
@@ -162,6 +187,7 @@ jobs:
             --disable-buffering \
             --no-service-endpoint;
     - name: Publish to myGet
+      if: steps.check_version.outputs.exists != 'true'
       working-directory: ./out
       continue-on-error: true  # MyGet has package size limits, don't block release
       run: |
@@ -186,18 +212,33 @@ jobs:
       run: |
         sudo apt install xmlstarlet
         find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('version=v',//i:VersionPrefix/text())" >> $GITHUB_OUTPUT
+    - name: Check if version exists on NuGet
+      id: check_nuget
+      run: |
+        VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+        echo "Version: $VERSION"
+        # Check if Neo.SmartContract.Framework version exists on NuGet
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --head "https://api.nuget.org/v3-flatcontainer/neo.smartcontract.framework/${VERSION}/neo.smartcontract.framework.${VERSION}.nupkg" || echo "404")
+        if [[ "$HTTP_CODE" == "200" ]]; then
+          echo "Version $VERSION already exists on NuGet, skipping release"
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "Version $VERSION does not exist on NuGet, proceeding with release"
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
     - name: Check tag
       id: check_tag
+      if: steps.check_nuget.outputs.exists != 'true'
       run: |
         STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})
         echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
     - name: Setup .NET Core
-      if: steps.check_tag.outputs.statusCode == '404'
+      if: steps.check_nuget.outputs.exists != 'true' && steps.check_tag.outputs.statusCode == '404'
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Build nccs compiler for multiple platforms
-      if: steps.check_tag.outputs.statusCode == '404'
+      if: steps.check_nuget.outputs.exists != 'true' && steps.check_tag.outputs.statusCode == '404'
       run: |
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-win-x64
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-linux-x64
@@ -213,7 +254,7 @@ jobs:
         cd nccs-osx-arm64 && tar -czf ../nccs-osx-arm64.tar.gz * && cd ..
         sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
     - name: Create release and upload binaries
-      if: steps.check_tag.outputs.statusCode == '404'
+      if: steps.check_nuget.outputs.exists != 'true' && steps.check_tag.outputs.statusCode == '404'
       uses: softprops/action-gh-release@v2.4.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -229,7 +270,7 @@ jobs:
           nccs-osx-arm64.tar.gz
           checksums.txt
     - name: Run ordered release script
-      if: steps.check_tag.outputs.statusCode == '404'
+      if: steps.check_nuget.outputs.exists != 'true' && steps.check_tag.outputs.statusCode == '404'
       run: |
         chmod +x ./scripts/release-ordered.sh
         ./scripts/release-ordered.sh --api-key "${{ secrets.NUGET_TOKEN }}"
