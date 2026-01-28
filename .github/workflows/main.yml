@@ -171,7 +171,7 @@ jobs:
             --no-service-endpoint;
 
   Release:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'
     needs: Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
