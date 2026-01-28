@@ -12,6 +12,7 @@
     <PackageTags>NEO;Blockchain;Smart Contract;Analyzer</PackageTags>
     <Product>Neo.SmartContract.Analyzer.CSharp</Product>
     <Description>Neo.SmartContract.Analyzer.CSharp</Description>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,5 +26,6 @@
 
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" />
+    <None Include="readme.md" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>

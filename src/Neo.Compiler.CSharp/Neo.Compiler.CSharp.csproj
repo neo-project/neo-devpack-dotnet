@@ -14,8 +14,13 @@
     <Company>The Neo Project</Company>
     <Product>Neo.Compiler.CSharp</Product>
     <Description>Neo.Compiler.CSharp</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
   </PropertyGroup>
 
   <ItemGroup>

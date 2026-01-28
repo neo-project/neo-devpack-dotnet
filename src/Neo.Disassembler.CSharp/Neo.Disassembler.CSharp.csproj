@@ -10,11 +10,15 @@
         <PackageId>Neo.Disassembler.CSharp</PackageId>
         <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
         <Description>Disassembler for NEO smart contract.</Description>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <IncludeContentInPack>true</IncludeContentInPack>
         <ContentTargetFolders>content</ContentTargetFolders>
         <Nullable>enable</Nullable>
         <NoWarn>$(NoWarn);NU5128</NoWarn>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="" />
 
     <ItemGroup>
         <PackageReference Include="Neo" Version="3.9.1" />
