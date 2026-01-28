@@ -132,6 +132,7 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             if (string.IsNullOrEmpty(writtenArtifact) || WhiteSpaceRegex.Replace(artifact, "") != WhiteSpaceRegex.Replace(writtenArtifact, ""))
             {
+                UpdatedArtifactNames.TryAdd(typeName);
                 await Task.Run(() =>
                 {
                     try
@@ -144,7 +145,6 @@ namespace Neo.SmartContract.Framework.UnitTests
                         Console.WriteLine($"Error writing artifact for {typeName}: {ex.Message}");
                     }
                 });
-                return null;
             }
 
             return debug;
