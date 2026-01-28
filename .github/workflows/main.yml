@@ -163,6 +163,7 @@ jobs:
             --no-service-endpoint;
     - name: Publish to myGet
       working-directory: ./out
+      continue-on-error: true  # MyGet has package size limits, don't block release
       run: |
         dotnet nuget push * \
             --source https://www.myget.org/F/neo/api/v3/index.json \
@@ -171,8 +172,8 @@ jobs:
             --no-service-endpoint;
 
   Release:
-    if: github.ref == 'refs/heads/master'
-    needs: Test
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'
+    needs: [Test, PublishPackage]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
