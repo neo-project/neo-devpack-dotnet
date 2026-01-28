@@ -164,18 +164,16 @@ internal partial class MethodConvert
         }
 
         // Determine the bit width based on the type
+        // Note: In NEO, BigInteger is Int256 (256-bit integer)
         var maxShift = leftType.Name switch
         {
             "SByte" or "Byte" => 8,
             "Int16" or "UInt16" or "Char" => 16,
             "Int32" or "UInt32" => 32,
             "Int64" or "UInt64" => 64,
-            "BigInteger" => -1, // No limit for BigInteger
+            "BigInteger" => 256, // In NEO, BigInteger is Int256
             _ => 32 // Default to 32 for unknown types
         };
-
-        // BigInteger has no shift limit
-        if (maxShift == -1) return;
 
         var endTarget = new JumpTarget();
         var checkUpperTarget = new JumpTarget();
