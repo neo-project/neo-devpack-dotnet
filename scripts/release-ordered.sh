@@ -64,6 +64,29 @@ echo "================================================="
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
+# Function to check if package version already exists on NuGet
+package_version_exists() {
+    local package_name=$1
+    local version=$2
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        return 1  # In dry-run, pretend package doesn't exist so we show what we would do
+    fi
+    
+    # Query NuGet to check if package version exists
+    # Using nuget.org API for checking (works for both nuget.org and other sources that support the API)
+    local nuget_api_url="https://api.nuget.org/v3-flatcontainer/${package_name,,}/${version}/${package_name,,}.${version}.nupkg"
+    
+    # Try HEAD request to check if package exists (returns 200 if exists, 404 if not)
+    local http_code=$(curl -s -o /dev/null -w "%{http_code}" --head "$nuget_api_url" 2>/dev/null || echo "404")
+    
+    if [[ "$http_code" == "200" ]]; then
+        return 0  # Package exists
+    else
+        return 1  # Package doesn't exist or check failed
+    fi
+}
+
 # Function to pack and push a project
 pack_and_push() {
     local project_path=$1
@@ -72,6 +95,13 @@ pack_and_push() {
     echo ""
     echo "Processing $project_name..."
     echo "-------------------------------------------------"
+    
+    # Check if package already exists on NuGet
+    if package_version_exists "$project_name" "$VERSION"; then
+        echo "Package $project_name version $VERSION already exists on NuGet, skipping..."
+        echo "✓ $project_name skipped (already published)"
+        return 0
+    fi
     
     # Pack the project
     echo "Packing $project_name..."
@@ -145,19 +175,16 @@ echo "================================================="
 
 # 1. Neo.SmartContract.Framework (no dependencies)
 pack_and_push "./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj"
-wait_for_package "Neo.SmartContract.Framework" "$VERSION"
 
 # 2. Neo.SmartContract.Analyzer (depends on Framework)
 pack_and_push "./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj"
 
 # 3. Neo.Disassembler.CSharp (depends on external Neo libs only)
 pack_and_push "./src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj"
-wait_for_package "Neo.Disassembler.CSharp" "$VERSION"
 
 # 4. Neo.SmartContract.Testing (depends on Disassembler and Neo package)
 # Note: Now uses NuGet package references for Neo, no special handling needed
 pack_and_push "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
-wait_for_package "Neo.SmartContract.Testing" "$VERSION"
 
 # 5. Neo.Compiler.CSharp (depends on Framework and Testing)
 pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
@@ -166,20 +193,27 @@ pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
 echo ""
 echo "Processing Neo.SmartContract.Template..."
 echo "-------------------------------------------------"
-dotnet pack "./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj" \
-    --configuration "$CONFIG" \
-    --output "$OUTPUT_DIR"
 
-if [[ "$DRY_RUN" == "false" ]]; then
-    dotnet nuget push "$OUTPUT_DIR/Neo.SmartContract.Template.*.nupkg" \
-        --source "$NUGET_SOURCE" \
-        --api-key "$API_KEY" \
-        --skip-duplicate \
-        --no-service-endpoint
+# Check if template package already exists on NuGet
+if package_version_exists "Neo.SmartContract.Template" "$VERSION"; then
+    echo "Package Neo.SmartContract.Template version $VERSION already exists on NuGet, skipping..."
+    echo "✓ Neo.SmartContract.Template skipped (already published)"
 else
-    echo "[DRY RUN] Would publish Neo.SmartContract.Template to $NUGET_SOURCE"
+    dotnet pack "./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj" \
+        --configuration "$CONFIG" \
+        --output "$OUTPUT_DIR"
+
+    if [[ "$DRY_RUN" == "false" ]]; then
+        dotnet nuget push "$OUTPUT_DIR/Neo.SmartContract.Template.*.nupkg" \
+            --source "$NUGET_SOURCE" \
+            --api-key "$API_KEY" \
+            --skip-duplicate \
+            --no-service-endpoint
+    else
+        echo "[DRY RUN] Would publish Neo.SmartContract.Template to $NUGET_SOURCE"
+    fi
+    echo "✓ Neo.SmartContract.Template completed"
 fi
-echo "✓ Neo.SmartContract.Template completed"
 
 echo ""
 echo "================================================="
