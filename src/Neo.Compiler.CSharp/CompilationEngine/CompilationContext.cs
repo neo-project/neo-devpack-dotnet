@@ -17,6 +17,7 @@ using Neo.Compiler.ABI;
 using Neo.Compiler.Optimizer;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
+using Neo.Extensions.IO;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;

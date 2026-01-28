@@ -261,3 +261,4 @@ paket-files/
 # Development tool directories (exclude from repository)
 .claude-flow/
 .hive-mind/
+.serena/

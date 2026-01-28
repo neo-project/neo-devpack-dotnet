@@ -62,6 +62,19 @@ public class RpcStore : IStore
         return snapshot;
     }
     public bool Contains(byte[] key) => TryGet(key) != null;
+
+    public IEnumerable<(byte[] Key, byte[] Value)> FindRange(byte[] start, byte[] end, SeekDirection direction = SeekDirection.Forward)
+    {
+        // Simple implementation using Find and filtering
+        foreach (var (key, value) in Find(start, direction))
+        {
+            var comparer = ByteArrayComparer.Default;
+            if (comparer.Compare(key, end) >= 0)
+                yield break;
+            yield return (key, value);
+        }
+    }
+
     public void Dispose()
     {
         GC.SuppressFinalize(this);

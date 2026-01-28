@@ -167,6 +167,10 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsTrue(ex.Message.Contains("NOT_EQUAL"));
             AssertGasConsumed(1048500);
 
+            // Should pass when values are equal (with custom error code)
+            Contract.TestRequireEqualsCustom(5, 5, "CUSTOM_EQ");
+            AssertGasConsumed(1048500);
+
             // Should throw with custom error code
             ex = Assert.ThrowsException<TestException>(() => Contract.TestRequireEqualsCustom(5, 10, "CUSTOM_EQ"));
             Assert.IsTrue(ex.Message.Contains("CUSTOM_EQ"));

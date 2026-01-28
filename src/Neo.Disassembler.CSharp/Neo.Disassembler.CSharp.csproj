@@ -17,10 +17,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Neo" Version="3.9.1" />
-        <PackageReference Include="Neo.Extensions" Version="3.9.1" />
-        <PackageReference Include="Neo.IO" Version="3.9.1" />
-        <PackageReference Include="Neo.Json" Version="3.9.1" />
+        <PackageReference Include="Neo" Version="4.0.0-CI02034" />
     </ItemGroup>
 
 </Project>

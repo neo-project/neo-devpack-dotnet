@@ -37,7 +37,7 @@ namespace Neo.SmartContract.Testing.Storage
 
             foreach (var entry in snapshot.Seek(Array.Empty<byte>(), SeekDirection.Forward))
             {
-                list.Add((entry.Key.ToArray(), entry.Value.ToArray()));
+                list.Add((entry.Key.ToArray(), entry.Value.Value.ToArray()));
             }
 
             Data = list.ToArray();

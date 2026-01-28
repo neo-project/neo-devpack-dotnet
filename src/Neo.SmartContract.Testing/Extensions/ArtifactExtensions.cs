@@ -11,6 +11,8 @@
 
 using Neo.Disassembler.CSharp;
 using Neo.Extensions;
+using Neo.Extensions.IO;
+using Neo.IO;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.TestingStandards;
@@ -159,7 +161,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             if (nef is not null)
             {
-                value = Convert.ToBase64String(nef.ToArray()).Replace("\"", "\"\"");
+                value = Convert.ToBase64String(((Neo.IO.ISerializable)nef).ToArray()).Replace("\"", "\"\"");
 
                 var optimization = manifest.Extra?["nef"]?["optimization"]?.ToString();
 

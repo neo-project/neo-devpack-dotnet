@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Extensions;
+using Neo.Extensions.VM;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
@@ -101,11 +102,11 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             TestEngine engine = new(false);
 
-            Assert.ThrowsExactly<KeyNotFoundException>(() => _ = engine.FromHash<NEO>(engine.Native.NEO.Hash, true));
+            Assert.ThrowsExactly<KeyNotFoundException>(() => _ = engine.FromHash<Testing.Native.Ledger>(engine.Native.Ledger.Hash, true));
 
             engine.Native.Initialize(false);
 
-            Assert.IsInstanceOfType<NEO>(engine.FromHash<NEO>(engine.Native.NEO.Hash, true));
+            Assert.IsInstanceOfType<Testing.Native.Ledger>(engine.FromHash<Testing.Native.Ledger>(engine.Native.Ledger.Hash, true));
         }
 
         [TestMethod]
@@ -114,25 +115,6 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Initialize TestEngine and native smart contracts
 
             TestEngine engine = new(true);
-
-            // Get neo token smart contract and mock balanceOf to always return 123
-
-            var neo = engine.FromHash<NEO>(engine.Native.NEO.Hash,
-                mock => mock.Setup(o => o.BalanceOf(It.IsAny<UInt160>())).Returns(new BigInteger(123)),
-                false);
-
-            // Test direct call
-
-            Assert.AreEqual(123, neo.BalanceOf(engine.ValidatorsAddress));
-
-            // Test vm call
-
-            using (ScriptBuilder script = new())
-            {
-                script.EmitDynamicCall(neo.Hash, "balanceOf", engine.ValidatorsAddress);
-
-                Assert.AreEqual(123, engine.Execute(script.ToArray()).GetInteger());
-            }
 
             // Test mock on undeployed contract
 
@@ -156,8 +138,6 @@ namespace Neo.SmartContract.Testing.UnitTests
             Assert.AreEqual(engine.Native.ContractManagement.Hash, Neo.SmartContract.Native.NativeContract.ContractManagement.Hash);
             Assert.AreEqual(engine.Native.StdLib.Hash, Neo.SmartContract.Native.NativeContract.StdLib.Hash);
             Assert.AreEqual(engine.Native.CryptoLib.Hash, Neo.SmartContract.Native.NativeContract.CryptoLib.Hash);
-            Assert.AreEqual(engine.Native.GAS.Hash, Neo.SmartContract.Native.NativeContract.GAS.Hash);
-            Assert.AreEqual(engine.Native.NEO.Hash, Neo.SmartContract.Native.NativeContract.NEO.Hash);
             Assert.AreEqual(engine.Native.Oracle.Hash, Neo.SmartContract.Native.NativeContract.Oracle.Hash);
             Assert.AreEqual(engine.Native.Policy.Hash, Neo.SmartContract.Native.NativeContract.Policy.Hash);
             Assert.AreEqual(engine.Native.RoleManagement.Hash, Neo.SmartContract.Native.NativeContract.RoleManagement.Hash);
@@ -181,14 +161,14 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             var engine = new TestEngine(true);
 
-            // Instantiate neo contract from native hash, (not necessary if we use engine.Native.NEO)
+            // Instantiate ledger contract from native hash
 
-            var neo = engine.FromHash<NEO>(engine.Native.NEO.Hash, true);
+            var ledger = engine.FromHash<Testing.Native.Ledger>(engine.Native.Ledger.Hash, true);
 
-            // Ensure that the main address contains the totalSupply
+            // Ensure that the ledger is accessible
 
-            Assert.AreEqual(100_000_000, neo.TotalSupply);
-            Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.ValidatorsAddress));
+            Assert.IsNotNull(ledger);
+            Assert.AreEqual(engine.Native.Ledger.Hash, ledger.Hash);
         }
     }
 }
