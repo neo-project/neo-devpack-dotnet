@@ -27,7 +27,6 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-        submodules: recursive
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v5
       with:
@@ -103,7 +102,6 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-        submodules: recursive
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v5
       with:
@@ -111,10 +109,6 @@ jobs:
 
     - name: Set Version (dev-pack)
       run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
-    - name: Set Version (Neo)
-      run: |
-        git --git-dir=./neo/.git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX_NEO={}' >> $GITHUB_ENV
-        sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./neo/src/Directory.Build.props | xargs -I{} echo 'VERSION_NEO={}' >> $GITHUB_ENV
 
     # Build and publish packages in dependency order
     - name: Pack Neo.SmartContract.Framework
@@ -138,27 +132,12 @@ jobs:
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
-    - name: Prepare and Pack Neo.SmartContract.Testing
+    - name: Pack Neo.SmartContract.Testing
       run: |
-        # Backup project file
-        cp ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj \
-           ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup
-        
-        # Replace Neo reference with package
-        dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj'
-        dotnet add    ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version ${{ env.VERSION_NEO }}-${{ env.VERSION_SUFFIX_NEO }}
-        
-        # Build and pack
-        dotnet build ./src/Neo.SmartContract.Testing -f net10.0
         dotnet pack ./src/Neo.SmartContract.Testing \
-        --no-build \
         --configuration Debug \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
-        
-        # Restore project file
-        mv ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup \
-           ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj
            
     - name: Pack Neo.Compiler.CSharp
       run: |
@@ -201,7 +180,6 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-        submodules: recursive
     - name: Get version
       id: get_version
       run: |
@@ -220,54 +198,21 @@ jobs:
     - name: Build nccs compiler for multiple platforms
       if: steps.check_tag.outputs.statusCode == '404'
       run: |
-        # Build for different platforms
-        echo "Building nccs for Windows x64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-win-x64
-        
-        echo "Building nccs for Linux x64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-linux-x64
-        
-        echo "Building nccs for macOS x64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-x64
-        
-        echo "Building nccs for macOS ARM64..."
         dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-arm64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-arm64
-        
-        # Rename executables to have consistent naming
-        # Windows: Neo.Compiler.CSharp.exe -> nccs.exe
-        if [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ]; then
-          mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
-        fi
-        # Linux: Neo.Compiler.CSharp -> nccs
-        if [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ]; then
-          mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
-        fi
-        # macOS x64: Neo.Compiler.CSharp -> nccs
-        if [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ]; then
-          mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
-        fi
-        # macOS ARM64: Neo.Compiler.CSharp -> nccs
-        if [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ]; then
-          mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
-        fi
-        
-        # Create zip archives
-        echo "Creating archives..."
+        [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ] && mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
+        [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ] && mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
+        [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
+        [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
         cd nccs-win-x64 && zip -r ../nccs-win-x64.zip * && cd ..
         cd nccs-linux-x64 && tar -czf ../nccs-linux-x64.tar.gz * && cd ..
         cd nccs-osx-x64 && tar -czf ../nccs-osx-x64.tar.gz * && cd ..
         cd nccs-osx-arm64 && tar -czf ../nccs-osx-arm64.tar.gz * && cd ..
-        
-        # Generate checksums
-        echo "Generating checksums..."
         sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
-        
-        # Display checksums for verification
-        echo "Checksums:"
-        cat checksums.txt
     - name: Create release and upload binaries
       if: steps.check_tag.outputs.statusCode == '404'
-      id: create_release
       uses: softprops/action-gh-release@v2.4.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
