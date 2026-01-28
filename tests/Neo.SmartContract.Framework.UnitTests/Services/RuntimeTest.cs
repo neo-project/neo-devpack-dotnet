@@ -197,5 +197,32 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
 
             CollectionAssert.AreEqual(Engine.Transaction.Script.ToArray(), script);
         }
+
+        [TestMethod]
+        public void Test_GetAllNotifications()
+        {
+            // GetAllNotifications returns the count of all notifications
+            var count = Contract.GetAllNotifications();
+            Assert.IsNotNull(count);
+            Assert.AreEqual(0, count);
+        }
+
+        [TestMethod]
+        public void Test_GetNotifications()
+        {
+            // GetNotifications returns the count of notifications for a specific hash
+            var count = Contract.GetNotifications(Contract.Hash);
+            Assert.IsNotNull(count);
+            Assert.AreEqual(0, count);
+        }
+
+        [TestMethod]
+        public void Test_GetNotificationsCount()
+        {
+            // GetNotificationsCount returns the count of notifications for a specific hash
+            var count = Contract.GetNotificationsCount(Contract.Hash);
+            Assert.IsNotNull(count);
+            Assert.AreEqual(0, count);
+        }
     }
 }
