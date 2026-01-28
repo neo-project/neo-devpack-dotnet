@@ -98,6 +98,11 @@ internal partial class MethodConvert
             CheckDivideOverflow(model.GetTypeInfo(expression).Type);
         }
 
+        if (expression.OperatorToken.ValueText == "<<")
+        {
+            CheckShiftOverflow(model, expression);
+        }
+
         AddInstruction(opcode);
         if (checkResult)
         {
@@ -147,6 +152,9 @@ internal partial class MethodConvert
     /// <param name="expression">The binary expression containing the shift operation.</param>
     private void CheckShiftOverflow(SemanticModel model, BinaryExpressionSyntax expression)
     {
+        // Only check overflow in checked context
+        if (!_checkedStack.Peek()) return;
+
         var leftType = model.GetTypeInfo(expression.Left).Type;
         if (leftType is null) return;
 
