@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace Neo.Compiler.SecurityAnalyzer
 {
-    public static class UpdateAnalzyer
+    public static class UpdateAnalyzer
     {
         /// <summary>
         /// This method checks whether it is possible to update the contract.

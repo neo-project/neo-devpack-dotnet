@@ -21,9 +21,9 @@ namespace Neo.Compiler.SecurityAnalyzer
         public static void AnalyzeWithPrint(NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
             ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
-            WriteInTryAnalzyer.AnalyzeWriteInTry(nef, manifest, debugInfo).GetWarningInfo(print: true);
+            WriteInTryAnalyzer.AnalyzeWriteInTry(nef, manifest, debugInfo).GetWarningInfo(print: true);
             CheckWitnessAnalyzer.AnalyzeCheckWitness(nef, manifest, debugInfo).GetWarningInfo(print: true);
-            if (!UpdateAnalzyer.AnalyzeUpdate(nef, manifest, debugInfo))
+            if (!UpdateAnalyzer.AnalyzeUpdate(nef, manifest, debugInfo))
                 Console.WriteLine("[SEC] This contract cannot be updated, or maybe you used abstract code styles to update it.");
         }
     }

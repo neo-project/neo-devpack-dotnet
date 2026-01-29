@@ -24,6 +24,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <summary>
         /// Gets the list of nodes(public keys) for the specified role.
         /// If no such role is designated, an empty array will be returned.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
         /// The execution will fail if:
         ///  1. The 'role' is not a valid Role value.

@@ -23,6 +23,8 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Verify checks whether the transaction is signed by the committee.
+        /// Available since HF_Faun.
+        /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern bool Verify();
     }

@@ -48,6 +48,52 @@ namespace Neo.SmartContract.Testing.Coverage
         public readonly IReadOnlyList<string> Documents = documents;
         public readonly IReadOnlyList<Method> Methods = methods;
 
+        /// <summary>
+        /// Represents source code location information for diagnostic messages
+        /// </summary>
+        public class SourceLocation
+        {
+            public string FileName { get; set; } = string.Empty;
+            public int Line { get; set; }
+            public int Column { get; set; }
+            public string? CodeSnippet { get; set; }
+        }
+
+        /// <summary>
+        /// Gets source code location information for an instruction address
+        /// </summary>
+        /// <param name="instructionAddress">The instruction address to look up</param>
+        /// <param name="debugInfo">Debug information containing source mappings</param>
+        /// <returns>Source location information if found, null otherwise</returns>
+        public SourceLocation? GetSourceLocation(int instructionAddress)
+        {
+            // Find the sequence point that covers this instruction address
+            foreach (var method in Methods)
+            {
+                if (instructionAddress >= method.Range.Start && instructionAddress <= method.Range.End)
+                {
+                    // Find the closest sequence point at or before this address
+                    var sequencePoint = method.SequencePoints
+                        .Where(sp => sp.Address <= instructionAddress)
+                        .OrderByDescending(sp => sp.Address)
+                        .FirstOrDefault();
+
+                    if (sequencePoint.Document >= 0 && sequencePoint.Document < Documents.Count)
+                    {
+                        var fileName = Documents[sequencePoint.Document];
+                        return new SourceLocation
+                        {
+                            FileName = System.IO.Path.GetFileName(fileName),
+                            Line = sequencePoint.Start.Line,
+                            Column = sequencePoint.Start.Column,
+                            CodeSnippet = null // Could be enhanced to read actual source code
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
         public static bool TryLoad(string path, [MaybeNullWhen(false)] out NeoDebugInfo debugInfo)
         {
             if (path.EndsWith(NEF_DBG_NFO_EXTENSION))

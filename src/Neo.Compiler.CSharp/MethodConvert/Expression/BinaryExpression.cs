@@ -12,6 +12,7 @@
 extern alias scfx;
 
 using System.Linq;
+using System.Numerics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -98,6 +99,11 @@ internal partial class MethodConvert
             CheckDivideOverflow(model.GetTypeInfo(expression).Type);
         }
 
+        if (expression.OperatorToken.ValueText == "<<")
+        {
+            CheckShiftOverflow(model, expression);
+        }
+
         AddInstruction(opcode);
         if (checkResult)
         {
@@ -106,6 +112,23 @@ internal partial class MethodConvert
         }
     }
 
+    /// <summary>
+    /// Checks for division overflow in checked context.
+    /// Division overflow occurs when dividing the minimum value of a signed integer type by -1,
+    /// as the result would exceed the maximum value of that type.
+    /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
+    /// </summary>
+    /// <param name="type">The result type of the division expression.</param>
+    /// <remarks>
+    /// Overflow check is needed for:
+    /// - Int32 (int): int.MinValue / -1 overflows
+    /// - Int64 (long): long.MinValue / -1 overflows
+    ///
+    /// Overflow check is NOT needed for:
+    /// - Smaller types (sbyte, byte, short, ushort, char): promoted to int in division
+    /// - Unsigned types (uint, ulong): no negative values, no overflow possible
+    /// - BigInteger: arbitrary precision, no overflow possible
+    /// </remarks>
     private void CheckDivideOverflow(ITypeSymbol? type)
     {
         if (type is null) return;
@@ -119,12 +142,21 @@ internal partial class MethodConvert
         // In C#, division overflow is checked or not in `unchecked` statement depends on the implementation.
         if (!_checkedStack.Peek()) return;
 
-        // Only check overflow for int32 and int64
+        // Determine the minimum value based on the type
         // NOTE: short / short -> int, ushort / ushort -> int, char / char -> int,
-        // sbyte / sbyte -> int, byte / byte -> int, so overflow check is not needed.
-        if (type.Name != "Int32" && type.Name != "Int64") return;
+        // sbyte / sbyte -> int, byte / byte -> int, so overflow check is not needed for small types.
+        // Unsigned types (uint, ulong, nuint) cannot overflow in division.
+        // BigInteger has arbitrary precision, so no overflow is possible.
+        var minValue = type.Name switch
+        {
+            "Int32" => (System.Numerics.BigInteger)int.MinValue,
+            "Int64" => (System.Numerics.BigInteger)long.MinValue,
+            _ => (System.Numerics.BigInteger?)null
+        };
 
-        var minValue = type.Name == "Int64" ? long.MinValue : int.MinValue;
+        // Skip if type doesn't need overflow check
+        if (minValue is null) return;
+
         var endTarget = new JumpTarget();
 
         AddInstruction(OpCode.DUP);
@@ -132,10 +164,59 @@ internal partial class MethodConvert
         Jump(OpCode.JMPNE_L, endTarget);
 
         AddInstruction(OpCode.OVER);
-        Push(minValue);
+        Push(minValue.Value);
         Jump(OpCode.JMPNE_L, endTarget);
 
         AddInstruction(OpCode.THROW);
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
+    }
+
+    /// <summary>
+    /// Checks for left shift overflow in checked context.
+    /// Validates that the shift amount is non-negative and within the bit width of the left operand type.
+    /// </summary>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="expression">The binary expression containing the shift operation.</param>
+    private void CheckShiftOverflow(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        // Only check overflow in checked context
+        if (!_checkedStack.Peek()) return;
+
+        var leftType = model.GetTypeInfo(expression.Left).Type;
+        if (leftType is null) return;
+
+        while (leftType.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            leftType = ((INamedTypeSymbol)leftType).TypeArguments.First();
+        }
+
+        // Determine the bit width based on the type
+        // Note: In NEO, BigInteger is Int256 (256-bit integer)
+        var maxShift = leftType.Name switch
+        {
+            "SByte" or "Byte" => 8,
+            "Int16" or "UInt16" or "Char" => 16,
+            "Int32" or "UInt32" => 32,
+            "Int64" or "UInt64" => 64,
+            "BigInteger" => 256, // In NEO, BigInteger is Int256
+            _ => 32 // Default to 32 for unknown types
+        };
+
+        var endTarget = new JumpTarget();
+        var checkUpperTarget = new JumpTarget();
+
+        // Check if shift amount is negative (top of stack is shift amount)
+        AddInstruction(OpCode.DUP);
+        Push(0);
+        Jump(OpCode.JMPGE_L, checkUpperTarget);
+        AddInstruction(OpCode.THROW);
+
+        // Check if shift amount exceeds type bit width
+        checkUpperTarget.Instruction = AddInstruction(OpCode.DUP);
+        Push(maxShift);
+        Jump(OpCode.JMPLT_L, endTarget);
+        AddInstruction(OpCode.THROW);
+
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 

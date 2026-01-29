@@ -17,7 +17,7 @@ namespace Neo.SmartContract.Testing.Interpreters
 {
     public class HexStringInterpreter : IStringInterpreter
     {
-        public static readonly Regex HexRegex = new(@"^[a-zA-Z0-9_]+$");
+        public static readonly Regex HexRegex = new(@"^[a-fA-F0-9]+$");
 
         /// <summary>
         /// Get string from bytes

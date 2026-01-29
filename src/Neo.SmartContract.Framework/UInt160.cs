@@ -88,7 +88,12 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         /// <param name="value">Hex string or Base58Check address.</param>
         /// <returns>The parsed <see cref="UInt160"/> value.</returns>
-        /// <exception cref="FormatException">Thrown when the input cannot be parsed.</exception>
+        /// <exception cref="FormatException">Thrown for null input, invalid length, or invalid address version.</exception>
+        /// <remarks>
+        /// Note: If the input is a Base58Check address with invalid encoding, the underlying
+        /// <see cref="StdLib.Base58CheckDecode"/> will cause execution to FAULT (abort),
+        /// which cannot be caught. Only use this method with validated input or hex strings.
+        /// </remarks>
         public static UInt160 Parse(string value)
         {
             if (value is null) throw new FormatException("Value cannot be null.");

@@ -64,6 +64,29 @@ echo "================================================="
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
+# Function to check if package version already exists on NuGet
+package_version_exists() {
+    local package_name=$1
+    local version=$2
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        return 1  # In dry-run, pretend package doesn't exist so we show what we would do
+    fi
+    
+    # Query NuGet to check if package version exists
+    # Using nuget.org API for checking (works for both nuget.org and other sources that support the API)
+    local nuget_api_url="https://api.nuget.org/v3-flatcontainer/${package_name,,}/${version}/${package_name,,}.${version}.nupkg"
+    
+    # Try HEAD request to check if package exists (returns 200 if exists, 404 if not)
+    local http_code=$(curl -s -o /dev/null -w "%{http_code}" --head "$nuget_api_url" 2>/dev/null || echo "404")
+    
+    if [[ "$http_code" == "200" ]]; then
+        return 0  # Package exists
+    else
+        return 1  # Package doesn't exist or check failed
+    fi
+}
+
 # Function to pack and push a project
 pack_and_push() {
     local project_path=$1
@@ -72,6 +95,13 @@ pack_and_push() {
     echo ""
     echo "Processing $project_name..."
     echo "-------------------------------------------------"
+    
+    # Check if package already exists on NuGet
+    if package_version_exists "$project_name" "$VERSION"; then
+        echo "Package $project_name version $VERSION already exists on NuGet, skipping..."
+        echo "✓ $project_name skipped (already published)"
+        return 0
+    fi
     
     # Pack the project
     echo "Packing $project_name..."
@@ -95,7 +125,7 @@ pack_and_push() {
     echo "✓ $project_name completed"
 }
 
-# Function to wait for package availability
+# Function to wait for package availability with fallback
 wait_for_package() {
     local package_name=$1
     local version=$2
@@ -108,8 +138,11 @@ wait_for_package() {
     
     echo "Waiting for $package_name version $version to be available..."
     
+    # Note: Checking NuGet.org package availability via API is unreliable due to caching
+    # We use a simple delay as a more reliable approach
     for i in $(seq 1 $max_attempts); do
-        if dotnet nuget list source "$NUGET_SOURCE" --take 1 "$package_name" --exact-match --prerelease | grep -q "$version"; then
+        # Try to query the package - suppress errors as the command may fail
+        if dotnet package search "$package_name" --source "$NUGET_SOURCE" --exact-match 2>/dev/null | grep -q "$version"; then
             echo "✓ Package $package_name $version is now available"
             return 0
         fi
@@ -117,31 +150,23 @@ wait_for_package() {
         sleep $wait_time
     done
     
-    echo "Error: Package $package_name $version did not become available after $((max_attempts * wait_time)) seconds"
-    return 1
+    echo "Warning: Package $package_name $version may not be available yet, continuing anyway..."
+    return 0
 }
 
 # Get version from Directory.Build.props
 VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+if [[ -z "$VERSION" ]]; then
+    echo "Error: Could not determine version from src/Directory.Build.props"
+    exit 1
+fi
 echo "Version to release: $VERSION"
-
-# Remove Neo core projects from solution to avoid building them
-echo ""
-echo "Preparing solution..."
-echo "-------------------------------------------------"
-cp neo-devpack-dotnet.sln neo-devpack-dotnet.release.sln
-dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/neo/neo.csproj || true
-dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Cryptography.BLS12_381/Neo.Cryptography.BLS12_381.csproj || true
-dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Extensions/Neo.Extensions.csproj || true
-dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.IO/Neo.IO.csproj || true
-dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.Json/Neo.Json.csproj || true
-dotnet sln neo-devpack-dotnet.release.sln remove ./neo/src/Neo.VM/Neo.VM.csproj || true
 
 # Restore all packages first
 echo ""
 echo "Restoring packages..."
 echo "-------------------------------------------------"
-dotnet restore neo-devpack-dotnet.release.sln
+dotnet restore ./neo-devpack-dotnet.sln
 
 # Release packages in dependency order
 echo ""
@@ -150,7 +175,6 @@ echo "================================================="
 
 # 1. Neo.SmartContract.Framework (no dependencies)
 pack_and_push "./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj"
-wait_for_package "Neo.SmartContract.Framework" "$VERSION"
 
 # 2. Neo.SmartContract.Analyzer (depends on Framework)
 pack_and_push "./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.csproj"
@@ -158,40 +182,9 @@ pack_and_push "./src/Neo.SmartContract.Analyzer/Neo.SmartContract.Analyzer.cspro
 # 3. Neo.Disassembler.CSharp (depends on external Neo libs only)
 pack_and_push "./src/Neo.Disassembler.CSharp/Neo.Disassembler.CSharp.csproj"
 
-# 4. Neo.SmartContract.Testing (depends on Disassembler)
-# Note: This requires special handling as it references Neo core directly
-echo ""
-echo "Special handling for Neo.SmartContract.Testing..."
-echo "-------------------------------------------------"
-
-# Temporarily replace Neo project reference with package reference
-if [[ -f "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup" ]]; then
-    rm "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup"
-fi
-cp "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj" \
-   "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup"
-
-# Get Neo package version
-NEO_VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./neo/src/Directory.Build.props | head -1)
-echo "Neo package version: $NEO_VERSION"
-
-# Replace project reference with package reference
-dotnet remove ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj reference '..\..\neo\src\Neo\Neo.csproj' || true
-dotnet add ./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj package 'Neo' --version "$NEO_VERSION"
-
-# Fix RpcStore.cs for package reference compatibility
-echo "Fixing RpcStore.cs for package reference compatibility..."
-sed -i.bak 's/public event IStore\.OnNewSnapshotDelegate/public event Action<IStore, IStoreSnapshot>/g' \
-    "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
-
+# 4. Neo.SmartContract.Testing (depends on Disassembler and Neo package)
+# Note: Now uses NuGet package references for Neo, no special handling needed
 pack_and_push "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
-wait_for_package "Neo.SmartContract.Testing" "$VERSION"
-
-# Restore original project file and RpcStore.cs
-mv "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj.backup" \
-   "./src/Neo.SmartContract.Testing/Neo.SmartContract.Testing.csproj"
-mv "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs.bak" \
-   "./src/Neo.SmartContract.Testing/Storage/Rpc/RpcStore.cs"
 
 # 5. Neo.Compiler.CSharp (depends on Framework and Testing)
 pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
@@ -200,23 +193,27 @@ pack_and_push "./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj"
 echo ""
 echo "Processing Neo.SmartContract.Template..."
 echo "-------------------------------------------------"
-dotnet pack "./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj" \
-    --configuration "$CONFIG" \
-    --output "$OUTPUT_DIR"
 
-if [[ "$DRY_RUN" == "false" ]]; then
-    dotnet nuget push "$OUTPUT_DIR/Neo.SmartContract.Template.*.nupkg" \
-        --source "$NUGET_SOURCE" \
-        --api-key "$API_KEY" \
-        --skip-duplicate \
-        --no-service-endpoint
+# Check if template package already exists on NuGet
+if package_version_exists "Neo.SmartContract.Template" "$VERSION"; then
+    echo "Package Neo.SmartContract.Template version $VERSION already exists on NuGet, skipping..."
+    echo "✓ Neo.SmartContract.Template skipped (already published)"
 else
-    echo "[DRY RUN] Would publish Neo.SmartContract.Template to $NUGET_SOURCE"
-fi
-echo "✓ Neo.SmartContract.Template completed"
+    dotnet pack "./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj" \
+        --configuration "$CONFIG" \
+        --output "$OUTPUT_DIR"
 
-# Clean up
-rm -f neo-devpack-dotnet.release.sln
+    if [[ "$DRY_RUN" == "false" ]]; then
+        dotnet nuget push "$OUTPUT_DIR/Neo.SmartContract.Template.*.nupkg" \
+            --source "$NUGET_SOURCE" \
+            --api-key "$API_KEY" \
+            --skip-duplicate \
+            --no-service-endpoint
+    else
+        echo "[DRY RUN] Would publish Neo.SmartContract.Template to $NUGET_SOURCE"
+    fi
+    echo "✓ Neo.SmartContract.Template completed"
+fi
 
 echo ""
 echo "================================================="
