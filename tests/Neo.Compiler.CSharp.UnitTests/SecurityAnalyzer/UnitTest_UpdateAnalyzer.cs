@@ -55,7 +55,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             // Should detect update capability
             bool hasUpdate = UpdateAnalyzer.AnalyzeUpdate(nef, manifest);
             Assert.IsFalse(hasUpdate, "Script has no CALLT, so update should not be detected from script alone");
-            
+
             // The key test is that when there IS a CALLT, the token's CallFlags are correctly checked
             // The old bug was: (flags | WriteStates) != 0 which is always true
             // The fix is: (flags & WriteStates) != 0 which correctly checks for the flag
@@ -68,15 +68,15 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         public void Test_CallFlags_BitwiseOperator_Fix()
         {
             // Test the actual bug fix: (flags | WriteStates) vs (flags & WriteStates)
-            
+
             // Old buggy code: (CallFlags.AllowCall | CallFlags.WriteStates) != 0 => true (always!)
             bool buggyCheck = ((CallFlags.AllowCall | CallFlags.WriteStates) != 0);
             Assert.IsTrue(buggyCheck, "Buggy check with | would always return true");
-            
+
             // Fixed code: (CallFlags.AllowCall & CallFlags.WriteStates) != 0 => false
             bool fixedCheck = ((CallFlags.AllowCall & CallFlags.WriteStates) != 0);
             Assert.IsFalse(fixedCheck, "Fixed check with & correctly returns false for AllowCall");
-            
+
             // Verify WriteStates is correctly detected
             bool writeStatesCheck = ((CallFlags.WriteStates & CallFlags.WriteStates) != 0);
             Assert.IsTrue(writeStatesCheck, "Fixed check with & correctly returns true for WriteStates");
@@ -91,18 +91,18 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             var hash1 = NativeContract.ContractManagement.Hash;
             var hash2 = NativeContract.ContractManagement.Hash;
-            
+
             // These are different byte array instances with same content
             byte[] array1 = hash1.GetSpan().ToArray();
             byte[] array2 = hash2.GetSpan().ToArray();
-            
+
             // Reference equality would fail
             Assert.AreNotSame(array1, array2, "Arrays should be different instances");
-            
+
             // Old buggy code: array1 == array2 (reference equality)
             bool buggyComparison = array1 == array2;
             Assert.IsFalse(buggyComparison, "Reference equality (==) should return false for different instances");
-            
+
             // Fixed code: array1.SequenceEqual(array2)
             bool fixedComparison = array1.SequenceEqual(array2);
             Assert.IsTrue(fixedComparison, "SequenceEqual should return true for same content");

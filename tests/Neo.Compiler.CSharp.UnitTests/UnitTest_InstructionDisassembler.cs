@@ -183,7 +183,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var instructions = ((Script)script).EnumerateInstructions().ToArray();
             var instruction = instructions[0].instruction;
             Assert.AreEqual(OpCode.PUSHDATA2, instruction.OpCode);
-            
+
             // Verify operand contains the data
             // Note: The VM's Instruction.Operand contains just the data, not the length prefix
             Assert.IsNotNull(instruction.Operand);
