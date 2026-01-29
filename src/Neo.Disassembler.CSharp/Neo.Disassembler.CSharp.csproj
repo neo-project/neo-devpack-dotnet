@@ -19,6 +19,7 @@
 
     <ItemGroup>
         <None Include="README.md" Pack="true" PackagePath="" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Neo" Version="3.9.1" />
