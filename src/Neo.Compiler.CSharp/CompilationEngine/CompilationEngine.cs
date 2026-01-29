@@ -109,17 +109,32 @@ namespace Neo.Compiler
                              $"    }}\n" +
                              $"}}\n";
 
-            string tempFilePath = Path.GetTempFileName();
-            string newTempFilePath = Path.ChangeExtension(tempFilePath, ".cs");
-            File.Move(tempFilePath, newTempFilePath);
-            tempFilePath = newTempFilePath;
-            File.WriteAllText(tempFilePath, sourceCode);
+            // Create a secure temporary directory with unique name to avoid race conditions
+            string tempDir = Path.Combine(Path.GetTempPath(), $"neo-compiler-{Guid.NewGuid():N}");
+            Directory.CreateDirectory(tempDir);
+            string tempFilePath = Path.Combine(tempDir, "CodeBlockTest.cs");
 
             try
             {
+                // Write source code to the secure temp file
+                File.WriteAllText(tempFilePath, sourceCode);
                 return CompileSources(tempFilePath);
             }
-            finally { File.Delete(tempFilePath); }
+            finally
+            {
+                // Ensure cleanup of temp directory and all contents
+                try
+                {
+                    if (Directory.Exists(tempDir))
+                    {
+                        Directory.Delete(tempDir, recursive: true);
+                    }
+                }
+                catch
+                {
+                    // Best effort cleanup - don't throw from finally
+                }
+            }
         }
 
         public List<CompilationContext> Compile(IEnumerable<string> sourceFiles, IEnumerable<MetadataReference> references)

@@ -99,6 +99,11 @@ internal partial class MethodConvert
             CheckDivideOverflow(model.GetTypeInfo(expression).Type);
         }
 
+        if (expression.OperatorToken.ValueText == "<<")
+        {
+            CheckShiftOverflow(model, expression);
+        }
+
         AddInstruction(opcode);
         if (checkResult)
         {
@@ -163,6 +168,55 @@ internal partial class MethodConvert
         Jump(OpCode.JMPNE_L, endTarget);
 
         AddInstruction(OpCode.THROW);
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
+    }
+
+    /// <summary>
+    /// Checks for left shift overflow in checked context.
+    /// Validates that the shift amount is non-negative and within the bit width of the left operand type.
+    /// </summary>
+    /// <param name="model">The semantic model.</param>
+    /// <param name="expression">The binary expression containing the shift operation.</param>
+    private void CheckShiftOverflow(SemanticModel model, BinaryExpressionSyntax expression)
+    {
+        // Only check overflow in checked context
+        if (!_checkedStack.Peek()) return;
+
+        var leftType = model.GetTypeInfo(expression.Left).Type;
+        if (leftType is null) return;
+
+        while (leftType.NullableAnnotation == NullableAnnotation.Annotated)
+        {
+            leftType = ((INamedTypeSymbol)leftType).TypeArguments.First();
+        }
+
+        // Determine the bit width based on the type
+        // Note: In NEO, BigInteger is Int256 (256-bit integer)
+        var maxShift = leftType.Name switch
+        {
+            "SByte" or "Byte" => 8,
+            "Int16" or "UInt16" or "Char" => 16,
+            "Int32" or "UInt32" => 32,
+            "Int64" or "UInt64" => 64,
+            "BigInteger" => 256, // In NEO, BigInteger is Int256
+            _ => 32 // Default to 32 for unknown types
+        };
+
+        var endTarget = new JumpTarget();
+        var checkUpperTarget = new JumpTarget();
+
+        // Check if shift amount is negative (top of stack is shift amount)
+        AddInstruction(OpCode.DUP);
+        Push(0);
+        Jump(OpCode.JMPGE_L, checkUpperTarget);
+        AddInstruction(OpCode.THROW);
+
+        // Check if shift amount exceeds type bit width
+        checkUpperTarget.Instruction = AddInstruction(OpCode.DUP);
+        Push(maxShift);
+        Jump(OpCode.JMPLT_L, endTarget);
+        AddInstruction(OpCode.THROW);
+
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 
