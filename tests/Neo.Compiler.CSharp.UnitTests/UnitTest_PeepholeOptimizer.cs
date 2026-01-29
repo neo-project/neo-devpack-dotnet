@@ -10,7 +10,8 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Optimizer;
+using Neo.Compiler;
+using NeoOptimizer = Neo.Optimizer.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -40,7 +41,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Optimize - should not throw
             try
             {
-                var (optimizedNef, _, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
                 // If we get here, the test passes
                 Assert.IsNotNull(optimizedNef);
             }
@@ -69,7 +70,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Optimize - should not throw
             try
             {
-                var (optimizedNef, _, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
                 Assert.IsNotNull(optimizedNef);
             }
             catch (Exception ex)
@@ -97,7 +98,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Optimize - should not throw
             try
             {
-                var (optimizedNef, _, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
                 Assert.IsNotNull(optimizedNef);
             }
             catch (Exception ex)
@@ -125,7 +126,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Optimize - should not throw
             try
             {
-                var (optimizedNef, _, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
                 Assert.IsNotNull(optimizedNef);
             }
             catch (Exception ex)
@@ -152,7 +153,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Optimize - should not throw
             try
             {
-                var (optimizedNef, _, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
                 Assert.IsNotNull(optimizedNef);
             }
             catch (Exception ex)
@@ -179,7 +180,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Optimize - should not throw
             try
             {
-                var (optimizedNef, _, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
                 Assert.IsNotNull(optimizedNef);
             }
             catch (Exception ex)
