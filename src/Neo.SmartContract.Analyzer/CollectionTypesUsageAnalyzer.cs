@@ -204,7 +204,7 @@ namespace Neo.SmartContract.Analyzer
                 "System.Collections.ObjectModel.Collection<T>",
                 "System.Collections.ObjectModel.ObservableCollection<T>",
                 "System.Collections.ObjectModel.ReadOnlyCollection<T>",
-                "System.Collections.Generic.ConcurrentBag<T>",
+                "System.Collections.Concurrent.ConcurrentBag<T>",
                 "System.Collections.Concurrent.ConcurrentQueue<T>",
                 "System.Collections.Concurrent.ConcurrentStack<T>",
                 "System.Collections.Immutable.ImmutableList<T>",

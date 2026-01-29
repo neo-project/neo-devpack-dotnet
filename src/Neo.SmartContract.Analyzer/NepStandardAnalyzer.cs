@@ -94,7 +94,7 @@ namespace Neo.SmartContract.Analyzer
 
         private static bool IsSupportedStandard(string value)
         {
-            return Enum.TryParse<NepStandard>(value, out _);
+            return Enum.TryParse<NepStandard>(value, ignoreCase: true, out _);
         }
 
         private string GetSuggestionMessage(NepStandard standard)
