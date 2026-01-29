@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace Neo.Compiler.SecurityAnalyzer
 {
-    public static class UpdateAnalzyer
+    public static class UpdateAnalyzer
     {
         /// <summary>
         /// This method checks whether it is possible to update the contract.
@@ -42,7 +42,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 {
                     uint tokenId = instruction.TokenU16;
                     MethodToken token = nef.Tokens[tokenId];
-                    if (token.Hash == NativeContract.ContractManagement.Hash && token.Method == "update" && ((token.CallFlags | CallFlags.WriteStates) != 0))
+                    if (token.Hash == NativeContract.ContractManagement.Hash && token.Method == "update" && ((token.CallFlags & CallFlags.WriteStates) != 0))
                         return true;
                 }
                 if (i + 2 >= instructions.Length)
@@ -50,7 +50,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 VM.Instruction instruction1 = instructions[i + 1].instruction;
                 VM.Instruction instruction2 = instructions[i + 2].instruction;
                 if (instruction.OpCode == OpCode.PUSHDATA1 && instruction.Operand.ToArray().SequenceEqual(update)
-                 && instruction1.OpCode == OpCode.PUSHDATA1 && instruction1.Operand.ToArray() == NativeContract.ContractManagement.Hash
+                 && instruction1.OpCode == OpCode.PUSHDATA1 && instruction1.Operand.Span.SequenceEqual(NativeContract.ContractManagement.Hash.GetSpan())
                  && instruction2.OpCode == OpCode.SYSCALL && instruction2.TokenU32 == ApplicationEngine.System_Contract_Call.Hash)
                     return true;
             }

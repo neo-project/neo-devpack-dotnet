@@ -233,12 +233,12 @@ namespace Neo.Compiler
                     break;
                 case OpCode.PUSHDATA2:
                     builder.Append($"[{Convert.ToHexString(Operand.AsSpan(2))}]");
-                    if (TryGetString(Operand.AsSpan(1), out s))
+                    if (TryGetString(Operand.AsSpan(2), out s))
                         builder.Append($" // {s}");
                     break;
                 case OpCode.PUSHDATA4:
                     builder.Append($"[{Convert.ToHexString(Operand.AsSpan(4))}]");
-                    if (TryGetString(Operand.AsSpan(1), out s))
+                    if (TryGetString(Operand.AsSpan(4), out s))
                         builder.Append($" // {s}");
                     break;
                 case OpCode.PUSHM1:

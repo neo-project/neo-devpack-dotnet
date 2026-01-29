@@ -21,7 +21,7 @@ using System.Text;
 
 namespace Neo.Compiler.SecurityAnalyzer
 {
-    public static class WriteInTryAnalzyer
+    public static class WriteInTryAnalyzer
     {
         public class WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
         {
@@ -72,7 +72,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     {
                         foreach (int writeAddr in writeAddrs)
                         {
-                            var sourceLocation = debugInfo.GetSourceLocation(writeAddr);
+                            var sourceLocation = GetSourceLocation(writeAddr, debugInfo);
                             if (sourceLocation != null)
                             {
                                 additional.AppendLine($"  At: {sourceLocation.FileName}:{sourceLocation.Line}:{sourceLocation.Column}");
@@ -184,6 +184,35 @@ namespace Neo.Compiler.SecurityAnalyzer
             foreach (TryCatchFinallySingleCoverage nestedTry in c.nestedTrysInTry.Union(c.nestedTrysInCatch).Union(c.nestedTrysInFinally).ToHashSet())
                 writesInTry = writesInTry.Concat(FindAllBasicBlocksWritingStorageInTryCatchFinally(nestedTry, visitedTrys, allBasicBlocksWritingStorage));
             return writesInTry.ToHashSet();
+        }
+
+        private static NeoDebugInfo.SourceLocation? GetSourceLocation(int instructionAddress, NeoDebugInfo debugInfo)
+        {
+            foreach (var method in debugInfo.Methods)
+            {
+                var sequencePoints = method.SequencePoints
+                    .Where(sp => sp.Address <= instructionAddress)
+                    .OrderByDescending(sp => sp.Address)
+                    .ToList();
+
+                if (sequencePoints.Count == 0)
+                    continue;
+
+                var sequencePoint = sequencePoints.First();
+
+                if (sequencePoint.Document < 0 || sequencePoint.Document >= debugInfo.Documents.Count)
+                    continue;
+
+                string document = debugInfo.Documents[sequencePoint.Document];
+                return new NeoDebugInfo.SourceLocation
+                {
+                    FileName = document,
+                    Line = sequencePoint.Start.Line,
+                    Column = sequencePoint.Start.Column,
+                    CodeSnippet = null // Could be populated if source code is available
+                };
+            }
+            return null;
         }
     }
 }
