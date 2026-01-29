@@ -124,8 +124,8 @@ namespace Neo.Optimizer
                     {
                         Instruction current = basicBlock[index];
                         Instruction next = basicBlock[index + 1];
-                        if (OpCodeTypes.pushInt.Contains(current.OpCode)
-                         && new System.Numerics.BigInteger(current.Operand.Span) == 1
+                        if ((OpCodeTypes.pushInt.Contains(current.OpCode)
+                         && new System.Numerics.BigInteger(current.Operand.Span) == 1)
                          || current.OpCode == OpCode.PUSH1)
                         {
                             if (next.OpCode == OpCode.ADD)
@@ -157,8 +157,8 @@ namespace Neo.Optimizer
                                 continue;
                             }
                         }
-                        if (OpCodeTypes.pushInt.Contains(current.OpCode)
-                        && new System.Numerics.BigInteger(current.Operand.Span) == 2
+                        if ((OpCodeTypes.pushInt.Contains(current.OpCode)
+                        && new System.Numerics.BigInteger(current.Operand.Span) == 2)
                         || current.OpCode == OpCode.PUSH2)
                         {
                             if (next.OpCode == OpCode.ADD)
@@ -244,8 +244,8 @@ namespace Neo.Optimizer
                     {
                         Instruction current = basicBlock[index];
                         Instruction next = basicBlock[index + 1];
-                        if (OpCodeTypes.pushInt.Contains(current.OpCode)
-                         && new System.Numerics.BigInteger(current.Operand.Span) == 0
+                        if ((OpCodeTypes.pushInt.Contains(current.OpCode)
+                         && new System.Numerics.BigInteger(current.Operand.Span) == 0)
                          || current.OpCode == OpCode.PUSH0)
                         {
                             if (next.OpCode == OpCode.NUMEQUAL)
