@@ -149,13 +149,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(compare);
 
             Assert.AreEqual(0, Contract.TestCompare("alpha", "alpha"));
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(2031570);
 
             Assert.IsTrue(Contract.TestCompare("alpha", "beta") < 0);
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(2031570);
 
             Assert.IsTrue(Contract.TestCompare("beta", "alpha") > 0);
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(2031570);
         }
 
         [TestMethod]

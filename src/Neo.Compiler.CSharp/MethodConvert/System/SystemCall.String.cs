@@ -573,8 +573,7 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Sub();
-        methodConvert.Sign();
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memoryCompare", 2, true);
     }
 
     private static void HandleBoolToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
