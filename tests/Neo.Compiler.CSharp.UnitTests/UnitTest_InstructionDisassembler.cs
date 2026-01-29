@@ -191,5 +191,35 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Verify first data byte is 0x02
             Assert.AreEqual(0x02, instruction.Operand.Span[0]);
         }
+
+        [TestMethod]
+        public void Test_PushData2_ToString_Uses_Correct_Offset()
+        {
+            var instruction = new Neo.Compiler.Instruction
+            {
+                OpCode = OpCode.PUSHDATA2,
+                Operand = new byte[] { 0x03, 0x00, 0x01, 0x02, 0x03 }
+            };
+
+            var builder = new StringBuilder();
+            instruction.ToString(builder);
+
+            Assert.IsTrue(builder.ToString().Contains("[010203]"));
+        }
+
+        [TestMethod]
+        public void Test_PushData4_ToString_Uses_Correct_Offset()
+        {
+            var instruction = new Neo.Compiler.Instruction
+            {
+                OpCode = OpCode.PUSHDATA4,
+                Operand = new byte[] { 0x03, 0x00, 0x00, 0x00, 0x01, 0x02, 0x03 }
+            };
+
+            var builder = new StringBuilder();
+            instruction.ToString(builder);
+
+            Assert.IsTrue(builder.ToString().Contains("[010203]"));
+        }
     }
 }
