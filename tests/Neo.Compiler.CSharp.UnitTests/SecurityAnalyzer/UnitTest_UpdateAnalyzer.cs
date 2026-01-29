@@ -15,6 +15,9 @@ using Neo.SmartContract;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -29,12 +32,11 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         [TestMethod]
         public void Test_UpdateAnalyzer_CallT_WithWriteStates()
         {
-            // Create a minimal script with just RET - the actual script doesn't matter for CALLT testing
-            // because we're testing the token analysis, not script parsing
-            using ScriptBuilder sb = new();
-            sb.Emit(OpCode.RET);
-
-            byte[] script = sb.ToArray();
+            byte[] script = new byte[]
+            {
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            };
 
             // Create a MethodToken for ContractManagement.update with WriteStates flag
             MethodToken[] tokens = new[]
@@ -52,13 +54,35 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             NefFile nef = CreateNefFile(script, tokens);
             var manifest = CreateManifest();
 
-            // Should detect update capability
             bool hasUpdate = UpdateAnalyzer.AnalyzeUpdate(nef, manifest);
-            Assert.IsFalse(hasUpdate, "Script has no CALLT, so update should not be detected from script alone");
+            Assert.IsTrue(hasUpdate, "CALLT with WriteStates should be detected");
+        }
 
-            // The key test is that when there IS a CALLT, the token's CallFlags are correctly checked
-            // The old bug was: (flags | WriteStates) != 0 which is always true
-            // The fix is: (flags & WriteStates) != 0 which correctly checks for the flag
+        [TestMethod]
+        public void Test_UpdateAnalyzer_CallT_WithoutWriteStates_NotDetected()
+        {
+            byte[] script = new byte[]
+            {
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            };
+
+            MethodToken[] tokens = new[]
+            {
+                new MethodToken
+                {
+                    Hash = NativeContract.ContractManagement.Hash,
+                    Method = "update",
+                    ParametersCount = 3,
+                    HasReturnValue = false,
+                    CallFlags = CallFlags.AllowCall
+                }
+            };
+
+            NefFile nef = CreateNefFile(script, tokens);
+            var manifest = CreateManifest();
+
+            Assert.IsFalse(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "CALLT without WriteStates should not be detected");
         }
 
         /// <summary>
@@ -127,6 +151,32 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.IsFalse(hasUpdate, "Should NOT detect update in simple RET script");
         }
 
+        [TestMethod]
+        public void Test_UpdateAnalyzer_SyscallPattern_Detected()
+        {
+            byte[] updateBytes = Encoding.UTF8.GetBytes("update");
+            byte[] hashBytes = NativeContract.ContractManagement.Hash.GetSpan().ToArray();
+            uint syscall = ApplicationEngine.System_Contract_Call.Hash;
+
+            var script = new List<byte>();
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)updateBytes.Length);
+            script.AddRange(updateBytes);
+
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)hashBytes.Length);
+            script.AddRange(hashBytes);
+
+            script.Add((byte)OpCode.SYSCALL);
+            script.AddRange(BitConverter.GetBytes(syscall));
+            script.Add((byte)OpCode.RET);
+
+            NefFile nef = CreateNefFile(script.ToArray(), Array.Empty<MethodToken>());
+            var manifest = CreateManifest();
+
+            Assert.IsTrue(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "Syscall pattern should be detected");
+        }
+
         private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)
         {
             return new NefFile
@@ -147,7 +197,17 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 SupportedStandards = Array.Empty<string>(),
                 Abi = new SmartContract.Manifest.ContractAbi
                 {
-                    Methods = Array.Empty<SmartContract.Manifest.ContractMethodDescriptor>(),
+                    Methods = new[]
+                    {
+                        new SmartContract.Manifest.ContractMethodDescriptor
+                        {
+                            Name = "main",
+                            Offset = 0,
+                            Parameters = Array.Empty<SmartContract.Manifest.ContractParameterDefinition>(),
+                            ReturnType = ContractParameterType.Void,
+                            Safe = false
+                        }
+                    },
                     Events = Array.Empty<SmartContract.Manifest.ContractEventDescriptor>()
                 },
                 Permissions = Array.Empty<SmartContract.Manifest.ContractPermission>(),
