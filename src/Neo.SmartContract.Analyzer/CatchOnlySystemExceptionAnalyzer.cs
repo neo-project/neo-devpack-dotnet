@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Composition;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Editing;
 
@@ -26,7 +27,7 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4027";
 
         private static readonly LocalizableString Title = "Catch System.Exception";
-        private static readonly LocalizableString MessageFormat = "Neo smart contract supports catching System.Exception only. The compiler will catch all exeptions even if you want to catch a limited class of exception.";
+        private static readonly LocalizableString MessageFormat = "Neo smart contract supports catching System.Exception only. The compiler will catch all exceptions even if you want to catch a limited class of exception.";
         private static readonly LocalizableString Description = "This analyzer enforces catching only System.Exception.";
         private const string Category = "Usage";
 
@@ -62,7 +63,7 @@ namespace Neo.SmartContract.Analyzer
         }
     }
 
-    [ExportCodeFixProvider(LanguageNames.CSharp)]
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CatchOnlySystemExceptionCodeFixProvider)), Shared]
     public class CatchOnlySystemExceptionCodeFixProvider : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>

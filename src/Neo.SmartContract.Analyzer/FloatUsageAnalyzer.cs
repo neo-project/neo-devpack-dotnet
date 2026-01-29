@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -52,7 +53,7 @@ namespace Neo.SmartContract.Analyzer
         {
             if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
             var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            if (variableDeclaration.GetDeclaredVariables().All(p => p.Type.SpecialType != SpecialType.System_Single)) return;
+            if (!variableDeclaration.GetDeclaredVariables().Any(p => p.Type.SpecialType == SpecialType.System_Single)) return;
 
             var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.ToString());
             context.ReportDiagnostic(diagnostic);
@@ -124,7 +125,7 @@ namespace Neo.SmartContract.Analyzer
                                  literalExpression.Kind() == SyntaxKind.NumericLiteralExpression)
                         {
                             // Convert float literal to int cast
-                            var literalValue = double.Parse(literalExpression.Token.ValueText);
+                            var literalValue = double.Parse(literalExpression.Token.ValueText, CultureInfo.InvariantCulture);
                             updatedExpression = SyntaxFactory.CastExpression(
                                 SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.IntKeyword)),
                                 SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(literalValue))

@@ -68,7 +68,7 @@ namespace Neo.SmartContract.Analyzer
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(SmartContractMethodNamingCodeFixProvider))]
     public class SmartContractMethodNamingCodeFixProviderUnderline : CodeFixProvider
     {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(SmartContractMethodNamingAnalyzer.DiagnosticId);
+        public sealed override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(SmartContractMethodNamingAnalyzerUnderline.DiagnosticId);
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -82,7 +82,8 @@ namespace Neo.SmartContract.Analyzer
             if (methodDecl == null) return;
 
             var methodName = methodDecl.Identifier.ValueText;
-            var newMethodName = Char.ToUpper(methodName[1]) + methodName.Substring(2);
+            if (methodName.Length < 2) return;
+            var newMethodName = Char.ToUpperInvariant(methodName[1]) + methodName.Substring(2);
 
             context.RegisterCodeFix(
                 CodeAction.Create(

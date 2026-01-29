@@ -75,11 +75,11 @@ namespace Neo.SmartContract.Analyzer
 
         private void AnalyzeMemberAccessExpression(SyntaxNodeAnalysisContext context, MemberAccessExpressionSyntax memberAccessExpression)
         {
-            if (context.SemanticModel.GetSymbolInfo(memberAccessExpression).Symbol is IPropertySymbol propertySymbol &&
-                propertySymbol.ContainingType?.ToString() == "System.Numerics.BigInteger" &&
-                _unsupportedBigIntegerMethods.Contains(propertySymbol.Name))
+            if (context.SemanticModel.GetSymbolInfo(memberAccessExpression).Symbol is IMethodSymbol methodSymbol &&
+                methodSymbol.ContainingType?.ToString() == "System.Numerics.BigInteger" &&
+                _unsupportedBigIntegerMethods.Contains(methodSymbol.Name))
             {
-                var diagnostic = Diagnostic.Create(Rule, memberAccessExpression.GetLocation(), propertySymbol.Name);
+                var diagnostic = Diagnostic.Create(Rule, memberAccessExpression.GetLocation(), methodSymbol.Name);
                 context.ReportDiagnostic(diagnostic);
             }
         }

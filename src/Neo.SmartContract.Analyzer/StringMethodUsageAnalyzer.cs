@@ -56,14 +56,39 @@ namespace Neo.SmartContract.Analyzer
         {
             if (context.Node is not InvocationExpressionSyntax invocationExpression) return;
 
-            // Check if the method belongs to String class or is an Object method listed in _unsupportedStringMethods
+            // Check if the method belongs to String class or is an Object method called on string
             if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol memberSymbol ||
-                (memberSymbol.ContainingType?.SpecialType != SpecialType.System_String &&
-                    memberSymbol.ContainingType?.SpecialType != SpecialType.System_Object) ||
-                !_unsupportedStringMethods.Contains(memberSymbol.Name)) return;
+                !_unsupportedStringMethods.Contains(memberSymbol.Name))
+                return;
+
+            var containingType = memberSymbol.ContainingType?.SpecialType;
+            if (containingType == SpecialType.System_String)
+            {
+                // Direct string method
+            }
+            else if (containingType == SpecialType.System_Object)
+            {
+                // Object method - only report if called on a string instance
+                var receiverType = GetReceiverType(context, invocationExpression);
+                if (receiverType?.SpecialType != SpecialType.System_String)
+                    return;
+            }
+            else
+            {
+                return;
+            }
 
             var diagnostic = Diagnostic.Create(Rule, invocationExpression.GetLocation(), memberSymbol.Name);
             context.ReportDiagnostic(diagnostic);
+        }
+
+        private static ITypeSymbol? GetReceiverType(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocationExpression)
+        {
+            if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccess)
+            {
+                return context.SemanticModel.GetTypeInfo(memberAccess.Expression).Type;
+            }
+            return null;
         }
     }
 }
