@@ -215,4 +215,23 @@ namespace Neo.Compiler.SecurityAnalyzer
             return null;
         }
     }
+
+    [Obsolete("Use WriteInTryAnalyzer instead.")]
+    public static class WriteInTryAnalzyer
+    {
+        [Obsolete("Use WriteInTryAnalyzer.WriteInTryVulnerability instead.")]
+        public sealed class WriteInTryVulnerability : WriteInTryAnalyzer.WriteInTryVulnerability
+        {
+            public WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
+                : base(vulnerabilities, debugInfo)
+            {
+            }
+        }
+
+        public static WriteInTryVulnerability AnalyzeWriteInTry(NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
+        {
+            var result = WriteInTryAnalyzer.AnalyzeWriteInTry(nef, manifest, debugInfo);
+            return new WriteInTryVulnerability(result.Vulnerabilities, result.DebugInfo);
+        }
+    }
 }

@@ -57,4 +57,11 @@ namespace Neo.Compiler.SecurityAnalyzer
             return false;
         }
     }
+
+    [Obsolete("Use UpdateAnalyzer instead.")]
+    public static class UpdateAnalzyer
+    {
+        public static bool AnalyzeUpdate(NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
+            => UpdateAnalyzer.AnalyzeUpdate(nef, manifest, debugInfo);
+    }
 }
