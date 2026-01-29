@@ -158,6 +158,124 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(2031570);
         }
 
+        /// <summary>
+        /// Tests lexicographic ordering that differs from numeric ordering.
+        /// These tests would fail with the old subtraction-based implementation
+        /// because "10" as a number is greater than "2", but lexicographically
+        /// "10" comes before "2" (since '1' < '2').
+        /// </summary>
+        [TestMethod]
+        public void Test_TestCompare_LexicographicVsNumeric()
+        {
+            // "10" vs "2": Lexicographically "10" < "2" ('1' = 0x31 < '2' = 0x32)
+            // But as little-endian numbers: "10" = 0x3031 = 12337, "2" = 0x32 = 50
+            // Old subtraction would give: 50 - 12337 = negative (WRONG - says "2" < "10")
+            // Correct result: negative ("10" < "2")
+            Assert.IsTrue(Contract.TestCompare("10", "2") < 0,
+                "Lexicographically '10' should come before '2' because '1' < '2'");
+            AssertGasConsumed(2031570);
+
+            // Reverse: "2" > "10"
+            Assert.IsTrue(Contract.TestCompare("2", "10") > 0,
+                "Lexicographically '2' should come after '10'");
+            AssertGasConsumed(2031570);
+
+            // More numeric vs lexicographic differences
+            Assert.IsTrue(Contract.TestCompare("100", "99") < 0,
+                "Lexicographically '100' < '99' because '1' < '9'");
+            AssertGasConsumed(2031570);
+
+            Assert.IsTrue(Contract.TestCompare("20", "3") < 0,
+                "Lexicographically '20' < '3' because '2' < '3'");
+            AssertGasConsumed(2031570);
+        }
+
+        /// <summary>
+        /// Tests comparison of strings with same prefix but different lengths.
+        /// Shorter string is lexicographically smaller.
+        /// </summary>
+        [TestMethod]
+        public void Test_TestCompare_PrefixAndLength()
+        {
+            // Same prefix, different lengths
+            Assert.AreEqual(0, Contract.TestCompare("abc", "abc"));
+            AssertGasConsumed(2031570);
+
+            // Shorter string is smaller
+            Assert.IsTrue(Contract.TestCompare("abc", "abcd") < 0,
+                "'abc' should be less than 'abcd' (shorter string with same prefix)");
+            AssertGasConsumed(2031570);
+
+            Assert.IsTrue(Contract.TestCompare("abcd", "abc") > 0,
+                "'abcd' should be greater than 'abc'");
+            AssertGasConsumed(2031570);
+
+            // Empty string is smallest
+            Assert.IsTrue(Contract.TestCompare("", "a") < 0,
+                "Empty string should be less than any non-empty string");
+            AssertGasConsumed(2031570);
+
+            Assert.IsTrue(Contract.TestCompare("a", "") > 0,
+                "Non-empty string should be greater than empty string");
+            AssertGasConsumed(2031570);
+
+            Assert.AreEqual(0, Contract.TestCompare("", ""));
+            AssertGasConsumed(2031570);
+        }
+
+        /// <summary>
+        /// Tests case-sensitive comparison.
+        /// ASCII: 'A' = 0x41 (65), 'a' = 0x61 (97)
+        /// </summary>
+        [TestMethod]
+        public void Test_TestCompare_CaseSensitivity()
+        {
+            // Uppercase letters come before lowercase in ASCII
+            Assert.IsTrue(Contract.TestCompare("A", "a") < 0,
+                "'A' (0x41) should be less than 'a' (0x61)");
+            AssertGasConsumed(2031570);
+
+            Assert.IsTrue(Contract.TestCompare("a", "A") > 0,
+                "'a' should be greater than 'A'");
+            AssertGasConsumed(2031570);
+
+            Assert.IsTrue(Contract.TestCompare("Apple", "apple") < 0,
+                "'Apple' should be less than 'apple' (case-sensitive)");
+            AssertGasConsumed(2031570);
+
+            Assert.IsTrue(Contract.TestCompare("Z", "a") < 0,
+                "'Z' (0x5A) should be less than 'a' (0x61)");
+            AssertGasConsumed(2031570);
+        }
+
+        /// <summary>
+        /// Tests comparison at the byte level (non-ASCII characters).
+        /// </summary>
+        [TestMethod]
+        public void Test_TestCompare_ByteLevelOrdering()
+        {
+            // Control characters vs printable ASCII
+            // '\n' = 0x0A (10), 'A' = 0x41 (65)
+            Assert.IsTrue(Contract.TestCompare("\n", "A") < 0,
+                "Control characters should be less than printable ASCII");
+            AssertGasConsumed(2031570);
+
+            // Space (0x20) vs '0' (0x30)
+            Assert.IsTrue(Contract.TestCompare(" ", "0") < 0,
+                "Space should be less than '0'");
+            AssertGasConsumed(2031570);
+
+            // Digits (0x30-0x39) vs uppercase (0x41-0x5A)
+            Assert.IsTrue(Contract.TestCompare("9", "A") < 0,
+                "Digits should be less than uppercase letters");
+            AssertGasConsumed(2031570);
+
+            // '9' (0x39) vs ':' (0x3A)
+            Assert.IsTrue(Contract.TestCompare("9", ":") < 0,
+                "'9' should be less than ':'");
+            AssertGasConsumed(2031570);
+        }
+
         [TestMethod]
         public void Test_TestIndexOf()
         {
