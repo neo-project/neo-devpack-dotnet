@@ -190,6 +190,9 @@ namespace Neo.Compiler.SecurityAnalyzer
         {
             foreach (var method in debugInfo.Methods)
             {
+                if (instructionAddress < method.Range.Start || instructionAddress > method.Range.End)
+                    continue;
+
                 var sequencePoints = method.SequencePoints
                     .Where(sp => sp.Address <= instructionAddress)
                     .OrderByDescending(sp => sp.Address)
