@@ -21,7 +21,7 @@ using System.Text;
 
 namespace Neo.Compiler.SecurityAnalyzer
 {
-    public static class WriteInTryAnalzyer
+    public static class WriteInTryAnalyzer
     {
         public class WriteInTryVulnerability(Dictionary<BasicBlock, HashSet<int>> vulnerabilities, JToken? debugInfo = null)
         {

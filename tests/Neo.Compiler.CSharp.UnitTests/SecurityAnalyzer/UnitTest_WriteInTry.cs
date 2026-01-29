@@ -27,8 +27,8 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
             Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 22);
 
-            WriteInTryAnalzyer.WriteInTryVulnerability v =
-                WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest);
+            WriteInTryAnalyzer.WriteInTryVulnerability v =
+                WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest);
             Assert.AreEqual(v.Vulnerabilities.Count, 0);
             v.GetWarningInfo(print: false);
         }
@@ -44,8 +44,8 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             TryCatchFinallyCoverage tryCatchFinallyCoverage = new(contractInBasicBlocks);
             Assert.AreEqual(tryCatchFinallyCoverage.allTry.Count, 14);
 
-            WriteInTryAnalzyer.WriteInTryVulnerability v =
-                WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest);
+            WriteInTryAnalyzer.WriteInTryVulnerability v =
+                WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest);
             // because most try throws or aborts in catch, or has no catch, or throws or aborts in finally
             Assert.AreEqual(v.Vulnerabilities.Count, 2);
             v.GetWarningInfo(print: false);
@@ -55,8 +55,8 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         public void Test_WriteInTryWithEnhancedDiagnostics()
         {
             // Test enhanced diagnostic messages without debug info (fallback behavior)
-            WriteInTryAnalzyer.WriteInTryVulnerability v =
-                WriteInTryAnalzyer.AnalyzeWriteInTry(NefFile, Manifest, null);
+            WriteInTryAnalyzer.WriteInTryVulnerability v =
+                WriteInTryAnalyzer.AnalyzeWriteInTry(NefFile, Manifest, null);
             Assert.AreEqual(v.Vulnerabilities.Count, 2);
 
             // Test that warning message contains enhanced diagnostic information
