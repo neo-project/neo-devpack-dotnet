@@ -33,14 +33,18 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
+        [Obsolete("ByteString enumeration is not supported in Neo smart contracts. Convert to byte[] first: foreach (var b in (byte[])byteString)", error: true)]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         IEnumerator<byte> IEnumerable<byte>.GetEnumerator()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ByteString enumeration is not supported in Neo smart contracts. Convert to byte[] first.");
         }
 
+        [Obsolete("ByteString enumeration is not supported in Neo smart contracts. Convert to byte[] first: foreach (var b in (byte[])byteString)", error: true)]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException("ByteString enumeration is not supported in Neo smart contracts. Convert to byte[] first.");
         }
 
         [OpCode(OpCode.NOP)]
