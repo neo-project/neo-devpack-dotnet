@@ -30,7 +30,7 @@ namespace Transfer;
 [ContractPermission(Permission.Any, Method.Any)]
 public class TransferContract : SmartContract
 {
-    private static readonly UInt160 Owner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+    private static readonly UInt160 Owner = Neo.SmartContract.Framework.UInt160.Parse("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP");
 
     /// <summary>
     /// Transfer method that demonstrate how to transfer NEO and GAS
