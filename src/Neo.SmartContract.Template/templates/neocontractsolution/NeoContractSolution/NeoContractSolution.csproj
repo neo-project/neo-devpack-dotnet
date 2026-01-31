@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo.SmartContract.Framework" Version="TemplateNeoVersion" />
+    <PackageReference Include="Neo.SmartContract.Analyzer" Version="TemplateNeoVersion">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <BaseNameArgument Condition="'$(AssemblyName)' != ''">--base-name $(AssemblyName)</BaseNameArgument>
+    <BaseNameArgument Condition="'$(AssemblyName)' == ''">--base-name $(MSBuildProjectName)</BaseNameArgument>
+    <NullableArgument Condition="'$(Nullable)' != ''">--nullable $(Nullable)</NullableArgument>
+    <CheckedArgument Condition="'$(CheckForOverflowUnderflow)' == 'true'">--checked</CheckedArgument>
+    <DebugArgument Condition="'$(Configuration)' == 'Debug'">-d</DebugArgument>
+    <DebugArgument Condition="'$(Configuration)' != 'Debug'"></DebugArgument>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Message Text="Start NeoContract converter, Source File: &quot;$(ProjectPath)&quot;" Importance="high">
+    </Message>
+    <Exec Command="nccs $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
+  </Target>
+
+</Project>
