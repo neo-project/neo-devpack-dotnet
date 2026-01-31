@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace MyAwesomeContract.UnitTests
+namespace NeoContractSolution.UnitTests
 {
     /// <summary>
     /// Unit tests for the smart contract.

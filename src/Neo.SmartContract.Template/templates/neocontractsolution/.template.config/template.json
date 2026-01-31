@@ -17,6 +17,22 @@
     { "path": "NeoContractSolution.UnitTests/NeoContractSolution.UnitTests.csproj" }
   ],
   "symbols": {
+    "ContractProjectGuid": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "CONTRACTPROJECT-GUID",
+      "parameters": {
+        "defaultFormat": "D"
+      }
+    },
+    "TestProjectGuid": {
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "TESTPROJECT-GUID",
+      "parameters": {
+        "defaultFormat": "D"
+      }
+    },
     "NeoVersion": {
       "type": "parameter",
       "datatype": "choice",
