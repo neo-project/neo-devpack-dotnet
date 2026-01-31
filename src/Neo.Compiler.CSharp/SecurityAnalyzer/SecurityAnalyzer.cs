@@ -23,6 +23,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest, debugInfo).GetWarningInfo(print: true);
             WriteInTryAnalyzer.AnalyzeWriteInTry(nef, manifest, debugInfo).GetWarningInfo(print: true);
             CheckWitnessAnalyzer.AnalyzeCheckWitness(nef, manifest, debugInfo).GetWarningInfo(print: true);
+            SymbolicExecutionAnalyzer.Analyze(nef, manifest, debugInfo).GetWarningInfo(print: true);
             MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(nef, manifest, debugInfo).GetWarningInfo(print: true);
             UnboundedOperationAnalyzer.AnalyzeUnboundedOperations(nef, manifest, debugInfo).GetWarningInfo(print: true);
             if (!UpdateAnalyzer.AnalyzeUpdate(nef, manifest, debugInfo))
