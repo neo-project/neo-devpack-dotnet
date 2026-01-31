@@ -569,12 +569,59 @@ internal partial class MethodConvert
         methodConvert.Equal();
     }
 
+    /// <summary>
+    /// Handles string.Compare(strA, strB) using StdLib.MemoryCompare with null handling.
+    /// </summary>
+    /// <remarks>
+    /// Behavior:
+    /// - null == null =&gt; 0
+    /// - null &lt; non-null =&gt; -1
+    /// - non-null &gt; null =&gt; 1
+    /// - otherwise uses StdLib.MemoryCompare for ordinal byte comparison
+    /// </remarks>
     private static void HandleStringCompare(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
-        methodConvert.Sub();
-        methodConvert.Sign();
+
+        byte leftSlot = methodConvert.AddAnonymousVariable();
+        byte rightSlot = methodConvert.AddAnonymousVariable();
+
+        methodConvert.AccessSlot(OpCode.STLOC, leftSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, rightSlot);
+
+        JumpTarget leftNotNullTarget = new();
+        JumpTarget rightNotNullWhenLeftNullTarget = new();
+        JumpTarget bothNotNullTarget = new();
+        JumpTarget endTarget = new();
+
+        methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
+        methodConvert.Isnull();
+        methodConvert.JumpIfFalse(leftNotNullTarget);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
+        methodConvert.Isnull();
+        methodConvert.JumpIfFalse(rightNotNullWhenLeftNullTarget);
+        methodConvert.Push(0);
+        methodConvert.JumpAlways(endTarget);
+
+        rightNotNullWhenLeftNullTarget.Instruction = methodConvert.Nop();
+        methodConvert.Push(-1);
+        methodConvert.JumpAlways(endTarget);
+
+        leftNotNullTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
+        methodConvert.Isnull();
+        methodConvert.JumpIfFalse(bothNotNullTarget);
+        methodConvert.Push(1);
+        methodConvert.JumpAlways(endTarget);
+
+        bothNotNullTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
+        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memoryCompare", 2, true);
+
+        endTarget.Instruction = methodConvert.Nop();
     }
 
     private static void HandleBoolToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
