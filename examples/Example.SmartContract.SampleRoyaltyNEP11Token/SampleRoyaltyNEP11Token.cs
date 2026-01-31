@@ -34,7 +34,7 @@ namespace NonDivisibleNEP11
 
         private const byte PrefixOwner = 0xff;
 
-        private static readonly UInt160 InitialOwner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+        private static readonly UInt160 InitialOwner = Neo.SmartContract.Framework.UInt160.Parse("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP");
 
         [Safe]
         public static UInt160 GetOwner()
@@ -71,7 +71,7 @@ namespace NonDivisibleNEP11
 
         private const byte PrefixCounter = 0xee;
 
-        private static readonly UInt160 InitialMinter = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+        private static readonly UInt160 InitialMinter = Neo.SmartContract.Framework.UInt160.Parse("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP");
 
         [Safe]
         public static UInt160 GetMinter()
@@ -140,7 +140,7 @@ namespace NonDivisibleNEP11
         #region Royalty
         private const byte PrefixRoyalty = 0xfb;
 
-        private static readonly UInt160 InitialRecipient = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+        private static readonly UInt160 InitialRecipient = Neo.SmartContract.Framework.UInt160.Parse("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP");
         private static readonly BigInteger InitialFactor = 700;
 
         public static void SetRoyaltyInfo(ByteString tokenId, Map<string, object>[] royaltyInfos)

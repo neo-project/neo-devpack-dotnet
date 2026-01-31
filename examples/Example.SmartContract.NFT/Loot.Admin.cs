@@ -31,7 +31,7 @@ namespace NFT
     /// </summary>
     public partial class Loot
     {
-        private static readonly UInt160 Owner = "NaA5nQieb5YGg5nSFjhJMVEXQCQ5HdukwP";
+        private static readonly UInt160 Owner = Neo.SmartContract.Framework.UInt160.Parse("NaA5nQieb5YGg5nSFjhJMVEXQCQ5HdukwP");
 
         /// <summary>
         /// Security requirement:

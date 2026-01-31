@@ -33,7 +33,7 @@ namespace NEP17
 
         private const byte PrefixOwner = 0xff;
 
-        private static readonly UInt160 InitialOwner = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+        private static readonly UInt160 InitialOwner = Neo.SmartContract.Framework.UInt160.Parse("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP");
 
         [Safe]
         public static UInt160 GetOwner()
@@ -70,7 +70,7 @@ namespace NEP17
 
         private const byte PrefixMinter = 0xfd;
 
-        private static readonly UInt160 InitialMinter = "NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP";
+        private static readonly UInt160 InitialMinter = Neo.SmartContract.Framework.UInt160.Parse("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP");
 
         [Safe]
         public static UInt160 GetMinter()
