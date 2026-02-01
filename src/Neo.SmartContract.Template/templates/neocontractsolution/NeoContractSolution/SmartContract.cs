@@ -30,7 +30,6 @@ namespace NeoContractSolution
 
         public delegate void OnSetOwnerDelegate(UInt160 previousOwner, UInt160 newOwner);
 
-        [DisplayName("SetOwner")]
         public static event OnSetOwnerDelegate OnSetOwner;
 
         public static void SetOwner(UInt160 newOwner)
