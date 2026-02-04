@@ -12,10 +12,10 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM.Types;
 using System.Linq;
 using System.Numerics;
-using Neo.SmartContract.Testing.Exceptions;
 using Array = Neo.VM.Types.Array;
 
 namespace Neo.Compiler.CSharp.UnitTests
