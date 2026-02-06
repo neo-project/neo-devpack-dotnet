@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// StorageMap.cs file belongs to the neo project and is free
+// LocalStorageMap.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -20,11 +20,10 @@ using System.Runtime.InteropServices;
 namespace Neo.SmartContract.Framework.Services
 {
     /// <summary>
-    /// Provides methods for interacting with the storage with specified context and prefix.
+    /// Provides methods for interacting with the storage with local context and prefix.
     /// </summary>
-    public class StorageMap
+    public class LocalStorageMap
     {
-        private readonly StorageContext context;
         private readonly byte[] prefix;
 
         /// <summary>
@@ -33,27 +32,24 @@ namespace Neo.SmartContract.Framework.Services
         /// For setting, the execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         public extern ByteString? this[ByteString key]
         {
             [CallingConvention(CallingConvention.Cdecl)] // key|this
-            [OpCode(OpCode.UNPACK)]                      // key|prefix|context|size
-            [OpCode(OpCode.DROP)]                        // key|prefix|context
-            [OpCode(OpCode.REVERSE3)]                    // context|prefix|key
-            [OpCode(OpCode.CAT)]                         // context|fullkey
-            [OpCode(OpCode.SWAP)]                        // fullkey|context
-            [Syscall("System.Storage.Get")]
+            [OpCode(OpCode.UNPACK)]                      // key|prefix|size
+            [OpCode(OpCode.DROP)]                        // key|prefix
+            [OpCode(OpCode.SWAP)]                        // prefix|key
+            [OpCode(OpCode.CAT)]                         // fullkey
+            [Syscall("System.Storage.Local.Get")]
             get;
 
             [CallingConvention(CallingConvention.Cdecl)] // value|key|this
-            [OpCode(OpCode.UNPACK)]                      // value|key|prefix|context|size
-            [OpCode(OpCode.DROP)]                        // value|key|prefix|context
-            [OpCode(OpCode.REVERSE3)]                    // value|context|prefix|key
-            [OpCode(OpCode.CAT)]                         // value|context|fullkey
-            [OpCode(OpCode.SWAP)]                        // value|fullkey|context
-            [Syscall("System.Storage.Put")]
+            [OpCode(OpCode.UNPACK)]                      // value|key|prefix|size
+            [OpCode(OpCode.DROP)]                        // value|key|prefix
+            [OpCode(OpCode.SWAP)]                        // value|prefix|key
+            [OpCode(OpCode.CAT)]                         // value|fullkey
+            [Syscall("System.Storage.Local.Put")]
             set;
         }
 
@@ -63,7 +59,6 @@ namespace Neo.SmartContract.Framework.Services
         /// For setting, the execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         public extern ByteString? this[byte[] key]
@@ -71,63 +66,27 @@ namespace Neo.SmartContract.Framework.Services
             [CallingConvention(CallingConvention.Cdecl)]
             [OpCode(OpCode.UNPACK)]
             [OpCode(OpCode.DROP)]
-            [OpCode(OpCode.REVERSE3)]
-            [OpCode(OpCode.CAT)]
             [OpCode(OpCode.SWAP)]
-            [Syscall("System.Storage.Get")]
+            [OpCode(OpCode.CAT)]
+            [Syscall("System.Storage.Local.Get")]
             get;
 
             [CallingConvention(CallingConvention.Cdecl)]
             [OpCode(OpCode.UNPACK)]
             [OpCode(OpCode.DROP)]
-            [OpCode(OpCode.REVERSE3)]
-            [OpCode(OpCode.CAT)]
             [OpCode(OpCode.SWAP)]
-            [Syscall("System.Storage.Put")]
+            [OpCode(OpCode.CAT)]
+            [Syscall("System.Storage.Local.Put")]
             set;
         }
 
-        [Syscall("System.Storage.GetContext")]
-        [OpCode(OpCode.PUSH2)]
+        [OpCode(OpCode.PUSH1)]
         [OpCode(OpCode.PACK)]
-        public extern StorageMap(byte[] prefix);
-
-        [Syscall("System.Storage.GetContext")]
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PACK)]
-        public extern StorageMap(ByteString prefix);
+        public extern LocalStorageMap(byte[] prefix);
 
         [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.NEWBUFFER)]
-        [OpCode(OpCode.TUCK)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.SETITEM)]
-        [Syscall("System.Storage.GetContext")]
-        [OpCode(OpCode.PUSH2)]
         [OpCode(OpCode.PACK)]
-        public extern StorageMap(byte prefix);
-
-        [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PACK)]
-        public extern StorageMap(StorageContext context, byte[] prefix);
-
-        [CallingConvention(CallingConvention.Cdecl)]
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PACK)]
-        public extern StorageMap(StorageContext context, ByteString prefix);
-
-        [OpCode(OpCode.PUSH1)]
-        [OpCode(OpCode.NEWBUFFER)]
-        [OpCode(OpCode.TUCK)]
-        [OpCode(OpCode.PUSH0)]
-        [OpCode(OpCode.ROT)]
-        [OpCode(OpCode.SETITEM)]
-        [OpCode(OpCode.SWAP)]
-        [OpCode(OpCode.PUSH2)]
-        [OpCode(OpCode.PACK)]
-        public extern StorageMap(StorageContext context, byte prefix);
+        public extern LocalStorageMap(ByteString prefix);
 
         /// <summary>
         /// Gets the value associated with the specified key, null if the key is not found.
@@ -135,10 +94,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern ByteString? Get(ByteString key);
 
         /// <summary>
@@ -147,10 +105,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern UInt160 GetUInt160(ByteString key);
 
         /// <summary>
@@ -159,10 +116,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern UInt256 GetUInt256(ByteString key);
 
         /// <summary>
@@ -171,10 +127,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern ECPoint GetECPoint(ByteString key);
 
         /// <summary>
@@ -183,10 +138,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public extern byte[] GetByteArray(ByteString key);
 
@@ -196,10 +150,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern ByteString GetString(ByteString key);
 
         /// <summary>
@@ -208,10 +161,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
         public extern BigInteger GetInteger(ByteString key);
 
@@ -221,10 +173,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.NOT)]
         [OpCode(OpCode.NOT)]
         public extern bool GetBoolean(ByteString key);
@@ -235,10 +186,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
         [OpCode(OpCode.JMPIFNOT, "0x06")]
@@ -254,10 +204,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern ByteString? Get(byte[] key);
 
         /// <summary>
@@ -266,10 +215,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern UInt160 GetUInt160(byte[] key);
 
         /// <summary>
@@ -278,10 +226,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern UInt256 GetUInt256(byte[] key);
 
         /// <summary>
@@ -290,10 +237,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern ECPoint GetECPoint(byte[] key);
 
         /// <summary>
@@ -302,10 +248,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public extern byte[] GetByteArray(byte[] key);
 
@@ -315,10 +260,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         public extern ByteString GetString(byte[] key);
 
         /// <summary>
@@ -327,10 +271,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.CONVERT, StackItemType.Integer)]
         public extern BigInteger GetInteger(byte[] key);
 
@@ -340,10 +283,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.NOT)]
         [OpCode(OpCode.NOT)]
         public extern bool GetBoolean(byte[] key);
@@ -354,10 +296,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Get")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Get")]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
         [OpCode(OpCode.JMPIFNOT, "0x06")]
@@ -471,7 +412,7 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [Syscall("System.Storage.Find")]
+        [Syscall("System.Storage.Local.Find")]
         public extern Iterator Find(FindOptions options = FindOptions.None);
 
         /// <summary>
@@ -483,10 +424,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Find")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Find")]
         public extern Iterator Find(ByteString prefix, FindOptions options = FindOptions.None);
 
         /// <summary>
@@ -498,10 +438,9 @@ namespace Neo.SmartContract.Framework.Services
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Find")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Find")]
         public extern Iterator Find(byte[] prefix, FindOptions options = FindOptions.None);
 
         /// <summary>
@@ -510,16 +449,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(ByteString key, ByteString value);
 
         /// <summary>
@@ -528,16 +465,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(byte[] key, ByteString value);
 
         /// <summary>
@@ -546,16 +481,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(ByteString key, BigInteger value);
 
         /// <summary>
@@ -564,16 +497,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(byte[] key, BigInteger value);
 
         /// <summary>
@@ -582,16 +513,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(ByteString key, bool value);
 
         /// <summary>
@@ -600,16 +529,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(byte[] key, bool value);
 
         /// <summary>
@@ -618,16 +545,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(ByteString key, byte[] value);
 
         /// <summary>
@@ -636,16 +561,14 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Put")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Put")]
         public extern void Put(byte[] key, byte[] value);
 
         /// <summary>
@@ -654,7 +577,6 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         public void PutObject(ByteString key, object value)
@@ -668,7 +590,6 @@ namespace Neo.SmartContract.Framework.Services
         /// The execution will fail if:
         ///  1. The key is null or key.Length > MaxStorageKeySize(the default value is 64).
         ///  2. The value is null or value.Length > MaxStorageValueSize(the default value is 65535).
-        ///  3. The context is read-only.
         /// </para>
         /// </summary>
         public void PutObject(byte[] key, object value)
@@ -678,32 +599,24 @@ namespace Neo.SmartContract.Framework.Services
 
         /// <summary>
         /// Deletes the entry from the storage map.
-        /// <para>
-        /// The execution will fail if the context is read-only.
-        /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Delete")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Delete")]
         public extern void Delete(ByteString key);
 
         /// <summary>
         /// Deletes the entry from the storage map.
-        /// <para>
-        /// The execution will fail if the context is read-only.
-        /// </para>
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
         [OpCode(OpCode.DROP)]
-        [OpCode(OpCode.REVERSE3)]
-        [OpCode(OpCode.CAT)]
         [OpCode(OpCode.SWAP)]
-        [Syscall("System.Storage.Delete")]
+        [OpCode(OpCode.CAT)]
+        [Syscall("System.Storage.Local.Delete")]
         public extern void Delete(byte[] key);
     }
 }

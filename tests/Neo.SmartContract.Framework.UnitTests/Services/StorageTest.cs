@@ -32,7 +32,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         private void EnsureChanges(byte[] prefix, byte[] key, byte[] value, int count)
         {
             var concat = prefix.Concat(key).ToArray();
-
             Assert.AreEqual(count, Engine.Storage.Snapshot.GetChangeSet()
                 .Count(a =>
                     a.Key.Key.Span.SequenceEqual(concat) &&
@@ -42,7 +41,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         private void EnsureChanges(byte[] prefix, byte[] key, int count)
         {
             var concat = prefix.Concat(key).ToArray();
-
             Assert.AreEqual(count, Engine.Storage.Snapshot.GetChangeSet()
                 .Count(a => a.Key.Key.Span.SequenceEqual(concat)));
         }
@@ -55,18 +53,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
             // Put
-
             Assert.IsTrue(Contract.TestPutByte(key, value));
             EnsureChanges(prefix, key, value, 1);
 
             // Get
-
             var getVal = Contract.TestGetByte(key);
             CollectionAssert.AreEqual(value, getVal);
             EnsureChanges(prefix, key, value, 1);
 
             // Delete
-
             Contract.TestDeleteByte(key);
             EnsureChanges(prefix, key, 0);
         }
@@ -78,7 +73,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var key = new byte[] { 0x01, 0x02, 0x03 };
 
             // Put
-
             Assert.AreEqual(Contract.TestIncrease(key), 1);
             EnsureChanges(prefix, key, BigInteger.One.ToByteArray(), 1);
 
@@ -86,7 +80,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             EnsureChanges(prefix, key, BigInteger.Two.ToByteArray(), 1);
 
             // Decrease
-
             Assert.AreEqual(Contract.TestDecrease(key), 1);
             EnsureChanges(prefix, key, BigInteger.One.ToByteArray(), 1);
 
@@ -102,18 +95,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
             // Put
-
             Assert.IsTrue(Contract.TestPutByteArray(key, value));
             EnsureChanges(prefix, key, value, 1);
 
             // Get
-
             var getVal = Contract.TestGetByteArray(key);
             CollectionAssert.AreEqual(value, getVal);
             EnsureChanges(prefix, key, value, 1);
 
             // Delete
-
             Contract.TestDeleteByteArray(key);
             EnsureChanges(prefix, key, 0);
         }
@@ -125,7 +115,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
                 0x3b, 0x00, 0x32, 0x03, 0x23, 0x23, 0x23, 0x23, 0x02, 0x23,
                 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23, 0x02, 0x23, 0x23,
                 0x02, 0x23, 0x23, 0x02
-                }, Contract.TestOver16Bytes());
+            }, Contract.TestOver16Bytes());
         }
 
         [TestMethod]
@@ -136,18 +126,15 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
             // Put
-
             Assert.IsTrue(Contract.TestPutString(key, value));
             EnsureChanges(prefix, key, value, 1);
 
             // Get
-
             var getVal = Contract.TestGetString(key);
             CollectionAssert.AreEqual(value, getVal);
             EnsureChanges(prefix, key, value, 1);
 
             // Delete
-
             Contract.TestDeleteString(key);
             EnsureChanges(prefix, key, 0);
         }
@@ -159,7 +146,6 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             var value = new byte[] { 0x04, 0x05, 0x06 };
 
             // Put
-
             var exception = Assert.ThrowsException<TestException>(() => Contract.TestPutReadOnly(key, value));
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
         }
@@ -190,6 +176,108 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_NewGetByteArray()
         {
             CollectionAssert.AreEqual(new byte[] { 0x00, 0x01 }, Contract.TestNewGetByteArray());
+        }
+
+        [TestMethod]
+        public void Test_LocalString()
+        {
+            var prefix = new byte[] { 0xAA };
+            var key = new byte[] { 0x11 };
+            var value = new byte[] { 0x22 };
+
+            Assert.IsTrue(Contract.PutLocalString(key, value));
+            var got = Contract.GetLocalString(key);
+            CollectionAssert.AreEqual(value, got);
+
+            Contract.DeleteLocalString(key);
+            got = Contract.GetLocalString(key);
+            Assert.IsNull(got);
+
+            value = new byte[] { 0x33, 0x44, 0x55 };
+            Assert.IsTrue(Contract.PutLocalString(key, value));
+            got = Contract.GetLocalString(key);
+            CollectionAssert.AreEqual(value, got);
+
+            Contract.DeleteLocalString(key);
+            got = Contract.GetLocalString(key);
+            Assert.IsNull(got);
+        }
+
+        [TestMethod]
+        public void Test_LocalByteArray()
+        {
+            var prefix = new byte[] { 0xBB };
+            var key = new byte[] { 0x11 };
+            var value = new byte[] { 0x22 };
+            Assert.IsTrue(Contract.PutLocalByteArray(key, value));
+            var got = Contract.GetLocalByteArray(key);
+            CollectionAssert.AreEqual(value, got);
+
+            Contract.DeleteLocalByteArray(key);
+            got = Contract.GetLocalByteArray(key);
+            Assert.IsNull(got);
+
+            value = new byte[] { 0x33, 0x44, 0x55 };
+            Assert.IsTrue(Contract.PutLocalByteArray(key, value));
+            got = Contract.GetLocalByteArray(key);
+            CollectionAssert.AreEqual(value, got);
+
+            Contract.DeleteLocalByteArray(key);
+            got = Contract.GetLocalByteArray(key);
+            Assert.IsNull(got);
+        }
+
+        [TestMethod]
+        public void Test_LocalFind()
+        {
+            var got = Contract.LocalFind();
+            CollectionAssert.AreEqual(new byte[] { 0x01 }, got);
+        }
+
+        [TestMethod]
+        public void Test_LocalIndex()
+        {
+            var key = new byte[] { 0x01 };
+            var value = new byte[] { 0x02 };
+            Contract.LocalIndexPut(key, value);
+
+            var got = Contract.LocalIndexGet(key);
+            CollectionAssert.AreEqual(value, got);
+        }
+
+        [TestMethod]
+        public void Test_LocalGetPut()
+        {
+            Assert.IsTrue(Contract.LocalGetPut());
+
+            var key = new byte[] { 0x22 };
+            Assert.AreEqual(123, Contract.LocalGetPutObject(key, 123));
+        }
+
+        [TestMethod]
+        public void Test_LocalIncDec()
+        {
+            var key = new byte[] { 0x33 };
+            var value = Contract.LocalIntegerOrZero(key);
+            Assert.AreEqual(0, value);
+
+            value = Contract.LocalIncrease(key);
+            Assert.AreEqual(1, value);
+
+            value = Contract.LocalDecrease(key);
+            Assert.AreEqual(0, value);
+
+            value = Contract.LocalIncrease(key);
+            Assert.AreEqual(1, value);
+
+            value = Contract.LocalIncrease(key);
+            Assert.AreEqual(2, value);
+
+            value = Contract.LocalDecrease(key);
+            Assert.AreEqual(1, value);
+
+            value = Contract.LocalDecrease(key);
+            Assert.AreEqual(0, value);
         }
     }
 }
