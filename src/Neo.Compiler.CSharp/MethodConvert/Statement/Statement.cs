@@ -151,9 +151,9 @@ namespace Neo.Compiler
                 case LocalDeclarationStatementSyntax syntax:
                     ConvertLocalDeclarationStatement(model, syntax);
                     break;
-                // Currently, local function statements are not supported in this context.
-                case LocalFunctionStatementSyntax:
-                    break;
+                // Local function statements are currently unsupported and must fail explicitly.
+                case LocalFunctionStatementSyntax syntax:
+                    throw CompilationException.UnsupportedSyntax(syntax, "Local functions are not supported. Move the function to a class-level method.");
                 // Converts a return statement, used to exit a method and optionally return a value.
                 // Example: return x + y;
                 case ReturnStatementSyntax syntax:
