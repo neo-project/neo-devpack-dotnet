@@ -29,7 +29,6 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
   - Exception filters (`exception_filter`)
 
 - **C# 7 Syntax Checklist**  
-  - Pattern matching with `is` (`pattern_matching_is`)
   - Local functions (`local_function`)
   - Ref returns (`ref_return`)
   - `ref` argument targeting array element (`ref_argument_array_element`)
