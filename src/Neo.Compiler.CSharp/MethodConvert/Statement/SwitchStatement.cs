@@ -76,6 +76,8 @@ namespace Neo.Compiler
                 ConvertExpression(model, syntax.Expression);
                 AccessSlot(OpCode.STLOC, anonymousIndex);
             }
+            JumpTarget? defaultTarget = null;
+            DefaultSwitchLabelSyntax? defaultLabel = null;
             foreach (var (label, target) in labels)
             {
                 switch (label)
@@ -105,17 +107,27 @@ namespace Neo.Compiler
                         }
                         break;
                     case DefaultSwitchLabelSyntax defaultSwitchLabel:
-                        using (InsertSequencePoint(defaultSwitchLabel))
-                        {
-                            Jump(OpCode.JMP_L, target);
-                        }
+                        if (defaultTarget is not null)
+                            throw CompilationException.UnsupportedSyntax(defaultSwitchLabel, "Switch statement contains multiple default labels.");
+                        defaultTarget = target;
+                        defaultLabel = defaultSwitchLabel;
                         break;
                     default:
                         throw CompilationException.UnsupportedSyntax(label, $"Unsupported switch label type '{label.GetType().Name}'. Use 'case value:' or 'default:' labels.");
                 }
             }
             RemoveAnonymousVariable(anonymousIndex);
-            Jump(OpCode.JMP_L, breakTarget);
+            if (defaultTarget is null)
+            {
+                Jump(OpCode.JMP_L, breakTarget);
+            }
+            else
+            {
+                using (InsertSequencePoint(defaultLabel!))
+                {
+                    Jump(OpCode.JMP_L, defaultTarget);
+                }
+            }
             foreach (var (_, statements, target) in sections)
             {
                 target.Instruction = AddInstruction(OpCode.NOP);
