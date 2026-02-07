@@ -14,6 +14,9 @@ using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Provides methods for interacting with the storage
+    /// </summary>
     public static class Storage
     {
         /// <summary>

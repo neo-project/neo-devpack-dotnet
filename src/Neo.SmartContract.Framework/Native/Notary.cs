@@ -103,19 +103,5 @@ namespace Neo.SmartContract.Framework.Native
         /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern uint GetMaxNotValidBeforeDelta();
-
-        /// <summary>
-        /// SetMaxNotValidBeforeDelta is Notary contract method and sets the maximum NotValidBefore delta.
-        /// Only the committee can call this method.
-        /// Available since HF_Echidna.
-        /// CallFlags requirement: CallFlags.States.
-        /// <para>
-        /// The execution will fail if:
-        ///  1. the 'value' is greater than MaxValidUntilBlockIncrement / 2;
-        ///  2. the 'value' is less than the number of validators;
-        ///  3. Not the committee.
-        /// </para>
-        /// </summary>
-        public static extern void SetMaxNotValidBeforeDelta(uint value);
     }
 }
