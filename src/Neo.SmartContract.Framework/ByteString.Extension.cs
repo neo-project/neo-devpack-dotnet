@@ -170,11 +170,12 @@ public static class ByteStringExtension
     }
 
     /// <summary>
-    /// Returns the character count of the ByteString(not byte count).
+    /// Returns the text element count of the ByteString(not byte count).
+    /// For example, "🦆" = 1 text element, "Hello" = 5 text elements.
     /// </summary>
-    /// <param name="byteString">ByteString to get the character count of. It cannot be null.</param>
-    /// <returns>The character count of the ByteString.</returns>
-    public static int CharacterCount(this ByteString byteString)
+    /// <param name="byteString">ByteString to get the text element count of. It cannot be null.</param>
+    /// <returns>The text element count of the ByteString.</returns>
+    public static int TextElementCount(this ByteString byteString)
     {
         return StdLib.StrLen(byteString);
     }

@@ -13,7 +13,7 @@ public abstract class Contract_ByteString(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteString"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""literal00ToFF"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""literalWithOtherChar"",""parameters"":[],""returntype"":""ByteArray"",""offset"":260,""safe"":false},{""name"":""characterCount"",""parameters"":[{""name"":""value"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":274,""safe"":false},{""name"":""startsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":289,""safe"":false},{""name"":""endsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":308,""safe"":false},{""name"":""contains"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":395,""safe"":false},{""name"":""indexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":414,""safe"":false},{""name"":""lastIndexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":431,""safe"":false},{""name"":""split"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""separator"",""type"":""ByteArray""},{""name"":""removeEmptyEntries"",""type"":""Boolean""}],""returntype"":""Array"",""offset"":451,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""memorySearch"",""stringSplit"",""strLen""]}],""trusts"":[],""extra"":{""Version"":""3.9.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_ByteString"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""literal00ToFF"",""parameters"":[],""returntype"":""ByteArray"",""offset"":0,""safe"":false},{""name"":""literalWithOtherChar"",""parameters"":[],""returntype"":""ByteArray"",""offset"":260,""safe"":false},{""name"":""textElementCount"",""parameters"":[{""name"":""value"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":274,""safe"":false},{""name"":""startsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":289,""safe"":false},{""name"":""endsWith"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":308,""safe"":false},{""name"":""contains"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Boolean"",""offset"":395,""safe"":false},{""name"":""indexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":414,""safe"":false},{""name"":""lastIndexOf"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""toFind"",""type"":""ByteArray""}],""returntype"":""Integer"",""offset"":431,""safe"":false},{""name"":""split"",""parameters"":[{""name"":""value"",""type"":""ByteArray""},{""name"":""separator"",""type"":""ByteArray""},{""name"":""removeEmptyEntries"",""type"":""Boolean""}],""returntype"":""Array"",""offset"":451,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""memorySearch"",""stringSplit"",""strLen""]}],""trusts"":[],""extra"":{""Version"":""3.9.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
@@ -23,19 +23,6 @@ public abstract class Contract_ByteString(Neo.SmartContract.Testing.SmartContrac
     #endregion
 
     #region Unsafe methods
-
-    /// <summary>
-    /// Unsafe method
-    /// </summary>
-    /// <remarks>
-    /// Script: VwABeDQDQA==
-    /// INITSLOT 0001 [64 datoshi]
-    /// LDARG0 [2 datoshi]
-    /// CALL 03 [512 datoshi]
-    /// RET [0 datoshi]
-    /// </remarks>
-    [DisplayName("characterCount")]
-    public abstract BigInteger? CharacterCount(byte[]? value);
 
     /// <summary>
     /// Unsafe method
@@ -143,6 +130,19 @@ public abstract class Contract_ByteString(Neo.SmartContract.Testing.SmartContrac
     /// </remarks>
     [DisplayName("startsWith")]
     public abstract bool? StartsWith(byte[]? value, byte[]? toFind);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwABeDQDQA==
+    /// INITSLOT 0001 [64 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// CALL 03 [512 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("textElementCount")]
+    public abstract BigInteger? TextElementCount(byte[]? value);
 
     #endregion
 }

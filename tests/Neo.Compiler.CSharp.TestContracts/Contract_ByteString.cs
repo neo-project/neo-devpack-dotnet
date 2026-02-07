@@ -19,9 +19,9 @@ namespace Neo.Compiler.CSharp.TestContracts
 
         public static ByteString LiteralWithOtherChar() => "你好\x00\x80\xff";
 
-        public static int CharacterCount(ByteString value)
+        public static int TextElementCount(ByteString value)
         {
-            return value.CharacterCount();
+            return value.TextElementCount();
         }
 
         public static bool StartsWith(ByteString value, ByteString toFind)

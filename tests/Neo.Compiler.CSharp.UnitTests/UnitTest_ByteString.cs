@@ -106,16 +106,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_CharacterCount()
+        public void Test_TextElementCount()
         {
             var value = Encoding.UTF8.GetBytes("Hello, World!");
-            Assert.AreEqual(Contract.CharacterCount(value), 13);
+            Assert.AreEqual(Contract.TextElementCount(value), 13);
 
             value = Encoding.UTF8.GetBytes("你好");
-            Assert.AreEqual(Contract.CharacterCount(value), 2);
+            Assert.AreEqual(Contract.TextElementCount(value), 2);
 
             value = Encoding.UTF8.GetBytes("🦆");
-            Assert.AreEqual(Contract.CharacterCount(value), 1);
+            Assert.AreEqual(Contract.TextElementCount(value), 1);
+
+            value = Encoding.UTF8.GetBytes("👩🏻‍❤️‍👨🏻");
+            Assert.AreEqual(Contract.TextElementCount(value), 1);
         }
     }
 }
