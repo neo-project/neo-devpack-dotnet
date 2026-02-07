@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.VM.Types;
 using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -35,6 +36,89 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LiteralWithOtherChar()
         {
             CollectionAssert.AreEqual(Contract.LiteralWithOtherChar(), Encoding.UTF8.GetBytes(LiteralWithOtherChar()));
+        }
+
+        [TestMethod]
+        public void Test_Contains()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello, World!");
+            Assert.IsTrue(Contract.Contains(value, Encoding.UTF8.GetBytes("Hello")));
+            Assert.IsFalse(Contract.Contains(value, Encoding.UTF8.GetBytes("Hello, World!?")));
+        }
+
+        [TestMethod]
+        public void Test_Split()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello,World!");
+            var result = Contract.Split(value, Encoding.UTF8.GetBytes(","), false);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Count, 2);
+            Assert.AreEqual(result[0], new ByteString(Encoding.UTF8.GetBytes("Hello")));
+            Assert.AreEqual(result[1], new ByteString(Encoding.UTF8.GetBytes("World!")));
+        }
+
+        [TestMethod]
+        public void Test_SplitRemoveEmpty()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello,,World!");
+            var result = Contract.Split(value, Encoding.UTF8.GetBytes(","), true);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(result.Count, 2);
+            Assert.AreEqual(result[0], new ByteString(Encoding.UTF8.GetBytes("Hello")));
+            Assert.AreEqual(result[1], new ByteString(Encoding.UTF8.GetBytes("World!")));
+        }
+
+        [TestMethod]
+        public void Test_IndexOf()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello,World!");
+            Assert.AreEqual(Contract.IndexOf(value, Encoding.UTF8.GetBytes("Hello")), 0);
+            Assert.AreEqual(Contract.IndexOf(value, Encoding.UTF8.GetBytes("World!")), 6);
+            Assert.AreEqual(Contract.IndexOf(value, Encoding.UTF8.GetBytes("World!?")), -1);
+        }
+
+        [TestMethod]
+        public void Test_LastIndexOf()
+        {
+            var value = Encoding.UTF8.GetBytes("01234567890");
+            Assert.AreEqual(Contract.LastIndexOf(value, Encoding.UTF8.GetBytes("0")), 10);
+            Assert.AreEqual(Contract.LastIndexOf(value, Encoding.UTF8.GetBytes("9")), 9);
+            Assert.AreEqual(Contract.LastIndexOf(value, Encoding.UTF8.GetBytes("5")), 5);
+            Assert.AreEqual(Contract.LastIndexOf(value, Encoding.UTF8.GetBytes("N")), -1);
+        }
+
+        [TestMethod]
+        public void Test_StartsWith()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello,World!");
+            Assert.IsTrue(Contract.StartsWith(value, Encoding.UTF8.GetBytes("Hello")));
+            Assert.IsFalse(Contract.StartsWith(value, Encoding.UTF8.GetBytes("World!")));
+            Assert.IsTrue(Contract.StartsWith(value, Encoding.UTF8.GetBytes("")));
+        }
+
+        [TestMethod]
+        public void Test_EndsWith()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello,World!");
+            Assert.IsTrue(Contract.EndsWith(value, Encoding.UTF8.GetBytes("World!")));
+            Assert.IsFalse(Contract.EndsWith(value, Encoding.UTF8.GetBytes("Hello")));
+            Assert.IsTrue(Contract.EndsWith(value, Encoding.UTF8.GetBytes("")));
+        }
+
+        [TestMethod]
+        public void Test_TextElementCount()
+        {
+            var value = Encoding.UTF8.GetBytes("Hello, World!");
+            Assert.AreEqual(Contract.TextElementCount(value), 13);
+
+            value = Encoding.UTF8.GetBytes("你好");
+            Assert.AreEqual(Contract.TextElementCount(value), 2);
+
+            value = Encoding.UTF8.GetBytes("🦆");
+            Assert.AreEqual(Contract.TextElementCount(value), 1);
+
+            value = Encoding.UTF8.GetBytes("👩🏻‍❤️‍👨🏻");
+            Assert.AreEqual(Contract.TextElementCount(value), 1);
         }
     }
 }

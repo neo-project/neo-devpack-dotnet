@@ -95,5 +95,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         {
             return StdLib.StringSplit(str, separator, removeEmptyEntries);
         }
+
+        public static ByteString[] byteStringSplit(ByteString str, ByteString separator, bool removeEmptyEntries = false)
+        {
+            return StdLib.StringSplit(str, separator, removeEmptyEntries);
+        }
     }
 }

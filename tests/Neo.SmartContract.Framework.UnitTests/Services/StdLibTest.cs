@@ -95,6 +95,17 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         }
 
         [TestMethod]
+        public void ByteStringSplitTest()
+        {
+            var abc = Encoding.UTF8.GetBytes("a,b,c");
+            var ac = Encoding.UTF8.GetBytes("a,,c");
+            var separator = Encoding.UTF8.GetBytes(",");
+            CollectionAssert.AreEqual(new ByteString[] { "a", "b", "c" }, Contract.ByteStringSplit(abc, separator, false)!.ToArray());
+            CollectionAssert.AreEqual(new ByteString[] { "a", "", "c" }, Contract.ByteStringSplit(ac, separator, false)!.ToArray());
+            CollectionAssert.AreEqual(new ByteString[] { "a", "c" }, Contract.ByteStringSplit(ac, separator, true)!.ToArray());
+        }
+
+        [TestMethod]
         public void MemorySearchTest()
         {
             Assert.AreEqual(0, Contract.MemorySearch1(Encoding.UTF8.GetBytes("abc"), Encoding.UTF8.GetBytes("a")));
