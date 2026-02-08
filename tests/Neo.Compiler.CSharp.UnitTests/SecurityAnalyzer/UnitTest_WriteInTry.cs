@@ -10,10 +10,15 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Json;
 using Neo.Optimizer;
+using Neo.SmartContract;
 using Neo.SmartContract.Testing;
+using Neo.VM;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -71,6 +76,48 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 
             // Message should be more detailed than just addresses
             Assert.IsTrue(warningInfo.Length > 150, "Enhanced diagnostic message should be more detailed than simple address listing");
+        }
+
+        [TestMethod]
+        public void Test_WriteInTry_SourceLocation_Respects_Method_Range()
+        {
+            string json = $@"{{
+  ""hash"": ""{UInt160.Zero}"",
+  ""document-root"": """",
+  ""documents"": [""a.cs"", ""b.cs""],
+  ""methods"": [
+    {{
+      ""id"": ""0"",
+      ""name"": ""Test,MethodA"",
+      ""range"": ""0-5"",
+      ""params"": [],
+      ""sequence-points"": [""0[0]1:1-1:2""]
+    }},
+    {{
+      ""id"": ""1"",
+      ""name"": ""Test,MethodB"",
+      ""range"": ""10-20"",
+      ""params"": [],
+      ""sequence-points"": [""10[1]2:1-2:2""]
+    }}
+  ]
+}}";
+
+            var debugInfo = (JObject)JToken.Parse(json)!;
+
+            using ScriptBuilder sb = new();
+            sb.EmitSysCall(ApplicationEngine.System_Storage_Put);
+            var instruction = ((Script)sb.ToArray()).EnumerateInstructions().First().instruction;
+            var block = new BasicBlock(10, new List<Neo.VM.Instruction> { instruction });
+            var vulnerabilities = new Dictionary<BasicBlock, HashSet<int>>
+            {
+                [block] = new HashSet<int> { 10 }
+            };
+
+            var vuln = new WriteInTryAnalyzer.WriteInTryVulnerability(vulnerabilities, debugInfo);
+            string warningInfo = vuln.GetWarningInfo(print: false);
+
+            Assert.IsTrue(warningInfo.Contains("At: b.cs:2:1"), "Expected mapping to b.cs based on method range");
         }
     }
 }
