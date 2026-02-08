@@ -37,16 +37,6 @@ namespace Neo.SmartContract.Framework.Native
         public static extern uint GetExecFeeFactor();
 
         /// <summary>
-        /// Get the execution fee factor in picoGAS, 1 picoGAS = 1e-12 GAS.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.ReadStates.
-        /// </summary>
-        public static BigInteger GetExecPicoFeeFactor()
-        {
-            return (BigInteger)GetExecFeeFactor() * 10000;
-        }
-
-        /// <summary>
         /// Get the storage price for per storage byte in the unit of datoshi, 1 datoshi = 1e-8 GAS.
         /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>

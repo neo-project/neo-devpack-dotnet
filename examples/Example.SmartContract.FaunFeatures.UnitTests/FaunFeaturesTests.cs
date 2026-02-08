@@ -28,10 +28,7 @@ namespace Example.SmartContract.FaunFeatures.UnitTests
         public void TestExecFeeFactors()
         {
             var execFeeFactor = Contract.ExecFeeFactor ?? BigInteger.Zero;
-            var execPicoFeeFactor = Contract.ExecPicoFeeFactor ?? BigInteger.Zero;
-
             Assert.IsTrue(execFeeFactor > 0);
-            Assert.IsTrue(execPicoFeeFactor > BigInteger.Zero);
         }
     }
 }
