@@ -43,12 +43,6 @@ public class SampleFaunFeatures : SmartContract
     }
 
     [Safe]
-    public static BigInteger ExecPicoFeeFactor()
-    {
-        return Policy.GetExecPicoFeeFactor();
-    }
-
-    [Safe]
     public static bool IsCommitteeSigned()
     {
         return Treasury.Verify();
