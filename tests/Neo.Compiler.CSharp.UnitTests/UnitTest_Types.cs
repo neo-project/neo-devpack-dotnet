@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Extensions;
+using Neo.Extensions.IO;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Testing;

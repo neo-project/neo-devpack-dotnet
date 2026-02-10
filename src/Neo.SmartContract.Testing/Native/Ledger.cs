@@ -48,7 +48,7 @@ public abstract class Ledger(SmartContractInitialize initialize) : SmartContract
     /// Safe helper method
     /// </summary>
     public Models.Block? GetBlock(UInt256 hash)
-        => GetBlock(hash.ToArray());
+        => GetBlock(hash.GetSpan().ToArray());
 
     /// <summary>
     /// Safe helper method
@@ -66,7 +66,7 @@ public abstract class Ledger(SmartContractInitialize initialize) : SmartContract
     /// Safe helper method
     /// </summary>
     public Models.Transaction? GetTransactionFromBlock(UInt256 blockHash, int txIndex)
-        => GetTransactionFromBlock(blockHash.ToArray(), txIndex);
+        => GetTransactionFromBlock(blockHash.GetSpan().ToArray(), txIndex);
 
     #endregion
 

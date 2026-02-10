@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
+using Neo.Extensions.IO;
 using Neo.SmartContract.Native;
 using Neo.VM;
 using Neo.VM.Types;

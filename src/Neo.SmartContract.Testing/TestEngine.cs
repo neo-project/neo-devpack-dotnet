@@ -12,6 +12,8 @@
 using Moq;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
+using Neo.Extensions.IO;
+using Neo.IO;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence.Providers;
 using Neo.SmartContract.Manifest;
@@ -126,7 +128,8 @@ namespace Neo.SmartContract.Testing
                     return validatorsScript.ToScriptHash();
                 }
 
-                var validators = NativeContract.NEO.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
+                var governance = Neo.SmartContract.Native.NativeContract.Contracts.OfType<Neo.SmartContract.Native.Governance>().First();
+                var validators = governance.ComputeNextBlockValidators(Storage.Snapshot, ProtocolSettings);
                 return Contract.GetBFTAddress(validators);
             }
         }
@@ -146,7 +149,8 @@ namespace Neo.SmartContract.Testing
                     return committeeScript.ToScriptHash();
                 }
 
-                return NativeContract.NEO.GetCommitteeAddress(Storage.Snapshot);
+                var governance = Neo.SmartContract.Native.NativeContract.Contracts.OfType<Neo.SmartContract.Native.Governance>().First();
+                return governance.GetCommitteeAddress(Storage.Snapshot);
             }
         }
 
@@ -417,7 +421,7 @@ namespace Neo.SmartContract.Testing
             // Deploy
 
             //UInt160 expectedHash = GetDeployHash(nef, manifest);
-            var state = Native.ContractManagement.Deploy(nef.ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data)
+            var state = Native.ContractManagement.Deploy(((Neo.IO.ISerializable)nef).ToArray(), Encoding.UTF8.GetBytes(manifest.ToJson().ToString(false)), data)
                 ?? throw new Exception("Can't get the ContractState");
 
             // Mock contract
