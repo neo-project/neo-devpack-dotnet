@@ -50,7 +50,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 VM.Instruction instruction1 = instructions[i + 1].instruction;
                 VM.Instruction instruction2 = instructions[i + 2].instruction;
                 if (instruction.OpCode == OpCode.PUSHDATA1 && instruction.Operand.ToArray().SequenceEqual(update)
-                 && instruction1.OpCode == OpCode.PUSHDATA1 && instruction1.Operand.ToArray() == NativeContract.ContractManagement.Hash
+                 && instruction1.OpCode == OpCode.PUSHDATA1 && new UInt160(instruction1.Operand.ToArray()) == NativeContract.ContractManagement.Hash
                  && instruction2.OpCode == OpCode.SYSCALL && instruction2.TokenU32 == ApplicationEngine.System_Contract_Call.Hash)
                     return true;
             }
