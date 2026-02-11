@@ -18,79 +18,99 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-
   Test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-    - name: Checkout
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Check format
-      run: |
-        dotnet format --no-restore --verify-no-changes --verbosity diagnostic
-    - name: Build Neo.Compiler.CSharp
-      run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-    - name: Build Neo.SmartContract.Template and test templates
-      run: |
-        dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug
-        dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
-        dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/nep17/ --force
-        dotnet new neocontractowner -n Ownable -o ./src/Neo.SmartContract.Template/bin/Debug/ownable/ --force
-        dotnet new neocontractoracle -n OracleRequest -o ./src/Neo.SmartContract.Template/bin/Debug/oracle/ --force
-        dotnet new uninstall Neo.SmartContract.Template
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
-        dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
-    - name: Build Solution
-      run: dotnet build ./neo-devpack-dotnet.sln
-    - name: Add package coverlet.msbuild
-      run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
-    - name: Test Neo.Compiler.CSharp.UnitTests
-      run: |
-        dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
-        ${{ env.DOTNET_TEST_PARAMETERS }} \
-        ${{ env.COVERLET_OUTPUT }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
-    - name: Test Neo.SmartContract.Framework.UnitTests
-      run: |
-        dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
-        ${{ env.DOTNET_TEST_PARAMETERS }} \
-        ${{ env.COVERLET_OUTPUT }} \
-        ${{ env.COVERLET_MERGE_WITH }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
-    - name: Test Neo.SmartContract.Testing.UnitTests
-      run: |
-        dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
-        ${{ env.DOTNET_TEST_PARAMETERS }} \
-        ${{ env.COVERLET_OUTPUT }} \
-        ${{ env.COVERLET_MERGE_WITH }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
-    - name: Test Neo.SmartContract.Template.UnitTests
-      run: |
-        dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
-        ${{ env.DOTNET_TEST_PARAMETERS }} \
-        ${{ env.COVERLET_MERGE_WITH }} \
-        ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
-        /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
-        /p:CoverletOutputFormat=lcov
-    - name: Coveralls
-      uses: coverallsapp/github-action@v2.3.6
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        format: lcov
-        file: ${{ github.workspace }}/coverage/lcov.info
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Check format
+        run: |
+          dotnet format --no-restore --verify-no-changes --verbosity diagnostic
+      - name: Build Neo.Compiler.CSharp
+        run: dotnet build ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
+      - name: Build Neo.SmartContract.Template and test templates
+        run: |
+          dotnet pack ./src/Neo.SmartContract.Template/Neo.SmartContract.Template.csproj --configuration Debug
+          dotnet new install ./src/Neo.SmartContract.Template/bin/Debug/Neo.SmartContract.Template.*.nupkg
+          dotnet new neocontractnep17 -n Nep17Contract -o ./src/Neo.SmartContract.Template/bin/Debug/nep17/ --force
+          dotnet new neocontractowner -n Ownable -o ./src/Neo.SmartContract.Template/bin/Debug/ownable/ --force
+          dotnet new neocontractoracle -n OracleRequest -o ./src/Neo.SmartContract.Template/bin/Debug/oracle/ --force
+          dotnet new uninstall Neo.SmartContract.Template
+          dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj package Neo.SmartContract.Framework
+          dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+          dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj package Neo.SmartContract.Framework
+          dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+          dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj package Neo.SmartContract.Framework
+          dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+          dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
+          dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
+          dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
+      - name: Build Solution
+        run: dotnet build ./neo-devpack-dotnet.sln
+      - name: Add package coverlet.msbuild
+        run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+      - name: Test Neo.Compiler.CSharp.UnitTests
+        run: |
+          dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
+          ${{ env.DOTNET_TEST_PARAMETERS }} \
+          ${{ env.COVERLET_OUTPUT }} \
+          ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+      - name: Test Neo.SmartContract.Framework.UnitTests
+        run: |
+          dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
+          ${{ env.DOTNET_TEST_PARAMETERS }} \
+          ${{ env.COVERLET_OUTPUT }} \
+          ${{ env.COVERLET_MERGE_WITH }} \
+          ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+      - name: Test Neo.SmartContract.Testing.UnitTests
+        run: |
+          dotnet test ./tests/Neo.SmartContract.Testing.UnitTests \
+          ${{ env.DOTNET_TEST_PARAMETERS }} \
+          ${{ env.COVERLET_OUTPUT }} \
+          ${{ env.COVERLET_MERGE_WITH }} \
+          ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+      - name: Test Neo.SmartContract.Template.UnitTests
+        run: |
+          dotnet test ./tests/Neo.SmartContract.Template.UnitTests \
+          ${{ env.DOTNET_TEST_PARAMETERS }} \
+          ${{ env.COVERLET_MERGE_WITH }} \
+          ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+          /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
+          /p:CoverletOutputFormat=lcov
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2.3.6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          format: lcov
+          file: ${{ github.workspace }}/coverage/lcov.info
+
+  SecurityScan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        run: dotnet build ./neo-devpack-dotnet.sln
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'
@@ -98,103 +118,103 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-    - name: Checkout
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-    
-    - name: Check if GitHub release already exists
-      id: check_release
-      run: |
-        VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
-        echo "Version: $VERSION"
-        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/v${VERSION} || echo "404")
-        if [[ "$STATUS_CODE" == "200" ]]; then
-          echo "GitHub release v${VERSION} already exists, skipping GitHub Packages publish"
-          echo "exists=true" >> $GITHUB_OUTPUT
-        else
-          echo "GitHub release v${VERSION} does not exist, will publish to GitHub Packages"
-          echo "exists=false" >> $GITHUB_OUTPUT
-        fi
-    
-    - name: Setup .NET Core
-      if: steps.check_release.outputs.exists != 'true'
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
-    - name: Set Version (dev-pack)
-      if: steps.check_release.outputs.exists != 'true'
-      run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
+      - name: Check if GitHub release already exists
+        id: check_release
+        run: |
+          VERSION=$(sed -n 's/.*<VersionPrefix>\(.*\)<\/VersionPrefix>.*/\1/p' ./src/Directory.Build.props | head -1)
+          echo "Version: $VERSION"
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/v${VERSION} || echo "404")
+          if [[ "$STATUS_CODE" == "200" ]]; then
+            echo "GitHub release v${VERSION} already exists, skipping GitHub Packages publish"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "GitHub release v${VERSION} does not exist, will publish to GitHub Packages"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
-    # Build and publish packages in dependency order (only if GitHub release doesn't exist)
-    - name: Pack Neo.SmartContract.Framework
-      if: steps.check_release.outputs.exists != 'true'
-      run: |
-        dotnet pack ./src/Neo.SmartContract.Framework \
-        --configuration Debug \
-        --output ./out \
-        --version-suffix ${{ env.VERSION_SUFFIX }}
-        
-    - name: Pack Neo.SmartContract.Analyzer
-      if: steps.check_release.outputs.exists != 'true'
-      run: |
-        dotnet pack ./src/Neo.SmartContract.Analyzer \
-        --configuration Debug \
-        --output ./out \
-        --version-suffix ${{ env.VERSION_SUFFIX }}
-        
-    - name: Pack Neo.Disassembler.CSharp
-      if: steps.check_release.outputs.exists != 'true'
-      run: |
-        dotnet pack ./src/Neo.Disassembler.CSharp \
-        --configuration Debug \
-        --output ./out \
-        --version-suffix ${{ env.VERSION_SUFFIX }}
-        
-    - name: Pack Neo.SmartContract.Testing
-      if: steps.check_release.outputs.exists != 'true'
-      run: |
-        dotnet pack ./src/Neo.SmartContract.Testing \
-        --configuration Debug \
-        --output ./out \
-        --version-suffix ${{ env.VERSION_SUFFIX }}
-           
-    - name: Pack Neo.Compiler.CSharp
-      if: steps.check_release.outputs.exists != 'true'
-      run: |
-        dotnet pack ./src/Neo.Compiler.CSharp \
-        --configuration Debug \
-        --output ./out \
-        --version-suffix ${{ env.VERSION_SUFFIX }}
-        
-    - name: Pack Neo.SmartContract.Template
-      if: steps.check_release.outputs.exists != 'true'
-      run: |
-        dotnet pack ./src/Neo.SmartContract.Template \
-        --configuration Debug \
-        --output ./out \
-        --version-suffix ${{ env.VERSION_SUFFIX }}
-        
-    - name: Publish to Github Packages
-      if: steps.check_release.outputs.exists != 'true'
-      working-directory: ./out
-      run: |
-        dotnet nuget push * \
-            --source https://nuget.pkg.github.com/neo-project/index.json \
-            --api-key "${{ secrets.GITHUB_TOKEN }}" \
-            --disable-buffering \
-            --no-service-endpoint;
-    - name: Publish to myGet
-      if: steps.check_release.outputs.exists != 'true'
-      working-directory: ./out
-      continue-on-error: true  # MyGet has package size limits, don't block release
-      run: |
-        dotnet nuget push * \
-            --source https://www.myget.org/F/neo/api/v3/index.json \
-            --api-key "${{ secrets.MYGET_TOKEN }}" \
-            --disable-buffering \
-            --no-service-endpoint;
+      - name: Setup .NET Core
+        if: steps.check_release.outputs.exists != 'true'
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set Version (dev-pack)
+        if: steps.check_release.outputs.exists != 'true'
+        run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
+
+      # Build and publish packages in dependency order (only if GitHub release doesn't exist)
+      - name: Pack Neo.SmartContract.Framework
+        if: steps.check_release.outputs.exists != 'true'
+        run: |
+          dotnet pack ./src/Neo.SmartContract.Framework \
+          --configuration Debug \
+          --output ./out \
+          --version-suffix ${{ env.VERSION_SUFFIX }}
+
+      - name: Pack Neo.SmartContract.Analyzer
+        if: steps.check_release.outputs.exists != 'true'
+        run: |
+          dotnet pack ./src/Neo.SmartContract.Analyzer \
+          --configuration Debug \
+          --output ./out \
+          --version-suffix ${{ env.VERSION_SUFFIX }}
+
+      - name: Pack Neo.Disassembler.CSharp
+        if: steps.check_release.outputs.exists != 'true'
+        run: |
+          dotnet pack ./src/Neo.Disassembler.CSharp \
+          --configuration Debug \
+          --output ./out \
+          --version-suffix ${{ env.VERSION_SUFFIX }}
+
+      - name: Pack Neo.SmartContract.Testing
+        if: steps.check_release.outputs.exists != 'true'
+        run: |
+          dotnet pack ./src/Neo.SmartContract.Testing \
+          --configuration Debug \
+          --output ./out \
+          --version-suffix ${{ env.VERSION_SUFFIX }}
+
+      - name: Pack Neo.Compiler.CSharp
+        if: steps.check_release.outputs.exists != 'true'
+        run: |
+          dotnet pack ./src/Neo.Compiler.CSharp \
+          --configuration Debug \
+          --output ./out \
+          --version-suffix ${{ env.VERSION_SUFFIX }}
+
+      - name: Pack Neo.SmartContract.Template
+        if: steps.check_release.outputs.exists != 'true'
+        run: |
+          dotnet pack ./src/Neo.SmartContract.Template \
+          --configuration Debug \
+          --output ./out \
+          --version-suffix ${{ env.VERSION_SUFFIX }}
+
+      - name: Publish to Github Packages
+        if: steps.check_release.outputs.exists != 'true'
+        working-directory: ./out
+        run: |
+          dotnet nuget push * \
+              --source https://nuget.pkg.github.com/neo-project/index.json \
+              --api-key "${{ secrets.GITHUB_TOKEN }}" \
+              --disable-buffering \
+              --no-service-endpoint;
+      - name: Publish to myGet
+        if: steps.check_release.outputs.exists != 'true'
+        working-directory: ./out
+        continue-on-error: true # MyGet has package size limits, don't block release
+        run: |
+          dotnet nuget push * \
+              --source https://www.myget.org/F/neo/api/v3/index.json \
+              --api-key "${{ secrets.MYGET_TOKEN }}" \
+              --disable-buffering \
+              --no-service-endpoint;
 
   Release:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'
@@ -202,67 +222,67 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-    - name: Checkout
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-    - name: Get version
-      id: get_version
-      run: |
-        sudo apt install xmlstarlet
-        find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('version=v',//i:VersionPrefix/text())" >> $GITHUB_OUTPUT
-    - name: Check GitHub release tag
-      id: check_tag
-      run: |
-        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})
-        echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
-        if [[ "$STATUS_CODE" == "200" ]]; then
-          echo "GitHub release ${{ steps.get_version.outputs.version }} already exists, skipping build and GitHub release"
-        else
-          echo "GitHub release ${{ steps.get_version.outputs.version }} does not exist, will create release"
-        fi
-    - name: Setup .NET Core
-      if: steps.check_tag.outputs.statusCode == '404'
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Build nccs compiler for multiple platforms
-      if: steps.check_tag.outputs.statusCode == '404'
-      run: |
-        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-win-x64
-        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-linux-x64
-        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-x64
-        dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-arm64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-arm64
-        [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ] && mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
-        [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ] && mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
-        [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
-        [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
-        cd nccs-win-x64 && zip -r ../nccs-win-x64.zip * && cd ..
-        cd nccs-linux-x64 && tar -czf ../nccs-linux-x64.tar.gz * && cd ..
-        cd nccs-osx-x64 && tar -czf ../nccs-osx-x64.tar.gz * && cd ..
-        cd nccs-osx-arm64 && tar -czf ../nccs-osx-arm64.tar.gz * && cd ..
-        sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
-    - name: Create release and upload binaries
-      if: steps.check_tag.outputs.statusCode == '404'
-      uses: softprops/action-gh-release@v2.4.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.get_version.outputs.version }}
-        name: ${{ steps.get_version.outputs.version }}
-        prerelease: ${{ contains(steps.get_version.outputs.version, '-') }}
-        generate_release_notes: true
-        files: |
-          nccs-win-x64.zip
-          nccs-linux-x64.tar.gz
-          nccs-osx-x64.tar.gz
-          nccs-osx-arm64.tar.gz
-          checksums.txt
-    - name: Setup .NET Core for NuGet release
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    - name: Run ordered release script to NuGet
-      run: |
-        chmod +x ./scripts/release-ordered.sh
-        ./scripts/release-ordered.sh --api-key "${{ secrets.NUGET_TOKEN }}"
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Get version
+        id: get_version
+        run: |
+          sudo apt install xmlstarlet
+          find src -name Directory.Build.props | xargs xmlstarlet sel -N i=http://schemas.microsoft.com/developer/msbuild/2003 -t -v "concat('version=v',//i:VersionPrefix/text())" >> $GITHUB_OUTPUT
+      - name: Check GitHub release tag
+        id: check_tag
+        run: |
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://github.com/${{ github.repository }}/releases/tag/${{ steps.get_version.outputs.version }})
+          echo "statusCode=$STATUS_CODE" >> $GITHUB_OUTPUT
+          if [[ "$STATUS_CODE" == "200" ]]; then
+            echo "GitHub release ${{ steps.get_version.outputs.version }} already exists, skipping build and GitHub release"
+          else
+            echo "GitHub release ${{ steps.get_version.outputs.version }} does not exist, will create release"
+          fi
+      - name: Setup .NET Core
+        if: steps.check_tag.outputs.statusCode == '404'
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Build nccs compiler for multiple platforms
+        if: steps.check_tag.outputs.statusCode == '404'
+        run: |
+          dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-win-x64
+          dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-linux-x64
+          dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-x64
+          dotnet publish ./src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -c Release -r osx-arm64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./nccs-osx-arm64
+          [ -f "./nccs-win-x64/Neo.Compiler.CSharp.exe" ] && mv ./nccs-win-x64/Neo.Compiler.CSharp.exe ./nccs-win-x64/nccs.exe
+          [ -f "./nccs-linux-x64/Neo.Compiler.CSharp" ] && mv ./nccs-linux-x64/Neo.Compiler.CSharp ./nccs-linux-x64/nccs
+          [ -f "./nccs-osx-x64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-x64/Neo.Compiler.CSharp ./nccs-osx-x64/nccs
+          [ -f "./nccs-osx-arm64/Neo.Compiler.CSharp" ] && mv ./nccs-osx-arm64/Neo.Compiler.CSharp ./nccs-osx-arm64/nccs
+          cd nccs-win-x64 && zip -r ../nccs-win-x64.zip * && cd ..
+          cd nccs-linux-x64 && tar -czf ../nccs-linux-x64.tar.gz * && cd ..
+          cd nccs-osx-x64 && tar -czf ../nccs-osx-x64.tar.gz * && cd ..
+          cd nccs-osx-arm64 && tar -czf ../nccs-osx-arm64.tar.gz * && cd ..
+          sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
+      - name: Create release and upload binaries
+        if: steps.check_tag.outputs.statusCode == '404'
+        uses: softprops/action-gh-release@v2.4.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: ${{ steps.get_version.outputs.version }}
+          prerelease: ${{ contains(steps.get_version.outputs.version, '-') }}
+          generate_release_notes: true
+          files: |
+            nccs-win-x64.zip
+            nccs-linux-x64.tar.gz
+            nccs-osx-x64.tar.gz
+            nccs-osx-arm64.tar.gz
+            checksums.txt
+      - name: Setup .NET Core for NuGet release
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Run ordered release script to NuGet
+        run: |
+          chmod +x ./scripts/release-ordered.sh
+          ./scripts/release-ordered.sh --api-key "${{ secrets.NUGET_TOKEN }}"

@@ -14,7 +14,7 @@ namespace Neo.SmartContract.Template
     [ContractDescription( "<Description Here>")]
     [ContractVersion("<Version String Here>")]
     [ContractSourceCode("https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractowner/Ownable.cs")]
-    [ContractPermission(Permission.Any, Method.Any)]
+    [ContractPermission(Permission.Any, "onNEP17Payment")]
     public class Ownable : Neo.SmartContract.Framework.SmartContract
     {
         #region Owner
