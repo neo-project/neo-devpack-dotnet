@@ -12,6 +12,7 @@
 using System.Numerics;
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Interfaces;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
@@ -25,7 +26,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public override string Symbol { [Safe] get; } = "EXAMPLE";
 
-        public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null)
+        public void OnNEP11Payment(UInt160 from, BigInteger amount, ByteString tokenId, object? data = null)
         {
         }
     }

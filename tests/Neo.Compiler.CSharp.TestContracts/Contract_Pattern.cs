@@ -44,7 +44,7 @@ namespace Neo.Compiler.CSharp.TestContracts
 
             return newOwner switch
             {
-                { IsValid: true, IsZero: false } => true,
+                { IsValid: true, IsZero: true } => true,
                 _ => false,
             };
         }

@@ -23,7 +23,7 @@ internal partial class MethodConvert
     {
         if (pattern.PropertyPatternClause is { } propertyClause)
         {
-            AccessSlot(OpCode.LDLOC, localIndex);
+            int index = 0;
             foreach (var subpattern in propertyClause.Subpatterns)
             {
                 if (subpattern is { Pattern: ConstantPatternSyntax constantPattern })
@@ -32,6 +32,10 @@ internal partial class MethodConvert
                     // if (newOwner is { IsValid: true, IsZero:false})
                     // {
                     // }
+
+                    // Reload the object for each property check to avoid stack imbalance
+                    AccessSlot(OpCode.LDLOC, localIndex);
+
                     var propertySymbol = model.GetSymbolInfo(subpattern.NameColon!.Name).Symbol!;
 
                     if (propertySymbol is IPropertySymbol property)
@@ -45,6 +49,13 @@ internal partial class MethodConvert
                     object? constantValue = model.GetConstantValue(constantPattern.Expression).Value;
                     Push(constantValue);
                     AddInstruction(OpCode.EQUAL);
+
+                    // AND with previous result for multiple property checks
+                    if (index > 0)
+                    {
+                        AddInstruction(OpCode.BOOLAND);
+                    }
+                    index++;
                 }
                 else
                 {

@@ -13,7 +13,7 @@ public abstract class Contract_SupportedStandard26(Neo.SmartContract.Testing.Sma
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_SupportedStandard26"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-26""],""abi"":{""methods"":[{""name"":""onNEP11Payment"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""tokenId"",""type"":""String""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":{""Description"":""\u003CDescription Here\u003E"",""Author"":""\u003CYour Name Or Company Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_SupportedStandard26"",""groups"":[],""features"":{},""supportedstandards"":[""NEP-26""],""abi"":{""methods"":[{""name"":""onNEP11Payment"",""parameters"":[{""name"":""from"",""type"":""Hash160""},{""name"":""amount"",""type"":""Integer""},{""name"":""tokenId"",""type"":""ByteArray""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":0,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""*"",""methods"":""*""}],""trusts"":[],""extra"":{""Description"":""\u003CDescription Here\u003E"",""Author"":""\u003CYour Name Or Company Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
@@ -33,7 +33,7 @@ public abstract class Contract_SupportedStandard26(Neo.SmartContract.Testing.Sma
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("onNEP11Payment")]
-    public abstract void OnNEP11Payment(UInt160? from, BigInteger? amount, string? tokenId, object? data = null);
+    public abstract void OnNEP11Payment(UInt160? from, BigInteger? amount, byte[]? tokenId, object? data = null);
 
     #endregion
 }
