@@ -10,8 +10,11 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Optimizer;
 using Neo.SmartContract.Testing;
+using Neo.VM;
 using Neo.VM.Types;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -54,6 +57,39 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void RecursivePattern_Test()
         {
             Assert.AreEqual(true, Contract.TestRecursivePattern());
+        }
+
+        [TestMethod]
+        public void RecursivePattern_EmitsBoolAndForMultiplePropertyChecks()
+        {
+            var method = Manifest.Abi.GetMethod("testRecursivePattern", 0);
+            Assert.IsNotNull(method);
+
+            var methodStart = method.Offset;
+            var methodEnd = Manifest.Abi.Methods
+                .Where(m => m.Offset > methodStart)
+                .Select(m => m.Offset)
+                .DefaultIfEmpty(int.MaxValue)
+                .Min();
+
+            var script = (Script)NefFile.Script;
+            bool hasBoolAnd = false;
+
+            foreach (var (address, instruction) in script.EnumerateInstructions())
+            {
+                if (address < methodStart)
+                    continue;
+                if (address >= methodEnd)
+                    break;
+
+                if (instruction.OpCode == OpCode.BOOLAND)
+                {
+                    hasBoolAnd = true;
+                    break;
+                }
+            }
+
+            Assert.IsTrue(hasBoolAnd, "Recursive pattern lowering should emit BOOLAND for multi-property checks.");
         }
 
         [TestMethod]

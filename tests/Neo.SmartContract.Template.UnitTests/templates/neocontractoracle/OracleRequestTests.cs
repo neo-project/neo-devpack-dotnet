@@ -16,6 +16,7 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using System.Text;
 using Neo.SmartContract.Testing.TestingStandards;
+using System.Linq;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
 {
@@ -91,6 +92,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractoracle
             // Check result
 
             Assert.AreEqual("Hello World!", Contract.Response);
+        }
+
+        [TestMethod]
+        public void TestManifestUsesLeastPrivilegePermissions()
+        {
+            var permissions = new JArray(OracleRequestTemplate.Manifest.Permissions.Select(p => p.ToJson()).ToArray()).ToString(false);
+
+            Assert.IsFalse(permissions.Contains("\"contract\":\"*\""), "Oracle template should not grant wildcard contract permissions.");
+            Assert.IsTrue(permissions.Contains("\"request\""), "Oracle template should keep the required oracle request permission.");
+            Assert.IsTrue(permissions.Contains("\"jsonDeserialize\""), "Oracle template should keep the required JSON parsing permission.");
         }
     }
 }
