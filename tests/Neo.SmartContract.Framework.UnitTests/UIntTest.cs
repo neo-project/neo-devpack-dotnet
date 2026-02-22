@@ -125,5 +125,15 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsFalse(Contract.IsValidAndNotZeroUInt160(null));
             Assert.IsFalse(Contract.IsValidAndNotZeroUInt256(null));
         }
+
+        [TestMethod]
+        public void TestIsValidChecks()
+        {
+            Assert.IsTrue(Contract.IsValidUInt160(UInt160.Zero));
+            Assert.IsTrue(Contract.IsValidUInt256(UInt256.Zero));
+
+            Assert.IsFalse(Contract.IsValidUInt160(null));
+            Assert.IsFalse(Contract.IsValidUInt256(null));
+        }
     }
 }

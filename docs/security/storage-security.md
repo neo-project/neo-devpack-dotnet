@@ -67,7 +67,7 @@ public class HierarchicalKeyStorage : SmartContract
     /// </summary>
     private static ByteString CreateUserKey(UInt160 user, string category, string identifier)
     {
-        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user address");
+        ExecutionEngine.Assert(user.IsValid, "Invalid user address");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(category), "Category required");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(identifier), "Identifier required");
         
@@ -142,7 +142,7 @@ public class SecureKeyGeneration : SmartContract
     private static ByteString GenerateSecureKey(UInt160 user, string dataType, 
                                               string identifier, bool includeTimestamp = false)
     {
-        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user");
+        ExecutionEngine.Assert(user.IsValid, "Invalid user");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(dataType), "Data type required");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(identifier), "Identifier required");
         

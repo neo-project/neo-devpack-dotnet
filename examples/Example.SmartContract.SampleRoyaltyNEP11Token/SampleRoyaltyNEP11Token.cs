@@ -57,7 +57,7 @@ namespace NonDivisibleNEP11
         public static void SetOwner(UInt160? newOwner)
         {
             ExecutionEngine.Assert(IsOwner(), "No Authorization!");
-            ExecutionEngine.Assert(newOwner != null && newOwner.IsValid && !newOwner.IsZero, "Wrong newOwner");
+            ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "Wrong newOwner");
 
             Storage.Put(new[] { PrefixOwner }, newOwner);
             OnSetOwner(newOwner);
@@ -94,7 +94,7 @@ namespace NonDivisibleNEP11
         public static void SetMinter(UInt160? newMinter)
         {
             ExecutionEngine.Assert(IsOwner(), "No Authorization!");
-            ExecutionEngine.Assert(newMinter != null && newMinter.IsValid && !newMinter.IsZero, "Wrong newMinter");
+            ExecutionEngine.Assert(newMinter.IsValid && !newMinter.IsZero, "Wrong newMinter");
 
             Storage.Put(new[] { PrefixMinter }, newMinter);
             OnSetMinter(newMinter);
