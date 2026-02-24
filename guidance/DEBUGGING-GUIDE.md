@@ -369,7 +369,7 @@ public static class DebugHelpers
 public static bool SafeOperation(UInt160 user, BigInteger amount)
 {
     // Validate all inputs first
-    if (user == null || !user.IsValid)
+    if (!user.IsValid)
     {
         Runtime.Log("Invalid user address");
         return false;

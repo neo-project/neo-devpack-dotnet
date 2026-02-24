@@ -346,6 +346,17 @@ namespace Neo.SmartContract.Framework.Native
         public static extern string[] StringSplit(string str, string separator, bool removeEmptyEntries);
 
         /// <summary>
+        /// Split a byte-string into an array of substrings based on a separator.
+        /// If 'removeEmptyEntries' is true, empty entries will be removed from the result.
+        /// <para>
+        /// The execution will fail:
+        ///  1. The 'str' or 'separator' is null.
+        ///  2. The 'str.length' exceeds the MaxInputLength limits(the default value is 1024-byte).
+        /// </para>
+        /// </summary>
+        public static extern ByteString[] StringSplit(ByteString str, ByteString separator, bool removeEmptyEntries = false);
+
+        /// <summary>
         /// Get the character count of the string.
         /// <para>
         /// The execution will fail:

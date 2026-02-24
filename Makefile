@@ -4,7 +4,7 @@
 # Variables
 DOTNET = dotnet
 NCCS_PROJECT = src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj
-NCCS_BINARY = src/Neo.Compiler.CSharp/bin/Release/net9.0/nccs
+NCCS_BINARY = src/Neo.Compiler.CSharp/bin/Release/net10.0/nccs
 PUBLISH_ARGS ?=
 
 ifeq ($(NO_RESTORE),true)
@@ -41,7 +41,7 @@ else ifeq ($(UNAME_S),Darwin)
 else ifeq ($(OS),Windows_NT)
     PLATFORM = win
     RID = win-x64
-    NCCS_BINARY = src/Neo.Compiler.CSharp/bin/Release/net9.0/nccs.exe
+    NCCS_BINARY = src/Neo.Compiler.CSharp/bin/Release/net10.0/nccs.exe
 endif
 
 # Default target

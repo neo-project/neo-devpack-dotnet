@@ -135,6 +135,7 @@ namespace Neo.Compiler
             return type.ToString() switch
             {
                 "bool" => StackItemType.Boolean,
+                "int" => StackItemType.Integer,
                 "byte[]" => StackItemType.Buffer,
                 "string" => StackItemType.ByteString,
                 "Neo.SmartContract.Framework.ByteString" => StackItemType.ByteString,

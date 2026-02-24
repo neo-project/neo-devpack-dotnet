@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Neo Smart Contract Compiler (nccs)
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /source
 
 # Copy solution and project files
@@ -26,7 +26,7 @@ RUN dotnet publish src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj \
     -o /app
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0
 WORKDIR /workspace
 
 # Install additional tools

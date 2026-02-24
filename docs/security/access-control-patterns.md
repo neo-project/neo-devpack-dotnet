@@ -109,7 +109,7 @@ public class WhitelistContract : SmartContract
     public static bool AddToWhitelist(UInt160 address)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
-        ExecutionEngine.Assert(address != null && address.IsValid, "Invalid address");
+        ExecutionEngine.Assert(address.IsValid, "Invalid address");
         
         Whitelist.Put(address, 1);
         OnWhitelistUpdated(address, true);
@@ -122,7 +122,7 @@ public class WhitelistContract : SmartContract
     public static bool RemoveFromWhitelist(UInt160 address)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
-        ExecutionEngine.Assert(address != null && address.IsValid, "Invalid address");
+        ExecutionEngine.Assert(address.IsValid, "Invalid address");
         
         Whitelist.Delete(address);
         OnWhitelistUpdated(address, false);
@@ -225,7 +225,7 @@ public class RBACContract : SmartContract
         UInt160 caller = Runtime.Transaction.Sender;
         ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
         ExecutionEngine.Assert(HasPermission(caller, "grant_role"), "Access denied: No grant permission");
-        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user address");
+        ExecutionEngine.Assert(user.IsValid, "Invalid user address");
         ExecutionEngine.Assert(IsValidRole(role), "Invalid role");
         
         UserRoles.Put(user + role, 1);
@@ -241,7 +241,7 @@ public class RBACContract : SmartContract
         UInt160 caller = Runtime.Transaction.Sender;
         ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
         ExecutionEngine.Assert(HasPermission(caller, "revoke_role"), "Access denied: No revoke permission");
-        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user address");
+        ExecutionEngine.Assert(user.IsValid, "Invalid user address");
         ExecutionEngine.Assert(role != ADMIN_ROLE || user != OWNER, "Cannot revoke admin role from owner");
         
         UserRoles.Delete(user + role);
@@ -379,7 +379,7 @@ public class MultiSigContract : SmartContract
         // Verify all signers are valid and unique
         for (int i = 0; i < initialSigners.Length; i++)
         {
-            ExecutionEngine.Assert(initialSigners[i] != null && initialSigners[i].IsValid, $"Invalid signer at index {i}");
+            ExecutionEngine.Assert(initialSigners[i].IsValid, $"Invalid signer at index {i}");
             ExecutionEngine.Assert(Runtime.CheckWitness(initialSigners[i]), $"Signer {i} must authorize initialization");
             
             // Check for duplicates
@@ -562,7 +562,7 @@ public class MultiSigContract : SmartContract
     private static bool ExecuteAddSigner(ByteString data)
     {
         UInt160 newSigner = (UInt160)data;
-        ExecutionEngine.Assert(newSigner != null && newSigner.IsValid, "Invalid signer address");
+        ExecutionEngine.Assert(newSigner.IsValid, "Invalid signer address");
         ExecutionEngine.Assert(!IsAuthorizedSigner(newSigner), "Signer already authorized");
         
         int currentCount = (int)Storage.Get(Storage.CurrentContext, "signer_count");
@@ -642,7 +642,7 @@ public class TimeBasedAccessContract : SmartContract
                                             string[] permissions)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
-        ExecutionEngine.Assert(user != null && user.IsValid, "Invalid user address");
+        ExecutionEngine.Assert(user.IsValid, "Invalid user address");
         ExecutionEngine.Assert(startTime >= Runtime.Time, "Start time must be in future");
         ExecutionEngine.Assert(endTime > startTime, "End time must be after start time");
         ExecutionEngine.Assert(permissions.Length > 0, "At least one permission required");

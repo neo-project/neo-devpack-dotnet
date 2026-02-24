@@ -16,9 +16,9 @@ int sum = a + b;
 
 ### pattern_matching_is - Pattern matching with `is`
 
-Status: unsupported
+Status: supported
 Scope: method
-Notes: Type patterns in `is` expressions are rejected by the compiler. Roslyn would lower pattern matching into type checks, but Neo currently rejects this syntax.
+Notes: Type patterns in `is` expressions compile when the matched type maps to supported Neo stack item types (for example: `bool`, `int`, `string`, `byte[]`, `ByteString`, and `BigInteger`).
 ```csharp
 object value = 5;
 if (value is int number)

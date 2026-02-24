@@ -118,8 +118,8 @@ public class EarlyExitOptimized : SmartContract
     // ❌ BAD: Checks all conditions even if first fails
     public static bool ProcessTransactionBad(UInt160 from, UInt160 to, BigInteger amount)
     {
-        var isFromValid = from != null && from.IsValid;
-        var isToValid = to != null && to.IsValid;
+        var isFromValid = from.IsValid;
+        var isToValid = to.IsValid;
         var isAmountValid = amount > 0 && amount <= MAX_AMOUNT;
         var hasBalance = GetBalance(from) >= amount;
         var isAuthorized = Runtime.CheckWitness(from);
@@ -135,8 +135,8 @@ public class EarlyExitOptimized : SmartContract
     public static bool ProcessTransactionGood(UInt160 from, UInt160 to, BigInteger amount)
     {
         // Cheapest checks first
-        if (from == null || !from.IsValid) return false;
-        if (to == null || !to.IsValid) return false;
+        if (!from.IsValid) return false;
+        if (!to.IsValid) return false;
         if (amount <= 0 || amount > MAX_AMOUNT) return false;
         
         // More expensive checks later

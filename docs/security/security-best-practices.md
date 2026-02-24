@@ -19,7 +19,7 @@ public static class InputValidator
 {
     public static void ValidateAddress(UInt160 address, string paramName = "address")
     {
-        ExecutionEngine.Assert(address != null && address.IsValid, $"Invalid {paramName}");
+        ExecutionEngine.Assert(address.IsValid, $"Invalid {paramName}");
     }
     
     public static void ValidateAmount(BigInteger amount, BigInteger max = 0, string paramName = "amount")
@@ -409,7 +409,7 @@ public class SecureErrorHandling : SmartContract
     
     private static void ValidateInputs(UInt160 user, string data)
     {
-        if (user == null || !user.IsValid)
+        if (!user.IsValid)
             throw new Exception("Invalid input: user address");
             
         if (string.IsNullOrEmpty(data) || data.Length > 1024)
@@ -450,7 +450,7 @@ public class GasEfficientSecurity : SmartContract
         // Validate all inputs first (fail fast)
         for (int i = 0; i < users.Length; i++)
         {
-            ExecutionEngine.Assert(users[i] != null && amounts[i] > 0, $"Invalid input at index {i}");
+            ExecutionEngine.Assert(users[i].IsValid && amounts[i] > 0, $"Invalid input at index {i}");
         }
         
         // Process batch

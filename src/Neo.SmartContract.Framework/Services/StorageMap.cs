@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 
 namespace Neo.SmartContract.Framework.Services
 {
+    /// <summary>
+    /// Provides methods for interacting with the storage with specified context and prefix.
+    /// </summary>
     public class StorageMap
     {
         private readonly StorageContext context;
@@ -35,20 +38,21 @@ namespace Neo.SmartContract.Framework.Services
         /// </summary>
         public extern ByteString? this[ByteString key]
         {
-            [CallingConvention(CallingConvention.Cdecl)]
-            [OpCode(OpCode.UNPACK)]
-            [OpCode(OpCode.DROP)]
-            [OpCode(OpCode.REVERSE3)]
-            [OpCode(OpCode.CAT)]
-            [OpCode(OpCode.SWAP)]
+            [CallingConvention(CallingConvention.Cdecl)] // key|this
+            [OpCode(OpCode.UNPACK)]                      // key|prefix|context|size
+            [OpCode(OpCode.DROP)]                        // key|prefix|context
+            [OpCode(OpCode.REVERSE3)]                    // context|prefix|key
+            [OpCode(OpCode.CAT)]                         // context|fullkey
+            [OpCode(OpCode.SWAP)]                        // fullkey|context
             [Syscall("System.Storage.Get")]
             get;
-            [CallingConvention(CallingConvention.Cdecl)]
-            [OpCode(OpCode.UNPACK)]
-            [OpCode(OpCode.DROP)]
-            [OpCode(OpCode.REVERSE3)]
-            [OpCode(OpCode.CAT)]
-            [OpCode(OpCode.SWAP)]
+
+            [CallingConvention(CallingConvention.Cdecl)] // value|key|this
+            [OpCode(OpCode.UNPACK)]                      // value|key|prefix|context|size
+            [OpCode(OpCode.DROP)]                        // value|key|prefix|context
+            [OpCode(OpCode.REVERSE3)]                    // value|context|prefix|key
+            [OpCode(OpCode.CAT)]                         // value|context|fullkey
+            [OpCode(OpCode.SWAP)]                        // value|fullkey|context
             [Syscall("System.Storage.Put")]
             set;
         }
@@ -72,6 +76,7 @@ namespace Neo.SmartContract.Framework.Services
             [OpCode(OpCode.SWAP)]
             [Syscall("System.Storage.Get")]
             get;
+
             [CallingConvention(CallingConvention.Cdecl)]
             [OpCode(OpCode.UNPACK)]
             [OpCode(OpCode.DROP)]
@@ -173,7 +178,7 @@ namespace Neo.SmartContract.Framework.Services
         public extern ECPoint GetECPoint(ByteString key);
 
         /// <summary>
-        /// Gets the value as byte[] associated with the specified key, null if the key is not found.
+        /// Gets the value as byte[] associated with the specified key.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -198,7 +203,7 @@ namespace Neo.SmartContract.Framework.Services
         public extern ByteString GetString(ByteString key);
 
         /// <summary>
-        /// Gets the value as BigInteger associated with the specified key, null if the key is not found.
+        /// Gets the value as BigInteger associated with the specified key.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -211,7 +216,7 @@ namespace Neo.SmartContract.Framework.Services
         public extern BigInteger GetInteger(ByteString key);
 
         /// <summary>
-        /// Gets the value as boolean associated with the specified key, null if the key is not found.
+        /// Gets the value as boolean associated with the specified key, false if the key is not found.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -292,7 +297,7 @@ namespace Neo.SmartContract.Framework.Services
         public extern ECPoint GetECPoint(byte[] key);
 
         /// <summary>
-        /// Gets the value as byte[] associated with the specified key, null if the key is not found.
+        /// Gets the value as byte[] associated with the specified key.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
@@ -317,7 +322,7 @@ namespace Neo.SmartContract.Framework.Services
         public extern ByteString GetString(byte[] key);
 
         /// <summary>
-        /// Gets the value as BigInteger associated with the specified key, 0 if the key is not found.
+        /// Gets the value as BigInteger associated with the specified key.
         /// </summary>
         [CallingConvention(CallingConvention.Cdecl)]
         [OpCode(OpCode.UNPACK)]
