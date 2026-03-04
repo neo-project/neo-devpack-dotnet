@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
 using System.ComponentModel;
 using System.Numerics;
 using Neo.SmartContract.Framework.Interfaces;
@@ -24,7 +25,7 @@ namespace Neo.SmartContract.Framework.TestContracts
     [SupportedStandards(NepStandard.Nep26)]
     public class Contract_SupportedStandard26 : SmartContract, INEP26
     {
-        public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null)
+        public void OnNEP11Payment(UInt160 from, BigInteger amount, ByteString tokenId, object? data = null)
         {
         }
     }
