@@ -26,6 +26,8 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.IsTrue(result.vulnerableMethodNames.Contains("unsafeUpdate"));
             // SafeUpdate has CheckWitness - should NOT be flagged
             Assert.IsFalse(result.vulnerableMethodNames.Contains("safeUpdate"));
+            // SafeUpdateViaHelper delegates CheckWitness to helper - should NOT be flagged
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("safeUpdateViaHelper"));
         }
 
         [TestMethod]

@@ -76,11 +76,15 @@ By using these attributes, Neo C# smart contract developers can easily add reent
 
 ## Limitations and Known Risks
 
-### Cross-Contract Reentrancy Is Not Detected
+### Cross-Contract Reentrancy Depends on Key Coverage
 
-The `[NoReentrant]` and `[NoReentrantMethod]` attributes only protect against reentrancy within a single contract. If Contract A calls Contract B, and Contract B calls back into Contract A through a different entry point that is not protected, the reentrancy will not be detected. The analyzer does not perform cross-contract reentrancy analysis.
+The reentrancy flag is stored in contract storage, so it remains visible during callback flows such as Contract A -> Contract B -> Contract A.
 
-Developers must manually audit cross-contract call chains and apply reentrancy guards on all externally callable methods that modify state, not just the methods that initiate outbound calls.
+If the callback enters a method protected by the same lock key, reentry is blocked. This is automatic with `[NoReentrant]` because all decorated methods share one key.
+
+With `[NoReentrantMethod]`, each method uses its own key by default. A callback into a different method (or an unprotected method) can still execute unless you explicitly configure a shared key.
+
+For cross-contract call chains, protect all externally callable state-changing methods and use shared keys where method-level guards must behave as one lock.
 
 ### Unhandled Exceptions May Leave the Lock Permanently Set
 

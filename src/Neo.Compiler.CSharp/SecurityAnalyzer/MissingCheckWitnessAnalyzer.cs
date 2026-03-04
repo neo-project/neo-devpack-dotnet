@@ -22,7 +22,7 @@ namespace Neo.Compiler.SecurityAnalyzer
 {
     /// <summary>
     /// Detects public methods that perform state changes (storage writes)
-    /// without any CheckWitness call in the same method.
+    /// without any CheckWitness call in the method or its static helper calls.
     /// </summary>
     public static class MissingCheckWitnessAnalyzer
     {
@@ -65,9 +65,20 @@ namespace Neo.Compiler.SecurityAnalyzer
             (int addr, VM.Instruction instruction)[] instructions =
                 ((Script)nef.Script).EnumerateInstructions().ToArray();
 
-            // Build a sorted list of method offsets to determine method boundaries
+            // Build a sorted list of method offsets to determine method boundaries.
+            // Include static call targets to cover private helper methods not present in ABI.
             ContractMethodDescriptor[] methods = manifest.Abi.Methods;
-            int[] sortedOffsets = methods.Select(m => m.Offset).OrderBy(o => o).ToArray();
+            HashSet<int> methodStartOffsets = methods.Select(m => m.Offset).ToHashSet();
+            foreach ((int addr, VM.Instruction instruction) in instructions)
+            {
+                if (instruction.OpCode != OpCode.CALL && instruction.OpCode != OpCode.CALL_L)
+                    continue;
+
+                int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
+                if (target >= 0)
+                    methodStartOffsets.Add(target);
+            }
+            int[] sortedOffsets = methodStartOffsets.OrderBy(o => o).ToArray();
 
             List<string> vulnerableMethods = new();
 
@@ -77,21 +88,44 @@ namespace Neo.Compiler.SecurityAnalyzer
                 if (method.Name.StartsWith("_"))
                     continue;
 
-                int methodStart = method.Offset;
-                // Method end is the start of the next method, or end of script
-                int nextMethodIndex = Array.IndexOf(sortedOffsets, methodStart) + 1;
-                int methodEnd = nextMethodIndex < sortedOffsets.Length
-                    ? sortedOffsets[nextMethodIndex]
-                    : int.MaxValue;
+                (bool hasStorageWrite, bool hasCheckWitness) = AnalyzeMethodAndStaticHelpers(
+                    method.Offset,
+                    instructions,
+                    sortedOffsets,
+                    methodStartOffsets);
 
-                bool hasStorageWrite = false;
-                bool hasCheckWitness = false;
+                if (hasStorageWrite && !hasCheckWitness)
+                    vulnerableMethods.Add(method.Name);
+            }
 
+            return new MissingCheckWitnessVulnerability(vulnerableMethods, debugInfo);
+        }
+
+        private static (bool hasStorageWrite, bool hasCheckWitness) AnalyzeMethodAndStaticHelpers(
+            int methodStart,
+            (int addr, VM.Instruction instruction)[] instructions,
+            int[] sortedOffsets,
+            HashSet<int> methodStartOffsets)
+        {
+            bool hasStorageWrite = false;
+            bool hasCheckWitness = false;
+
+            Stack<int> pendingMethodStarts = new();
+            HashSet<int> visitedMethodStarts = new();
+            pendingMethodStarts.Push(methodStart);
+
+            while (pendingMethodStarts.Count > 0)
+            {
+                int currentStart = pendingMethodStarts.Pop();
+                if (!visitedMethodStarts.Add(currentStart))
+                    continue;
+
+                int currentEnd = GetMethodEnd(currentStart, sortedOffsets);
                 foreach ((int addr, VM.Instruction instruction) in instructions)
                 {
-                    if (addr < methodStart)
+                    if (addr < currentStart)
                         continue;
-                    if (addr >= methodEnd)
+                    if (addr >= currentEnd)
                         break;
 
                     if (instruction.OpCode == OpCode.SYSCALL)
@@ -102,14 +136,31 @@ namespace Neo.Compiler.SecurityAnalyzer
 
                         if (instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)
                             hasCheckWitness = true;
+
+                        continue;
+                    }
+
+                    if (instruction.OpCode == OpCode.CALL || instruction.OpCode == OpCode.CALL_L)
+                    {
+                        int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
+                        if (methodStartOffsets.Contains(target))
+                            pendingMethodStarts.Push(target);
                     }
                 }
-
-                if (hasStorageWrite && !hasCheckWitness)
-                    vulnerableMethods.Add(method.Name);
             }
 
-            return new MissingCheckWitnessVulnerability(vulnerableMethods, debugInfo);
+            return (hasStorageWrite, hasCheckWitness);
+        }
+
+        private static int GetMethodEnd(int methodStart, int[] sortedOffsets)
+        {
+            int methodIndex = Array.BinarySearch(sortedOffsets, methodStart);
+            if (methodIndex < 0)
+                methodIndex = ~methodIndex;
+
+            return methodIndex + 1 < sortedOffsets.Length
+                ? sortedOffsets[methodIndex + 1]
+                : int.MaxValue;
         }
     }
 }

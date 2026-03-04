@@ -30,5 +30,18 @@ namespace Neo.Compiler.CSharp.TestContracts
             var context = Storage.CurrentContext;
             Storage.Put(context, key, value);
         }
+
+        private static bool IsOwner(UInt160 owner)
+        {
+            return Runtime.CheckWitness(owner);
+        }
+
+        // Safe: witness validation is delegated to helper method
+        public static void SafeUpdateViaHelper(UInt160 owner, byte[] key, byte[] value)
+        {
+            ExecutionEngine.Assert(IsOwner(owner));
+            var context = Storage.CurrentContext;
+            Storage.Put(context, key, value);
+        }
     }
 }
