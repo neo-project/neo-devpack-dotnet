@@ -85,12 +85,12 @@ jobs:
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
-    - name: Coveralls
-      uses: coverallsapp/github-action@v2.3.6
+    - name: Codecov
+      uses: codecov/codecov-action@v5
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        format: lcov
-        file: ${{ github.workspace }}/coverage/lcov.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ${{ github.workspace }}/TestResults/coverage/coverage.info
+        fail_ci_if_error: false
 
   PublishPackage:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/master-n3'

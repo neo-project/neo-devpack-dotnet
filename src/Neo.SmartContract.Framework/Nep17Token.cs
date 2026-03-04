@@ -29,12 +29,10 @@ namespace Neo.SmartContract.Framework
 
         public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data)
         {
-            if (!from.IsValid)
-                throw new Exception("The argument \"from\" is invalid.");
-            if (to is null || !to.IsValid)
-                throw new Exception("The argument \"to\" is invalid.");
-            if (amount < 0)
-                throw new Exception("The amount must be a positive number.");
+            if (!from.IsValid) throw new Exception("The argument \"from\" is invalid.");
+            if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
+            if (amount < 0) throw new Exception("The amount must be a positive number.");
+
             if (!Runtime.CheckWitness(from)) return false;
             if (amount != 0)
             {

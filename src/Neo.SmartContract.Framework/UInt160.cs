@@ -23,6 +23,10 @@ namespace Neo.SmartContract.Framework
 
         public static int Size => 20;
 
+        /// <summary>
+        /// Checks if the value is zero.
+        /// The execution will fail if the value is null.
+        /// </summary>
         public extern bool IsZero
         {
             [OpCode(OpCode.PUSH0)]
@@ -30,22 +34,36 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
+        /// <summary>
+        /// Checks if the value is valid.
+        /// It returns true if the value is not null and has 20 bytes ByteString, false otherwise.
+        /// Calling this method is OK even if the value is null.
+        /// </summary>
         public extern bool IsValid
         {
             [OpCode(OpCode.DUP)]
-            [OpCode(OpCode.ISTYPE, "0x28")] //ByteString
-            [OpCode(OpCode.JMPIF, "06")]  // to SIZE
+            [OpCode(OpCode.ISTYPE, "0x28")] // ByteString
+            [OpCode(OpCode.JMPIF, "06")]    // Jump to SIZE
             [OpCode(OpCode.DROP)]
             [OpCode(OpCode.PUSHF)]
-            [OpCode(OpCode.JMP, "06")]    // to the end
+            [OpCode(OpCode.JMP, "06")]    // Jump to the end
             [OpCode(OpCode.SIZE)]
             [OpCode(OpCode.PUSHINT8, "14")] // 0x14 == 20 bytes expected array size
             [OpCode(OpCode.NUMEQUAL)]
             get;
         }
 
+        /// <summary>
+        /// Checks if the value is valid and not zero.
+        /// It returns true if the value is not null, has 20 bytes ByteString, and is not zero, false otherwise.
+        /// It's OK to call this method even if the value is null.
+        /// </summary>
         public bool IsValidAndNotZero => IsValid && !IsZero;
 
+        /// <summary>
+        /// Explicitly converts a byte array to a UInt160 object.
+        /// Exception will be thrown if the value is null, or not 20 bytes.
+        /// </summary>
         [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
@@ -57,6 +75,9 @@ namespace Neo.SmartContract.Framework
         [OpCode(OpCode.THROW)]
         public static extern explicit operator UInt160(byte[] value);
 
+        /// <summary>
+        /// Explicitly converts a UInt160 object to a 20 bytes Buffer.
+        /// </summary>
         [OpCode(OpCode.CONVERT, StackItemType.Buffer)]
         public static extern explicit operator byte[](UInt160 value);
 

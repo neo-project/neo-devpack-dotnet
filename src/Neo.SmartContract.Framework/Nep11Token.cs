@@ -68,17 +68,16 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator TokensOf(UInt160 owner)
         {
-            if (!owner.IsValid)
-                throw new Exception("The argument \"owner\" is invalid");
+            if (!owner.IsValid) throw new Exception("The argument \"owner\" is invalid");
+
             var accountMap = new StorageMap(Prefix_AccountToken);
             return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
         public static bool Transfer(UInt160 to, ByteString tokenId, object data)
         {
-            if (to is null || !to.IsValid)
-                throw new Exception("The argument \"to\" is invalid.");
-            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
+            if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
+
             var tokenMap = new StorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);

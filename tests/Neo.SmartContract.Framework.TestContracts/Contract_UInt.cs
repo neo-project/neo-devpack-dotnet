@@ -13,8 +13,14 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     public class Contract_UInt : SmartContract
     {
+        public static bool IsValidUInt256(UInt256 value) => value.IsValid;
+
+        public static bool IsValidUInt160(UInt160 value) => value.IsValid;
+
         public static bool IsValidAndNotZeroUInt256(UInt256 value) => value.IsValidAndNotZero;
+
         public static bool IsValidAndNotZeroUInt160(UInt160 value) => value.IsValidAndNotZero;
+
         public static bool IsZeroUInt256(UInt256 value)
         {
             return value.IsZero;
