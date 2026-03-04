@@ -57,6 +57,31 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void RecursivePattern_AllMatch_Test()
+        {
+            Assert.AreEqual(true, Contract.TestRecursivePatternAllMatch());
+        }
+
+        [TestMethod]
+        public void RecursivePattern_SecondMismatch_Test()
+        {
+            Assert.AreEqual(false, Contract.TestRecursivePatternSecondMismatch());
+        }
+
+        [TestMethod]
+        public void RecursivePattern_ShortCircuitOnFirstMismatch_Test()
+        {
+            Assert.AreEqual(false, Contract.TestRecursivePatternShortCircuitOnFirstMismatch());
+        }
+
+        [TestMethod]
+        public void RecursivePattern_EmptyPropertyPattern_Test()
+        {
+            Assert.AreEqual(false, Contract.TestRecursivePatternEmptyPropertyPatternForNull());
+            Assert.AreEqual(true, Contract.TestRecursivePatternEmptyPropertyPatternForValue());
+        }
+
+        [TestMethod]
         public void TestTypePattern_Test()
         {
             Assert.AreEqual(new BigInteger(2), Contract.TestTypePattern2(1));

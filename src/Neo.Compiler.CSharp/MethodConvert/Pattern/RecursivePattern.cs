@@ -54,7 +54,10 @@ internal partial class MethodConvert
 
         if (!hasSubpattern)
         {
-            Push(true);
+            // `{ }` should match any non-null value.
+            AccessSlot(OpCode.LDLOC, localIndex);
+            AddInstruction(OpCode.ISNULL);
+            AddInstruction(OpCode.NOT);
         }
     }
 
