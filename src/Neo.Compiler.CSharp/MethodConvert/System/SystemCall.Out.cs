@@ -194,8 +194,10 @@ partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
-        // Fail target: push false
+        // Fail target: clear parsed value, set out parameter default, then push false
         failTarget.Instruction = methodConvert.Drop();             // Drop the failed value
+        methodConvert.PushDefault(symbol.Parameters[1].Type);      // Default out value on parse/range failure
+        methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store default in out parameter capture
         methodConvert.Push(false);                                 // Push failure flag
 
         // End target
