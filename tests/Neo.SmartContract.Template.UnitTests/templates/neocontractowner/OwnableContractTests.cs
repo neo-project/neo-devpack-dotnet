@@ -138,5 +138,12 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
             Assert.IsTrue(permissions.Contains("\"destroy\""), "Ownable template should keep the required destroy permission.");
             Assert.IsTrue(permissions.Contains("\"update\""), "Ownable template should keep the required update permission.");
         }
+
+        [TestMethod]
+        public void TestInitialOwnerEventAndContractHashAccessor()
+        {
+            Assert.AreEqual(Contract.Hash, ContractHash);
+            AssertNoOnChangeOwnerEvent();
+        }
     }
 }
