@@ -11,10 +11,12 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Extensions;
+using Neo.Json;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.InvalidTypes;
 using Neo.SmartContract.Testing.TestingStandards;
+using System.Linq;
 
 namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
 {
@@ -125,6 +127,16 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
             Assert.IsNull(Engine.Native.ContractManagement.GetContract(Contract));
 
             Engine.Restore(checkpoint);
+        }
+
+        [TestMethod]
+        public void TestManifestUsesLeastPrivilegePermissions()
+        {
+            var permissions = new JArray(OwnableTemplate.Manifest.Permissions.Select(p => p.ToJson()).ToArray()).ToString(false);
+
+            Assert.IsFalse(permissions.Contains("\"contract\":\"*\""), "Ownable template should not grant wildcard contract permissions.");
+            Assert.IsTrue(permissions.Contains("\"destroy\""), "Ownable template should keep the required destroy permission.");
+            Assert.IsTrue(permissions.Contains("\"update\""), "Ownable template should keep the required update permission.");
         }
     }
 }
