@@ -14,12 +14,14 @@ using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep11)]
     [ContractPermission(Permission.Any, Method.OnNEP11Payment)]
+    [ExcludeFromCodeCoverage]
     public abstract class Nep11Token<TokenState> : TokenContract
         where TokenState : Nep11TokenState
     {
