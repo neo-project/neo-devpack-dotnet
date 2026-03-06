@@ -43,7 +43,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             {
                 if (vulnerableMethodNames.Count == 0)
                     return "";
-                string result = $"[SEC] The following public methods write to storage without CheckWitness verification:{Environment.NewLine}" +
+                string result = $"[SECURITY] The following public methods write to storage without CheckWitness verification:{Environment.NewLine}" +
                     $"\t{string.Join(", ", vulnerableMethodNames)}{Environment.NewLine}" +
                     $"Consider adding `Runtime.CheckWitness()` before performing storage writes to prevent unauthorized access.{Environment.NewLine}";
                 if (print)
