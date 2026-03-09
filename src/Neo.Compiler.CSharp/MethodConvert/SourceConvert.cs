@@ -55,7 +55,16 @@ internal partial class MethodConvert
 
     private void ConvertSource(SemanticModel model)
     {
-        if (SyntaxNode is null) return;
+        if (SyntaxNode is null)
+        {
+            if (Symbol.MethodKind is MethodKind.PropertyGet or MethodKind.PropertySet &&
+                Symbol.AssociatedSymbol is IPropertySymbol property)
+            {
+                ConvertFieldBackedProperty(property);
+                _initSlot = !_inline;
+            }
+            return;
+        }
         switch (SyntaxNode)
         {
             case AccessorDeclarationSyntax syntax:

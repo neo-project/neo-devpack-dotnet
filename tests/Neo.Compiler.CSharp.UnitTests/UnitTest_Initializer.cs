@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using System.Collections.Generic;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -26,6 +27,27 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1113210);
             Assert.AreEqual(12, Contract.Sum2(5, 7));
             AssertGasConsumed(1605330);
+        }
+
+        [TestMethod]
+        public void AnonymousObjectCreation_LogsAnonymousMemberValues()
+        {
+            var logs = new Queue<string>();
+            TestEngine.OnRuntimeLogDelegate handler = (sender, log) => logs.Enqueue(log);
+            Contract.OnRuntimeLog += handler;
+
+            try
+            {
+                Contract.AnonymousObjectCreation();
+            }
+            finally
+            {
+                Contract.OnRuntimeLog -= handler;
+            }
+
+            Assert.AreEqual(2, logs.Count);
+            Assert.AreEqual("Hello", logs.Dequeue());
+            Assert.AreEqual("apple", logs.Dequeue());
         }
     }
 }
