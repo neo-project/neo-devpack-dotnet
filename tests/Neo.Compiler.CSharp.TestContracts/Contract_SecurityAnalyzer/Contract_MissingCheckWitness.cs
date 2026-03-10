@@ -23,6 +23,13 @@ namespace Neo.Compiler.CSharp.TestContracts
             Storage.Put(context, key, value);
         }
 
+        // Vulnerable: writes local storage without CheckWitness
+        public static void UnsafeLocalUpdate(byte[] prefix, byte[] key, byte[] value)
+        {
+            var storage = new LocalStorageMap(prefix);
+            storage.Put(key, value);
+        }
+
         // Safe: checks witness before writing storage
         public static void SafeUpdate(UInt160 owner, byte[] key, byte[] value)
         {

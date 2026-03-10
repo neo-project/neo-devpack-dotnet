@@ -65,7 +65,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     }
 
                     StringBuilder additional = new();
-                    additional.AppendLine($"[SEC] Writing storage in `try` block is risky - writes may not be properly reverted on exceptions");
+                    additional.AppendLine($"[SECURITY] Writing storage in `try` block is risky - writes may not be properly reverted on exceptions");
 
                     // Add source location information if available
                     if (debugInfo != null)

@@ -63,7 +63,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             string warningInfo = v.GetWarningInfo(print: false);
 
             // Verify enhanced diagnostic format
-            Assert.IsTrue(warningInfo.Contains("[SEC] Writing storage in `try` block is risky"));
+            Assert.IsTrue(warningInfo.Contains("[SECURITY] Writing storage in `try` block is risky"));
             Assert.IsTrue(warningInfo.Contains("Recommendation:"));
             Assert.IsTrue(warningInfo.Contains("writes may not be properly reverted on exceptions"));
             Assert.IsTrue(warningInfo.Contains("Try block addresses:"));

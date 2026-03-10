@@ -28,11 +28,11 @@ namespace Neo.Compiler.SecurityAnalyzer
     {
         public class MissingCheckWitnessVulnerability
         {
-            public readonly List<string> vulnerableMethodNames;
+            public readonly IReadOnlyList<string> vulnerableMethodNames;
             public readonly JToken? debugInfo;
 
             public MissingCheckWitnessVulnerability(
-                List<string> vulnerableMethodNames,
+                IReadOnlyList<string> vulnerableMethodNames,
                 JToken? debugInfo = null)
             {
                 this.vulnerableMethodNames = vulnerableMethodNames;
@@ -131,7 +131,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                     if (instruction.OpCode == OpCode.SYSCALL)
                     {
                         if (instruction.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash)
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash)
                             hasStorageWrite = true;
 
                         if (instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)

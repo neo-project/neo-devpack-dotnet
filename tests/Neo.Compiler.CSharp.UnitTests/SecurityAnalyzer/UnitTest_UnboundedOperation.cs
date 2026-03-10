@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             var result = UnboundedOperationAnalyzer.AnalyzeUnboundedOperations(NefFile, Manifest, null);
             string warning = result.GetWarningInfo(print: false);
-            Assert.IsTrue(warning.Contains("[SEC]"));
+            Assert.IsTrue(warning.Contains("[SECURITY]"));
             Assert.IsTrue(warning.Contains("backward jump"));
         }
     }

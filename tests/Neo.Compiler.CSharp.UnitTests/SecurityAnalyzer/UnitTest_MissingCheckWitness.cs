@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.SmartContract.Testing;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -24,6 +25,8 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(NefFile, Manifest, null);
             // UnsafeUpdate writes storage without CheckWitness - should be flagged
             Assert.IsTrue(result.vulnerableMethodNames.Contains("unsafeUpdate"));
+            // UnsafeLocalUpdate writes local storage without CheckWitness - should be flagged
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("unsafeLocalUpdate"));
             // SafeUpdate has CheckWitness - should NOT be flagged
             Assert.IsFalse(result.vulnerableMethodNames.Contains("safeUpdate"));
             // SafeUpdateViaHelper delegates CheckWitness to helper - should NOT be flagged
@@ -35,8 +38,9 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         {
             var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(NefFile, Manifest, null);
             string warning = result.GetWarningInfo(print: false);
-            Assert.IsTrue(warning.Contains("[SEC]"));
+            Assert.IsTrue(warning.Contains("[SECURITY]"));
             Assert.IsTrue(warning.Contains("unsafeUpdate"));
+            Assert.IsTrue(warning.Contains("unsafeLocalUpdate"));
         }
     }
 }

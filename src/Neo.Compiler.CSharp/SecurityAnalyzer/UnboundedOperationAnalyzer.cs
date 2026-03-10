@@ -28,11 +28,11 @@ namespace Neo.Compiler.SecurityAnalyzer
     {
         public class UnboundedOperationVulnerability
         {
-            public readonly List<int> backwardJumpAddresses;
+            public readonly IReadOnlyList<int> backwardJumpAddresses;
             public readonly JToken? debugInfo;
 
             public UnboundedOperationVulnerability(
-                List<int> backwardJumpAddresses,
+                IReadOnlyList<int> backwardJumpAddresses,
                 JToken? debugInfo = null)
             {
                 this.backwardJumpAddresses = backwardJumpAddresses;
@@ -43,7 +43,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             {
                 if (backwardJumpAddresses.Count == 0)
                     return "";
-                string result = $"[SEC] Potential unbounded operations (backward jumps) detected at instruction addresses:{Environment.NewLine}" +
+                string result = $"[SECURITY] Potential unbounded operations (backward jumps) detected at instruction addresses:{Environment.NewLine}" +
                     $"\t{string.Join(", ", backwardJumpAddresses)}{Environment.NewLine}" +
                     $"Unbounded loops can lead to excessive GAS consumption (DoS). Consider adding iteration limits.{Environment.NewLine}";
                 if (print)
@@ -68,7 +68,7 @@ namespace Neo.Compiler.SecurityAnalyzer
 
             foreach ((int addr, VM.Instruction instruction) in instructions)
             {
-                if (!IsJumpInstruction(instruction.OpCode))
+                if (!instruction.OpCode.IsJumpInstruction())
                     continue;
 
                 int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
@@ -77,28 +77,6 @@ namespace Neo.Compiler.SecurityAnalyzer
             }
 
             return new UnboundedOperationVulnerability(backwardJumps, debugInfo);
-        }
-
-        private static bool IsJumpInstruction(OpCode opCode)
-        {
-            return opCode == OpCode.JMP
-                || opCode == OpCode.JMP_L
-                || opCode == OpCode.JMPIF
-                || opCode == OpCode.JMPIF_L
-                || opCode == OpCode.JMPIFNOT
-                || opCode == OpCode.JMPIFNOT_L
-                || opCode == OpCode.JMPEQ
-                || opCode == OpCode.JMPEQ_L
-                || opCode == OpCode.JMPNE
-                || opCode == OpCode.JMPNE_L
-                || opCode == OpCode.JMPGT
-                || opCode == OpCode.JMPGT_L
-                || opCode == OpCode.JMPGE
-                || opCode == OpCode.JMPGE_L
-                || opCode == OpCode.JMPLT
-                || opCode == OpCode.JMPLT_L
-                || opCode == OpCode.JMPLE
-                || opCode == OpCode.JMPLE_L;
         }
     }
 }
