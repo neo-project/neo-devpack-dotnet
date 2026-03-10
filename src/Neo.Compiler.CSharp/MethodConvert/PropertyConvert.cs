@@ -65,7 +65,7 @@ internal partial class MethodConvert
         else
         {
             fields = fields.Where(p => !p.IsStatic).ToArray();
-            int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+            int backingFieldIndex = ResolveInstancePropertyBackingFieldIndex(property, fields);
             switch (Symbol.MethodKind)
             {
                 case MethodKind.PropertyGet:
@@ -91,6 +91,35 @@ internal partial class MethodConvert
                     throw new CompilationException(Symbol, DiagnosticId.SyntaxNotSupported, $"Unsupported property accessor '{Symbol.MethodKind}' for property '{Symbol.AssociatedSymbol?.Name}'. Only PropertyGet and PropertySet accessors are supported.");
             }
         }
+    }
+
+    private int ResolveInstancePropertyBackingFieldIndex(IPropertySymbol property, IFieldSymbol[] instanceFields)
+    {
+        int backingFieldIndex = Array.FindIndex(instanceFields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+        if (backingFieldIndex >= 0)
+            return backingFieldIndex;
+
+        backingFieldIndex = Array.FindIndex(instanceFields, p =>
+            SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property.OriginalDefinition));
+        if (backingFieldIndex >= 0)
+            return backingFieldIndex;
+
+        IPropertySymbol[] instanceProperties = property.ContainingType
+            .GetAllMembers()
+            .OfType<IPropertySymbol>()
+            .Where(p => !p.IsStatic)
+            .ToArray();
+
+        backingFieldIndex = Array.FindIndex(instanceProperties, p => SymbolEqualityComparer.Default.Equals(p, property));
+        if (backingFieldIndex >= 0)
+            return backingFieldIndex;
+
+        backingFieldIndex = Array.FindIndex(instanceProperties, p =>
+            SymbolEqualityComparer.Default.Equals(p, property.OriginalDefinition));
+        if (backingFieldIndex >= 0)
+            return backingFieldIndex;
+
+        return Array.FindIndex(instanceProperties, p => p.Name == property.Name);
     }
 
     private byte[] GetStorageBackedKey(IPropertySymbol property, AttributeData attribute)
@@ -169,7 +198,7 @@ internal partial class MethodConvert
                     {
                         // Check class
                         fields = fields.Where(p => !p.IsStatic).ToArray();
-                        int backingFieldIndex = Array.FindIndex(fields, p => SymbolEqualityComparer.Default.Equals(p.AssociatedSymbol, property));
+                        int backingFieldIndex = ResolveInstancePropertyBackingFieldIndex(property, fields);
                         AccessSlot(OpCode.LDARG, 0);
                         Push(backingFieldIndex);
                         AddInstruction(OpCode.PICKITEM);

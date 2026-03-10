@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern UInt160 Hash { get; }
 
         /// <summary>
-        /// Serializes an object to bytes with neo binary serilization format.
+        /// Serializes an object to bytes with neo binary serialization format.
         /// The 'source' can be null, and if object is null, it will be treated as null item.
         /// <para>
         /// The execution will fail if:
@@ -34,11 +34,11 @@ namespace Neo.SmartContract.Framework.Native
         public extern static ByteString Serialize(object source);
 
         /// <summary>
-        /// Deserializes an object from bytes with neo binary serilization format.
+        /// Deserializes an object from bytes with neo binary serialization format.
         /// <para>
         /// The execution will fail if:
         ///  1. The 'source' is null.
-        ///  2. The 'source' is not a valid neo binary serilization format.
+        ///  2. The 'source' is not a valid neo binary serialization format.
         ///  3. The deserialized size exceeds the item size limit.
         /// </para>
         /// </summary>

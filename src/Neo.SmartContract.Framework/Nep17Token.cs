@@ -31,7 +31,7 @@ namespace Neo.SmartContract.Framework
         {
             if (!from.IsValid) throw new Exception("The argument \"from\" is invalid.");
             if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
-            if (amount < 0) throw new Exception("The amount must be a positive number.");
+            if (amount < 0) throw new Exception("The amount cannot be negative.");
 
             if (!Runtime.CheckWitness(from)) return false;
             if (amount != 0)

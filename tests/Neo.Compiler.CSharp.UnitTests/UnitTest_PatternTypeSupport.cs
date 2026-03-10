@@ -26,4 +26,56 @@ public static bool MatchInt(object value)
     return value is int;
 }", "Type pattern with int should compile.");
     }
+
+    [TestMethod]
+    public void RecursivePattern_EmptyPropertyClause_Compiles()
+    {
+        Helper.AssertClassCompilationSucceeds(@"
+public static bool MatchAnyNonNull(object value)
+{
+    return value is { };
+}", "Recursive pattern '{}' should compile.");
+    }
+
+    [TestMethod]
+    public void RecursivePattern_PositionalClause_Fails()
+    {
+        Helper.AssertClassCompilationFails(@"
+private readonly record struct Pair(int A, int B);
+
+public static bool MatchPair(Pair pair)
+{
+    return pair is Pair(1, 2);
+}", "Positional recursive pattern should be rejected explicitly.");
+    }
+
+    [TestMethod]
+    public void RecursivePattern_NonConstantPropertyPattern_Fails()
+    {
+        Helper.AssertClassCompilationFails(@"
+public class NumberHolder
+{
+    public int Value { get; set; }
+}
+
+public static bool MatchGreaterThanZero(NumberHolder value)
+{
+    return value is { Value: > 0 };
+}", "Recursive patterns should reject non-constant property subpatterns.");
+    }
+
+    [TestMethod]
+    public void RecursivePattern_FieldPattern_Fails()
+    {
+        Helper.AssertClassCompilationFails(@"
+public class FieldHolder
+{
+    public int Value;
+}
+
+public static bool MatchField(FieldHolder value)
+{
+    return value is { Value: 1 };
+}", "Recursive patterns should reject field members and require properties.");
+    }
 }

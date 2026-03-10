@@ -284,6 +284,7 @@ namespace Neo.Compiler
             if (type.Name == nameof(Attribute)) yield break;
             List<ISymbol> myMembers = type.GetMembers().ToList();
             if (type.IsReferenceType)
+            {
                 foreach (ISymbol member in GetAllMembersInternal(type.BaseType!))
                 {
                     if (member is IMethodSymbol method && (method.MethodKind == MethodKind.Constructor || method.MethodKind == MethodKind.StaticConstructor))
@@ -308,6 +309,7 @@ namespace Neo.Compiler
                         yield return member;
                     }
                 }
+            }
             foreach (ISymbol member in myMembers)
             {
                 yield return member;

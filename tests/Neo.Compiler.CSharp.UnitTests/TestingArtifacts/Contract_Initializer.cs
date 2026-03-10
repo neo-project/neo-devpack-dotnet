@@ -18,7 +18,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPlXAQASERLAcGgQzmgRzp5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcBAnl4EsBwaBDOaBHOnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwECEhESwHB4SmgQUdBFeUpoEVHQRWgQzmgRzp5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcCAAwFSGVsbG8AbBLAcEHP50eWEQwFZ3JhcGUSwBQMBWFwcGxlEsASwHFBz+dHlkDNyhnT").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0PAVcBABIREsBwaBDOaBHOnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwECeXgSwHBoEM5oEc6eSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAQISERLAcHhKaBBR0EV5SmgRUdBFaBDOaBHOnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwIADAVIZWxsbwBsEsBwaDQpQc/nR5YRDAVncmFwZRLAFAwFYXBwbGUSwBLAcWkQzjQPQc/nR5ZAVwABeBHOQFcAAXgQzkBLjRbo").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,13 +28,15 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIADAVIZWxsbwBsEsBwQc/nR5YRDAVncmFwZRLAFAwFYXBwbGUSwBLAcUHP50eWQA==
+    /// Script: VwIADAVIZWxsbwBsEsBwaDQpQc/nR5YRDAVncmFwZRLAFAwFYXBwbGUSwBLAcWkQzjQPQc/nR5ZA
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
     /// PUSHINT8 6C [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACK [2048 datoshi]
     /// STLOC0 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 29 [512 datoshi]
     /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// PUSH1 [1 datoshi]
     /// PUSHDATA1 6772617065 'grape' [8 datoshi]
@@ -47,6 +49,10 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// PUSH2 [1 datoshi]
     /// PACK [2048 datoshi]
     /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// CALL 0F [512 datoshi]
     /// SYSCALL CFE74796 'System.Runtime.Log' [32768 datoshi]
     /// RET [0 datoshi]
     /// </remarks>

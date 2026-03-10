@@ -34,7 +34,7 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
-        /// Csontructor
+        /// Constructor of FeeWatcher
         /// </summary>
         /// <param name="engine">Test engine</param>
         public FeeWatcher(TestEngine engine)

@@ -10,11 +10,8 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Optimizer;
 using Neo.SmartContract.Testing;
-using Neo.VM;
 using Neo.VM.Types;
-using System.Linq;
 using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -60,36 +57,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void RecursivePattern_EmitsBoolAndForMultiplePropertyChecks()
+        public void RecursivePattern_AllMatch_Test()
         {
-            var method = Manifest.Abi.GetMethod("testRecursivePattern", 0);
-            Assert.IsNotNull(method);
+            Assert.AreEqual(true, Contract.TestRecursivePatternAllMatch());
+        }
 
-            var methodStart = method.Offset;
-            var methodEnd = Manifest.Abi.Methods
-                .Where(m => m.Offset > methodStart)
-                .Select(m => m.Offset)
-                .DefaultIfEmpty(int.MaxValue)
-                .Min();
+        [TestMethod]
+        public void RecursivePattern_SecondMismatch_Test()
+        {
+            Assert.AreEqual(false, Contract.TestRecursivePatternSecondMismatch());
+        }
 
-            var script = (Script)NefFile.Script;
-            bool hasBoolAnd = false;
+        [TestMethod]
+        public void RecursivePattern_ShortCircuitOnFirstMismatch_Test()
+        {
+            Assert.AreEqual(false, Contract.TestRecursivePatternShortCircuitOnFirstMismatch());
+        }
 
-            foreach (var (address, instruction) in script.EnumerateInstructions())
-            {
-                if (address < methodStart)
-                    continue;
-                if (address >= methodEnd)
-                    break;
-
-                if (instruction.OpCode == OpCode.BOOLAND)
-                {
-                    hasBoolAnd = true;
-                    break;
-                }
-            }
-
-            Assert.IsTrue(hasBoolAnd, "Recursive pattern lowering should emit BOOLAND for multi-property checks.");
+        [TestMethod]
+        public void RecursivePattern_EmptyPropertyPattern_Test()
+        {
+            Assert.AreEqual(false, Contract.TestRecursivePatternEmptyPropertyPatternForNull());
+            Assert.AreEqual(true, Contract.TestRecursivePatternEmptyPropertyPatternForValue());
         }
 
         [TestMethod]

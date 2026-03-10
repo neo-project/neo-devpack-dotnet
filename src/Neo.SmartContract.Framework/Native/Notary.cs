@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// Ledger.cs file belongs to the neo project and is free
+// Notary.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -62,7 +62,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern bool Withdraw(UInt160 from, UInt160? to = null);
 
         /// <summary>
-        /// ExpirationOf returns deposit lock height for specified address.
+        /// BalanceOf returns deposited amount of GAS for specified address.
         /// Available since HF_Echidna.
         /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>

@@ -370,7 +370,7 @@ namespace Neo.SmartContract.Framework.Services
         /// <summary>
         /// Gets the value as object(deserialized from the value) associated with the specified key, null if the key is not found.
         /// <para>
-        /// The execution will fail if the value is not a valid neo binary serilization format.
+        /// The execution will fail if the value is not a valid neo binary serialization format.
         /// </para>
         /// </summary>
         public object? GetObject(ByteString key)
@@ -383,7 +383,7 @@ namespace Neo.SmartContract.Framework.Services
         /// <summary>
         /// Gets the value as object(deserialized from the value) associated with the specified key, null if the key is not found.
         /// <para>
-        /// The execution will fail if the value is not a valid neo binary serilization format.
+        /// The execution will fail if the value is not a valid neo binary serialization format.
         /// </para>
         /// </summary>
         public object? GetObject(byte[] key)

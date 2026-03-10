@@ -196,7 +196,7 @@ namespace Neo.SmartContract.Framework.Services
         public static extern uint GetNetwork();
 
         /// <summary>
-        /// Loads a script at rumtime.
+        /// Loads a script at runtime.
         /// </summary>
         /// <para>
         /// The execution will fail if:
