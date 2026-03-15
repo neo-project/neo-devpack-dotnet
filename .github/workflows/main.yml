@@ -44,12 +44,18 @@ jobs:
         dotnet new neocontractowner -n Ownable -o ./src/Neo.SmartContract.Template/bin/Debug/ownable/ --force
         dotnet new neocontractoracle -n OracleRequest -o ./src/Neo.SmartContract.Template/bin/Debug/oracle/ --force
         dotnet new uninstall Neo.SmartContract.Template
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
-        dotnet remove ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj package Neo.SmartContract.Framework
-        dotnet add    ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj reference ./src/Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        pushd ./src/Neo.SmartContract.Template/bin/Debug/nep17 >/dev/null
+        dotnet remove package Neo.SmartContract.Framework
+        dotnet add reference ../../../../Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        popd >/dev/null
+        pushd ./src/Neo.SmartContract.Template/bin/Debug/ownable >/dev/null
+        dotnet remove package Neo.SmartContract.Framework
+        dotnet add reference ../../../../Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        popd >/dev/null
+        pushd ./src/Neo.SmartContract.Template/bin/Debug/oracle >/dev/null
+        dotnet remove package Neo.SmartContract.Framework
+        dotnet add reference ../../../../Neo.SmartContract.Framework/Neo.SmartContract.Framework.csproj
+        popd >/dev/null
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/nep17/Nep17Contract.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractnep17/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/ownable/Ownable.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractowner/Artifacts/
         dotnet ./src/Neo.Compiler.CSharp/bin/Debug/net10.0/nccs.dll ./src/Neo.SmartContract.Template/bin/Debug/oracle/OracleRequest.csproj -o ./tests/Neo.SmartContract.Template.UnitTests/templates/neocontractoracle/Artifacts/
