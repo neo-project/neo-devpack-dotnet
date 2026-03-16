@@ -48,7 +48,7 @@ namespace Neo.SmartContract.Framework.Native
         /// <param name="url">The URL to request an Oracle response from.</param>
         /// <param name="filter">The filter(json path expression) to apply to the response.</param>
         /// <param name="callback">The method name of calling contract to call when the response is received.</param>
-        /// <param name="userData">The user data to pass to the callback</param>
+        /// <param name="userData">The user data to pass to the callback.</param>
         /// <param name="gasForResponse">The amount of GAS(in the unit of datoshi) for the response.</param>
         public static extern void Request(string url, string? filter, string callback, object? userData, long gasForResponse);
     }
