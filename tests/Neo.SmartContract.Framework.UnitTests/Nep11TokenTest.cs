@@ -11,6 +11,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Numerics;
+using System.Collections.Generic;
+using System.Linq;
+using Neo.Extensions;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 
@@ -87,6 +90,44 @@ namespace Neo.SmartContract.Framework.UnitTests
             var validFrom = UInt160.Parse("0x0000000000000000000000000000000000000001");
 
             Contract.OnNEP11Payment(validFrom, BigInteger.One, new byte[] { 0x01 }, null);
+        }
+
+        [TestMethod]
+        public void Test_Nep11_Success_Paths_With_Seeded_Token_State()
+        {
+            var owner = UInt160.Parse("0x0000000000000000000000000000000000000001");
+            var recipient = UInt160.Parse("0x0000000000000000000000000000000000000002");
+            byte[] tokenId = new byte[] { 0x42 };
+
+            SeedToken(owner, tokenId, "Seeded Token");
+            Engine.SetTransactionSigners(owner);
+
+            Assert.AreEqual(BigInteger.One, Contract.TotalSupply);
+            Assert.AreEqual(BigInteger.One, Contract.BalanceOf(owner));
+            CollectionAssert.AreEqual(owner.ToArray(), Contract.OwnerOf(tokenId)!.ToArray());
+
+            var properties = Contract.Properties(tokenId);
+            Assert.IsNotNull(properties);
+            Assert.AreEqual(1, properties!.Count);
+            var entry = properties.Single();
+            Assert.IsTrue(entry.Key.ToString()!.Contains("name"));
+            Assert.IsTrue(entry.Value.ToString()!.Contains("Seeded Token"));
+
+            Assert.IsTrue(Contract.Transfer(recipient, tokenId, null));
+            CollectionAssert.AreEqual(recipient.ToArray(), Contract.OwnerOf(tokenId)!.ToArray());
+            Assert.AreEqual(BigInteger.Zero, Contract.BalanceOf(owner));
+            Assert.AreEqual(BigInteger.One, Contract.BalanceOf(recipient));
+        }
+
+        private void SeedToken(UInt160 owner, byte[] tokenId, string name)
+        {
+            byte[] serialized = Engine.Native.StdLib.Serialize(new object[] { owner, name });
+            byte[] ownerBytes = owner.ToArray();
+
+            Contract.Storage.Put(new byte[] { 0x00 }, BigInteger.One);
+            Contract.Storage.Put(new byte[] { 0x01 }.Concat(ownerBytes).ToArray(), BigInteger.One);
+            Contract.Storage.Put(new byte[] { 0x03 }.Concat(tokenId).ToArray(), serialized);
+            Contract.Storage.Put(new byte[] { 0x04 }.Concat(ownerBytes).Concat(tokenId).ToArray(), BigInteger.Zero);
         }
     }
 }
