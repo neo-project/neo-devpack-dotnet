@@ -29,22 +29,17 @@ See the [Getting Started Guide](GETTING-STARTED-GUIDE.md#prerequisites) for comp
    cd neo-devpack-dotnet
    ```
 
-2. **Initialize submodules**
-   ```bash
-   git submodule update --init --recursive
-   ```
-
-3. **Build the project**
+2. **Build the project**
    ```bash
    dotnet build
    ```
 
-4. **Run tests**
+3. **Run tests**
    ```bash
    dotnet test
    ```
 
-5. **Create a branch**
+4. **Create a branch**
    ```bash
    git checkout -b feature/your-feature-name
    # or

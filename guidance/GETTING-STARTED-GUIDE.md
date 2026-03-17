@@ -54,7 +54,7 @@ Before starting, ensure you have:
 
 ### Software Requirements
 1. **Git**: For version control ([Download](https://git-scm.com/))
-2. **.NET SDK 9.0+**: Required for compilation ([Download](https://dotnet.microsoft.com/download))
+2. **.NET SDK 10.0+**: Required for compilation ([Download](https://dotnet.microsoft.com/download))
 3. **Text Editor or IDE**: 
    - Visual Studio 2022+ (Windows/Mac)
    - Visual Studio Code (All platforms)
@@ -65,7 +65,7 @@ Before starting, ensure you have:
 
 ### Step 1: Install .NET SDK
 
-Download and install .NET SDK 9.0 or later from [dotnet.microsoft.com](https://dotnet.microsoft.com/download).
+Download and install .NET SDK 10.0 or later from [dotnet.microsoft.com](https://dotnet.microsoft.com/download).
 
 Verify installation:
 ```bash
@@ -116,11 +116,11 @@ Edit `HelloWorldContract.csproj`:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="3.8.1" />
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.9.1" />
   </ItemGroup>
 </Project>
 ```
@@ -348,7 +348,7 @@ Edit `HelloWorldContract.Tests.csproj`:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -356,7 +356,7 @@ Edit `HelloWorldContract.Tests.csproj`:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Neo.SmartContract.Testing" Version="3.8.1" />
+    <PackageReference Include="Neo.SmartContract.Testing" Version="3.9.1" />
   </ItemGroup>
 
   <ItemGroup>

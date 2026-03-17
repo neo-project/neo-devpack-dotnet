@@ -52,7 +52,7 @@ public class RuntimeSecurityDemo : SmartContract
         ExecutionEngine.Assert(blockIndex > 0, "Invalid block index");
         ExecutionEngine.Assert(timestamp > 0, "Invalid timestamp");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(platform), "Invalid platform");
-        ExecutionEngine.Assert(scriptHash != null && scriptHash.IsValid, "Invalid script hash");
+        ExecutionEngine.Assert(scriptHash.IsValid, "Invalid script hash");
     }
     
     /// <summary>
@@ -131,7 +131,7 @@ public class RuntimeSecurityPatterns : SmartContract
         
         // Verify contract state consistency
         UInt160 currentHash = Runtime.ExecutingScriptHash;
-        ExecutionEngine.Assert(currentHash != null && currentHash.IsValid, "Invalid contract hash");
+        ExecutionEngine.Assert(currentHash.IsValid, "Invalid contract hash");
         
         return true;
     }

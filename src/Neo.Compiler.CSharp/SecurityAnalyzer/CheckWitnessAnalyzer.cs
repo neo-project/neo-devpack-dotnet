@@ -42,7 +42,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             {
                 if (droppedCheckWitnessResults.Count == 0)
                     return "";
-                string result = $"[SEC] The returned values of CheckWitness at the following instruction addresses are DROPped:{Environment.NewLine}" +
+                string result = $"[SECURITY] The returned values of CheckWitness at the following instruction addresses are DROPped:{Environment.NewLine}" +
                     $"\t{string.Join(", ", droppedCheckWitnessResults)}{Environment.NewLine}" +
                     $"You should typically `Assert(CheckWitness({nameof(UInt160)} someone))`{Environment.NewLine}" +
                     $"instead of just `CheckWitness({nameof(UInt160)} someone)`{Environment.NewLine}";

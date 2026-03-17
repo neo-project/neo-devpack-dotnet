@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing;
 
 namespace Neo.Compiler.CSharp.UnitTests
@@ -28,5 +29,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(0, Contract.Decimals);
         }
+
+        [TestMethod]
+        public void UnitTest_Properties_ValidateTokenIdLength()
+        {
+            var ex = Assert.ThrowsException<TestException>(() => Contract.Properties(new byte[65]));
+            StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "64 or less bytes long");
+        }
+
+        [TestMethod]
+        public void UnitTest_Properties_MissingToken_Throws()
+        {
+            var ex = Assert.ThrowsException<TestException>(() => Contract.Properties(new byte[] { 0x01 }));
+            StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "does not exist");
+        }
+
+        [TestMethod]
+        public void UnitTest_Transfer_MissingToken_Throws()
+        {
+            var to = TestEngine.GetNewSigner().Account;
+            var ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(to, new byte[] { 0x02 }, null));
+            StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "does not exist");
+        }
+
     }
 }

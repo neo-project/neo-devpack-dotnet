@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Analyzer
 
             foreach (var group in groupedMethods)
             {
-                if (group.Count() <= 1) continue; // Naming conflict detected
+                if (group.Count() <= 1) continue; // No naming conflict, skip
                 foreach (var method in group)
                 {
                     var location = method.DeclaringSyntaxReferences.First().GetSyntax().GetLocation();
@@ -78,7 +78,8 @@ namespace Neo.SmartContract.Analyzer
         {
             while (symbol != null)
             {
-                if (symbol.BaseType?.ToString() == "SmartContract")
+                if (symbol.BaseType?.Name == "SmartContract" &&
+                    symbol.BaseType.ContainingNamespace?.ToString() == "Neo.SmartContract.Framework")
                     return true;
                 symbol = symbol.BaseType;
             }

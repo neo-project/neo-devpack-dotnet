@@ -50,7 +50,7 @@ The framework provides the necessary libraries and APIs for writing NEO smart co
 
 A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) bytecode. Features include:
 
-- Full C# language support for smart contract development
+- A partial C# language support for smart contract development
 - Optimization for gas efficiency
 - Debug information generation
 - Source code generation for contract testing

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Numerics;
 
+#pragma warning disable CS0067
+
 namespace Neo.SmartContract.Testing;
 
 public abstract class SampleHelloWorld(Neo.SmartContract.Testing.SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize), IContractInfo
@@ -16,7 +18,7 @@ public abstract class SampleHelloWorld(Neo.SmartContract.Testing.SmartContractIn
     /// <summary>
     /// Optimization: "Basic"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM05lby5Db21waWxlci5DU2hhcnAgMy45LjArNDIzNzFmNWY0ZTBiZTI4N2ExZmYyOGYzNThhYjI0NmY1YjQuLi4AAAAAABIMDUhlbGxvLCBXb3JsZCEiAkDcg2+V").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM05lby5Db21waWxlci5DU2hhcnAgMy45LjErZGM0ZWM2YzY0N2YwNWQ4ZTEwNDlkMDAwOTRkNWJiYjJjZDEuLi4AAAAAABIMDUhlbGxvLCBXb3JsZCEiAkCsNC06").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 

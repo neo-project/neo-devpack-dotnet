@@ -56,7 +56,7 @@ namespace Neo.SmartContract.Framework.Native
         ///   2. The 'amount' is less than zero.
         /// </para>
         /// <para>
-        /// If the tansfer is successful, a 'Transfer' notification event will be emitted.
+        /// If the transfer is successful, a 'Transfer' notification event will be emitted.
         /// </para>
         /// </summary>
         /// <returns>

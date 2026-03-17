@@ -73,7 +73,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 foreach ((BasicBlock callBlock, HashSet<BasicBlock> writeBlocks) in vulnerabilityPairs)
                 {
                     StringBuilder additional = new();
-                    additional.AppendLine($"[SEC] Potential Re-entrancy vulnerability detected");
+                    additional.AppendLine($"[SECURITY] Potential Re-entrancy vulnerability detected");
                     additional.AppendLine($"  Issue: Contract calls external code before writing to storage, allowing potential re-entrancy attacks");
 
                     // Add source location information for contract calls

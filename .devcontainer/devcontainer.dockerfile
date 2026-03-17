@@ -1,1 +1,1 @@
-FROM mcr.microsoft.com/devcontainers/dotnet:9.0-jammy
+FROM mcr.microsoft.com/devcontainers/dotnet:10.0-jammy

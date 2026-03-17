@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.Native
         public static extern UInt160 Hash { get; }
 
         /// <summary>
-        /// Serializes an object to bytes with neo binary serilization format.
+        /// Serializes an object to bytes with neo binary serialization format.
         /// The 'source' can be null, and if object is null, it will be treated as null item.
         /// <para>
         /// The execution will fail if:
@@ -34,11 +34,11 @@ namespace Neo.SmartContract.Framework.Native
         public extern static ByteString Serialize(object source);
 
         /// <summary>
-        /// Deserializes an object from bytes with neo binary serilization format.
+        /// Deserializes an object from bytes with neo binary serialization format.
         /// <para>
         /// The execution will fail if:
         ///  1. The 'source' is null.
-        ///  2. The 'source' is not a valid neo binary serilization format.
+        ///  2. The 'source' is not a valid neo binary serialization format.
         ///  3. The deserialized size exceeds the item size limit.
         /// </para>
         /// </summary>
@@ -344,6 +344,17 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         public static extern string[] StringSplit(string str, string separator, bool removeEmptyEntries);
+
+        /// <summary>
+        /// Split a byte-string into an array of substrings based on a separator.
+        /// If 'removeEmptyEntries' is true, empty entries will be removed from the result.
+        /// <para>
+        /// The execution will fail:
+        ///  1. The 'str' or 'separator' is null.
+        ///  2. The 'str.length' exceeds the MaxInputLength limits(the default value is 1024-byte).
+        /// </para>
+        /// </summary>
+        public static extern ByteString[] StringSplit(ByteString str, ByteString separator, bool removeEmptyEntries = false);
 
         /// <summary>
         /// Get the character count of the string.

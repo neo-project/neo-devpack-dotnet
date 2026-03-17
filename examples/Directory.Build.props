@@ -3,7 +3,7 @@
 
     <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
-        <VersionPrefix>3.9.0</VersionPrefix>
+        <VersionPrefix>3.9.1</VersionPrefix>
         <TargetFramework>net10.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
@@ -34,53 +34,13 @@
         <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
         <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
         
-        <NeoPackageVersion>3.9.0</NeoPackageVersion>
-
-        <!--
-        Analyzer Configuration:
-        Set UseLocalAnalyzer to 'false' when Neo.SmartContract.Analyzer 3.9.0+ is available on NuGet
-        Set UseLocalAnalyzer to 'true' to use the local project reference (current default)
-        -->
-        <UseLocalAnalyzer>true</UseLocalAnalyzer>
-        <NeoAnalyzerVersion>3.9.0</NeoAnalyzerVersion>
-
-        <!--
-        Framework/Testing Configuration:
-        Set UseLocalFramework/UseLocalTesting to 'false' when Neo.SmartContract.Framework/Testing 3.9.0+ are available on NuGet
-        -->
-        <UseLocalFramework>true</UseLocalFramework>
-        <UseLocalTesting>true</UseLocalTesting>
+        <NeoPackageVersion>3.9.1</NeoPackageVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-        <ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj"
-                          Condition="'$(UseLocalFramework)' == 'true'"/>
-        <PackageReference Include="Neo.SmartContract.Framework" Version="$(NeoPackageVersion)"
-                          Condition="'$(UseLocalFramework)' != 'true'"/>
-
-        <ProjectReference Include="..\..\src\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj"
-                          Condition="'$(UseLocalTesting)' == 'true'"/>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="$(NeoPackageVersion)"
-                          Condition="'$(UseLocalTesting)' != 'true'"/>
-        
-        <!-- 
-        Local Project Reference for Analyzer (Current - when UseLocalAnalyzer=true)
-        Use this when developing against the local source code
-        -->
-        <ProjectReference Include="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj" 
-                          Condition="'$(UseLocalAnalyzer)' == 'true'">
-            <OutputItemType>Analyzer</OutputItemType>
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-        </ProjectReference>
-        
-        <!-- 
-        NuGet Package Reference for Analyzer (Future - when UseLocalAnalyzer=false)
-        Use this when Neo.SmartContract.Analyzer is available on NuGet
-        To switch: Set <UseLocalAnalyzer>false</UseLocalAnalyzer> above
-        -->
-        <PackageReference Include="Neo.SmartContract.Analyzer" 
-                          Version="$(NeoAnalyzerVersion)" 
-                          Condition="'$(UseLocalAnalyzer)' == 'false'">
+        <PackageReference Include="Neo.SmartContract.Framework" Version="$(NeoPackageVersion)"/>
+        <PackageReference Include="Neo.SmartContract.Testing" Version="$(NeoPackageVersion)"/>
+        <PackageReference Include="Neo.SmartContract.Analyzer" Version="$(NeoPackageVersion)">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -88,10 +48,7 @@
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent"
             Condition="'$(IsTestProject)' != 'true' AND '$(MSBuildProjectName)' != 'TestContract' AND '$(DisableArtifactGeneration)' != 'true'">
-        <PropertyGroup>
-            <NccsProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj</NccsProject>
-        </PropertyGroup>
-        <Exec Command="dotnet run --project &quot;$(NccsProject)&quot; -- &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
+        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
     </Target>
 
     <!-- Smart Contract Artifact Generation Target -->
@@ -103,7 +60,6 @@
             <ArtifactClassName>Sample$(ContractName.Replace('Example.SmartContract.', ''))</ArtifactClassName>
             <NefFilePath>$(OutputPath)$(AssemblyName).nef</NefFilePath>
             <ManifestFilePath>$(OutputPath)$(AssemblyName).manifest.json</ManifestFilePath>
-            <NccsProject>$(MSBuildThisFileDirectory)..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj</NccsProject>
         </PropertyGroup>
         
         <!-- Generate artifact using nccs with additional parameters if unit test project exists -->
@@ -111,7 +67,7 @@
         <MakeDir Directories="$(TestingArtifactsDir)" Condition="Exists('$(UnitTestProjectDir)') AND !Exists('$(TestingArtifactsDir)')" />
         
         <!-- Use nccs to generate artifacts for unit tests -->
-        <Exec Command="dotnet run --project &quot;$(NccsProject)&quot; -- &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source" 
+        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source" 
               ContinueOnError="true" 
               Condition="Exists('$(UnitTestProjectDir)')" />
     </Target>

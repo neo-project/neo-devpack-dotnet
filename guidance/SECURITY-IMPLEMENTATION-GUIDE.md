@@ -19,7 +19,7 @@ public static class InputValidator
 {
     public static void ValidateAddress(UInt160 address, string paramName = "address")
     {
-        ExecutionEngine.Assert(address != null && address.IsValid, $"Invalid {paramName}");
+        ExecutionEngine.Assert(address.IsValid, $"Invalid {paramName}");
     }
     
     public static void ValidateAmount(BigInteger amount, BigInteger max = 0, string paramName = "amount")
@@ -275,10 +275,7 @@ public class SafeInteractions : SmartContract
         // Validate target contract
         ExecutionEngine.Assert(IsWhitelistedContract(targetContract), "Contract not whitelisted");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(method), "Invalid method");
-        
-        // Set call limits
-        const int MAX_GAS = 1_000_000;
-        
+
         try
         {
             // Make the call with gas limit
@@ -402,7 +399,7 @@ public class SecureErrorHandling : SmartContract
     
     private static void ValidateInputs(UInt160 user, string data)
     {
-        if (user == null || !user.IsValid)
+        if (!user.IsValid)
             throw new Exception("Invalid input: user address");
             
         if (string.IsNullOrEmpty(data) || data.Length > 1024)

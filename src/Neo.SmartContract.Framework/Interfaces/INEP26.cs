@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System.Numerics;
+using Neo.SmartContract.Framework.Services;
 
 namespace Neo.SmartContract.Framework.Interfaces;
 
@@ -33,5 +34,5 @@ public interface INEP26
     /// Both static and non-static methods of smart contract interface works,
     /// they differ on how you process static field.
     /// </remarks>
-    public void OnNEP11Payment(UInt160 from, BigInteger amount, string tokenId, object? data = null);
+    public void OnNEP11Payment(UInt160 from, BigInteger amount, ByteString tokenId, object? data = null);
 }

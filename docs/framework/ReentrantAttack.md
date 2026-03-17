@@ -73,3 +73,39 @@ Both attributes allow for customization:
 - Consider the trade-offs between using global (`NoReentrantAttribute`) and method-specific (`NoReentrantMethodAttribute`) protection based on your contract's needs.
 
 By using these attributes, Neo C# smart contract developers can easily add reentrancy protection to their contracts, significantly reducing the risk of reentrancy attacks and improving overall contract security.
+
+## Limitations and Known Risks
+
+### Cross-Contract Reentrancy Depends on Key Coverage
+
+The reentrancy flag is stored in contract storage, so it remains visible during callback flows such as Contract A -> Contract B -> Contract A.
+
+If the callback enters a method protected by the same lock key, reentry is blocked. This is automatic with `[NoReentrant]` because all decorated methods share one key.
+
+With `[NoReentrantMethod]`, each method uses its own key by default. A callback into a different method (or an unprotected method) can still execute unless you explicitly configure a shared key.
+
+For cross-contract call chains, protect all externally callable state-changing methods and use shared keys where method-level guards must behave as one lock.
+
+### Unhandled Exceptions May Leave the Lock Permanently Set
+
+The reentrancy lock is stored in contract storage. The `Exit()` method is responsible for clearing this lock after method execution. If an unhandled exception occurs in a code path where `Exit()` is not reached, the lock key remains in storage permanently. This effectively bricks the protected method (or all `[NoReentrant]` methods), as every subsequent call will see the lock and throw "Already entered".
+
+To mitigate this risk:
+
+- Ensure all code paths within protected methods are properly handled.
+- Consider implementing an administrative method to manually clear the lock key in emergency scenarios.
+
+### Shared Lock Key for `[NoReentrant]`
+
+All methods decorated with `[NoReentrant]` share a single lock key (`"noReentrant"` by default). This means that if Method A is executing, any call to Method B (also decorated with `[NoReentrant]`) will be rejected, even if Method B is a completely unrelated operation.
+
+This is a global mutex across all `[NoReentrant]` methods in the contract. If you need independent locking for different methods, use `[NoReentrantMethod]` instead.
+
+### `[NoReentrant]` vs `[NoReentrantMethod]`
+
+| Attribute             | Lock Scope                     | Key Used                            | Use Case                                                                    |
+| --------------------- | ------------------------------ | ----------------------------------- | --------------------------------------------------------------------------- |
+| `[NoReentrant]`       | Global (all decorated methods) | Single shared key (`"noReentrant"`) | When you want to prevent any concurrent execution across multiple methods   |
+| `[NoReentrantMethod]` | Per-method                     | Method name (or custom key)         | When methods are independent and should only block re-entry into themselves |
+
+Choose `[NoReentrantMethod]` when your contract has multiple protected methods that do not share state and should be allowed to execute independently. Choose `[NoReentrant]` when all protected methods access shared state and no two should ever run concurrently.

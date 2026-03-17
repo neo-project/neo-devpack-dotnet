@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 
 namespace Neo.SmartContract.Framework.UnitTests
@@ -49,6 +50,18 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestStandardNEP11PayableAttribute()
         {
             CollectionAssert.AreEqual(Contract_SupportedStandard26.Manifest.SupportedStandards, new string[] { "NEP-26" });
+        }
+
+        [TestMethod]
+        public void TestStandardNEP11PayableTokenIdType()
+        {
+            var onPayment26 = Contract_SupportedStandard26.Manifest.Abi.GetMethod("onNEP11Payment", 4);
+            Assert.IsNotNull(onPayment26);
+            Assert.AreEqual(ContractParameterType.ByteArray, onPayment26!.Parameters[2].Type);
+
+            var onPayment11 = Contract_SupportedStandard11Enum.Manifest.Abi.GetMethod("onNEP11Payment", 4);
+            Assert.IsNotNull(onPayment11);
+            Assert.AreEqual(ContractParameterType.ByteArray, onPayment11!.Parameters[2].Type);
         }
 
         [TestMethod]

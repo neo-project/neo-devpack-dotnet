@@ -44,7 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             string warningInfo = v.GetWarningInfo(print: false);
 
             // Verify enhanced diagnostic format
-            Assert.IsTrue(warningInfo.Contains("[SEC] Potential Re-entrancy vulnerability detected"));
+            Assert.IsTrue(warningInfo.Contains("[SECURITY] Potential Re-entrancy vulnerability detected"));
             Assert.IsTrue(warningInfo.Contains("External contract calls:"));
             Assert.IsTrue(warningInfo.Contains("Storage writes that occur after external calls:"));
             Assert.IsTrue(warningInfo.Contains("Recommendation:"));

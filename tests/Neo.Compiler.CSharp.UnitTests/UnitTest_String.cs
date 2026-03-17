@@ -149,13 +149,34 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(compare);
 
             Assert.AreEqual(0, Contract.TestCompare("alpha", "alpha"));
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(2032170);
 
             Assert.IsTrue(Contract.TestCompare("alpha", "beta") < 0);
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(2032170);
 
             Assert.IsTrue(Contract.TestCompare("beta", "alpha") > 0);
-            AssertGasConsumed(1047900);
+            AssertGasConsumed(2032170);
+        }
+
+        [TestMethod]
+        public void Test_TestCompare_EdgeCases()
+        {
+            // Empty vs non-empty
+            var emptyVsNonEmpty = Contract.TestCompare("", "a");
+            var nonEmptyVsEmpty = Contract.TestCompare("a", "");
+            Assert.IsTrue(emptyVsNonEmpty < 0);
+            Assert.IsTrue(nonEmptyVsEmpty > 0);
+
+            // Single-character ordering
+            var aVsB = Contract.TestCompare("a", "b");
+            var bVsA = Contract.TestCompare("b", "a");
+            Assert.IsTrue(aVsB < 0);
+            Assert.IsTrue(bVsA > 0);
+
+            // Null handling
+            Assert.IsTrue(Contract.TestCompare(null, "a") < 0);
+            Assert.IsTrue(Contract.TestCompare("a", null) > 0);
+            Assert.AreEqual(0, Contract.TestCompare(null, null));
         }
 
         [TestMethod]

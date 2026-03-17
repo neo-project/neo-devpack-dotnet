@@ -570,12 +570,16 @@ namespace Neo.Compiler
             return sorted;
         }
 
+        private const string SmartContractTypeName = "SmartContract";
+        private const string SmartContractNamespace = "Neo.SmartContract.Framework";
+
         internal static bool IsDerivedFromSmartContract(INamedTypeSymbol classSymbol)
         {
             var baseType = classSymbol.BaseType;
             while (baseType != null)
             {
-                if (baseType.ToString() == "Neo.SmartContract.Framework.SmartContract")
+                if (baseType.Name == SmartContractTypeName &&
+                    baseType.ContainingNamespace?.ToString() == SmartContractNamespace)
                 {
                     return true;
                 }

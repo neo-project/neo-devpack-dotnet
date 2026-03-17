@@ -21,11 +21,11 @@ Every operation in NEO has a gas cost. Understanding these costs is crucial for 
 
 | Operation | Gas Cost | Notes |
 |-----------|----------|-------|
-| Storage.Put (per byte) | 1 GAS | Most expensive operation |
-| Storage.Get | 0.3 GAS | Cache frequently accessed data |
-| Contract.Call | 0.01 GAS | Minimize external calls |
-| Runtime.CheckWitness | 0.2 GAS | Cache results when possible |
-| Crypto operations | 0.01-1 GAS | Varies by operation |
+| Storage.Put (per byte) | About 0.001 GAS per-operation + About 0.0003 GAS per-byte for add, 0.000075 GAS per-byte for update | Minimize storage size |
+| Storage.Get | About 0.001 GAS per-operation | Cache frequently accessed data |
+| Contract.Call | About 0.001 GAS per-operation | Minimize external calls |
+| Runtime.CheckWitness | About 0.0003 GAS per-operation | Cache results when possible |
+| Crypto operations | About 0.0003 to 0.001 GAS per-operation | Varies by operation |
 
 ### Core Principles
 
@@ -118,8 +118,8 @@ public class EarlyExitOptimized : SmartContract
     // ❌ BAD: Checks all conditions even if first fails
     public static bool ProcessTransactionBad(UInt160 from, UInt160 to, BigInteger amount)
     {
-        var isFromValid = from != null && from.IsValid;
-        var isToValid = to != null && to.IsValid;
+        var isFromValid = from.IsValid;
+        var isToValid = to.IsValid;
         var isAmountValid = amount > 0 && amount <= MAX_AMOUNT;
         var hasBalance = GetBalance(from) >= amount;
         var isAuthorized = Runtime.CheckWitness(from);
@@ -135,8 +135,8 @@ public class EarlyExitOptimized : SmartContract
     public static bool ProcessTransactionGood(UInt160 from, UInt160 to, BigInteger amount)
     {
         // Cheapest checks first
-        if (from == null || !from.IsValid) return false;
-        if (to == null || !to.IsValid) return false;
+        if (!from.IsValid) return false;
+        if (!to.IsValid) return false;
         if (amount <= 0 || amount > MAX_AMOUNT) return false;
         
         // More expensive checks later
@@ -359,6 +359,8 @@ public class BatchOperations : SmartContract
     // ❌ BAD: Individual transfers
     public static void TransferToMultipleBad(UInt160 from, UInt160[] recipients, BigInteger amount)
     {
+        // Add some checks there, for example:
+        ExecutionEngine.Assert(amount > 0, "Amount must be greater than 0");
         foreach (var recipient in recipients)
         {
             Transfer(from, recipient, amount); // Multiple storage updates
@@ -368,24 +370,27 @@ public class BatchOperations : SmartContract
     // ✅ GOOD: Batch transfer with single balance update
     public static void TransferToMultipleGood(UInt160 from, UInt160[] recipients, BigInteger amountEach)
     {
+        // Add some checks there, for example:
+        ExecutionEngine.Assert(amountEach > 0, "Amount must be greater than 0");
+
         var totalAmount = amountEach * recipients.Length;
         var fromBalance = GetBalance(from);
-        
+
         ExecutionEngine.Assert(fromBalance >= totalAmount, "Insufficient balance");
-        
+
         // Update sender balance once
         SetBalance(from, fromBalance - totalAmount);
-        
+
         // Update recipients
         foreach (var recipient in recipients)
         {
             var recipientBalance = GetBalance(recipient);
             SetBalance(recipient, recipientBalance + amountEach);
         }
-        
+
         OnBatchTransfer(from, recipients, amountEach);
     }
-    
+
     [DisplayName("BatchTransfer")]
     public static event Action<UInt160, UInt160[], BigInteger> OnBatchTransfer;
 }
@@ -402,7 +407,7 @@ public class BatchStateUpdate : SmartContract
         public ByteString Value;
         public bool IsDelete;
     }
-    
+
     public static void BatchUpdate(StateUpdate[] updates)
     {
         // If ordering matters, sort `updates` off-chain before calling.
@@ -435,7 +440,7 @@ public class PerformanceTests : TestBase<MyContract>
             ("Transfer", () => Contract.Transfer(User1, User2, 100)),
             ("Complex Calculation", () => Contract.CalculateRewards(User1))
         };
-        
+
         foreach (var (name, operation) in operations)
         {
             var gasBefore = Engine.GasConsumed;
@@ -451,7 +456,7 @@ public class PerformanceTests : TestBase<MyContract>
     public void BenchmarkBatchVsIndividual()
     {
         var users = GenerateUsers(100);
-        
+
         // Measure individual operations
         var individualGas = MeasureGas(() =>
         {
@@ -460,13 +465,13 @@ public class PerformanceTests : TestBase<MyContract>
                 Contract.UpdateBalance(user, 100);
             }
         });
-        
+
         // Measure batch operation
         var batchGas = MeasureGas(() =>
         {
             Contract.BatchUpdateBalances(users, Enumerable.Repeat(100, users.Length).ToArray());
         });
-        
+
         Console.WriteLine($"Individual: {individualGas} GAS");
         Console.WriteLine($"Batch: {batchGas} GAS");
         Console.WriteLine($"Savings: {(1 - batchGas / individualGas) * 100:F2}%");
@@ -486,7 +491,7 @@ public class LoadTests : TestBase<MyContract>
     {
         var testCases = new[] { 10, 50, 100, 500, 1000 };
         var results = new List<(int Count, long GasUsed, double TimeMs)>();
-        
+
         foreach (var count in testCases)
         {
             var users = GenerateUsers(count);
@@ -518,16 +523,6 @@ public class LoadTests : TestBase<MyContract>
 ```
 
 ## Benchmarks and Metrics
-
-### Reference Performance Metrics
-
-| Operation | Target Gas Cost | Maximum Acceptable |
-|-----------|----------------|-------------------|
-| Simple Transfer | < 0.1 GAS | 0.5 GAS |
-| Token Mint | < 0.2 GAS | 1 GAS |
-| Complex Calculation | < 0.5 GAS | 2 GAS |
-| Batch Transfer (100) | < 5 GAS | 20 GAS |
-| Storage Update | < 0.01 GAS/byte | 0.05 GAS/byte |
 
 ### Performance Monitoring
 

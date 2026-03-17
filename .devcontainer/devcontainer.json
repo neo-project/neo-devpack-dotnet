@@ -6,7 +6,6 @@
 		// Path is relative to the devcontainer.json file.
 		"dockerfile": "devcontainer.dockerfile"
 	},
-	"onCreateCommand": "./scripts/load_submodule.sh",
 	"postCreateCommand": "dotnet restore && dotnet build",
 	"customizations": {
 		"vscode": {

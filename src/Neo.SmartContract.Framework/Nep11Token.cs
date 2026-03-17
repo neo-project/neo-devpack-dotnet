@@ -14,12 +14,14 @@ using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep11)]
     [ContractPermission(Permission.Any, Method.OnNEP11Payment)]
+    [ExcludeFromCodeCoverage]
     public abstract class Nep11Token<TokenState> : TokenContract
         where TokenState : Nep11TokenState
     {
@@ -48,8 +50,10 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public virtual Map<string, object> Properties(ByteString tokenId)
         {
+            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
             var tokenMap = new StorageMap(Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]!);
+            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             return new Map<string, object>()
             {
                 ["name"] = token.Name
@@ -66,18 +70,19 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator TokensOf(UInt160 owner)
         {
-            if (!owner.IsValid)
-                throw new Exception("The argument \"owner\" is invalid");
+            if (!owner.IsValid) throw new Exception("The argument \"owner\" is invalid");
+
             var accountMap = new StorageMap(Prefix_AccountToken);
             return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
         public static bool Transfer(UInt160 to, ByteString tokenId, object data)
         {
-            if (to is null || !to.IsValid)
-                throw new Exception("The argument \"to\" is invalid.");
+            if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
+
             var tokenMap = new StorageMap(Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]!);
+            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             UInt160 from = token.Owner;
             if (!Runtime.CheckWitness(from)) return false;
             if (from != to)
@@ -140,7 +145,7 @@ namespace Neo.SmartContract.Framework
         {
             OnTransfer(from, to, 1, tokenId);
             if (to is not null && ContractManagement.GetContract(to) is not null)
-                Contract.Call(to, "onNEP11Payment", CallFlags.All, from, 1, tokenId, data);
+                Contract.Call(to, Method.OnNEP11Payment, CallFlags.All, from, 1, tokenId, data);
         }
     }
 }

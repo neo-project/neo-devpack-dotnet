@@ -36,8 +36,9 @@ namespace Neo.SmartContract.Framework.Native
         /// <para>
         /// The execution will fail if:
         ///  1. The 'url' is null or length exceeds MaxUrlLength(the default value is 256 bytes).
-        ///  2. The 'filter' is null or length exceeds MaxFilterLength(the default value is 128 bytes).
-        ///  3. The 'callback' is null or length exceeds MaxCallbackLength(the default value is 32 bytes) or starts with '_'.
+        ///  2. The 'filter' length exceeds MaxFilterLength(the default value is 128 bytes).
+        ///    The 'filter' can be null and null means no filter(i.e. return the entire response).
+        ///  3. The 'callback' length exceeds MaxCallbackLength(the default value is 32 bytes) or starts with '_'.
         ///  4. The 'userData' is null or length exceeds MaxUserDataLength(the default value is 512 bytes).
         ///  5. The 'gasForResponse' is less than 0.1 GAS.
         ///  6. Too many pending responses for the specified URL.
@@ -49,6 +50,6 @@ namespace Neo.SmartContract.Framework.Native
         /// <param name="callback">The method name of calling contract to call when the response is received.</param>
         /// <param name="userData">The user data to pass to the callback.</param>
         /// <param name="gasForResponse">The amount of GAS(in the unit of datoshi) for the response.</param>
-        public static extern void Request(string url, string filter, string callback, object userData, long gasForResponse);
+        public static extern void Request(string url, string? filter, string callback, object? userData, long gasForResponse);
     }
 }

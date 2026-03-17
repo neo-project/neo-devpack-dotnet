@@ -250,6 +250,8 @@ public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
 {
     // Debug: Log parameters
     Runtime.Log($"Transfer: {from} -> {to}, amount: {amount}");
+
+    ExecutionEngine.Assert(amount > 0, "Amount must be greater than 0");
     
     // This might fail with ASSERT
     ExecutionEngine.Assert(Runtime.CheckWitness(from), "Witness check failed");
@@ -369,7 +371,7 @@ public static class DebugHelpers
 public static bool SafeOperation(UInt160 user, BigInteger amount)
 {
     // Validate all inputs first
-    if (user == null || !user.IsValid)
+    if (!user.IsValid)
     {
         Runtime.Log("Invalid user address");
         return false;

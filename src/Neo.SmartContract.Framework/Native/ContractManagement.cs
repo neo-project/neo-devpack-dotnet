@@ -72,18 +72,6 @@ namespace Neo.SmartContract.Framework.Native
         public static extern bool HasMethod(UInt160 hash, string method, int pcount);
 
         /// <summary>
-        /// Deploys a new contract.
-        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify before HF_Aspidochelone, CallFlags.All after HF_Aspidochelone.
-        /// <para>
-        /// The execution will fail if:
-        ///  1. The 'nefFile' is null or empty, or not a valid NEF file.
-        ///  2. The 'manifest' is null or empty, or not a valid manifest.
-        ///  3. The contract hash has been blocked or already exists.
-        /// </para>
-        /// </summary>
-        public static extern Contract Deploy(ByteString nefFile, string manifest);
-
-        /// <summary>
         /// Deploys a new contract with the specified data.
         /// The 'data' will be passed to the '_deploy' method of the contract.
         /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify before HF_Aspidochelone, CallFlags.All after HF_Aspidochelone.
@@ -94,21 +82,7 @@ namespace Neo.SmartContract.Framework.Native
         ///  3. The contract hash has been blocked or already exists.
         /// </para>
         /// </summary>
-        public static extern Contract Deploy(ByteString nefFile, string manifest, object data);
-
-        /// <summary>
-        /// Updates a contract.
-        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify before HF_Aspidochelone, CallFlags.All after HF_Aspidochelone.
-        /// <para>
-        /// The execution will fail if:
-        ///  1. The 'nefFile' and 'manifest' are both null.
-        ///  2. The 'nefFile' is empty or is not a valid NEF file;
-        ///  3. The 'manifest' is empty or is not a valid manifest.
-        ///  4. The tartget contract does not exist.
-        ///  5. The contract update times reached the maximum number of updates(ushort.MaxValue).
-        /// </para>
-        /// </summary>
-        public static extern void Update(ByteString nefFile, string manifest);
+        public static extern Contract Deploy(ByteString nefFile, string manifest, object? data = null);
 
         /// <summary>
         /// Updates a contract with the specified data.
@@ -123,7 +97,7 @@ namespace Neo.SmartContract.Framework.Native
         ///  5. The contract update times reached the maximum number of updates(ushort.MaxValue).
         /// </para>
         /// </summary>
-        public static extern void Update(ByteString nefFile, string manifest, object data);
+        public static extern void Update(ByteString? nefFile, string? manifest, object? data = null);
 
         /// <summary>
         /// Destroys a contract(the calling contract).

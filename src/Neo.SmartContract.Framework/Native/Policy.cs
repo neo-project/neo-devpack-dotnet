@@ -66,19 +66,6 @@ namespace Neo.SmartContract.Framework.Native
         public static extern Iterator GetBlockedAccounts();
 
         /// <summary>
-        /// Recovers blocked funds to the Treasury contract.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.All.
-        /// <para>
-        /// The execution will fail if:
-        ///  1. 'account' or 'token' is null.
-        ///  2. The token is not exists or is not a valid NEP-17 contract.
-        ///  3. The time requirement for recovering funds is not met(The default value is 1 year, i.e. Request must be signed at least 1 year ago).
-        /// </para>
-        /// </summary>
-        public static extern bool RecoverFund(UInt160 account, UInt160 token);
-
-        /// <summary>
         /// Get the attribute fee in the unit of datoshi, 1 datoshi = 1e-8 GAS.
         /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
@@ -86,49 +73,6 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         public static extern uint GetAttributeFee(TransactionAttributeType attributeType);
-
-        /// <summary>
-        /// Set the attribute fee in the unit of datoshi, 1 datoshi = 1e-8 GAS.
-        /// Only committee can call this method.
-        /// CallFlags requirement: CallFlags.States.
-        /// <para>
-        /// The execution will fail if:
-        ///  1. 'attributeType' is not a valid TransactionAttributeType.
-        ///  2. 'value' is greater than MaxAttributeFee(the default value is 10_0000_0000).
-        ///  3. The caller is not the committee.
-        /// </para>
-        /// </summary>
-        public static extern void SetAttributeFee(TransactionAttributeType attributeType, uint value);
-
-        /// <summary>
-        /// Sets a whitelisted method to pay a fixed execution fee.
-        /// Only committee can call this method.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
-        /// <para>
-        /// The execution will fail if:
-        ///  1. The caller is not the committee.
-        ///  2. The contract is null or not a valid contract.
-        ///  3. The method is not found in the contract.
-        ///  4. The argument count is not equal to the method's parameter count.
-        ///  5. The fixed fee is negative.
-        /// </para>
-        /// </summary>
-        public static extern void SetWhitelistFeeContract(UInt160 contractHash, string method, int argCount, long fixedFee);
-
-        /// <summary>
-        /// Removes a whitelisted fixed execution fee entry.
-        /// Only committee can call this method.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
-        /// <para>
-        /// The execution will fail if:
-        ///  1. The caller is not the committee.
-        ///  2. The contract is null or not a valid contract.
-        ///  3. The method is not found in the contract.
-        ///  4. The argument count is not equal to the method's parameter count.
-        /// </summary>
-        public static extern void RemoveWhitelistFeeContract(UInt160 contractHash, string method, int argCount);
 
         /// <summary>
         /// Returns an iterator over whitelisted fee contracts.

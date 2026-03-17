@@ -161,22 +161,6 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
             $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it's parameters length is not 1"));
 
-        if (ownerOfMethod is null)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it is not found in the ABI"));
-
-        if (ownerOfMethod is { Safe: false })
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it is not safe, you should add a 'Safe' attribute to the ownerOf method"));
-
-        if (ownerOfMethod is not null && ownerOfMethod.ReturnType != ContractParameterType.Hash160)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it's return type is not an InteropInterface"));
-
-        if (ownerOfMethod is not null && ownerOfMethod.Parameters.Length != 1)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it's parameters length is not 1"));
-
         if (ownerOfMethod is not null && ownerOfMethod.Parameters[0].Type != ContractParameterType.ByteArray)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
             $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it's parameters type is not a ByteArray"));

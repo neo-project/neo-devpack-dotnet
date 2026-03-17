@@ -18,6 +18,24 @@ namespace Neo.Compiler.CSharp.TestContracts
 {
     public class Contract_Pattern : SmartContract.Framework.SmartContract
     {
+        private class RecursivePatternProbe
+        {
+            public RecursivePatternProbe(bool first, bool second)
+            {
+                First = first;
+                Second = second;
+            }
+
+            public bool First { get; }
+            public bool Second { get; }
+        }
+
+        private class RecursivePatternProbeWithThrowingSecond
+        {
+            public bool First => false;
+            public bool Second => throw new Exception("Second property getter should not be evaluated.");
+        }
+
         public bool between(int value)
         {
             return value is > 1 and < 100;
@@ -44,9 +62,51 @@ namespace Neo.Compiler.CSharp.TestContracts
 
             return newOwner switch
             {
-                { IsValid: true, IsZero: false } => true,
+                { IsValid: true, IsZero: true } => true,
                 _ => false,
             };
+        }
+
+        public bool testRecursivePatternAllMatch()
+        {
+            RecursivePatternProbe probe = new RecursivePatternProbe(true, false);
+            return probe switch
+            {
+                { First: true, Second: false } => true,
+                _ => false,
+            };
+        }
+
+        public bool testRecursivePatternSecondMismatch()
+        {
+            RecursivePatternProbe probe = new RecursivePatternProbe(true, true);
+            return probe switch
+            {
+                { First: true, Second: false } => true,
+                _ => false,
+            };
+        }
+
+        public bool testRecursivePatternShortCircuitOnFirstMismatch()
+        {
+            RecursivePatternProbeWithThrowingSecond probe = new RecursivePatternProbeWithThrowingSecond();
+            return probe switch
+            {
+                { First: true, Second: true } => true,
+                _ => false,
+            };
+        }
+
+        public bool testRecursivePatternEmptyPropertyPatternForNull()
+        {
+            RecursivePatternProbe? probe = null;
+            return probe is { };
+        }
+
+        public bool testRecursivePatternEmptyPropertyPatternForValue()
+        {
+            RecursivePatternProbe? probe = new RecursivePatternProbe(true, true);
+            return probe is { };
         }
 
         public bool between4(int value)

@@ -308,7 +308,7 @@ public class NepStandardImplementationAnalyzerUnitTest
                                                  [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep26)]
                                                  public class SampleNep26 : Neo.SmartContract.Framework.Interfaces.INEP26
                                                  {
-                                                     public void OnNEP11Payment(Neo.SmartContract.Framework.UInt160 from, System.Numerics.BigInteger amount, string tokenId, object data = null)
+                                                     public void OnNEP11Payment(Neo.SmartContract.Framework.UInt160 from, System.Numerics.BigInteger amount, Neo.SmartContract.Framework.ByteString tokenId, object data = null)
                                                      {
                                                      }
                                                  }
