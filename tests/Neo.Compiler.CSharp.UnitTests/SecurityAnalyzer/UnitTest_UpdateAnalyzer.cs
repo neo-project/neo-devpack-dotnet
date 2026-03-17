@@ -177,6 +177,32 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.IsTrue(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "Syscall pattern should be detected");
         }
 
+        [TestMethod]
+        public void Test_UpdateAnalyzer_SyscallPattern_WithWrongHash_NotDetected()
+        {
+            byte[] updateBytes = Encoding.UTF8.GetBytes("update");
+            byte[] hashBytes = UInt160.Zero.GetSpan().ToArray();
+            uint syscall = ApplicationEngine.System_Contract_Call.Hash;
+
+            var script = new List<byte>();
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)updateBytes.Length);
+            script.AddRange(updateBytes);
+
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)hashBytes.Length);
+            script.AddRange(hashBytes);
+
+            script.Add((byte)OpCode.SYSCALL);
+            script.AddRange(BitConverter.GetBytes(syscall));
+            script.Add((byte)OpCode.RET);
+
+            NefFile nef = CreateNefFile(script.ToArray(), Array.Empty<MethodToken>());
+            var manifest = CreateManifest();
+
+            Assert.IsFalse(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "Wrong target hash should not be detected as update");
+        }
+
         private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)
         {
             return new NefFile

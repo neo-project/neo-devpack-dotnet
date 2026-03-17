@@ -79,6 +79,29 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
         }
 
+        [TestMethod]
+        public void Test_IntegerPush2_Add_Optimization_DoesNotCrash()
+        {
+            using ScriptBuilder sb = new();
+            sb.Emit(OpCode.PUSHINT8, new byte[] { 0x02 });
+            sb.Emit(OpCode.ADD);
+            sb.Emit(OpCode.RET);
+
+            byte[] script = sb.ToArray();
+            NefFile nef = CreateNefFile(script);
+            var manifest = CreateManifest();
+
+            try
+            {
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
+                Assert.IsNotNull(optimizedNef);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"Optimization threw exception: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Test that integer push with value 1 followed by ADD does not crash.
         /// This specifically tests the pattern: (pushInt.Contains && value==1) || PUSH1
@@ -124,6 +147,29 @@ namespace Neo.Compiler.CSharp.UnitTests
             var manifest = CreateManifest();
 
             // Optimize - should not throw
+            try
+            {
+                var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);
+                Assert.IsNotNull(optimizedNef);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"Optimization threw exception: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public void Test_IntegerPush0_NumEqual_Optimization_DoesNotCrash()
+        {
+            using ScriptBuilder sb = new();
+            sb.Emit(OpCode.PUSHINT8, new byte[] { 0x00 });
+            sb.Emit(OpCode.NUMEQUAL);
+            sb.Emit(OpCode.RET);
+
+            byte[] script = sb.ToArray();
+            NefFile nef = CreateNefFile(script);
+            var manifest = CreateManifest();
+
             try
             {
                 var (optimizedNef, _, _) = NeoOptimizer.Optimize(nef, manifest, null, CompilationOptions.OptimizationType.Experimental);

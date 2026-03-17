@@ -17,7 +17,9 @@ using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
@@ -118,6 +120,159 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             string warningInfo = vuln.GetWarningInfo(print: false);
 
             Assert.IsTrue(warningInfo.Contains("At: b.cs:2:1"), "Expected mapping to b.cs based on method range");
+        }
+
+        [TestMethod]
+        public void Test_WriteInTry_InvalidDebugInfo_FallsBack_To_Address_Format()
+        {
+            var debugInfo = new JObject
+            {
+                ["methods"] = "invalid"
+            };
+
+            using ScriptBuilder sb = new();
+            sb.EmitSysCall(ApplicationEngine.System_Storage_Put);
+            var instruction = ((Script)sb.ToArray()).EnumerateInstructions().First().instruction;
+            var block = new BasicBlock(0, new List<Neo.VM.Instruction> { instruction });
+            var vulnerabilities = new Dictionary<BasicBlock, HashSet<int>>
+            {
+                [block] = new HashSet<int> { 0 }
+            };
+
+            var vuln = new WriteInTryAnalyzer.WriteInTryVulnerability(vulnerabilities, debugInfo);
+            string warningInfo = vuln.GetWarningInfo(print: false);
+
+            Assert.IsTrue(warningInfo.Contains("Try block addresses: {0}"));
+            Assert.IsTrue(warningInfo.Contains("Write instruction addresses: 0"));
+        }
+
+        [TestMethod]
+        public void Test_WriteInTry_DebugInfo_WithoutMatchingSequencePoint_FallsBack_To_InstructionAddress()
+        {
+            string json = $@"{{
+  ""hash"": ""{UInt160.Zero}"",
+  ""document-root"": """",
+  ""documents"": [""a.cs""],
+  ""methods"": [
+    {{
+      ""id"": ""0"",
+      ""name"": ""Test,MethodA"",
+      ""range"": ""10-20"",
+      ""params"": [],
+      ""sequence-points"": [""15[0]1:1-1:2""]
+    }}
+  ]
+}}";
+
+            var debugInfo = (JObject)JToken.Parse(json)!;
+
+            using ScriptBuilder sb = new();
+            sb.EmitSysCall(ApplicationEngine.System_Storage_Put);
+            var instruction = ((Script)sb.ToArray()).EnumerateInstructions().First().instruction;
+            var block = new BasicBlock(10, new List<Neo.VM.Instruction> { instruction });
+            var vulnerabilities = new Dictionary<BasicBlock, HashSet<int>>
+            {
+                [block] = new HashSet<int> { 10 }
+            };
+
+            var vuln = new WriteInTryAnalyzer.WriteInTryVulnerability(vulnerabilities, debugInfo);
+            string warningInfo = vuln.GetWarningInfo(print: false);
+
+            Assert.IsTrue(warningInfo.Contains("At instruction address: 10"));
+        }
+
+        [TestMethod]
+        public void Test_FindAllBasicBlocksWritingStorageInTryCatchFinally_ReturnsEmpty_WhenAlreadyVisited()
+        {
+            BasicBlock block = CreateStorageWriteBlock(0);
+            var coverage = new TryCatchFinallySingleCoverage(
+                null!,
+                0, -1, -1,
+                block, null, null,
+                new HashSet<BasicBlock> { block },
+                new HashSet<BasicBlock>(),
+                new HashSet<BasicBlock>(),
+                new HashSet<BasicBlock>(),
+                new HashSet<TryCatchFinallySingleCoverage>(),
+                new HashSet<TryCatchFinallySingleCoverage>(),
+                new HashSet<TryCatchFinallySingleCoverage>());
+
+            var result = WriteInTryAnalyzer.FindAllBasicBlocksWritingStorageInTryCatchFinally(
+                coverage,
+                new HashSet<TryCatchFinallySingleCoverage> { coverage },
+                new HashSet<BasicBlock> { block });
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void Test_FindAllBasicBlocksWritingStorageInTryCatchFinally_TraversesNestedTrys()
+        {
+            BasicBlock block = CreateStorageWriteBlock(0);
+            var nested = new TryCatchFinallySingleCoverage(
+                null!,
+                1, -1, -1,
+                block, null, null,
+                new HashSet<BasicBlock> { block },
+                new HashSet<BasicBlock>(),
+                new HashSet<BasicBlock>(),
+                new HashSet<BasicBlock>(),
+                new HashSet<TryCatchFinallySingleCoverage>(),
+                new HashSet<TryCatchFinallySingleCoverage>(),
+                new HashSet<TryCatchFinallySingleCoverage>());
+            var outer = new TryCatchFinallySingleCoverage(
+                null!,
+                0, -1, -1,
+                block, null, null,
+                new HashSet<BasicBlock>(),
+                new HashSet<BasicBlock>(),
+                new HashSet<BasicBlock>(),
+                new HashSet<BasicBlock>(),
+                new HashSet<TryCatchFinallySingleCoverage> { nested },
+                new HashSet<TryCatchFinallySingleCoverage>(),
+                new HashSet<TryCatchFinallySingleCoverage>());
+
+            var result = WriteInTryAnalyzer.FindAllBasicBlocksWritingStorageInTryCatchFinally(
+                outer,
+                new HashSet<TryCatchFinallySingleCoverage>(),
+                new HashSet<BasicBlock> { block });
+
+            Assert.AreEqual(1, result.Count);
+            Assert.IsTrue(result.Contains(block));
+        }
+
+        [TestMethod]
+        public void Test_WriteInTry_WarningInfo_Print_WritesToConsole()
+        {
+            BasicBlock block = CreateStorageWriteBlock(0);
+            var vulnerabilities = new Dictionary<BasicBlock, HashSet<int>>
+            {
+                [block] = new HashSet<int> { 0 }
+            };
+            var vuln = new WriteInTryAnalyzer.WriteInTryVulnerability(vulnerabilities, null);
+            var writer = new StringWriter();
+            TextWriter originalOut = Console.Out;
+
+            try
+            {
+                Console.SetOut(writer);
+                string warningInfo = vuln.GetWarningInfo(print: true);
+                Assert.IsTrue(warningInfo.Contains("Write instruction addresses: 0"));
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
+
+            Assert.IsTrue(writer.ToString().Contains("Write instruction addresses: 0"));
+        }
+
+        private static BasicBlock CreateStorageWriteBlock(int startAddress)
+        {
+            using ScriptBuilder sb = new();
+            sb.EmitSysCall(ApplicationEngine.System_Storage_Put);
+            var instruction = ((Script)sb.ToArray()).EnumerateInstructions().First().instruction;
+            return new BasicBlock(startAddress, new List<Neo.VM.Instruction> { instruction });
         }
     }
 }
