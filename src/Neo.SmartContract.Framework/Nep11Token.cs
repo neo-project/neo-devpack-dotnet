@@ -79,6 +79,7 @@ namespace Neo.SmartContract.Framework
         public static bool Transfer(UInt160 to, ByteString tokenId, object data)
         {
             if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
+            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
 
             var tokenMap = new StorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
