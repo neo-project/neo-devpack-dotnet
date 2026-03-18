@@ -52,5 +52,41 @@ namespace Neo.Compiler.CSharp.UnitTests
             StringAssert.Contains(output, "tokensOf, it's parameters type is not a Hash160");
             StringAssert.Contains(output, "ownerOf, it's parameters type is not a ByteArray");
         }
+
+        [TestMethod]
+        public void Nep11_InvalidTokensOfAndOwnerOfShapeVariantsStillProduceExpectedDiagnostics()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            JArray methods = (JArray)json["abi"]!["methods"]!;
+
+            // Remove tokensOf entirely to hit the helper's null branch.
+            JToken tokensOf = methods.First(m => m!["name"]!.GetString() == "tokensOf");
+            methods.Remove(tokensOf);
+
+            // Change ownerOf to hit return-type and parameter-type branches while keeping the ABI lookup shape.
+            JObject ownerOf = (JObject)methods.First(m => m!["name"]!.GetString() == "ownerOf")!;
+            ownerOf["returntype"] = "ByteArray";
+            ownerOf["parameters"] = new JArray(
+                new JObject { ["name"] = "tokenId", ["type"] = "Hash160" });
+
+            ContractManifest manifest = ContractManifest.FromJson(json);
+            var stdout = new StringWriter();
+            TextWriter originalOut = Console.Out;
+
+            try
+            {
+                Console.SetOut(stdout);
+                manifest.CheckStandards();
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
+
+            string output = stdout.ToString();
+            StringAssert.Contains(output, "tokensOf, it is not found in the ABI");
+            StringAssert.Contains(output, "ownerOf, it's return type is not a Hash160");
+            StringAssert.Contains(output, "ownerOf, it's parameters type is not a ByteArray");
+        }
     }
 }
