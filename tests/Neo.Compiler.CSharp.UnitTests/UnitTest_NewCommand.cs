@@ -189,6 +189,23 @@ namespace Neo.Compiler.CSharp.UnitTests
                          "Expected compilation success message.");
         }
 
+        [TestMethod]
+        public void TestGeneratedContractArtifactLibraryCompilation()
+        {
+            string contractName = "ArtifactLibraryContract";
+
+            var generateResult = RunCompilerCommand($"new {contractName} -t Basic --output \"{_testOutputPath}\"");
+            Assert.AreEqual(0, generateResult.ExitCode);
+
+            string projectPath = Path.Combine(_testOutputPath, contractName, $"{contractName}.csproj");
+            UseLocalFrameworkReference(projectPath);
+
+            var compileResult = RunCompilerCommand($"\"{projectPath}\" --generate-artifacts Library");
+
+            Assert.AreEqual(0, compileResult.ExitCode, $"Artifact compilation failed. Output: {compileResult.StdOut}{compileResult.StdErr}");
+            Assert.IsTrue(File.Exists(Path.Combine(_testOutputPath, contractName, "bin", "sc", $"{contractName}.artifacts.dll")));
+        }
+
         private CommandResult RunCompilerCommand(string arguments)
         {
             var args = SplitArgs(arguments);
