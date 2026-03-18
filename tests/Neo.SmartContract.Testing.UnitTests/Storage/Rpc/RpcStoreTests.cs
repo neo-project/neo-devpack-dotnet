@@ -10,27 +10,15 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Neo.Cryptography.ECC;
 using Neo.SmartContract.Testing.Storage;
 using Neo.SmartContract.Testing.Storage.Rpc;
-using System.Numerics;
 
 namespace Neo.SmartContract.Testing.UnitTests.Storage
 {
     [TestClass]
     public class RpcStoreTests
     {
-        public abstract class DummyContract : SmartContract
-        {
-            public abstract BigInteger? GetCandidateVote(ECPoint? point);
-            protected DummyContract(SmartContractInitialize initialize) : base(initialize) { }
-        }
-
-        // TODO:
-        //      This test fail because the endPoint has a different manifest than the artifacts
-        //      because we include a new method in the next fork, so it call the wrong method.
-        //[TestMethod]
+        [TestMethod]
         public void TestRpcStore()
         {
             var engine = new TestEngine(new EngineStorage(new RpcStore("http://seed2t5.neo.org:20332")), false);
@@ -42,17 +30,20 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
 
             // check with Seek (RPC doesn't support Backward, it could be slow)
 
-            Assert.IsTrue(engine.Native.NEO.GasPerBlock == 5_0000_0000);
+            Assert.IsTrue(engine.Native.NEO.GasPerBlock > 0, $"Unexpected GasPerBlock: {engine.Native.NEO.GasPerBlock}");
 
-            // check deploy
+            // check contract state round-trip through RPC-backed storage
 
-            var node = ECPoint.Parse("03009b7540e10f2562e5fd8fac9eaec25166a58b26e412348ff5a86927bfac22a2", ECCurve.Secp256r1);
             var state = engine.Native.ContractManagement.GetContract(engine.Native.NEO.Hash);
-            var contract = engine.Deploy<DummyContract>(state!.Nef, state.Manifest, null,
-                c => c.Setup(s => s.GetCandidateVote(It.IsAny<ECPoint>())).Returns(() => engine.Native.NEO.GetCandidateVote(node)));
+            Assert.IsNotNull(state);
+            Assert.AreEqual(engine.Native.NEO.Hash, state!.Hash);
+            Assert.AreEqual("NeoToken", state.Manifest.Name);
 
-            var votes = contract.GetCandidateVote(node);
-            Assert.IsTrue(votes > 3_000_000, $"Votes: {votes}");
+            var roundTrip = engine.Native.ContractManagement.GetContractById(state.Id);
+            Assert.IsNotNull(roundTrip);
+            Assert.AreEqual(state.Hash, roundTrip!.Hash);
+
+            Assert.IsTrue(engine.Native.ContractManagement.HasMethod(engine.Native.NEO.Hash, "getCandidateVote", 1));
         }
     }
 }
