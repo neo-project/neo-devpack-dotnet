@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 extern alias scfx;
+using System;
 using System.Linq;
 using Neo.SmartContract.Manifest;
 using scfx::Neo.SmartContract.Framework;
@@ -19,6 +20,68 @@ namespace Neo.Compiler;
 
 internal static partial class ContractManifestExtensions
 {
+    private static void ValidateNep11SafeMethod(
+        System.Collections.Generic.List<CompilationException> errors,
+        ContractMethodDescriptor? method,
+        string methodName,
+        ContractParameterType returnType,
+        params ContractParameterType[] parameterTypes)
+    {
+        if (method is null)
+        {
+            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it is not found in the ABI"));
+            return;
+        }
+
+        if (!method.Safe)
+            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it is not safe, you should add a 'Safe' attribute to the {methodName} method"));
+
+        if (method.ReturnType != returnType)
+            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's return type is not {FormatContractParameterType(returnType)}"));
+
+        if (method.Parameters.Length != parameterTypes.Length)
+            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's parameters length is not {parameterTypes.Length}"));
+
+        for (int index = 0; index < Math.Min(method.Parameters.Length, parameterTypes.Length); index++)
+        {
+            if (method.Parameters[index].Type == parameterTypes[index])
+                continue;
+
+            string ordinal = parameterTypes.Length == 1
+                ? "parameters"
+                : index switch
+                {
+                    0 => "first parameters",
+                    1 => "second parameters",
+                    2 => "third parameters",
+                    3 => "fourth parameters",
+                    4 => "fifth parameters",
+                    _ => $"{index + 1}th parameters"
+                };
+
+            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's {ordinal} type is not {FormatContractParameterType(parameterTypes[index])}"));
+        }
+    }
+
+    private static string FormatContractParameterType(ContractParameterType type)
+    {
+        return type switch
+        {
+            ContractParameterType.Hash160 => "a Hash160",
+            ContractParameterType.ByteArray => "a ByteArray",
+            ContractParameterType.InteropInterface => "an InteropInterface",
+            ContractParameterType.Integer => "an Integer",
+            ContractParameterType.Boolean => "a Boolean",
+            ContractParameterType.Any => "a Any",
+            _ => $"a {type}"
+        };
+    }
+
     private static System.Collections.Generic.List<CompilationException>
         CheckNep11Compliant(this ContractManifest manifest)
     {
@@ -125,45 +188,8 @@ internal static partial class ContractManifestExtensions
         // errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
         // $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: balanceOf, it is not found in the ABI"));
 
-        if (tokensOfMethod is null)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: tokensOf, it is not found in the ABI"));
-
-        if (tokensOfMethod is { Safe: false })
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: tokensOf, it is not safe, you should add a 'Safe' attribute to the tokensOf method"));
-
-        if (tokensOfMethod is not null && tokensOfMethod.ReturnType != ContractParameterType.InteropInterface)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: tokensOf, it's return type is not an InteropInterface"));
-
-        if (tokensOfMethod is not null && tokensOfMethod.Parameters.Length != 1)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: tokensOf, it's parameters length is not 1"));
-
-        if (tokensOfMethod is not null && tokensOfMethod.Parameters[0].Type != ContractParameterType.Hash160)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: tokensOf, it's parameters type is not a Hash160"));
-
-        if (ownerOfMethod is null)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it is not found in the ABI"));
-
-        if (ownerOfMethod is { Safe: false })
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it is not safe, you should add a 'Safe' attribute to the ownerOf method"));
-
-        if (ownerOfMethod is not null && ownerOfMethod.ReturnType != ContractParameterType.Hash160)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it's return type is not a Hash160"));
-
-        if (ownerOfMethod is not null && ownerOfMethod.Parameters.Length != 1)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it's parameters length is not 1"));
-
-        if (ownerOfMethod is not null && ownerOfMethod.Parameters[0].Type != ContractParameterType.ByteArray)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: ownerOf, it's parameters type is not a ByteArray"));
+        ValidateNep11SafeMethod(errors, tokensOfMethod, "tokensOf", ContractParameterType.InteropInterface, ContractParameterType.Hash160);
+        ValidateNep11SafeMethod(errors, ownerOfMethod, "ownerOf", ContractParameterType.Hash160, ContractParameterType.ByteArray);
 
 
         if (transferMethod1 is null && transferMethod2 is null)
