@@ -13,7 +13,6 @@ using Neo.Disassembler.CSharp;
 using Neo.Extensions;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
@@ -25,6 +24,12 @@ namespace Neo.SmartContract.Testing.Extensions
 {
     public static class ArtifactExtensions
     {
+        private const string TestingSmartContractType = "Neo.SmartContract.Testing.SmartContract";
+        private const string TestingSmartContractInitializeType = "Neo.SmartContract.Testing.SmartContractInitialize";
+        private const string TestingNep17StandardType = "Neo.SmartContract.Testing.TestingStandards.INep17Standard";
+        private const string TestingOwnableType = "Neo.SmartContract.Testing.TestingStandards.IOwnable";
+        private const string TestingVerificableType = "Neo.SmartContract.Testing.TestingStandards.IVerificable";
+
         static readonly string[] _protectedWords =
         [
             "abstract",
@@ -125,14 +130,14 @@ namespace Neo.SmartContract.Testing.Extensions
                 NewLine = "\n"
             };
 
-            var inheritance = new List<Type>
+            var inheritance = new List<string>
             {
-                typeof(SmartContract)
+                TestingSmartContractType
             };
 
-            if (manifest.IsNep17()) inheritance.Add(typeof(INep17Standard));
-            if (manifest.IsOwnable()) inheritance.Add(typeof(IOwnable));
-            if (manifest.IsVerificable()) inheritance.Add(typeof(IVerificable));
+            if (IsNep17(manifest)) inheritance.Add(TestingNep17StandardType);
+            if (IsOwnable(manifest)) inheritance.Add(TestingOwnableType);
+            if (IsVerificable(manifest)) inheritance.Add(TestingVerificableType);
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
             sourceCode.WriteLine("using Neo.Extensions;");
@@ -145,7 +150,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
             sourceCode.WriteLine("");
-            sourceCode.WriteLine($"public abstract class {name}({typeof(SmartContractInitialize).FullName} initialize) : " + FormatInheritance(inheritance, "initialize") + ", IContractInfo");
+            sourceCode.WriteLine($"public abstract class {name}({TestingSmartContractInitializeType} initialize) : {FormatInheritance(inheritance, "initialize")}, IContractInfo");
             sourceCode.WriteLine("{");
 
             // Write compiled data
@@ -311,7 +316,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <param name="ev">Event</param>
         /// <param name="inheritance">Inheritance</param>
         /// <returns>Source</returns>
-        private static string CreateSourceEventFromManifest(ContractEventDescriptor ev, IList<Type> inheritance)
+        private static string CreateSourceEventFromManifest(ContractEventDescriptor ev, IList<string> inheritance)
         {
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
@@ -323,13 +328,13 @@ namespace Neo.SmartContract.Testing.Extensions
             {
                 case "Transfer":
                     {
-                        if (inheritance.Contains(typeof(INep17Standard)) && ev.Parameters.Length == 3 &&
+                        if (inheritance.Contains(TestingNep17StandardType) && ev.Parameters.Length == 3 &&
                             ev.Parameters[0].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[1].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[2].Type == ContractParameterType.Integer)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine($"    public event {typeof(INep17Standard).FullName}.delTransfer? OnTransfer;");
+                            sourceCode.WriteLine($"    public event {TestingNep17StandardType}.delTransfer? OnTransfer;");
                             return builder.ToString();
                         }
 
@@ -337,12 +342,12 @@ namespace Neo.SmartContract.Testing.Extensions
                     }
                 case "SetOwner":
                     {
-                        if (inheritance.Contains(typeof(IOwnable)) && ev.Parameters.Length == 2 &&
+                        if (inheritance.Contains(TestingOwnableType) && ev.Parameters.Length == 2 &&
                             ev.Parameters[0].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[1].Type == ContractParameterType.Hash160)
                         {
                             sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
-                            sourceCode.WriteLine($"    public event {typeof(IOwnable).FullName}.delSetOwner? OnSetOwner;");
+                            sourceCode.WriteLine($"    public event {TestingOwnableType}.delSetOwner? OnSetOwner;");
                             return builder.ToString();
                         }
 
@@ -596,11 +601,32 @@ namespace Neo.SmartContract.Testing.Extensions
             };
         }
 
-        private static string FormatInheritance(List<Type> inheritance, string initializeParam)
+        private static bool IsNep17(ContractManifest manifest)
         {
-            var formattedInheritance = inheritance.Select(type => (type == typeof(SmartContract)
-                    ? $"{type.FullName}({initializeParam})"
-                    : type.FullName)!)
+            return manifest.SupportedStandards.Any(u => u == "NEP-17");
+        }
+
+        private static bool IsOwnable(ContractManifest manifest)
+        {
+            return
+                manifest.Abi.Methods.Any(u => u.Name == "getOwner" && u.Safe && u.Parameters.Length == 0) &&
+                manifest.Abi.Methods.Any(u => u.Name == "setOwner" && !u.Safe && u.Parameters.Length == 1 && u.Parameters[0].Type == ContractParameterType.Hash160) &&
+                manifest.Abi.Events.Any(u => u.Name == "SetOwner" && u.Parameters.Length == 2 &&
+                    u.Parameters[0].Type == ContractParameterType.Hash160 &&
+                    u.Parameters[1].Type == ContractParameterType.Hash160);
+        }
+
+        private static bool IsVerificable(ContractManifest manifest)
+        {
+            var method = manifest.Abi.GetMethod("verify", 0);
+            return method is { Safe: true } && method.ReturnType == ContractParameterType.Boolean;
+        }
+
+        private static string FormatInheritance(List<string> inheritance, string initializeParam)
+        {
+            var formattedInheritance = inheritance.Select(type => type == TestingSmartContractType
+                    ? $"{type}({initializeParam})"
+                    : type)
                 .ToList();
             return string.Join(", ", formattedInheritance);
         }

@@ -38,10 +38,7 @@
     <ProjectReference Include="..\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
       <Aliases>scfx</Aliases>
     </ProjectReference>
-    <ProjectReference Include="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>compile; build</IncludeAssets>
-    </ProjectReference>
+    <ProjectReference Include="..\Neo.Disassembler.CSharp\Neo.Disassembler.CSharp.csproj" />
   </ItemGroup>
 
   <ItemGroup>

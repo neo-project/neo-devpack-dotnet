@@ -13,7 +13,6 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing.Coverage;
 using System;
 using System.Collections.Generic;
 using System.Linq;

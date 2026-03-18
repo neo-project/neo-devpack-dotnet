@@ -109,6 +109,44 @@ namespace Neo.Compiler
             return ResolveFrameworkAssembly($"{assemblyName}.dll");
         }
 
+        internal static string ResolveDependencyAssembly(string fileName)
+        {
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+#pragma warning disable IL3000
+                    if (!string.IsNullOrEmpty(assembly.Location)
+                        && string.Equals(Path.GetFileName(assembly.Location), fileName, StringComparison.OrdinalIgnoreCase)
+                        && File.Exists(assembly.Location))
+                    {
+                        return assembly.Location;
+                    }
+#pragma warning restore IL3000
+                }
+                catch
+                {
+                    // Ignore dynamic or inaccessible assemblies and continue searching.
+                }
+            }
+
+            foreach (var baseDir in EnumerateBaseDirectories())
+            {
+                if (string.IsNullOrEmpty(baseDir))
+                    continue;
+
+                var candidate = Path.Combine(baseDir, fileName);
+                if (File.Exists(candidate))
+                    return candidate;
+
+                var refsCandidate = Path.Combine(baseDir, "refs", fileName);
+                if (File.Exists(refsCandidate))
+                    return refsCandidate;
+            }
+
+            throw new FileNotFoundException($"Unable to locate dependency assembly '{fileName}'.", fileName);
+        }
+
         private static bool TryResolveFrameworkAssemblyPath(string fileName, out string? path)
         {
             foreach (var baseDir in EnumerateBaseDirectories())
