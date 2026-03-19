@@ -16,6 +16,8 @@ using Neo.SmartContract.Testing;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using ContractParameterType = Neo.SmartContract.ContractParameterType;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -63,8 +65,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             JToken tokensOf = methods.First(m => m!["name"]!.GetString() == "tokensOf");
             methods.Remove(tokensOf);
 
-            // Change ownerOf to hit return-type and parameter-type branches while keeping the ABI lookup shape.
+            // Change ownerOf to hit unsafe, return-type, and parameter-type branches while preserving lookup shape.
             JObject ownerOf = (JObject)methods.First(m => m!["name"]!.GetString() == "ownerOf")!;
+            ownerOf["safe"] = false;
             ownerOf["returntype"] = "ByteArray";
             ownerOf["parameters"] = new JArray(
                 new JObject { ["name"] = "tokenId", ["type"] = "Hash160" });
@@ -85,8 +88,66 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             string output = stdout.ToString();
             StringAssert.Contains(output, "tokensOf, it is not found in the ABI");
+            StringAssert.Contains(output, "ownerOf, it is not safe");
             StringAssert.Contains(output, "ownerOf, it's return type is not a Hash160");
             StringAssert.Contains(output, "ownerOf, it's parameters type is not a ByteArray");
+        }
+
+        [TestMethod]
+        public void Nep11_Helper_Reports_LengthMismatch_For_SingleParameterMethods()
+        {
+            Type extensionsType = typeof(CompilationEngine).Assembly.GetType("Neo.Compiler.ContractManifestExtensions")!;
+            MethodInfo helper = extensionsType.GetMethod(
+                "ValidateNep11SingleParameterSafeMethod",
+                BindingFlags.NonPublic | BindingFlags.Static)!;
+
+            var errors = new System.Collections.Generic.List<CompilationException>();
+            Type methodParameterType = helper.GetParameters()[1].ParameterType;
+            Type descriptorType = Nullable.GetUnderlyingType(methodParameterType) ?? methodParameterType;
+            object descriptor = Activator.CreateInstance(descriptorType)!;
+            SetMember(descriptorType, descriptor, "Name", "ownerOf");
+            SetMember(descriptorType, descriptor, "ReturnType", ContractParameterType.ByteArray);
+            SetMember(descriptorType, descriptor, "Safe", false);
+            SetMember(descriptorType, descriptor, "Parameters", Array.Empty<ContractParameterDefinition>());
+
+            object? boxedDescriptor = methodParameterType == descriptorType
+                ? descriptor
+                : Activator.CreateInstance(methodParameterType, descriptor);
+
+            helper.Invoke(null,
+            [
+                errors,
+                boxedDescriptor,
+                "ownerOf",
+                ContractParameterType.Hash160,
+                "a Hash160",
+                ContractParameterType.ByteArray,
+                "a ByteArray"
+            ]);
+
+            string[] messages = errors.Select(e => e.Diagnostic.GetMessage()).ToArray();
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it is not safe, you should add a 'Safe' attribute to the ownerOf method");
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it's return type is not a Hash160");
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it's parameters length is not 1");
+        }
+
+        private static void SetMember(Type type, object instance, string name, object value)
+        {
+            FieldInfo? field = type.GetField(name);
+            if (field is not null)
+            {
+                field.SetValue(instance, value);
+                return;
+            }
+
+            PropertyInfo? property = type.GetProperty(name);
+            if (property is not null)
+            {
+                property.SetValue(instance, value);
+                return;
+            }
+
+            Assert.Fail($"Could not find field or property '{name}' on {type.FullName}.");
         }
     }
 }

@@ -20,12 +20,14 @@ namespace Neo.Compiler;
 
 internal static partial class ContractManifestExtensions
 {
-    private static void ValidateNep11SafeMethod(
+    private static void ValidateNep11SingleParameterSafeMethod(
         System.Collections.Generic.List<CompilationException> errors,
         ContractMethodDescriptor? method,
         string methodName,
         ContractParameterType returnType,
-        params ContractParameterType[] parameterTypes)
+        string returnTypeDescription,
+        ContractParameterType parameterType,
+        string parameterTypeDescription)
     {
         if (method is null)
         {
@@ -40,46 +42,15 @@ internal static partial class ContractManifestExtensions
 
         if (method.ReturnType != returnType)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's return type is not {FormatContractParameterType(returnType)}"));
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's return type is not {returnTypeDescription}"));
 
-        if (method.Parameters.Length != parameterTypes.Length)
+        if (method.Parameters.Length != 1)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's parameters length is not {parameterTypes.Length}"));
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's parameters length is not 1"));
 
-        for (int index = 0; index < Math.Min(method.Parameters.Length, parameterTypes.Length); index++)
-        {
-            if (method.Parameters[index].Type == parameterTypes[index])
-                continue;
-
-            string ordinal = parameterTypes.Length == 1
-                ? "parameters"
-                : index switch
-                {
-                    0 => "first parameters",
-                    1 => "second parameters",
-                    2 => "third parameters",
-                    3 => "fourth parameters",
-                    4 => "fifth parameters",
-                    _ => $"{index + 1}th parameters"
-                };
-
+        if (method.Parameters.Length > 0 && method.Parameters[0].Type != parameterType)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's {ordinal} type is not {FormatContractParameterType(parameterTypes[index])}"));
-        }
-    }
-
-    private static string FormatContractParameterType(ContractParameterType type)
-    {
-        return type switch
-        {
-            ContractParameterType.Hash160 => "a Hash160",
-            ContractParameterType.ByteArray => "a ByteArray",
-            ContractParameterType.InteropInterface => "an InteropInterface",
-            ContractParameterType.Integer => "an Integer",
-            ContractParameterType.Boolean => "a Boolean",
-            ContractParameterType.Any => "a Any",
-            _ => $"a {type}"
-        };
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's parameters type is not {parameterTypeDescription}"));
     }
 
     private static System.Collections.Generic.List<CompilationException>
@@ -188,8 +159,22 @@ internal static partial class ContractManifestExtensions
         // errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
         // $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: balanceOf, it is not found in the ABI"));
 
-        ValidateNep11SafeMethod(errors, tokensOfMethod, "tokensOf", ContractParameterType.InteropInterface, ContractParameterType.Hash160);
-        ValidateNep11SafeMethod(errors, ownerOfMethod, "ownerOf", ContractParameterType.Hash160, ContractParameterType.ByteArray);
+        ValidateNep11SingleParameterSafeMethod(
+            errors,
+            tokensOfMethod,
+            "tokensOf",
+            ContractParameterType.InteropInterface,
+            "an InteropInterface",
+            ContractParameterType.Hash160,
+            "a Hash160");
+        ValidateNep11SingleParameterSafeMethod(
+            errors,
+            ownerOfMethod,
+            "ownerOf",
+            ContractParameterType.Hash160,
+            "a Hash160",
+            ContractParameterType.ByteArray,
+            "a ByteArray");
 
 
         if (transferMethod1 is null && transferMethod2 is null)
