@@ -30,18 +30,11 @@ namespace Neo.SmartContract.Framework.Native
         public static extern long GetFeePerByte();
 
         /// <summary>
-        /// Get the execution fee factor.
+        /// Get the execution fee factor in the unit of datoshi, 1 datoshi = 1e-8 GAS.
         /// The system fee is the base-fee multiplied by the execution fee factor.
         /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern uint GetExecFeeFactor();
-
-        /// <summary>
-        /// Get the execution fee factor in picoGAS, 1 picoGAS = 1e-12 GAS.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.ReadStates.
-        /// </summary>
-        public static extern BigInteger GetExecPicoFeeFactor();
 
         /// <summary>
         /// Get the storage price for per storage byte in the unit of datoshi, 1 datoshi = 1e-8 GAS.
