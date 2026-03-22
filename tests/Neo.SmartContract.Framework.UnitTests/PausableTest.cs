@@ -1,0 +1,145 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler;
+using Neo.Network.P2P.Payloads;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
+using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using CompilationOptions = Neo.Compiler.CompilationOptions;
+
+namespace Neo.SmartContract.Framework.UnitTests;
+
+[TestClass]
+public class PausableTest
+{
+    private static readonly Signer Sender = TestEngine.GetNewSigner();
+
+    [TestMethod]
+    public void Pausable_WhenNotPaused_AllowsCalls_And_PauseBlocks()
+    {
+        var (nef, manifest) = CompilePausableContract();
+        var engine = CreateEngine();
+        var contract = engine.Deploy<PausableContractProxy>(nef, manifest);
+
+        Assert.IsFalse(contract.Paused!.Value);
+        Assert.IsTrue(contract.ProtectedAction()!.Value);
+        Assert.ThrowsException<TestException>(() => contract.PausedAction());
+
+        contract.Pause();
+        Assert.IsTrue(contract.Paused!.Value);
+        Assert.ThrowsException<TestException>(() => contract.ProtectedAction());
+        Assert.IsTrue(contract.PausedAction()!.Value);
+
+        contract.Unpause();
+        Assert.IsFalse(contract.Paused!.Value);
+        Assert.IsTrue(contract.ProtectedAction()!.Value);
+        Assert.ThrowsException<TestException>(() => contract.PausedAction());
+    }
+
+    [TestMethod]
+    public void Pausable_Rejects_DoublePause_And_DoubleUnpause()
+    {
+        var (nef, manifest) = CompilePausableContract();
+        var engine = CreateEngine();
+        var contract = engine.Deploy<PausableContractProxy>(nef, manifest);
+
+        Assert.ThrowsException<TestException>(() => contract.Unpause());
+
+        contract.Pause();
+        Assert.ThrowsException<TestException>(() => contract.Pause());
+    }
+
+    private static (NefFile nef, ContractManifest manifest) CompilePausableContract()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+
+public class Contract : Pausable
+{
+    public static void Pause()
+    {
+        Pausable.Pause();
+    }
+
+    public static void Unpause()
+    {
+        Pausable.Unpause();
+    }
+
+    [WhenNotPaused]
+    public static bool ProtectedAction()
+    {
+        return true;
+    }
+
+    [WhenPaused]
+    public static bool PausedAction()
+    {
+        return true;
+    }
+}";
+
+        var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
+        File.WriteAllText(tempFile, source);
+
+        try
+        {
+            var options = new CompilationOptions
+            {
+                Optimize = CompilationOptions.OptimizationType.All,
+                Nullable = NullableContextOptions.Enable,
+                SkipRestoreIfAssetsPresent = true
+            };
+
+            var engine = new CompilationEngine(options);
+            var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+            var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
+
+            var contexts = engine.CompileSources(new CompilationSourceReferences
+            {
+                Projects = new[] { frameworkProject }
+            }, tempFile);
+
+            Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
+            var context = contexts[0];
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            return (context.CreateExecutable(), context.CreateManifest());
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+                File.Delete(tempFile);
+        }
+    }
+
+    private static TestEngine CreateEngine()
+    {
+        var engine = new TestEngine(true);
+        engine.SetTransactionSigners(Sender);
+        return engine;
+    }
+
+    public abstract class PausableContractProxy(SmartContractInitialize initialize)
+        : Neo.SmartContract.Testing.SmartContract(initialize)
+    {
+        public abstract bool? Paused { [DisplayName("paused")] get; }
+
+        [DisplayName("pause")]
+        public abstract void Pause();
+
+        [DisplayName("unpause")]
+        public abstract void Unpause();
+
+        [DisplayName("protectedAction")]
+        public abstract bool? ProtectedAction();
+
+        [DisplayName("pausedAction")]
+        public abstract bool? PausedAction();
+    }
+}
