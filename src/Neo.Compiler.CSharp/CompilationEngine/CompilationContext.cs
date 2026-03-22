@@ -153,10 +153,9 @@ namespace Neo.Compiler
                 RemoveEmptyInitialize();
                 Instruction[] instructions = GetInstructions().ToArray();
                 instructions.RebuildOffsets();
-                if (Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
-                {
-                    BasicOptimizer.CompressJumps(instructions);
-                }
+                // Jump encoding is a size/canonicalization pass. Even when full optimizations are
+                // disabled, we still prefer short-form jumps when the target is within range.
+                BasicOptimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
             }
         }
