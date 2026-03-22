@@ -76,10 +76,9 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
             // Merge coverlet json
 
-            if (Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN") is string mergeWith &&
-                !string.IsNullOrEmpty(mergeWith))
+            if (ResolveCoverageMergePath() is string mergeWith)
             {
-                new CoverletJsonFormat([.. list]).Write(Environment.ExpandEnvironmentVariables(mergeWith), true);
+                new CoverletJsonFormat([.. list]).Write(mergeWith, true);
 
                 Console.WriteLine($"Coverage merged with: {mergeWith}");
             }
@@ -87,6 +86,39 @@ namespace Neo.SmartContract.Testing.TestingStandards
             // Ensure that the coverage is more than X% at the end of the tests
 
             Assert.IsTrue(coverage.CoveredLinesPercentage >= requiredCoverage, $"Coverage is {coverage.CoveredLinesPercentage:P2}, less than {requiredCoverage:P2}");
+        }
+
+        private static string? ResolveCoverageMergePath()
+        {
+            var direct = Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN");
+            if (!string.IsNullOrWhiteSpace(direct))
+                return Environment.ExpandEnvironmentVariables(direct);
+
+            // CI uses an env var with the MSBuild argument used for coverlet merge:
+            // COVERLET_MERGE_WITH=/p:MergeWith=/path/to/coverage.json
+            var mergeWithArg = Environment.GetEnvironmentVariable("COVERLET_MERGE_WITH");
+            if (string.IsNullOrWhiteSpace(mergeWithArg))
+                return null;
+
+            const string Prefix = "/p:MergeWith=";
+            var index = mergeWithArg.IndexOf(Prefix, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
+                return null;
+
+            var value = mergeWithArg[(index + Prefix.Length)..].Trim();
+            if (value.Length == 0)
+                return null;
+
+            // If multiple MSBuild args were concatenated, only keep the MergeWith value.
+            var spaceIndex = value.IndexOf(' ');
+            if (spaceIndex >= 0)
+                value = value[..spaceIndex];
+
+            value = value.Trim().Trim('"');
+            if (value.Length == 0)
+                return null;
+
+            return Environment.ExpandEnvironmentVariables(value);
         }
     }
 }
