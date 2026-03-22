@@ -17,7 +17,7 @@ using Neo.SmartContract.Framework.Services;
 namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 {
     [SupportedStandards(NepStandard.Nep11)]
-    public class Contract_SupportedStandard11Enum : Nep11Token<Nep11TokenState>, INEP26
+    public class Contract_SupportedStandard11Enum : Nep11Token<Nep11TokenState>, INEP11, INEP26
     {
         public static bool TestStandard()
         {

@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Interfaces;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
@@ -20,14 +21,14 @@ namespace Neo.SmartContract.Framework
 {
     [SupportedStandards(NepStandard.Nep17)]
     [ContractPermission(Permission.Any, Method.OnNEP17Payment)]
-    public abstract class Nep17Token : TokenContract
+    public abstract class Nep17Token : TokenContract, INEP17
     {
         public delegate void OnTransferDelegate(UInt160? from, UInt160? to, BigInteger amount);
 
         [DisplayName("Transfer")]
         public static event OnTransferDelegate OnTransfer = null!;
 
-        public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object data)
+        public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null)
         {
             if (!from.IsValid) throw new Exception("The argument \"from\" is invalid.");
             if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");

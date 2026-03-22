@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Interfaces;
 using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
@@ -22,7 +23,7 @@ namespace Neo.SmartContract.Framework
     [SupportedStandards(NepStandard.Nep11)]
     [ContractPermission(Permission.Any, Method.OnNEP11Payment)]
     [ExcludeFromCodeCoverage]
-    public abstract class Nep11Token<TokenState> : TokenContract
+    public abstract class Nep11Token<TokenState> : TokenContract, INEP11
         where TokenState : Nep11TokenState
     {
         public delegate void OnTransferDelegate(UInt160? from, UInt160? to, BigInteger amount, ByteString tokenId);
@@ -76,7 +77,7 @@ namespace Neo.SmartContract.Framework
             return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
-        public static bool Transfer(UInt160 to, ByteString tokenId, object data)
+        public static bool Transfer(UInt160 to, ByteString tokenId, object? data = null)
         {
             if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
             if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
