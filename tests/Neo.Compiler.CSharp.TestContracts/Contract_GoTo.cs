@@ -150,7 +150,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                     ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x02");
                     Storage.Put("\xff\x00", "\x03");
                 }
-            END3:
+        END3:
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x03");
         }
     }
