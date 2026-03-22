@@ -12,7 +12,10 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler
 {
@@ -76,58 +79,70 @@ namespace Neo.Compiler
                 ConvertExpression(model, syntax.Expression);
                 AccessSlot(OpCode.STLOC, anonymousIndex);
             }
+
+            bool emittedOptimizedDispatch = _context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic)
+                && TryEmitOptimizedIntegerSwitchDispatch(model, labels, anonymousIndex, breakTarget);
+
             JumpTarget? defaultTarget = null;
             DefaultSwitchLabelSyntax? defaultLabel = null;
-            foreach (var (label, target) in labels)
+            if (!emittedOptimizedDispatch)
             {
-                switch (label)
+                foreach (var (label, target) in labels)
                 {
-                    case CasePatternSwitchLabelSyntax casePatternSwitchLabel:
-                        using (InsertSequencePoint(casePatternSwitchLabel))
-                        {
-                            JumpTarget endTarget = new();
-                            ConvertPattern(model, casePatternSwitchLabel.Pattern, anonymousIndex);
-                            Jump(OpCode.JMPIFNOT_L, endTarget);
-                            if (casePatternSwitchLabel.WhenClause is not null)
+                    switch (label)
+                    {
+                        case CasePatternSwitchLabelSyntax casePatternSwitchLabel:
+                            using (InsertSequencePoint(casePatternSwitchLabel))
                             {
-                                ConvertExpression(model, casePatternSwitchLabel.WhenClause.Condition);
+                                JumpTarget endTarget = new();
+                                ConvertPattern(model, casePatternSwitchLabel.Pattern, anonymousIndex);
                                 Jump(OpCode.JMPIFNOT_L, endTarget);
+                                if (casePatternSwitchLabel.WhenClause is not null)
+                                {
+                                    ConvertExpression(model, casePatternSwitchLabel.WhenClause.Condition);
+                                    Jump(OpCode.JMPIFNOT_L, endTarget);
+                                }
+                                Jump(OpCode.JMP_L, target);
+                                endTarget.Instruction = AddInstruction(OpCode.NOP);
                             }
-                            Jump(OpCode.JMP_L, target);
-                            endTarget.Instruction = AddInstruction(OpCode.NOP);
-                        }
-                        break;
-                    case CaseSwitchLabelSyntax caseSwitchLabel:
-                        using (InsertSequencePoint(caseSwitchLabel))
-                        {
-                            AccessSlot(OpCode.LDLOC, anonymousIndex);
-                            ConvertExpression(model, caseSwitchLabel.Value);
-                            AddInstruction(OpCode.EQUAL);
-                            Jump(OpCode.JMPIF_L, target);
-                        }
-                        break;
-                    case DefaultSwitchLabelSyntax defaultSwitchLabel:
-                        if (defaultTarget is not null)
-                            throw CompilationException.UnsupportedSyntax(defaultSwitchLabel, "Switch statement contains multiple default labels.");
-                        defaultTarget = target;
-                        defaultLabel = defaultSwitchLabel;
-                        break;
-                    default:
-                        throw CompilationException.UnsupportedSyntax(label, $"Unsupported switch label type '{label.GetType().Name}'. Use 'case value:' or 'default:' labels.");
+                            break;
+                        case CaseSwitchLabelSyntax caseSwitchLabel:
+                            using (InsertSequencePoint(caseSwitchLabel))
+                            {
+                                AccessSlot(OpCode.LDLOC, anonymousIndex);
+                                ConvertExpression(model, caseSwitchLabel.Value);
+                                AddInstruction(OpCode.EQUAL);
+                                Jump(OpCode.JMPIF_L, target);
+                            }
+                            break;
+                        case DefaultSwitchLabelSyntax defaultSwitchLabel:
+                            if (defaultTarget is not null)
+                                throw CompilationException.UnsupportedSyntax(defaultSwitchLabel, "Switch statement contains multiple default labels.");
+                            defaultTarget = target;
+                            defaultLabel = defaultSwitchLabel;
+                            break;
+                        default:
+                            throw CompilationException.UnsupportedSyntax(label, $"Unsupported switch label type '{label.GetType().Name}'. Use 'case value:' or 'default:' labels.");
+                    }
                 }
             }
             RemoveAnonymousVariable(anonymousIndex);
-            if (defaultTarget is null)
+
+            if (!emittedOptimizedDispatch)
             {
-                Jump(OpCode.JMP_L, breakTarget);
-            }
-            else
-            {
-                using (InsertSequencePoint(defaultLabel!))
+                if (defaultTarget is null)
                 {
-                    Jump(OpCode.JMP_L, defaultTarget);
+                    Jump(OpCode.JMP_L, breakTarget);
+                }
+                else
+                {
+                    using (InsertSequencePoint(defaultLabel!))
+                    {
+                        Jump(OpCode.JMP_L, defaultTarget);
+                    }
                 }
             }
+
             foreach (var (_, statements, target) in sections)
             {
                 target.Instruction = AddInstruction(OpCode.NOP);
@@ -139,6 +154,151 @@ namespace Neo.Compiler
             PopBreakTarget();
             if (_generalStatementStack.Pop() != sc)
                 throw CompilationException.UnsupportedSyntax(syntax, "Internal compiler error: Statement stack mismatch in switch statement handling. This is a compiler bug that should be reported.");
+        }
+
+        private bool TryEmitOptimizedIntegerSwitchDispatch(
+            SemanticModel model,
+            (SwitchLabelSyntax label, JumpTarget target)[] labels,
+            byte valueSlot,
+            JumpTarget breakTarget)
+        {
+            // We only optimize "simple" switches: constant integral case labels without patterns.
+            // This keeps semantics identical while reducing runtime gas for large switches.
+            const int MinCaseCountForOptimization = 8;
+            const int LinearLeafSize = 4;
+
+            var cases = new List<(BigInteger value, CaseSwitchLabelSyntax labelSyntax, JumpTarget target)>();
+            JumpTarget? defaultTarget = null;
+
+            foreach (var (label, target) in labels)
+            {
+                switch (label)
+                {
+                    case DefaultSwitchLabelSyntax:
+                        if (defaultTarget is not null)
+                            throw CompilationException.UnsupportedSyntax(label, "Switch statement contains multiple default labels.");
+                        defaultTarget = target;
+                        break;
+                    case CaseSwitchLabelSyntax caseLabel:
+                        if (!TryGetIntegerConstant(model, caseLabel.Value, out BigInteger value))
+                            return false;
+                        cases.Add((value, caseLabel, target));
+                        break;
+                    default:
+                        return false; // Pattern / when / unsupported label kinds.
+                }
+            }
+
+            if (cases.Count < MinCaseCountForOptimization)
+                return false;
+
+            // Ensure all case labels map to constant values and are unique.
+            var orderedCases = cases
+                .GroupBy(c => c.value)
+                .Select(g => g.First())
+                .OrderBy(c => c.value)
+                .ToArray();
+
+            if (orderedCases.Length != cases.Count)
+                return false;
+
+            defaultTarget ??= breakTarget;
+            EmitIntegerSwitchDispatchTree(orderedCases, 0, orderedCases.Length, valueSlot, defaultTarget, LinearLeafSize);
+            return true;
+        }
+
+        private void EmitIntegerSwitchDispatchTree(
+            (BigInteger value, CaseSwitchLabelSyntax labelSyntax, JumpTarget target)[] cases,
+            int start,
+            int end,
+            byte valueSlot,
+            JumpTarget defaultTarget,
+            int linearLeafSize)
+        {
+            int count = end - start;
+            if (count <= 0)
+            {
+                Jump(OpCode.JMP_L, defaultTarget);
+                return;
+            }
+
+            if (count <= linearLeafSize)
+            {
+                for (int i = start; i < end; i++)
+                {
+                    var (value, labelSyntax, target) = cases[i];
+                    using (InsertSequencePoint(labelSyntax))
+                    {
+                        AccessSlot(OpCode.LDLOC, valueSlot);
+                        Push(value);
+                        Jump(OpCode.JMPEQ_L, target);
+                    }
+                }
+                Jump(OpCode.JMP_L, defaultTarget);
+                return;
+            }
+
+            int pivotIndex = start + (count / 2);
+            BigInteger pivotValue = cases[pivotIndex].value;
+
+            JumpTarget rightTarget = new();
+            AccessSlot(OpCode.LDLOC, valueSlot);
+            Push(pivotValue);
+            Jump(OpCode.JMPGE_L, rightTarget);
+
+            // Left side: values < pivot
+            EmitIntegerSwitchDispatchTree(cases, start, pivotIndex, valueSlot, defaultTarget, linearLeafSize);
+
+            // Right side: values >= pivot
+            rightTarget.Instruction = AddInstruction(OpCode.NOP);
+            EmitIntegerSwitchDispatchTree(cases, pivotIndex, end, valueSlot, defaultTarget, linearLeafSize);
+        }
+
+        private static bool TryGetIntegerConstant(SemanticModel model, ExpressionSyntax valueExpression, out BigInteger value)
+        {
+            value = default;
+            var constant = model.GetConstantValue(valueExpression);
+            if (!constant.HasValue || constant.Value is null)
+                return false;
+
+            switch (constant.Value)
+            {
+                case sbyte v:
+                    value = v;
+                    return true;
+                case byte v:
+                    value = v;
+                    return true;
+                case short v:
+                    value = v;
+                    return true;
+                case ushort v:
+                    value = v;
+                    return true;
+                case int v:
+                    value = v;
+                    return true;
+                case uint v:
+                    value = v;
+                    return true;
+                case long v:
+                    value = v;
+                    return true;
+                case ulong v:
+                    value = v;
+                    return true;
+                case char v:
+                    value = (ushort)v;
+                    return true;
+                case bool v:
+                    value = v ? BigInteger.One : BigInteger.Zero;
+                    return true;
+                case BigInteger v:
+                    value = v;
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }
