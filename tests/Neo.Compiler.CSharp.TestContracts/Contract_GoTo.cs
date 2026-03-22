@@ -79,7 +79,7 @@ namespace Neo.Compiler.CSharp.TestContracts
                             break;
                     }
                 }
-            END0:
+        END0:
             ExecutionEngine.Assert(goto_ == false);
             ExecutionEngine.Assert(Storage.Get("\xff\x00")! == "\x01");
             foreach (object i in Storage.Find("\xff"))
