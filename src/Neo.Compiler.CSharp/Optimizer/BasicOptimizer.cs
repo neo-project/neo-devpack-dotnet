@@ -41,43 +41,138 @@ namespace Neo.Compiler.Optimizer
 
         public static void CompressJumps(IReadOnlyList<Instruction> instructions)
         {
-            bool compressed;
+            if (instructions.Count == 0)
+                return;
+
+            // Basic jump compression is a fixed-point problem: compressing long-form jumps shrinks the
+            // script and can make other long-form jumps compressible. We avoid rebuilding offsets after
+            // each pass by computing effective offsets relative to the initial (current) layout and a
+            // prefix-sum of size reductions from already-compressed instructions.
+
+            Dictionary<Instruction, int> indexByInstruction = new();
+            for (int i = 0; i < instructions.Count; i++)
+                indexByInstruction[instructions[i]] = i;
+
+            int n = instructions.Count;
+            int[] baseOffsets = new int[n];
+            for (int i = 0; i < n; i++)
+                baseOffsets[i] = instructions[i].Offset;
+
+            bool[] alreadyCompressed = new bool[n];
+            int[] sizeReduction = new int[n];
+            bool[] isLongCandidate = new bool[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                Instruction instruction = instructions[i];
+                if (instruction.Target is null)
+                    continue;
+
+                if (instruction.OpCode >= OpCode.JMP && instruction.OpCode <= OpCode.CALL_L)
+                {
+                    // Long-form opcodes are the odd values (e.g. JMP_L = JMP + 1).
+                    if ((instruction.OpCode - OpCode.JMP) % 2 == 0)
+                        continue;
+
+                    isLongCandidate[i] = true;
+                    sizeReduction[i] = 3; // 4-byte operand -> 1-byte operand
+                    continue;
+                }
+
+                if (instruction.OpCode == OpCode.ENDTRY_L)
+                {
+                    isLongCandidate[i] = true;
+                    sizeReduction[i] = 3;
+                    continue;
+                }
+
+                if (instruction.OpCode == OpCode.TRY_L)
+                {
+                    if (instruction.Target2 is null)
+                        continue;
+                    isLongCandidate[i] = true;
+                    sizeReduction[i] = 6; // 2x 4-byte operand -> 2x 1-byte operand
+                }
+            }
+
+            bool changed;
+            bool anyCompressed = false;
+            int[] prefixReduction = new int[n + 1];
+            List<int> toCompress = new();
+
             do
             {
-                compressed = false;
-                foreach (Instruction instruction in instructions)
+                changed = false;
+                toCompress.Clear();
+
+                prefixReduction[0] = 0;
+                for (int i = 0; i < n; i++)
+                    prefixReduction[i + 1] = prefixReduction[i] + (alreadyCompressed[i] ? sizeReduction[i] : 0);
+
+                for (int i = 0; i < n; i++)
                 {
-                    if (instruction.Target is null) continue;
-                    if (instruction.OpCode >= OpCode.JMP && instruction.OpCode <= OpCode.CALL_L)
-                    {
-                        if ((instruction.OpCode - OpCode.JMP) % 2 == 0) continue;
-                    }
-                    else
-                    {
-                        if (instruction.OpCode != OpCode.TRY_L && instruction.OpCode != OpCode.ENDTRY_L) continue;
-                    }
+                    if (!isLongCandidate[i] || alreadyCompressed[i])
+                        continue;
+
+                    Instruction instruction = instructions[i];
+                    if (instruction.Target?.Instruction is not Instruction targetInstruction)
+                        continue;
+                    if (!indexByInstruction.TryGetValue(targetInstruction, out int targetIndex))
+                        continue;
+
+                    int sourceEffective = baseOffsets[i] - prefixReduction[i];
+                    int targetEffective = baseOffsets[targetIndex] - prefixReduction[targetIndex];
+
+                    // Account for the size reduction of this instruction itself, which shifts any
+                    // targets that come after it. This mirrors what would happen once we flip the
+                    // opcode and rebuild offsets.
+                    if (i < targetIndex)
+                        targetEffective -= sizeReduction[i];
+
                     if (instruction.OpCode == OpCode.TRY_L)
                     {
-                        int offset1 = instruction.Target.Instruction?.Offset - instruction.Offset ?? 0;
-                        int offset2 = instruction.Target2!.Instruction?.Offset - instruction.Offset ?? 0;
-                        if (offset1 >= sbyte.MinValue && offset1 <= sbyte.MaxValue && offset2 >= sbyte.MinValue && offset2 <= sbyte.MaxValue)
-                        {
-                            compressed = true;
-                            instruction.OpCode--;
-                        }
+                        if (instruction.Target2?.Instruction is not Instruction target2Instruction)
+                            continue;
+                        if (!indexByInstruction.TryGetValue(target2Instruction, out int target2Index))
+                            continue;
+
+                        int target2Effective = baseOffsets[target2Index] - prefixReduction[target2Index];
+                        if (i < target2Index)
+                            target2Effective -= sizeReduction[i];
+
+                        int delta1 = targetEffective - sourceEffective;
+                        int delta2 = target2Effective - sourceEffective;
+                        if (delta1 < sbyte.MinValue || delta1 > sbyte.MaxValue)
+                            continue;
+                        if (delta2 < sbyte.MinValue || delta2 > sbyte.MaxValue)
+                            continue;
+
+                        toCompress.Add(i);
                     }
                     else
                     {
-                        int offset = instruction.Target.Instruction!.Offset - instruction.Offset;
-                        if (offset >= sbyte.MinValue && offset <= sbyte.MaxValue)
-                        {
-                            compressed = true;
-                            instruction.OpCode--;
-                        }
+                        int delta = targetEffective - sourceEffective;
+                        if (delta < sbyte.MinValue || delta > sbyte.MaxValue)
+                            continue;
+
+                        toCompress.Add(i);
                     }
                 }
-                if (compressed) instructions.RebuildOffsets();
-            } while (compressed);
+
+                if (toCompress.Count == 0)
+                    break;
+
+                changed = true;
+                anyCompressed = true;
+                foreach (int index in toCompress)
+                {
+                    instructions[index].OpCode--;
+                    alreadyCompressed[index] = true;
+                }
+            } while (changed);
+
+            if (anyCompressed)
+                instructions.RebuildOffsets();
         }
     }
 }
