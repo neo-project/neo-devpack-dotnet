@@ -11,9 +11,11 @@
 
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Neo.SmartContract.Framework
 {
+    [ExcludeFromCodeCoverage]
     public abstract class Pausable : SmartContract
     {
         private const byte Prefix_Paused = 0xFE;

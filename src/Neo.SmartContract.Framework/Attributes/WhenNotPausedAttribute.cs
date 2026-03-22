@@ -11,10 +11,12 @@
 
 using Neo.SmartContract.Framework.Services;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Neo.SmartContract.Framework.Attributes
 {
     [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method, AllowMultiple = false)]
+    [ExcludeFromCodeCoverage]
     public class WhenNotPausedAttribute : ModifierAttribute
     {
         private readonly byte[] _key;
