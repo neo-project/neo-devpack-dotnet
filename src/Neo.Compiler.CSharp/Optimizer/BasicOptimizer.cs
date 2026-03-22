@@ -18,25 +18,67 @@ namespace Neo.Compiler.Optimizer
     {
         public static void RemoveNops(List<Instruction> instructions)
         {
-            for (int i = 0; i < instructions.Count;)
+            // Keep the algorithm linear by:
+            // 1) Precomputing the "next live instruction" for each NOP
+            // 2) Retargeting all branches once
+            // 3) Compacting the list in a single pass
+
+            // Collect all targeted instructions so we can safely keep terminal NOPs
+            // that have no live instruction after them.
+            HashSet<Instruction> targeted = new();
+            foreach (Instruction instruction in instructions)
+            {
+                if (instruction.Target?.Instruction is Instruction target)
+                    targeted.Add(target);
+                if (instruction.Target2?.Instruction is Instruction target2)
+                    targeted.Add(target2);
+            }
+
+            // Map NOP instructions to the next non-NOP instruction (or themselves if terminal).
+            Dictionary<Instruction, Instruction> nopReplacement = new();
+            Instruction? nextLive = null;
+            for (int i = instructions.Count - 1; i >= 0; i--)
             {
                 Instruction instruction = instructions[i];
-                if (instruction.OpCode == OpCode.NOP)
+                if (instruction.OpCode != OpCode.NOP)
                 {
-                    instructions.RemoveAt(i);
-                    foreach (Instruction other in instructions)
-                    {
-                        if (other.Target?.Instruction == instruction)
-                            other.Target.Instruction = instructions[i];
-                        if (other.Target2?.Instruction == instruction)
-                            other.Target2.Instruction = instructions[i];
-                    }
+                    nextLive = instruction;
+                    continue;
                 }
-                else
-                {
-                    i++;
-                }
+
+                // If there is no live instruction after this NOP and it is targeted, keep it.
+                // Otherwise, retarget it to the next live instruction when possible.
+                nopReplacement[instruction] = nextLive ?? instruction;
             }
+
+            // Retarget all branch operands that point to NOP instructions.
+            foreach (Instruction instruction in instructions)
+            {
+                if (instruction.Target?.Instruction is Instruction target && target.OpCode == OpCode.NOP)
+                    instruction.Target.Instruction = nopReplacement[target];
+                if (instruction.Target2?.Instruction is Instruction target2 && target2.OpCode == OpCode.NOP)
+                    instruction.Target2.Instruction = nopReplacement[target2];
+            }
+
+            // Compact in-place: remove NOPs that can be removed, but keep terminal targeted NOPs.
+            int originalCount = instructions.Count;
+            int write = 0;
+            for (int read = 0; read < originalCount; read++)
+            {
+                Instruction instruction = instructions[read];
+                if (instruction.OpCode != OpCode.NOP)
+                {
+                    instructions[write++] = instruction;
+                    continue;
+                }
+
+                // Keep only if there's no replacement beyond itself and it is targeted.
+                if (targeted.Contains(instruction) && nopReplacement[instruction] == instruction)
+                    instructions[write++] = instruction;
+            }
+
+            if (write < originalCount)
+                instructions.RemoveRange(write, originalCount - write);
         }
 
         public static void CompressJumps(IReadOnlyList<Instruction> instructions)
