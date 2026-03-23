@@ -90,9 +90,9 @@ namespace Neo.SmartContract.Testing.TestingStandards
 
         private static string? ResolveCoverageMergePath()
         {
-            var direct = Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN");
-            if (!string.IsNullOrWhiteSpace(direct))
-                return Environment.ExpandEnvironmentVariables(direct);
+            var direct = NormalizeCoveragePath(Environment.GetEnvironmentVariable("COVERAGE_MERGE_JOIN"));
+            if (direct is not null)
+                return direct;
 
             // CI uses an env var with the MSBuild argument used for coverlet merge:
             // COVERLET_MERGE_WITH=/p:MergeWith=/path/to/coverage.json
@@ -105,16 +105,40 @@ namespace Neo.SmartContract.Testing.TestingStandards
             if (index < 0)
                 return null;
 
-            var value = mergeWithArg[(index + Prefix.Length)..].Trim();
+            return NormalizeMsBuildArgumentValue(mergeWithArg[(index + Prefix.Length)..]);
+        }
+
+        private static string? NormalizeMsBuildArgumentValue(string value)
+        {
+            value = value.Trim();
             if (value.Length == 0)
                 return null;
 
-            // If multiple MSBuild args were concatenated, only keep the MergeWith value.
-            var spaceIndex = value.IndexOf(' ');
-            if (spaceIndex >= 0)
-                value = value[..spaceIndex];
+            if (value[0] is '"' or '\'')
+            {
+                var quote = value[0];
+                var endQuote = value.IndexOf(quote, 1);
+                if (endQuote <= 1)
+                    return null;
 
-            value = value.Trim().Trim('"');
+                value = value[1..endQuote];
+            }
+            else
+            {
+                var spaceIndex = value.IndexOf(' ');
+                if (spaceIndex >= 0)
+                    value = value[..spaceIndex];
+            }
+
+            return NormalizeCoveragePath(value);
+        }
+
+        private static string? NormalizeCoveragePath(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            value = value.Trim().Trim('"', '\'');
             if (value.Length == 0)
                 return null;
 
