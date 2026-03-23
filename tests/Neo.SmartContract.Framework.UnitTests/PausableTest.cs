@@ -5,6 +5,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.ComponentModel;
@@ -22,7 +23,7 @@ public class PausableTest
     [TestMethod]
     public void Pausable_WhenNotPaused_AllowsCalls_And_PauseBlocks()
     {
-        var (nef, manifest) = CompilePausableContract();
+        var (nef, manifest, debugInfo) = CompilePausableContract();
         var engine = CreateEngine();
         var contract = engine.Deploy<PausableContractProxy>(nef, manifest);
 
@@ -39,12 +40,14 @@ public class PausableTest
         Assert.IsFalse(contract.Paused!.Value);
         Assert.IsTrue(contract.ProtectedAction()!.Value);
         Assert.ThrowsException<TestException>(() => contract.PausedAction());
+
+        DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
 
     [TestMethod]
     public void Pausable_Rejects_DoublePause_And_DoubleUnpause()
     {
-        var (nef, manifest) = CompilePausableContract();
+        var (nef, manifest, debugInfo) = CompilePausableContract();
         var engine = CreateEngine();
         var contract = engine.Deploy<PausableContractProxy>(nef, manifest);
 
@@ -52,9 +55,11 @@ public class PausableTest
 
         contract.Pause();
         Assert.ThrowsException<TestException>(() => contract.Pause());
+
+        DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompilePausableContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompilePausableContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
@@ -109,7 +114,8 @@ public class Contract : Pausable
             var context = contexts[0];
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-            return (context.CreateExecutable(), context.CreateManifest());
+            var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+            return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
         }
         finally
         {
