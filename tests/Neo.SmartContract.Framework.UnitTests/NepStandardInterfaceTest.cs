@@ -13,6 +13,8 @@ extern alias scfx;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using NepStandard = scfx::Neo.SmartContract.Framework.NepStandard;
+using SupportedStandardsAttribute = scfx::Neo.SmartContract.Framework.Attributes.SupportedStandardsAttribute;
 
 namespace Neo.SmartContract.Framework.UnitTests
 {
@@ -43,6 +45,26 @@ namespace Neo.SmartContract.Framework.UnitTests
             CollectionAssert.Contains(methods, nameof(scfx::Neo.SmartContract.Framework.Interfaces.INEP11.Transfer));
             CollectionAssert.Contains(methods, nameof(scfx::Neo.SmartContract.Framework.Interfaces.INEP11.Tokens));
             CollectionAssert.Contains(methods, nameof(scfx::Neo.SmartContract.Framework.Interfaces.INEP11.TokensOf));
+        }
+
+        [TestMethod]
+        public void Nep17Interface_Defines_SupportedStandardAttribute()
+        {
+            var attribute = typeof(scfx::Neo.SmartContract.Framework.Interfaces.INEP17)
+                .GetCustomAttributes(typeof(SupportedStandardsAttribute), false)
+                .SingleOrDefault() as SupportedStandardsAttribute;
+
+            Assert.IsNotNull(attribute);
+        }
+
+        [TestMethod]
+        public void Nep11Interface_Defines_SupportedStandardAttribute()
+        {
+            var attribute = typeof(scfx::Neo.SmartContract.Framework.Interfaces.INEP11)
+                .GetCustomAttributes(typeof(SupportedStandardsAttribute), false)
+                .SingleOrDefault() as SupportedStandardsAttribute;
+
+            Assert.IsNotNull(attribute);
         }
     }
 }

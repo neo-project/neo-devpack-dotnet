@@ -482,6 +482,22 @@ namespace Neo.Compiler
                             break;
                     }
                 }
+
+                foreach (var attribute in symbol.AllInterfaces
+                    .SelectMany(i => i.GetAttributes())
+                    .Where(a => a.AttributeClass?.Name == nameof(SupportedStandardsAttribute)))
+                {
+                    _supportedStandards.UnionWith(
+                        attribute.ConstructorArguments[0].Values
+                            .Select(p => p.Value)
+                            .Select(p =>
+                                p is int ip && Enum.IsDefined(typeof(NepStandard), ip)
+                                    ? ((NepStandard)ip).ToStandard()
+                                    : p as string
+                            )
+                            .Where(v => v != null)!);
+                }
+
                 _className = symbol.Name;
             }
             Dictionary<(string, int), IMethodSymbol> export = new();

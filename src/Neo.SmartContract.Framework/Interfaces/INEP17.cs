@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.SmartContract.Framework.Attributes;
 using System.Numerics;
 
 namespace Neo.SmartContract.Framework.Interfaces;
@@ -16,6 +17,7 @@ namespace Neo.SmartContract.Framework.Interfaces;
 /// <summary>
 /// Interface of the NEP-17 fungible token standard.
 /// </summary>
+[SupportedStandards(NepStandard.Nep17)]
 public interface INEP17
 {
     /// <summary>

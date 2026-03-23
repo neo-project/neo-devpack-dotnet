@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using System.Numerics;
 
@@ -17,6 +18,7 @@ namespace Neo.SmartContract.Framework.Interfaces;
 /// <summary>
 /// Interface of the NEP-11 non-fungible token standard.
 /// </summary>
+[SupportedStandards(NepStandard.Nep11)]
 public interface INEP11
 {
     /// <summary>

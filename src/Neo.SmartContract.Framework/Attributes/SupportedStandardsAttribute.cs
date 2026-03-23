@@ -13,7 +13,7 @@ using System;
 
 namespace Neo.SmartContract.Framework.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
     public class SupportedStandardsAttribute : Attribute
     {
         public SupportedStandardsAttribute(params string[] supportedStandards)
