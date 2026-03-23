@@ -48,6 +48,54 @@ public class TestCleanupBaseTests
     }
 
     [TestMethod]
+    public void ResolveCoverageMergePath_TreatsWhitespaceCoverageMergeJoinAsUnset()
+    {
+        using var _ = new EnvironmentVariablesScope(
+            ("COVERAGE_MERGE_JOIN", "   "),
+            ("COVERLET_MERGE_WITH", "/p:MergeWith=/tmp/fallback-coverage.json"));
+
+        var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
+
+        Assert.AreEqual("/tmp/fallback-coverage.json", path);
+    }
+
+    [TestMethod]
+    public void ResolveCoverageMergePath_StripsQuotedMergePathAndTrailingArguments()
+    {
+        using var _ = new EnvironmentVariablesScope(
+            ("COVERAGE_MERGE_JOIN", null),
+            ("COVERLET_MERGE_WITH", "/p:MergeWith=\"/tmp/coverage report.json\" /p:CollectCoverage=true"));
+
+        var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
+
+        Assert.AreEqual("/tmp/coverage report.json", path);
+    }
+
+    [TestMethod]
+    public void ResolveCoverageMergePath_ReturnsNullWhenMergeWithPrefixIsMissing()
+    {
+        using var _ = new EnvironmentVariablesScope(
+            ("COVERAGE_MERGE_JOIN", null),
+            ("COVERLET_MERGE_WITH", "/p:CollectCoverage=true"));
+
+        var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
+
+        Assert.IsNull(path);
+    }
+
+    [TestMethod]
+    public void ResolveCoverageMergePath_ReturnsNullWhenMergeWithValueIsEmpty()
+    {
+        using var _ = new EnvironmentVariablesScope(
+            ("COVERAGE_MERGE_JOIN", null),
+            ("COVERLET_MERGE_WITH", "/p:MergeWith=\"\""));
+
+        var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
+
+        Assert.IsNull(path);
+    }
+
+    [TestMethod]
     public void ResolveCoverageMergePath_ReturnsNullWhenUnset()
     {
         using var _ = new EnvironmentVariablesScope(
