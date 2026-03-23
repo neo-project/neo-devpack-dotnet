@@ -58,6 +58,28 @@ public class SafeMathTest
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
 
+    [TestMethod]
+    public void SafeMath_Rejects_NegativeRightOperands_WithExpectedMessages()
+    {
+        var (nef, manifest, debugInfo) = CompileSafeMathContract();
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
+
+        var addNegative = Assert.ThrowsException<TestException>(() => contract.Add(1, -1));
+        StringAssert.Contains(addNegative.InnerException?.Message ?? addNegative.Message, "negative values are not supported");
+
+        var mulNegative = Assert.ThrowsException<TestException>(() => contract.Mul(2, -1));
+        StringAssert.Contains(mulNegative.InnerException?.Message ?? mulNegative.Message, "negative values are not supported");
+
+        var divNegative = Assert.ThrowsException<TestException>(() => contract.Div(2, -1));
+        StringAssert.Contains(divNegative.InnerException?.Message ?? divNegative.Message, "negative values are not supported");
+
+        var modNegative = Assert.ThrowsException<TestException>(() => contract.Mod(2, -1));
+        StringAssert.Contains(modNegative.InnerException?.Message ?? modNegative.Message, "negative values are not supported");
+
+        DynamicCoverageMergeHelper.Merge(contract, debugInfo);
+    }
+
     private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileSafeMathContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
