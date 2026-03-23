@@ -60,6 +60,18 @@ public class TestCleanupBaseTests
     }
 
     [TestMethod]
+    public void ResolveCoverageMergePath_TrimsQuotedCoverageMergeJoin()
+    {
+        using var _ = new EnvironmentVariablesScope(
+            ("COVERAGE_MERGE_JOIN", "  '/tmp/direct quoted coverage.json'  "),
+            ("COVERLET_MERGE_WITH", "/p:MergeWith=/tmp/fallback-coverage.json"));
+
+        var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
+
+        Assert.AreEqual("/tmp/direct quoted coverage.json", path);
+    }
+
+    [TestMethod]
     public void ResolveCoverageMergePath_StripsQuotedMergePathAndTrailingArguments()
     {
         using var _ = new EnvironmentVariablesScope(
@@ -89,6 +101,30 @@ public class TestCleanupBaseTests
         using var _ = new EnvironmentVariablesScope(
             ("COVERAGE_MERGE_JOIN", null),
             ("COVERLET_MERGE_WITH", "/p:MergeWith=\"\""));
+
+        var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
+
+        Assert.IsNull(path);
+    }
+
+    [TestMethod]
+    public void ResolveCoverageMergePath_StripsSingleQuotedMergePathAndTrailingArguments()
+    {
+        using var _ = new EnvironmentVariablesScope(
+            ("COVERAGE_MERGE_JOIN", null),
+            ("COVERLET_MERGE_WITH", "/p:MergeWith='/tmp/single quoted coverage.json' /p:CollectCoverage=true"));
+
+        var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
+
+        Assert.AreEqual("/tmp/single quoted coverage.json", path);
+    }
+
+    [TestMethod]
+    public void ResolveCoverageMergePath_ReturnsNullForUnterminatedQuotedMergePath()
+    {
+        using var _ = new EnvironmentVariablesScope(
+            ("COVERAGE_MERGE_JOIN", null),
+            ("COVERLET_MERGE_WITH", "/p:MergeWith=\"/tmp/missing-end-quote.json"));
 
         var path = (string?)ResolveCoverageMergePathMethod.Invoke(null, null);
 
