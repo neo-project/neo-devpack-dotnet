@@ -32,29 +32,29 @@ internal partial class MethodConvert
     {
         switch (pattern)
         {
-            //Convet "and" / "or" pattern  to OpCodes.
+            // Convert "and" / "or" patterns to OpCodes.
             //Example: return value is > 1 and < 100;
             //Example: return value is >= 80 or <= 20;
             case BinaryPatternSyntax binaryPattern:
                 ConvertBinaryPattern(model, binaryPattern, localIndex);
                 break;
-            //Convet constant pattern to OpCodes.
+            // Convert a constant pattern to OpCodes.
             //Example: return value is > 1;
             //Example: return value is null;
             case ConstantPatternSyntax constantPattern:
                 ConvertConstantPattern(model, constantPattern, localIndex);
                 break;
-            //Convet declaration pattern to OpCodes.
+            // Convert a declaration pattern to OpCodes.
             //Example: if (greeting is string message)
             case DeclarationPatternSyntax declarationPattern:
                 ConvertDeclarationPattern(model, declarationPattern, localIndex);
                 break;
-            //Convet discard pattern (_) to OpCodes.
+            // Convert a discard pattern (_) to OpCodes.
             //Example: if (greeting2 is string _)
             case DiscardPatternSyntax:
                 Push(true);
                 break;
-            //Convet relational pattern to OpCodes.
+            // Convert a relational pattern to OpCodes.
             //Example: return value is > 1;
             case RelationalPatternSyntax relationalPattern:
                 ConvertRelationalPattern(model, relationalPattern, localIndex);
@@ -69,12 +69,12 @@ internal partial class MethodConvert
             case TypePatternSyntax typePattern:
                 ConvertTypePattern(model, typePattern, localIndex);
                 break;
-            //Convet "not" pattern  to OpCodes.
+            // Convert a "not" pattern to OpCodes.
             //Example: return value is not null;
             case UnaryPatternSyntax unaryPattern when unaryPattern.OperatorToken.ValueText == "not":
                 ConvertNotPattern(model, unaryPattern, localIndex);
                 break;
-            //Convet parenthesized to OpCodes.
+            // Convert a parenthesized pattern to OpCodes.
             //Example: return value is (> 1 and < 100);
             case ParenthesizedPatternSyntax parenthesizedPattern:
                 ConvertParenthesizedPatternSyntax(model, parenthesizedPattern, localIndex);

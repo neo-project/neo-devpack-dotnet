@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     /// <summary>
-    /// Convet relational pattern to OpCodes.
+    /// Convert a relational pattern to OpCodes.
     /// </summary>
     /// <param name="model">The semantic model providing context and information about convert pattern.</param>
     /// <param name="pattern">The convert pattern to be converted.</param>

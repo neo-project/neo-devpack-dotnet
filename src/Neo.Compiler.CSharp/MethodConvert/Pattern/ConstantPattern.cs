@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     /// <summary>
-    /// Convet a constant pattern to OpCodes.
+    /// Convert a constant pattern to OpCodes.
     /// </summary>
     /// <param name="model">The semantic model providing context and information about constant pattern.</param>
     /// <param name="pattern">The constant pattern to be converted.</param>

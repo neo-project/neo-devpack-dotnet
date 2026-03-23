@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     /// <summary>
-    /// Convet a binary pattern to OpCodes.
+    /// Convert a binary pattern to OpCodes.
     /// </summary>
     /// <param name="model">The semantic model providing context and information about binary pattern.</param>
     /// <param name="pattern">The binary pattern to be converted.</param>
@@ -43,7 +43,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Convet a "and" pattern to OpCodes.
+    /// Convert an "and" pattern to OpCodes.
     /// </summary>
     /// <remarks>
     /// Conjunctive "and" pattern that matches an expression when both patterns match the expression.
@@ -90,7 +90,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Convet a "or" pattern to OpCodes.
+    /// Convert an "or" pattern to OpCodes.
     /// </summary>
     /// <remarks>
     /// Disjunctive "or" pattern that matches an expression when either pattern matches the expression.

@@ -20,7 +20,7 @@ namespace Neo.Compiler;
 internal partial class MethodConvert
 {
     /// <summary>
-    /// Convet a "not" pattern to OpCodes.
+    /// Convert a "not" pattern to OpCodes.
     /// </summary>
     /// <remarks>
     /// Negation "not" pattern that matches an expression when the negated pattern doesn't match the expression.
