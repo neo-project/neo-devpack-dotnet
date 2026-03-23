@@ -40,11 +40,20 @@ public class SafeMathTest
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
-        Assert.ThrowsException<TestException>(() => contract.Add(-1, 1));
-        Assert.ThrowsException<TestException>(() => contract.Sub(1, 2));
-        Assert.ThrowsException<TestException>(() => contract.Mul(-1, 2));
-        Assert.ThrowsException<TestException>(() => contract.Div(1, 0));
-        Assert.ThrowsException<TestException>(() => contract.Mod(1, 0));
+        var addNegative = Assert.ThrowsException<TestException>(() => contract.Add(-1, 1));
+        StringAssert.Contains(addNegative.InnerException?.Message ?? addNegative.Message, "negative values are not supported");
+
+        var subUnderflow = Assert.ThrowsException<TestException>(() => contract.Sub(1, 2));
+        StringAssert.Contains(subUnderflow.InnerException?.Message ?? subUnderflow.Message, "result would be negative");
+
+        var mulNegative = Assert.ThrowsException<TestException>(() => contract.Mul(-1, 2));
+        StringAssert.Contains(mulNegative.InnerException?.Message ?? mulNegative.Message, "negative values are not supported");
+
+        var divByZero = Assert.ThrowsException<TestException>(() => contract.Div(1, 0));
+        StringAssert.Contains(divByZero.InnerException?.Message ?? divByZero.Message, "division by zero");
+
+        var modByZero = Assert.ThrowsException<TestException>(() => contract.Mod(1, 0));
+        StringAssert.Contains(modByZero.InnerException?.Message ?? modByZero.Message, "modulo by zero");
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }

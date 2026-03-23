@@ -21,34 +21,34 @@ namespace Neo.SmartContract.Framework
     {
         public static BigInteger Add(BigInteger left, BigInteger right)
         {
-            ExecutionEngine.Assert(left >= 0 && right >= 0, "NEGATIVE");
+            ExecutionEngine.Assert(left >= 0 && right >= 0, "negative values are not supported");
             return left + right;
         }
 
         public static BigInteger Sub(BigInteger left, BigInteger right)
         {
-            ExecutionEngine.Assert(left >= 0 && right >= 0, "NEGATIVE");
-            ExecutionEngine.Assert(left >= right, "UNDERFLOW");
+            ExecutionEngine.Assert(left >= 0 && right >= 0, "negative values are not supported");
+            ExecutionEngine.Assert(left >= right, "result would be negative");
             return left - right;
         }
 
         public static BigInteger Mul(BigInteger left, BigInteger right)
         {
-            ExecutionEngine.Assert(left >= 0 && right >= 0, "NEGATIVE");
+            ExecutionEngine.Assert(left >= 0 && right >= 0, "negative values are not supported");
             return left * right;
         }
 
         public static BigInteger Div(BigInteger left, BigInteger right)
         {
-            ExecutionEngine.Assert(left >= 0 && right >= 0, "NEGATIVE");
-            ExecutionEngine.Assert(right != 0, "DIV_BY_ZERO");
+            ExecutionEngine.Assert(left >= 0 && right >= 0, "negative values are not supported");
+            ExecutionEngine.Assert(right != 0, "division by zero");
             return left / right;
         }
 
         public static BigInteger Mod(BigInteger left, BigInteger right)
         {
-            ExecutionEngine.Assert(left >= 0 && right >= 0, "NEGATIVE");
-            ExecutionEngine.Assert(right != 0, "DIV_BY_ZERO");
+            ExecutionEngine.Assert(left >= 0 && right >= 0, "negative values are not supported");
+            ExecutionEngine.Assert(right != 0, "modulo by zero");
             return left % right;
         }
     }
