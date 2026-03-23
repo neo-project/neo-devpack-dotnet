@@ -53,5 +53,49 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreSame(terminalNop, target.Instruction);
             CollectionAssert.AreEqual(new[] { jump, terminalNop }, instructions);
         }
+
+        [TestMethod]
+        public void CompressJumps_LeavesShortFormJumpUnchanged()
+        {
+            JumpTarget target = new();
+            Instruction jump = new() { OpCode = OpCode.JMP, Target = target };
+            Instruction destination = new() { OpCode = OpCode.RET };
+            target.Instruction = destination;
+
+            List<Instruction> instructions = new() { jump, destination };
+            instructions.RebuildOffsets();
+
+            BasicOptimizer.CompressJumps(instructions);
+
+            Assert.AreEqual(OpCode.JMP, jump.OpCode);
+            Assert.AreSame(destination, target.Instruction);
+        }
+
+        [TestMethod]
+        public void CompressJumps_CompressesTryAndEndTryWhenTargetsAreNear()
+        {
+            JumpTarget catchTarget = new();
+            JumpTarget finallyTarget = new();
+            JumpTarget endTarget = new();
+
+            Instruction tryInstruction = new() { OpCode = OpCode.TRY_L, Target = catchTarget, Target2 = finallyTarget };
+            Instruction body = new() { OpCode = OpCode.NOP };
+            Instruction catchBlock = new() { OpCode = OpCode.NOP };
+            Instruction finallyBlock = new() { OpCode = OpCode.NOP };
+            Instruction endTryInstruction = new() { OpCode = OpCode.ENDTRY_L, Target = endTarget };
+            Instruction ret = new() { OpCode = OpCode.RET };
+
+            catchTarget.Instruction = catchBlock;
+            finallyTarget.Instruction = finallyBlock;
+            endTarget.Instruction = ret;
+
+            List<Instruction> instructions = new() { tryInstruction, body, catchBlock, finallyBlock, endTryInstruction, ret };
+            instructions.RebuildOffsets();
+
+            BasicOptimizer.CompressJumps(instructions);
+
+            Assert.AreEqual(OpCode.TRY, tryInstruction.OpCode);
+            Assert.AreEqual(OpCode.ENDTRY, endTryInstruction.OpCode);
+        }
     }
 }
