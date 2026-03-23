@@ -53,12 +53,13 @@ namespace Neo.SmartContract.Template.UnitTests.templates
             .CompileSources(new CompilationSourceReferences() { Projects = [frameworkPath] },
                 [
                     Path.Combine(templatePath, "neocontractnep17/Nep17Contract.cs"),
+                    Path.Combine(templatePath, "neocontractnep11/Nep11Contract.cs"),
                     Path.Combine(templatePath, "neocontractoracle/OracleRequest.cs"),
                     Path.Combine(templatePath, "neocontractowner/Ownable.cs"),
                     Path.Combine(templatePath, "neocontractsolution/NeoContractSolution/SmartContract.cs")
                 ]);
 
-            Assert.IsTrue(result.Count == 4 && result.All(u => u.Success), "Error compiling templates");
+            Assert.IsTrue(result.Count == 5 && result.All(u => u.Success), "Error compiling templates");
 
             // Ensure Nep17
 
@@ -68,6 +69,14 @@ namespace Neo.SmartContract.Template.UnitTests.templates
                 Path.Combine(artifactsPath, "neocontractnep17/TestingArtifacts/Nep17ContractTemplate.artifacts.cs"));
 
             CachedContracts[typeof(Nep17ContractTemplate)] = (context, dbg);
+
+            // Ensure Nep11
+
+            context = result.FirstOrDefault(p => p.ContractName == "Nep11Contract") ?? throw new InvalidOperationException();
+            (artifact, dbg) = CreateArtifact<Nep11ContractTemplate>(context, root,
+                Path.Combine(artifactsPath, "neocontractnep11/TestingArtifacts/Nep11ContractTemplate.artifacts.cs"));
+
+            CachedContracts[typeof(Nep11ContractTemplate)] = (context, dbg);
 
             // Ensure Oracle
 
