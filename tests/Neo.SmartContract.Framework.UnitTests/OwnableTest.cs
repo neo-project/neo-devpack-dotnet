@@ -6,6 +6,7 @@ using Neo.Network.P2P.Payloads;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.TestingStandards;
 using System;
@@ -25,7 +26,7 @@ public class OwnableTest
     [TestMethod]
     public void Ownable_UsesSenderAsDefaultOwner_And_OnlyOwnerGuardsProtectedMethods()
     {
-        var (nef, manifest) = CompileOwnableContract();
+        var (nef, manifest, debugInfo) = CompileOwnableContract();
         var engine = CreateEngine();
 
         UInt160? previousOwnerRaised = null;
@@ -50,12 +51,14 @@ public class OwnableTest
 
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => contract.ProtectedAction());
+
+        DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
 
     [TestMethod]
     public void Ownable_SetOwner_TransfersOwnership_And_RaisesEvent()
     {
-        var (nef, manifest) = CompileOwnableContract();
+        var (nef, manifest, debugInfo) = CompileOwnableContract();
         var engine = CreateEngine();
         var contract = engine.Deploy<OwnableContractProxy>(nef, manifest);
 
@@ -84,9 +87,11 @@ public class OwnableTest
 
         engine.SetTransactionSigners(Alice);
         Assert.ThrowsException<TestException>(() => contract.ProtectedAction());
+
+        DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompileOwnableContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileOwnableContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
@@ -130,7 +135,8 @@ public class Contract : Ownable
             var context = contexts[0];
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-            return (context.CreateExecutable(), context.CreateManifest());
+            var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+            return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
         }
         finally
         {
