@@ -1,3 +1,5 @@
+extern alias scfx;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
@@ -12,6 +14,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using CompilationOptions = Neo.Compiler.CompilationOptions;
+using ModifierAttribute = scfx.Neo.SmartContract.Framework.Attributes.ModifierAttribute;
+using WhenNotPausedAttribute = scfx.Neo.SmartContract.Framework.Attributes.WhenNotPausedAttribute;
+using WhenPausedAttribute = scfx.Neo.SmartContract.Framework.Attributes.WhenPausedAttribute;
 
 namespace Neo.SmartContract.Framework.UnitTests;
 
@@ -57,6 +62,33 @@ public class PausableTest
         Assert.ThrowsException<TestException>(() => contract.Pause());
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
+    }
+
+    [TestMethod]
+    public void Pausable_ModifierAttributes_ExposeExpectedMetadata_And_ExitIsNoOp()
+    {
+        var whenPaused = new WhenPausedAttribute();
+        var whenNotPaused = new WhenNotPausedAttribute();
+        var whenPausedCustom = new WhenPausedAttribute(0x7A);
+        var whenNotPausedCustom = new WhenNotPausedAttribute(0x7A);
+
+        whenPaused.Exit();
+        whenNotPaused.Exit();
+        whenPausedCustom.Exit();
+        whenNotPausedCustom.Exit();
+
+        var whenPausedUsage = (AttributeUsageAttribute?)Attribute.GetCustomAttribute(typeof(WhenPausedAttribute), typeof(AttributeUsageAttribute));
+        Assert.IsNotNull(whenPausedUsage);
+        Assert.AreEqual(AttributeTargets.Constructor | AttributeTargets.Method, whenPausedUsage.ValidOn);
+        Assert.IsFalse(whenPausedUsage.AllowMultiple);
+
+        var whenNotPausedUsage = (AttributeUsageAttribute?)Attribute.GetCustomAttribute(typeof(WhenNotPausedAttribute), typeof(AttributeUsageAttribute));
+        Assert.IsNotNull(whenNotPausedUsage);
+        Assert.AreEqual(AttributeTargets.Constructor | AttributeTargets.Method, whenNotPausedUsage.ValidOn);
+        Assert.IsFalse(whenNotPausedUsage.AllowMultiple);
+
+        Assert.IsTrue(typeof(ModifierAttribute).IsAssignableFrom(typeof(WhenPausedAttribute)));
+        Assert.IsTrue(typeof(ModifierAttribute).IsAssignableFrom(typeof(WhenNotPausedAttribute)));
     }
 
     private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompilePausableContract()
