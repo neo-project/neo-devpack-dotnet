@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.ComponentModel;
@@ -19,7 +20,7 @@ public class SafeMathTest
     [TestMethod]
     public void SafeMath_UnsignedArithmetic_ReturnsExpectedValues()
     {
-        var (nef, manifest) = CompileSafeMathContract();
+        var (nef, manifest, debugInfo) = CompileSafeMathContract();
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
@@ -28,12 +29,14 @@ public class SafeMathTest
         Assert.AreEqual(new BigInteger(42), contract.Mul(6, 7));
         Assert.AreEqual(new BigInteger(5), contract.Div(20, 4));
         Assert.AreEqual(new BigInteger(2), contract.Mod(20, 6));
+
+        DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
 
     [TestMethod]
     public void SafeMath_Rejects_NegativeValues_And_InvalidOperations()
     {
-        var (nef, manifest) = CompileSafeMathContract();
+        var (nef, manifest, debugInfo) = CompileSafeMathContract();
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
@@ -42,9 +45,11 @@ public class SafeMathTest
         Assert.ThrowsException<TestException>(() => contract.Mul(-1, 2));
         Assert.ThrowsException<TestException>(() => contract.Div(1, 0));
         Assert.ThrowsException<TestException>(() => contract.Mod(1, 0));
+
+        DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompileSafeMathContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileSafeMathContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
 using System.Numerics;
@@ -102,7 +107,8 @@ public class Contract : SmartContract
             var context = contexts[0];
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-            return (context.CreateExecutable(), context.CreateManifest());
+            var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+            return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
         }
         finally
         {
