@@ -18,25 +18,32 @@ namespace Neo.Compiler.Optimizer
     {
         public static void RemoveNops(List<Instruction> instructions)
         {
-            for (int i = 0; i < instructions.Count;)
+            Dictionary<Instruction, List<JumpTarget>> incomingTargets = CollectIncomingTargets(instructions);
+            List<Instruction> retained = new(instructions.Count);
+            Instruction? nextRetained = null;
+
+            for (int i = instructions.Count - 1; i >= 0; i--)
             {
                 Instruction instruction = instructions[i];
-                if (instruction.OpCode == OpCode.NOP)
+
+                bool keepInstruction = instruction.OpCode != OpCode.NOP
+                    || nextRetained is null && incomingTargets.ContainsKey(instruction);
+
+                if (keepInstruction)
                 {
-                    instructions.RemoveAt(i);
-                    foreach (Instruction other in instructions)
-                    {
-                        if (other.Target?.Instruction == instruction)
-                            other.Target.Instruction = instructions[i];
-                        if (other.Target2?.Instruction == instruction)
-                            other.Target2.Instruction = instructions[i];
-                    }
+                    retained.Add(instruction);
+                    nextRetained = instruction;
+                    continue;
                 }
-                else
-                {
-                    i++;
-                }
+
+                if (!incomingTargets.TryGetValue(instruction, out List<JumpTarget>? targets)) continue;
+                foreach (JumpTarget target in targets)
+                    target.Instruction = nextRetained;
             }
+
+            retained.Reverse();
+            instructions.Clear();
+            instructions.AddRange(retained);
         }
 
         public static void CompressJumps(IReadOnlyList<Instruction> instructions)
@@ -78,6 +85,30 @@ namespace Neo.Compiler.Optimizer
                 }
                 if (compressed) instructions.RebuildOffsets();
             } while (compressed);
+        }
+
+        private static Dictionary<Instruction, List<JumpTarget>> CollectIncomingTargets(IReadOnlyList<Instruction> instructions)
+        {
+            Dictionary<Instruction, List<JumpTarget>> incomingTargets = new();
+            foreach (Instruction instruction in instructions)
+            {
+                AddIncomingTarget(instruction.Target);
+                AddIncomingTarget(instruction.Target2);
+            }
+
+            return incomingTargets;
+
+            void AddIncomingTarget(JumpTarget? target)
+            {
+                if (target?.Instruction is null) return;
+                if (!incomingTargets.TryGetValue(target.Instruction, out List<JumpTarget>? targets))
+                {
+                    targets = new List<JumpTarget>();
+                    incomingTargets[target.Instruction] = targets;
+                }
+
+                targets.Add(target);
+            }
         }
     }
 }
