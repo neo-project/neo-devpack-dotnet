@@ -106,6 +106,40 @@ public class Contract : SmartContract, IDefaultGreeting
         Assert.AreEqual("expr", contract.Greet());
     }
 
+    [TestMethod]
+    public void Contract_Uses_Default_Interface_Property_Getter()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public interface IDefaultValue
+{
+    [DisplayName(""count"")]
+    int Count
+    {
+        get
+        {
+            return 42;
+        }
+    }
+}
+
+public class Contract : SmartContract, IDefaultValue
+{
+}";
+
+        var context = CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var manifest = context.CreateManifest();
+        Assert.IsNotNull(manifest.Abi.GetMethod("count", 0));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<DefaultValueContract>(context.CreateExecutable(), manifest);
+
+        Assert.AreEqual(42, contract.Count);
+    }
+
     private static CompilationContext CompileSingleContract(string sourceCode)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
@@ -144,5 +178,11 @@ public class Contract : SmartContract, IDefaultGreeting
     {
         [DisplayName("greet")]
         public abstract string? Greet();
+    }
+
+    public abstract class DefaultValueContract(SmartContractInitialize initialize)
+        : Neo.SmartContract.Testing.SmartContract(initialize)
+    {
+        public abstract int? Count { [DisplayName("count")] get; }
     }
 }

@@ -75,7 +75,7 @@ public interface IAddable<T> where T : IAddable<T>
 
 Status: supported
 Scope: class
-Notes: Interface instance methods with bodies compile as inherited default implementations on implementing classes and contracts. A concrete class implementation still overrides the interface default body.
+Notes: Interface instance methods and property accessors with bodies compile as inherited default implementations on implementing classes and contracts. A concrete class implementation still overrides the interface default body.
 ```csharp
 public interface IDefaultGreeting
 {
