@@ -73,19 +73,19 @@ public interface IAddable<T> where T : IAddable<T>
 
 ### default_interface_methods - Default interface member implementations
 
-Status: unsupported
+Status: supported
 Scope: class
-Notes: Default interface method implementations are not emitted for smart contracts.
+Notes: Interface instance methods with bodies compile as inherited default implementations on implementing classes and contracts. A concrete class implementation still overrides the interface default body.
 ```csharp
-public interface ILogger
+public interface IDefaultGreeting
 {
-    void Log(string message)
+    string Greet()
     {
-        System.Console.WriteLine(message);
+        return "hello";
     }
 }
 
-public class Logger : ILogger
+public class GreetingContract : IDefaultGreeting
 {
 }
 ```

@@ -415,6 +415,19 @@ public class UnsupportedSyntaxAnalyzerUnitTests
     }
 
     [TestMethod]
+    public async Task ExpressionBodiedDefaultInterfaceMethod_IsAllowed()
+    {
+        var test = """
+                   interface ITest
+                   {
+                       int Foo() => 1;
+                   }
+                   """;
+
+        await VerifyCS.VerifyAnalyzerAsync(test);
+    }
+
+    [TestMethod]
     public async Task FileLocalType_IsFlagged()
     {
         var test = """

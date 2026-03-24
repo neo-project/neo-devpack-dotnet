@@ -81,6 +81,31 @@ public class Contract : SmartContract, IDefaultGreeting
         Assert.AreEqual("override", contract.Greet());
     }
 
+    [TestMethod]
+    public void Contract_Uses_ExpressionBodied_Interface_Default_Implementation()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public interface IDefaultGreeting
+{
+    [DisplayName(""greet"")]
+    string Greet() => ""expr"";
+}
+
+public class Contract : SmartContract, IDefaultGreeting
+{
+}";
+
+        var context = CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<DefaultGreetingContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual("expr", contract.Greet());
+    }
+
     private static CompilationContext CompileSingleContract(string sourceCode)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");

@@ -50,7 +50,6 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
 - **C# 11 Syntax Checklist**  
   - List patterns (`list_patterns`)
   - UTF-8 string literals (`utf_8_string_literals`)
-  - Default interface member implementations (`default_interface_methods`)
   - File-local types (`file_local_types`)
   - Numeric `nint` and `nuint` (`numeric_intptr_and_uintptr`)
 
