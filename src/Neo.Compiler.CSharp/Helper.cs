@@ -283,9 +283,13 @@ namespace Neo.Compiler
             if (type.SpecialType == SpecialType.System_Object) yield break;
             if (type.Name == nameof(Attribute)) yield break;
             List<ISymbol> myMembers = type.GetMembers().ToList();
-            if (type.IsReferenceType)
+            if (type is INamedTypeSymbol namedType && (namedType.TypeKind == TypeKind.Class || namedType.TypeKind == TypeKind.Struct))
             {
-                foreach (ISymbol member in GetAllMembersInternal(type.BaseType!))
+                AddDefaultInterfaceMethods(namedType, myMembers);
+            }
+            if (type.IsReferenceType && type.BaseType is not null)
+            {
+                foreach (ISymbol member in GetAllMembersInternal(type.BaseType))
                 {
                     if (member is IMethodSymbol method && (method.MethodKind == MethodKind.Constructor || method.MethodKind == MethodKind.StaticConstructor))
                     {
@@ -313,6 +317,35 @@ namespace Neo.Compiler
             foreach (ISymbol member in myMembers)
             {
                 yield return member;
+            }
+        }
+
+        private static void AddDefaultInterfaceMethods(INamedTypeSymbol type, List<ISymbol> myMembers)
+        {
+            HashSet<IMethodSymbol> seen = new(SymbolEqualityComparer.Default);
+
+            foreach (IMethodSymbol interfaceMethod in type.AllInterfaces
+                .SelectMany(i => i.GetMembers())
+                .OfType<IMethodSymbol>()
+                .Where(m => !m.IsStatic && !m.IsAbstract)
+                .Where(m => m.MethodKind == MethodKind.Ordinary || m.MethodKind == MethodKind.PropertyGet || m.MethodKind == MethodKind.PropertySet))
+            {
+                if (!seen.Add(interfaceMethod))
+                    continue;
+
+                if (type.FindImplementationForInterfaceMember(interfaceMethod) is not IMethodSymbol implementation)
+                    continue;
+
+                // Roslyn returns the interface member itself when the type relies on the default body.
+                if (!SymbolEqualityComparer.Default.Equals(implementation, interfaceMethod))
+                    continue;
+
+                if (type.BaseType is INamedTypeSymbol baseType &&
+                    baseType.FindImplementationForInterfaceMember(interfaceMethod) is not null)
+                    continue;
+
+                if (!myMembers.Any(member => SymbolEqualityComparer.Default.Equals(member, interfaceMethod)))
+                    myMembers.Add(interfaceMethod);
             }
         }
 

@@ -206,7 +206,9 @@ namespace Neo.Compiler
 
         public void ConvertForward(SemanticModel model, MethodConvert target)
         {
-            INamedTypeSymbol type = Symbol.ContainingType;
+            INamedTypeSymbol type = Symbol.ContainingType.TypeKind == TypeKind.Interface
+                ? _context.TargetContract
+                : Symbol.ContainingType;
             CreateObject(model, type);
             IMethodSymbol? constructor = type.InstanceConstructors.FirstOrDefault(p => p.Parameters.Length == 0)
                 ?? throw new CompilationException(type, DiagnosticId.NoParameterlessConstructor, "The contract class requires a parameterless constructor.");

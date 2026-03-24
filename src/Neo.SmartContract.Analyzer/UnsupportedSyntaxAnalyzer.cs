@@ -215,11 +215,6 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
             context.ReportDiagnostic(Diagnostic.Create(AsyncMethodRule, method.Modifiers.First(m => m.IsKind(SyntaxKind.AsyncKeyword)).GetLocation()));
         }
 
-        if (method.Parent is InterfaceDeclarationSyntax && (method.Body is not null || method.ExpressionBody is not null))
-        {
-            var location = method.Identifier.GetLocation();
-            context.ReportDiagnostic(Diagnostic.Create(DefaultInterfaceMethodRule, location));
-        }
     }
 
     private static void AnalyzeForEachStatement(SyntaxNodeAnalysisContext context)

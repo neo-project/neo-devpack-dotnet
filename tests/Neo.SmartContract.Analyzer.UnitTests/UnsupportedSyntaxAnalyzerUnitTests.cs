@@ -402,17 +402,16 @@ public class UnsupportedSyntaxAnalyzerUnitTests
     }
 
     [TestMethod]
-    public async Task DefaultInterfaceMethod_IsFlagged()
+    public async Task DefaultInterfaceMethod_IsAllowed()
     {
         var test = """
                    interface ITest
                    {
-                       void {|#0:Foo|}() { }
+                       void Foo() { }
                    }
                    """;
 
-        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.DefaultInterfaceMethodRuleId).WithLocation(0);
-        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        await VerifyCS.VerifyAnalyzerAsync(test);
     }
 
     [TestMethod]
