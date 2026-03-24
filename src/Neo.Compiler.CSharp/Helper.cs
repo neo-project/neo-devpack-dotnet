@@ -322,18 +322,15 @@ namespace Neo.Compiler
 
         private static void AddDefaultInterfaceMethods(INamedTypeSymbol type, List<ISymbol> myMembers)
         {
-            HashSet<IMethodSymbol> seen = new(SymbolEqualityComparer.Default);
-
             foreach (IMethodSymbol interfaceMethod in type.AllInterfaces
                 .SelectMany(i => i.GetMembers())
                 .OfType<IMethodSymbol>()
                 .Where(m => !m.IsStatic && !m.IsAbstract)
-                .Where(m => m.MethodKind == MethodKind.Ordinary || m.MethodKind == MethodKind.PropertyGet || m.MethodKind == MethodKind.PropertySet))
+                .Where(m => m.MethodKind == MethodKind.Ordinary || m.MethodKind == MethodKind.PropertyGet || m.MethodKind == MethodKind.PropertySet)
+                .Distinct<IMethodSymbol>(SymbolEqualityComparer.Default))
             {
-                if (!seen.Add(interfaceMethod))
-                    continue;
-
-                if (type.FindImplementationForInterfaceMember(interfaceMethod) is not IMethodSymbol implementation)
+                var implementation = type.FindImplementationForInterfaceMember(interfaceMethod);
+                if (implementation is null)
                     continue;
 
                 // Roslyn returns the interface member itself when the type relies on the default body.
