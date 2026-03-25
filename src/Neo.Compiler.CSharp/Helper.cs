@@ -340,7 +340,10 @@ namespace Neo.Compiler
                 if (type.BaseType is INamedTypeSymbol baseType &&
                     baseType.FindImplementationForInterfaceMember(interfaceMethod) is not null)
                     continue;
-                var existingConflict = myMembers.OfType<IMethodSymbol>().FirstOrDefault(m => m.Name == interfaceMethod.Name && m.Parameters.Length == interfaceMethod.Parameters.Length && !SymbolEqualityComparer.Default.Equals(m.ContainingType, interfaceMethod.ContainingType));
+                var existingConflict = myMembers.OfType<IMethodSymbol>()
+                    .FirstOrDefault(m => m.Name == interfaceMethod.Name
+                            && m.Parameters.Length == interfaceMethod.Parameters.Length
+                            && !SymbolEqualityComparer.Default.Equals(m.ContainingType, interfaceMethod.ContainingType));
                 if (existingConflict is not null)
                 {
                     throw new CompilationException(interfaceMethod, DiagnosticId.MethodNameConflict,
