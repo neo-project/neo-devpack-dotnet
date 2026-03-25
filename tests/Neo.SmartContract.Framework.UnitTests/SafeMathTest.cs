@@ -24,11 +24,11 @@ public class SafeMathTest
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
-        Assert.AreEqual(new BigInteger(9), contract.Add(4, 5));
-        Assert.AreEqual(new BigInteger(7), contract.Sub(10, 3));
-        Assert.AreEqual(new BigInteger(42), contract.Mul(6, 7));
-        Assert.AreEqual(new BigInteger(5), contract.Div(20, 4));
-        Assert.AreEqual(new BigInteger(2), contract.Mod(20, 6));
+        Assert.AreEqual(new BigInteger(9), contract.UnsignedAdd(4, 5));
+        Assert.AreEqual(new BigInteger(7), contract.UnsignedSub(10, 3));
+        Assert.AreEqual(new BigInteger(42), contract.UnsignedMul(6, 7));
+        Assert.AreEqual(new BigInteger(5), contract.UnsignedDiv(20, 4));
+        Assert.AreEqual(new BigInteger(2), contract.UnsignedMod(20, 6));
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
@@ -40,20 +40,20 @@ public class SafeMathTest
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
-        var addNegative = Assert.ThrowsException<TestException>(() => contract.Add(-1, 1));
+        var addNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedAdd(-1, 1));
         StringAssert.Contains(addNegative.InnerException?.Message ?? addNegative.Message, "negative values are not supported");
 
-        var subUnderflow = Assert.ThrowsException<TestException>(() => contract.Sub(1, 2));
+        var subUnderflow = Assert.ThrowsException<TestException>(() => contract.UnsignedSub(1, 2));
         StringAssert.Contains(subUnderflow.InnerException?.Message ?? subUnderflow.Message, "result would be negative");
 
-        var mulNegative = Assert.ThrowsException<TestException>(() => contract.Mul(-1, 2));
+        var mulNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedMul(-1, 2));
         StringAssert.Contains(mulNegative.InnerException?.Message ?? mulNegative.Message, "negative values are not supported");
 
-        var divByZero = Assert.ThrowsException<TestException>(() => contract.Div(1, 0));
-        StringAssert.Contains(divByZero.InnerException?.Message ?? divByZero.Message, "division by zero");
+        var divByZero = Assert.ThrowsException<TestException>(() => contract.UnsignedDiv(1, 0));
+        StringAssert.Contains(divByZero.InnerException?.Message ?? divByZero.Message, "the divisor must be positive");
 
-        var modByZero = Assert.ThrowsException<TestException>(() => contract.Mod(1, 0));
-        StringAssert.Contains(modByZero.InnerException?.Message ?? modByZero.Message, "modulo by zero");
+        var modByZero = Assert.ThrowsException<TestException>(() => contract.UnsignedMod(1, 0));
+        StringAssert.Contains(modByZero.InnerException?.Message ?? modByZero.Message, "the divisor must be positive");
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
@@ -65,17 +65,17 @@ public class SafeMathTest
         var engine = new TestEngine(true);
         var contract = engine.Deploy<SafeMathContractProxy>(nef, manifest);
 
-        var addNegative = Assert.ThrowsException<TestException>(() => contract.Add(1, -1));
+        var addNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedAdd(1, -1));
         StringAssert.Contains(addNegative.InnerException?.Message ?? addNegative.Message, "negative values are not supported");
 
-        var mulNegative = Assert.ThrowsException<TestException>(() => contract.Mul(2, -1));
+        var mulNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedMul(2, -1));
         StringAssert.Contains(mulNegative.InnerException?.Message ?? mulNegative.Message, "negative values are not supported");
 
-        var divNegative = Assert.ThrowsException<TestException>(() => contract.Div(2, -1));
-        StringAssert.Contains(divNegative.InnerException?.Message ?? divNegative.Message, "negative values are not supported");
+        var divNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedDiv(2, -1));
+        StringAssert.Contains(divNegative.InnerException?.Message ?? divNegative.Message, "the divisor must be positive");
 
-        var modNegative = Assert.ThrowsException<TestException>(() => contract.Mod(2, -1));
-        StringAssert.Contains(modNegative.InnerException?.Message ?? modNegative.Message, "negative values are not supported");
+        var modNegative = Assert.ThrowsException<TestException>(() => contract.UnsignedMod(2, -1));
+        StringAssert.Contains(modNegative.InnerException?.Message ?? modNegative.Message, "the divisor must be positive");
 
         DynamicCoverageMergeHelper.Merge(contract, debugInfo);
     }
@@ -87,29 +87,29 @@ using System.Numerics;
 
 public class Contract : SmartContract
 {
-    public static BigInteger Add(BigInteger left, BigInteger right)
+    public static BigInteger UnsignedAdd(BigInteger left, BigInteger right)
     {
-        return SafeMath.Add(left, right);
+        return SafeMath.UnsignedAdd(left, right);
     }
 
-    public static BigInteger Sub(BigInteger left, BigInteger right)
+    public static BigInteger UnsignedSub(BigInteger left, BigInteger right)
     {
-        return SafeMath.Sub(left, right);
+        return SafeMath.UnsignedSub(left, right);
     }
 
-    public static BigInteger Mul(BigInteger left, BigInteger right)
+    public static BigInteger UnsignedMul(BigInteger left, BigInteger right)
     {
-        return SafeMath.Mul(left, right);
+        return SafeMath.UnsignedMul(left, right);
     }
 
-    public static BigInteger Div(BigInteger left, BigInteger right)
+    public static BigInteger UnsignedDiv(BigInteger left, BigInteger right)
     {
-        return SafeMath.Div(left, right);
+        return SafeMath.UnsignedDiv(left, right);
     }
 
-    public static BigInteger Mod(BigInteger left, BigInteger right)
+    public static BigInteger UnsignedMod(BigInteger left, BigInteger right)
     {
-        return SafeMath.Mod(left, right);
+        return SafeMath.UnsignedMod(left, right);
     }
 }";
 
@@ -151,19 +151,19 @@ public class Contract : SmartContract
     public abstract class SafeMathContractProxy(SmartContractInitialize initialize)
         : Neo.SmartContract.Testing.SmartContract(initialize)
     {
-        [DisplayName("add")]
-        public abstract BigInteger? Add(BigInteger? left, BigInteger? right);
+        [DisplayName("unsignedAdd")]
+        public abstract BigInteger? UnsignedAdd(BigInteger? left, BigInteger? right);
 
-        [DisplayName("sub")]
-        public abstract BigInteger? Sub(BigInteger? left, BigInteger? right);
+        [DisplayName("unsignedSub")]
+        public abstract BigInteger? UnsignedSub(BigInteger? left, BigInteger? right);
 
-        [DisplayName("mul")]
-        public abstract BigInteger? Mul(BigInteger? left, BigInteger? right);
+        [DisplayName("unsignedMul")]
+        public abstract BigInteger? UnsignedMul(BigInteger? left, BigInteger? right);
 
-        [DisplayName("div")]
-        public abstract BigInteger? Div(BigInteger? left, BigInteger? right);
+        [DisplayName("unsignedDiv")]
+        public abstract BigInteger? UnsignedDiv(BigInteger? left, BigInteger? right);
 
-        [DisplayName("mod")]
-        public abstract BigInteger? Mod(BigInteger? left, BigInteger? right);
+        [DisplayName("unsignedMod")]
+        public abstract BigInteger? UnsignedMod(BigInteger? left, BigInteger? right);
     }
 }
