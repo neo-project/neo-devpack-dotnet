@@ -263,6 +263,86 @@ public class DummyContract : SmartContract
         Assert.IsTrue(SymbolEqualityComparer.Default.Equals(greetMethods[0], counterType.AllInterfaces.Single().GetMembers("Greet").OfType<IMethodSymbol>().Single()));
     }
 
+    [TestMethod]
+    public void Contract_Class_Method_Satisfies_Two_Interface_Default_Methods_With_Same_Signature()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public interface ILeftGreeting
+{
+    [DisplayName(""greet"")]
+    string Greet()
+    {
+        return ""left"";
+    }
+}
+
+public interface IRightGreeting
+{
+    [DisplayName(""greet"")]
+    string Greet()
+    {
+        return ""right"";
+    }
+}
+
+public class Contract : SmartContract, ILeftGreeting, IRightGreeting
+{
+    [DisplayName(""greet"")]
+    public string Greet()
+    {
+        return ""class"";
+    }
+}";
+
+        var context = CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var manifest = context.CreateManifest();
+        var greetMethods = manifest.Abi.Methods.Where(m => m.Name == "greet").ToArray();
+        Assert.AreEqual(1, greetMethods.Length);
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<DefaultGreetingContract>(context.CreateExecutable(), manifest);
+
+        Assert.AreEqual("class", contract.Greet());
+    }
+
+    [TestMethod]
+    public void Contract_Fails_When_Two_Unrelated_Interfaces_Provide_Competing_Default_Methods()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public interface ILeftGreeting
+{
+    [DisplayName(""greet"")]
+    string Greet()
+    {
+        return ""left"";
+    }
+}
+
+public interface IRightGreeting
+{
+    [DisplayName(""greet"")]
+    string Greet()
+    {
+        return ""right"";
+    }
+}
+
+public class Contract : SmartContract, ILeftGreeting, IRightGreeting
+{
+}";
+
+        var context = CompileSingleContract(source);
+        Assert.IsFalse(context.Success, "Competing unrelated default interface methods should require an explicit class implementation.");
+        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == "NC3003"),
+            string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+    }
+
     private static CompilationContext CompileSingleContract(string sourceCode)
     {
         var (_, contexts) = CompileSource(sourceCode);
