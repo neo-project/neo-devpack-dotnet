@@ -340,7 +340,14 @@ namespace Neo.Compiler
                 if (type.BaseType is INamedTypeSymbol baseType &&
                     baseType.FindImplementationForInterfaceMember(interfaceMethod) is not null)
                     continue;
-
+                var existingConflict = myMembers.OfType<IMethodSymbol>().FirstOrDefault(m => m.Name == interfaceMethod.Name && m.Parameters.Length == interfaceMethod.Parameters.Length && !SymbolEqualityComparer.Default.Equals(m.ContainingType, interfaceMethod.ContainingType));
+                if (existingConflict is not null)
+                {
+                    throw new CompilationException(interfaceMethod, DiagnosticId.MethodNameConflict,
+                        $"Ambiguous default interface method '{interfaceMethod.Name}': " +
+                        $"both '{existingConflict.ContainingType.Name}' and '{interfaceMethod.ContainingType.Name}' " +
+                        $"provide a default implementation. The class '{type.Name}' must provide its own implementation.");
+                }
                 if (!myMembers.Any(member => SymbolEqualityComparer.Default.Equals(member, interfaceMethod)))
                     myMembers.Add(interfaceMethod);
             }
