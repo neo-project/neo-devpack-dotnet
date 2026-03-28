@@ -47,11 +47,30 @@ public class GasAssertionRangeTest : DebugAndTestBase<Contract_String>
     }
 
     [TestMethod]
+    public void AssertGasConsumed_FailsForNegativeTolerance()
+    {
+        var exception = Assert.ThrowsExactly<AssertFailedException>(() => AssertGasConsumed(1_000, -1));
+
+        StringAssert.Contains(exception.Message, "non-negative");
+    }
+
+    [TestMethod]
     public void AssertGasConsumedInRange_FailsForInvalidWindow()
     {
         var exception = Assert.ThrowsExactly<AssertFailedException>(() => AssertGasConsumedInRange(1_100, 900));
 
         StringAssert.Contains(exception.Message, "minimum");
         StringAssert.Contains(exception.Message, "maximum");
+    }
+
+    [TestMethod]
+    public void AssertGasConsumedInRange_FailsWhenActualGasIsBelowMinimum()
+    {
+        Engine.FeeConsumed.Value = 1_000;
+
+        var exception = Assert.ThrowsExactly<AssertFailedException>(() => AssertGasConsumedInRange(1_001, 1_100));
+
+        StringAssert.Contains(exception.Message, "between 1001 and 1100");
+        StringAssert.Contains(exception.Message, "1000");
     }
 }
