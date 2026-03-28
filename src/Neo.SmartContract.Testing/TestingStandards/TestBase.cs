@@ -123,6 +123,33 @@ public class TestBase<T> where T : SmartContract, IContractInfo
         Assert.AreEqual(0, _contractLogs.Count);
     }
 
+    protected void AssertGasConsumedInRangeCore(long minimumGasConsumed, long maximumGasConsumed)
+    {
+        if (minimumGasConsumed > maximumGasConsumed)
+        {
+            Assert.Fail($"Expected gas assertion minimum {minimumGasConsumed} to be less than or equal to maximum {maximumGasConsumed}.");
+        }
+
+        long actualGasConsumed = Engine.FeeConsumed.Value;
+        if (actualGasConsumed < minimumGasConsumed || actualGasConsumed > maximumGasConsumed)
+        {
+            Assert.Fail($"Expected consumed gas to be between {minimumGasConsumed} and {maximumGasConsumed} datoshi, but was {actualGasConsumed}.");
+        }
+    }
+
+    protected void AssertGasConsumedWithToleranceCore(long expectedGasConsumed, long tolerance)
+    {
+        if (tolerance < 0)
+        {
+            Assert.Fail($"Expected gas tolerance to be non-negative, but was {tolerance}.");
+        }
+
+        checked
+        {
+            AssertGasConsumedInRangeCore(expectedGasConsumed - tolerance, expectedGasConsumed + tolerance);
+        }
+    }
+
     #endregion
 
     [TestCleanup]

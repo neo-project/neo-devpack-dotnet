@@ -30,6 +30,18 @@ public class DebugAndTestBase<T> : TestBase<T>
     protected void AssertGasConsumed(long gasConsumed)
     {
         if (TestGasConsume)
-            Assert.AreEqual(gasConsumed, Engine.FeeConsumed.Value);
+            AssertGasConsumedInRangeCore(gasConsumed, gasConsumed);
+    }
+
+    protected void AssertGasConsumed(long expectedGasConsumed, long tolerance)
+    {
+        if (TestGasConsume)
+            AssertGasConsumedWithToleranceCore(expectedGasConsumed, tolerance);
+    }
+
+    protected void AssertGasConsumedInRange(long minimumGasConsumed, long maximumGasConsumed)
+    {
+        if (TestGasConsume)
+            AssertGasConsumedInRangeCore(minimumGasConsumed, maximumGasConsumed);
     }
 }
