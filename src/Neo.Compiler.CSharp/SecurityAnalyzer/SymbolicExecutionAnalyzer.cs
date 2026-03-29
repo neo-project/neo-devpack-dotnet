@@ -13,9 +13,9 @@ using Neo.Compiler.SecurityAnalyzer.SymbolicExecution;
 using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
-using Neo.SmartContract.Testing.Coverage;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Neo.Compiler.SecurityAnalyzer
@@ -88,7 +88,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     {
                         if (neoDebugInfo != null)
                         {
-                            var location = neoDebugInfo.GetSourceLocation(warning.Address);
+                            var location = GetSourceLocation(warning.Address, neoDebugInfo);
                             if (location != null)
                             {
                                 result.AppendLine($"  At: {location.FileName}:{location.Line}:{location.Column}");
@@ -119,6 +119,39 @@ namespace Neo.Compiler.SecurityAnalyzer
             SymbolicExecutor executor = new();
             SymbolicFindings findings = executor.Analyze(nef, manifest, debugInfo);
             return new SymbolicExecutionWarnings(findings, debugInfo);
+        }
+
+        private static NeoDebugInfo.SourceLocation? GetSourceLocation(int instructionAddress, NeoDebugInfo debugInfo)
+        {
+            foreach (var method in debugInfo.Methods)
+            {
+                if (instructionAddress < method.Range.Start || instructionAddress > method.Range.End)
+                    continue;
+
+                var sequencePoints = method.SequencePoints
+                    .Where(sp => sp.Address <= instructionAddress)
+                    .OrderByDescending(sp => sp.Address)
+                    .ToList();
+
+                if (sequencePoints.Count == 0)
+                    continue;
+
+                var sequencePoint = sequencePoints.First();
+
+                if (sequencePoint.Document < 0 || sequencePoint.Document >= debugInfo.Documents.Count)
+                    continue;
+
+                string document = debugInfo.Documents[sequencePoint.Document];
+                return new NeoDebugInfo.SourceLocation
+                {
+                    FileName = document,
+                    Line = sequencePoint.Start.Line,
+                    Column = sequencePoint.Start.Column,
+                    CodeSnippet = null
+                };
+            }
+
+            return null;
         }
     }
 }
