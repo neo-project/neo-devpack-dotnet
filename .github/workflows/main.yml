@@ -7,7 +7,6 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: 10.0.x
   DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
   COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage-join/
@@ -30,7 +29,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        global-json-file: global.json
     - name: Check format
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
@@ -105,7 +104,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        global-json-file: global.json
 
     - name: Set Version (dev-pack)
       run: git rev-list --count HEAD | xargs printf 'CI%05d' | xargs -I{} echo 'VERSION_SUFFIX={}' >> $GITHUB_ENV
@@ -194,7 +193,7 @@ jobs:
       if: steps.check_tag.outputs.statusCode == '404'
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        global-json-file: global.json
     - name: Build nccs compiler for multiple platforms
       if: steps.check_tag.outputs.statusCode == '404'
       run: |
