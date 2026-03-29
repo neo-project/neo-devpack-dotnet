@@ -41,11 +41,7 @@ namespace Neo.Compiler
         private string? ProjectVersionSuffix;
         internal readonly ConcurrentDictionary<INamedTypeSymbol, CompilationContext> Contexts = new(SymbolEqualityComparer.Default);
         private readonly Lock tempProjectLock = new();
-        private string? tempProjectDirectory;
-        private string? tempProjectPath;
-        private string? tempProjectNuGetConfig;
-        private string? tempProjectReferencesKey;
-        private bool tempProjectCleanupRegistered;
+        private readonly TemporaryProjectWorkspace _temporaryProjectWorkspace = new();
 
         /// <summary>
         /// Gets the version that was extracted from the project
@@ -169,211 +165,31 @@ namespace Neo.Compiler
 
             lock (tempProjectLock)
             {
-                var referencesKey = BuildReferencesKey(references);
                 if (Options.SkipRestoreIfAssetsPresent)
                 {
-                    EnsurePersistentTempProject(referencesKey);
+                    _temporaryProjectWorkspace.EnsurePersistent(TemporaryProjectWorkspace.BuildReferencesKey(references));
                 }
                 else
                 {
-                    PrepareTransientTempProject();
+                    _temporaryProjectWorkspace.PrepareTransient();
                 }
 
-                WriteTempProject(references, sourceFiles);
+                _temporaryProjectWorkspace.WriteProject(references, sourceFiles);
 
                 Compilation = null;
                 try
                 {
-                    return CompileProject(tempProjectPath!);
+                    return CompileProject(_temporaryProjectWorkspace.ProjectPath);
                 }
                 finally
                 {
                     if (!Options.SkipRestoreIfAssetsPresent)
                     {
-                        CleanupTempProjectDirectory();
+                        _temporaryProjectWorkspace.Cleanup();
                     }
                 }
             }
         }
-
-        private void PrepareTransientTempProject()
-        {
-            CleanupTempProjectDirectory();
-            tempProjectDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(tempProjectDirectory);
-            tempProjectPath = Path.Combine(tempProjectDirectory, "TempProject.csproj");
-            tempProjectNuGetConfig = Path.Combine(tempProjectDirectory, "nuget.config");
-            WriteNuGetConfig(tempProjectNuGetConfig);
-            tempProjectReferencesKey = null;
-        }
-
-        private void EnsurePersistentTempProject(string referencesKey)
-        {
-            var directoryExists = tempProjectDirectory is not null && Directory.Exists(tempProjectDirectory);
-            if (!directoryExists || tempProjectReferencesKey != referencesKey)
-            {
-                CleanupTempProjectDirectory();
-                tempProjectDirectory = Path.Combine(Path.GetTempPath(), "Neo.Compiler", "CompileSources", Guid.NewGuid().ToString("N"));
-                Directory.CreateDirectory(tempProjectDirectory);
-                tempProjectPath = Path.Combine(tempProjectDirectory, "TempProject.csproj");
-                tempProjectNuGetConfig = Path.Combine(tempProjectDirectory, "nuget.config");
-                WriteNuGetConfig(tempProjectNuGetConfig);
-                tempProjectReferencesKey = referencesKey;
-                RegisterTempProjectCleanup();
-            }
-        }
-
-        private void WriteTempProject(CompilationSourceReferences references, string[] sourceFiles)
-        {
-            if (tempProjectDirectory is null)
-            {
-                throw new InvalidOperationException("Temporary project directory must be initialized before writing the project file.");
-            }
-
-            tempProjectPath ??= Path.Combine(tempProjectDirectory, "TempProject.csproj");
-            tempProjectNuGetConfig ??= Path.Combine(tempProjectDirectory, "nuget.config");
-
-            var csproj = BuildTempProjectContent(references, sourceFiles);
-            File.WriteAllText(tempProjectPath, csproj);
-
-            if (!File.Exists(tempProjectNuGetConfig))
-            {
-                WriteNuGetConfig(tempProjectNuGetConfig);
-            }
-        }
-
-        private static string BuildTempProjectContent(CompilationSourceReferences references, string[] sourceFiles)
-        {
-            var packages = references.Packages;
-            var packageGroup = packages is null || packages.Length == 0
-                ? string.Empty
-                : $@"
-    <ItemGroup>
-        {string.Join(Environment.NewLine, packages.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
-    </ItemGroup>";
-
-            var projects = references.Projects;
-            var projectsGroup = projects is null || projects.Length == 0
-                ? string.Empty
-                : $@"
-    <ItemGroup>
-        {string.Join(Environment.NewLine, projects.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
-    </ItemGroup>";
-
-            return $@"
-<Project Sdk=""Microsoft.NET.Sdk"">
-
-    <PropertyGroup>
-        <TargetFramework>{GetTargetFrameworkMoniker()}</TargetFramework>
-        <LangVersion>preview</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
-
-    <!-- Remove all Compile items from compilation -->
-    <ItemGroup>
-        <Compile Remove=""*.cs"" />
-    </ItemGroup>
-
-    <!-- Add specific files for compilation -->
-    <ItemGroup>
-        {string.Join(Environment.NewLine, sourceFiles.Select(u => $"<Compile Include=\"{Path.GetFullPath(u)}\" />"))}
-    </ItemGroup>
-
-    {packageGroup}
-    {projectsGroup}
-
-</Project>";
-        }
-
-        private void WriteNuGetConfig(string nugetConfigPath)
-        {
-            const string nugetConfigContent = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<configuration>
-  <packageSources>
-    <clear />
-    <add key=""NuGet.org"" value=""https://api.nuget.org/v3/index.json"" protocolVersion=""3"" />
-  </packageSources>
-</configuration>";
-
-            File.WriteAllText(nugetConfigPath, nugetConfigContent);
-        }
-
-        private static string BuildReferencesKey(CompilationSourceReferences references)
-        {
-            var builder = new StringBuilder();
-
-            if (references.Packages is { Length: > 0 })
-            {
-                foreach (var (packageName, packageVersion) in references.Packages
-                             .OrderBy(p => p.packageName, StringComparer.Ordinal))
-                {
-                    builder.Append("pkg:")
-                        .Append(packageName)
-                        .Append('@')
-                        .Append(packageVersion)
-                        .Append(';');
-                }
-            }
-
-            builder.Append('|');
-
-            if (references.Projects is { Length: > 0 })
-            {
-                foreach (var project in references.Projects
-                             .Select(p => Path.GetFullPath(p))
-                             .OrderBy(p => p, StringComparer.OrdinalIgnoreCase))
-                {
-                    builder.Append("proj:")
-                        .Append(project)
-                        .Append(';');
-                }
-            }
-
-            return builder.ToString();
-        }
-
-        private void RegisterTempProjectCleanup()
-        {
-            if (tempProjectCleanupRegistered)
-            {
-                return;
-            }
-
-            tempProjectCleanupRegistered = true;
-            AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupTempProjectDirectory();
-        }
-
-        private void CleanupTempProjectDirectory()
-        {
-            if (tempProjectDirectory is null)
-            {
-                return;
-            }
-
-            try
-            {
-                if (Directory.Exists(tempProjectDirectory))
-                {
-                    Directory.Delete(tempProjectDirectory, true);
-                }
-            }
-            catch (IOException)
-            {
-                // Best-effort cleanup; ignore IO failures.
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // Best-effort cleanup; ignore permission failures.
-            }
-
-            tempProjectDirectory = null;
-            tempProjectPath = null;
-            tempProjectNuGetConfig = null;
-            tempProjectReferencesKey = null;
-        }
-
-        private static string GetTargetFrameworkMoniker() => RuntimeAssemblyResolver.CompilerTargetFrameworkMoniker;
 
         public List<CompilationContext> CompileProject(string csproj)
         {
