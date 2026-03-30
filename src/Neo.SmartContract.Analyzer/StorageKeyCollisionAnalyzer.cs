@@ -59,18 +59,22 @@ namespace Neo.SmartContract.Analyzer
                 if (field.DeclaringSyntaxReferences[0].GetSyntax(context.CancellationToken) is not VariableDeclaratorSyntax declarator)
                     continue;
 
-                if (declarator.Initializer?.Value is not BaseObjectCreationExpressionSyntax creation)
-                    continue;
-
-                SemanticModel semanticModel = context.Compilation.GetSemanticModel(creation.SyntaxTree);
                 if (!IsStorageNamespaceType(field.Type))
                     continue;
 
-                ExpressionSyntax? prefixExpression = GetPrefixExpression(creation);
-                if (prefixExpression is null)
+                if (!TryGetPrefixExpression(
+                        declarator.Initializer?.Value,
+                        field.Type,
+                        context.Compilation,
+                        context.CancellationToken,
+                        new HashSet<ISymbol>(SymbolEqualityComparer.Default),
+                        out ExpressionSyntax? prefixExpression,
+                        out SemanticModel? prefixSemanticModel))
+                {
                     continue;
+                }
 
-                if (!TryNormalizePrefix(prefixExpression, semanticModel, context.CancellationToken, new HashSet<ISymbol>(SymbolEqualityComparer.Default), out string normalizedPrefix))
+                if (!TryNormalizePrefix(prefixExpression, prefixSemanticModel, context.CancellationToken, new HashSet<ISymbol>(SymbolEqualityComparer.Default), out string normalizedPrefix))
                     continue;
 
                 if (seenPrefixes.TryGetValue(normalizedPrefix, out PrefixUsage existing))
@@ -99,15 +103,77 @@ namespace Neo.SmartContract.Analyzer
                 or "global::Neo.SmartContract.Framework.Services.LocalStorageMap";
         }
 
-        private static ExpressionSyntax? GetPrefixExpression(BaseObjectCreationExpressionSyntax creation)
+        private static bool TryGetPrefixExpression(
+            ExpressionSyntax? initializerValue,
+            ITypeSymbol expectedType,
+            Compilation compilation,
+            CancellationToken cancellationToken,
+            HashSet<ISymbol> visitedSymbols,
+            out ExpressionSyntax? prefixExpression,
+            out SemanticModel? prefixSemanticModel)
         {
-            if (creation.ArgumentList is null)
-                return null;
+            prefixExpression = null;
+            prefixSemanticModel = null;
 
-            if (creation.ArgumentList.Arguments.Count == 0)
-                return null;
+            if (initializerValue is null)
+                return false;
 
-            return creation.ArgumentList.Arguments[creation.ArgumentList.Arguments.Count - 1].Expression;
+            if (initializerValue is BaseObjectCreationExpressionSyntax creation)
+            {
+                if (creation.ArgumentList is null || creation.ArgumentList.Arguments.Count == 0)
+                    return false;
+
+                prefixExpression = creation.ArgumentList.Arguments[creation.ArgumentList.Arguments.Count - 1].Expression;
+                prefixSemanticModel = compilation.GetSemanticModel(creation.SyntaxTree);
+                return true;
+            }
+
+            if (initializerValue is not InvocationExpressionSyntax invocation)
+                return false;
+
+            SemanticModel invocationSemanticModel = compilation.GetSemanticModel(invocation.SyntaxTree);
+            if (invocationSemanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol is not IMethodSymbol methodSymbol)
+                return false;
+
+            if (!IsStorageNamespaceType(methodSymbol.ReturnType))
+                return false;
+
+            if (methodSymbol.Parameters.Length != 0)
+                return false;
+
+            if (!visitedSymbols.Add(methodSymbol))
+                return false;
+
+            foreach (SyntaxReference syntaxReference in methodSymbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.GetSyntax(cancellationToken) is not MethodDeclarationSyntax methodDeclaration)
+                    continue;
+
+                ExpressionSyntax? returnedExpression = methodDeclaration.ExpressionBody?.Expression;
+                if (returnedExpression is null &&
+                    methodDeclaration.Body?.Statements.Count == 1 &&
+                    methodDeclaration.Body.Statements[0] is ReturnStatementSyntax returnStatement)
+                {
+                    returnedExpression = returnStatement.Expression;
+                }
+
+                if (returnedExpression is null)
+                    continue;
+
+                if (TryGetPrefixExpression(
+                        returnedExpression,
+                        methodSymbol.ReturnType,
+                        compilation,
+                        cancellationToken,
+                        visitedSymbols,
+                        out prefixExpression,
+                        out prefixSemanticModel))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool TryNormalizePrefix(

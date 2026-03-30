@@ -124,5 +124,35 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task DuplicateFactoryCreatedPrefixes_ReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                public class ContractE
+                {
+                    private const byte PrefixShared = 0x2A;
+
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners = CreateOwners();
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins = CreateAdmins();
+
+                    private static Neo.SmartContract.Framework.Services.StorageMap CreateOwners()
+                    {
+                        return new Neo.SmartContract.Framework.Services.StorageMap(
+                            Neo.SmartContract.Framework.Services.Storage.CurrentContext,
+                            PrefixShared);
+                    }
+
+                    private static Neo.SmartContract.Framework.Services.LocalStorageMap CreateAdmins() =>
+                        new Neo.SmartContract.Framework.Services.LocalStorageMap(PrefixShared);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(27, 82, 27, 88)
+                .WithArguments("2A", "Admins", "Owners");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
