@@ -221,7 +221,10 @@ partial class MethodConvert
         methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (!methodConvert._context.TryGetCapturedStaticField(symbol.Parameters[1], out var index)) throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, "Out parameter must be captured in a static field.");
 
-        JumpTarget endTarget = new();
+        // Drop the out parameter since it's not needed.
+        // We use the captured static field to hold the parsed value.
+        methodConvert.Swap();
+        methodConvert.Drop();
 
         // Convert string to BigInteger
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
@@ -229,18 +232,23 @@ partial class MethodConvert
         // Check if the parsing was successful
         methodConvert.Dup();                                       // Duplicate result for null check
         methodConvert.IsNull();                                    // Check if null (parse failed)
-        methodConvert.JumpIfTrueLong(endTarget);             // Jump to end if null
+        JumpTarget failTarget = new();
+        methodConvert.JumpIfTrueLong(failTarget);            // Jump to fail if null
 
         // If successful, store the value and push true
-        methodConvert.Dup();                                       // Duplicate result for storage
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store value in static field
         methodConvert.Push(true);                                  // Push success flag
+        JumpTarget endTarget = new();
         methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
 
-        // End target: clean up stack and push false if parsing failed
-        endTarget.Instruction = methodConvert.Nop();               // End target
-        methodConvert.Drop();                                      // Drop the failed value
+        // Fail target: clear parsed value, set out parameter default, then push false
+        failTarget.Instruction = methodConvert.Drop();             // Drop the failed value
+        methodConvert.PushDefault(symbol.Parameters[1].Type);      // Default out value on parse failure
+        methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store default in out parameter capture
         methodConvert.Push(false);                                 // Push failure flag
+
+        // End target
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
     /// <summary>

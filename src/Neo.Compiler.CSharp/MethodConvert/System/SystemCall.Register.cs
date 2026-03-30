@@ -613,6 +613,7 @@ internal partial class MethodConvert
         RegisterHandler((string? s, uint result) => uint.TryParse(s, out result), HandleUIntTryParseWithOut);
         RegisterHandler((string? s, long result) => long.TryParse(s, out result), HandleLongTryParseWithOut);
         RegisterHandler((string? s, ulong result) => ulong.TryParse(s, out result), HandleULongTryParseWithOut);
+        RegisterHandler((string? s, BigInteger result) => BigInteger.TryParse(s, out result), HandleBigIntegerTryParseWithOut);
 
         // Bool
         RegisterHandler((string? value, bool result) => bool.TryParse(value, out result), HandleBoolTryParseWithOut);
