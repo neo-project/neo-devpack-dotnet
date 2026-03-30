@@ -154,5 +154,93 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task DifferentFactoryCreatedPrefixes_DoNotReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                public class ContractF
+                {
+                    private const byte PrefixOwners = 0x2A;
+                    private const byte PrefixAdmins = 0x2B;
+
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners = CreateOwners();
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins = CreateAdmins();
+
+                    private static Neo.SmartContract.Framework.Services.StorageMap CreateOwners() =>
+                        new Neo.SmartContract.Framework.Services.StorageMap(
+                            Neo.SmartContract.Framework.Services.Storage.CurrentContext,
+                            PrefixOwners);
+
+                    private static Neo.SmartContract.Framework.Services.LocalStorageMap CreateAdmins()
+                    {
+                        return new Neo.SmartContract.Framework.Services.LocalStorageMap(PrefixAdmins);
+                    }
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task DuplicateNestedFactoryCreatedPrefixes_ReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                public class ContractG
+                {
+                    private const byte PrefixShared = 0x3C;
+
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners = CreateOwners();
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins = CreateAdmins();
+
+                    private static Neo.SmartContract.Framework.Services.StorageMap CreateOwners() => CreateOwnersCore();
+
+                    private static Neo.SmartContract.Framework.Services.StorageMap CreateOwnersCore()
+                    {
+                        return new Neo.SmartContract.Framework.Services.StorageMap(
+                            Neo.SmartContract.Framework.Services.Storage.CurrentContext,
+                            PrefixShared);
+                    }
+
+                    private static Neo.SmartContract.Framework.Services.LocalStorageMap CreateAdmins()
+                    {
+                        return CreateAdminsCore();
+                    }
+
+                    private static Neo.SmartContract.Framework.Services.LocalStorageMap CreateAdminsCore() =>
+                        new Neo.SmartContract.Framework.Services.LocalStorageMap(PrefixShared);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(27, 82, 27, 88)
+                .WithArguments("3C", "Admins", "Owners");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task ParameterizedFactoryCreatedPrefixes_DoNotReportDiagnostic()
+        {
+            var test = StorageStubs + """
+                public class ContractH
+                {
+                    private const byte PrefixShared = 0x4D;
+
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Owners = CreateOwners(PrefixShared);
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Admins = CreateAdmins(PrefixShared);
+
+                    private static Neo.SmartContract.Framework.Services.StorageMap CreateOwners(byte prefix) =>
+                        new Neo.SmartContract.Framework.Services.StorageMap(
+                            Neo.SmartContract.Framework.Services.Storage.CurrentContext,
+                            prefix);
+
+                    private static Neo.SmartContract.Framework.Services.LocalStorageMap CreateAdmins(byte prefix) =>
+                        new Neo.SmartContract.Framework.Services.LocalStorageMap(prefix);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
     }
 }
