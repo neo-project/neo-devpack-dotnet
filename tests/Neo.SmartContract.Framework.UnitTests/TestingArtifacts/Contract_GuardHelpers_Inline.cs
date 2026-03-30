@@ -209,9 +209,10 @@ public abstract class Contract_GuardHelpers_Inline(Neo.SmartContract.Testing.Sma
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAhSRVZFUlRFRDU//v//
+    /// Script: DAhSRVZFUlRFRDU//v//VwAD
     /// PUSHDATA1 5245564552544544 'REVERTED' [8 datoshi]
     /// CALL_L 3FFEFFFF [512 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
     /// </remarks>
     [DisplayName("testRevert")]
     public abstract void TestRevert();
