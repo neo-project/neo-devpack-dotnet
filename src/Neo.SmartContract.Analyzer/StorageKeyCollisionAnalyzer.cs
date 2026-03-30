@@ -74,6 +74,9 @@ namespace Neo.SmartContract.Analyzer
                     continue;
                 }
 
+                if (prefixExpression is null || prefixSemanticModel is null)
+                    continue;
+
                 if (!TryNormalizePrefix(prefixExpression, prefixSemanticModel, context.CancellationToken, new HashSet<ISymbol>(SymbolEqualityComparer.Default), out string normalizedPrefix))
                     continue;
 
