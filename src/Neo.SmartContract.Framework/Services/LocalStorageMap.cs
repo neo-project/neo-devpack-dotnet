@@ -14,6 +14,7 @@
 
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Native;
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -358,6 +359,7 @@ namespace Neo.SmartContract.Framework.Services
         /// </summary>
         public BigInteger Increase(ByteString key, BigInteger amount)
         {
+            if (amount.Sign < 0) throw new ArgumentOutOfRangeException(nameof(amount));
             var i = GetIntegerOrZero(key) + amount;
             Put(key, i);
             return i;
@@ -391,7 +393,11 @@ namespace Neo.SmartContract.Framework.Services
         /// </summary>
         public BigInteger Decrease(ByteString key, BigInteger amount)
         {
-            var i = GetIntegerOrZero(key) - amount;
+            if (amount.Sign < 0) throw new ArgumentOutOfRangeException(nameof(amount));
+
+            var current = GetIntegerOrZero(key);
+            var i = current - amount;
+            if (i.Sign < 0) throw new InvalidOperationException();
             if (i == 0)
             {
                 Delete(key);
