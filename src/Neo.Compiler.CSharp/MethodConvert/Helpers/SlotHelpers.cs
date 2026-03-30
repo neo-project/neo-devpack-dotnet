@@ -36,7 +36,9 @@ internal partial class MethodConvert
     /// <returns>The index of the newly added local variable.</returns>
     private byte AddLocalVariable(ILocalSymbol symbol)
     {
-        var index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+        int indexValue = _localVariables.Count + _anonymousVariables.Count;
+        RequireByteSizedSlotCount(Symbol, indexValue + 1, "local slots");
+        var index = (byte)indexValue;
         _variableSymbols.Add((symbol, index));
         _localVariables.Add(symbol, index);
         if (_localsCount < index + 1)
@@ -47,7 +49,9 @@ internal partial class MethodConvert
 
     private byte AddAnonymousVariable()
     {
-        var index = (byte)(_localVariables.Count + _anonymousVariables.Count);
+        int indexValue = _localVariables.Count + _anonymousVariables.Count;
+        RequireByteSizedSlotCount(Symbol, indexValue + 1, "local slots");
+        var index = (byte)indexValue;
         _anonymousVariables.Add(index);
         if (_localsCount < index + 1)
             _localsCount = index + 1;

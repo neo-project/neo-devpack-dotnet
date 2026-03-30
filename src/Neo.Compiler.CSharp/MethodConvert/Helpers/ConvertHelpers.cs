@@ -25,6 +25,13 @@ extern alias scfx;
 
 internal partial class MethodConvert
 {
+    private static byte RequireByteSizedSlotCount(ISymbol symbol, int count, string description)
+    {
+        if ((uint)count > byte.MaxValue)
+            throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Methods with more than {byte.MaxValue} {description} are not supported.");
+        return (byte)count;
+    }
+
     private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
     {
         SyntaxNode? syntaxNode = null;
@@ -113,9 +120,9 @@ internal partial class MethodConvert
 
         if (_initSlot)
         {
-            byte pc = (byte)Symbol.Parameters.Length;
-            byte lc = (byte)_localsCount;
-            if (NeedInstanceConstructor(Symbol)) pc++;
+            int parameterSlotCount = Symbol.Parameters.Length + (NeedInstanceConstructor(Symbol) ? 1 : 0);
+            byte pc = RequireByteSizedSlotCount(Symbol, parameterSlotCount, "parameters");
+            byte lc = RequireByteSizedSlotCount(Symbol, _localsCount, "local slots");
             if (pc > 0 || lc > 0)
             {
                 _instructions.Insert(0, new Instruction

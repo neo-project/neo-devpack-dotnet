@@ -33,11 +33,14 @@ internal partial class MethodConvert
         if (_parameters.Count > 0)
             return;
 
-        for (byte i = 0; i < Symbol.Parameters.Length; i++)
+        int parameterSlotCount = Symbol.Parameters.Length + (NeedInstanceConstructor(Symbol) ? 1 : 0);
+        RequireByteSizedSlotCount(Symbol, parameterSlotCount, "parameters");
+
+        for (int i = 0; i < Symbol.Parameters.Length; i++)
         {
             IParameterSymbol parameter = Symbol.Parameters[i];
             IParameterSymbol original = parameter.OriginalDefinition;
-            byte index = i;
+            byte index = (byte)i;
             if (NeedInstanceConstructor(Symbol)) index++;
 
             _parameters.TryAdd(parameter, index);
