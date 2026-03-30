@@ -116,6 +116,7 @@ namespace Neo.SmartContract.Framework
         protected static void Mint(ByteString tokenId, TokenState token)
         {
             StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            if (tokenMap[tokenId] is not null) throw new InvalidOperationException();
             tokenMap[tokenId] = StdLib.Serialize(token);
             UpdateBalance(token.Owner, tokenId, +1);
             TotalSupply++;
