@@ -149,7 +149,7 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAOxw2OwoNNdL+//89AHA9AAwJZXhjZXB0aW9uOnA7Cg01uP7//z0AcT0ADAlleGNlcHRpb246OA==
+    /// Script: VwIAOxw2OwoNNdL+//89AHA9AAwJZXhjZXB0aW9uOnA7Cg01uP7//z0AcT0ADAlleGNlcHRpb246OFcBAQ==
     /// INITSLOT 0200 [64 datoshi]
     /// TRY 1C36 [4 datoshi]
     /// TRY 0A0D [4 datoshi]
@@ -168,6 +168,7 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
     /// PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// THROW [512 datoshi]
     /// ABORT [0 datoshi]
+    /// INITSLOT 0101 [64 datoshi]
     /// </remarks>
     [DisplayName("safeTryWithCatchWithThrowInFinally")]
     public abstract void SafeTryWithCatchWithThrowInFinally();
@@ -176,7 +177,7 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAOx0ANOcMFXRocm93IGluIFRyeVdyaXRlIHRyeTpwOwAfNNMMF3Rocm93IGluIFRyeVdyaXRlIGNhdGNoOj8=
+    /// Script: VwEAOx0ANOcMFXRocm93IGluIFRyeVdyaXRlIHRyeTpwOwAfNNMMF3Rocm93IGluIFRyeVdyaXRlIGNhdGNoOj9XAQA=
     /// INITSLOT 0100 [64 datoshi]
     /// TRY 1D00 [4 datoshi]
     /// CALL E7 [512 datoshi]
@@ -188,6 +189,7 @@ public abstract class Contract_WriteInTry(Neo.SmartContract.Testing.SmartContrac
     /// PUSHDATA1 7468726F7720696E205472795772697465206361746368 [8 datoshi]
     /// THROW [512 datoshi]
     /// ENDFINALLY [4 datoshi]
+    /// INITSLOT 0100 [64 datoshi]
     /// </remarks>
     [DisplayName("tryWrite")]
     public abstract void TryWrite();

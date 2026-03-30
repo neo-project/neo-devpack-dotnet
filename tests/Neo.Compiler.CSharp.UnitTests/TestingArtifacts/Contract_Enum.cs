@@ -28,7 +28,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeEoRlyYMRQwGVmFsdWUxQEoSlyYMRQwGVmFsdWUyQEoTlyYMRQwGVmFsdWUzQEULQA==
+    /// Script: VwABeEoRlyYMRQwGVmFsdWUxQEoSlyYMRQwGVmFsdWUyQEoTlyYMRQwGVmFsdWUzQEULQFcAAQ==
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// DUP [2 datoshi]
@@ -55,6 +55,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// DROP [2 datoshi]
     /// PUSHNULL [1 datoshi]
     /// RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetName")]
     public abstract string? TestEnumGetName(BigInteger? value);
@@ -63,7 +64,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAhUZXN0RW51bQwGVmFsdWUzDAZWYWx1ZTIMBlZhbHVlMRPAQA==
+    /// Script: DAhUZXN0RW51bQwGVmFsdWUzDAZWYWx1ZTIMBlZhbHVlMRPAQAwIVGVzdEVudW0=
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// PUSHDATA1 56616C756533 'Value3' [8 datoshi]
     /// PUSHDATA1 56616C756532 'Value2' [8 datoshi]
@@ -71,6 +72,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// PUSH3 [1 datoshi]
     /// PACK [2048 datoshi]
     /// RET [0 datoshi]
+    /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetNames")]
     public abstract IList<object>? TestEnumGetNames();
@@ -94,7 +96,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDAhUZXN0RW51bXhKEZcmDUVFDAZWYWx1ZTFAShKXJg1FRQwGVmFsdWUyQEoTlyYNRUUMBlZhbHVlM0BFRQtA
+    /// Script: VwABDAhUZXN0RW51bXhKEZcmDUVFDAZWYWx1ZTFAShKXJg1FRQwGVmFsdWUyQEoTlyYNRUUMBlZhbHVlM0BFRQtAVwEC
     /// INITSLOT 0001 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// LDARG0 [2 datoshi]
@@ -126,6 +128,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// DROP [2 datoshi]
     /// PUSHNULL [1 datoshi]
     /// RET [0 datoshi]
+    /// INITSLOT 0102 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetNameWithType")]
     public abstract string? TestEnumGetNameWithType(object? value = null);
@@ -134,7 +137,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAhUZXN0RW51bRMSERPAQA==
+    /// Script: DAhUZXN0RW51bRMSERPAQFcAAQ==
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// PUSH3 [1 datoshi]
     /// PUSH2 [1 datoshi]
@@ -142,6 +145,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// PUSH3 [1 datoshi]
     /// PACK [2048 datoshi]
     /// RET [0 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumGetValues")]
     public abstract IList<object>? TestEnumGetValues();
@@ -263,7 +267,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABDAhUZXN0RW51bXhKDAZWYWx1ZTGXJgcRU0VFQEoMBlZhbHVlMpcmBxJTRUVASgwGVmFsdWUzlyYHE1NFRUBFDBJObyBzdWNoIGVudW0gdmFsdWU6
+    /// Script: VwABDAhUZXN0RW51bXhKDAZWYWx1ZTGXJgcRU0VFQEoMBlZhbHVlMpcmBxJTRUVASgwGVmFsdWUzlyYHE1NFRUBFDBJObyBzdWNoIGVudW0gdmFsdWU6VwAC
     /// INITSLOT 0001 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// LDARG0 [2 datoshi]
@@ -297,6 +301,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// DROP [2 datoshi]
     /// PUSHDATA1 4E6F207375636820656E756D2076616C7565 [8 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumParse")]
     public abstract object? TestEnumParse(string? value);
@@ -305,7 +310,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBCXg0R3BoDAZWYWx1ZTGXJgQRQGgMBlZhbHVlMpcmBBJAaAwGVmFsdWUzlyYEE0AIJhcMEk5vIHN1Y2ggZW51bSB2YWx1ZTpoOg==
+    /// Script: VwEBCXg0R3BoDAZWYWx1ZTGXJgQRQGgMBlZhbHVlMpcmBBJAaAwGVmFsdWUzlyYEE0AIJhcMEk5vIHN1Y2ggZW51bSB2YWx1ZTpoOlcAAg==
     /// INITSLOT 0101 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// LDARG0 [2 datoshi]
@@ -335,6 +340,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// THROW [512 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0002 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumParseGeneric")]
     public abstract BigInteger? TestEnumParseGeneric(string? value);
@@ -343,7 +349,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICeXg0xnBocWkMBlZBTFVFMZcmBBFAaQwGVkFMVUUylyYEEkBpDAZWQUxVRTOXJgQTQGkMBlZhbHVlMZcmBBFAaQwGVmFsdWUylyYEEkBpDAZWYWx1ZTOXJgQTQAgmFwwSTm8gc3VjaCBlbnVtIHZhbHVlOmk6
+    /// Script: VwICeXg0xnBocWkMBlZBTFVFMZcmBBFAaQwGVkFMVUUylyYEEkBpDAZWQUxVRTOXJgQTQGkMBlZhbHVlMZcmBBFAaQwGVmFsdWUylyYEEkBpDAZWYWx1ZTOXJgQTQAgmFwwSTm8gc3VjaCBlbnVtIHZhbHVlOmk6VwEB
     /// INITSLOT 0202 [64 datoshi]
     /// LDARG1 [2 datoshi]
     /// LDARG0 [2 datoshi]
@@ -393,6 +399,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// THROW [512 datoshi]
     /// LDLOC1 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0101 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumParseGenericIgnoreCase")]
     public abstract BigInteger? TestEnumParseGenericIgnoreCase(string? value, bool? ignoreCase);
@@ -401,7 +408,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACDAhUZXN0RW51bXh5Ji4MABBKeMq1JiJKeFDOSgBhAHu7JAlRUItQnCLpAGGfAEGeUVCLUJwi3EXbKEp5JjQMBlZBTFVFMZcmB0VFRRFASnkmIAwGVkFMVUUylyYHRUVFEkBKeSYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHRUVFE0BFRQwSTm8gc3VjaCBlbnVtIHZhbHVlOg==
+    /// Script: VwACDAhUZXN0RW51bXh5Ji4MABBKeMq1JiJKeFDOSgBhAHu7JAlRUItQnCLpAGGfAEGeUVCLUJwi3EXbKEp5JjQMBlZBTFVFMZcmB0VFRRFASnkmIAwGVkFMVUUylyYHRUVFEkBKeSYMDAZWQUxVRTMiCgwGVmFsdWUzlyYHRUVFE0BFRQwSTm8gc3VjaCBlbnVtIHZhbHVlOlcAAQ==
     /// INITSLOT 0002 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// LDARG0 [2 datoshi]
@@ -480,6 +487,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// DROP [2 datoshi]
     /// PUSHDATA1 4E6F207375636820656E756D2076616C7565 [8 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumParseIgnoreCase")]
     public abstract object? TestEnumParseIgnoreCase(string? value, bool? ignoreCase);
@@ -608,7 +616,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBCXg1Tv///3BoDAZWYWx1ZTGXJgQIQGgMBlZhbHVlMpcmBAhAaAwGVmFsdWUzlyYECEAIJgQJQGg6
+    /// Script: VwEBCXg1Tv///3BoDAZWYWx1ZTGXJgQIQGgMBlZhbHVlMpcmBAhAaAwGVmFsdWUzlyYECEAIJgQJQGg6VwIC
     /// INITSLOT 0101 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// LDARG0 [2 datoshi]
@@ -638,6 +646,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// RET [0 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0202 [64 datoshi]
     /// </remarks>
     [DisplayName("testEnumTryParseGeneric")]
     public abstract bool? TestEnumTryParseGeneric(string? value);
@@ -646,7 +655,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwICeXg1Ev///3BocWkMBlZBTFVFMZcmBAhAaQwGVkFMVUUylyYECEBpDAZWQUxVRTOXJgQIQGkMBlZhbHVlMZcmBAhAaQwGVmFsdWUylyYECEBpDAZWYWx1ZTOXJgQIQAgmBAlAaTo=
+    /// Script: VwICeXg1Ev///3BocWkMBlZBTFVFMZcmBAhAaQwGVkFMVUUylyYECEBpDAZWQUxVRTOXJgQIQGkMBlZhbHVlMZcmBAhAaQwGVmFsdWUylyYECEBpDAZWYWx1ZTOXJgQIQAgmBAlAaToT
     /// INITSLOT 0202 [64 datoshi]
     /// LDARG1 [2 datoshi]
     /// LDARG0 [2 datoshi]
@@ -696,6 +705,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// RET [0 datoshi]
     /// LDLOC1 [2 datoshi]
     /// THROW [512 datoshi]
+    /// PUSH3 [1 datoshi]
     /// </remarks>
     [DisplayName("testEnumTryParseGenericIgnoreCase")]
     public abstract bool? TestEnumTryParseGenericIgnoreCase(string? value, bool? ignoreCase);
@@ -704,7 +714,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwACDAhUZXN0RW51bXh5C2MmMFBFDAAQSnjKtSYiSnhQzkoAYQB7uyQJUVCLUJwi6QBhnwBBnlFQi1CcItxF2yhKeSY2DAZWQUxVRTGXJghFRRFiCEBKeSYhDAZWQUxVRTKXJghFRRJiCEBKeSYMDAZWQUxVRTMiCgwGVmFsdWUzlyYIRUUTYghARUUQYglA
+    /// Script: VwACDAhUZXN0RW51bXh5C2MmMFBFDAAQSnjKtSYiSnhQzkoAYQB7uyQJUVCLUJwi6QBhnwBBnlFQi1CcItxF2yhKeSY2DAZWQUxVRTGXJghFRRFiCEBKeSYhDAZWQUxVRTKXJghFRRJiCEBKeSYMDAZWQUxVRTMiCgwGVmFsdWUzlyYIRUUTYghARUUQYglADAhUZXN0RW51bQ==
     /// INITSLOT 0002 [64 datoshi]
     /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// LDARG0 [2 datoshi]
@@ -792,6 +802,7 @@ public abstract class Contract_Enum(Neo.SmartContract.Testing.SmartContractIniti
     /// STSFLD2 [2 datoshi]
     /// PUSHF [1 datoshi]
     /// RET [0 datoshi]
+    /// PUSHDATA1 54657374456E756D 'TestEnum' [8 datoshi]
     /// </remarks>
     [DisplayName("testEnumTryParseIgnoreCase")]
     public abstract bool? TestEnumTryParseIgnoreCase(string? value, bool? ignoreCase);

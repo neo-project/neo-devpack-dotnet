@@ -30,6 +30,7 @@ namespace Neo.Optimizer
             Dictionary<int, BranchType> coveredMap = oldContractCoverage.coveredMap;
             List<(int, Instruction)> oldAddressAndInstructionsList = oldContractCoverage.addressAndInstructions;
             Dictionary<int, Instruction> oldAddressToInstruction = oldContractCoverage.addressToInstructions;
+            Dictionary<int, int> oldSequencePointAddressToNew = new();
             //DumpNef.GenerateDumpNef(nef, debugInfo);
             //coveredMap.Where(kv => !kv.Value).Select(kv => (kv.Key, oldAddressToInstruction[kv.Key].OpCode)).ToList();
             System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress = new();
@@ -38,8 +39,13 @@ namespace Neo.Optimizer
             {
                 if (coveredMap[a] != BranchType.UNCOVERED && i.OpCode != OpCode.NOP)
                 {
+                    oldSequencePointAddressToNew[a] = currentAddress;
                     simplifiedInstructionsToAddress.Add(i, currentAddress);
                     currentAddress += i.Size;
+                }
+                else
+                {
+                    oldSequencePointAddressToNew[a] = currentAddress;
                 }
             }
             // retarget all NOP jump targets
@@ -64,7 +70,7 @@ namespace Neo.Optimizer
             return AssetBuilder.BuildOptimizedAssets(nef, manifest, debugInfo,
                 simplifiedInstructionsToAddress,
                 oldContractCoverage.jumpInstructionSourceToTargets, oldContractCoverage.tryInstructionSourceToTargets,
-                oldAddressToInstruction);
+                oldAddressToInstruction, oldSequencePointAddressToNew);
         }
 
         public static Dictionary<int, BranchType>

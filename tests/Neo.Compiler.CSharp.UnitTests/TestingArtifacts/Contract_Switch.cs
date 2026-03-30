@@ -79,7 +79,7 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoDAEwlyYEEUBoDAExlyYEEkBoDAEylyYEE0BoDAEzlyYEFEBoDAE0lyYEFUBoDAE1lyYEFkAIJgUAY0BoOg==
+    /// Script: VwEBeHBoDAEwlyYEEUBoDAExlyYEEkBoDAEylyYEE0BoDAEzlyYEFEBoDAE0lyYEFUBoDAE1lyYEFkAIJgUAY0BoOlcCAQ==
     /// INITSLOT 0101 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -125,6 +125,7 @@ public abstract class Contract_Switch(Neo.SmartContract.Testing.SmartContractIni
     /// RET [0 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0201 [64 datoshi]
     /// </remarks>
     [DisplayName("switch6Inline")]
     public abstract object? Switch6Inline(string? method);

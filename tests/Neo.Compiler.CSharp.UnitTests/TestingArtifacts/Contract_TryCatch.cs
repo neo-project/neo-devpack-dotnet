@@ -52,9 +52,10 @@ public abstract class Contract_TryCatch(Neo.SmartContract.Testing.SmartContractI
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAlleGNlcHRpb246
+    /// Script: DAlleGNlcHRpb246VwIE
     /// PUSHDATA1 657863657074696F6E 'exception' [8 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0204 [64 datoshi]
     /// </remarks>
     [DisplayName("throwCall")]
     public abstract object? ThrowCall();

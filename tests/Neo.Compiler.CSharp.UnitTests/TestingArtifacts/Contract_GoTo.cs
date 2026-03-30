@@ -28,7 +28,7 @@ public abstract class Contract_GoTo(Neo.SmartContract.Testing.SmartContractIniti
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEXBoSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcEVoE5cmymhA
+    /// Script: VwEAEXBoSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcEVoE5cmymhAVwIA
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH1 [1 datoshi]
     /// STLOC0 [2 datoshi]
@@ -57,6 +57,7 @@ public abstract class Contract_GoTo(Neo.SmartContract.Testing.SmartContractIniti
     /// JMPIFNOT CA [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// RET [0 datoshi]
+    /// INITSLOT 0200 [64 datoshi]
     /// </remarks>
     [DisplayName("test")]
     public abstract BigInteger? Test();

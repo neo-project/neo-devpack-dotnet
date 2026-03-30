@@ -371,8 +371,8 @@ namespace Neo.Compiler.SecurityAnalyzer.SymbolicExecution
 
             if (sysCall == ApplicationEngine.System_Contract_Call.Hash)
             {
-                SymbolicValue? hashValue = PeekStack(state, 3);
-                SymbolicValue? methodValue = PeekStack(state, 2);
+                SymbolicValue? hashValue = PeekStack(state, 0);
+                SymbolicValue? methodValue = PeekStack(state, 1);
                 if (hashValue != null && methodValue != null
                     && hashValue.TryGetUInt160(out var hash)
                     && methodValue.TryGetString(out string method)

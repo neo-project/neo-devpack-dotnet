@@ -28,11 +28,12 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEHA4
+    /// Script: VwEAEHA4VwEA
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// ABORT [0 datoshi]
+    /// INITSLOT 0100 [64 datoshi]
     /// </remarks>
     [DisplayName("testAbort")]
     public abstract BigInteger? TestAbort();
@@ -41,7 +42,7 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBEHA7ERkRcAwJZXhjZXB0aW9uOnF4JgQ0sDSoEnA/
+    /// Script: VwIBEHA7ERkRcAwJZXhjZXB0aW9uOnF4JgQ0sDSoEnA/VwIB
     /// INITSLOT 0201 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
@@ -58,6 +59,7 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// PUSH2 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// ENDFINALLY [4 datoshi]
+    /// INITSLOT 0201 [64 datoshi]
     /// </remarks>
     [DisplayName("testAbortInCatch")]
     public abstract BigInteger? TestAbortInCatch(bool? abortMsg);
@@ -90,7 +92,7 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBEHB4JgQ05zTf
+    /// Script: VwEBEHB4JgQ05zTfVwIB
     /// INITSLOT 0101 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
@@ -98,6 +100,7 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// JMPIFNOT 04 [2 datoshi]
     /// CALL E7 [512 datoshi]
     /// CALL DF [512 datoshi]
+    /// INITSLOT 0201 [64 datoshi]
     /// </remarks>
     [DisplayName("testAbortInFunction")]
     public abstract BigInteger? TestAbortInFunction(bool? abortMsg);
@@ -132,12 +135,13 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAEHAMCUFCT1JUIE1TR+A=
+    /// Script: VwEAEHAMCUFCT1JUIE1TR+BXAQE=
     /// INITSLOT 0100 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSHDATA1 41424F5254204D5347 [8 datoshi]
     /// ABORTMSG [0 datoshi]
+    /// INITSLOT 0101 [64 datoshi]
     /// </remarks>
     [DisplayName("testAbortMsg")]
     public abstract BigInteger? TestAbortMsg();

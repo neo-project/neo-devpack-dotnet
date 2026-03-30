@@ -72,7 +72,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoEbckBQkiBmgAMrUmBAhAaAAyuCQFCSIGaABktSYECEAIJgQJQGg6
+    /// Script: VwEBeHBoEbckBQkiBmgAMrUmBAhAaAAyuCQFCSIGaABktSYECEAIJgQJQGg6VwIA
     /// INITSLOT 0101 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -106,6 +106,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// RET [0 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0200 [64 datoshi]
     /// </remarks>
     [DisplayName("between3")]
     public abstract bool? Between3(BigInteger? value);
@@ -130,7 +131,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoANi1JgwMB1RvbyBsb3dAaADYuCQFCSIFaBC1JggMA0xvd0BoELgkBQkiBWgatSYPDApBY2NlcHRhYmxlQGgauCQFCSIGaAAUtSYJDARIaWdoQGgAFLgmDQwIVG9vIGhpZ2hAaDo=
+    /// Script: VwEBeHBoANi1JgwMB1RvbyBsb3dAaADYuCQFCSIFaBC1JggMA0xvd0BoELgkBQkiBWgatSYPDApBY2NlcHRhYmxlQGgauCQFCSIGaAAUtSYJDARIaWdoQGgAFLgmDQwIVG9vIGhpZ2hAaDpXAQE=
     /// INITSLOT 0101 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -184,6 +185,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// RET [0 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0101 [64 datoshi]
     /// </remarks>
     [DisplayName("classify")]
     public abstract string? Classify(BigInteger? measurement);
@@ -192,7 +194,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBoE5cmBQgiBWgUlyYFCCIFaBWXJgsMBnNwcmluZ0BoFpcmBQgiBWgXlyYFCCIFaBiXJgsMBnN1bW1lckBoGZcmBQgiBWgalyYFCCIFaBuXJgsMBmF1dHVtbkBoHJcmBQgiBWgRlyYFCCIFaBKXJgsMBndpbnRlckAIJiIMElVuZXhwZWN0ZWQgbW9udGg6IHg3AACLDAEui9soOmg6
+    /// Script: VwEBeHBoE5cmBQgiBWgUlyYFCCIFaBWXJgsMBnNwcmluZ0BoFpcmBQgiBWgXlyYFCCIFaBiXJgsMBnN1bW1lckBoGZcmBQgiBWgalyYFCCIFaBuXJgsMBmF1dHVtbkBoHJcmBQgiBWgRlyYFCCIFaBKXJgsMBndpbnRlckAIJiIMElVuZXhwZWN0ZWQgbW9udGg6IHg3AACLDAEui9soOmg6VwQA
     /// INITSLOT 0101 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -280,6 +282,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// THROW [512 datoshi]
     /// LDLOC0 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0400 [64 datoshi]
     /// </remarks>
     [DisplayName("getCalendarSeason")]
     public abstract string? GetCalendarSeason(BigInteger? month);
@@ -337,7 +340,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIADBQAAAAAAAAAAAAAAAAAAAAAAAAAAHBocWlK2SgkBkUJIgbKABSzCJckBQkiB2mxqgiXJgQIQAgmBAlAaTo=
+    /// Script: VwIADBQAAAAAAAAAAAAAAAAAAAAAAAAAAHBocWlK2SgkBkUJIgbKABSzCJckBQkiB2mxqgiXJgQIQAgmBAlAaTpXAgA=
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHDATA1 0000000000000000000000000000000000000000 [8 datoshi]
     /// STLOC0 [2 datoshi]
@@ -372,6 +375,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// RET [0 datoshi]
     /// LDLOC1 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0200 [64 datoshi]
     /// </remarks>
     [DisplayName("testRecursivePattern")]
     public abstract bool? TestRecursivePattern();
@@ -380,7 +384,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACQkSwAkIEk00H3BocWkQzgiXJAUJIgdpEc4JlyYECEAIJgQJQGk6
+    /// Script: VwIACQkSwAkIEk00H3BocWkQzgiXJAUJIgdpEc4JlyYECEAIJgQJQGk6VwAD
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// PUSHF [1 datoshi]
@@ -416,6 +420,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// RET [0 datoshi]
     /// LDLOC1 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0003 [64 datoshi]
     /// </remarks>
     [DisplayName("testRecursivePatternAllMatch")]
     public abstract bool? TestRecursivePatternAllMatch();
@@ -468,7 +473,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACQkSwAgIEk0043BocWkQzgiXJAUJIgdpEc4JlyYECEAIJgQJQGk6
+    /// Script: VwIACQkSwAgIEk0043BocWkQzgiXJAUJIgdpEc4JlyYECEAIJgQJQGk6VwIA
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHF [1 datoshi]
     /// PUSHF [1 datoshi]
@@ -504,6 +509,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// RET [0 datoshi]
     /// LDLOC1 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0200 [64 datoshi]
     /// </remarks>
     [DisplayName("testRecursivePatternSecondMismatch")]
     public abstract bool? TestRecursivePatternSecondMismatch();
@@ -512,7 +518,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIAwnBocWk0FwiXJAUJIgVpNBImBAhACCYECUBpOg==
+    /// Script: VwIAwnBocWk0FwiXJAUJIgVpNBImBAhACCYECUBpOlcAAQ==
     /// INITSLOT 0200 [64 datoshi]
     /// NEWARRAY0 [16 datoshi]
     /// STLOC0 [2 datoshi]
@@ -536,6 +542,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// RET [0 datoshi]
     /// LDLOC1 [2 datoshi]
     /// THROW [512 datoshi]
+    /// INITSLOT 0001 [64 datoshi]
     /// </remarks>
     [DisplayName("testRecursivePatternShortCircuitOnFirstMismatch")]
     public abstract bool? TestRecursivePatternShortCircuitOnFirstMismatch();
@@ -544,7 +551,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEBeHBo2TAmA0Bo2SgmA0Bo2SBFQA==
+    /// Script: VwEBeHBo2TAmA0Bo2SgmA0Bo2SBFQFcBAQ==
     /// INITSLOT 0101 [64 datoshi]
     /// LDARG0 [2 datoshi]
     /// STLOC0 [2 datoshi]
@@ -560,6 +567,7 @@ public abstract class Contract_Pattern(Neo.SmartContract.Testing.SmartContractIn
     /// ISTYPE 20 'Boolean' [2 datoshi]
     /// DROP [2 datoshi]
     /// RET [0 datoshi]
+    /// INITSLOT 0101 [64 datoshi]
     /// </remarks>
     [DisplayName("testTypePattern")]
     public abstract void TestTypePattern(object? o1 = null);
