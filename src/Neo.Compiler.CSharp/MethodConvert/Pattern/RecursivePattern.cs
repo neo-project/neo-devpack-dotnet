@@ -26,7 +26,15 @@ internal partial class MethodConvert
             throw CompilationException.UnsupportedSyntax(pattern, "Recursive patterns must include a property pattern clause. Use syntax like 'Type { Property: value }' or '{ Property: value }'.");
         }
 
-        bool hasSubpattern = false;
+        bool hasPredicate = false;
+        if (pattern.Type is not null)
+        {
+            ITypeSymbol type = model.GetTypeInfo(pattern.Type).Type!;
+            AccessSlot(OpCode.LDLOC, localIndex);
+            IsType(type.GetPatternType());
+            hasPredicate = true;
+        }
+
         foreach (var subpattern in propertyClause.Subpatterns)
         {
             if (subpattern is not { Pattern: ConstantPatternSyntax constantPattern })
@@ -34,7 +42,7 @@ internal partial class MethodConvert
                 throw CompilationException.UnsupportedSyntax(subpattern, $"Recursive patterns currently only support constant pattern matching. Found: {subpattern.Pattern?.GetType().Name ?? "null"}. Use syntax like '{{ PropertyName: constantValue }}'.");
             }
 
-            if (hasSubpattern)
+            if (hasPredicate)
             {
                 JumpTarget evaluateNextPattern = new();
                 JumpTarget endPattern = new();
@@ -48,11 +56,12 @@ internal partial class MethodConvert
             else
             {
                 EmitRecursivePropertyConstantPatternCheck(model, subpattern, constantPattern, localIndex);
-                hasSubpattern = true;
             }
+
+            hasPredicate = true;
         }
 
-        if (!hasSubpattern)
+        if (!hasPredicate)
         {
             // `{ }` should match any non-null value.
             AccessSlot(OpCode.LDLOC, localIndex);
