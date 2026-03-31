@@ -76,7 +76,7 @@ namespace Neo.SmartContract.Template
         [Safe]
         public override Map<string, object> Properties(ByteString tokenId)
         {
-            if (tokenId.Length >= 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
+            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
 
             var tokenMap = new StorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");

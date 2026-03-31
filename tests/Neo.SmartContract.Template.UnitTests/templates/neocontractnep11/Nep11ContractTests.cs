@@ -82,6 +82,19 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractnep11
         }
 
         [TestMethod]
+        public void TestProperties_Allows64ByteTokenIdBoundary()
+        {
+            var tooLongTokenId = new byte[65];
+            var validBoundaryTokenId = new byte[64];
+
+            var ex = Assert.ThrowsException<TestException>(() => Contract.Properties(tooLongTokenId));
+            StringAssert.Contains(ex.Message, "64 or less bytes long.");
+
+            ex = Assert.ThrowsException<TestException>(() => Contract.Properties(validBoundaryTokenId));
+            StringAssert.Contains(ex.Message, "does not exist.");
+        }
+
+        [TestMethod]
         public void TestUpdate()
         {
             Engine.SetTransactionSigners(Bob);
