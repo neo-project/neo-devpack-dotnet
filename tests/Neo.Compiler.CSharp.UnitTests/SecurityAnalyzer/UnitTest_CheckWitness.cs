@@ -60,6 +60,100 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
         }
 
+        [TestMethod]
+        public void Test_CheckWitness_DetectsDropAfterGenericLocalRoundTrip()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.INITSLOT, 0x08, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC, 0x07,
+                (byte)OpCode.NOP,
+                (byte)OpCode.LDLOC, 0x07,
+                (byte)OpCode.NOP,
+                (byte)OpCode.DROP,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(1, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_IgnoresTrailingNopWithoutConsumer()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.NOP
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_IgnoresNonDroppedStoredResult()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.INITSLOT, 0x01, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC0,
+                (byte)OpCode.LDLOC0,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_IgnoresStoreWithoutReload()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.INITSLOT, 0x01, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC0,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_IgnoresMismatchedLocalRoundTrip()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.INITSLOT, 0x02, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.STLOC0,
+                (byte)OpCode.LDLOC1,
+                (byte)OpCode.DROP,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.droppedCheckWitnessResults.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckWitness_IgnoresNonLocalConsumer()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.NZ,
+                (byte)OpCode.RET
+            ];
+
+            var result = CheckWitnessAnalyzer.AnalyzeCheckWitness(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.droppedCheckWitnessResults.Count);
+        }
+
         private static NefFile CreateNefFile(byte[] script)
         {
             return new NefFile
