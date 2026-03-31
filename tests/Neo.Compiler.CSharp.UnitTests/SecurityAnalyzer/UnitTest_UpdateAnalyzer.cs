@@ -16,6 +16,7 @@ using Neo.SmartContract.Native;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -254,6 +255,45 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             var manifest = CreateManifest();
 
             Assert.IsTrue(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "Syscall destroy pattern should be detected");
+        }
+
+        [TestMethod]
+        public void Test_SecurityAnalyzer_DoesNotReportDestroyOnlyContractAsNonUpdatable()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                new MethodToken
+                {
+                    Hash = NativeContract.ContractManagement.Hash,
+                    Method = "destroy",
+                    ParametersCount = 0,
+                    HasReturnValue = false,
+                    CallFlags = CallFlags.WriteStates
+                }
+            ];
+
+            NefFile nef = CreateNefFile(script, tokens);
+            var manifest = CreateManifest();
+
+            var stdout = new StringWriter();
+            TextWriter originalOut = Console.Out;
+            try
+            {
+                Console.SetOut(stdout);
+                Neo.Compiler.SecurityAnalyzer.SecurityAnalyzer.AnalyzeWithPrint(nef, manifest, null);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
+
+            Assert.IsFalse(stdout.ToString().Contains("cannot be updated", StringComparison.OrdinalIgnoreCase));
         }
 
         private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)
