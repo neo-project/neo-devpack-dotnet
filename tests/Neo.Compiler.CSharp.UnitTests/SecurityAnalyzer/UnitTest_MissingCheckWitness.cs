@@ -74,6 +74,37 @@ public class Contract : SmartContract
             Assert.IsTrue(result.vulnerableMethodNames.Contains("_admin_transfer"));
         }
 
+        [TestMethod]
+        public void Test_MissingCheckWitness_Skips_Deploy_And_Initialize_Callbacks()
+        {
+            const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+
+public class Contract : SmartContract
+{
+    public static void _deploy(object data, bool update)
+    {
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x01 }, 1);
+    }
+
+    public static void _initialize()
+    {
+        Storage.Put(Storage.CurrentContext, new byte[] { 0x02 }, 1);
+    }
+}";
+
+            var context = CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                context.CreateExecutable(),
+                context.CreateManifest(),
+                null);
+
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("_deploy"));
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("_initialize"));
+        }
+
         private static CompilationContext CompileSingleContract(string sourceCode)
         {
             var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");

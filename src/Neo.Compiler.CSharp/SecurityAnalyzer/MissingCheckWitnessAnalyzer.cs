@@ -84,6 +84,9 @@ namespace Neo.Compiler.SecurityAnalyzer
 
             foreach (ContractMethodDescriptor method in methods)
             {
+                if (method.Name is "_deploy" or "_initialize")
+                    continue;
+
                 (bool hasStorageWrite, bool hasCheckWitness) = AnalyzeMethodAndStaticHelpers(
                     method.Offset,
                     instructions,
