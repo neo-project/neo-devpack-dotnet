@@ -11,14 +11,16 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_OptimizedScriptBuilder
 {
     [TestMethod]
-    public void BuildScriptWithJumpTargets_ThrowsWhenEndTryTargetIsDeleted()
+    public void BuildScriptWithJumpTargets_RetargetsDeletedEndTryTargetToNextLiveInstruction()
     {
         Neo.VM.Instruction endTry = new Script(new byte[] { (byte)OpCode.ENDTRY_L, 0, 0, 0, 0 }).GetInstruction(0);
-        Neo.VM.Instruction deletedTarget = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
+        Neo.VM.Instruction deletedTarget = new Script(new byte[] { (byte)OpCode.NOP }).GetInstruction(0);
+        Neo.VM.Instruction liveTarget = new Script(new byte[] { (byte)OpCode.RET }).GetInstruction(0);
 
         OrderedDictionary simplifiedInstructionsToAddress = new()
         {
-            { endTry, 0 }
+            { endTry, 0 },
+            { liveTarget, endTry.Size }
         };
 
         Dictionary<Neo.VM.Instruction, Neo.VM.Instruction> jumpSourceToTargets = new()
@@ -29,16 +31,18 @@ public class UnitTest_OptimizedScriptBuilder
         Dictionary<int, Neo.VM.Instruction> oldAddressToInstruction = new()
         {
             [0] = endTry,
-            [1] = deletedTarget
+            [endTry.Size] = deletedTarget,
+            [endTry.Size + deletedTarget.Size] = liveTarget
         };
 
-        var ex = Assert.ThrowsException<BadScriptException>(() => OptimizedScriptBuilder.BuildScriptWithJumpTargets(
+        Script script = OptimizedScriptBuilder.BuildScriptWithJumpTargets(
             simplifiedInstructionsToAddress,
             jumpSourceToTargets,
             new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)>(),
-            oldAddressToInstruction));
+            oldAddressToInstruction);
 
-        StringAssert.Contains(ex.Message, "ENDTRY");
-        StringAssert.Contains(ex.Message, "deleted");
+        var rebuiltEndTry = script.GetInstruction(0);
+        Assert.AreEqual(OpCode.ENDTRY_L, rebuiltEndTry.OpCode);
+        Assert.AreEqual(endTry.Size, rebuiltEndTry.TokenI32);
     }
 }

@@ -18,7 +18,7 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHZXAQAQcDhXAQAQcAwJQUJPUlQgTVNH4FcBARBweCYENOc031cCARBwOwoPeCYENNg00HERcD0FEnA/aEBXAgEQcDsRGRFwDAlleGNlcHRpb246cXgmBDSwNKgScD9XAgEQcDsHDBFwPQBxEnA9AHgmBDSVNI1AxCfDrA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHZXAQAQcDhXAQAQcAwJQUJPUlQgTVNH4FcBARBweCYENOc031cCARBwOwoPeCYENNg00HERcD0FEnA/aEBXAgEQcDsRGRFwDAlleGNlcHRpb246cXgmBDSwNKgScD9XAgEQcDsHDBFwPQJxEnA9AngmBDSVNI1AwDlePg==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -66,18 +66,18 @@ public abstract class Contract_Abort(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBEHA7BwwRcD0AcRJwPQB4JgQ0lTSN
+    /// Script: VwIBEHA7BwwRcD0CcRJwPQJ4JgQ0lTSN
     /// INITSLOT 0201 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// TRY 070C [4 datoshi]
     /// PUSH1 [1 datoshi]
     /// STLOC0 [2 datoshi]
-    /// ENDTRY 00 [4 datoshi]
+    /// ENDTRY 02 [4 datoshi]
     /// STLOC1 [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// STLOC0 [2 datoshi]
-    /// ENDTRY 00 [4 datoshi]
+    /// ENDTRY 02 [4 datoshi]
     /// LDARG0 [2 datoshi]
     /// JMPIFNOT 04 [2 datoshi]
     /// CALL 95 [512 datoshi]

@@ -48,8 +48,8 @@ namespace Neo.Optimizer
                     int delta;
                     if (simplifiedInstructionsToAddress.Contains(dst))  // target instruction not deleted
                         delta = (int)simplifiedInstructionsToAddress[dst]! - a;
-                    else if (i.OpCode == OpCode.PUSHA)
-                        delta = 0;  // TODO: decide a good target
+                    else if (TryResolveDeletedJumpTarget(i, dst, simplifiedInstructionsToAddress, oldAddressToInstruction, out Instruction? resolvedTarget))
+                        delta = (int)simplifiedInstructionsToAddress[resolvedTarget!]! - a;
                     else
                     {
                         if (oldAddressToInstruction != null)
@@ -89,6 +89,62 @@ namespace Neo.Optimizer
             }
             Script script = new(simplifiedScript.ToArray());
             return script;
+        }
+
+        private static bool TryResolveDeletedJumpTarget(
+            Instruction source,
+            Instruction deletedTarget,
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress,
+            Dictionary<int, Instruction>? oldAddressToInstruction,
+            out Instruction? resolvedTarget)
+        {
+            resolvedTarget = null;
+            if (oldAddressToInstruction is null)
+                return false;
+
+            if (source.OpCode != OpCode.PUSHA && source.OpCode != OpCode.ENDTRY && source.OpCode != OpCode.ENDTRY_L)
+                return false;
+
+            int? deletedTargetAddress = null;
+            int? sourceAddress = null;
+            foreach ((int oldAddress, Instruction oldInstruction) in oldAddressToInstruction)
+            {
+                if (oldInstruction == deletedTarget)
+                    deletedTargetAddress = oldAddress;
+                if (oldInstruction == source)
+                    sourceAddress = oldAddress;
+            }
+
+            if (deletedTargetAddress is not null &&
+                TryResolveNextLiveInstruction(deletedTargetAddress.Value + deletedTarget.Size, simplifiedInstructionsToAddress, oldAddressToInstruction, out resolvedTarget))
+                return true;
+
+            if (sourceAddress is not null &&
+                TryResolveNextLiveInstruction(sourceAddress.Value + source.Size, simplifiedInstructionsToAddress, oldAddressToInstruction, out resolvedTarget))
+                return true;
+
+            resolvedTarget = null;
+            return false;
+        }
+
+        private static bool TryResolveNextLiveInstruction(
+            int nextAddress,
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress,
+            Dictionary<int, Instruction> oldAddressToInstruction,
+            out Instruction? resolvedTarget)
+        {
+            while (oldAddressToInstruction.TryGetValue(nextAddress, out Instruction? nextInstruction))
+            {
+                if (simplifiedInstructionsToAddress.Contains(nextInstruction))
+                {
+                    resolvedTarget = nextInstruction;
+                    return true;
+                }
+                nextAddress += nextInstruction.Size;
+            }
+
+            resolvedTarget = null;
+            return false;
         }
 
         /// <summary>
