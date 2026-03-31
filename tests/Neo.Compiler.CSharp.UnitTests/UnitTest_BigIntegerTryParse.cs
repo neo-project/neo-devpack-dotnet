@@ -59,6 +59,51 @@ public class Contract : SmartContract
         Assert.AreEqual((System.Numerics.BigInteger)123, parsed);
     }
 
+    [TestMethod]
+    public void BigIntegerTryParse_ReturnsFalse_And_DefaultValue_ForInvalidInput()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using System.ComponentModel;
+using System.Numerics;
+
+public class Contract : SmartContract
+{
+    [DisplayName(""test"")]
+    public static (bool, BigInteger) Test(string s)
+    {
+        bool success = BigInteger.TryParse(s, out BigInteger result);
+        return (success, result);
+    }
+}";
+
+        var context = CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<BigIntegerTryParseContract>(context.CreateExecutable(), context.CreateManifest());
+
+        var result = contract.Test("abc");
+        Assert.IsNotNull(result);
+        var tuple = result!;
+
+        bool success = tuple[0] switch
+        {
+            StackItem stackItem => stackItem.GetBoolean(),
+            bool value => value,
+            _ => throw new AssertFailedException($"Unexpected success result type: {tuple[0]?.GetType().Name ?? "null"}")
+        };
+
+        System.Numerics.BigInteger parsed = tuple[1] switch
+        {
+            System.Numerics.BigInteger value => value,
+            StackItem stackItem => stackItem.GetInteger(),
+            _ => throw new AssertFailedException($"Unexpected parsed value type: {tuple[1]?.GetType().Name ?? "null"}")
+        };
+
+        Assert.IsFalse(success, "BigInteger.TryParse should report failure for an invalid integer string.");
+        Assert.AreEqual(System.Numerics.BigInteger.Zero, parsed);
+    }
+
     private static CompilationContext CompileSingleContract(string sourceCode)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
