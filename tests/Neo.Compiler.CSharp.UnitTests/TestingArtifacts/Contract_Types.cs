@@ -18,7 +18,7 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrBFiYXNlNThDaGVja0VuY29kZQEAAQ/9o/pDRupTKiWPxJfdrdtkN8n9/wZkZXBsb3kDAAEPAAD9JgFXAAF4JAoMBUZhbHNlQAwEVHJ1ZUALQAhACUAVQBVAFUAVQBVAFUAVQBVAAG5ADANuZW9AVwACeHnOQAwDbmVvEcBAFUAMAwECA9swQBVAVwABQAwJY2hlY2tOdWxsQAoAAAAAQAoAAAAAQAwDbmVvEcAMCkR1bW15RXZlbnRBlQFvYUBXAQALEcBwDANuZW9KaBBR0EVoQFcBAAsRv3AMA25lb0poEFHQRWhADA1zbWFydCBlY29ub215DANuZW8Sv0BXAQAMDXNtYXJ0IGVjb25vbXkMA25lbxK/cGhAVwACeHmL2yh4eYvbKIvbKEBXAAJ5eDQDQFcBAhGIShB50HBoeItwaNsoNwAAQFcABHt6eXhBYn1bUkBXAAILeXjbKDcBAEBjNc15").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrBFiYXNlNThDaGVja0VuY29kZQEAAQ/9o/pDRupTKiWPxJfdrdtkN8n9/wZkZXBsb3kDAAEPAAD9JgFXAAF4JAoMBUZhbHNlQAwEVHJ1ZUALQAhACUAVQBVAFUAVQBVAFUAVQBVAAG5ADANuZW9AVwACeHnOQAwDbmVvEcBAFUAMAwECA9swQBVAVwABQAwJY2hlY2tOdWxsQArw////QArq////QAwDbmVvEcAMCkR1bW15RXZlbnRBlQFvYUBXAQALEcBwDANuZW9KaBBR0EVoQFcBAAsRv3AMA25lb0poEFHQRWhADA1zbWFydCBlY29ub215DANuZW8Sv0BXAQAMDXNtYXJ0IGVjb25vbXkMA25lbxK/cGhAVwACeHmL2yh4eYvbKIvbKEBXAAJ5eDQDQFcBAhGIShB50HBoeItwaNsoNwAAQFcABHt6eXhBYn1bUkBXAAILeXjbKDcBAEAOoRhC").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -172,8 +172,8 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: CgAAAABA
-    /// PUSHA 00000000 [4 datoshi]
+    /// Script: CvD///9A
+    /// PUSHA F0FFFFFF [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("checkDelegate")]
@@ -231,8 +231,8 @@ public abstract class Contract_Types(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: CgAAAABA
-    /// PUSHA 00000000 [4 datoshi]
+    /// Script: Cur///9A
+    /// PUSHA EAFFFFFF [4 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("checkLambda")]
