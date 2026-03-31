@@ -85,6 +85,33 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.IsFalse(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "CALLT without WriteStates should not be detected");
         }
 
+        [TestMethod]
+        public void Test_UpdateAnalyzer_CallT_Destroy_WithWriteStates()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                new MethodToken
+                {
+                    Hash = NativeContract.ContractManagement.Hash,
+                    Method = "destroy",
+                    ParametersCount = 0,
+                    HasReturnValue = false,
+                    CallFlags = CallFlags.WriteStates
+                }
+            ];
+
+            NefFile nef = CreateNefFile(script, tokens);
+            var manifest = CreateManifest();
+
+            Assert.IsTrue(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "CALLT destroy with WriteStates should be detected");
+        }
+
         /// <summary>
         /// Test that the bitwise operator fix correctly identifies WriteStates flag.
         /// </summary>
@@ -201,6 +228,32 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             var manifest = CreateManifest();
 
             Assert.IsFalse(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "Wrong target hash should not be detected as update");
+        }
+
+        [TestMethod]
+        public void Test_UpdateAnalyzer_SyscallDestroyPattern_Detected()
+        {
+            byte[] destroyBytes = Encoding.UTF8.GetBytes("destroy");
+            byte[] hashBytes = NativeContract.ContractManagement.Hash.GetSpan().ToArray();
+            uint syscall = ApplicationEngine.System_Contract_Call.Hash;
+
+            var script = new List<byte>();
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)destroyBytes.Length);
+            script.AddRange(destroyBytes);
+
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)hashBytes.Length);
+            script.AddRange(hashBytes);
+
+            script.Add((byte)OpCode.SYSCALL);
+            script.AddRange(BitConverter.GetBytes(syscall));
+            script.Add((byte)OpCode.RET);
+
+            NefFile nef = CreateNefFile(script.ToArray(), Array.Empty<MethodToken>());
+            var manifest = CreateManifest();
+
+            Assert.IsTrue(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "Syscall destroy pattern should be detected");
         }
 
         private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)

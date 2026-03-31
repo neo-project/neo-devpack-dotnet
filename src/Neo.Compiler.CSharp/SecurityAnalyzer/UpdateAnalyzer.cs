@@ -35,6 +35,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             (nef, manifest, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
             (int addr, VM.Instruction instruction)[] instructions = ((Script)nef.Script).EnumerateInstructions().ToArray();
             byte[] update = System.Text.Encoding.UTF8.GetBytes("update");
+            byte[] destroy = System.Text.Encoding.UTF8.GetBytes("destroy");
             for (int i = 0; i < instructions.Length; ++i)
             {
                 VM.Instruction instruction = instructions[i].instruction;
@@ -42,14 +43,18 @@ namespace Neo.Compiler.SecurityAnalyzer
                 {
                     uint tokenId = instruction.TokenU16;
                     MethodToken token = nef.Tokens[tokenId];
-                    if (token.Hash == NativeContract.ContractManagement.Hash && token.Method == "update" && ((token.CallFlags & CallFlags.WriteStates) != 0))
+                    if (token.Hash == NativeContract.ContractManagement.Hash
+                        && (token.Method == "update" || token.Method == "destroy")
+                        && ((token.CallFlags & CallFlags.WriteStates) != 0))
                         return true;
                 }
                 if (i + 2 >= instructions.Length)
                     continue;  // Do not break or return. There can be a CALLT following.
                 VM.Instruction instruction1 = instructions[i + 1].instruction;
                 VM.Instruction instruction2 = instructions[i + 2].instruction;
-                if (instruction.OpCode == OpCode.PUSHDATA1 && instruction.Operand.ToArray().SequenceEqual(update)
+                if (instruction.OpCode == OpCode.PUSHDATA1
+                 && (instruction.Operand.ToArray().SequenceEqual(update)
+                  || instruction.Operand.ToArray().SequenceEqual(destroy))
                  && instruction1.OpCode == OpCode.PUSHDATA1 && instruction1.Operand.Span.SequenceEqual(NativeContract.ContractManagement.Hash.GetSpan())
                  && instruction2.OpCode == OpCode.SYSCALL && instruction2.TokenU32 == ApplicationEngine.System_Contract_Call.Hash)
                     return true;
