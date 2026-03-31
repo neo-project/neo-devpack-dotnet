@@ -397,7 +397,7 @@ namespace Neo.SmartContract.Framework.Services
 
             var current = GetIntegerOrZero(key);
             var i = current - amount;
-            if (i.Sign < 0) throw new InvalidOperationException();
+            if (i.Sign < 0) throw new InvalidOperationException("result would be negative");
             if (i == 0)
             {
                 Delete(key);

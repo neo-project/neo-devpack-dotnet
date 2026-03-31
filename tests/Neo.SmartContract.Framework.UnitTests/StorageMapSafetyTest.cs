@@ -27,7 +27,8 @@ public class StorageMapSafetyTest
         var key = new byte[] { 0x01 };
 
         Assert.ThrowsException<TestException>(() => contract.StorageIncrease(key, -1));
-        Assert.ThrowsException<TestException>(() => contract.StorageDecrease(key, 1));
+        var underflow = Assert.ThrowsException<TestException>(() => contract.StorageDecrease(key, 1));
+        StringAssert.Contains(underflow.Message, "result would be negative");
     }
 
     [TestMethod]
@@ -40,7 +41,8 @@ public class StorageMapSafetyTest
         var key = new byte[] { 0x02 };
 
         Assert.ThrowsException<TestException>(() => contract.LocalIncrease(key, -1));
-        Assert.ThrowsException<TestException>(() => contract.LocalDecrease(key, 1));
+        var underflow = Assert.ThrowsException<TestException>(() => contract.LocalDecrease(key, 1));
+        StringAssert.Contains(underflow.Message, "result would be negative");
     }
 
     private static (NefFile nef, ContractManifest manifest) CompileStorageMapContract()
