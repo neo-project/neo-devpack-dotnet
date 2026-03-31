@@ -69,8 +69,8 @@ namespace Neo.Compiler.SecurityAnalyzer
             int[] sortedOffsets = methodStartOffsets.OrderBy(o => o).ToArray();
 
             var callbackMethods = methods.Where(m =>
-                string.Equals(m.Name, "onNEP17Payment", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(m.Name, "onNEP11Payment", StringComparison.OrdinalIgnoreCase));
+                string.Equals(m.Name, "onNEP17Payment", StringComparison.Ordinal) ||
+                string.Equals(m.Name, "onNEP11Payment", StringComparison.Ordinal));
 
             List<string> vulnerableMethods = new();
             foreach (ContractMethodDescriptor method in callbackMethods)
@@ -123,7 +123,8 @@ namespace Neo.Compiler.SecurityAnalyzer
                             || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash)
                             hasStorageWrite = true;
 
-                        if (instruction.TokenU32 == ApplicationEngine.System_Runtime_GetCallingScriptHash.Hash)
+                        if (instruction.TokenU32 == ApplicationEngine.System_Runtime_GetCallingScriptHash.Hash
+                            && IsCallingScriptHashUsedDefensively(instructions, addr, currentEnd))
                             hasCallingScriptHashValidation = true;
 
                         continue;
@@ -141,11 +142,47 @@ namespace Neo.Compiler.SecurityAnalyzer
             return (hasStorageWrite, hasCallingScriptHashValidation);
         }
 
+        private static bool IsCallingScriptHashUsedDefensively(
+            (int addr, VM.Instruction instruction)[] instructions,
+            int callingScriptHashAddr,
+            int methodEnd)
+        {
+            int startIndex = Array.FindIndex(instructions, item => item.addr == callingScriptHashAddr);
+            if (startIndex < 0)
+                return false;
+
+            int inspected = 0;
+            for (int i = startIndex + 1; i < instructions.Length && instructions[i].addr < methodEnd && inspected < 6; i++)
+            {
+                VM.Instruction instruction = instructions[i].instruction;
+                if (instruction.OpCode == VM.OpCode.NOP)
+                    continue;
+
+                inspected++;
+
+                if (instruction.OpCode == VM.OpCode.DROP)
+                    return false;
+
+                if (instruction.OpCode is VM.OpCode.EQUAL
+                    or VM.OpCode.NOTEQUAL
+                    or VM.OpCode.JMPEQ
+                    or VM.OpCode.JMPEQ_L
+                    or VM.OpCode.JMPNE
+                    or VM.OpCode.JMPNE_L
+                    or VM.OpCode.JMPIF
+                    or VM.OpCode.JMPIF_L
+                    or VM.OpCode.JMPIFNOT
+                    or VM.OpCode.JMPIFNOT_L
+                    or VM.OpCode.ASSERT)
+                    return true;
+            }
+
+            return false;
+        }
+
         private static int GetMethodEnd(int methodStart, int[] sortedOffsets)
         {
             int methodIndex = Array.BinarySearch(sortedOffsets, methodStart);
-            if (methodIndex < 0)
-                methodIndex = ~methodIndex;
 
             return methodIndex + 1 < sortedOffsets.Length
                 ? sortedOffsets[methodIndex + 1]
