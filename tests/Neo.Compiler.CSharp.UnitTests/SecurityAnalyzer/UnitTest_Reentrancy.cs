@@ -118,6 +118,35 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.AreEqual(0, result.vulnerabilityPairs.Count, "Known safe native CALLT operations should not be treated as reentrancy edges.");
         }
 
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_DoesNotBlanket_Exempt_StdLib_CALLT()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                new MethodToken
+                {
+                    Hash = NativeContract.StdLib.Hash,
+                    Method = "futureMethod",
+                    ParametersCount = 1,
+                    HasReturnValue = true,
+                    CallFlags = CallFlags.All
+                }
+            ];
+
+            var nef = CreateNefFile(script, tokens);
+            var manifest = CreateManifest();
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest);
+            Assert.AreEqual(1, result.vulnerabilityPairs.Count, "Only explicitly allowlisted StdLib methods should be ignored as safe CALLT operations.");
+        }
+
         private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)
         {
             return new NefFile

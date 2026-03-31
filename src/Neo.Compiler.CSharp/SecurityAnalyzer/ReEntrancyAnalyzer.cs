@@ -27,6 +27,30 @@ namespace Neo.Compiler.SecurityAnalyzer
     /// </summary>
     public static class ReEntrancyAnalyzer
     {
+        private static readonly HashSet<string> KnownSafeStdLibCalltMethods = new(StringComparer.Ordinal)
+        {
+            "serialize",
+            "deserialize",
+            "jsonSerialize",
+            "jsonDeserialize",
+            "base64Decode",
+            "base64Encode",
+            "base64UrlDecode",
+            "base64UrlEncode",
+            "base58Decode",
+            "base58Encode",
+            "base58CheckEncode",
+            "base58CheckDecode",
+            "hexEncode",
+            "hexDecode",
+            "itoa",
+            "atoi",
+            "memoryCompare",
+            "memorySearch",
+            "stringSplit",
+            "strLen"
+        };
+
         public class ReEntrancyVulnerabilityPair
         {
             // key block calls another contract; value blocks write storage
@@ -217,7 +241,8 @@ namespace Neo.Compiler.SecurityAnalyzer
 
         private static bool IsKnownSafeNativeCallt(MethodToken token)
         {
-            return token.Hash == NativeContract.StdLib.Hash;
+            return token.Hash == NativeContract.StdLib.Hash
+                && KnownSafeStdLibCalltMethods.Contains(token.Method);
         }
 
         /// <summary>
