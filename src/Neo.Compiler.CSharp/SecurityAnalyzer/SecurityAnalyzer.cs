@@ -25,8 +25,14 @@ namespace Neo.Compiler.SecurityAnalyzer
             CheckWitnessAnalyzer.AnalyzeCheckWitness(nef, manifest, debugInfo).GetWarningInfo(print: true);
             MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(nef, manifest, debugInfo).GetWarningInfo(print: true);
             UnboundedOperationAnalyzer.AnalyzeUnboundedOperations(nef, manifest, debugInfo).GetWarningInfo(print: true);
-            if (!UpdateAnalyzer.AnalyzeUpdate(nef, manifest, debugInfo))
-                Console.WriteLine("[SECURITY] This contract cannot be updated, or maybe you used abstract code styles to update it.");
+            bool canUpdate = UpdateAnalyzer.AnalyzeUpdate(nef, manifest, debugInfo);
+            bool canDestroy = UpdateAnalyzer.AnalyzeDestroy(nef, manifest, debugInfo);
+            if (canUpdate)
+                Console.WriteLine("[SECURITY] This contract can be updated.");
+            if (canDestroy)
+                Console.WriteLine("[SECURITY] This contract can be destroyed.");
+            if (!canUpdate && !canDestroy)
+                Console.WriteLine("[SECURITY] This contract cannot be updated or destroyed, or maybe you used abstract code styles to do so.");
         }
     }
 }

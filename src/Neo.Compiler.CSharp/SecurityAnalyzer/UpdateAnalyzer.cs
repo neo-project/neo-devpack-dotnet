@@ -32,10 +32,24 @@ namespace Neo.Compiler.SecurityAnalyzer
         public static bool AnalyzeUpdate
             (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
+            return AnalyzeContractManagementMethod(nef, manifest, "update", debugInfo);
+        }
+
+        public static bool AnalyzeDestroy
+            (NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
+        {
+            return AnalyzeContractManagementMethod(nef, manifest, "destroy", debugInfo);
+        }
+
+        private static bool AnalyzeContractManagementMethod(
+            NefFile nef,
+            ContractManifest manifest,
+            string methodName,
+            JToken? debugInfo = null)
+        {
             (nef, manifest, _) = Reachability.RemoveUncoveredInstructions(nef, manifest, null);
             (int addr, VM.Instruction instruction)[] instructions = ((Script)nef.Script).EnumerateInstructions().ToArray();
-            byte[] update = System.Text.Encoding.UTF8.GetBytes("update");
-            byte[] destroy = System.Text.Encoding.UTF8.GetBytes("destroy");
+            byte[] methodBytes = System.Text.Encoding.UTF8.GetBytes(methodName);
             for (int i = 0; i < instructions.Length; ++i)
             {
                 VM.Instruction instruction = instructions[i].instruction;
@@ -43,9 +57,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 {
                     uint tokenId = instruction.TokenU16;
                     MethodToken token = nef.Tokens[tokenId];
-                    if (token.Hash == NativeContract.ContractManagement.Hash
-                        && (token.Method == "update" || token.Method == "destroy")
-                        && ((token.CallFlags & CallFlags.WriteStates) != 0))
+                    if (token.Hash == NativeContract.ContractManagement.Hash && token.Method == methodName && ((token.CallFlags & CallFlags.WriteStates) != 0))
                         return true;
                 }
                 if (i + 2 >= instructions.Length)
@@ -53,8 +65,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 VM.Instruction instruction1 = instructions[i + 1].instruction;
                 VM.Instruction instruction2 = instructions[i + 2].instruction;
                 if (instruction.OpCode == OpCode.PUSHDATA1
-                 && (instruction.Operand.ToArray().SequenceEqual(update)
-                  || instruction.Operand.ToArray().SequenceEqual(destroy))
+                 && instruction.Operand.ToArray().SequenceEqual(methodBytes)
                  && instruction1.OpCode == OpCode.PUSHDATA1 && instruction1.Operand.Span.SequenceEqual(NativeContract.ContractManagement.Hash.GetSpan())
                  && instruction2.OpCode == OpCode.SYSCALL && instruction2.TokenU32 == ApplicationEngine.System_Contract_Call.Hash)
                     return true;
