@@ -91,6 +91,32 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         }
 
         [TestMethod]
+        public void Test_ReentrancyAnalyzer_DoesNotWarn_On_LocalStoragePut_Without_ExternalCall()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_DoesNotWarn_On_LocalStorageDelete_Without_ExternalCall()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Delete.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count);
+        }
+
+        [TestMethod]
         public void Test_ReentrancyAnalyzer_DoesNotTreat_LocalStorageGet_As_StateWrite()
         {
             byte[] script =
