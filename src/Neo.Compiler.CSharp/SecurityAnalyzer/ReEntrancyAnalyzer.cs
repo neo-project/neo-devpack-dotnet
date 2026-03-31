@@ -173,7 +173,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                         if (instruction.TokenU32 == ApplicationEngine.System_Contract_Call.Hash)
                             callOtherContractInstructions[b].Add(addr);
                         if (instruction.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash)
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash)
                         {
                             writeStorageInstructions[b].Add(addr);
                             if (callOtherContractInstructions[b].Count > 0)

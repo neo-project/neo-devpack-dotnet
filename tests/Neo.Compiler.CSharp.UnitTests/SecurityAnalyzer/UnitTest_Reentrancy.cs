@@ -13,7 +13,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Json;
 using Neo.Optimizer;
+using Neo.SmartContract;
 using Neo.SmartContract.Testing;
+using Neo.VM;
+using System;
+using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -53,6 +57,62 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 
             // Message should be more detailed than just addresses
             Assert.IsTrue(warningInfo.Length > 300, "Enhanced diagnostic message should be more detailed than simple address listing");
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Treats_LocalStorageWrites_As_StateWrites()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var nef = CreateNefFile(script);
+            var manifest = CreateManifest();
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest);
+            Assert.AreEqual(1, result.vulnerabilityPairs.Count, "Local storage writes after external calls should be tracked as reentrancy-relevant writes.");
+        }
+
+        private static NefFile CreateNefFile(byte[] script)
+        {
+            return new NefFile
+            {
+                Compiler = "test",
+                Source = "test.cs",
+                Tokens = Array.Empty<MethodToken>(),
+                Script = script
+            };
+        }
+
+        private static SmartContract.Manifest.ContractManifest CreateManifest()
+        {
+            return new SmartContract.Manifest.ContractManifest
+            {
+                Name = "TestContract",
+                Groups = Array.Empty<SmartContract.Manifest.ContractGroup>(),
+                SupportedStandards = Array.Empty<string>(),
+                Abi = new SmartContract.Manifest.ContractAbi
+                {
+                    Methods =
+                    [
+                        new SmartContract.Manifest.ContractMethodDescriptor
+                        {
+                            Name = "main",
+                            Offset = 0,
+                            Parameters = Array.Empty<SmartContract.Manifest.ContractParameterDefinition>(),
+                            ReturnType = ContractParameterType.Void,
+                            Safe = false
+                        }
+                    ],
+                    Events = Array.Empty<SmartContract.Manifest.ContractEventDescriptor>()
+                },
+                Permissions = Array.Empty<SmartContract.Manifest.ContractPermission>(),
+                Trusts = SmartContract.Manifest.WildcardContainer<SmartContract.Manifest.ContractPermissionDescriptor>.Create(),
+                Extra = null
+            };
         }
     }
 }
