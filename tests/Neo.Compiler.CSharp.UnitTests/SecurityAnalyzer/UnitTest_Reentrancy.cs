@@ -76,6 +76,34 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.AreEqual(1, result.vulnerabilityPairs.Count, "Local storage writes after external calls should be tracked as reentrancy-relevant writes.");
         }
 
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Treats_LocalStorageDelete_As_StateWrite()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Delete.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(1, result.vulnerabilityPairs.Count);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_DoesNotTreat_LocalStorageGet_As_StateWrite()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Get.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count);
+        }
+
         private static NefFile CreateNefFile(byte[] script)
         {
             return new NefFile
