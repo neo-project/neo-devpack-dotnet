@@ -84,10 +84,6 @@ namespace Neo.Compiler.SecurityAnalyzer
 
             foreach (ContractMethodDescriptor method in methods)
             {
-                // Skip internal methods
-                if (method.Name.StartsWith("_"))
-                    continue;
-
                 (bool hasStorageWrite, bool hasCheckWitness) = AnalyzeMethodAndStaticHelpers(
                     method.Offset,
                     instructions,
