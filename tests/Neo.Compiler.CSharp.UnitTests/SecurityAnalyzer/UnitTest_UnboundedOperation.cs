@@ -53,6 +53,14 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.AreEqual(0, result.recursiveCallAddresses[0]);
         }
 
+        [TestMethod]
+        public void Test_UnboundedOperationVulnerability_BackwardJumpOnlyCtor_RemainsCompatible()
+        {
+            var result = new UnboundedOperationAnalyzer.UnboundedOperationVulnerability(new[] { 7 }, null);
+            Assert.AreEqual(1, result.backwardJumpAddresses.Count);
+            Assert.AreEqual(0, result.recursiveCallAddresses.Count);
+        }
+
         private static NefFile CreateNefFile(byte[] script)
         {
             return new NefFile

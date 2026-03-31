@@ -42,6 +42,13 @@ namespace Neo.Compiler.SecurityAnalyzer
                 this.debugInfo = debugInfo;
             }
 
+            public UnboundedOperationVulnerability(
+                IReadOnlyList<int> backwardJumpAddresses,
+                JToken? debugInfo = null)
+                : this(backwardJumpAddresses, Array.Empty<int>(), debugInfo)
+            {
+            }
+
             public string GetWarningInfo(bool print = false)
             {
                 if (backwardJumpAddresses.Count == 0 && recursiveCallAddresses.Count == 0)
