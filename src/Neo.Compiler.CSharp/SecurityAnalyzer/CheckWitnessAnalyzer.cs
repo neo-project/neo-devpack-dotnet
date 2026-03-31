@@ -69,7 +69,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 if (instruction.OpCode == OpCode.SYSCALL && instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)
                 {
                     if (IsDroppedCheckWitnessResult(instructions, i))
-                        result.Add(i);
+                        result.Add(instructions[i].addr);
                 }
             }
             return new CheckWitnessVulnerability(result);
