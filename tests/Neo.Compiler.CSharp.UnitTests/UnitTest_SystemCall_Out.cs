@@ -313,7 +313,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void TestBoolTryParse()
+        public void TestBoolTryParse_DotNetStyleLiterals()
         {
             var res = Contract.TestBoolTryParse("true");
             Assert.IsNotNull(res);
@@ -334,8 +334,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.IsFalse((bool)res[1]);
+        }
 
-            res = Contract.TestBoolTryParse("1");
+        [TestMethod]
+        public void TestBoolTryParse_ExtendedNeoVmLiterals()
+        {
+            var res = Contract.TestBoolTryParse("1");
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
             Assert.IsTrue((bool)res[1]);
@@ -354,11 +358,6 @@ namespace Neo.Compiler.CSharp.UnitTests
             res = Contract.TestBoolTryParse("FALSE");
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
-            Assert.IsFalse((bool)res[1]);
-
-            res = Contract.TestBoolTryParse(" true ");
-            Assert.IsNotNull(res);
-            Assert.IsFalse((bool)res[0]);
             Assert.IsFalse((bool)res[1]);
 
             res = Contract.TestBoolTryParse("yes");
@@ -389,6 +388,15 @@ namespace Neo.Compiler.CSharp.UnitTests
             res = Contract.TestBoolTryParse("N");
             Assert.IsNotNull(res);
             Assert.IsTrue((bool)res[0]);
+            Assert.IsFalse((bool)res[1]);
+        }
+
+        [TestMethod]
+        public void TestBoolTryParse_InvalidInputsRemainRejected()
+        {
+            var res = Contract.TestBoolTryParse(" true ");
+            Assert.IsNotNull(res);
+            Assert.IsFalse((bool)res[0]);
             Assert.IsFalse((bool)res[1]);
 
             res = Contract.TestBoolTryParse("invalid");

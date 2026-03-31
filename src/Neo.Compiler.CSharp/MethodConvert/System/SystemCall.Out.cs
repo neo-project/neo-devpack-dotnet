@@ -260,7 +260,9 @@ partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Checks input string against various true/false representations, stores result in static field
+    /// Algorithm: Checks input string against NeoVM-oriented true/false representations, stores result in static field.
+    /// This intentionally diverges from .NET bool.TryParse by accepting additional literals such as
+    /// "1"/"0", "yes"/"no", "y"/"n", and "t"/"f".
     /// </remarks>
     private static void HandleBoolTryParseWithOut(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
