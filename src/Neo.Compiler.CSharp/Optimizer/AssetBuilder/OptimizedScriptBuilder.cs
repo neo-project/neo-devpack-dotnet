@@ -48,7 +48,7 @@ namespace Neo.Optimizer
                     int delta;
                     if (simplifiedInstructionsToAddress.Contains(dst))  // target instruction not deleted
                         delta = (int)simplifiedInstructionsToAddress[dst]! - a;
-                    else if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.ENDTRY || i.OpCode == OpCode.ENDTRY_L)
+                    else if (i.OpCode == OpCode.PUSHA)
                         delta = 0;  // TODO: decide a good target
                     else
                     {
