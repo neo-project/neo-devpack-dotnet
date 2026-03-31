@@ -168,7 +168,11 @@ namespace Neo.Compiler.SecurityAnalyzer
                 int addr = b.startAddr;
                 foreach (VM.Instruction instruction in b.instructions)
                 {
-                    if (instruction.OpCode == VM.OpCode.SYSCALL)
+                    if (instruction.OpCode == VM.OpCode.CALLT)
+                    {
+                        callOtherContractInstructions[b].Add(addr);
+                    }
+                    else if (instruction.OpCode == VM.OpCode.SYSCALL)
                     {
                         if (instruction.TokenU32 == ApplicationEngine.System_Contract_Call.Hash)
                             callOtherContractInstructions[b].Add(addr);
