@@ -13,6 +13,7 @@ using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,7 +171,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                 {
                     if (instruction.OpCode == VM.OpCode.CALLT)
                     {
-                        callOtherContractInstructions[b].Add(addr);
+                        uint tokenId = instruction.TokenU16;
+                        if (tokenId < nef.Tokens.Length && !IsKnownSafeNativeCallt(nef.Tokens[tokenId]))
+                            callOtherContractInstructions[b].Add(addr);
                     }
                     else if (instruction.OpCode == VM.OpCode.SYSCALL)
                     {
@@ -210,6 +213,11 @@ namespace Neo.Compiler.SecurityAnalyzer
                 }
             }
             return new(vulnerabilityPairs, callOtherContractInstructions, writeStorageInstructions, debugInfo);
+        }
+
+        private static bool IsKnownSafeNativeCallt(MethodToken token)
+        {
+            return token.Hash == NativeContract.StdLib.Hash;
         }
 
         /// <summary>

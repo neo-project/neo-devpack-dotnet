@@ -89,6 +89,35 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.AreEqual(1, result.vulnerabilityPairs.Count, "CALLT-based native contract calls should be treated as external calls.");
         }
 
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Ignores_SafeNative_CALLT()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                new MethodToken
+                {
+                    Hash = NativeContract.StdLib.Hash,
+                    Method = "itoa",
+                    ParametersCount = 1,
+                    HasReturnValue = true,
+                    CallFlags = CallFlags.All
+                }
+            ];
+
+            var nef = CreateNefFile(script, tokens);
+            var manifest = CreateManifest();
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count, "Known safe native CALLT operations should not be treated as reentrancy edges.");
+        }
+
         private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)
         {
             return new NefFile
