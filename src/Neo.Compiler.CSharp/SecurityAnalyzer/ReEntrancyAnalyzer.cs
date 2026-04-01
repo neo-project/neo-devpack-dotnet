@@ -239,7 +239,7 @@ namespace Neo.Compiler.SecurityAnalyzer
             return new(vulnerabilityPairs, callOtherContractInstructions, writeStorageInstructions, debugInfo);
         }
 
-        private static bool IsKnownSafeNativeCallt(MethodToken token)
+        private static bool IsKnownSafeNativeCallT(MethodToken token)
         {
             return token.Hash == NativeContract.StdLib.Hash
                 && KnownSafeStdLibCalltMethods.Contains(token.Method);
