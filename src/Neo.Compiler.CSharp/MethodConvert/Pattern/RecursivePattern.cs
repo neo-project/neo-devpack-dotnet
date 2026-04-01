@@ -68,6 +68,25 @@ internal partial class MethodConvert
             AddInstruction(OpCode.ISNULL);
             AddInstruction(OpCode.NOT);
         }
+
+        switch (pattern.Designation)
+        {
+            case null:
+            case DiscardDesignationSyntax:
+                break;
+            case SingleVariableDesignationSyntax variable:
+                ILocalSymbol local = (ILocalSymbol)model.GetDeclaredSymbol(variable)!;
+                byte index = AddLocalVariable(local);
+                AddInstruction(OpCode.DUP);
+                JumpTarget skipAssignment = new();
+                Jump(OpCode.JMPIFNOT, skipAssignment);
+                AccessSlot(OpCode.LDLOC, localIndex);
+                AccessSlot(OpCode.STLOC, index);
+                skipAssignment.Instruction = AddInstruction(OpCode.NOP);
+                break;
+            default:
+                throw CompilationException.UnsupportedSyntax(pattern, $"Recursive pattern designation type '{pattern.Designation.GetType().Name}' is not supported. Only single variable and discard designations are allowed.");
+        }
     }
 
     private void EmitRecursivePropertyConstantPatternCheck(SemanticModel model, SubpatternSyntax subpattern, ConstantPatternSyntax constantPattern, byte localIndex)

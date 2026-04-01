@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// MissingCheckWitnessAnalyzer.cs file belongs to the neo project and is free
+// TokenCallbackAuthorizationAnalyzer.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -20,18 +20,14 @@ using System.Linq;
 
 namespace Neo.Compiler.SecurityAnalyzer
 {
-    /// <summary>
-    /// Detects public methods that perform state changes (storage writes)
-    /// without any CheckWitness call in the method or its static helper calls.
-    /// </summary>
-    public static class MissingCheckWitnessAnalyzer
+    public static class TokenCallbackAuthorizationAnalyzer
     {
-        public class MissingCheckWitnessVulnerability
+        public class TokenCallbackAuthorizationVulnerability
         {
             public readonly IReadOnlyList<string> vulnerableMethodNames;
             public readonly JToken? debugInfo;
 
-            public MissingCheckWitnessVulnerability(
+            public TokenCallbackAuthorizationVulnerability(
                 IReadOnlyList<string> vulnerableMethodNames,
                 JToken? debugInfo = null)
             {
@@ -43,35 +39,27 @@ namespace Neo.Compiler.SecurityAnalyzer
             {
                 if (vulnerableMethodNames.Count == 0)
                     return "";
-                string result = $"[SECURITY] The following public methods write to storage without CheckWitness verification:{Environment.NewLine}" +
+
+                string result = $"[SECURITY] The following token payment callbacks write storage without validating Runtime.CallingScriptHash:{Environment.NewLine}" +
                     $"\t{string.Join(", ", vulnerableMethodNames)}{Environment.NewLine}" +
-                    $"Consider adding `Runtime.CheckWitness()` before performing storage writes to prevent unauthorized access.{Environment.NewLine}";
+                    $"Validate the calling token contract hash in NEP-17/NEP-11 payment callbacks before mutating state.{Environment.NewLine}";
                 if (print)
                     Console.Write(result);
                 return result;
             }
         }
 
-        /// <summary>
-        /// Analyzes the contract for public methods that write to storage
-        /// without calling CheckWitness.
-        /// </summary>
-        /// <param name="nef">Nef file</param>
-        /// <param name="manifest">Manifest</param>
-        /// <param name="debugInfo">Debug information</param>
-        public static MissingCheckWitnessVulnerability AnalyzeMissingCheckWitness(
+        public static TokenCallbackAuthorizationVulnerability AnalyzeTokenCallbacks(
             NefFile nef, ContractManifest manifest, JToken? debugInfo = null)
         {
             (int addr, VM.Instruction instruction)[] instructions =
                 ((Script)nef.Script).EnumerateInstructions().ToArray();
 
-            // Build a sorted list of method offsets to determine method boundaries.
-            // Include static call targets to cover private helper methods not present in ABI.
             ContractMethodDescriptor[] methods = manifest.Abi.Methods;
             HashSet<int> methodStartOffsets = methods.Select(m => m.Offset).ToHashSet();
             foreach ((int addr, VM.Instruction instruction) in instructions)
             {
-                if (instruction.OpCode != OpCode.CALL && instruction.OpCode != OpCode.CALL_L)
+                if (instruction.OpCode != VM.OpCode.CALL && instruction.OpCode != VM.OpCode.CALL_L)
                     continue;
 
                 int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
@@ -80,34 +68,34 @@ namespace Neo.Compiler.SecurityAnalyzer
             }
             int[] sortedOffsets = methodStartOffsets.OrderBy(o => o).ToArray();
 
+            var callbackMethods = methods.Where(m =>
+                string.Equals(m.Name, "onNEP17Payment", StringComparison.Ordinal) ||
+                string.Equals(m.Name, "onNEP11Payment", StringComparison.Ordinal));
+
             List<string> vulnerableMethods = new();
-
-            foreach (ContractMethodDescriptor method in methods)
+            foreach (ContractMethodDescriptor method in callbackMethods)
             {
-                if (method.Name is "_deploy" or "_initialize")
-                    continue;
-
-                (bool hasStorageWrite, bool hasCheckWitness) = AnalyzeMethodAndStaticHelpers(
+                (bool hasStorageWrite, bool hasCallingScriptHashValidation) = AnalyzeMethodAndStaticHelpers(
                     method.Offset,
                     instructions,
                     sortedOffsets,
                     methodStartOffsets);
 
-                if (hasStorageWrite && !hasCheckWitness)
+                if (hasStorageWrite && !hasCallingScriptHashValidation)
                     vulnerableMethods.Add(method.Name);
             }
 
-            return new MissingCheckWitnessVulnerability(vulnerableMethods, debugInfo);
+            return new TokenCallbackAuthorizationVulnerability(vulnerableMethods, debugInfo);
         }
 
-        private static (bool hasStorageWrite, bool hasCheckWitness) AnalyzeMethodAndStaticHelpers(
+        private static (bool hasStorageWrite, bool hasCallingScriptHashValidation) AnalyzeMethodAndStaticHelpers(
             int methodStart,
             (int addr, VM.Instruction instruction)[] instructions,
             int[] sortedOffsets,
             HashSet<int> methodStartOffsets)
         {
             bool hasStorageWrite = false;
-            bool hasCheckWitness = false;
+            bool hasCallingScriptHashValidation = false;
 
             Stack<int> pendingMethodStarts = new();
             HashSet<int> visitedMethodStarts = new();
@@ -127,7 +115,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     if (addr >= currentEnd)
                         break;
 
-                    if (instruction.OpCode == OpCode.SYSCALL)
+                    if (instruction.OpCode == VM.OpCode.SYSCALL)
                     {
                         if (instruction.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
                             || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
@@ -135,13 +123,14 @@ namespace Neo.Compiler.SecurityAnalyzer
                             || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash)
                             hasStorageWrite = true;
 
-                        if (instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)
-                            hasCheckWitness = true;
+                        if (instruction.TokenU32 == ApplicationEngine.System_Runtime_GetCallingScriptHash.Hash
+                            && IsCallingScriptHashUsedDefensively(instructions, addr, currentEnd))
+                            hasCallingScriptHashValidation = true;
 
                         continue;
                     }
 
-                    if (instruction.OpCode == OpCode.CALL || instruction.OpCode == OpCode.CALL_L)
+                    if (instruction.OpCode == VM.OpCode.CALL || instruction.OpCode == VM.OpCode.CALL_L)
                     {
                         int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
                         if (methodStartOffsets.Contains(target))
@@ -150,14 +139,50 @@ namespace Neo.Compiler.SecurityAnalyzer
                 }
             }
 
-            return (hasStorageWrite, hasCheckWitness);
+            return (hasStorageWrite, hasCallingScriptHashValidation);
+        }
+
+        private static bool IsCallingScriptHashUsedDefensively(
+            (int addr, VM.Instruction instruction)[] instructions,
+            int callingScriptHashAddr,
+            int methodEnd)
+        {
+            int startIndex = Array.FindIndex(instructions, item => item.addr == callingScriptHashAddr);
+            if (startIndex < 0)
+                return false;
+
+            int inspected = 0;
+            for (int i = startIndex + 1; i < instructions.Length && instructions[i].addr < methodEnd && inspected < 6; i++)
+            {
+                VM.Instruction instruction = instructions[i].instruction;
+                if (instruction.OpCode == VM.OpCode.NOP)
+                    continue;
+
+                inspected++;
+
+                if (instruction.OpCode == VM.OpCode.DROP)
+                    return false;
+
+                if (instruction.OpCode is VM.OpCode.EQUAL
+                    or VM.OpCode.NOTEQUAL
+                    or VM.OpCode.JMPEQ
+                    or VM.OpCode.JMPEQ_L
+                    or VM.OpCode.JMPNE
+                    or VM.OpCode.JMPNE_L
+                    or VM.OpCode.JMPIF
+                    or VM.OpCode.JMPIF_L
+                    or VM.OpCode.JMPIFNOT
+                    or VM.OpCode.JMPIFNOT_L
+                    or VM.OpCode.ASSERT)
+                    return true;
+            }
+
+            return false;
         }
 
         private static int GetMethodEnd(int methodStart, int[] sortedOffsets)
         {
             int methodIndex = Array.BinarySearch(sortedOffsets, methodStart);
-            if (methodIndex < 0)
-                methodIndex = ~methodIndex;
 
             return methodIndex + 1 < sortedOffsets.Length
                 ? sortedOffsets[methodIndex + 1]

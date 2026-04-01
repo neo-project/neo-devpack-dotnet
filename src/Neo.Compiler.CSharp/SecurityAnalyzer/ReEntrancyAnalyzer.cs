@@ -196,7 +196,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                     if (instruction.OpCode == VM.OpCode.CALLT)
                     {
                         uint tokenId = instruction.TokenU16;
-                        if (tokenId < nef.Tokens.Length && !IsKnownSafeNativeCallt(nef.Tokens[tokenId]))
+                        if (tokenId < nef.Tokens.Length && !IsKnownSafeNativeCallT(nef.Tokens[tokenId]))
                             callOtherContractInstructions[b].Add(addr);
                     }
                     else if (instruction.OpCode == VM.OpCode.SYSCALL)
@@ -204,7 +204,9 @@ namespace Neo.Compiler.SecurityAnalyzer
                         if (instruction.TokenU32 == ApplicationEngine.System_Contract_Call.Hash)
                             callOtherContractInstructions[b].Add(addr);
                         if (instruction.TokenU32 == ApplicationEngine.System_Storage_Put.Hash
-                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash)
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Delete.Hash
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Put.Hash
+                            || instruction.TokenU32 == ApplicationEngine.System_Storage_Local_Delete.Hash)
                         {
                             writeStorageInstructions[b].Add(addr);
                             if (callOtherContractInstructions[b].Count > 0)

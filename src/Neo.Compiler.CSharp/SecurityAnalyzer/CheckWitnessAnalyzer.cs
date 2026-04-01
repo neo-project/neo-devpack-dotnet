@@ -68,13 +68,84 @@ namespace Neo.Compiler.SecurityAnalyzer
                 VM.Instruction instruction = instructions[i].instruction;
                 if (instruction.OpCode == OpCode.SYSCALL && instruction.TokenU32 == ApplicationEngine.System_Runtime_CheckWitness.Hash)
                 {
-                    if (i + 1 >= instructions.Length)
-                        return new CheckWitnessVulnerability(result);
-                    if (instructions[i + 1].instruction.OpCode == OpCode.DROP)
-                        result.Add(i);
+                    if (IsDroppedCheckWitnessResult(instructions, i))
+                        result.Add(instructions[i].addr);
                 }
             }
             return new CheckWitnessVulnerability(result);
+        }
+
+        private static bool IsDroppedCheckWitnessResult((int addr, VM.Instruction instruction)[] instructions, int checkWitnessIndex)
+        {
+            int i = checkWitnessIndex + 1;
+            while (i < instructions.Length && instructions[i].instruction.OpCode == OpCode.NOP)
+                i++;
+
+            if (i >= instructions.Length)
+                return false;
+
+            if (instructions[i].instruction.OpCode == OpCode.DROP)
+                return true;
+
+            if (!TryGetLocalStoreSlot(instructions[i].instruction, out byte slot))
+                return false;
+
+            i++;
+            while (i < instructions.Length && instructions[i].instruction.OpCode == OpCode.NOP)
+                i++;
+
+            if (i >= instructions.Length || !TryGetLocalLoadSlot(instructions[i].instruction, out byte loadedSlot) || loadedSlot != slot)
+                return false;
+
+            i++;
+            while (i < instructions.Length && instructions[i].instruction.OpCode == OpCode.NOP)
+                i++;
+
+            return i < instructions.Length && instructions[i].instruction.OpCode == OpCode.DROP;
+        }
+
+        private static bool TryGetLocalStoreSlot(VM.Instruction instruction, out byte slot)
+        {
+            switch (instruction.OpCode)
+            {
+                case OpCode.STLOC0:
+                case OpCode.STLOC1:
+                case OpCode.STLOC2:
+                case OpCode.STLOC3:
+                case OpCode.STLOC4:
+                case OpCode.STLOC5:
+                case OpCode.STLOC6:
+                    slot = (byte)(instruction.OpCode - OpCode.STLOC0);
+                    return true;
+                case OpCode.STLOC:
+                    slot = instruction.TokenU8;
+                    return true;
+                default:
+                    slot = 0;
+                    return false;
+            }
+        }
+
+        private static bool TryGetLocalLoadSlot(VM.Instruction instruction, out byte slot)
+        {
+            switch (instruction.OpCode)
+            {
+                case OpCode.LDLOC0:
+                case OpCode.LDLOC1:
+                case OpCode.LDLOC2:
+                case OpCode.LDLOC3:
+                case OpCode.LDLOC4:
+                case OpCode.LDLOC5:
+                case OpCode.LDLOC6:
+                    slot = (byte)(instruction.OpCode - OpCode.LDLOC0);
+                    return true;
+                case OpCode.LDLOC:
+                    slot = instruction.TokenU8;
+                    return true;
+                default:
+                    slot = 0;
+                    return false;
+            }
         }
     }
 }

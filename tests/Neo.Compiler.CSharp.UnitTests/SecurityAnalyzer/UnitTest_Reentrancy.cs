@@ -32,7 +32,6 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest);
             Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
             foreach (BasicBlock b in v.vulnerabilityPairs.Keys)
-                // basic blocks calling contract
                 Assert.IsTrue(b.startAddr < NefFile.Size * 0.66);
             v.GetWarningInfo(print: false);
         }
@@ -40,23 +39,18 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         [TestMethod]
         public void Test_ReentrancyWithEnhancedDiagnostics()
         {
-            // Test enhanced diagnostic messages without debug info (fallback behavior)
             ReEntrancyAnalyzer.ReEntrancyVulnerabilityPair v =
                 ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(NefFile, Manifest, null);
             Assert.AreEqual(v.vulnerabilityPairs.Count, 3);
 
-            // Test that warning message contains enhanced diagnostic information
             string warningInfo = v.GetWarningInfo(print: false);
 
-            // Verify enhanced diagnostic format
             Assert.IsTrue(warningInfo.Contains("[SECURITY] Potential Re-entrancy vulnerability detected"));
             Assert.IsTrue(warningInfo.Contains("External contract calls:"));
             Assert.IsTrue(warningInfo.Contains("Storage writes that occur after external calls:"));
             Assert.IsTrue(warningInfo.Contains("Recommendation:"));
             Assert.IsTrue(warningInfo.Contains("allowing potential re-entrancy attacks"));
             Assert.IsTrue(warningInfo.Contains("reentrancy guards"));
-
-            // Message should be more detailed than just addresses
             Assert.IsTrue(warningInfo.Length > 300, "Enhanced diagnostic message should be more detailed than simple address listing");
         }
 
@@ -82,10 +76,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 }
             ];
 
-            var nef = CreateNefFile(script, tokens);
-            var manifest = CreateManifest();
-
-            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest);
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script, tokens), CreateManifest());
             Assert.AreEqual(1, result.vulnerabilityPairs.Count, "CALLT-based native contract calls should be treated as external calls.");
         }
 
@@ -111,10 +102,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 }
             ];
 
-            var nef = CreateNefFile(script, tokens);
-            var manifest = CreateManifest();
-
-            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest);
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script, tokens), CreateManifest());
             Assert.AreEqual(0, result.vulnerabilityPairs.Count, "Known safe native CALLT operations should not be treated as reentrancy edges.");
         }
 
@@ -140,11 +128,95 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
                 }
             ];
 
-            var nef = CreateNefFile(script, tokens);
-            var manifest = CreateManifest();
-
-            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(nef, manifest);
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script, tokens), CreateManifest());
             Assert.AreEqual(1, result.vulnerabilityPairs.Count, "Only explicitly allowlisted StdLib methods should be ignored as safe CALLT operations.");
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Ignores_CALLT_WithMissingMethodToken()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x01, 0x00,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script, Array.Empty<MethodToken>()), CreateManifest());
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count, "CALLT instructions with missing method tokens should be ignored instead of being treated as external calls.");
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Treats_LocalStorageWrites_As_StateWrites()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest());
+            Assert.AreEqual(1, result.vulnerabilityPairs.Count, "Local storage writes after external calls should be tracked as reentrancy-relevant writes.");
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_Treats_LocalStorageDelete_As_StateWrite()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Delete.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(1, result.vulnerabilityPairs.Count);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_DoesNotWarn_On_LocalStoragePut_Without_ExternalCall()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_DoesNotWarn_On_LocalStorageDelete_Without_ExternalCall()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Delete.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count);
+        }
+
+        [TestMethod]
+        public void Test_ReentrancyAnalyzer_DoesNotTreat_LocalStorageGet_As_StateWrite()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Local_Get.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = ReEntrancyAnalyzer.AnalyzeSingleContractReEntrancy(CreateNefFile(script), CreateManifest(), null);
+            Assert.AreEqual(0, result.vulnerabilityPairs.Count);
+        }
+
+        private static NefFile CreateNefFile(byte[] script)
+        {
+            return CreateNefFile(script, Array.Empty<MethodToken>());
         }
 
         private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)

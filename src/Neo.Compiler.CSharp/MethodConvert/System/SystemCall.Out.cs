@@ -213,7 +213,7 @@ partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Uses StdLib.atoi to parse string to BigInteger, stores result in static field, returns success flag
+    /// Algorithm: Validates the decimal string shape before calling StdLib.atoi so invalid input returns false instead of faulting.
     /// </remarks>
     private static void HandleBigIntegerTryParseWithOut(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -226,24 +226,83 @@ partial class MethodConvert
         methodConvert.Swap();
         methodConvert.Drop();
 
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        byte lengthSlot = methodConvert.AddAnonymousVariable();
+        byte indexSlot = methodConvert.AddAnonymousVariable();
+
+        JumpTarget failTarget = new();
+        JumpTarget signTarget = new();
+        JumpTarget loopTarget = new();
+        JumpTarget parseTarget = new();
+        JumpTarget endTarget = new();
+
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.IsNull();
+        methodConvert.JumpIfTrueLong(failTarget);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.AccessSlot(OpCode.STLOC, lengthSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Nz();
+        methodConvert.JumpIfFalseLong(failTarget);
+
+        methodConvert.Push0();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Push0();
+        methodConvert.PickItem();
+        methodConvert.Dup();
+        methodConvert.Push((ushort)'-');
+        methodConvert.NumEqual();
+        methodConvert.JumpIfTrueLong(signTarget);
+        methodConvert.Push((ushort)'+');
+        methodConvert.NumEqual();
+        methodConvert.JumpIfTrueLong(signTarget);
+        methodConvert.JumpAlwaysLong(loopTarget);
+
+        signTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Push1();
+        methodConvert.NumEqual();
+        methodConvert.JumpIfTrueLong(failTarget);
+        methodConvert.Push1();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+
+        loopTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
+        methodConvert.Ge();
+        methodConvert.JumpIfTrueLong(parseTarget);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.PickItem();
+        methodConvert.Within('0', '9');
+        methodConvert.JumpIfFalseLong(failTarget);
+
+        methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
+        methodConvert.Inc();
+        methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
+        methodConvert.JumpAlwaysLong(loopTarget);
+
+        parseTarget.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+
         // Convert string to BigInteger
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "atoi", 1, true);
-
-        // Check if the parsing was successful
-        methodConvert.Dup();                                       // Duplicate result for null check
-        methodConvert.IsNull();                                    // Check if null (parse failed)
-        JumpTarget failTarget = new();
-        methodConvert.JumpIfTrueLong(failTarget);            // Jump to fail if null
 
         // If successful, store the value and push true
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store value in static field
         methodConvert.Push(true);                                  // Push success flag
-        JumpTarget endTarget = new();
-        methodConvert.JumpAlwaysLong(endTarget);               // Jump to end
+        methodConvert.JumpAlwaysLong(endTarget);
 
-        // Fail target: clear parsed value, set out parameter default, then push false
-        failTarget.Instruction = methodConvert.Drop();             // Drop the failed value
-        methodConvert.PushDefault(symbol.Parameters[1].Type);      // Default out value on parse failure
+        // Invalid input target: set the out parameter default and return false
+        failTarget.Instruction = methodConvert.PushDefault(symbol.Parameters[1].Type);
         methodConvert.AccessSlot(OpCode.STSFLD, index);            // Store default in out parameter capture
         methodConvert.Push(false);                                 // Push failure flag
 
