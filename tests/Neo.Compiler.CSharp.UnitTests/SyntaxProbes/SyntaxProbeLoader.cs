@@ -190,6 +190,7 @@ internal static class SyntaxProbeLoader
         value.Trim().ToLowerInvariant() switch
         {
             "supported" => SyntaxSupportStatus.Supported,
+            "compile-only" => SyntaxSupportStatus.CompileOnly,
             "unsupported" => SyntaxSupportStatus.Unsupported,
             _ => throw new FormatException($"Unsupported status '{value}' for entry '{id}' in '{path}'.")
         };

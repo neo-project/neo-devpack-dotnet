@@ -83,7 +83,7 @@ internal static class Helper
         }
 
         var message = messageBuilder.ToString();
-        var expectSuccess = probe.Status == SyntaxSupportStatus.Supported;
+        var expectSuccess = probe.Status is SyntaxSupportStatus.Supported or SyntaxSupportStatus.CompileOnly;
         var sourceCode = probe.Scope switch
         {
             SyntaxProbeScope.Method => BuildMethodBodySource(probe.Snippet),
@@ -111,22 +111,29 @@ internal static class Helper
 
         if (compileException is not null)
         {
-            if (expectSuccess)
-            {
-                const string redColor = "\u001b[31m";
-                const string resetColor = "\u001b[0m";
-                Console.WriteLine($"{redColor}Error compiling source :\n{sourceCode}{resetColor}");
-                Console.WriteLine(compileException);
-                Assert.Fail($"{message}{Environment.NewLine}Compilation failed unexpectedly: {compileException.Message}");
-            }
-
-            // Expected a failure and the compilation threw. Treat as success.
-            return;
+            const string redColor = "\u001b[31m";
+            const string resetColor = "\u001b[0m";
+            Console.WriteLine($"{redColor}Error compiling source :\n{sourceCode}{resetColor}");
+            Console.WriteLine(compileException);
+            Assert.Fail(
+                $"{message}{Environment.NewLine}" +
+                $"Compilation threw unexpectedly. Unsupported syntax must surface diagnostics instead of raw exceptions.{Environment.NewLine}" +
+                $"{compileException}");
         }
 
         if (result is null)
         {
             Assert.Fail("Compilation result was null.");
+            return;
+        }
+
+        if (!expectSuccess && !result.Success)
+        {
+            if (result.Diagnostics.Count == 0)
+            {
+                Assert.Fail($"{message}{Environment.NewLine}Compilation failed without reporting diagnostics.");
+            }
+
             return;
         }
 
@@ -212,7 +219,12 @@ public class SyntaxProbe : SmartContract.Framework.SmartContract
 
     private static string BuildFileSource(string source)
     {
-        return source;
+        return source + @"
+
+public class __SyntaxProbeContract : Neo.SmartContract.Framework.SmartContract
+{
+}
+";
     }
 
     private static string Indent(string text, int level)

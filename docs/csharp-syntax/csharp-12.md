@@ -3,6 +3,8 @@
 Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12
 
 C# 12 introduced several language features. The following probes capture their current support status.
+`supported` means the compiler accepts the syntax and the implementation is intended as supported surface area.
+`compile-only` means the syntax currently compiles under probe coverage, but behavior support is not yet guaranteed and still requires dedicated semantic verification.
 
 ### primary_constructors - Primary constructors
 
@@ -18,9 +20,9 @@ public class Wallet(string owner) : SmartContract.Framework.SmartContract
 
 ### collection_expressions - Collection expressions
 
-Status: supported
+Status: compile-only
 Scope: method
-Notes: Collection expressions compile and are lowered to array allocations. Roslyn lowers collection expressions into builder calls, but Neo does not yet support the generated code.
+Notes: Basic collection expressions currently compile under probe coverage, but the generated forms are not yet treated as fully verified supported surface area. Spread elements such as `[..values]` are still rejected.
 ```csharp
 int[] numbers = [1, 2, 3];
 ```

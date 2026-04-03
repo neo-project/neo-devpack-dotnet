@@ -3,6 +3,7 @@
 Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-11
 
 This checklist tracks new syntax from C# 11 and whether it compiles for Neo contracts.
+`compile-only` means the syntax currently passes compilation probes when a contract class is present, but the construct is not treated as fully verified contract surface area.
 
 ### raw_string_literals - Raw string literals
 
@@ -139,9 +140,9 @@ public class NameofScope
 
 ### file_local_types - File-local types
 
-Status: unsupported
+Status: compile-only
 Scope: file
-Notes: Declaring `file` scoped types is not recognized.
+Notes: File-local helper types currently compile when the project also contains a contract class. They are treated as compile-only because the probe suite only verifies acceptance, not broader contract-surface behavior.
 ```csharp
 file class FileScopedHelper
 {

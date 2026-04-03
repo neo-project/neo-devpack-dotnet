@@ -3,6 +3,7 @@
 Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-9
 
 The entries below document syntax introduced up to C# 9 and whether the Neo C# compiler supports it. Each section provides a short example that is also used by the automated syntax probes.
+`compile-only` means the syntax currently passes compilation probes when a contract class is present, but the construct is not treated as fully verified contract surface area.
 
 ### record_type - Records
 
@@ -87,9 +88,9 @@ int sum = add(2, 3);
 
 ### top_level_statements - Top-level statements
 
-Status: unsupported
+Status: compile-only
 Scope: file
-Notes: Contracts must declare a SmartContract class; top-level statements are rejected.
+Notes: Top-level statements currently parse and compile when the project also contains a SmartContract class, but the top-level code is not treated as deployable contract surface area and still requires a real contract type elsewhere in the project.
 ```csharp
 using Neo.SmartContract.Framework;
 
