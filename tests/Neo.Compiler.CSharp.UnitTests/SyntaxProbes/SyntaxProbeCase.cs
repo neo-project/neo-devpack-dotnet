@@ -21,7 +21,6 @@ public enum SyntaxProbeScope
 public enum SyntaxSupportStatus
 {
     Supported,
-    CompileOnly,
     Unsupported
 }
 

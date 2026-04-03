@@ -40,6 +40,7 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
 
 - **C# 9 Syntax Checklist**  
   - Native-sized integers (`native_int`)
+  - Top-level statements (`top_level_statements`)
   - Function pointers (`function_pointer`)
 
 - **C# 10 Syntax Checklist**  
@@ -49,9 +50,11 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
 - **C# 11 Syntax Checklist**  
   - List patterns (`list_patterns`)
   - UTF-8 string literals (`utf_8_string_literals`)
+  - File-local types (`file_local_types`)
   - Numeric `nint` and `nuint` (`numeric_intptr_and_uintptr`)
 
 - **C# 12 Syntax Checklist**  
+  - Collection expressions with spread elements (`collection_expression_spread_elements`)
   - `ref readonly` parameters (`ref_readonly_parameters`)
   - Interceptors (`interceptors`)
 

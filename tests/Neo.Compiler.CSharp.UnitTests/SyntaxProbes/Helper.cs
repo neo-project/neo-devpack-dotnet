@@ -9,8 +9,16 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+extern alias scfx;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Analyzer;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,6 +29,11 @@ namespace Neo.Compiler.CSharp.UnitTests.Syntax;
 internal static class Helper
 {
     private static readonly Lock EngineLock = new();
+    private static readonly CSharpCompilationOptions AnalyzerCompilationOptions = new(
+        OutputKind.DynamicallyLinkedLibrary,
+        deterministic: true,
+        nullableContextOptions: Microsoft.CodeAnalysis.NullableContextOptions.Enable,
+        allowUnsafe: false);
     private static readonly Lazy<CompilationEngine> SharedEngine = new(() => new CompilationEngine(new CompilationOptions()
     {
         Debug = CompilationOptions.DebugType.Extended,
@@ -38,6 +51,14 @@ internal static class Helper
             Projects = new[] { frameworkProject }
         };
     });
+    private static readonly Lazy<CSharpParseOptions> AnalyzerParseOptions = new(() => new CompilationOptions
+    {
+        Debug = CompilationOptions.DebugType.Extended,
+        Nullable = Microsoft.CodeAnalysis.NullableContextOptions.Enable
+    }.GetParseOptions());
+    private static readonly Lazy<ImmutableArray<MetadataReference>> AnalyzerReferences = new(CreateAnalyzerReferences);
+    private static readonly Lazy<ImmutableArray<DiagnosticAnalyzer>> SyntaxAnalyzers = new(() =>
+        ImmutableArray.Create<DiagnosticAnalyzer>(new UnsupportedSyntaxAnalyzer()));
 
     internal static void TestCodeBlock(string codeBlock)
     {
@@ -83,7 +104,7 @@ internal static class Helper
         }
 
         var message = messageBuilder.ToString();
-        var expectSuccess = probe.Status is SyntaxSupportStatus.Supported or SyntaxSupportStatus.CompileOnly;
+        var expectSuccess = probe.Status == SyntaxSupportStatus.Supported;
         var sourceCode = probe.Scope switch
         {
             SyntaxProbeScope.Method => BuildMethodBodySource(probe.Snippet),
@@ -97,6 +118,8 @@ internal static class Helper
 
     private static void AssertCompilationResult(string sourceCode, bool expectSuccess, string message)
     {
+        var analyzerDiagnostics = AnalyzeSource(sourceCode);
+        var analyzerErrors = analyzerDiagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
         CompilationContext? result = null;
         Exception? compileException = null;
 
@@ -127,6 +150,19 @@ internal static class Helper
             return;
         }
 
+        if (expectSuccess && analyzerErrors.Length != 0)
+        {
+            Assert.Fail(
+                $"{message}{Environment.NewLine}" +
+                $"Source was rejected by the contract syntax analyzer.{Environment.NewLine}" +
+                $"{FormatDiagnostics(analyzerErrors)}");
+        }
+
+        if (!expectSuccess && analyzerErrors.Length != 0)
+        {
+            return;
+        }
+
         if (!expectSuccess && !result.Success)
         {
             if (result.Diagnostics.Count == 0)
@@ -154,6 +190,48 @@ internal static class Helper
             Assert.Fail($"{message}{Environment.NewLine}Compilation succeeded but was expected to fail.");
         }
     }
+
+    private static ImmutableArray<Diagnostic> AnalyzeSource(string sourceCode)
+    {
+        var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode, AnalyzerParseOptions.Value, path: "SyntaxProbe.cs");
+        var compilation = CSharpCompilation.Create(
+            assemblyName: "SyntaxProbeAnalysis",
+            syntaxTrees: new[] { syntaxTree },
+            references: AnalyzerReferences.Value,
+            options: AnalyzerCompilationOptions);
+
+        return compilation.WithAnalyzers(SyntaxAnalyzers.Value).GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();
+    }
+
+    private static ImmutableArray<MetadataReference> CreateAnalyzerReferences()
+    {
+        var referencePaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var trustedPlatformAssemblies = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string;
+        if (!string.IsNullOrWhiteSpace(trustedPlatformAssemblies))
+        {
+            foreach (var path in trustedPlatformAssemblies.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (File.Exists(path))
+                {
+                    referencePaths.Add(path);
+                }
+            }
+        }
+
+        var frameworkAssembly = typeof(scfx::Neo.SmartContract.Framework.SmartContract).Assembly.Location;
+        if (!string.IsNullOrWhiteSpace(frameworkAssembly) && File.Exists(frameworkAssembly))
+        {
+            referencePaths.Add(frameworkAssembly);
+        }
+
+        return referencePaths
+            .OrderBy(static path => path, StringComparer.OrdinalIgnoreCase)
+            .Select(static path => (MetadataReference)MetadataReference.CreateFromFile(path))
+            .ToImmutableArray();
+    }
+
+    private static string FormatDiagnostics(IEnumerable<Diagnostic> diagnostics) =>
+        string.Join(Environment.NewLine, diagnostics.Select(static diagnostic => diagnostic.ToString()));
 
     private static CompilationContext CompileSource(string sourceCode)
     {
