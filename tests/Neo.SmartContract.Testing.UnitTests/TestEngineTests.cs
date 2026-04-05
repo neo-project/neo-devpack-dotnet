@@ -13,7 +13,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Extensions;
 using Neo.SmartContract.Testing.Extensions;
-using Neo.SmartContract.Iterators;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
@@ -192,26 +191,6 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(100_000_000, neo.TotalSupply);
             Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.ValidatorsAddress));
-        }
-
-        [TestMethod]
-        public void TestNativeIteratorWrappersCanBeReturnedAndAdvanced()
-        {
-            var engine = new TestEngine(true);
-
-            IIterator[] iterators =
-            [
-                engine.Native.NEO.AllCandidates,
-                engine.Native.ContractManagement.ContractHashes,
-                engine.Native.Policy.GetBlockedAccounts(),
-                engine.Native.Policy.GetWhitelistFeeContracts()
-            ];
-
-            foreach (var iterator in iterators)
-            {
-                Assert.IsNotNull(iterator);
-                Assert.IsFalse(iterator.Next());
-            }
         }
 
         [TestMethod]

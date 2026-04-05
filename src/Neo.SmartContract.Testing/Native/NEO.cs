@@ -114,7 +114,7 @@ public abstract class NEO(SmartContractInitialize initialize) : SmartContract(in
     /// Safe method
     /// </summary>
     [DisplayName("getAccountState")]
-    public abstract Models.NeoAccountState? GetAccountState(UInt160 account);
+    public abstract NeoToken.NeoAccountState GetAccountState(UInt160 account);
 
     /// <summary>
     /// Safe method

@@ -16,11 +16,7 @@ namespace Neo.SmartContract.Framework.Native
     public class NeoAccountState
     {
         public readonly BigInteger Balance;
-        public readonly uint BalanceHeight;
+        public readonly BigInteger Height;
         public readonly ECPoint? VoteTo;
-        public readonly BigInteger LastGasPerVote;
-
-        [System.Obsolete("Use BalanceHeight instead.")]
-        public BigInteger Height => BalanceHeight;
     }
 }

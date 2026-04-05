@@ -61,11 +61,6 @@ internal class RpcSnapshot : IStoreSnapshot
         return Store.Find(keyOrPrefix, direction);
     }
 
-    public IEnumerable<(byte[] Key, byte[] Value)> FindRange(byte[] start, byte[] end, SeekDirection direction = SeekDirection.Forward)
-    {
-        return ((RpcStore)Store).FindRange(start, end, direction);
-    }
-
     public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
     {
         return Store.TryGet(key, out value);
