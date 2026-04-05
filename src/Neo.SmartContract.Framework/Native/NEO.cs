@@ -175,6 +175,6 @@ namespace Neo.SmartContract.Framework.Native
         /// The execution will fail if 'account' is null.
         /// </para>
         /// </summary>
-        public static extern NeoAccountState GetAccountState(UInt160 account);
+        public static extern NeoAccountState? GetAccountState(UInt160 account);
     }
 }

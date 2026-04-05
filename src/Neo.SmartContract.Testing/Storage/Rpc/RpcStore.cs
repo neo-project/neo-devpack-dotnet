@@ -27,6 +27,8 @@ namespace Neo.SmartContract.Testing.Storage.Rpc;
 public class RpcStore : IStore
 {
     private int _id = 0;
+    private readonly HttpClient _httpClient;
+    private readonly bool _ownsHttpClient;
 
     /// <summary>
     /// Event raised when a new snapshot is created
@@ -45,6 +47,20 @@ public class RpcStore : IStore
     public RpcStore(Uri url)
     {
         Url = url;
+        _httpClient = new HttpClient();
+        _ownsHttpClient = true;
+    }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="url">Url</param>
+    /// <param name="httpClient">Http client used for RPC requests.</param>
+    public RpcStore(Uri url, HttpClient httpClient)
+    {
+        Url = url;
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _ownsHttpClient = false;
     }
 
     /// <summary>
@@ -52,6 +68,13 @@ public class RpcStore : IStore
     /// </summary>
     /// <param name="url">Url</param>
     public RpcStore(string url) : this(new Uri(url)) { }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="url">Url</param>
+    /// <param name="httpClient">Http client used for RPC requests.</param>
+    public RpcStore(string url, HttpClient httpClient) : this(new Uri(url), httpClient) { }
 
     public void Delete(byte[] key) => throw new NotImplementedException();
     public void Put(byte[] key, byte[] value) => throw new NotImplementedException();
@@ -64,6 +87,11 @@ public class RpcStore : IStore
     public bool Contains(byte[] key) => TryGet(key) != null;
     public void Dispose()
     {
+        if (_ownsHttpClient)
+        {
+            _httpClient.Dispose();
+        }
+
         GC.SuppressFinalize(this);
     }
 
@@ -81,6 +109,19 @@ public class RpcStore : IStore
             records = records
                 .Where(p => comparer.Compare(p.Key, keyOrPrefix) >= 0);
         records = records.OrderBy(p => p.Key, comparer);
+        foreach (var pair in records)
+            yield return (pair.Key[..], pair.Value[..]);
+    }
+
+    private static IEnumerable<(byte[] Key, byte[] Value)> FindRange(ConcurrentDictionary<byte[], byte[]> innerData, byte[] start, byte[] end, SeekDirection direction = SeekDirection.Forward)
+    {
+        var filterComparer = ByteArrayComparer.Default;
+        var orderComparer = direction == SeekDirection.Forward ? ByteArrayComparer.Default : ByteArrayComparer.Reverse;
+
+        IEnumerable<KeyValuePair<byte[], byte[]>> records = innerData
+            .Where(p => filterComparer.Compare(p.Key, start) >= 0 && filterComparer.Compare(p.Key, end) < 0)
+            .OrderBy(p => p.Key, orderComparer);
+
         foreach (var pair in records)
             yield return (pair.Key[..], pair.Value[..]);
     }
@@ -128,9 +169,9 @@ public class RpcStore : IStore
                 id = _id = Interlocked.Increment(ref _id),
             };
 
-            using var httpClient = new HttpClient();
             var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-            var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+            using var response = _httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
 
             JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -177,6 +218,32 @@ public class RpcStore : IStore
         throw new Exception();
     }
 
+    public IEnumerable<(byte[] Key, byte[] Value)> FindRange(byte[] start, byte[] end, SeekDirection direction)
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        ArgumentNullException.ThrowIfNull(end);
+
+        if (start.Length < 4)
+            throw new ArgumentException("Key must be at least 4 bytes(the first 4 bytes are the contract id)", nameof(start));
+        if (end.Length < 4)
+            throw new ArgumentException("Key must be at least 4 bytes(the first 4 bytes are the contract id)", nameof(end));
+
+        if (!start.AsSpan(0, 4).SequenceEqual(end.AsSpan(0, 4)))
+            throw new NotSupportedException("RpcStore range lookups must stay within a single contract id.");
+
+        ConcurrentDictionary<byte[], byte[]> data = new();
+
+        foreach (var (key, value) in Find(start[..4], SeekDirection.Forward))
+        {
+            data.TryAdd(key, value);
+        }
+
+        foreach (var (key, value) in FindRange(data, start, end, direction))
+        {
+            yield return (key, value);
+        }
+    }
+
     public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
     {
         var skey = new StorageKey(key);
@@ -188,9 +255,9 @@ public class RpcStore : IStore
             id = _id = Interlocked.Increment(ref _id),
         };
 
-        using var httpClient = new HttpClient();
         var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-        var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+        using var response = _httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+        response.EnsureSuccessStatusCode();
 
         JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 

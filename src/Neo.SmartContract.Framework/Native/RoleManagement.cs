@@ -32,5 +32,18 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         public static extern ECPoint[] GetDesignatedByRole(Role role, uint index);
+
+        /// <summary>
+        /// Designates the specified public keys for the provided role.
+        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
+        /// <para>
+        /// The execution will fail if:
+        ///  1. The 'nodes' length is outside [1, 32].
+        ///  2. The 'role' is not a valid Role value.
+        ///  3. Duplicate public keys are provided.
+        ///  4. The current caller is not the committee.
+        /// </para>
+        /// </summary>
+        public static extern void DesignateAsRole(Role role, ECPoint[] nodes);
     }
 }

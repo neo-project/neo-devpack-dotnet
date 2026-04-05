@@ -27,7 +27,7 @@ public abstract class RoleManagement(SmartContractInitialize initialize) : Smart
 
     #region Events
 
-    public delegate void delDesignation(BigInteger Role, BigInteger BlockIndex);
+    public delegate void delDesignation(BigInteger Role, BigInteger BlockIndex, ECPoint[] Old, ECPoint[] New);
 
     [DisplayName("Designation")]
 #pragma warning disable CS0067 // Event is never used

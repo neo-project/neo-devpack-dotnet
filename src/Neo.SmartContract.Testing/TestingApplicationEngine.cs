@@ -88,9 +88,39 @@ namespace Neo.SmartContract.Testing
         }
 
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
-            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Fee, null)
+            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Fee, null,
+                ResolveJumpTable(engine.ProtocolSettings, snapshot, persistingBlock))
         {
             Engine = engine;
+        }
+
+        private static JumpTable ResolveJumpTable(ProtocolSettings settings, DataCache snapshot, Block? persistingBlock)
+        {
+            var index = persistingBlock?.Index ?? NativeContract.Ledger.CurrentIndex(snapshot);
+
+            if (TryIsHardforkEnabled(settings, "HF_Gorgon", index))
+                return DefaultJumpTable;
+
+            if (!settings.IsHardforkEnabled(Hardfork.HF_Echidna, index))
+                return ComposeNotEchidnaJumpTable();
+
+            return TryComposeNotGorgonJumpTable() ?? DefaultJumpTable;
+        }
+
+        private static bool TryIsHardforkEnabled(ProtocolSettings settings, string hardforkName, uint index)
+        {
+            if (!Enum.TryParse(hardforkName, out Hardfork hardfork))
+                return false;
+
+            return settings.IsHardforkEnabled(hardfork, index);
+        }
+
+        private static JumpTable? TryComposeNotGorgonJumpTable()
+        {
+            var method = typeof(ApplicationEngine).GetMethod("ComposeNotGorgonJumpTable",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+            return method?.Invoke(null, null) as JumpTable;
         }
 
         internal void InvokeTestingSyscall(int index)

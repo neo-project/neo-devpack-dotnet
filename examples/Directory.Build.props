@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <PropertyGroup>
+        <VersionPrefix>3.9.1</VersionPrefix>
+        <NeoPackageVersion Condition="'$(VersionSuffix)' != ''">$(VersionPrefix)-$(VersionSuffix)</NeoPackageVersion>
+        <NeoPackageVersion Condition="'$(VersionSuffix)' == ''">$(VersionPrefix)</NeoPackageVersion>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
         <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
-        <VersionPrefix>3.9.1</VersionPrefix>
         <TargetFramework>net10.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
@@ -34,7 +39,6 @@
         <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
         <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
         
-        <NeoPackageVersion>3.9.1</NeoPackageVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">

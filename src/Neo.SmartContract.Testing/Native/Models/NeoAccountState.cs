@@ -9,18 +9,24 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Cryptography.ECC;
+using Neo.SmartContract.Testing.Attributes;
 using System.Numerics;
 
-namespace Neo.SmartContract.Framework.Native
+namespace Neo.SmartContract.Testing.Native.Models
 {
     public class NeoAccountState
     {
-        public readonly BigInteger Balance;
-        public readonly uint BalanceHeight;
-        public readonly ECPoint? VoteTo;
-        public readonly BigInteger LastGasPerVote;
+        [FieldOrder(0)]
+        public BigInteger Balance { get; set; }
 
-        [System.Obsolete("Use BalanceHeight instead.")]
-        public BigInteger Height => BalanceHeight;
+        [FieldOrder(1)]
+        public uint BalanceHeight { get; set; }
+
+        [FieldOrder(2)]
+        public ECPoint? VoteTo { get; set; }
+
+        [FieldOrder(3)]
+        public BigInteger LastGasPerVote { get; set; }
     }
 }

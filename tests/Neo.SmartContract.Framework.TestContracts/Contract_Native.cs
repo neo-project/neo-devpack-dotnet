@@ -38,7 +38,7 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
         }
 
         [DisplayName("NEO_GetAccountState")]
-        public static object NEO_GetAccountState(UInt160 account)
+        public static object? NEO_GetAccountState(UInt160 account)
         {
             return NEO.GetAccountState(account);
         }
