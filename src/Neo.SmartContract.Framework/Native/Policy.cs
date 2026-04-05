@@ -50,27 +50,6 @@ namespace Neo.SmartContract.Framework.Native
         public static extern uint GetStoragePrice();
 
         /// <summary>
-        /// Gets the block generation time in milliseconds.
-        /// Available since HF_Echidna.
-        /// CallFlags requirement: CallFlags.ReadStates.
-        /// </summary>
-        public static extern uint GetMillisecondsPerBlock();
-
-        /// <summary>
-        /// Gets the maximum valid-until-block increment.
-        /// Available since HF_Echidna.
-        /// CallFlags requirement: CallFlags.ReadStates.
-        /// </summary>
-        public static extern uint GetMaxValidUntilBlockIncrement();
-
-        /// <summary>
-        /// Gets the maximum traceable blocks value.
-        /// Available since HF_Echidna.
-        /// CallFlags requirement: CallFlags.ReadStates.
-        /// </summary>
-        public static extern uint GetMaxTraceableBlocks();
-
-        /// <summary>
         /// Check if the account is blocked. True if the account is blocked, false otherwise.
         /// CallFlags requirement: CallFlags.ReadStates.
         /// <para>
@@ -101,83 +80,5 @@ namespace Neo.SmartContract.Framework.Native
         /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
         public static extern Iterator GetWhitelistFeeContracts();
-
-        /// <summary>
-        /// Blocks an account.
-        /// CallFlags requirement: CallFlags.States before HF_Faun, CallFlags.All after HF_Faun.
-        /// </summary>
-        public static extern bool BlockAccount(UInt160 account);
-
-        /// <summary>
-        /// Sets the fee for the specified transaction attribute type.
-        /// CallFlags requirement: CallFlags.States.
-        /// </summary>
-        public static extern void SetAttributeFee(TransactionAttributeType attributeType, uint value);
-
-        /// <summary>
-        /// Unblocks an account.
-        /// CallFlags requirement: CallFlags.States.
-        /// </summary>
-        public static extern bool UnblockAccount(UInt160 account);
-
-        /// <summary>
-        /// Recovers NEP-17 funds from a blocked account to Treasury.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.All.
-        /// </summary>
-        public static extern bool RecoverFund(UInt160 account, UInt160 token);
-
-        /// <summary>
-        /// Sets a whitelisted fixed-fee contract entry.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
-        /// </summary>
-        public static extern void SetWhitelistFeeContract(UInt160 contractHash, string method, int argCount, long fixedFee);
-
-        /// <summary>
-        /// Removes a whitelisted fixed-fee contract entry.
-        /// Available since HF_Faun.
-        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
-        /// </summary>
-        public static extern void RemoveWhitelistFeeContract(UInt160 contractHash, string method, int argCount);
-
-        /// <summary>
-        /// Sets the fee per transaction byte.
-        /// CallFlags requirement: CallFlags.States.
-        /// </summary>
-        public static extern void SetFeePerByte(long value);
-
-        /// <summary>
-        /// Sets the execution fee factor.
-        /// CallFlags requirement: CallFlags.States.
-        /// </summary>
-        public static extern void SetExecFeeFactor(ulong value);
-
-        /// <summary>
-        /// Sets the storage price.
-        /// CallFlags requirement: CallFlags.States.
-        /// </summary>
-        public static extern void SetStoragePrice(uint value);
-
-        /// <summary>
-        /// Sets the block generation time in milliseconds.
-        /// Available since HF_Echidna.
-        /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
-        /// </summary>
-        public static extern void SetMillisecondsPerBlock(uint value);
-
-        /// <summary>
-        /// Sets the maximum valid-until-block increment.
-        /// Available since HF_Echidna.
-        /// CallFlags requirement: CallFlags.States.
-        /// </summary>
-        public static extern void SetMaxValidUntilBlockIncrement(uint value);
-
-        /// <summary>
-        /// Sets the maximum traceable blocks value.
-        /// Available since HF_Echidna.
-        /// CallFlags requirement: CallFlags.States.
-        /// </summary>
-        public static extern void SetMaxTraceableBlocks(uint value);
     }
 }

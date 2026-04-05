@@ -25,27 +25,6 @@ public abstract class Policy(SmartContractInitialize initialize) : SmartContract
 
     #endregion
 
-    #region Events
-
-    public delegate void delMillisecondsPerBlockChanged(uint old, uint @new);
-
-    [DisplayName("MillisecondsPerBlockChanged")]
-#pragma warning disable CS0067 // Event is never used
-    public event delMillisecondsPerBlockChanged? OnMillisecondsPerBlockChanged;
-
-    public delegate void delWhitelistFeeChanged(UInt160 contract, string method, int argCount, long? fee);
-
-    [DisplayName("WhitelistFeeChanged")]
-    public event delWhitelistFeeChanged? OnWhitelistFeeChanged;
-
-    public delegate void delRecoveredFund(UInt160 account);
-
-    [DisplayName("RecoveredFund")]
-    public event delRecoveredFund? OnRecoveredFund;
-#pragma warning restore CS0067 // Event is never used
-
-    #endregion
-
     #region Properties
 
     /// <summary>
@@ -62,21 +41,6 @@ public abstract class Policy(SmartContractInitialize initialize) : SmartContract
     /// Safe property
     /// </summary>
     public abstract uint StoragePrice { [DisplayName("getStoragePrice")] get; [DisplayName("setStoragePrice")] set; }
-
-    /// <summary>
-    /// Safe property
-    /// </summary>
-    public abstract uint MillisecondsPerBlock { [DisplayName("getMillisecondsPerBlock")] get; [DisplayName("setMillisecondsPerBlock")] set; }
-
-    /// <summary>
-    /// Safe property
-    /// </summary>
-    public abstract uint MaxValidUntilBlockIncrement { [DisplayName("getMaxValidUntilBlockIncrement")] get; [DisplayName("setMaxValidUntilBlockIncrement")] set; }
-
-    /// <summary>
-    /// Safe property
-    /// </summary>
-    public abstract uint MaxTraceableBlocks { [DisplayName("getMaxTraceableBlocks")] get; [DisplayName("setMaxTraceableBlocks")] set; }
 
     #endregion
 
