@@ -89,38 +89,22 @@ namespace Neo.SmartContract.Testing
 
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
             : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Fee, null,
-                ResolveJumpTable(engine.ProtocolSettings, snapshot, persistingBlock))
+                ResolveJumpTable(engine.ProtocolSettings, persistingBlock))
         {
             Engine = engine;
         }
 
-        private static JumpTable ResolveJumpTable(ProtocolSettings settings, DataCache snapshot, Block? persistingBlock)
+        private static JumpTable ResolveJumpTable(ProtocolSettings settings, Block persistingBlock)
         {
-            var index = persistingBlock?.Index ?? NativeContract.Ledger.CurrentIndex(snapshot);
+            var index = persistingBlock.Index;
 
-            if (TryIsHardforkEnabled(settings, "HF_Gorgon", index))
+            if (settings.IsHardforkEnabled(Hardfork.HF_Gorgon, index))
                 return DefaultJumpTable;
 
             if (!settings.IsHardforkEnabled(Hardfork.HF_Echidna, index))
                 return ComposeNotEchidnaJumpTable();
 
-            return TryComposeNotGorgonJumpTable() ?? DefaultJumpTable;
-        }
-
-        private static bool TryIsHardforkEnabled(ProtocolSettings settings, string hardforkName, uint index)
-        {
-            if (!Enum.TryParse(hardforkName, out Hardfork hardfork))
-                return false;
-
-            return settings.IsHardforkEnabled(hardfork, index);
-        }
-
-        private static JumpTable? TryComposeNotGorgonJumpTable()
-        {
-            var method = typeof(ApplicationEngine).GetMethod("ComposeNotGorgonJumpTable",
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-
-            return method?.Invoke(null, null) as JumpTable;
+            return ComposeNotGorgonJumpTable();
         }
 
         internal void InvokeTestingSyscall(int index)
