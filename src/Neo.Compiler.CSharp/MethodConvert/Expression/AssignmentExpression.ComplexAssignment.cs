@@ -299,6 +299,12 @@ internal partial class MethodConvert
             ">>=" => (OpCode.SHR, true),
             _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Complex assignment operator '{operatorToken.ValueText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
         };
+
+        if (operatorToken.ValueText == "/=")
+        {
+            CheckDivideOverflow(type);
+        }
+
         AddInstruction(opcode);
         if (opcode == OpCode.XOR && isBoolean)
             ChangeType(VM.Types.StackItemType.Boolean);
