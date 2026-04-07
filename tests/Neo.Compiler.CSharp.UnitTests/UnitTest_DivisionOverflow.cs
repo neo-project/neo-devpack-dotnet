@@ -59,16 +59,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         /// <summary>
-        /// Test: int.MinValue / -1 in unchecked context should NOT throw.
-        /// Unchecked allows overflow without exception.
+        /// Test: int.MinValue / -1 in unchecked context should throw.
+        /// Neo aligns with .NET runtime behavior for variable evaluation here.
         /// </summary>
         [TestMethod]
-        public void Test_DivideUncheckedInt32_Overflow_ShouldNotThrow()
+        public void Test_DivideUncheckedInt32_Overflow_ShouldThrow()
         {
-            // In unchecked context, overflow is allowed
-            var result = Contract.DivideUncheckedInt32(int.MinValue, -1);
-            // Result wraps around due to overflow
-            Assert.IsNotNull(result);
+            Assert.ThrowsException<TestException>(() =>
+            {
+                Contract.DivideUncheckedInt32(int.MinValue, -1);
+            });
         }
 
         #endregion
@@ -99,13 +99,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         /// <summary>
-        /// Test: long.MinValue / -1 in unchecked context should NOT throw.
+        /// Test: long.MinValue / -1 in unchecked context should throw.
         /// </summary>
         [TestMethod]
-        public void Test_DivideUncheckedInt64_Overflow_ShouldNotThrow()
+        public void Test_DivideUncheckedInt64_Overflow_ShouldThrow()
         {
-            var result = Contract.DivideUncheckedInt64(long.MinValue, -1);
-            Assert.IsNotNull(result);
+            Assert.ThrowsException<TestException>(() =>
+            {
+                Contract.DivideUncheckedInt64(long.MinValue, -1);
+            });
         }
 
         #endregion

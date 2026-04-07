@@ -122,10 +122,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(2);
 
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1157010);
+            AssertGasConsumed(1157160);
             array.Add(3);
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1160940);
+            AssertGasConsumed(1161090);
         }
 
         [TestMethod]
@@ -141,10 +141,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(1);
             array.Add(2);
             Assert.AreEqual(2, Contract.AverageTwice(array));
-            AssertGasConsumed(1228800);
+            AssertGasConsumed(1228950);
             array.Add(3);
             Assert.AreEqual(3, Contract.AverageTwice(array));
-            AssertGasConsumed(1250700);
+            AssertGasConsumed(1250850);
         }
 
         [TestMethod]
