@@ -115,11 +115,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(Contract.TestEndWith("hello world"));
             AssertGasConsumed(1357650);
 
+            Assert.IsTrue(Contract.TestEndWith("world"));
+            AssertGasConsumed(1357650);
+
             Assert.IsFalse(Contract.TestEndWith("hel"));
             AssertGasConsumed(1049190);
 
             Assert.IsFalse(Contract.TestEndWith("hello"));
-            AssertGasConsumed(1049190);
+            AssertGasConsumed(1357650);
         }
 
         [TestMethod]
