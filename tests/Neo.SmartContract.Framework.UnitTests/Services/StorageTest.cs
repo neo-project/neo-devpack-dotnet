@@ -279,5 +279,19 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             value = Contract.LocalDecrease(key);
             Assert.AreEqual(0, value);
         }
+
+        [TestMethod]
+        public void Test_LocalPutGetDeleteBytes()
+        {
+            var key = new byte[] { 0x44 };
+            var value = new byte[] { 0x55 };
+            Assert.IsTrue(Contract.TestLocalPutBytes(key, value));
+            var got = Contract.TestLocalGetBytes(key);
+            CollectionAssert.AreEqual(value, got);
+
+            Contract.TestLocalDeleteBytes(key);
+            got = Contract.TestLocalGetBytes(key);
+            Assert.IsNull(got);
+        }
     }
 }

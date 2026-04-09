@@ -308,6 +308,32 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         #endregion
 
+        #region BytePrefix
+
+        public static bool TestLocalPutBytes(byte[] key, byte[] value)
+        {
+            byte prefix = 0x12;
+            var storage = new LocalStorageMap(prefix);
+            storage.Put((ByteString)key, (ByteString)value);
+            return true;
+        }
+
+        public static void TestLocalDeleteBytes(byte[] key)
+        {
+            byte prefix = 0x12;
+            var storage = new LocalStorageMap(prefix);
+            storage.Delete((ByteString)key);
+        }
+
+        public static byte[] TestLocalGetBytes(byte[] key)
+        {
+            byte prefix = 0x12;
+            var storage = new LocalStorageMap(prefix);
+            var value = storage.Get((ByteString)key);
+            return (byte[])value;
+        }
+        #endregion
+
         #region Serialize
 
         class Value
