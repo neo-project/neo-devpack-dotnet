@@ -71,8 +71,6 @@ namespace Neo.Compiler
             rootCommand.AddOption(new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"));
             rootCommand.AddOption(new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."));
             rootCommand.AddOption(new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler."));
-            rootCommand.AddOption(new Option<CompilationTarget>("--target", () => CompilationTarget.NeoVM, "Compilation target: NeoVM (default) or RiscV."));
-            rootCommand.AddOption(new Option<bool>("--build-riscv", "After RISC-V compilation, build the .polkavm binary using cargo and polkatool."));
 
             var debugOption = new Option<CompilationOptions.DebugType>(["-d", "--debug"],
                 new ParseArgument<CompilationOptions.DebugType>(ParseDebug), description: "Indicates the debug level.")
@@ -589,54 +587,6 @@ namespace Neo.Compiler
                         Console.Error.WriteLine($"Failed to dumpnef: {ex}");
                     }
                 }
-
-                // Handle RISC-V output
-                if (context.GeneratedRustSource is not null)
-                {
-                    var riscvFolder = Path.Combine(outputFolder, "riscv");
-                    if (!TryFileOperation("create directory", riscvFolder, () => Directory.CreateDirectory(riscvFolder)))
-                    {
-                        return 1;
-                    }
-
-                    var rsPath = Path.Combine(riscvFolder, $"{baseName}.rs");
-                    if (!TryFileOperation("write", rsPath, () => File.WriteAllText(rsPath, context.GeneratedRustSource)))
-                    {
-                        return 1;
-                    }
-                    Console.WriteLine($"Created {rsPath}");
-
-                    if (context.GeneratedCargoToml is not null)
-                    {
-                        var cargoPath = Path.Combine(riscvFolder, "Cargo.toml");
-                        if (!TryFileOperation("write", cargoPath, () => File.WriteAllText(cargoPath, context.GeneratedCargoToml)))
-                        {
-                            return 1;
-                        }
-                        Console.WriteLine($"Created {cargoPath}");
-                    }
-
-                    // Build .polkavm binary if --build-riscv is specified
-                    if (options.BuildRiscV)
-                    {
-                        Console.WriteLine("Building RISC-V binary...");
-                        var buildResult = CSharp.Backend.RiscV.RiscVBuildHelper.BuildCrate(riscvFolder, Path.Combine(riscvFolder, $"{baseName}.polkavm"));
-                        if (buildResult.Success)
-                        {
-                            Console.WriteLine($"Created {buildResult.OutputPath}");
-                        }
-                        else
-                        {
-                            Console.Error.WriteLine($"RISC-V build failed: {buildResult.ErrorMessage}");
-                            if (buildResult.Stderr is not null)
-                            {
-                                Console.Error.WriteLine($"Build stderr: {buildResult.Stderr}");
-                            }
-                            return 1;
-                        }
-                    }
-                }
-
                 Console.WriteLine("Compilation completed successfully.");
 
                 if (options.SecurityAnalysis)
