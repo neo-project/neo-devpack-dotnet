@@ -58,6 +58,16 @@ namespace Neo.Compiler
         private CSharpParseOptions? parseOptions = null;
         public bool SkipRestoreIfAssetsPresent { get; set; }
 
+        /// <summary>
+        /// Compilation target: NeoVM (default) or RiscV
+        /// </summary>
+        public CompilationTarget Target { get; set; } = CompilationTarget.NeoVM;
+
+        /// <summary>
+        /// Path to the RISC-V crates directory for Cargo.toml dependencies.
+        /// </summary>
+        public string? RiscVCratesPath { get; set; }
+
         public CSharpParseOptions GetParseOptions()
         {
             if (parseOptions is null)

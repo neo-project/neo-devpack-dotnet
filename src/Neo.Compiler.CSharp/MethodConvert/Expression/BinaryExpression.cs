@@ -113,7 +113,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Checks for division overflow in checked context.
+    /// Checks for signed division overflow.
     /// Division overflow occurs when dividing the minimum value of a signed integer type by -1,
     /// as the result would exceed the maximum value of that type.
     /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
@@ -137,10 +137,6 @@ internal partial class MethodConvert
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
         }
-
-        // Check division overflow if checked statement.
-        // In C#, division overflow is checked or not in `unchecked` statement depends on the implementation.
-        if (!_checkedStack.Peek()) return;
 
         // Determine the minimum value based on the type
         // NOTE: short / short -> int, ushort / ushort -> int, char / char -> int,

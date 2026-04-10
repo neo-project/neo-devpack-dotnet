@@ -27,6 +27,16 @@ namespace Neo.Compiler.CSharp.TestContracts
             return unchecked(a / b);
         }
 
+        // Int32 divide assignment - unchecked
+        public static int DivideAssignUncheckedInt32(int a, int b)
+        {
+            unchecked
+            {
+                a /= b;
+                return a;
+            }
+        }
+
         // Int64 division - checked
         public static long DivideCheckedInt64(long a, long b)
         {
@@ -37,6 +47,16 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static long DivideUncheckedInt64(long a, long b)
         {
             return unchecked(a / b);
+        }
+
+        // Int64 divide assignment - unchecked
+        public static long DivideAssignUncheckedInt64(long a, long b)
+        {
+            unchecked
+            {
+                a /= b;
+                return a;
+            }
         }
 
         // BigInteger division - checked (should not overflow)

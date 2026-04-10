@@ -42,7 +42,7 @@ namespace Neo.SmartContract.Framework
         public static UInt160 OwnerOf(ByteString tokenId)
         {
             if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
-            var tokenMap = new StorageMap(Prefix_Token);
+            var tokenMap = new LocalStorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             return token.Owner;
@@ -52,7 +52,7 @@ namespace Neo.SmartContract.Framework
         public virtual Map<string, object> Properties(ByteString tokenId)
         {
             if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
-            var tokenMap = new StorageMap(Prefix_Token);
+            var tokenMap = new LocalStorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             return new Map<string, object>()
@@ -64,7 +64,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static Iterator Tokens()
         {
-            var tokenMap = new StorageMap(Prefix_Token);
+            var tokenMap = new LocalStorageMap(Prefix_Token);
             return tokenMap.Find(FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
@@ -73,7 +73,7 @@ namespace Neo.SmartContract.Framework
         {
             if (!owner.IsValid) throw new Exception("The argument \"owner\" is invalid");
 
-            var accountMap = new StorageMap(Prefix_AccountToken);
+            var accountMap = new LocalStorageMap(Prefix_AccountToken);
             return accountMap.Find(owner, FindOptions.KeysOnly | FindOptions.RemovePrefix);
         }
 
@@ -82,7 +82,7 @@ namespace Neo.SmartContract.Framework
             if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
             if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
 
-            var tokenMap = new StorageMap(Prefix_Token);
+            var tokenMap = new LocalStorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             UInt160 from = token.Owner;
@@ -115,7 +115,7 @@ namespace Neo.SmartContract.Framework
 
         protected static void Mint(ByteString tokenId, TokenState token)
         {
-            StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            var tokenMap = new LocalStorageMap(Prefix_Token);
             if (tokenMap[tokenId] is not null) throw new InvalidOperationException();
             tokenMap[tokenId] = StdLib.Serialize(token);
             UpdateBalance(token.Owner, tokenId, +1);
@@ -125,7 +125,7 @@ namespace Neo.SmartContract.Framework
 
         protected static void Burn(ByteString tokenId)
         {
-            StorageMap tokenMap = new(Storage.CurrentContext, Prefix_Token);
+            var tokenMap = new LocalStorageMap(Prefix_Token);
             TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]!);
             tokenMap.Delete(tokenId);
             UpdateBalance(token.Owner, tokenId, -1);
@@ -136,7 +136,7 @@ namespace Neo.SmartContract.Framework
         protected static void UpdateBalance(UInt160 owner, ByteString tokenId, int increment)
         {
             UpdateBalance(owner, increment);
-            StorageMap accountMap = new(Storage.CurrentContext, Prefix_AccountToken);
+            var accountMap = new LocalStorageMap(Prefix_AccountToken);
             ByteString key = owner + tokenId;
             if (increment > 0)
                 accountMap.Put(key, 0);

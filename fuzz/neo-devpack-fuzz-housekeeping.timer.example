@@ -1,0 +1,11 @@
+[Unit]
+Description=Run neo-devpack-dotnet fuzz housekeeping hourly
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=10m
+Persistent=true
+Unit=neo-devpack-fuzz-housekeeping.service
+
+[Install]
+WantedBy=timers.target

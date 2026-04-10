@@ -1,0 +1,16 @@
+[Unit]
+Description=neo-devpack-dotnet fuzz campaign
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/git/neo-devpack-dotnet
+ExecStart=/bin/bash -lc './fuzz/fuzz_forever.sh'
+ExecStop=/bin/bash -lc './fuzz/fuzz_stop.sh'
+Restart=always
+RestartSec=15
+KillSignal=SIGINT
+TimeoutStopSec=60
+
+[Install]
+WantedBy=default.target

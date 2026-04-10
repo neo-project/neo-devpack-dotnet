@@ -88,9 +88,23 @@ namespace Neo.SmartContract.Testing
         }
 
         public TestingApplicationEngine(TestEngine engine, TriggerType trigger, IVerifiable container, DataCache snapshot, Block persistingBlock)
-            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Fee, null)
+            : base(trigger, container, snapshot, persistingBlock, engine.ProtocolSettings, engine.Fee, null,
+                ResolveJumpTable(engine.ProtocolSettings, persistingBlock))
         {
             Engine = engine;
+        }
+
+        private static JumpTable ResolveJumpTable(ProtocolSettings settings, Block persistingBlock)
+        {
+            var index = persistingBlock.Index;
+
+            if (settings.IsHardforkEnabled(Hardfork.HF_Gorgon, index))
+                return DefaultJumpTable;
+
+            if (!settings.IsHardforkEnabled(Hardfork.HF_Echidna, index))
+                return ComposeNotEchidnaJumpTable();
+
+            return ComposeNotGorgonJumpTable();
         }
 
         internal void InvokeTestingSyscall(int index)

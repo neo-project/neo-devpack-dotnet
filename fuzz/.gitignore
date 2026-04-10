@@ -1,0 +1,5 @@
+corpus/
+logs/
+fuzz.pids
+pids/
+state/

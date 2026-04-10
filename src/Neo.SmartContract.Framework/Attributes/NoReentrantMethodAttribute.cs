@@ -21,7 +21,7 @@ namespace Neo.SmartContract.Framework.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class NoReentrantMethodAttribute : ModifierAttribute
     {
-        private readonly StorageMap _context;
+        private readonly LocalStorageMap _context;
         private readonly string _key;
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Neo.SmartContract.Framework.Attributes
         public NoReentrantMethodAttribute(byte prefix = 0xFF, [CallerMemberName] string key = "noReentrant")
         {
             _key = key;
-            _context = new(Storage.CurrentContext, prefix);
+            _context = new(prefix);
         }
 
         public override void Enter()

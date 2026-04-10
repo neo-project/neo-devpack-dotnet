@@ -23,9 +23,12 @@
         <PackageReference Include="Neo.SmartContract.Testing" Version="3.9.1"/>
     </ItemGroup>
 
-    <PropertyGroup>
-        <!--   Overwrite the prebuild event defined in Directory.Build.props     -->
-        <PreBuildEvent></PreBuildEvent>
-    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting"/>
+    </ItemGroup>
 
 </Project>

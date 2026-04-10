@@ -186,6 +186,34 @@ dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- path/
 dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- path/to/contract/directory
 ```
 
+### Compiling for RISC-V
+
+The NEO C# compiler supports compiling smart contracts for the RISC-V VM in addition to the standard NeoVM. This allows contracts to leverage the RISC-V execution environment.
+
+#### Basic RISC-V Compilation
+
+```shell
+# Compile a contract for RISC-V (generates Rust source code)
+dotnet run --project src/Neo.Compiler.CSharp/ -- path/to/your/contract.csproj --target riscv
+```
+
+This generates Rust source code in the `bin/sc/riscv/` directory of your project:
+- `YourContract.rs`: The translated Rust source code
+- `Cargo.toml`: Cargo manifest for building
+
+#### Building the RISC-V Binary
+
+To compile the generated Rust code into a `.polkavm` binary:
+
+```shell
+# Compile and build the .polkavm binary
+dotnet run --project src/Neo.Compiler.CSharp/ -- path/to/your/contract.csproj --target riscv --build-riscv
+```
+
+Requirements for `--build-riscv`:
+- [Rust](https://rustup.rs/) with nightly toolchain
+- [polkatool](https://github.com/paritytech/polkavm) (install with `cargo install polkatool`)
+
 #### Compiler Command Reference
 
 The NEO C# compiler supports the following options:
@@ -204,6 +232,8 @@ The NEO C# compiler supports the following options:
 | `--nullable` | Sets the nullable context options (Disable, Enable, Annotations, Warnings) |
 | `--checked` | Enables overflow checking for arithmetic operations |
 | `--address-version` | Sets the address version for script hash calculations |
+| `--target` | Specifies the compilation target: `NeoVM` (default) or `RiscV` |
+| `--build-riscv` | After RISC-V compilation, builds the `.polkavm` binary using cargo and polkatool |
 
 ### Testing a Smart Contract
 

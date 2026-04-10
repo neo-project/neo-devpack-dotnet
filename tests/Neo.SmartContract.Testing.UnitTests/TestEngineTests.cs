@@ -13,11 +13,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Extensions;
 using Neo.SmartContract.Testing.Extensions;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Native;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Numerics;
 
@@ -189,6 +191,106 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(100_000_000, neo.TotalSupply);
             Assert.AreEqual(neo.TotalSupply, neo.BalanceOf(engine.ValidatorsAddress));
+        }
+
+        [TestMethod]
+        public void TestJumpTableSelectionUsesExpectedHandlersByHardfork()
+        {
+            var preEchidna = CaptureJumpTable(CreateJumpTableProtocolSettings(includeEchidna: false, includeGorgon: false));
+            Assert.AreEqual("VulnerableSubStr", preEchidna[OpCode.SUBSTR].Method.Name);
+            Assert.AreEqual("HasKey_Before543", preEchidna[OpCode.HASKEY].Method.Name);
+
+            var notGorgon = CaptureJumpTable(CreateJumpTableProtocolSettings(includeEchidna: true, includeGorgon: false));
+            Assert.AreEqual("SubStr", notGorgon[OpCode.SUBSTR].Method.Name);
+            Assert.AreEqual("HasKey_Before543", notGorgon[OpCode.HASKEY].Method.Name);
+
+            var gorgon = CaptureJumpTable(CreateJumpTableProtocolSettings(includeEchidna: true, includeGorgon: true));
+            Assert.AreEqual("SubStr", gorgon[OpCode.SUBSTR].Method.Name);
+            Assert.AreEqual("HasKey", gorgon[OpCode.HASKEY].Method.Name);
+        }
+
+        [TestMethod]
+        public void TestSubStrOverflowFaultChangesAfterEchidna()
+        {
+            var script = CreateSubStrScript(1, int.MaxValue);
+
+            var preEchidnaFault = ExecuteFault(CreateJumpTableProtocolSettings(includeEchidna: false, includeGorgon: false), script);
+            var echidnaFault = ExecuteFault(CreateJumpTableProtocolSettings(includeEchidna: true, includeGorgon: false), script);
+            var gorgonFault = ExecuteFault(CreateJumpTableProtocolSettings(includeEchidna: true, includeGorgon: true), script);
+
+            StringAssert.Contains(preEchidnaFault, "Array dimensions exceeded supported range");
+            StringAssert.Contains(echidnaFault, "Arithmetic operation resulted in an overflow");
+            Assert.AreEqual(echidnaFault, gorgonFault);
+        }
+
+        [TestMethod]
+        public void TestHasKeyNegativeIndexFaultChangesAfterGorgon()
+        {
+            var script = CreateHasKeyScript(-1);
+
+            var preGorgonFault = ExecuteFault(CreateJumpTableProtocolSettings(includeEchidna: true, includeGorgon: false), script);
+            var gorgonFault = ExecuteFault(CreateJumpTableProtocolSettings(includeEchidna: true, includeGorgon: true), script);
+
+            StringAssert.Contains(preGorgonFault, "negative index -1");
+            StringAssert.Contains(gorgonFault, "index -1 is invalid");
+            Assert.IsFalse(gorgonFault.Contains("negative index", StringComparison.Ordinal));
+        }
+
+        private static JumpTable CaptureJumpTable(ProtocolSettings settings)
+        {
+            var engine = new TestEngine(settings, true);
+            using ScriptBuilder scriptBuilder = new();
+            scriptBuilder.Emit(OpCode.RET);
+
+            JumpTable? jumpTable = null;
+            engine.Execute((Script)scriptBuilder.ToArray(), beforeExecute: e => jumpTable = e.JumpTable);
+
+            Assert.IsNotNull(jumpTable);
+            return jumpTable;
+        }
+
+        private static Script CreateSubStrScript(int start, int count)
+        {
+            using ScriptBuilder scriptBuilder = new();
+            scriptBuilder.EmitPush("abc");
+            scriptBuilder.EmitPush(start);
+            scriptBuilder.EmitPush(count);
+            scriptBuilder.Emit(OpCode.SUBSTR);
+            scriptBuilder.Emit(OpCode.RET);
+            return (Script)scriptBuilder.ToArray();
+        }
+
+        private static Script CreateHasKeyScript(int key)
+        {
+            using ScriptBuilder scriptBuilder = new();
+            scriptBuilder.EmitPush("abc");
+            scriptBuilder.EmitPush(key);
+            scriptBuilder.Emit(OpCode.HASKEY);
+            scriptBuilder.Emit(OpCode.RET);
+            return (Script)scriptBuilder.ToArray();
+        }
+
+        private static string ExecuteFault(ProtocolSettings settings, Script script)
+        {
+            var engine = new TestEngine(settings, true);
+            var exception = Assert.ThrowsExactly<TestException>(() => engine.Execute(script));
+            return exception.Message;
+        }
+
+        private static ProtocolSettings CreateJumpTableProtocolSettings(bool includeEchidna, bool includeGorgon)
+        {
+            return TestEngine.Default with
+            {
+                Hardforks = TestEngine.Default.Hardforks.ToImmutableDictionary(
+                    p => p.Key,
+                    p => p.Key switch
+                    {
+                        Hardfork.HF_Echidna => includeEchidna ? 0u : uint.MaxValue,
+                        Hardfork.HF_Faun => includeEchidna ? 0u : uint.MaxValue,
+                        Hardfork.HF_Gorgon => includeGorgon ? 0u : uint.MaxValue,
+                        _ => 0u
+                    })
+            };
         }
     }
 }

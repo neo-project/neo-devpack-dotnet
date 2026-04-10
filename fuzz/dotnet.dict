@@ -1,0 +1,16 @@
+# Common tokens for source mutations.
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
+using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
+public class Contract : SmartContract
+[DisplayName("ping")]
+[Safe]
+StorageMap
+Storage.Put
+Storage.Get
+Runtime.Log
+public interface IFuzzContractValue
+public static string Ping()
+public static bool HasSeed()
+public static int Arithmetic()

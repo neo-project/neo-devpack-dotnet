@@ -7,10 +7,6 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        
-        <!-- Force PackageReference project style -->
-        <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
-        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +21,10 @@
 
     <ItemGroup>
         <PackageReference Include="Neo.SmartContract.Testing" Version="3.9.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
     </ItemGroup>
 
     <ItemGroup>

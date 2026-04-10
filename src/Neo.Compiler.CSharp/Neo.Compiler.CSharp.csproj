@@ -30,8 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Neo" Version="3.9.1" />
-    <PackageReference Include="Neo.Extensions" Version="3.9.1" />
+    <PackageReference Include="Neo" Version="$(NeoCorePackageVersion)" />
+    <PackageReference Include="Neo.Extensions" Version="$(NeoCorePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
