@@ -91,12 +91,6 @@ jobs:
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
-    - name: Test RISC-V Compilation
-      run: |
-        dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
-        --filter "TestCategory=RiscV" \
-        --no-build \
-        -v n
     - name: Codecov
       uses: codecov/codecov-action@v5
       with:

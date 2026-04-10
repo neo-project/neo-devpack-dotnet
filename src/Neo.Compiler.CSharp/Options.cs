@@ -30,10 +30,5 @@ namespace Neo.Compiler
         public GenerateArtifactsKind GenerateArtifacts { get; set; } = GenerateArtifactsKind.None;
         public bool SecurityAnalysis { get; set; } = false;
         public bool GenerateContractInterface { get; set; } = false;
-
-        /// <summary>
-        /// After RISC-V compilation, build the .polkavm binary using cargo and polkatool.
-        /// </summary>
-        public bool BuildRiscV { get; set; } = false;
     }
 }

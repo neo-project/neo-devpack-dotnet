@@ -78,16 +78,6 @@ namespace Neo.Compiler
         public string? ContractName => _displayName ?? (_allowBaseName ? Options.BaseName : null) ?? _className;
         private string? Source { get; set; }
 
-        /// <summary>
-        /// Generated Rust source code for RISC-V target.
-        /// </summary>
-        internal string? GeneratedRustSource { get; set; }
-
-        /// <summary>
-        /// Generated Cargo.toml content for RISC-V target.
-        /// </summary>
-        internal string? GeneratedCargoToml { get; set; }
-
         internal IEnumerable<IFieldSymbol> StaticFieldSymbols => _staticFields.OrderBy(p => p.Value).Select(p => p.Key);
         internal IEnumerable<(byte, ITypeSymbol)> VTables => _vtables.OrderBy(p => p.Value).Select(p => (p.Value, p.Key));
         internal int StaticFieldCount => _staticFields.Count + _anonymousStaticFields.Count + _vtables.Count;
@@ -168,23 +158,6 @@ namespace Neo.Compiler
                 // disabled, we still prefer short-form jumps when the target is within range.
                 BasicOptimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
-
-                // Generate RISC-V Rust source if targeting RiscV
-                if (Options.Target == CompilationTarget.RiscV)
-                {
-                    var translator = new Backend.RiscV.NeoVmToRustTranslator();
-                    var methods = new System.Collections.Generic.List<(string Name, IReadOnlyList<Instruction> Instructions)>();
-                    foreach (var exported in _methodsExported)
-                    {
-                        if (_methodsConverted.TryGetValue(exported.Symbol, out MethodConvert? convert))
-                            methods.Add((exported.Name, convert.Instructions));
-                    }
-                    var name = ContractName ?? "Contract";
-                    GeneratedRustSource = translator.Translate(name, methods);
-                    // Default crates path -- callers can override via Options.RiscVCratesPath
-                    var cratesPath = Options.RiscVCratesPath ?? "../../crates";
-                    GeneratedCargoToml = Backend.RiscV.RustCodeBuilder.BuildCargoToml(name, cratesPath);
-                }
             }
         }
 
