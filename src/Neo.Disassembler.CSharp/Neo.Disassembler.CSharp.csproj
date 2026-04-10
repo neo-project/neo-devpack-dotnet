@@ -22,10 +22,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Neo" Version="3.9.1" />
-        <PackageReference Include="Neo.Extensions" Version="3.9.1" />
-        <PackageReference Include="Neo.IO" Version="3.9.1" />
-        <PackageReference Include="Neo.Json" Version="3.9.1" />
+        <PackageReference Include="Neo" Version="$(NeoCorePackageVersion)" />
+        <PackageReference Include="Neo.Extensions" Version="$(NeoCorePackageVersion)" />
+        <PackageReference Include="Neo.IO" Version="$(NeoCorePackageVersion)" />
+        <PackageReference Include="Neo.Json" Version="$(NeoCorePackageVersion)" />
     </ItemGroup>
 
 </Project>

@@ -78,7 +78,7 @@ namespace Neo.SmartContract.Template
         {
             if (tokenId.Length >= 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
 
-            var tokenMap = new StorageMap(Prefix_Token);
+            var tokenMap = new LocalStorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
 
