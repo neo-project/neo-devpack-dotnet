@@ -1,7 +1,0 @@
-[Unit]
-Description=neo-devpack-dotnet fuzz housekeeping
-
-[Service]
-Type=oneshot
-WorkingDirectory=%h/git/neo-devpack-dotnet
-ExecStart=/bin/bash -lc './fuzz/fuzz_housekeeping.sh >> fuzz/logs/housekeeping.log 2>&1'
