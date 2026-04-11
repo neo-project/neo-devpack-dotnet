@@ -26,7 +26,8 @@
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Message Text="Start NeoContract converter, Source File: &quot;$(ProjectPath)&quot;" Importance="high">
     </Message>
-    <Exec Command="nccs $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) &quot;$(ProjectPath)&quot;" />
+    <Exec Command="dotnet tool restore" WorkingDirectory="$(MSBuildProjectDirectory)/.." />
+    <Exec Command="dotnet tool run nccs $(BaseNameArgument) $(NullableArgument) $(CheckedArgument) $(DebugArgument) --generate-artifacts source &quot;$(ProjectPath)&quot;" WorkingDirectory="$(MSBuildProjectDirectory)/.." />
   </Target>
 
 </Project>

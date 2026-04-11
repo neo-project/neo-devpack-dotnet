@@ -1,30 +1,33 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Extensions;
+using Neo.SmartContract.Testing.Exceptions;
+using Neo.SmartContract.Testing.TestingStandards;
+using ContractArtifact = Neo.SmartContract.Testing.Contract;
 
 namespace NeoContractSolution.UnitTests
 {
-    /// <summary>
-    /// Unit tests for the smart contract.
-    /// </summary>
     [TestClass]
-    public class SmartContractTests
+    public class SmartContractTests : OwnableTests<ContractArtifact>
     {
-        [TestInitialize]
-        public void TestSetup()
+        public SmartContractTests() : base(ContractArtifact.Nef, ContractArtifact.Manifest) { }
+
+        [TestMethod]
+        public void TestMyMethod()
         {
-            // TODO: Initialize the contract using Neo.SmartContract.Testing
-            // Example:
-            // var (nef, manifest) = EnsureArtifactsUpToDate();
-            // Contract = new MyContract(nef, manifest);
+            Assert.AreEqual("World", Contract.MyMethod());
         }
 
         [TestMethod]
-        public void TestExample()
+        public void TestUpdate()
         {
-            // TODO: Add your test logic here
-            // Example:
-            // var result = Contract.MyMethod();
-            // Assert.AreEqual("expected", result);
-            Assert.IsTrue(true); // Placeholder
+            Engine.SetTransactionSigners(Bob);
+
+            Assert.ThrowsException<TestException>(() => Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString()));
+
+            Engine.SetTransactionSigners(Alice);
+            Contract.Update(NefFile.ToArray(), Manifest.ToJson().ToString());
+
+            TestVerify();
         }
     }
 }

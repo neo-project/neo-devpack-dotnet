@@ -4,6 +4,7 @@
 
 ## Features
 
+- **Solution Template**: Contract project plus a wired unit-test project
 - **NEP-17 Token Template**: Fungible token contract template
 - **NEP-11 Token Template**: Non-fungible token contract template  
 - **Oracle Template**: Contract with oracle functionality
@@ -31,6 +32,19 @@ dotnet new uninstall Neo.SmartContract.Template
 ```
 
 ## Available Templates
+
+### Smart Contract Solution
+
+```bash
+dotnet new neocontract -n MyContract -o ./MyContract/
+```
+
+Creates a solution with:
+
+- a smart contract project
+- an MSTest project wired to `Neo.SmartContract.Testing`
+- generated contract artifacts consumed automatically by the test project
+- a local `nccs` tool manifest used during the contract build
 
 ### NEP-17 Token Contract
 
@@ -66,13 +80,27 @@ Creates a contract with ownership transfer capabilities.
 
 ## Template Structure
 
-Each template generates:
+Project templates generate:
 
 ```
 MyContract/
 ├── MyContract.cs          # Main contract file
 ├── MyContract.csproj      # Project file with proper references
 └── README.md              # Template-specific documentation
+```
+
+The solution template generates:
+
+```
+MyContract/
+├── .config/dotnet-tools.json
+├── MyContract.sln
+├── MyContract/
+│   ├── MyContract.csproj
+│   └── SmartContract.cs
+└── MyContract.UnitTests/
+    ├── MyContract.UnitTests.csproj
+    └── SmartContractTests.cs
 ```
 
 ## Building Generated Contracts
@@ -84,6 +112,15 @@ dotnet build
 ```
 
 The compiled `.nef` and `.manifest.json` files will be in the output directory.
+
+For the solution template, run the generated tests with:
+
+```bash
+cd MyContract
+dotnet test
+```
+
+The contract build restores the local `nccs` tool, generates `.nef`, `.manifest.json`, and `.artifacts.cs`, and the unit-test project compiles the generated artifacts automatically.
 
 ## Customizing Templates
 

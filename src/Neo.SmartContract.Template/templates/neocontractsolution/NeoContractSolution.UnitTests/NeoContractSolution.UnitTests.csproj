@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <ContractArtifactsPath>..\NeoContractSolution\bin\sc\Contract.artifacts.cs</ContractArtifactsPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +24,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NeoContractSolution\NeoContractSolution.csproj" ReferenceOutputAssembly="false" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting"/>
   </ItemGroup>
+
+  <Target Name="IncludeContractTestingArtifacts" BeforeTargets="CoreCompile">
+    <Error Condition="!Exists('$(ContractArtifactsPath)')" Text="Contract testing artifacts were not found at $(ContractArtifactsPath)." />
+
+    <ItemGroup>
+      <Compile Include="$(ContractArtifactsPath)" Link="TestingArtifacts\Contract.artifacts.cs" Visible="false" />
+    </ItemGroup>
+  </Target>
 
 </Project>
