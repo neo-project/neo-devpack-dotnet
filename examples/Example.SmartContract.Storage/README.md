@@ -1,7 +1,8 @@
 # Neo N3 Storage Smart Contract Example
 
 ## Overview
-This example demonstrates how to use the storage capabilities of Neo N3 smart contracts. It provides comprehensive examples of various storage operations, data types, and patterns for persistent data management on the Neo blockchain.
+This example demonstrates how to use the storage capabilities of Neo N3 smart contracts.
+It provides comprehensive examples of various storage operations, data types, and patterns for persistent data management on the Neo blockchain.
 
 ## Key Features
 - Storage operations (Put, Get, Delete)
@@ -14,7 +15,7 @@ This example demonstrates how to use the storage capabilities of Neo N3 smart co
 The `SampleStorage` contract demonstrates several Neo N3 storage features:
 
 ### Storage Organization
-- `StorageMap` usage for organized data storage
+- `StorageMap` and `LocalStorageMap` usage for organized data storage
 - Prefix-based storage segregation using byte, string, and byte array prefixes
 - Index-based property access for storage
 
@@ -38,7 +39,7 @@ The example includes methods for storing and retrieving various data types:
 ## Storage Patterns
 The example demonstrates several important storage patterns:
 1. **Direct Storage**: Using the Storage class directly
-2. **StorageMap**: Using maps for organized, prefix-based storage
+2. **StorageMap** and **LocalStorageMap**: Using maps for organized, prefix-based storage
 3. **Index Properties**: Accessing storage through property-like syntax
 4. **Serialization**: Storing and retrieving complex objects
 

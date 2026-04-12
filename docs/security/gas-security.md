@@ -39,7 +39,7 @@ public class GasBombVulnerable : SmartContract
     public static bool ProcessAllUsers()
     {
         // Dangerous: Unbounded loop that can exceed gas limit
-        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "user_", FindOptions.ValuesOnly);
+        var iterator = (Iterator<ByteString>)Storage.Find("user_", FindOptions.ValuesOnly);
         while (iterator.Next())
         {
             ProcessUser(iterator.Value);
@@ -75,7 +75,7 @@ public class GasBombSecure : SmartContract
         int processed = 0;
         int currentIndex = 0;
         
-        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "user_", FindOptions.ValuesOnly);
+        var iterator = (Iterator<ByteString>)Storage.Find("user_", FindOptions.ValuesOnly);
         while (iterator.Next() && processed < count)
         {
             if (currentIndex >= startIndex)
@@ -224,13 +224,13 @@ public class GasGriefingSecure : SmartContract
             result = (result * i) % 1000000007; // Use modulo to keep numbers manageable
         }
         
-        Storage.Put(Storage.CurrentContext, "last_calculation", result);
+        Storage.Put("last_calculation", result);
         return true;
     }
     
     private static bool IsWhitelistedUser(UInt160 user)
     {
-        StorageMap whitelist = new(Storage.CurrentContext, "user_whitelist");
+        LocalStorageMap whitelist = new("user_whitelist");
         return whitelist.Get(user) != null;
     }
 }
@@ -246,13 +246,13 @@ public class OptimizedStorage : SmartContract
     public static BigInteger GetBalanceOptimized(UInt160 user)
     {
         // Load from storage
-        StorageMap balances = new(Storage.CurrentContext, "balances");
+        LocalStorageMap balances = new("balances");
         return (BigInteger)balances.Get(user);
     }
     
     public static void SetBalanceOptimized(UInt160 user, BigInteger amount)
     {
-        StorageMap balances = new(Storage.CurrentContext, "balances");
+        LocalStorageMap balances = new("balances");
         balances.Put(user, amount);
     }
     
@@ -262,7 +262,7 @@ public class OptimizedStorage : SmartContract
         ExecutionEngine.Assert(users.Length == amounts.Length, "Array length mismatch");
         ExecutionEngine.Assert(users.Length <= 50, "Batch too large");
         
-        StorageMap balances = new(Storage.CurrentContext, "balances");
+        LocalStorageMap balances = new("balances");
         
         // Batch all storage operations
         for (int i = 0; i < users.Length; i++)
@@ -451,7 +451,7 @@ public class EconomicDoSProtection : SmartContract
         ByteString hash = CryptoLib.Sha256(data); // Single hash operation
         
         // Store efficiently
-        Storage.Put(Storage.CurrentContext, user.Concat((ByteString)((byte[])hash).Take(8)), data); // Use partial hash as key
+        Storage.Put(user.Concat((ByteString)((byte[])hash).Take(8)), data); // Use partial hash as key
         
         return true;
     }
@@ -460,7 +460,7 @@ public class EconomicDoSProtection : SmartContract
     public static bool LowCostQuery(UInt160 user)
     {
         // Read-only operation with minimal gas cost
-        return Storage.Get(Storage.CurrentContext, user) != null;
+        return Storage.Get(user) != null;
     }
 }
 ```

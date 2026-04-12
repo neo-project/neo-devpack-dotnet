@@ -91,7 +91,7 @@ public class RoleBasedContract : SmartContract
         ExecutionEngine.Assert(HasRole(caller, ADMIN_ROLE), "Only admins can grant roles");
         ExecutionEngine.Assert(IsValidRole(role), "Invalid role");
         
-        StorageMap roles = new(Storage.CurrentContext, "roles");
+        LocalStorageMap roles = new("roles");
         roles.Put(user, role);
         
         OnRoleGranted(user, role);
@@ -100,7 +100,7 @@ public class RoleBasedContract : SmartContract
     
     public static bool HasRole(UInt160 user, string role)
     {
-        StorageMap roles = new(Storage.CurrentContext, "roles");
+        LocalStorageMap roles = new("roles");
         string userRole = roles.Get(user);
         
         if (user == OWNER) return true; // Owner has all roles
@@ -154,7 +154,7 @@ public class MultiSigContract : SmartContract
     
     private static bool IsAuthorizedSigner(UInt160 signer)
     {
-        StorageMap authorizedSigners = new(Storage.CurrentContext, "signers");
+        LocalStorageMap authorizedSigners = new("signers");
         return authorizedSigners.Get(signer) != null;
     }
 }
@@ -167,10 +167,8 @@ public class MultiSigContract : SmartContract
 ```csharp
 public class SecureStorage : SmartContract
 {
-    // Use StorageMap/explicit prefixes to separate data under one context
-    private static StorageContext UserContext => Storage.CurrentContext;
-    private static StorageContext BalanceContext => Storage.CurrentContext;
-    
+    // Use StorageMap/explicit prefixes to separate data under one context.
+    // i.e. Must add different prefixes for different data items.
     private enum StoragePrefix : byte
     {
         User = 0x01,
@@ -186,7 +184,7 @@ public class SecureStorage : SmartContract
         
         // Use user-specific key with namespace isolation
         ByteString key = CryptoLib.Sha256(user.Concat((ByteString)((byte[])data).Take(32))); // Use hash for privacy
-        Storage.Put(UserContext, key, data);
+        Storage.Put(key, data);
         
         return true;
     }
@@ -257,15 +255,15 @@ public class RaceConditionSafe : SmartContract
     
     private static bool IsLocked()
     {
-        return Storage.Get(Storage.CurrentContext, GLOBAL_LOCK) != null;
+        return Storage.Get(GLOBAL_LOCK) != null;
     }
     
     private static void SetLock(bool locked)
     {
         if (locked)
-            Storage.Put(Storage.CurrentContext, GLOBAL_LOCK, 1);
+            Storage.Put(GLOBAL_LOCK, 1);
         else
-            Storage.Delete(Storage.CurrentContext, GLOBAL_LOCK);
+            Storage.Delete(GLOBAL_LOCK);
     }
 }
 ```
@@ -302,7 +300,7 @@ public class SafeInteractions : SmartContract
     
     private static bool IsWhitelistedContract(UInt160 contract)
     {
-        StorageMap whitelist = new(Storage.CurrentContext, "whitelist");
+        LocalStorageMap whitelist = new("whitelist");
         return whitelist.Get(contract) != null;
     }
     
@@ -356,15 +354,15 @@ public class ReentrancyGuard : SmartContract
     
     private static bool IsExecuting()
     {
-        return Storage.Get(Storage.CurrentContext, "executing") != null;
+        return Storage.Get("executing") != null;
     }
     
     private static void SetExecuting(bool executing)
     {
         if (executing)
-            Storage.Put(Storage.CurrentContext, "executing", REENTRANCY_GUARD);
+            Storage.Put("executing", REENTRANCY_GUARD);
         else
-            Storage.Delete(Storage.CurrentContext, "executing");
+            Storage.Delete("executing");
     }
     
     private static bool NotifyExternalContract(UInt160 user, BigInteger amount)
@@ -437,7 +435,7 @@ public class GasEfficientSecurity : SmartContract
 {
     public static bool IsAdmin(UInt160 user)
     {
-        StorageMap admins = new(Storage.CurrentContext, "admins");
+        LocalStorageMap admins = new("admins");
         return admins.Get(user) != null;
     }
     

@@ -195,10 +195,8 @@ public class StorageDebugger : SmartContract
     public static Map<string, object> DumpStorage(string prefix)
     {
         var result = new Map<string, object>();
-        var context = Storage.CurrentContext;
-        
         // Use storage find to iterate
-        var iterator = Storage.Find(context, prefix, FindOptions.None);
+        var iterator = Storage.Find(prefix, FindOptions.None);
         
         while (iterator.Next())
         {
@@ -215,7 +213,7 @@ public class StorageDebugger : SmartContract
     [Safe]
     public static object DebugGetStorage(ByteString key)
     {
-        var value = Storage.Get(Storage.CurrentContext, key);
+        var value = Storage.Get(key);
         Runtime.Log($"Storage[{key}] = {value}");
         return value;
     }

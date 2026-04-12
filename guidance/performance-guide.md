@@ -45,22 +45,13 @@ public class StorageOptimized : SmartContract
     // ❌ BAD: Multiple storage reads
     public static BigInteger GetTotalBad()
     {
-        var balance1 = Storage.Get(Storage.CurrentContext, "balance1");
-        var balance2 = Storage.Get(Storage.CurrentContext, "balance2");
-        var balance3 = Storage.Get(Storage.CurrentContext, "balance3");
+        var balance1 = Storage.Get("balance1");
+        var balance2 = Storage.Get("balance2");
+        var balance3 = Storage.Get("balance3");
         return (BigInteger)balance1 + (BigInteger)balance2 + (BigInteger)balance3;
     }
     
-    // ✅ GOOD: Single storage read with packed data
-    public static BigInteger GetTotalGood()
-    {
-        var packedData = Storage.Get(Storage.CurrentContext, "packedBalances");
-        return UnpackTotal(packedData);
-    }
-    
-    // ✅ BEST: Use storage context for batch operations
-    private static readonly StorageContext BalanceContext = Storage.CurrentContext;
-    
+    // ✅ Good: Use local storage context if CurrentContext
     public static void BatchUpdateBalances(UInt160[] users, BigInteger[] amounts)
     {
         ExecutionEngine.Assert(users.Length == amounts.Length, "Array length mismatch");
@@ -68,8 +59,8 @@ public class StorageOptimized : SmartContract
         for (int i = 0; i < users.Length; i++)
         {
             var key = CreateKey("balance", users[i]);
-            BigInteger currentBalance = (BigInteger)(Storage.Get(BalanceContext, key) ?? 0);
-            Storage.Put(BalanceContext, key, currentBalance + amounts[i]);
+            BigInteger currentBalance = (BigInteger)(Storage.Get(key) ?? 0);
+            Storage.Put(key, currentBalance + amounts[i]);
         }
     }
 }
@@ -81,7 +72,7 @@ public class StorageOptimized : SmartContract
 public class CachingContract : SmartContract
 {
     // Persistent cache in contract storage
-    private static readonly StorageMap Cache = new(Storage.CurrentContext, "cache");
+    private static readonly StorageMap Cache = new("cache");
     
     public static BigInteger GetExpensiveCalculation(ByteString input)
     {
@@ -158,9 +149,9 @@ public class DataPacking : SmartContract
     // ❌ BAD: Separate storage entries (3 storage operations)
     public static void StoreUserDataBad(UInt160 user, BigInteger balance, uint lastUpdate, bool isActive)
     {
-        Storage.Put(Storage.CurrentContext, user + "_balance", balance);
-        Storage.Put(Storage.CurrentContext, user + "_lastUpdate", lastUpdate);
-        Storage.Put(Storage.CurrentContext, user + "_isActive", isActive);
+        Storage.Put(user + "_balance", balance);
+        Storage.Put(user + "_lastUpdate", lastUpdate);
+        Storage.Put(user + "_isActive", isActive);
     }
     
     // ✅ GOOD: Packed data (1 storage operation)
@@ -173,7 +164,7 @@ public class DataPacking : SmartContract
     
     public static void StoreUserDataGood(UInt160 user, UserData data)
     {
-        Storage.Put(Storage.CurrentContext, user, StdLib.Serialize(data));
+        Storage.Put(user, StdLib.Serialize(data));
     }
     
     // ✅ BEST: Bit-packed data for maximum efficiency
@@ -184,7 +175,7 @@ public class DataPacking : SmartContract
         // LastUpdate: bits 256-287 (32 bits)
         // IsActive: bit 288
         var packed = balance | (new BigInteger(lastUpdate) << 256) | (isActive ? BigInteger.One << 288 : 0);
-        Storage.Put(Storage.CurrentContext, user, packed);
+        Storage.Put(user, packed);
     }
 }
 ```
@@ -199,7 +190,7 @@ public class KeyOptimization : SmartContract
     
     public static void SetBalanceBad(UInt160 user, BigInteger balance)
     {
-        Storage.Put(Storage.CurrentContext, USER_BALANCE_PREFIX + user, balance);
+        Storage.Put(USER_BALANCE_PREFIX + user, balance);
     }
     
     // ✅ GOOD: Short byte keys
@@ -209,7 +200,7 @@ public class KeyOptimization : SmartContract
     {
         // Prefix (1 byte) + address (20 bytes)
         byte[] key = BALANCE_PREFIX.ToByteArray().Concat(user);
-        Storage.Put(Storage.CurrentContext, key, balance);
+        Storage.Put(key, balance);
     }
     
     // ✅ BEST: Composite keys for efficient querying
@@ -235,20 +226,20 @@ public class LazyDeletion : SmartContract
         // ❌ BAD: Delete each key (expensive)
         // foreach (var key in keys)
         // {
-        //     Storage.Delete(Storage.CurrentContext, key);
+        //     Storage.Delete(key);
         // }
         
         // ✅ GOOD: Mark as deleted, clean up later
         var deletionTime = Runtime.Time;
         foreach (var key in keys)
         {
-            Storage.Put(Storage.CurrentContext, key, DELETED_FLAG + deletionTime);
+            Storage.Put(key, DELETED_FLAG + deletionTime);
         }
     }
     
     public static bool IsDeleted(ByteString key)
     {
-        var value = Storage.Get(Storage.CurrentContext, key);
+        var value = Storage.Get(key);
         return value != null && value[0] == DELETED_FLAG;
     }
 }
@@ -296,7 +287,7 @@ public class LoopOptimization : SmartContract
     public static BigInteger CalculateTotalBest()
     {
         // Maintain running total in storage
-        return (BigInteger)Storage.Get(Storage.CurrentContext, "totalValue");
+        return (BigInteger)Storage.Get("totalValue");
     }
 }
 ```
@@ -414,9 +405,9 @@ public class BatchStateUpdate : SmartContract
         foreach (var update in updates)
         {
             if (update.IsDelete)
-                Storage.Delete(Storage.CurrentContext, update.Key);
+                Storage.Delete(update.Key);
             else
-                Storage.Put(Storage.CurrentContext, update.Key, update.Value);
+                Storage.Put(update.Key, update.Value);
         }
     }
 }
@@ -534,7 +525,7 @@ public class PerformanceMonitor : SmartContract
     public static void TrackPerformance(string operation, BigInteger gasUsed)
     {
         var key = METRICS_PREFIX + operation;
-        var current = Storage.Get(Storage.CurrentContext, key);
+        var current = Storage.Get(key);
         
         var metrics = current != null ? 
             (PerformanceMetrics)StdLib.Deserialize(current) : 
@@ -549,7 +540,7 @@ public class PerformanceMonitor : SmartContract
         if (gasUsed > metrics.MaxGas) metrics.MaxGas = gasUsed;
         if (gasUsed < metrics.MinGas || metrics.MinGas == 0) metrics.MinGas = gasUsed;
         
-        Storage.Put(Storage.CurrentContext, key, StdLib.Serialize(metrics));
+        Storage.Put(key, StdLib.Serialize(metrics));
     }
     
     public struct PerformanceMetrics

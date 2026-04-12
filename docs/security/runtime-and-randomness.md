@@ -301,7 +301,7 @@ public class EnhancedRandomness : SmartContract
         }
         
         // Source 7: Contract storage entropy (if available)
-        ByteString storedEntropy = Storage.Get(Storage.CurrentContext, "entropy_pool");
+        ByteString storedEntropy = Storage.Get("entropy_pool");
         if (storedEntropy != null)
         {
             entropySources.Add(storedEntropy);
@@ -320,7 +320,7 @@ public class EnhancedRandomness : SmartContract
         ByteString finalHash = CryptoLib.Sha256(round1.Concat(round2));
         
         // Update stored entropy for future use
-        Storage.Put(Storage.CurrentContext, "entropy_pool", (ByteString)((byte[])finalHash).Take(16));
+        Storage.Put("entropy_pool", (ByteString)((byte[])finalHash).Take(16));
         
         return (BigInteger)finalHash;
     }
@@ -376,7 +376,7 @@ public class CommitRevealRandom : SmartContract
         public BigInteger RevealedValue;
     }
     
-    private static readonly StorageMap Commitments = new(Storage.CurrentContext, "commitments");
+    private static readonly LocalStorageMap Commitments = new("commitments");
     
     /// <summary>
     /// Phase 1: Commit to a random value
@@ -472,7 +472,7 @@ public class CommitRevealRandom : SmartContract
     private static RandomCommitment GetUserCommitment(UInt160 user)
     {
         // Find most recent commitment for user
-        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "commitments" + user.ToString(), FindOptions.ValuesOnly);
+        var iterator = (Iterator<ByteString>)Storage.Find("commitments" + user.ToString(), FindOptions.ValuesOnly);
         RandomCommitment latest = new RandomCommitment();
         
         while (iterator.Next())
@@ -538,11 +538,10 @@ public class TimeBasedSecurity : SmartContract
         
         // Ensure operation hasn't been executed
         string operationKey = "timelock_" + user.ToString() + "_" + operationId;
-        ExecutionEngine.Assert(Storage.Get(Storage.CurrentContext, operationKey) == null, 
-               "Operation already executed");
+        ExecutionEngine.Assert(Storage.Get(operationKey) == null, "Operation already executed");
         
         // Mark operation as executed
-        Storage.Put(Storage.CurrentContext, operationKey, currentTime);
+        Storage.Put(operationKey, currentTime);
         
         OnTimeLockedOperationExecuted(user, operationId, currentTime);
         return true;
@@ -555,17 +554,16 @@ public class TimeBasedSecurity : SmartContract
                                      bool allowEarlyTrigger = false)
     {
         string timerKey = "timer_" + timerId;
-        ByteString timerData = Storage.Get(Storage.CurrentContext, timerKey);
-        
+        ByteString timerData = Storage.Get(timerKey);
         if (timerData == null)
         {
             // Start new timer
             long startTime = (long)Runtime.Time;
             long endTime = startTime + durationMs;
-            
+
             object[] timer = new object[] { startTime, endTime };
-            Storage.Put(Storage.CurrentContext, timerKey, StdLib.Serialize(timer));
-            
+            Storage.Put(timerKey, StdLib.Serialize(timer));
+
             OnCountdownStarted(timerId, startTime, endTime);
             return false; // Timer not yet expired
         }
@@ -576,18 +574,17 @@ public class TimeBasedSecurity : SmartContract
             long startTime = (long)timer[0];
             long endTime = (long)timer[1];
             long currentTime = (long)Runtime.Time;
-            
             if (allowEarlyTrigger && currentTime >= startTime + (durationMs / 2))
             {
                 // Allow trigger after half the duration
-                Storage.Delete(Storage.CurrentContext, timerKey);
+                Storage.Delete(timerKey);
                 OnCountdownTriggered(timerId, currentTime, true);
                 return true;
             }
             else if (currentTime >= endTime)
             {
                 // Timer expired naturally
-                Storage.Delete(Storage.CurrentContext, timerKey);
+                Storage.Delete(timerKey);
                 OnCountdownTriggered(timerId, currentTime, false);
                 return true;
             }

@@ -42,12 +42,6 @@ public class SecureStorageContract : SmartContract
         AuditLog = 0x05,
         Temporary = 0x06
     }
-    
-    // All storage lives under the same context. Prefixes are applied via StorageMap
-    // or manual key construction to keep data isolated.
-    private static StorageContext UserContext => Storage.CurrentContext;
-    private static StorageContext AdminContext => Storage.CurrentContext;
-    private static StorageContext AuditContext => Storage.CurrentContext;
 }
 ```
 
@@ -81,14 +75,13 @@ public class HierarchicalKeyStorage : SmartContract
     /// <summary>
     /// Store user data with hierarchical key structure
     /// </summary>
-    public static bool StoreUserData(UInt160 user, string category, string identifier, 
-                                   ByteString data)
+    public static bool StoreUserData(UInt160 user, string category, string identifier, ByteString data)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(user), "Access denied: Invalid user signature");
         ExecutionEngine.Assert(data.Length <= 65536, "Data too large"); // 64KB limit
         
         ByteString key = CreateUserKey(user, category, identifier);
-        Storage.Put(Storage.CurrentContext, key, data);
+        Storage.Put(key, data);
         
         // Log storage operation for audit
         LogStorageOperation(user, "store", category, identifier, data.Length);
@@ -101,15 +94,14 @@ public class HierarchicalKeyStorage : SmartContract
     /// Retrieve user data with access control
     /// </summary>
     [Safe]
-    public static ByteString GetUserData(UInt160 user, UInt160 requester, 
-                                       string category, string identifier)
+    public static ByteString GetUserData(UInt160 user, UInt160 requester, string category, string identifier)
     {
         // Access control: user can access own data, or requester needs permission
         ExecutionEngine.Assert(user == requester || HasDataAccessPermission(requester, user), 
                "Access denied: No permission to read user data");
         
         ByteString key = CreateUserKey(user, category, identifier);
-        ByteString data = Storage.Get(Storage.CurrentContext, key);
+        ByteString data = Storage.Get(key);
         
         if (data != null)
         {
@@ -176,13 +168,13 @@ public class SecureKeyGeneration : SmartContract
         ByteString key = GenerateSecureKey(user, dataType, identifier, isTemporary);
         
         // Store the data
-        Storage.Put(Storage.CurrentContext, key, data);
+        Storage.Put(key, data);
         
         // Store key mapping for retrieval (if not temporary)
         if (!isTemporary)
         {
             ByteString mappingKey = user.Concat(dataType + identifier);
-            Storage.Put(Storage.CurrentContext, "keymap_" + mappingKey, key);
+            Storage.Put("keymap_" + mappingKey, key);
         }
         
         OnSecureDataStored(user, dataType, identifier, isTemporary);
@@ -196,11 +188,11 @@ public class SecureKeyGeneration : SmartContract
     public static ByteString SecureRetrieve(UInt160 user, string dataType, string identifier)
     {
         ByteString mappingKey = user.Concat(dataType + identifier);
-        ByteString actualKey = Storage.Get(Storage.CurrentContext, "keymap_" + mappingKey);
+        ByteString actualKey = Storage.Get("keymap_" + mappingKey);
         
         if (actualKey == null) return null;
         
-        return Storage.Get(Storage.CurrentContext, actualKey);
+        return Storage.Get(actualKey);
     }
 }
 ```
@@ -215,8 +207,7 @@ public class MultiTenantStorage : SmartContract
     /// <summary>
     /// Tenant-isolated storage with strict separation
     /// </summary>
-    public static bool StoreTenantData(UInt160 tenant, string namespace_, string key, 
-                                     ByteString data)
+    public static bool StoreTenantData(UInt160 tenant, string namespace_, string key, ByteString data)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(tenant), "Access denied: Invalid tenant signature");
         ExecutionEngine.Assert(IsTenantAuthorized(tenant), "Access denied: Tenant not authorized");
@@ -230,7 +221,7 @@ public class MultiTenantStorage : SmartContract
         // Verify tenant hasn't exceeded storage quota
         ExecutionEngine.Assert(CheckTenantQuota(tenant, data.Length), "Tenant quota exceeded");
         
-        Storage.Put(Storage.CurrentContext, tenantKey, data);
+        Storage.Put(tenantKey, data);
         UpdateTenantUsage(tenant, data.Length);
         
         OnTenantDataStored(tenant, namespace_, key);
@@ -276,7 +267,7 @@ public class MultiTenantStorage : SmartContract
         }
         
         ByteString tenantKey = CreateTenantKey(tenant, namespace_, key);
-        return Storage.Get(Storage.CurrentContext, tenantKey);
+        return Storage.Get(tenantKey);
     }
     
     /// <summary>
@@ -303,7 +294,7 @@ public class MultiTenantStorage : SmartContract
         foreach (var item in items)
         {
             ByteString tenantKey = CreateTenantKey(tenant, item.namespace_, item.key);
-            Storage.Put(Storage.CurrentContext, tenantKey, item.data);
+            Storage.Put(tenantKey, item.data);
         }
         
         UpdateTenantUsage(tenant, totalSize);
@@ -378,11 +369,11 @@ public class EncryptedStorage : SmartContract
         
         // Store encrypted data
         ByteString dataKey = CreateUserKey(user, "encrypted", identifier);
-        Storage.Put(Storage.CurrentContext, dataKey, encryptedData);
+        Storage.Put(dataKey, encryptedData);
         
         // Store key hash for verification (not the actual key!)
         ByteString hashKey = CreateUserKey(user, "keyhash", identifier);
-        Storage.Put(Storage.CurrentContext, hashKey, keyHash);
+        Storage.Put(hashKey, keyHash);
         
         // Store metadata
         ByteString metaKey = CreateUserKey(user, "meta", identifier);
@@ -391,7 +382,7 @@ public class EncryptedStorage : SmartContract
             Size = encryptedData.Length,
             Owner = user
         });
-        Storage.Put(Storage.CurrentContext, metaKey, metadata);
+        Storage.Put(metaKey, metadata);
         
         OnEncryptedDataStored(user, identifier, encryptedData.Length);
         return true;
@@ -406,14 +397,14 @@ public class EncryptedStorage : SmartContract
     {
         // Verify key hash before returning data
         ByteString hashKey = CreateUserKey(user, "keyhash", identifier);
-        ByteString storedKeyHash = Storage.Get(Storage.CurrentContext, hashKey);
+        ByteString storedKeyHash = Storage.Get(hashKey);
         
         ExecutionEngine.Assert(storedKeyHash != null, "Data not found");
         ExecutionEngine.Assert(storedKeyHash == providedKeyHash, "Invalid decryption key");
         
         // Return encrypted data
         ByteString dataKey = CreateUserKey(user, "encrypted", identifier);
-        return Storage.Get(Storage.CurrentContext, dataKey);
+        return Storage.Get(dataKey);
     }
 }
 ```
@@ -438,12 +429,12 @@ public class PrivacyProtectedStorage : SmartContract
             .Concat(user)
             .Concat(commitment);
         
-        Storage.Put(Storage.CurrentContext, key, encryptedData);
+        Storage.Put(key, encryptedData);
         
         // Store only hash of the data for verification
         ByteString dataHash = CryptoLib.Sha256(encryptedData);
         ByteString verifyKey = key.Concat("_verify");
-        Storage.Put(Storage.CurrentContext, verifyKey, dataHash);
+        Storage.Put(verifyKey, dataHash);
         
         OnPrivateDataCommitted(user, commitment);
         return true;
@@ -466,12 +457,12 @@ public class PrivacyProtectedStorage : SmartContract
             .Concat(user)
             .Concat(commitment);
         
-        ByteString encryptedData = Storage.Get(Storage.CurrentContext, key);
+        ByteString encryptedData = Storage.Get(key);
         ExecutionEngine.Assert(encryptedData != null, "Data not found or invalid reveal");
         
         // Verify data integrity
         ByteString verifyKey = key.Concat("_verify");
-        ByteString storedHash = Storage.Get(Storage.CurrentContext, verifyKey);
+        ByteString storedHash = Storage.Get(verifyKey);
         ByteString currentHash = CryptoLib.Sha256(encryptedData);
         ExecutionEngine.Assert(storedHash == currentHash, "Data integrity check failed");
         
@@ -511,7 +502,7 @@ public class IntegrityProtectedStorage : SmartContract
         
         // Store data with version
         ByteString dataKey = CreateVersionedKey(user, identifier, version);
-        Storage.Put(Storage.CurrentContext, dataKey, data);
+        Storage.Put(dataKey, data);
         
         // Store integrity information in a deterministic order.
         // StdLib.Serialize/Deserialize works well with object arrays and avoids dynamic access.
@@ -525,13 +516,13 @@ public class IntegrityProtectedStorage : SmartContract
         };
         
         ByteString integrityKey = CreateVersionedKey(user, identifier + "_integrity", version);
-        Storage.Put(Storage.CurrentContext, integrityKey, StdLib.Serialize(integrityInfo));
+        Storage.Put(integrityKey, StdLib.Serialize(integrityInfo));
         
         // Update latest version pointer
         if (enableVersioning)
         {
             ByteString versionKey = CreateUserKey(user, "version", identifier);
-            Storage.Put(Storage.CurrentContext, versionKey, version);
+            Storage.Put(versionKey, version);
         }
         
         OnDataStoredWithIntegrity(user, identifier, version);
@@ -549,18 +540,18 @@ public class IntegrityProtectedStorage : SmartContract
         if (version == -1)
         {
             ByteString versionKey = CreateUserKey(user, "version", identifier);
-            ByteString versionData = Storage.Get(Storage.CurrentContext, versionKey);
+            ByteString versionData = Storage.Get(versionKey);
             version = versionData != null ? (int)versionData : 1;
         }
         
         // Retrieve data and integrity info
         ByteString dataKey = CreateVersionedKey(user, identifier, version);
-        ByteString data = Storage.Get(Storage.CurrentContext, dataKey);
+        ByteString data = Storage.Get(dataKey);
         
         if (data == null) return null;
         
         ByteString integrityKey = CreateVersionedKey(user, identifier + "_integrity", version);
-        ByteString integrityData = Storage.Get(Storage.CurrentContext, integrityKey);
+        ByteString integrityData = Storage.Get(integrityKey);
         
         if (integrityData != null)
         {
@@ -594,7 +585,7 @@ public class IntegrityProtectedStorage : SmartContract
         
         // Search for all versions
         string versionPrefix = user.ToString() + "_" + identifier + "_v";
-        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, versionPrefix, FindOptions.KeysOnly);
+        var iterator = (Iterator<ByteString>)Storage.Find(versionPrefix, FindOptions.KeysOnly);
         
         while (iterator.Next())
         {
@@ -636,7 +627,7 @@ public class IntegrityProtectedStorage : SmartContract
     private static int GetNextVersion(UInt160 user, string identifier)
     {
         ByteString versionKey = CreateUserKey(user, "version", identifier);
-        ByteString currentVersion = Storage.Get(Storage.CurrentContext, versionKey);
+        ByteString currentVersion = Storage.Get(versionKey);
         return currentVersion != null ? (int)currentVersion + 1 : 1;
     }
 }
@@ -665,14 +656,13 @@ public class AuditableStorage : SmartContract
     /// <summary>
     /// Store data with comprehensive audit logging
     /// </summary>
-    public static bool StoreWithAudit(UInt160 user, string category, string identifier, 
-                                    ByteString data)
+    public static bool StoreWithAudit(UInt160 user, string category, string identifier, ByteString data)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(user), "Access denied");
         
         // Store the actual data
         ByteString dataKey = CreateUserKey(user, category, identifier);
-        Storage.Put(Storage.CurrentContext, dataKey, data);
+        Storage.Put(dataKey, data);
         
         // Create audit entry
         ByteString operationData = user.Concat("store")
@@ -700,24 +690,23 @@ public class AuditableStorage : SmartContract
     /// <summary>
     /// Delete data with audit trail
     /// </summary>
-    public static bool DeleteWithAudit(UInt160 user, string category, string identifier, 
-                                     string reason)
+    public static bool DeleteWithAudit(UInt160 user, string category, string identifier, string reason)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(user), "Access denied");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(reason), "Deletion reason required");
         
         ByteString dataKey = CreateUserKey(user, category, identifier);
-        ByteString existingData = Storage.Get(Storage.CurrentContext, dataKey);
+        ByteString existingData = Storage.Get(dataKey);
         
         ExecutionEngine.Assert(existingData != null, "Data not found");
         
         // Archive data before deletion
         ByteString archiveKey = dataKey.Concat("_archived_")
             .Concat((ByteString)(System.Numerics.BigInteger)Runtime.Time);
-        Storage.Put(Storage.CurrentContext, archiveKey, existingData);
+        Storage.Put(archiveKey, existingData);
         
         // Delete original data
-        Storage.Delete(Storage.CurrentContext, dataKey);
+        Storage.Delete(dataKey);
         
         // Create audit entry
         ByteString operationData = user.Concat("delete")
@@ -745,8 +734,7 @@ public class AuditableStorage : SmartContract
     /// Get audit trail for specific user/target
     /// </summary>
     [Safe]
-    public static AuditEntry[] GetAuditTrail(UInt160 requester, UInt160 targetUser, 
-                                           string category, int limit = 50)
+    public static AuditEntry[] GetAuditTrail(UInt160 requester, UInt160 targetUser, string category, int limit = 50)
     {
         ExecutionEngine.Assert(HasAuditAccess(requester, targetUser), "Access denied: No audit permission");
         ExecutionEngine.Assert(limit > 0 && limit <= 100, "Invalid limit");
@@ -758,7 +746,7 @@ public class AuditableStorage : SmartContract
             searchPrefix += "_" + category;
         }
         
-        var iterator = (Iterator<ByteString>)Storage.Find(AuditContext, searchPrefix, FindOptions.ValuesOnly);
+        var iterator = (Iterator<ByteString>)Storage.Find(searchPrefix, FindOptions.ValuesOnly);
         int count = 0;
         
         while (iterator.Next() && count < limit)
@@ -783,7 +771,7 @@ public class AuditableStorage : SmartContract
             .Concat(((byte[])CryptoLib.Sha256(entry.Operation + entry.Target)).Take(8)));
         
         // Store audit entry
-        Storage.Put(AuditContext, auditKey, StdLib.Serialize(entry));
+        Storage.Put(auditKey, StdLib.Serialize(entry));
         
         // Update audit index for efficient querying
         UpdateAuditIndex(entry);
@@ -805,12 +793,12 @@ public class AuditableStorage : SmartContract
             userEntries.RemoveAt(0);
         }
         
-        Storage.Put(AuditContext, userIndexKey, StdLib.Serialize(userEntries));
+        Storage.Put(userIndexKey, StdLib.Serialize(userEntries));
     }
     
     private static Neo.SmartContract.Framework.List<ByteString> GetIndexEntries(ByteString indexKey)
     {
-        ByteString indexData = Storage.Get(AuditContext, indexKey);
+        ByteString indexData = Storage.Get(indexKey);
         return indexData != null
             ? (Neo.SmartContract.Framework.List<ByteString>)StdLib.Deserialize(indexData)
             : new Neo.SmartContract.Framework.List<ByteString>();

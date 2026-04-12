@@ -205,20 +205,20 @@ namespace {{Namespace}}
 
         public static void SetMessage(string key, string value)
         {
-            Storage.Put(Storage.CurrentContext, key, value);
+            Storage.Put(key, value);
         }
 
         [Safe]
         public static string GetStoredMessage(string key)
         {
-            return Storage.Get(Storage.CurrentReadOnlyContext, key);
+            return Storage.Get(key);
         }
 
         public static void _deploy(object data, bool update)
         {
             if (!update)
             {
-                Storage.Put(Storage.CurrentContext, ""Deployed"", Runtime.Time);
+                Storage.Put(""Deployed"", Runtime.Time);
             }
         }
 
@@ -464,13 +464,13 @@ namespace {{Namespace}}
                 throw new InvalidOperationException(""No Authorization!"");
 
             // Owner-only logic here
-            Storage.Put(Storage.CurrentContext, ""LastAction"", Runtime.Time);
+            Storage.Put(""LastAction"", Runtime.Time);
         }
 
         [Safe]
         public static object GetData(string key)
         {
-            return Storage.Get(Storage.CurrentReadOnlyContext, key);
+            return Storage.Get(key);
         }
 
         public static void SetData(string key, object value)
@@ -478,7 +478,7 @@ namespace {{Namespace}}
             if (!IsOwner())
                 throw new InvalidOperationException(""No Authorization!"");
 
-            Storage.Put(Storage.CurrentContext, key, value);
+            Storage.Put(key, value);
         }
 
         [Safe]
@@ -560,9 +560,8 @@ namespace {{Namespace}}
             }
 
             // Store the response
-            StorageContext context = Storage.CurrentContext;
             byte[] key = Helper.Concat(new byte[] { Prefix_Response }, StdLib.Serialize(userData));
-            Storage.Put(context, key, result);
+            Storage.Put(key, result);
             
             Runtime.Log(""Oracle response received: "" + result);
             
@@ -578,9 +577,8 @@ namespace {{Namespace}}
         [Safe]
         public static string GetLastResponse(object userData)
         {
-            StorageContext context = Storage.CurrentReadOnlyContext;
             byte[] key = Helper.Concat(new byte[] { Prefix_Response }, StdLib.Serialize(userData));
-            ByteString data = Storage.Get(context, key);
+            ByteString data = Storage.Get(key);
             return data;
         }
 
@@ -588,7 +586,7 @@ namespace {{Namespace}}
         {
             if (!update)
             {
-                Storage.Put(Storage.CurrentContext, ""Deployed"", Runtime.Time);
+                Storage.Put(""Deployed"", Runtime.Time);
             }
         }
 
