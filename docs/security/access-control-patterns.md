@@ -54,7 +54,7 @@ public class OwnerOnlyContract : SmartContract
         OnlyOwner();
         
         // Perform admin operation
-        Storage.Put(Storage.CurrentContext, "admin_action", parameter);
+        Storage.Put("admin_action", parameter);
         OnAdminAction(parameter);
         return true;
     }
@@ -69,7 +69,7 @@ public class OwnerOnlyContract : SmartContract
         ExecutionEngine.Assert(Runtime.CheckWitness(newOwner), "New owner must authorize the transfer");
         
         // Update owner in storage for future reference
-        Storage.Put(Storage.CurrentContext, "owner", newOwner);
+        Storage.Put("owner", newOwner);
         OnOwnershipTransferred(OWNER, newOwner);
         return true;
     }
@@ -80,7 +80,7 @@ public class OwnerOnlyContract : SmartContract
     [Safe]
     public static UInt160 GetOwner()
     {
-        ByteString storedOwner = Storage.Get(Storage.CurrentContext, "owner");
+        ByteString storedOwner = Storage.Get("owner");
         return storedOwner != null ? (UInt160)storedOwner : OWNER;
     }
     
@@ -101,7 +101,7 @@ Control access through a maintained list of authorized addresses.
 public class WhitelistContract : SmartContract
 {
     private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
-    private static readonly StorageMap Whitelist = new(Storage.CurrentContext, "whitelist");
+    private static readonly LocalStorageMap Whitelist = new("whitelist");
     
     /// <summary>
     /// Add address to whitelist (owner only)
@@ -149,7 +149,7 @@ public class WhitelistContract : SmartContract
         ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
         
         // Perform whitelisted operation
-        Storage.Put(Storage.CurrentContext, "data_" + caller, data);
+        Storage.Put("data_" + caller, data);
         return true;
     }
     
@@ -174,8 +174,8 @@ public class RBACContract : SmartContract
     private const string AUDITOR_ROLE = "auditor";
     
     // Storage maps for roles and permissions
-    private static readonly StorageMap UserRoles = new(Storage.CurrentContext, "user_roles");
-    private static readonly StorageMap RolePermissions = new(Storage.CurrentContext, "role_permissions");
+    private static readonly LocalStorageMap UserRoles = new("user_roles");
+    private static readonly LocalStorageMap RolePermissions = new("role_permissions");
     
     // Contract owner
     private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
@@ -288,7 +288,7 @@ public class RBACContract : SmartContract
         ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied: Invalid signature");
         ExecutionEngine.Assert(HasPermission(caller, "manage_contract"), "Access denied: No management permission");
         
-        Storage.Put(Storage.CurrentContext, "last_action", action + ":" + parameter);
+        Storage.Put("last_action", action + ":" + parameter);
         OnContractManaged(caller, action, parameter);
         return true;
     }
@@ -305,7 +305,7 @@ public class RBACContract : SmartContract
         // Return audit information (implementation depends on audit log structure)
         Neo.SmartContract.Framework.List<string> auditEntries = new Neo.SmartContract.Framework.List<string>();
         
-        var iterator = (Iterator<ByteString>)Storage.Find(Storage.CurrentContext, "audit_", FindOptions.ValuesOnly);
+        var iterator = (Iterator<ByteString>)Storage.Find("audit_", FindOptions.ValuesOnly);
         int count = 0;
         
         while (iterator.Next() && count < limit)
@@ -351,8 +351,8 @@ public class MultiSigContract : SmartContract
     private const int MAX_SIGNERS = 7;
     private const int MIN_SIGNERS = 3;
     
-    private static readonly StorageMap AuthorizedSigners = new(Storage.CurrentContext, "signers");
-    private static readonly StorageMap PendingOperations = new(Storage.CurrentContext, "pending");
+    private static readonly LocalStorageMap AuthorizedSigners = new("signers");
+    private static readonly LocalStorageMap PendingOperations = new("pending");
     
     /// <summary>
     /// Structure for multi-sig operations
@@ -391,7 +391,7 @@ public class MultiSigContract : SmartContract
             AuthorizedSigners.Put(initialSigners[i], 1);
         }
         
-        Storage.Put(Storage.CurrentContext, "signer_count", initialSigners.Length);
+        Storage.Put("signer_count", initialSigners.Length);
         OnSignersInitialized(initialSigners);
         return true;
     }
@@ -548,14 +548,14 @@ public class MultiSigContract : SmartContract
     private static bool ExecuteTransfer(ByteString data)
     {
         // Implementation for transfer operations
-        Storage.Put(Storage.CurrentContext, "last_transfer", data);
+        Storage.Put("last_transfer", data);
         return true;
     }
     
     private static bool ExecuteConfigUpdate(ByteString data)
     {
         // Implementation for config updates
-        Storage.Put(Storage.CurrentContext, "config", data);
+        Storage.Put("config", data);
         return true;
     }
     
@@ -565,11 +565,11 @@ public class MultiSigContract : SmartContract
         ExecutionEngine.Assert(newSigner.IsValid, "Invalid signer address");
         ExecutionEngine.Assert(!IsAuthorizedSigner(newSigner), "Signer already authorized");
         
-        int currentCount = (int)Storage.Get(Storage.CurrentContext, "signer_count");
+        int currentCount = (int)Storage.Get("signer_count");
         ExecutionEngine.Assert(currentCount < MAX_SIGNERS, "Maximum signers reached");
         
         AuthorizedSigners.Put(newSigner, 1);
-        Storage.Put(Storage.CurrentContext, "signer_count", currentCount + 1);
+        Storage.Put("signer_count", currentCount + 1);
         
         OnSignerAdded(newSigner);
         return true;
@@ -580,11 +580,11 @@ public class MultiSigContract : SmartContract
         UInt160 signerToRemove = (UInt160)data;
         ExecutionEngine.Assert(IsAuthorizedSigner(signerToRemove), "Signer not found");
         
-        int currentCount = (int)Storage.Get(Storage.CurrentContext, "signer_count");
+        int currentCount = (int)Storage.Get("signer_count");
         ExecutionEngine.Assert(currentCount > MIN_SIGNERS, "Cannot go below minimum signers");
         
         AuthorizedSigners.Delete(signerToRemove);
-        Storage.Put(Storage.CurrentContext, "signer_count", currentCount - 1);
+        Storage.Put("signer_count", currentCount - 1);
         
         OnSignerRemoved(signerToRemove);
         return true;
@@ -620,8 +620,8 @@ Implement access control based on time constraints and schedules.
 public class TimeBasedAccessContract : SmartContract
 {
     private static readonly UInt160 OWNER = UInt160.Parse("NiNmXL8FjEUEs1nfX9uHFBNaenxDHJtmuB");
-    private static readonly StorageMap TimeWindows = new(Storage.CurrentContext, "time_windows");
-    private static readonly StorageMap UserAccess = new(Storage.CurrentContext, "user_access");
+    private static readonly LocalStorageMap TimeWindows = new("time_windows");
+    private static readonly LocalStorageMap UserAccess = new("user_access");
     
     /// <summary>
     /// Structure for time-based access windows
@@ -638,8 +638,7 @@ public class TimeBasedAccessContract : SmartContract
     /// <summary>
     /// Grant time-limited access to user
     /// </summary>
-    public static bool GrantTimeLimitedAccess(UInt160 user, long startTime, long endTime, 
-                                            string[] permissions)
+    public static bool GrantTimeLimitedAccess(UInt160 user, long startTime, long endTime, string[] permissions)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(OWNER), "Access denied: Owner only");
         ExecutionEngine.Assert(user.IsValid, "Invalid user address");
@@ -674,10 +673,7 @@ public class TimeBasedAccessContract : SmartContract
         long currentTime = Runtime.Time;
         
         // Check all access windows for this user
-        var iterator = (Iterator<ByteString>)Storage.Find(
-            Storage.CurrentContext,
-            "time_windows" + user.ToString(),
-            FindOptions.ValuesOnly);
+        var iterator = (Iterator<ByteString>)Storage.Find("time_windows" + user.ToString(), FindOptions.ValuesOnly);
         while (iterator.Next())
         {
             AccessWindow window = (AccessWindow)StdLib.Deserialize(iterator.Value);
@@ -710,8 +706,7 @@ public class TimeBasedAccessContract : SmartContract
         ExecutionEngine.Assert(HasTimeBasedPermission(caller, "emergency"), "Access denied: No emergency permission");
         
         // Log emergency access
-        Storage.Put(Storage.CurrentContext, "emergency_" + Runtime.Time, 
-                   caller + ":" + action + ":" + justification);
+        Storage.Put("emergency_" + Runtime.Time, caller + ":" + action + ":" + justification);
         
         OnEmergencyAccess(caller, action, justification);
         return true;
@@ -747,7 +742,7 @@ public class TimeBasedAccessContract : SmartContract
         int cleaned = 0;
         Neo.SmartContract.Framework.List<ByteString> toDelete = new Neo.SmartContract.Framework.List<ByteString>();
         
-        var iterator = Storage.Find(Storage.CurrentContext, "time_windows", FindOptions.None);
+        var iterator = Storage.Find("time_windows", FindOptions.None);
         while (iterator.Next() && cleaned < maxCleanup)
         {
             object[] pair = (object[])iterator.Value;
@@ -764,7 +759,7 @@ public class TimeBasedAccessContract : SmartContract
         // Delete expired windows
         foreach (ByteString key in toDelete)
         {
-            Storage.Delete(Storage.CurrentContext, key);
+            Storage.Delete(key);
         }
         
         OnExpiredWindowsCleaned(cleaned);
@@ -821,7 +816,7 @@ public static bool CorrectAccessControl()
 // ❌ WRONG: Storing sensitive data without proper access control
 public static bool WrongDataAccess(UInt160 user, ByteString sensitiveData)
 {
-    Storage.Put(Storage.CurrentContext, "sensitive_" + user, sensitiveData);
+    Storage.Put("sensitive_" + user, sensitiveData);
     return true;
 }
 
@@ -831,7 +826,7 @@ public static bool CorrectDataAccess(UInt160 user, ByteString sensitiveData)
     ExecutionEngine.Assert(Runtime.CheckWitness(user), "Access denied: Invalid signature");
     ExecutionEngine.Assert(HasPermission(user, "write_sensitive"), "Access denied: No permission");
     
-    Storage.Put(Storage.CurrentContext, "sensitive_" + user, sensitiveData);
+    Storage.Put("sensitive_" + user, sensitiveData);
     return true;
 }
 ```
@@ -844,7 +839,7 @@ public static bool IsAdminCached(UInt160 user)
 {
     // Contracts should read storage directly. If you need memoization,
     // cache results off-chain before invoking.
-    return Storage.Get(Storage.CurrentContext, "admin_" + user) != null;
+    return Storage.Get("admin_" + user) != null;
 }
 ```
 

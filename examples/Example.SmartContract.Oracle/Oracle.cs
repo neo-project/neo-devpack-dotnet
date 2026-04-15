@@ -78,7 +78,7 @@ namespace Oracle
             var jsonArrayValues = (object[])StdLib.JsonDeserialize(jsonString);
             var jsonFirstValue = (string)jsonArrayValues[0];
 
-            Storage.Put(Storage.CurrentContext, "Response", jsonFirstValue);
+            Storage.Put("Response", jsonFirstValue);
         }
     }
 }

@@ -17,7 +17,7 @@ Reentrancy protection works by using a flag in contract storage to indicate whet
 
 ### Implementation Details
 
-1. **Storage Context**: Both attributes use a `StorageMap` to store the reentrancy flag. This map is associated with the current storage context of the contract.
+1. **Storage Context**: Both attributes use a `LocalStorageMap` to store the reentrancy flag. This map is associated with the current storage context of the contract.
 
 2. **Unique Keys**: Each protected method (or group of methods) uses a unique key in the storage map. This allows for fine-grained control over which methods can or cannot be reentered.
 

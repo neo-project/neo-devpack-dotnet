@@ -172,7 +172,7 @@ namespace HelloWorld
             }
 
             // Store the message
-            Storage.Put(Storage.CurrentContext, MESSAGE_PREFIX, message);
+            Storage.Put(MESSAGE_PREFIX, message);
             return true;
         }
 
@@ -180,7 +180,7 @@ namespace HelloWorld
         [Safe]
         public static string GetMessage()
         {
-            return Storage.Get(Storage.CurrentContext, MESSAGE_PREFIX);
+            return Storage.Get(MESSAGE_PREFIX);
         }
 
         // Contract update method
@@ -573,7 +573,7 @@ public class ContractFactory : SmartContract
         UInt160 contractHash = ContractManagement.Deploy(nefFile, manifest);
         
         // Store contract reference
-        StorageMap contractMap = new(Storage.CurrentContext, CONTRACT_MAP);
+        LocalStorageMap contractMap = new(CONTRACT_MAP);
         contractMap.Put(name, contractHash);
         
         OnContractCreated(name, contractHash);
@@ -596,7 +596,7 @@ public class UpgradeableContract : SmartContract
     
     public static string GetVersion()
     {
-        return Storage.Get(Storage.CurrentContext, VERSION_KEY) ?? "1.0.0";
+        return Storage.Get(VERSION_KEY) ?? "1.0.0";
     }
     
     public static bool Upgrade(ByteString nefFile, string manifest, object data)
@@ -623,7 +623,7 @@ public class UpgradeableContract : SmartContract
         else
         {
             // Initial deployment
-            Storage.Put(Storage.CurrentContext, VERSION_KEY, "1.0.0");
+            Storage.Put(VERSION_KEY, "1.0.0");
         }
     }
     
@@ -652,13 +652,13 @@ public class ProxyContract : SmartContract
     public static bool SetImplementation(UInt160 newImplementation)
     {
         ExecutionEngine.Assert(Runtime.CheckWitness(GetOwner()), "Unauthorized");
-        Storage.Put(Storage.CurrentContext, IMPLEMENTATION_KEY, newImplementation);
+        Storage.Put(IMPLEMENTATION_KEY, newImplementation);
         return true;
     }
     
     private static UInt160 GetImplementation()
     {
-        return (UInt160)Storage.Get(Storage.CurrentContext, IMPLEMENTATION_KEY);
+        return (UInt160)Storage.Get(IMPLEMENTATION_KEY);
     }
 }
 ```

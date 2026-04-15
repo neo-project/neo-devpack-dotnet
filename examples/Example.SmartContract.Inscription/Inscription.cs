@@ -42,7 +42,7 @@ namespace Inscription
             if (!Runtime.CheckWitness(address))
                 throw new Exception("Unauthorized: Caller is not the address owner");
 
-            Storage.Put(Storage.CurrentContext, address, inscription);
+            Storage.Put(address, inscription);
             InscriptionAdded(address, inscription);
         }
 
@@ -54,7 +54,7 @@ namespace Inscription
         [Safe]
         public static string GetInscription(UInt160 address)
         {
-            return Storage.Get(Storage.CurrentReadOnlyContext, address);
+            return Storage.Get(address);
         }
     }
 }

@@ -30,15 +30,15 @@ namespace NFT
     {
         public override string Symbol { [Safe] get => "sLoot"; }
 
-        private static readonly StorageMap TokenIndexMap = new((byte)StoragePrefix.Token);
-        private static readonly StorageMap TokenMap = new((byte)StoragePrefix.Token);
+        private static readonly LocalStorageMap TokenIndexMap = new((byte)StoragePrefix.Token);
+        private static readonly LocalStorageMap TokenMap = new((byte)StoragePrefix.Token);
         public static event Action<string> EventMsg;
 
         [Safe]
         public override Map<string, object> Properties(ByteString tokenId)
         {
             ExecutionEngine.Assert(Runtime.EntryScriptHash == Runtime.CallingScriptHash);
-            StorageMap tokenMap = new(Storage.CurrentContext, (byte)StoragePrefix.Token);
+            LocalStorageMap tokenMap = new((byte)StoragePrefix.Token);
             var token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]);
             Map<string, object> map = new()
             {

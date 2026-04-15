@@ -84,7 +84,7 @@ public class RoleBasedContract : SmartContract
         ExecutionEngine.Assert(HasRole(caller, ADMIN_ROLE), "Only admins can grant roles");
         ExecutionEngine.Assert(IsValidRole(role), "Invalid role");
         
-        StorageMap roles = new(Storage.CurrentContext, "roles");
+        LocalStorageMap roles = new("roles");
         roles.Put(user, role);
         
         OnRoleGranted(user, role);
@@ -93,7 +93,7 @@ public class RoleBasedContract : SmartContract
     
     public static bool HasRole(UInt160 user, string role)
     {
-        StorageMap roles = new(Storage.CurrentContext, "roles");
+        LocalStorageMap roles = new("roles");
         string userRole = roles.Get(user);
         
         if (user == OWNER) return true; // Owner has all roles
@@ -147,7 +147,7 @@ public class MultiSigContract : SmartContract
     
     private static bool IsAuthorizedSigner(UInt160 signer)
     {
-        StorageMap authorizedSigners = new(Storage.CurrentContext, "signers");
+        StorageMap authorizedSigners = new("signers");
         return authorizedSigners.Get(signer) != null;
     }
 }
@@ -161,9 +161,6 @@ public class MultiSigContract : SmartContract
 public class SecureStorage : SmartContract
 {
     // Use StorageMap/explicit prefixes to separate data under one context
-    private static StorageContext UserContext => Storage.CurrentContext;
-    private static StorageContext BalanceContext => Storage.CurrentContext;
-    
     private enum StoragePrefix : byte
     {
         User = 0x01,
@@ -179,7 +176,7 @@ public class SecureStorage : SmartContract
         
         // Use user-specific key with namespace isolation
         ByteString key = CryptoLib.Sha256(user.Concat((ByteString)((byte[])data).Take(32))); // Use hash for privacy
-        Storage.Put(UserContext, key, data);
+        Storage.Put(key, data);
         
         return true;
     }
@@ -250,15 +247,15 @@ public class RaceConditionSafe : SmartContract
     
     private static bool IsLocked()
     {
-        return Storage.Get(Storage.CurrentContext, GLOBAL_LOCK) != null;
+        return Storage.Get(GLOBAL_LOCK) != null;
     }
     
     private static void SetLock(bool locked)
     {
         if (locked)
-            Storage.Put(Storage.CurrentContext, GLOBAL_LOCK, 1);
+            Storage.Put(GLOBAL_LOCK, 1);
         else
-            Storage.Delete(Storage.CurrentContext, GLOBAL_LOCK);
+            Storage.Delete(GLOBAL_LOCK);
     }
 }
 ```
@@ -292,7 +289,7 @@ public class SafeInteractions : SmartContract
     
     private static bool IsWhitelistedContract(UInt160 contract)
     {
-        StorageMap whitelist = new(Storage.CurrentContext, "whitelist");
+        LocalStorageMap whitelist = new("whitelist");
         return whitelist.Get(contract) != null;
     }
     
@@ -346,15 +343,15 @@ public class ReentrancyGuard : SmartContract
     
     private static bool IsExecuting()
     {
-        return Storage.Get(Storage.CurrentContext, "executing") != null;
+        return Storage.Get("executing") != null;
     }
     
     private static void SetExecuting(bool executing)
     {
         if (executing)
-            Storage.Put(Storage.CurrentContext, "executing", REENTRANCY_GUARD);
+            Storage.Put("executing", REENTRANCY_GUARD);
         else
-            Storage.Delete(Storage.CurrentContext, "executing");
+            Storage.Delete("executing");
     }
     
     private static bool NotifyExternalContract(UInt160 user, BigInteger amount)
@@ -427,7 +424,7 @@ public class GasEfficientSecurity : SmartContract
 {
     public static bool IsAdmin(UInt160 user)
     {
-        StorageMap admins = new(Storage.CurrentContext, "admins");
+        LocalStorageMap admins = new("admins");
         return admins.Get(user) != null;
     }
     
@@ -485,8 +482,7 @@ public class SecureOracleContract : SmartContract
         
         // Check for duplicate requests
         var requestKey = ORACLE_REQUEST_PREFIX + requestId;
-        ExecutionEngine.Assert(Storage.Get(Storage.CurrentContext, requestKey) == null, 
-               "Duplicate request");
+        ExecutionEngine.Assert(Storage.Get(requestKey) == null, "Duplicate request");
         
         // Store request details for validation
         var request = new OracleRequest
@@ -497,7 +493,7 @@ public class SecureOracleContract : SmartContract
             Requester = Runtime.CallingScriptHash
         };
         
-        Storage.Put(Storage.CurrentContext, requestKey, StdLib.Serialize(request));
+        Storage.Put(requestKey, StdLib.Serialize(request));
         
         // Make oracle request with callback
         Oracle.Request(url, filter, "oracleCallback", requestId, Oracle.MinimumResponseGas);
@@ -514,7 +510,7 @@ public class SecureOracleContract : SmartContract
         
         // Retrieve and validate request
         var requestKey = ORACLE_REQUEST_PREFIX + requestId;
-        var requestData = Storage.Get(Storage.CurrentContext, requestKey);
+        var requestData = Storage.Get(requestKey);
         ExecutionEngine.Assert(requestData != null, "Unknown oracle request");
         
         var request = (OracleRequest)StdLib.Deserialize(requestData);
@@ -524,7 +520,7 @@ public class SecureOracleContract : SmartContract
         if (code != OracleResponseCode.Success)
         {
             OnOracleFailed(requestId, code);
-            Storage.Delete(Storage.CurrentContext, requestKey);
+            Storage.Delete(requestKey);
             return;
         }
         
@@ -535,7 +531,7 @@ public class SecureOracleContract : SmartContract
         ProcessOracleData(requestId, result);
         
         // Clean up
-        Storage.Delete(Storage.CurrentContext, requestKey);
+        Storage.Delete(requestKey);
         OnOracleSuccess(requestId, result);
     }
     
@@ -620,7 +616,7 @@ public class SecureRandomContract : SmartContract
     {
         var caller = Runtime.Transaction.Sender;
         ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied");
-        Storage.Put(Storage.CurrentContext, "commit_" + caller, hashedValue);
+        Storage.Put("commit_" + caller, hashedValue);
         return true;
     }
     
@@ -628,18 +624,18 @@ public class SecureRandomContract : SmartContract
     {
         var caller = Runtime.Transaction.Sender;
         ExecutionEngine.Assert(Runtime.CheckWitness(caller), "Access denied");
-        var commitment = Storage.Get(Storage.CurrentContext, "commit_" + caller);
+        var commitment = Storage.Get("commit_" + caller);
         var hash = CryptoLib.Sha256(value + nonce);
         
         ExecutionEngine.Assert(hash == commitment, "Invalid reveal");
-        Storage.Put(Storage.CurrentContext, "reveal_" + caller, value);
+        Storage.Put("reveal_" + caller, value);
         return true;
     }
     
     private static BigInteger GetAndIncrementNonce()
     {
-        var nonce = (BigInteger)(Storage.Get(Storage.CurrentContext, "nonce") ?? 0);
-        Storage.Put(Storage.CurrentContext, "nonce", nonce + 1);
+        var nonce = (BigInteger)(Storage.Get("nonce") ?? 0);
+        Storage.Put("nonce", nonce + 1);
         return nonce;
     }
 }
@@ -709,7 +705,7 @@ public class DoSProtectedContract : SmartContract
         ExecutionEngine.Assert(ChargeUser(user, storageFee), "Insufficient balance for storage");
         
         // Store data
-        Storage.Put(Storage.CurrentContext, GetUserDataKey(user), data);
+        Storage.Put(GetUserDataKey(user), data);
         UpdateUserStorageUsage(user, newUsage);
         
         return true;

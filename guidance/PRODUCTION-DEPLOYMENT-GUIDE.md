@@ -355,7 +355,7 @@ public static bool EmergencyPause()
     // Multi-sig requirement for emergency
     ExecutionEngine.Assert(IsEmergencyAuthorized(), "Unauthorized");
     
-    Storage.Put(Storage.CurrentContext, "emergency_pause", 1);
+    Storage.Put("emergency_pause", 1);
     OnEmergencyPause(Runtime.Time);
     
     return true;
@@ -600,7 +600,7 @@ public static class ComplianceTracker
         };
         
         var key = $"adminlog_{Runtime.Time}_{admin}";
-        Storage.Put(Storage.CurrentContext, key, StdLib.Serialize(log));
+        Storage.Put(key, StdLib.Serialize(log));
         
         OnAdminAction(action, admin, data);
     }
