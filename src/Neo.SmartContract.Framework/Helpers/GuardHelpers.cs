@@ -81,7 +81,7 @@ namespace Neo.SmartContract.Framework.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequirePositive(BigInteger amount)
         {
-            ExecutionEngine.Assert(amount > 0, "NOT_POSITIVE");
+            ExecutionEngine.Assert(amount > 0, "NotPositive");
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Neo.SmartContract.Framework.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireValidAddress(UInt160 address)
         {
-            ExecutionEngine.Assert(address is not null && address != UInt160.Zero, "INVALID_ADDR");
+            ExecutionEngine.Assert(address is not null && address != UInt160.Zero, "InvalidAddress");
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Neo.SmartContract.Framework.Helpers
         /// <param name="account">The account to check witness for</param>
         /// <param name="errorCode">Optional custom error code</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void RequireWitness(UInt160 account, string errorCode = "NO_WITNESS")
+        public static void RequireWitness(UInt160 account, string errorCode = "NoWitness")
         {
             ExecutionEngine.Assert(Runtime.CheckWitness(account), errorCode);
         }
@@ -114,7 +114,7 @@ namespace Neo.SmartContract.Framework.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireInRange(BigInteger value, BigInteger min, BigInteger max)
         {
-            ExecutionEngine.Assert(value >= min && value <= max, "OUT_OF_RANGE");
+            ExecutionEngine.Assert(value >= min && value <= max, "OutOfRange");
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Neo.SmartContract.Framework.Helpers
         /// <param name="expected">The expected value</param>
         /// <param name="errorCode">Optional custom error code</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void RequireEquals(object actual, object expected, string errorCode = "NOT_EQUAL")
+        public static void RequireEquals(object actual, object expected, string errorCode = "NotEqual")
         {
             ExecutionEngine.Assert(actual.Equals(expected), errorCode);
         }
@@ -136,7 +136,7 @@ namespace Neo.SmartContract.Framework.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireCaller(UInt160 expectedCaller)
         {
-            ExecutionEngine.Assert(Runtime.CallingScriptHash == expectedCaller, "INVALID_CALLER");
+            ExecutionEngine.Assert(Runtime.CallingScriptHash == expectedCaller, "InvalidCaller");
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Neo.SmartContract.Framework.Helpers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RequireNotEmpty(string value, string paramName)
         {
-            ExecutionEngine.Assert(!string.IsNullOrEmpty(value), $"EMPTY:{paramName}");
+            ExecutionEngine.Assert(!string.IsNullOrEmpty(value), $"Empty:{paramName}");
         }
     }
 }

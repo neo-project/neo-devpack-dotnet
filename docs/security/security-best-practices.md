@@ -280,13 +280,10 @@ public class SafeInteractions : SmartContract
         // Validate target contract
         ExecutionEngine.Assert(IsWhitelistedContract(targetContract), "Contract not whitelisted");
         ExecutionEngine.Assert(!string.IsNullOrEmpty(method), "Invalid method");
-        
-        // Set call limits
-        const int MAX_GAS = 1_000_000;
-        
+        // Check args are as expected by the method
+
         try
         {
-            // Make the call with gas limit
             var result = Contract.Call(targetContract, method, CallFlags.ReadOnly, args);
             return result != null;
         }
@@ -335,14 +332,12 @@ public class ReentrancyGuard : SmartContract
             
             // Now safe to make external calls
             bool success = NotifyExternalContract(user, amount);
-            
             if (!success)
             {
                 // Revert state change
                 SetBalance(user, balance);
                 return false;
             }
-            
             return true;
         }
         finally

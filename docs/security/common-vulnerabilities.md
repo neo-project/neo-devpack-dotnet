@@ -31,7 +31,8 @@ Reentrancy occurs when external contracts call back into your contract before st
 
 ## Integer Overflow/Underflow
 
-While Neo uses `BigInteger`, you must still validate ranges and prevent unexpected arithmetic operations.
+In Neo, the `BigInteger` type is limited to 256 bits (32 bytes).
+Any operation that results in a value that exceeds this limit will cause the execution to abort.
 
 ### Key Vulnerabilities
 - Unchecked arithmetic operations
@@ -40,7 +41,7 @@ While Neo uses `BigInteger`, you must still validate ranges and prevent unexpect
 
 ### Prevention Strategies
 1. **Range Validation**: Set maximum values for business logic
-2. **Safe Arithmetic**: Check for overflow before operations
+2. **Safe Arithmetic**: Check values are within the expected range before performing operations
 3. **Input Validation**: Validate all numeric inputs
 
 > **Implementation**: See [Safe Arithmetic Operations](safe-arithmetic.md) for comprehensive safe math patterns.
