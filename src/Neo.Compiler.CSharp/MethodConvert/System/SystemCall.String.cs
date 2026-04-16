@@ -426,7 +426,7 @@ internal partial class MethodConvert
         methodConvert.Drop();                        // Drop original string
         methodConvert.PushT();                       // Push true any string ends with ""
         methodConvert.JumpAlways(endTarget);
-        suffixNotEmptyTarget.Instruction = methodConvert.Nop();        
+        suffixNotEmptyTarget.Instruction = methodConvert.Nop();
         methodConvert.Dup();                                       // Duplicate string for length check
         methodConvert.Size();                                      // Get string length
         methodConvert.Rot();                                       // Rotate stack for comparison
