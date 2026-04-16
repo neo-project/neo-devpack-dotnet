@@ -25,11 +25,7 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4006";
 
         private readonly string[] _unsupportedBigIntegerMethods = {
-            "BitwiseAnd", "BitwiseOr",
-            "Exp", "LeftShift",
-            "Log10", "OnesComplement",
-            "RightShift",
-            "Xor"
+            "Exp", "Log10"
         };
 
         private static readonly DiagnosticDescriptor Rule = new(
