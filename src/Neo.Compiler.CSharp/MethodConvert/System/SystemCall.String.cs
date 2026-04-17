@@ -417,6 +417,16 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         var endTarget = new JumpTarget();
         var validCountTarget = new JumpTarget();
+        var suffixNotEmptyTarget = new JumpTarget();
+        methodConvert.Dup();                         // Duplicate suffix
+        methodConvert.Size();                        // Get suffix length
+        methodConvert.Push(0);
+        methodConvert.JumpIfNotEqual(suffixNotEmptyTarget); // if len(suffix) != 0 skip
+        methodConvert.Drop();                        // Drop suffix (empty string)
+        methodConvert.Drop();                        // Drop original string
+        methodConvert.PushT();                       // Push true any string ends with ""
+        methodConvert.JumpAlways(endTarget);
+        suffixNotEmptyTarget.Instruction = methodConvert.Nop();
         methodConvert.Dup();                                       // Duplicate string for length check
         methodConvert.Size();                                      // Get string length
         methodConvert.Rot();                                       // Rotate stack for comparison
@@ -429,7 +439,7 @@ internal partial class MethodConvert
         methodConvert.Sub();                                       // Calculate start position
         methodConvert.Dup();                                       // Duplicate for bounds check
         methodConvert.Push(0);                                     // Push 0 for comparison
-        methodConvert.JumpIfGreater(validCountTarget);        // Jump if position > 0
+        methodConvert.JumpIfGreaterOrEqual(validCountTarget); // Jump if position >= 0
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack
         methodConvert.Drop();                                      // Clean stack
