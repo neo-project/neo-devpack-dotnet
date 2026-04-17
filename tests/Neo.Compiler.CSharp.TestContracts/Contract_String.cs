@@ -62,6 +62,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.EndsWith("world");
         }
 
+        public static bool TestEndWith(string strA, string strB)
+        {
+            return strA.EndsWith(strB);
+        }
+
         public static bool TestContains(string str)
         {
             return str.Contains("world");
