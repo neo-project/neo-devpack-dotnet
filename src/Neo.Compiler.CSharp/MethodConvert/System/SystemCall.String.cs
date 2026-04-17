@@ -417,7 +417,7 @@ internal partial class MethodConvert
             methodConvert.ConvertExpression(model, instanceExpression);
         var endTarget = new JumpTarget();
         var validCountTarget = new JumpTarget();
-    	var suffixNotEmptyTarget = new JumpTarget();
+        var suffixNotEmptyTarget = new JumpTarget();
         methodConvert.Dup();                         // Duplicate suffix
         methodConvert.Size();                        // Get suffix length
         methodConvert.Push(0);
