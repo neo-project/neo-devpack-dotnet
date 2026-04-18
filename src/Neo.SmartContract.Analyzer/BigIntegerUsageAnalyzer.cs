@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -25,11 +26,7 @@ namespace Neo.SmartContract.Analyzer
         public const string DiagnosticId = "NC4006";
 
         private readonly string[] _unsupportedBigIntegerMethods = {
-            "BitwiseAnd", "BitwiseOr",
-            "Exp", "LeftShift",
-            "Log10", "OnesComplement",
-            "RightShift",
-            "Xor"
+            nameof(BigInteger.Log10)
         };
 
         private static readonly DiagnosticDescriptor Rule = new(
