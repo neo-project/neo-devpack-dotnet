@@ -45,6 +45,8 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeParameter, SyntaxKind.Parameter);
         }
 
         private static void AnalyzeOperation(OperationAnalysisContext context)
@@ -57,6 +59,28 @@ namespace Neo.SmartContract.Analyzer
                 var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.SpecialType.ToString(), variableType.ToString());
                 context.ReportDiagnostic(diagnostic);
             }
+        }
+
+        private static void AnalyzeMethodDeclaration(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not MethodDeclarationSyntax methodDeclaration) return;
+
+            var type = context.SemanticModel.GetTypeInfo(methodDeclaration.ReturnType, context.CancellationToken).Type;
+            if (type?.SpecialType != SpecialType.System_Decimal) return;
+
+            var diagnostic = Diagnostic.Create(Rule, methodDeclaration.ReturnType.GetLocation(), type.SpecialType.ToString(), type.ToString());
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private static void AnalyzeParameter(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not ParameterSyntax parameter || parameter.Type is null) return;
+
+            var type = context.SemanticModel.GetDeclaredSymbol(parameter, context.CancellationToken)?.Type;
+            if (type?.SpecialType != SpecialType.System_Decimal) return;
+
+            var diagnostic = Diagnostic.Create(Rule, parameter.Type.GetLocation(), type.SpecialType.ToString(), type.ToString());
+            context.ReportDiagnostic(diagnostic);
         }
     }
 
