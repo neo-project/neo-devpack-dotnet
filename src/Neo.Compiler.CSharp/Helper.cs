@@ -64,10 +64,13 @@ namespace Neo.Compiler
 
         public static ContractParameterType GetContractParameterType(this ITypeSymbol type)
         {
+            ThrowIfUnsupportedContractType(type);
+
             if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
             {
                 // use the original type for nullable types, depend on the script to deal with null for value types
                 type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
+                ThrowIfUnsupportedContractType(type);
             }
 
             switch (type.ToString())
@@ -103,6 +106,25 @@ namespace Neo.Compiler
                 return ContractParameterType.InteropInterface;
             if (type.IsValueType) return ContractParameterType.Array;
             return ContractParameterType.Any;
+        }
+
+        private static void ThrowIfUnsupportedContractType(ITypeSymbol type)
+        {
+            if (type.SpecialType is SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal)
+                throw new CompilationException(type, DiagnosticId.SyntaxNotSupported, $"Type '{type}' is not supported in contract ABI.");
+
+            if (type is not INamedTypeSymbol namedType)
+                return;
+
+            var originalDefinition = namedType.OriginalDefinition.ToString();
+            if (originalDefinition is "System.Threading.Tasks.Task"
+                or "System.Threading.Tasks.Task<TResult>"
+                or "System.Threading.Tasks.ValueTask"
+                or "System.Threading.Tasks.ValueTask<TResult>"
+                or "System.Collections.Generic.IAsyncEnumerable<T>")
+            {
+                throw new CompilationException(type, DiagnosticId.SyntaxNotSupported, $"Type '{type}' is not supported in contract ABI.");
+            }
         }
 
         public static StackItemType GetStackItemType(this ITypeSymbol type)
