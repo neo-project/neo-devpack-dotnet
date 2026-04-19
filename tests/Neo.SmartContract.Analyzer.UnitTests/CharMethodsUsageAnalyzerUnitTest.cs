@@ -89,6 +89,8 @@ class TestClass
         var result3 = char.IsWhiteSpace(c);
         var result4 = char.ToLower(c);
         var result5 = char.ToUpper(c);
+        var result6 = char.ToLowerInvariant(c);
+        var result7 = char.ToUpperInvariant(c);
     }
 }";
 

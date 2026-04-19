@@ -27,8 +27,6 @@ namespace Neo.SmartContract.Analyzer
             "CompareTo", "Equals", "GetHashCode",
             "GetType", "GetTypeCode",
             "IsNumber", "IsSeparator",
-            "ToLowerInvariant",
-            "ToUpperInvariant",
             "ConvertFromUtf32", "ConvertToUtf32",
             "GetUnicodeCategory",
             "IsSurrogatePair"
