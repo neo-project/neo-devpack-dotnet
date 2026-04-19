@@ -93,6 +93,30 @@ public class StringBuilderUsageAnalyzerUnitTests
     }
 
     [TestMethod]
+    public async Task UnsupportedAppendObjectParameter_ShouldReportDiagnostic()
+    {
+        var test = """
+                   using System.Text;
+
+                   class TestClass
+                   {
+                       void Test()
+                       {
+                           var sb = new StringBuilder();
+                           object value = 42;
+                           sb.Append(value);
+                       }
+                   }
+                   """;
+
+        var expected = VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
+            .WithSpan(9, 9, 9, 25)
+            .WithArguments("StringBuilder.Append(object?)");
+
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
     public async Task LengthSetter_ShouldReportDiagnostic()
     {
         var test = """
