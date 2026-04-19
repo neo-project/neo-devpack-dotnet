@@ -178,7 +178,7 @@ unsafe
 
 Status: supported
 Scope: method
-Notes: Common `string` APIs such as indexing, substring, and replacement work as expected.
+Notes: Common `string` APIs such as indexing, substring, and replacement compile successfully. Case conversion and character classification are ASCII-oriented in Neo contracts; see [Semantic Differences](SemanticDifferences.md#char-and-string-character-helpers).
 ```csharp
 string phrase = "neo compiler";
 int spaceIndex = phrase.IndexOf(' ');
@@ -246,7 +246,7 @@ bool hasSingleBit = System.Numerics.BitOperations.IsPow2(32);
 
 Status: supported
 Scope: method
-Notes: `char` classification and casing helpers compile and behave like desktop C#.
+Notes: `char` classification and casing helpers compile for the supported ASCII-oriented contract semantics. They do not provide full .NET Unicode category behavior; see [Semantic Differences](SemanticDifferences.md#char-and-string-character-helpers).
 ```csharp
 char symbol = 'n';
 bool isLetter = char.IsLetter(symbol);
