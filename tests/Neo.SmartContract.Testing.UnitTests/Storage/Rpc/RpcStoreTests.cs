@@ -12,12 +12,37 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing.Storage;
 using Neo.SmartContract.Testing.Storage.Rpc;
+using System;
 
 namespace Neo.SmartContract.Testing.UnitTests.Storage
 {
     [TestClass]
     public class RpcStoreTests
     {
+        [TestMethod]
+        public void RpcStoreMutationsExplainReadOnlyBehavior()
+        {
+            var store = new RpcStore("http://localhost:10332");
+
+            var deleteException = Assert.ThrowsException<NotImplementedException>(() => store.Delete(new byte[] { 1 }));
+            StringAssert.Contains(deleteException.Message, "read-only");
+
+            var putException = Assert.ThrowsException<NotImplementedException>(() => store.Put(new byte[] { 1 }, new byte[] { 2 }));
+            StringAssert.Contains(putException.Message, "read-only");
+        }
+
+        [TestMethod]
+        public void RpcSnapshotCommitExplainsReadOnlyBehaviorWhenDirty()
+        {
+            var store = new RpcStore("http://localhost:10332");
+            var snapshot = store.GetSnapshot();
+            snapshot.Put(new byte[] { 1 }, new byte[] { 2 });
+
+            var exception = Assert.ThrowsException<NotImplementedException>(() => snapshot.Commit());
+
+            StringAssert.Contains(exception.Message, "read-only");
+        }
+
         [TestMethod]
         public void TestRpcStore()
         {

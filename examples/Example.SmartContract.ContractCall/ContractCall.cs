@@ -27,9 +27,9 @@ public class SampleContractCall : SmartContract
     [Hash160("0x13a83e059c2eedd5157b766d3357bc826810905e")]
     private static readonly UInt160 DummyTarget;
 
-    public static void onNEP17Payment(UInt160 from, BigInteger amount, BigInteger data)
+    public static void onNEP17Payment(UInt160 from, BigInteger amount, object? data)
     {
-        if (!data.Equals(123)) return;
+        if (data is not BigInteger value || !value.Equals(123)) return;
         UInt160 @this = Runtime.ExecutingScriptHash;
         UInt160 tokenHash = Runtime.CallingScriptHash;
         BigInteger balanceOf = (BigInteger)Contract.Call(tokenHash, "balanceOf", CallFlags.ReadOnly, @this);
