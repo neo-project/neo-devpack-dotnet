@@ -470,7 +470,8 @@ namespace Neo.Compiler
         {
             if (!MetaReferences.TryGetValue(name, out var reference))
             {
-                switch (assets["libraries"]![name]!["type"]!.GetString())
+                string assetType = assets["libraries"]![name]!["type"]!.GetString();
+                switch (assetType)
                 {
                     case "package":
                         string packagesPath = assets["project"]!["restore"]!["packagesPath"]!.GetString();
@@ -507,7 +508,7 @@ namespace Neo.Compiler
                         reference = GetCompilationPreservingVersion(msbuildProject).ToMetadataReference();
                         break;
                     default:
-                        throw new NotSupportedException();
+                        throw new NotSupportedException($"Unsupported dependency asset type '{assetType}' for '{name}'.");
                 }
                 MetaReferences.Add(name, reference);
             }

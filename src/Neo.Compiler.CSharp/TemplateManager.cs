@@ -166,7 +166,7 @@ namespace Neo.Compiler
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.9.0"" />
+    <PackageReference Include=""Neo.SmartContract.Framework"" Version=""3.9.1"" />
   </ItemGroup>
 
   <Target Name=""PostBuild"" AfterTargets=""PostBuildEvent"">

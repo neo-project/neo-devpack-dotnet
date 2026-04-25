@@ -116,7 +116,7 @@ namespace Neo.SmartContract.Framework
         protected static void Mint(ByteString tokenId, TokenState token)
         {
             var tokenMap = new LocalStorageMap(Prefix_Token);
-            if (tokenMap[tokenId] is not null) throw new InvalidOperationException();
+            if (tokenMap[tokenId] is not null) throw new InvalidOperationException("The token with given \"tokenId\" already exists.");
             tokenMap[tokenId] = StdLib.Serialize(token);
             UpdateBalance(token.Owner, tokenId, +1);
             TotalSupply++;
