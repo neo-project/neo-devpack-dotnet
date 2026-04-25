@@ -29,10 +29,13 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
         [TestMethod]
         public void NeoDebugInfoLoadThrowsHelpfulMessageForNonObjectJson()
         {
-            using var stream = new MemoryStream(Encoding.UTF8.GetBytes("[]"));
             var load = typeof(NeoDebugInfo).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             Assert.IsNotNull(load);
+            using var validStream = new MemoryStream(Encoding.UTF8.GetBytes("{\"hash\":\"0x0000000000000000000000000000000000000000\",\"documents\":[],\"methods\":[]}"));
 
+            Assert.IsNotNull(load.Invoke(null, new object[] { validStream }));
+
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes("[]"));
             var exception = Assert.ThrowsException<TargetInvocationException>(() => load.Invoke(null, new object[] { stream }));
 
             Assert.IsInstanceOfType(exception.InnerException, typeof(FormatException));
