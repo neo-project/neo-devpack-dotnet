@@ -154,7 +154,7 @@ namespace Neo.SmartContract.Analyzer
             {
                 if (literalExpression.Kind() == SyntaxKind.NumericLiteralExpression)
                 {
-                    var literalValue = double.Parse(literalExpression.Token.ValueText);
+                    var literalValue = double.Parse(literalExpression.Token.ValueText, CultureInfo.InvariantCulture);
                     return literalValue != Math.Floor(literalValue);
                 }
             }
