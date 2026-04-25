@@ -9,6 +9,8 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier =
@@ -99,6 +101,22 @@ namespace Neo.SmartContract.Analyzer.UnitTests
                 .WithSpan(4, 30, 4, 44).WithArguments("float");
 
             await Verifier.VerifyCodeFixAsync(originalCode, expectedDiagnostic, fixedCode).ConfigureAwait(false);
+        }
+
+        [TestMethod]
+        public async Task FloatUsageAnalyzer_ReplaceWithVar_UnderCommaDecimalCulture()
+        {
+            // Regression: the code fix must not depend on CurrentCulture when parsing literals.
+            var previous = Thread.CurrentThread.CurrentCulture;
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("es-ES");
+            try
+            {
+                await FloatUsageAnalyzer_ReplaceWithVar().ConfigureAwait(false);
+            }
+            finally
+            {
+                Thread.CurrentThread.CurrentCulture = previous;
+            }
         }
 
     }
