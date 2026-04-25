@@ -42,7 +42,7 @@ namespace Neo.Optimizer
                 (Instruction i, int a) = ((Instruction)item.Key, (int)item.Value!);
                 simplifiedScript.Add((byte)i.OpCode);
                 int operandSizeLength = OperandSizePrefixTable[(int)i.OpCode];
-                simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(i.Operand.Length)[0..operandSizeLength]).ToList();
+                AddLittleEndianBytes(simplifiedScript, i.Operand.Length, operandSizeLength);
                 if (jumpSourceToTargets.TryGetValue(i, out Instruction? dst))
                 {
                     int delta;
@@ -65,7 +65,7 @@ namespace Neo.Optimizer
                             // TODO: build with _L version
                             throw new NotImplementedException($"Need {i.OpCode}_L for delta={delta}");
                     if (i.OpCode == OpCode.PUSHA || i.OpCode == OpCode.JMP_L || conditionalJump_L.Contains(i.OpCode) || i.OpCode == OpCode.CALL_L || i.OpCode == OpCode.ENDTRY_L)
-                        simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(delta)).ToList();
+                        AddLittleEndianBytes(simplifiedScript, delta, sizeof(int));
                     continue;
                 }
                 if (trySourceToTargets.TryGetValue(i, out (Instruction dst1, Instruction dst2) dsts))
@@ -79,16 +79,23 @@ namespace Neo.Optimizer
                     }
                     if (i.OpCode == OpCode.TRY_L)
                     {
-                        simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(delta1)).ToList();
-                        simplifiedScript = simplifiedScript.Concat(BitConverter.GetBytes(delta2)).ToList();
+                        AddLittleEndianBytes(simplifiedScript, delta1, sizeof(int));
+                        AddLittleEndianBytes(simplifiedScript, delta2, sizeof(int));
                     }
                     continue;
                 }
                 if (i.Operand.Length != 0)
-                    simplifiedScript = simplifiedScript.Concat(i.Operand.ToArray()).ToList();
+                    simplifiedScript.AddRange(i.Operand.ToArray());
             }
             Script script = new(simplifiedScript.ToArray());
             return script;
+        }
+
+        private static void AddLittleEndianBytes(List<byte> script, int value, int length)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            for (int index = 0; index < length; index++)
+                script.Add(bytes[index]);
         }
 
         private static bool TryResolveDeletedJumpTarget(
