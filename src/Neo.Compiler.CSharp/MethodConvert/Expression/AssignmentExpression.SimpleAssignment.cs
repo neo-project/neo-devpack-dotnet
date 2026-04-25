@@ -216,14 +216,10 @@ internal partial class MethodConvert
                     AddInstruction(OpCode.ROT);
                     AddInstruction(OpCode.SETITEM);
                 }
-                else if (property.SetMethod != null)
+                else
                 {
                     if (NeedInstanceConstructor(property.SetMethod)) AddInstruction(OpCode.LDARG0);
                     CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
-                }
-                else
-                {
-                    throw CompilationException.UnsupportedSyntax(left, $"Cannot assign to readonly property '{property.Name}' outside of a constructor. Make the property settable or perform the assignment in a constructor.");
                 }
                 break;
             default:
