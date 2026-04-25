@@ -419,8 +419,10 @@ namespace Neo.Compiler
                     FileName = "dotnet",
                     Arguments = $"restore \"{csproj}\"",
                     WorkingDirectory = folder
-                });
-                process?.WaitForExit();
+                }) ?? throw new InvalidOperationException($"Unable to start dotnet restore for '{csproj}'.");
+                process.WaitForExit();
+                if (process.ExitCode != 0)
+                    throw new InvalidOperationException($"dotnet restore failed with exit code {process.ExitCode} for '{csproj}'.");
             }
 
             if (!File.Exists(assetsPath))

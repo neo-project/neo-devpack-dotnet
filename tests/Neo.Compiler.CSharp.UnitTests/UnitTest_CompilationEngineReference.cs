@@ -13,6 +13,34 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_CompilationEngineReference
 {
     [TestMethod]
+    public void GetCompilation_ReportsRestoreFailureExitCode()
+    {
+        var tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempFolder);
+        var projectFile = Path.Combine(tempFolder, "BadRestore.csproj");
+        File.WriteAllText(projectFile, """
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+""");
+
+        try
+        {
+            var engine = new CompilationEngine(new CompilationOptions());
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => engine.GetCompilation(projectFile));
+
+            StringAssert.Contains(exception.Message, "dotnet restore failed");
+            StringAssert.Contains(exception.Message, "exit code");
+            StringAssert.Contains(exception.Message, projectFile);
+        }
+        finally
+        {
+            Directory.Delete(tempFolder, recursive: true);
+        }
+    }
+
+    [TestMethod]
     public void UnsupportedDependencyAssetTypeIncludesContext()
     {
         const string dependencyName = "bad.asset/1.0.0";
