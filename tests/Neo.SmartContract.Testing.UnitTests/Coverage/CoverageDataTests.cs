@@ -12,7 +12,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.SmartContract.Testing.Coverage;
+using System;
+using System.IO;
 using System.Numerics;
+using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Neo.SmartContract.Testing.UnitTests.Coverage
@@ -21,6 +25,19 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
     public class CoverageDataTests
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+
+        [TestMethod]
+        public void NeoDebugInfoLoadThrowsHelpfulMessageForNonObjectJson()
+        {
+            using var stream = new MemoryStream(Encoding.UTF8.GetBytes("[]"));
+            var load = typeof(NeoDebugInfo).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.IsNotNull(load);
+
+            var exception = Assert.ThrowsException<TargetInvocationException>(() => load.Invoke(null, new object[] { stream }));
+
+            Assert.IsInstanceOfType(exception.InnerException, typeof(FormatException));
+            Assert.AreEqual("The debug info root must be a JSON object.", exception.InnerException!.Message);
+        }
 
         [TestMethod]
         public void TestDump()
