@@ -53,8 +53,8 @@ public class RpcStore : IStore
     /// <param name="url">Url</param>
     public RpcStore(string url) : this(new Uri(url)) { }
 
-    public void Delete(byte[] key) => throw new NotImplementedException();
-    public void Put(byte[] key, byte[] value) => throw new NotImplementedException();
+    public void Delete(byte[] key) => throw new NotImplementedException("RpcStore is read-only; use a local store for mutations.");
+    public void Put(byte[] key, byte[] value) => throw new NotImplementedException("RpcStore is read-only; use a local store for mutations.");
     public IStoreSnapshot GetSnapshot()
     {
         var snapshot = new RpcSnapshot(this);
