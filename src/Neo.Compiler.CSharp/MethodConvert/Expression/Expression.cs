@@ -67,6 +67,10 @@ internal partial class MethodConvert
             Push(value);
             return true;
         }
+        catch (CompilationException)
+        {
+            throw;
+        }
         catch (Exception e)
         {
             throw CompilationException.Unexpected("evaluating constant expression during conversion", e);
@@ -242,14 +246,21 @@ internal partial class MethodConvert
     private object ConvertComplexConstantTypes(ITypeSymbol typeSymbol, object value, ExpressionSyntax syntax)
     {
         string fullName = typeSymbol.ToDisplayString();
-        return fullName switch
+        try
         {
-            "Neo.SmartContract.Framework.UInt160" => ConvertToUInt160((string)value!),
-            "Neo.SmartContract.Framework.UInt256" => ConvertToUInt256((string)value!, syntax),
-            "Neo.SmartContract.Framework.ECPoint" => ConvertToECPoint((string)value!),
-            "Neo.SmartContract.Framework.ByteArray" => ((string)value!).HexToBytes(true),
-            _ => value
-        };
+            return fullName switch
+            {
+                "Neo.SmartContract.Framework.UInt160" => ConvertToUInt160((string)value!),
+                "Neo.SmartContract.Framework.UInt256" => ConvertToUInt256((string)value!, syntax),
+                "Neo.SmartContract.Framework.ECPoint" => ConvertToECPoint((string)value!),
+                "Neo.SmartContract.Framework.ByteArray" => ((string)value!).HexToBytes(true),
+                _ => value
+            };
+        }
+        catch (Exception ex) when (ex is FormatException or ArgumentException)
+        {
+            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, $"Invalid {typeSymbol.Name} literal");
+        }
     }
 
     private byte[] ConvertToUInt160(string strValue)
