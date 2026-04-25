@@ -108,23 +108,42 @@ namespace Neo.Compiler
             return ContractParameterType.Any;
         }
 
+        public static bool IsValidType(this ITypeSymbol type)
+        {
+            if (!IsSupportedContractType(type))
+                return false;
+
+            if (type is INamedTypeSymbol { NullableAnnotation: NullableAnnotation.Annotated } namedType)
+            {
+                type = namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : namedType.OriginalDefinition;
+                return IsSupportedContractType(type);
+            }
+
+            return true;
+        }
+
         private static void ThrowIfUnsupportedContractType(ITypeSymbol type)
         {
-            if (type.SpecialType is SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal)
-                throw new CompilationException(type, DiagnosticId.SyntaxNotSupported, $"Type '{type}' is not supported in contract ABI.");
-
-            if (type is not INamedTypeSymbol namedType)
+            if (type.IsValidType())
                 return;
 
+            throw new CompilationException(type, DiagnosticId.SyntaxNotSupported, $"Type '{type}' is not supported in contract ABI.");
+        }
+
+        private static bool IsSupportedContractType(ITypeSymbol type)
+        {
+            if (type.SpecialType is SpecialType.System_Single or SpecialType.System_Double or SpecialType.System_Decimal)
+                return false;
+
+            if (type is not INamedTypeSymbol namedType)
+                return true;
+
             var originalDefinition = namedType.OriginalDefinition.ToString();
-            if (originalDefinition is "System.Threading.Tasks.Task"
+            return originalDefinition is not ("System.Threading.Tasks.Task"
                 or "System.Threading.Tasks.Task<TResult>"
                 or "System.Threading.Tasks.ValueTask"
                 or "System.Threading.Tasks.ValueTask<TResult>"
-                or "System.Collections.Generic.IAsyncEnumerable<T>")
-            {
-                throw new CompilationException(type, DiagnosticId.SyntaxNotSupported, $"Type '{type}' is not supported in contract ABI.");
-            }
+                or "System.Collections.Generic.IAsyncEnumerable<T>");
         }
 
         public static StackItemType GetStackItemType(this ITypeSymbol type)
