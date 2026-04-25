@@ -47,6 +47,7 @@ internal partial class MethodConvert
 
     private bool TryConvertConstant(SemanticModel model, ExpressionSyntax syntax, SyntaxNode? syntaxNode)
     {
+        ITypeSymbol? typeSymbol = null;
         try
         {
             // Get the correct model for the syntax node (fixes partial class issues)
@@ -57,7 +58,7 @@ internal partial class MethodConvert
             if (value == null)
                 return false;
 
-            ITypeSymbol? typeSymbol = GetTypeSymbol(syntaxNode, model);
+            typeSymbol = GetTypeSymbol(syntaxNode, model);
 
             if (typeSymbol != null)
             {
@@ -70,6 +71,10 @@ internal partial class MethodConvert
         catch (CompilationException)
         {
             throw;
+        }
+        catch (Exception e) when (typeSymbol is not null && e is FormatException or ArgumentException)
+        {
+            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, $"Invalid {typeSymbol.Name} literal");
         }
         catch (Exception e)
         {
@@ -246,21 +251,14 @@ internal partial class MethodConvert
     private object ConvertComplexConstantTypes(ITypeSymbol typeSymbol, object value, ExpressionSyntax syntax)
     {
         string fullName = typeSymbol.ToDisplayString();
-        try
+        return fullName switch
         {
-            return fullName switch
-            {
-                "Neo.SmartContract.Framework.UInt160" => ConvertToUInt160((string)value!),
-                "Neo.SmartContract.Framework.UInt256" => ConvertToUInt256((string)value!, syntax),
-                "Neo.SmartContract.Framework.ECPoint" => ConvertToECPoint((string)value!),
-                "Neo.SmartContract.Framework.ByteArray" => ((string)value!).HexToBytes(true),
-                _ => value
-            };
-        }
-        catch (Exception ex) when (ex is FormatException or ArgumentException)
-        {
-            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, $"Invalid {typeSymbol.Name} literal");
-        }
+            "Neo.SmartContract.Framework.UInt160" => ConvertToUInt160((string)value!),
+            "Neo.SmartContract.Framework.UInt256" => ConvertToUInt256((string)value!, syntax),
+            "Neo.SmartContract.Framework.ECPoint" => ConvertToECPoint((string)value!),
+            "Neo.SmartContract.Framework.ByteArray" => ((string)value!).HexToBytes(true),
+            _ => value
+        };
     }
 
     private byte[] ConvertToUInt160(string strValue)

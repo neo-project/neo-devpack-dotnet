@@ -24,12 +24,33 @@ public class UnitTest_DirectInitDiagnostics
     [TestMethod]
     public void InvalidDirectUInt256LiteralReportsInvalidInitialValue()
     {
-        var context = CompileSingleContract("""
+        var context = CompileSingleContractWithUInt256Literal("abc");
+
+        var diagnostics = string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString()));
+        Assert.IsFalse(context.Success, diagnostics);
+        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.InvalidInitialValue), diagnostics);
+        Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
+    }
+
+    [TestMethod]
+    public void WrongLengthDirectUInt256LiteralReportsInvalidInitialValue()
+    {
+        var context = CompileSingleContractWithUInt256Literal("abcd");
+
+        var diagnostics = string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString()));
+        Assert.IsFalse(context.Success, diagnostics);
+        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.InvalidInitialValue), diagnostics);
+        Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
+    }
+
+    private static CompilationContext CompileSingleContractWithUInt256Literal(string literal)
+    {
+        return CompileSingleContract($$"""
 using Neo.SmartContract.Framework;
 
 public class Contract : SmartContract
 {
-    private static readonly UInt256 Hash = "abc";
+    private static readonly UInt256 Hash = "{{literal}}";
 
     public static UInt256 Test()
     {
@@ -37,11 +58,6 @@ public class Contract : SmartContract
     }
 }
 """);
-
-        var diagnostics = string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString()));
-        Assert.IsFalse(context.Success, diagnostics);
-        Assert.IsTrue(context.Diagnostics.Any(d => d.Id == DiagnosticId.InvalidInitialValue), diagnostics);
-        Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
     }
 
     private static CompilationContext CompileSingleContract(string sourceCode)
