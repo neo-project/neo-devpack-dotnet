@@ -69,6 +69,11 @@ jobs:
         ${{ env.DOTNET_TEST_PARAMETERS }} \
         ${{ env.COVERLET_OUTPUT }} \
         ${{ env.COVERLET_EXCLUDE_COVERAGE }} \
+    - name: Test Neo.SmartContract.Analyzer.UnitTests
+      run: |
+        dotnet test ./tests/Neo.SmartContract.Analyzer.UnitTests \
+        --no-build \
+        -l "console;verbosity=detailed"
     - name: Test Neo.SmartContract.Framework.UnitTests
       run: |
         dotnet test ./tests/Neo.SmartContract.Framework.UnitTests \
