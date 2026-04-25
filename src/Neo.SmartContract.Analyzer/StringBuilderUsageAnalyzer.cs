@@ -104,8 +104,7 @@ public sealed class StringBuilderUsageAnalyzer : DiagnosticAnalyzer
         if (IsString(parameterType))
             return true;
 
-        if (parameterType.SpecialType == SpecialType.System_Char ||
-            parameterType.SpecialType == SpecialType.System_Object)
+        if (parameterType.SpecialType == SpecialType.System_Char)
             return true;
 
         return IsStringBuilder(parameterType);
