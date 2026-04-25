@@ -273,7 +273,7 @@ namespace Neo.Compiler
                 Contexts.TryAdd(c, context);
             });
 
-            return Contexts.Select(p => p.Value).ToList();
+            return GetContextsInClassOrder(sortedClasses);
         }
 
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)
@@ -339,7 +339,14 @@ namespace Neo.Compiler
                 Contexts.TryAdd(c, context);
             });
 
-            return Contexts.Select(p => p.Value).ToList();
+            return GetContextsInClassOrder(sortedClasses);
+        }
+
+        private List<CompilationContext> GetContextsInClassOrder(IEnumerable<INamedTypeSymbol> sortedClasses)
+        {
+            return sortedClasses.Select(c => Contexts.TryGetValue(c, out var context)
+                ? context
+                : throw new InvalidOperationException($"Compilation context for contract '{c.Name}' was not created.")).ToList();
         }
 
         /// <summary>
