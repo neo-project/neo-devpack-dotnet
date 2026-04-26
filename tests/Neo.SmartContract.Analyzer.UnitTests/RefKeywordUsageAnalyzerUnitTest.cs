@@ -10,6 +10,10 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<
     Neo.SmartContract.Analyzer.RefKeywordUsageAnalyzer>;
@@ -80,6 +84,24 @@ class TestClass
         }
 
         [TestMethod]
+        public async Task InArgumentInDelegateInvocation_ShouldNotReportDiagnostic()
+        {
+            var test = @"
+class TestClass
+{
+    private delegate int ReadIn(in int value);
+
+    public int Caller(int value)
+    {
+        ReadIn read = (in current) => current;
+        return read(in value);
+    }
+}";
+
+            await VerifyPreviewAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task RegularRefParameter_ShouldNotReportDiagnostic()
         {
             var test = @"
@@ -120,6 +142,23 @@ class TestClass
 }";
 
             await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        private static Task VerifyPreviewAnalyzerAsync(string test)
+        {
+            var verifier = new PreviewAnalyzerTest
+            {
+                TestCode = test
+            };
+            return verifier.RunAsync();
+        }
+
+        private sealed class PreviewAnalyzerTest : CSharpAnalyzerTest<RefKeywordUsageAnalyzer, DefaultVerifier>
+        {
+            protected override ParseOptions CreateParseOptions()
+            {
+                return ((CSharpParseOptions)base.CreateParseOptions()).WithLanguageVersion(LanguageVersion.Preview);
+            }
         }
     }
 }

@@ -46,13 +46,24 @@ namespace Neo.SmartContract.Testing.Extensions
         }
 
         /// <summary>
+        /// Is Verifiable
+        /// </summary>
+        /// <param name="manifest">Manifest</param>
+        /// <returns>True if is Verifiable</returns>
+        public static bool IsVerifiable(this ContractManifest manifest)
+        {
+            return manifest.Abi.Methods.Any(u => u.Name == "verify" && u.Safe && u.Parameters.Length == 0);
+        }
+
+        /// <summary>
         /// Is Verificable
         /// </summary>
         /// <param name="manifest">Manifest</param>
         /// <returns>True if is Verificable</returns>
+        [Obsolete("Use IsVerifiable instead.")]
         public static bool IsVerificable(this ContractManifest manifest)
         {
-            return manifest.Abi.Methods.Any(u => u.Name == "verify" && u.Safe && u.Parameters.Length == 0);
+            return IsVerifiable(manifest);
         }
     }
 }
