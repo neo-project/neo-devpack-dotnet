@@ -51,3 +51,5 @@ NC4053  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (file-local types)
 NC4054  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (ref readonly parameters)
 NC4055  | Usage    | Warning  | InitialValueAnalyzer (Parse enforcement)
 NC4056  | Security | Warning  | StorageKeyCollisionAnalyzer
+NC4057  | Type     | Error    | TaskLikeTypeUsageAnalyzer
+NC4058  | Usage    | Error    | UnsupportedPlatformApiAnalyzer

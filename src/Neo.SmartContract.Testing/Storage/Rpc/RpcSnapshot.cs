@@ -42,7 +42,7 @@ internal class RpcSnapshot : IStoreSnapshot
     {
         if (IsDirty)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("RpcStore snapshots are read-only and cannot commit local mutations.");
         }
     }
 

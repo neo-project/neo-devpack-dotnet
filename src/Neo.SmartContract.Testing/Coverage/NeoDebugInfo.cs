@@ -202,7 +202,7 @@ namespace Neo.SmartContract.Testing.Coverage
             using StreamReader reader = new(stream);
             var text = reader.ReadToEnd();
             var json = JToken.Parse(text) ?? throw new InvalidOperationException();
-            if (json is not JObject jo) throw new FormatException();
+            if (json is not JObject jo) throw new FormatException("The debug info root must be a JSON object.");
             return FromDebugInfoJson(jo);
         }
 

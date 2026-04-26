@@ -364,7 +364,7 @@ namespace Neo.Compiler
                     catch (Exception ex) when (!(ex is FormatException && ex.Message.Contains("No valid neo SmartContract found")))
                     {
                         // Only log errors for projects that aren't smart contracts
-                        Console.WriteLine($"Error compiling project {Path.GetFileName(projectPath)}: {ex.Message}");
+                        Console.Error.WriteLine($"Error compiling project {Path.GetFileName(projectPath)}: {ex.Message}");
                     }
                 }
 
