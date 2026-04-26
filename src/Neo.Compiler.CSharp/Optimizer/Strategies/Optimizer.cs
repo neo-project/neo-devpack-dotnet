@@ -117,10 +117,9 @@ namespace Neo.Optimizer
                         (nef, manifest, debugInfo) = tuple;
                     }
                 }
-                catch (Exception ex)
+                catch (TargetInvocationException ex)
                 {
-                    Exception failure = ex is TargetInvocationException { InnerException: not null } ? ex.InnerException : ex;
-                    throw new InvalidOperationException($"Optimization strategy '{method.Name}' failed.", failure);
+                    throw new InvalidOperationException($"Optimization strategy '{method.Name}' failed.", ex.InnerException);
                 }
             }
             return (nef, manifest, debugInfo);
