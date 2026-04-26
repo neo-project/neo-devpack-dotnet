@@ -137,7 +137,7 @@ span[0] = 9;
 
 Status: unsupported
 Scope: class
-Notes: The Roslyn preview parser has not yet enabled `ref`/`scoped` modifiers on simple lambdas for the version embedded in Neo. Attempts to compile the syntax still produce parser diagnostics.
+Notes: The complete C# 14 modifier surface includes mutable `ref`/`out` lambda parameters, which are not covered by Neo's supported subset yet. Read-only forms are tracked separately below.
 ```csharp
 private delegate int RefFunc(ref int value);
 
@@ -145,6 +145,24 @@ public static int Increment(int start)
 {
     RefFunc func = ref int value => value + 1;
     return func(ref start);
+}
+```
+
+### lambda_readonly_parameter_modifiers - Read-only modifiers on simple lambda parameters
+
+Status: supported
+Scope: class
+Notes: Simple lambda parameters can use read-only modifiers without spelling the parameter type. Neo supports `in`, `scoped in`, and `ref readonly` delegate lambdas, and analyzer rules no longer reject the corresponding delegate declarations or delegate invocations.
+```csharp
+private delegate int ReadIn(in int value);
+private delegate int ReadRefReadonly(ref readonly int value);
+
+public static int ReadValues(int start)
+{
+    ReadIn read = (in value) => value + 1;
+    ReadIn scopedRead = (scoped in value) => value + 2;
+    ReadRefReadonly readonlyRead = (ref readonly value) => value + 3;
+    return read(start) + scopedRead(start) + readonlyRead(start);
 }
 ```
 
