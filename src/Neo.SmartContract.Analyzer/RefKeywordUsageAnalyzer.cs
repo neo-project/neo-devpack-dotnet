@@ -68,13 +68,21 @@ namespace Neo.SmartContract.Analyzer
                 foreach (var argument in invocationExpression.ArgumentList.Arguments)
                 {
                     // Report only on unsupported 'in' arguments (regular ref/out are supported)
-                    if (argument.RefOrOutKeyword.IsKind(SyntaxKind.InKeyword))
+                    if (argument.RefOrOutKeyword.IsKind(SyntaxKind.InKeyword) && !IsDelegateInvocation(context, invocationExpression))
                     {
                         var diagnostic = Diagnostic.Create(Rule, argument.GetLocation(), "method invocation ('in' argument)");
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
             }
+        }
+
+        private static bool IsDelegateInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocationExpression)
+        {
+            return context.SemanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken).Symbol is IMethodSymbol
+            {
+                MethodKind: MethodKind.DelegateInvoke
+            };
         }
     }
 }
