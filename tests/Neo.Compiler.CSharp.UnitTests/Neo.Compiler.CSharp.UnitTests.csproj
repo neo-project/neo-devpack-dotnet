@@ -7,6 +7,7 @@
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<NoWarn>CS0067;CS8981</NoWarn> <!-- disable CS0067(event is never used) -->
+		<ExcludeByFile>**/src/Neo.SmartContract.Analyzer/**/*.cs</ExcludeByFile>
 	</PropertyGroup>
 
 	<ItemGroup>
