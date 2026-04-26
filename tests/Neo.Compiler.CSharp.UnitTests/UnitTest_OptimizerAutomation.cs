@@ -215,6 +215,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     OptimizerClass.Optimize(NefFile, Manifest, null, CompilationOptions.OptimizationType.Experimental));
 
                 StringAssert.Contains(exception.Message, nameof(FailingOptimizationStrategy.Fail));
+                StringAssert.Contains(exception.Message, "boom");
                 Assert.IsInstanceOfType(exception.InnerException, typeof(FormatException));
             }
             finally
