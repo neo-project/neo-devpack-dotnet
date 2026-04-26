@@ -248,9 +248,9 @@ namespace Neo.Compiler
             return (sortedClasses, classDependencies, allClassSymbols);
         }
 
-        private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedContractClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
+        private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
         {
-            var c = sortedContractClasses.FirstOrDefault(p => p.Name.Equals(targetContractName, StringComparison.InvariantCulture))
+            var c = sortedClasses.FirstOrDefault(p => p.Name.Equals(targetContractName, StringComparison.InvariantCulture))
                 ?? throw new ArgumentException($"targetContractName '{targetContractName}' was not found");
             var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
             var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
@@ -259,11 +259,11 @@ namespace Neo.Compiler
             return context;
         }
 
-        private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedContractClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
+        private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
         {
             Contexts.Clear();
-            bool allowBaseName = sortedContractClasses.Count <= 1;
-            Parallel.ForEach(sortedContractClasses, c =>
+            bool allowBaseName = sortedClasses.Count <= 1;
+            Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
@@ -273,7 +273,7 @@ namespace Neo.Compiler
                 Contexts.TryAdd(c, context);
             });
 
-            return GetContextsInContractOrder(sortedContractClasses);
+            return GetContextsInContractOrder(sortedClasses);
         }
 
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)
