@@ -17,6 +17,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -45,8 +46,20 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzeParameter, SyntaxKind.Parameter);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeMethodDeclaration(
+                    context,
+                    SpecialType.System_Decimal,
+                    Rule,
+                    static type => new object?[] { type.SpecialType.ToString(), type.ToString() }),
+                SyntaxKind.MethodDeclaration);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeParameter(
+                    context,
+                    SpecialType.System_Decimal,
+                    Rule,
+                    static type => new object?[] { type.SpecialType.ToString(), type.ToString() }),
+                SyntaxKind.Parameter);
         }
 
         private static void AnalyzeOperation(OperationAnalysisContext context)
@@ -59,28 +72,6 @@ namespace Neo.SmartContract.Analyzer
                 var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), variableType.SpecialType.ToString(), variableType.ToString());
                 context.ReportDiagnostic(diagnostic);
             }
-        }
-
-        private static void AnalyzeMethodDeclaration(SyntaxNodeAnalysisContext context)
-        {
-            if (context.Node is not MethodDeclarationSyntax methodDeclaration) return;
-
-            var type = context.SemanticModel.GetTypeInfo(methodDeclaration.ReturnType, context.CancellationToken).Type;
-            if (type?.SpecialType != SpecialType.System_Decimal) return;
-
-            var diagnostic = Diagnostic.Create(Rule, methodDeclaration.ReturnType.GetLocation(), type.SpecialType.ToString(), type.ToString());
-            context.ReportDiagnostic(diagnostic);
-        }
-
-        private static void AnalyzeParameter(SyntaxNodeAnalysisContext context)
-        {
-            if (context.Node is not ParameterSyntax parameter || parameter.Type is null) return;
-
-            var type = context.SemanticModel.GetDeclaredSymbol(parameter, context.CancellationToken)?.Type;
-            if (type?.SpecialType != SpecialType.System_Decimal) return;
-
-            var diagnostic = Diagnostic.Create(Rule, parameter.Type.GetLocation(), type.SpecialType.ToString(), type.ToString());
-            context.ReportDiagnostic(diagnostic);
         }
     }
 
