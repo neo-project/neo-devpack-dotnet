@@ -41,6 +41,31 @@ public class SecondContract : SmartContract
         CollectionAssert.AreEqual(new[] { "FirstContract", "SecondContract" }, contextNames);
     }
 
+    [TestMethod]
+    public void CompileSources_ReturnsOnlySmartContractContexts()
+    {
+        var contextNames = CompileContractNames("""
+using Neo.SmartContract.Framework;
+
+public class ContractHelper
+{
+    public static int Value() => 42;
+}
+
+public class FirstContract : SmartContract
+{
+    public static int Main() => ContractHelper.Value();
+}
+
+public class SecondContract : SmartContract
+{
+    public static int Main() => ContractHelper.Value();
+}
+""");
+
+        CollectionAssert.AreEqual(new[] { "FirstContract", "SecondContract" }, contextNames);
+    }
+
     private static string[] CompileContractNames(string sourceCode)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");

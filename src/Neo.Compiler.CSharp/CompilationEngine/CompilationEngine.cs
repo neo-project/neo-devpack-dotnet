@@ -248,9 +248,9 @@ namespace Neo.Compiler
             return (sortedClasses, classDependencies, allClassSymbols);
         }
 
-        private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
+        private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedContractClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
         {
-            var c = sortedClasses.FirstOrDefault(p => p.Name.Equals(targetContractName, StringComparison.InvariantCulture))
+            var c = sortedContractClasses.FirstOrDefault(p => p.Name.Equals(targetContractName, StringComparison.InvariantCulture))
                 ?? throw new ArgumentException($"targetContractName '{targetContractName}' was not found");
             var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
             var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
@@ -259,11 +259,11 @@ namespace Neo.Compiler
             return context;
         }
 
-        private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
+        private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedContractClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
         {
             Contexts.Clear();
-            bool allowBaseName = sortedClasses.Count <= 1;
-            Parallel.ForEach(sortedClasses, c =>
+            bool allowBaseName = sortedContractClasses.Count <= 1;
+            Parallel.ForEach(sortedContractClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
@@ -273,7 +273,7 @@ namespace Neo.Compiler
                 Contexts.TryAdd(c, context);
             });
 
-            return GetContextsInClassOrder(sortedClasses);
+            return GetContextsInContractOrder(sortedContractClasses);
         }
 
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)
@@ -326,10 +326,10 @@ namespace Neo.Compiler
             // Verify if there is any valid smart contract class
             if (classDependencies.Count == 0) throw new FormatException("No valid neo SmartContract found. Please make sure your contract is subclass of SmartContract and is not abstract.");
             // Check contract dependencies, make sure there is no cycle in the dependency graph
-            var sortedClasses = TopologicalSort(classDependencies);
+            var sortedContractClasses = TopologicalSort(classDependencies);
 
-            bool allowBaseName = sortedClasses.Count <= 1;
-            Parallel.ForEach(sortedClasses, c =>
+            bool allowBaseName = sortedContractClasses.Count <= 1;
+            Parallel.ForEach(sortedContractClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
                 var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
@@ -339,12 +339,15 @@ namespace Neo.Compiler
                 Contexts.TryAdd(c, context);
             });
 
-            return GetContextsInClassOrder(sortedClasses);
+            return GetContextsInContractOrder(sortedContractClasses);
         }
 
-        private List<CompilationContext> GetContextsInClassOrder(IEnumerable<INamedTypeSymbol> sortedClasses)
+        /// <summary>
+        /// Returns contexts only for sorted smart-contract classes; non-contract helper classes are compiled as supporting symbols and are not returned.
+        /// </summary>
+        private List<CompilationContext> GetContextsInContractOrder(IEnumerable<INamedTypeSymbol> sortedContractClasses)
         {
-            return sortedClasses.Select(c => Contexts.TryGetValue(c, out var context)
+            return sortedContractClasses.Select(c => Contexts.TryGetValue(c, out var context)
                 ? context
                 : throw new InvalidOperationException($"Compilation context for contract '{c.Name}' was not created.")).ToList();
         }
