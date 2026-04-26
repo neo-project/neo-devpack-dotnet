@@ -3,6 +3,7 @@
 Reference: https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-12
 
 C# 12 introduced several language features. The following probes capture their current support status.
+`supported` means the compiler accepts the syntax and the implementation is intended as supported surface area.
 
 ### primary_constructors - Primary constructors
 
@@ -20,9 +21,21 @@ public class Wallet(string owner) : SmartContract.Framework.SmartContract
 
 Status: supported
 Scope: method
-Notes: Collection expressions compile and are lowered to array allocations. Roslyn lowers collection expressions into builder calls, but Neo does not yet support the generated code.
+Notes: Collection expressions with explicit elements are supported for arrays, jagged arrays, byte arrays, and Neo framework `List<T>` values, and they are covered by runtime tests.
 ```csharp
 int[] numbers = [1, 2, 3];
+```
+
+### collection_expression_spread_elements - Collection expressions with spread elements
+
+Status: unsupported
+Scope: class
+Notes: Spread elements such as `[..values]` are rejected with a compiler diagnostic.
+```csharp
+public static int[] Clone(int[] values)
+{
+    return [..values];
+}
 ```
 
 ### ref_readonly_parameters - `ref readonly` parameters

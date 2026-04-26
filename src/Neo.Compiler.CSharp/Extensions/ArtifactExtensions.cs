@@ -28,7 +28,7 @@ namespace Neo.SmartContract.Testing.Extensions
         private const string TestingSmartContractInitializeType = "Neo.SmartContract.Testing.SmartContractInitialize";
         private const string TestingNep17StandardType = "Neo.SmartContract.Testing.TestingStandards.INep17Standard";
         private const string TestingOwnableType = "Neo.SmartContract.Testing.TestingStandards.IOwnable";
-        private const string TestingVerificableType = "Neo.SmartContract.Testing.TestingStandards.IVerificable";
+        private const string TestingVerifiableType = "Neo.SmartContract.Testing.TestingStandards.IVerifiable";
 
         static readonly string[] _protectedWords =
         [
@@ -137,7 +137,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             if (IsNep17(manifest)) inheritance.Add(TestingNep17StandardType);
             if (IsOwnable(manifest)) inheritance.Add(TestingOwnableType);
-            if (IsVerificable(manifest)) inheritance.Add(TestingVerificableType);
+            if (IsVerifiable(manifest)) inheritance.Add(TestingVerifiableType);
 
             sourceCode.WriteLine("using Neo.Cryptography.ECC;");
             sourceCode.WriteLine("using Neo.Extensions;");
@@ -616,7 +616,7 @@ namespace Neo.SmartContract.Testing.Extensions
                     u.Parameters[1].Type == ContractParameterType.Hash160);
         }
 
-        private static bool IsVerificable(ContractManifest manifest)
+        private static bool IsVerifiable(ContractManifest manifest)
         {
             var method = manifest.Abi.GetMethod("verify", 0);
             return method is { Safe: true } && method.ReturnType == ContractParameterType.Boolean;
