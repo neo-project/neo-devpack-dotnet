@@ -52,3 +52,4 @@ NC4054  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (ref readonly paramete
 NC4055  | Usage    | Warning  | InitialValueAnalyzer (Parse enforcement)
 NC4056  | Security | Warning  | StorageKeyCollisionAnalyzer
 NC4057  | Type     | Error    | TaskLikeTypeUsageAnalyzer
+NC4058  | Usage    | Error    | UnsupportedPlatformApiAnalyzer
