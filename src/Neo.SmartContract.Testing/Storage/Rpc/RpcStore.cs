@@ -26,6 +26,7 @@ namespace Neo.SmartContract.Testing.Storage.Rpc;
 
 public class RpcStore : IStore
 {
+    private static readonly HttpClient HttpClient = new();
     private int _id = 0;
 
     /// <summary>
@@ -128,9 +129,8 @@ public class RpcStore : IStore
                 id = _id = Interlocked.Increment(ref _id),
             };
 
-            using var httpClient = new HttpClient();
             var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-            var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+            var response = HttpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
 
             JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -188,9 +188,8 @@ public class RpcStore : IStore
             id = _id = Interlocked.Increment(ref _id),
         };
 
-        using var httpClient = new HttpClient();
         var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-        var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+        var response = HttpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
 
         JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
