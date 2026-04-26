@@ -139,9 +139,11 @@ internal partial class MethodConvert
         {
             if (left.ArgumentList.Arguments.Count != 1)
                 throw new CompilationException(left.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {left.ArgumentList.Arguments}");
+            if (property.SetMethod is null)
+                throw CompilationException.UnsupportedSyntax(left, $"Element assignment through indexer '{property.Name}' is not supported because the indexer does not expose a setter.");
             ConvertExpression(model, left.ArgumentList.Arguments[0].Expression);
             ConvertExpression(model, left.Expression);
-            CallMethodWithConvention(model, property.SetMethod!, CallingConvention.Cdecl);
+            CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
         }
         else
         {

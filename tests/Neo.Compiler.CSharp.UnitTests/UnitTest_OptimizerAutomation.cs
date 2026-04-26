@@ -16,6 +16,7 @@ using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using OptimizerClass = Neo.Optimizer.Optimizer;
 using StrategyAttribute = Neo.Optimizer.StrategyAttribute;
@@ -196,6 +197,68 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_StrategyFailuresAreReported()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            Assert.IsNotNull(orderedStrategies);
+            var registeredStrategies = orderedStrategies!;
+            var originalOrderedStrategies = registeredStrategies.ToList();
+            var originalStrategies = OptimizerClass.strategies.ToDictionary(p => p.Key, p => p.Value);
+
+            try
+            {
+                OptimizerClass.RegisterStrategies(typeof(FailingOptimizationStrategy));
+
+                var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                    OptimizerClass.Optimize(NefFile, Manifest, null, CompilationOptions.OptimizationType.Experimental));
+
+                StringAssert.Contains(exception.Message, nameof(FailingOptimizationStrategy.Fail));
+                StringAssert.Contains(exception.Message, "boom");
+                Assert.IsInstanceOfType(exception.InnerException, typeof(FormatException));
+            }
+            finally
+            {
+                registeredStrategies.Clear();
+                registeredStrategies.AddRange(originalOrderedStrategies);
+                OptimizerClass.strategies.Clear();
+                foreach (var strategy in originalStrategies)
+                    OptimizerClass.strategies[strategy.Key] = strategy.Value;
+            }
+        }
+
+        [TestMethod]
+        public void Test_StrategyInvocationFailuresAreReported()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            Assert.IsNotNull(orderedStrategies);
+            var registeredStrategies = orderedStrategies!;
+            var originalOrderedStrategies = registeredStrategies.ToList();
+
+            try
+            {
+                var method = typeof(InvalidOptimizationStrategy)
+                    .GetMethod(nameof(InvalidOptimizationStrategy.InstanceFail), BindingFlags.Public | BindingFlags.Instance)!;
+                registeredStrategies.Insert(0, (method, new StrategyAttribute { Priority = int.MaxValue }));
+
+                var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                    OptimizerClass.Optimize(NefFile, Manifest, null, CompilationOptions.OptimizationType.Experimental));
+
+                StringAssert.Contains(exception.Message, nameof(InvalidOptimizationStrategy.InstanceFail));
+                StringAssert.Contains(exception.Message, "Non-static method requires a target");
+                Assert.IsNotNull(exception.InnerException);
+            }
+            finally
+            {
+                registeredStrategies.Clear();
+                registeredStrategies.AddRange(originalOrderedStrategies);
+            }
+        }
+
+        [TestMethod]
         public void Test_OptimizationTypeFlags()
         {
             // Test that non-experimental optimization types are handled correctly
@@ -228,6 +291,23 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Sort by priority (highest first) to match the optimizer's behavior
             strategyMethods.Sort((a, b) => b.attribute.Priority.CompareTo(a.attribute.Priority));
             return strategyMethods;
+        }
+
+        public static class FailingOptimizationStrategy
+        {
+            [Strategy(Priority = int.MaxValue)]
+            public static (NefFile, ContractManifest, JObject?) Fail(NefFile nef, ContractManifest manifest, JObject debugInfo)
+            {
+                throw new FormatException("boom");
+            }
+        }
+
+        public sealed class InvalidOptimizationStrategy
+        {
+            public (NefFile, ContractManifest, JObject?) InstanceFail(NefFile nef, ContractManifest manifest, JObject debugInfo)
+            {
+                return (nef, manifest, debugInfo);
+            }
         }
     }
 }
