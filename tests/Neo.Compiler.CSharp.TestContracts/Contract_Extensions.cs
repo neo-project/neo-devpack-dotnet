@@ -17,6 +17,13 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return a + b;
         }
+
+        extension(int value)
+        {
+            public int Twice() => value * 2;
+
+            public int Triple => value * 3;
+        }
     }
 
     public class Contract_Extensions : SmartContract.Framework.SmartContract
@@ -24,6 +31,21 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int TestSum(int a, int b)
         {
             return a.sum(b);
+        }
+
+        public static int TestExtensionMemberMethod(int value)
+        {
+            return value.Twice();
+        }
+
+        public static int TestExtensionMemberProperty(int value)
+        {
+            return value.Triple;
+        }
+
+        public static int TestExtensionMemberCombination(int value)
+        {
+            return value.Twice() + value.Triple;
         }
     }
 }

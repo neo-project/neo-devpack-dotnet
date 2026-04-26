@@ -36,6 +36,16 @@ internal partial class MethodConvert
         int parameterSlotCount = Symbol.Parameters.Length + (NeedInstanceConstructor(Symbol) ? 1 : 0);
         RequireByteSizedSlotCount(Symbol, parameterSlotCount, "parameters");
 
+        if (NeedInstanceConstructor(Symbol) &&
+            TryGetExtensionReceiverParameter(out IParameterSymbol? receiverParameter) &&
+            receiverParameter is not null)
+        {
+            _parameters.TryAdd(receiverParameter, 0);
+            IParameterSymbol original = receiverParameter.OriginalDefinition;
+            if (!SymbolEqualityComparer.Default.Equals(receiverParameter, original))
+                _parameters.TryAdd(original, 0);
+        }
+
         for (int i = 0; i < Symbol.Parameters.Length; i++)
         {
             IParameterSymbol parameter = Symbol.Parameters[i];
@@ -54,6 +64,28 @@ internal partial class MethodConvert
                 _context.GetOrAddCapturedStaticField(parameter);
             }
         }
+    }
+
+    private bool TryGetExtensionReceiverParameter(out IParameterSymbol? receiverParameter)
+    {
+        receiverParameter = null;
+        if (Symbol.DeclaringSyntaxReferences.IsEmpty)
+            return false;
+
+        SyntaxNode syntax = Symbol.DeclaringSyntaxReferences[0].GetSyntax();
+        ExtensionDeclarationSyntax? extension = syntax.AncestorsAndSelf()
+            .OfType<ExtensionDeclarationSyntax>()
+            .FirstOrDefault();
+        if (extension is null)
+            return false;
+        if (extension.ParameterList?.Parameters.Count != 1)
+            return false;
+
+        SemanticModel model = ((ISourceAssemblySymbol)Symbol.ContainingAssembly)
+            .Compilation
+            .GetSemanticModel(extension.SyntaxTree);
+        receiverParameter = model.GetDeclaredSymbol(extension.ParameterList.Parameters[0]) as IParameterSymbol;
+        return receiverParameter is not null;
     }
 
     private void ConvertSource(SemanticModel model)
