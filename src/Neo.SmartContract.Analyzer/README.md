@@ -33,6 +33,7 @@
 - [SmartContractMethodNamingAnalyzer.cs](SmartContractMethodNamingAnalyzer.cs) – enforces allowed ABI method names.
 - [SmartContractMethodNamingAnalyzer.Underline.cs](SmartContractMethodNamingAnalyzer.Underline.cs) – forbids underscores in public contract methods.
 - [StaticFieldInitializationAnalyzer.cs](StaticFieldInitializationAnalyzer.cs) – ensures static fields are initialized deterministically.
+- [StorageKeyCollisionAnalyzer.cs](StorageKeyCollisionAnalyzer.cs) – warns when storage keys can collide across maps or direct storage access.
 - [StringBuilderUsageAnalyzer.cs](StringBuilderUsageAnalyzer.cs) – restricts `StringBuilder` APIs to supported members.
 - [StringMethodUsageAnalyzer.cs](StringMethodUsageAnalyzer.cs) – flags unsupported `string` helpers.
 - [SystemDiagnosticsUsageAnalyzer.cs](SystemDiagnosticsUsageAnalyzer.cs) – blocks `System.Diagnostics` usages.
