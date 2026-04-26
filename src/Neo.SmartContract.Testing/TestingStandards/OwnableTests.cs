@@ -91,7 +91,7 @@ public class OwnableTests<T> : TestBase<T>
     [TestMethod]
     public virtual void TestVerify()
     {
-        if (Contract is IVerificable verificable)
+        if (Contract is IVerifiable verificable)
         {
             Engine.SetTransactionSigners(Alice);
             Assert.IsTrue(verificable.Verify);

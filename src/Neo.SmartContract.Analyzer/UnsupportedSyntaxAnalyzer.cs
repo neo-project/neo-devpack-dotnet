@@ -316,10 +316,26 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
             return;
         }
 
+        if (IsDelegateOrLambdaParameter(parameter))
+        {
+            return;
+        }
+
         var location = hasRefReadonly
             ? modifiers.First(m => m.IsKind(SyntaxKind.RefKeyword)).GetLocation()
             : modifiers.First(m => m.IsKind(SyntaxKind.InKeyword)).GetLocation();
 
         context.ReportDiagnostic(Diagnostic.Create(RefReadonlyParameterRule, location));
+    }
+
+    private static bool IsDelegateOrLambdaParameter(ParameterSyntax parameter)
+    {
+        return parameter.Parent switch
+        {
+            SimpleLambdaExpressionSyntax => true,
+            ParameterListSyntax { Parent: DelegateDeclarationSyntax } => true,
+            ParameterListSyntax { Parent: ParenthesizedLambdaExpressionSyntax } => true,
+            _ => false
+        };
     }
 }
