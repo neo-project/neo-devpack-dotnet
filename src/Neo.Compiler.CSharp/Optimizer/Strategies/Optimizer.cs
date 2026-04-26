@@ -119,8 +119,10 @@ namespace Neo.Optimizer
                 }
                 catch (Exception ex)
                 {
-                    // Log warning but continue with other optimizations
-                    System.Diagnostics.Debug.WriteLine($"Warning: Optimization strategy '{method.Name}' failed: {ex.Message}");
+                    var failure = ex is TargetInvocationException { InnerException: not null }
+                        ? ex.InnerException
+                        : ex;
+                    throw new InvalidOperationException($"Optimization strategy '{method.Name}' failed: {failure.Message}", failure);
                 }
             }
             return (nef, manifest, debugInfo);
