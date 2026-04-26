@@ -26,6 +26,7 @@ namespace Neo.SmartContract.Testing.Storage.Rpc;
 
 public class RpcStore : IStore
 {
+    private static readonly HttpClient HttpClient = new();
     private int _id = 0;
 
     /// <summary>
@@ -128,9 +129,8 @@ public class RpcStore : IStore
                 id = _id = Interlocked.Increment(ref _id),
             };
 
-            using var httpClient = new HttpClient();
             var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-            var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+            var response = HttpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
 
             JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -170,11 +170,10 @@ public class RpcStore : IStore
                     yield break;
                 }
 
-                throw new Exception();
+                throw UnexpectedRpcResponse("findstorage", jo);
             }
         }
 
-        throw new Exception();
     }
 
     public bool TryGet(byte[] key, [NotNullWhen(true)] out byte[]? value)
@@ -188,9 +187,8 @@ public class RpcStore : IStore
             id = _id = Interlocked.Increment(ref _id),
         };
 
-        using var httpClient = new HttpClient();
         var requestContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-        var response = httpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
+        var response = HttpClient.PostAsync(Url, requestContent).GetAwaiter().GetResult();
 
         JObject jo = JObject.Parse(response.Content.ReadAsStringAsync().GetAwaiter().GetResult());
 
@@ -213,8 +211,23 @@ public class RpcStore : IStore
                 return false;
             }
 
-            throw new Exception();
+            throw UnexpectedRpcResponse("getstorage", jo);
         }
+    }
+
+    private static InvalidOperationException UnexpectedRpcResponse(string method, JObject response)
+    {
+        if (response["error"]?.Value<JObject>() is JObject error)
+        {
+            var code = error["code"]?.ToString() ?? "<missing>";
+            var message = error["message"]?.ToString() ?? "<missing>";
+            var data = error["data"]?.ToString();
+            return new InvalidOperationException(data is null
+                ? $"Unexpected {method} RPC error: code={code}, message={message}"
+                : $"Unexpected {method} RPC error: code={code}, message={message}, data={data}");
+        }
+
+        return new InvalidOperationException($"Unexpected {method} RPC response: {response}");
     }
 
     public byte[]? TryGet(byte[] key)

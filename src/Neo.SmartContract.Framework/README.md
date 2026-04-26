@@ -20,34 +20,34 @@ dotnet add package Neo.SmartContract.Framework
 ## Quick Start
 
 ```csharp
-using Neo.SmartContract;
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
-using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace MyContract
 {
     [DisplayName("MyToken")]
-    [ManifestExtra("Author", "Your Name")]
-    [ManifestExtra("Description", "My NEP-17 Token")]
-    [SupportedStandards(Nep17Standard)]
-    public class MyToken : NeoToken
+    [ContractAuthor("Your Name", "you@example.com")]
+    [ContractDescription("My NEP-17 Token")]
+    [ContractVersion("0.0.1")]
+    [SupportedStandards(NepStandard.Nep17)]
+    public class MyToken : Nep17Token
     {
-        [InitialValue("NXXXXX", NeoToken)]
-        private static readonly UInt160 Owner = default;
+        [Hash160("NXV7ZhHiyM1aHXwpVsRZC6BwNFP2jghXAq")]
+        private static readonly UInt160 Owner = default!;
+
+        public override string Symbol { [Safe] get => "MYT"; }
+        public override byte Decimals { [Safe] get => 8; }
 
         public static void OnNEP17Payment(UInt160 from, BigInteger amount, object? data = null)
         {
             // Handle incoming payments
         }
 
-        public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount)
-        {
-            // Transfer logic
-            return true;
-        }
+        [Safe]
+        public static bool IsOwner() => Runtime.CheckWitness(Owner);
     }
 }
 ```
@@ -57,9 +57,9 @@ namespace MyContract
 ### Attributes
 
 - `[DisplayName]` - Set contract/method display name
-- `[ManifestExtra]` - Add metadata to contract manifest
+- `[ContractAuthor]`, `[ContractDescription]`, `[ContractVersion]` - Add metadata to contract manifest
 - `[SupportedStandards]` - Declare supported NEP standards
-- `[InitialValue]` - Initialize static fields
+- `[Hash160]`, `[InitialValue]` - Initialize static fields
 - `[Safe]` - Mark methods as safe (no state changes)
 
 ### Native Contracts
@@ -80,7 +80,7 @@ namespace MyContract
 ## Documentation
 
 For comprehensive documentation and examples:
-https://github.com/neo-project/neo-devpack-dotnet/tree/master/docs
+https://github.com/neo-project/neo-devpack-dotnet/tree/master-n3/docs
 
 ## License
 
