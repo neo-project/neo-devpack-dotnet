@@ -9,14 +9,11 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using System.ComponentModel;
+using System;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
-public interface IVerificable
+[Obsolete("Use IVerifiable instead.")]
+public interface IVerificable : IVerifiable
 {
-    /// <summary>
-    /// Safe property
-    /// </summary>
-    public bool? Verify { [DisplayName("verify")] get; }
 }
