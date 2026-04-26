@@ -10,9 +10,15 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Persistence;
 using Neo.SmartContract.Testing.Storage;
 using Neo.SmartContract.Testing.Storage.Rpc;
 using System;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Neo.SmartContract.Testing.UnitTests.Storage
 {
@@ -44,6 +50,46 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         }
 
         [TestMethod]
+        public void RpcStoreTryGetUnexpectedRpcResponseIncludesErrorDetails()
+        {
+            using var server = new RpcResponseServer("""{"error":{"code":-500,"message":"boom","data":"details"}}""");
+            var store = new RpcStore(server.Url);
+
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
+
+            StringAssert.Contains(exception.Message, "getstorage");
+            StringAssert.Contains(exception.Message, "code=-500");
+            StringAssert.Contains(exception.Message, "message=boom");
+            StringAssert.Contains(exception.Message, "data=details");
+        }
+
+        [TestMethod]
+        public void RpcStoreUnexpectedRpcErrorHandlesMissingFields()
+        {
+            using var server = new RpcResponseServer("""{"error":{}}""");
+            var store = new RpcStore(server.Url);
+
+            var exception = Assert.ThrowsException<InvalidOperationException>(() => store.TryGet([0, 0, 0, 1, 2], out _));
+
+            StringAssert.Contains(exception.Message, "code=<missing>");
+            StringAssert.Contains(exception.Message, "message=<missing>");
+            Assert.IsFalse(exception.Message.Contains("data="));
+        }
+
+        [TestMethod]
+        public void RpcStoreFindUnexpectedRpcResponseIncludesRawResponse()
+        {
+            using var server = new RpcResponseServer("""{"result":{"unexpected":true}}""");
+            var store = new RpcStore(server.Url);
+
+            var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+                store.Find([0, 0, 0, 1, 2], SeekDirection.Forward).ToArray());
+
+            StringAssert.Contains(exception.Message, "findstorage");
+            StringAssert.Contains(exception.Message, "unexpected");
+        }
+
+        [TestMethod]
         public void TestRpcStore()
         {
             var engine = new TestEngine(new EngineStorage(new RpcStore("http://seed2t5.neo.org:20332")), false);
@@ -69,6 +115,49 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
             Assert.AreEqual(state.Hash, roundTrip!.Hash);
 
             Assert.IsTrue(engine.Native.ContractManagement.HasMethod(engine.Native.NEO.Hash, "getCandidateVote", 1));
+        }
+
+        private sealed class RpcResponseServer : IDisposable
+        {
+            private readonly TcpListener _listener;
+            private readonly Task _requestTask;
+
+            public RpcResponseServer(string responseBody)
+            {
+                _listener = new TcpListener(IPAddress.Loopback, 0);
+                _listener.Start();
+                var port = ((IPEndPoint)_listener.LocalEndpoint).Port;
+                Url = new Uri($"http://localhost:{port}/");
+                _requestTask = Task.Run(async () =>
+                {
+                    using var client = await _listener.AcceptTcpClientAsync();
+                    await using var stream = client.GetStream();
+                    var buffer = new byte[4096];
+                    await stream.ReadAtLeastAsync(buffer, 1, throwOnEndOfStream: false);
+                    var bytes = Encoding.UTF8.GetBytes(responseBody);
+                    var headers = Encoding.ASCII.GetBytes(
+                        $"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {bytes.Length}\r\nConnection: close\r\n\r\n");
+                    await stream.WriteAsync(headers, 0, headers.Length);
+                    await stream.WriteAsync(bytes, 0, bytes.Length);
+                });
+            }
+
+            public Uri Url { get; }
+
+            public void Dispose()
+            {
+                _listener.Stop();
+                try
+                {
+                    _requestTask.GetAwaiter().GetResult();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+                catch (SocketException)
+                {
+                }
+            }
         }
     }
 }
