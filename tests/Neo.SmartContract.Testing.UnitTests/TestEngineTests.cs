@@ -12,6 +12,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Extensions;
+using Neo.Persistence;
+using Neo.SmartContract;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Native;
@@ -22,6 +24,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Numerics;
+using System.Reflection;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
@@ -69,6 +72,34 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         [TestMethod]
+        public void TestPersistFailureHelperReportsTriggerName()
+        {
+            var testingApplicationEngine = CreateTestingApplicationEngine();
+            var helper = typeof(PersistingBlock).GetMethod("ThrowIfPersistFailed", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+            var exception = Assert.ThrowsException<TargetInvocationException>(() =>
+                helper.Invoke(null, ["OnPersist", testingApplicationEngine, VMState.FAULT]));
+            var invalidOperationException = (InvalidOperationException)exception.InnerException!;
+
+            StringAssert.Contains(invalidOperationException.Message, "OnPersist");
+            Assert.IsInstanceOfType<TestException>(invalidOperationException.InnerException);
+        }
+
+        [TestMethod]
+        public void TestPersistTransactionStateHelperReportsMissingState()
+        {
+            TestEngine engine = new(true);
+            var key = new StorageKey { Id = engine.Native.Ledger.Storage.Id, Key = ReadOnlyMemory<byte>.Empty };
+            var helper = typeof(PersistingBlock).GetMethod("GetTransactionState", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+            var exception = Assert.ThrowsException<TargetInvocationException>(() =>
+                helper.Invoke(null, [engine.Storage.Snapshot, key, UInt256.Zero]));
+
+            Assert.IsInstanceOfType<KeyNotFoundException>(exception.InnerException);
+            StringAssert.Contains(exception.InnerException!.Message, UInt256.Zero.ToString());
+        }
+
+        [TestMethod]
         public void TestOnGetEntryScriptHash()
         {
             TestEngine engine = new(true);
@@ -81,6 +112,22 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             engine.OnGetEntryScriptHash = (current, expected) => UInt160.Parse("0x0000000000000000000000000000000000000001");
             Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160))!.ToString());
+        }
+
+        private static object CreateTestingApplicationEngine()
+        {
+            TestEngine engine = new(true);
+            var underlyingBlock = typeof(PersistingBlock)
+                .GetField("UnderlyingBlock", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(engine.PersistingBlock)!;
+            var testingApplicationEngineType = typeof(TestEngine).Assembly.GetType("Neo.SmartContract.Testing.TestingApplicationEngine")!;
+
+            return Activator.CreateInstance(
+                testingApplicationEngineType,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                binder: null,
+                args: [engine, TriggerType.OnPersist, underlyingBlock, engine.Storage.Snapshot.CloneCache(), underlyingBlock],
+                culture: null)!;
         }
 
         [TestMethod]

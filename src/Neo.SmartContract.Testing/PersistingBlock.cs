@@ -13,8 +13,10 @@ using Neo.Cryptography;
 using Neo.Network.P2P.Payloads;
 using Neo.Persistence;
 using Neo.SmartContract.Native;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.VM;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.SmartContract.Testing
@@ -146,8 +148,7 @@ namespace Neo.SmartContract.Testing
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.OnPersist, persist, clonedSnapshot, persist))
             {
                 engine.LoadScript(onPersistScript);
-                if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing OnPersist");
+                ThrowIfPersistFailed("OnPersist", engine, engine.Execute());
             }
 
             // Invoke PostPersist
@@ -155,8 +156,7 @@ namespace Neo.SmartContract.Testing
             using (var engine = new TestingApplicationEngine(_engine, TriggerType.PostPersist, persist, clonedSnapshot, persist))
             {
                 engine.LoadScript(postPersistScript);
-                if (engine.Execute() != VMState.HALT)
-                    throw new Exception($"Error executing PostPersist");
+                ThrowIfPersistFailed("PostPersist", engine, engine.Execute());
             }
 
             // Update states
@@ -166,10 +166,7 @@ namespace Neo.SmartContract.Testing
             for (int x = 0; x < txs.Length; x++)
             {
                 var key = new KeyBuilder(_engine.Native.Ledger.Storage.Id, prefix_Transaction).Add(txs[x].Hash);
-                var transactionState = clonedSnapshot.TryGet(key);
-                if (transactionState is null)
-                    throw new Exception($"Transaction state not found: {txs[x].Hash}");
-                transactionState.GetInteroperable<TransactionState>().State = states[x];
+                GetTransactionState(clonedSnapshot, key, txs[x].Hash).State = states[x];
             }
 
             // Commit changes and return block
@@ -205,6 +202,20 @@ namespace Neo.SmartContract.Testing
                     VerificationScript = Array.Empty<byte>(),
                 }
             };
+        }
+
+        private static void ThrowIfPersistFailed(string triggerName, TestingApplicationEngine engine, VMState state)
+        {
+            if (state != VMState.HALT)
+                throw new InvalidOperationException($"Error executing {triggerName}.", new TestException(engine));
+        }
+
+        private static TransactionState GetTransactionState(DataCache snapshot, StorageKey key, UInt256 transactionHash)
+        {
+            var transactionState = snapshot.TryGet(key);
+            if (transactionState is null)
+                throw new KeyNotFoundException($"Transaction state not found: {transactionHash}");
+            return transactionState.GetInteroperable<TransactionState>();
         }
     }
 }
