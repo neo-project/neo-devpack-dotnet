@@ -48,23 +48,25 @@ var result = formatter(value: 12);
 
 ### extension_members - Extension members
 
-Status: unsupported
+Status: supported
 Scope: file
-Notes: Extension declarations introduce new top-level `extension` blocks that attach members to existing types. Roslyn must project the new members into metadata before Neo compiles the contract; the current toolchain rejects the syntax entirely.
+Notes: Instance extension methods and extension properties declared inside an `extension` block compile. Neo maps the extension receiver to the first method slot so member bodies can read it like a normal instance receiver. Static extension members and extension operators remain outside this covered subset.
 ```csharp
 using Neo.SmartContract.Framework;
 
-extension (this int value)
+public static class IntExtensions
 {
-    public int Twice()
+    extension(int value)
     {
-        return value * 2;
+        public int Twice() => value * 2;
+
+        public int Triple => value * 3;
     }
 }
 
 public class ExtensionMemberContract : SmartContract
 {
-    public static int Compute(int value) => value.Twice();
+    public static int Compute(int value) => value.Twice() + value.Triple;
 }
 ```
 

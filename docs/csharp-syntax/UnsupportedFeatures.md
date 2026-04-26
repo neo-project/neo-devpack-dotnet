@@ -67,7 +67,6 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
   - Shape constraints (`shape_constraints`)
   - Discriminated union declarations (`discriminated_union_types`)
   - Default parameters in lambda expressions (`lambda_default_parameters`)
-  - Extension members (`extension_members`)
   - Additional Span/ReadOnlySpan conversions (`span_arraysegment_conversions`)
   - Modifiers on simple lambda parameters (`lambda_parameter_modifiers`)
   - Partial events and constructors (`partial_events_constructors`)
