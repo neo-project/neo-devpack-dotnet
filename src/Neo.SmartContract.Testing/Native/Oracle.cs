@@ -14,7 +14,7 @@ using System.ComponentModel;
 
 namespace Neo.SmartContract.Testing.Native;
 
-public abstract class Oracle(SmartContractInitialize initialize) : SmartContract(initialize), TestingStandards.IVerificable
+public abstract class Oracle(SmartContractInitialize initialize) : SmartContract(initialize), TestingStandards.IVerifiable
 {
     #region Compiled data
 

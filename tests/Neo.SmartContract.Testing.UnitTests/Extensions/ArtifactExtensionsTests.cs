@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
 
                                     namespace Neo.SmartContract.Testing;
 
-                                    public abstract class Contract1(Neo.SmartContract.Testing.SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize), Neo.SmartContract.Testing.TestingStandards.INep17Standard, Neo.SmartContract.Testing.TestingStandards.IVerificable, IContractInfo
+                                    public abstract class Contract1(Neo.SmartContract.Testing.SmartContractInitialize initialize) : Neo.SmartContract.Testing.SmartContract(initialize), Neo.SmartContract.Testing.TestingStandards.INep17Standard, Neo.SmartContract.Testing.TestingStandards.IVerifiable, IContractInfo
                                     {
                                         #region Compiled data
 
@@ -148,6 +148,51 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
                                     }
 
                                     """.Replace("\r\n", "\n").TrimStart());
+        }
+
+        [TestMethod]
+        public void TestIsVerifiableRecognizesSafeBooleanVerify()
+        {
+            var manifest = CreateVerifyManifest(safe: true);
+
+            Assert.IsTrue(manifest.IsVerifiable());
+#pragma warning disable CS0618
+            Assert.IsTrue(manifest.IsVerificable());
+#pragma warning restore CS0618
+        }
+
+        [TestMethod]
+        public void TestIsVerifiableRejectsUnsafeVerify()
+        {
+            var manifest = CreateVerifyManifest(safe: false);
+
+            Assert.IsFalse(manifest.IsVerifiable());
+        }
+
+        private static ContractManifest CreateVerifyManifest(bool safe)
+        {
+            return new ContractManifest
+            {
+                Name = "TestContract",
+                Groups = [],
+                SupportedStandards = [],
+                Abi = new ContractAbi
+                {
+                    Methods =
+                    [
+                        new ContractMethodDescriptor
+                        {
+                            Name = "verify",
+                            Parameters = [],
+                            ReturnType = ContractParameterType.Boolean,
+                            Safe = safe
+                        }
+                    ],
+                    Events = []
+                },
+                Permissions = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
         }
     }
 }
