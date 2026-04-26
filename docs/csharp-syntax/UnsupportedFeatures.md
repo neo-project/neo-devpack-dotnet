@@ -54,6 +54,7 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
   - Numeric `nint` and `nuint` (`numeric_intptr_and_uintptr`)
 
 - **C# 12 Syntax Checklist**  
+  - Collection expressions with spread elements (`collection_expression_spread_elements`)
   - `ref readonly` parameters (`ref_readonly_parameters`)
   - Interceptors (`interceptors`)
 
