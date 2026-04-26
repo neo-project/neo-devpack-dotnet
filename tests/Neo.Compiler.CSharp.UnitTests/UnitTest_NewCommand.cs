@@ -206,6 +206,29 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(File.Exists(Path.Combine(_testOutputPath, contractName, "bin", "sc", $"{contractName}.artifacts.dll")));
         }
 
+        [TestMethod]
+        public void TestSolutionProjectCompilationErrorsGoToStdErr()
+        {
+            string solutionPath = Path.Combine(_testOutputPath, "Broken.sln");
+            string projectDirectory = Path.Combine(_testOutputPath, "Broken");
+            Directory.CreateDirectory(projectDirectory);
+            File.WriteAllText(Path.Combine(projectDirectory, "Broken.csproj"), "<Project>");
+            File.WriteAllText(solutionPath, """
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Broken", "Broken\Broken.csproj", "{11111111-1111-1111-1111-111111111111}"
+EndProject
+Global
+EndGlobal
+""");
+
+            var result = RunCompilerCommand($"\"{solutionPath}\"");
+
+            Assert.AreEqual(1, result.ExitCode);
+            StringAssert.Contains(result.StdErr, "Error compiling project Broken.csproj:");
+            Assert.IsFalse(result.StdOut.Contains("Error compiling project Broken.csproj:", StringComparison.Ordinal));
+        }
+
         private CommandResult RunCompilerCommand(string arguments)
         {
             var args = SplitArgs(arguments);
