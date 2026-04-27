@@ -101,7 +101,7 @@ internal partial class MethodConvert
             return;
         }
 
-        int fieldIndex = Array.IndexOf(fieldSymbol.ContainingType.GetFields(), fieldSymbol);
+        int fieldIndex = GetInstanceFieldIndex(fieldSymbol);
         AccessSlot(OpCode.LDARG, 0);
         Push(fieldIndex);
         AddInstruction(OpCode.ROT);
@@ -185,7 +185,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    int index = GetInstanceFieldIndex(field);
                     AddInstruction(OpCode.LDARG0);
                     Push(index);
                     AddInstruction(OpCode.ROT);
@@ -242,7 +242,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    int index = GetInstanceFieldIndex(field);
                     ConvertExpression(model, left.Expression);
                     Push(index);
                     AddInstruction(OpCode.ROT);
@@ -397,7 +397,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int fieldIndex = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    int fieldIndex = GetInstanceFieldIndex(field);
                     AccessSlot(OpCode.LDLOC, valueSlot);
                     AccessSlot(OpCode.LDLOC, receiverSlot);
                     Push(fieldIndex);

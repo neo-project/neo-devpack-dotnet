@@ -195,7 +195,7 @@ internal partial class MethodConvert
         }
         else
         {
-            int index = Array.IndexOf(left.ContainingType.GetFields(), left);
+            int index = GetInstanceFieldIndex(left);
             AddInstruction(OpCode.LDARG0);
             Push(index);
             AddInstruction(OpCode.OVER);
@@ -296,7 +296,7 @@ internal partial class MethodConvert
         }
         else
         {
-            int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+            int index = GetInstanceFieldIndex(field);
             ConvertExpression(model, left.Expression);
             Push(index);
             AddInstruction(OpCode.OVER);
