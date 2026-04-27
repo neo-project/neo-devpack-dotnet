@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
@@ -42,21 +43,22 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSymbolAction(AnalyzeNamedType, SymbolKind.NamedType);
+            context.RegisterSyntaxNodeAction(AnalyzeClassDeclaration, SyntaxKind.ClassDeclaration);
         }
 
-        private static void AnalyzeNamedType(SymbolAnalysisContext context)
+        private static void AnalyzeClassDeclaration(SyntaxNodeAnalysisContext context)
         {
-            if (context.Symbol is not INamedTypeSymbol typeSymbol || typeSymbol.TypeKind != TypeKind.Class)
+            var classDeclaration = (ClassDeclarationSyntax)context.Node;
+            if (context.SemanticModel.GetDeclaredSymbol(classDeclaration, context.CancellationToken) is not INamedTypeSymbol typeSymbol ||
+                typeSymbol.TypeKind != TypeKind.Class)
                 return;
 
             Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
-            foreach (IFieldSymbol field in typeSymbol.GetMembers().OfType<IFieldSymbol>())
+            foreach (VariableDeclaratorSyntax declarator in classDeclaration.Members
+                .OfType<FieldDeclarationSyntax>()
+                .SelectMany(fieldDeclaration => fieldDeclaration.Declaration.Variables))
             {
-                if (field.DeclaringSyntaxReferences.Length == 0)
-                    continue;
-
-                if (field.DeclaringSyntaxReferences[0].GetSyntax(context.CancellationToken) is not VariableDeclaratorSyntax declarator)
+                if (context.SemanticModel.GetDeclaredSymbol(declarator, context.CancellationToken) is not IFieldSymbol field)
                     continue;
 
                 if (!IsStorageNamespaceType(field.Type))
@@ -64,20 +66,18 @@ namespace Neo.SmartContract.Analyzer
 
                 if (!TryGetPrefixExpression(
                         declarator.Initializer?.Value,
-                        field.Type,
-                        context.Compilation,
+                        context.SemanticModel,
                         context.CancellationToken,
                         new HashSet<ISymbol>(SymbolEqualityComparer.Default),
-                        out ExpressionSyntax? prefixExpression,
-                        out SemanticModel? prefixSemanticModel))
+                        out ExpressionSyntax? prefixExpression))
                 {
                     continue;
                 }
 
-                if (prefixExpression is null || prefixSemanticModel is null)
+                if (prefixExpression is null)
                     continue;
 
-                if (!TryNormalizePrefix(prefixExpression, prefixSemanticModel, context.CancellationToken, new HashSet<ISymbol>(SymbolEqualityComparer.Default), out string normalizedPrefix))
+                if (!TryNormalizePrefix(prefixExpression, context.SemanticModel, context.CancellationToken, new HashSet<ISymbol>(SymbolEqualityComparer.Default), out string normalizedPrefix))
                     continue;
 
                 if (seenPrefixes.TryGetValue(normalizedPrefix, out PrefixUsage existing))
@@ -108,15 +108,12 @@ namespace Neo.SmartContract.Analyzer
 
         private static bool TryGetPrefixExpression(
             ExpressionSyntax? initializerValue,
-            ITypeSymbol expectedType,
-            Compilation compilation,
+            SemanticModel semanticModel,
             CancellationToken cancellationToken,
             HashSet<ISymbol> visitedSymbols,
-            out ExpressionSyntax? prefixExpression,
-            out SemanticModel? prefixSemanticModel)
+            out ExpressionSyntax? prefixExpression)
         {
             prefixExpression = null;
-            prefixSemanticModel = null;
 
             if (initializerValue is null)
                 return false;
@@ -127,15 +124,13 @@ namespace Neo.SmartContract.Analyzer
                     return false;
 
                 prefixExpression = creation.ArgumentList.Arguments[creation.ArgumentList.Arguments.Count - 1].Expression;
-                prefixSemanticModel = compilation.GetSemanticModel(creation.SyntaxTree);
                 return true;
             }
 
             if (initializerValue is not InvocationExpressionSyntax invocation)
                 return false;
 
-            SemanticModel invocationSemanticModel = compilation.GetSemanticModel(invocation.SyntaxTree);
-            if (invocationSemanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol is not IMethodSymbol methodSymbol)
+            if (semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol is not IMethodSymbol methodSymbol)
                 return false;
 
             if (!IsStorageNamespaceType(methodSymbol.ReturnType))
@@ -149,6 +144,9 @@ namespace Neo.SmartContract.Analyzer
 
             foreach (SyntaxReference syntaxReference in methodSymbol.DeclaringSyntaxReferences)
             {
+                if (syntaxReference.SyntaxTree != semanticModel.SyntaxTree)
+                    continue;
+
                 if (syntaxReference.GetSyntax(cancellationToken) is not MethodDeclarationSyntax methodDeclaration)
                     continue;
 
@@ -165,12 +163,10 @@ namespace Neo.SmartContract.Analyzer
 
                 if (TryGetPrefixExpression(
                         returnedExpression,
-                        methodSymbol.ReturnType,
-                        compilation,
+                        semanticModel,
                         cancellationToken,
                         visitedSymbols,
-                        out prefixExpression,
-                        out prefixSemanticModel))
+                        out prefixExpression))
                 {
                     return true;
                 }
@@ -234,7 +230,8 @@ namespace Neo.SmartContract.Analyzer
                 if (fieldSymbol.HasConstantValue && TryGetLiteralBytes(fieldSymbol.ConstantValue, out bytes))
                     return true;
 
-                if (fieldSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(cancellationToken) is VariableDeclaratorSyntax declarator &&
+                SyntaxReference? syntaxReference = fieldSymbol.DeclaringSyntaxReferences.FirstOrDefault(reference => reference.SyntaxTree == semanticModel.SyntaxTree);
+                if (syntaxReference?.GetSyntax(cancellationToken) is VariableDeclaratorSyntax declarator &&
                     declarator.Initializer is not null)
                 {
                     return TryGetByteSequence(declarator.Initializer.Value, semanticModel, cancellationToken, visitedSymbols, out bytes);
