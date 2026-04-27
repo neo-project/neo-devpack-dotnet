@@ -819,6 +819,8 @@ internal partial class MethodConvert
     private static void HandleEnumHasFlag(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is null)
             throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Enum.HasFlag requires an instance.");
 
@@ -838,6 +840,8 @@ internal partial class MethodConvert
     private static void HandleEnumParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
         var members = GetEnumFields(enumType);
 
@@ -874,6 +878,8 @@ internal partial class MethodConvert
     private static void HandleEnumParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
         var members = GetEnumFields(enumType);
 
@@ -926,6 +932,8 @@ internal partial class MethodConvert
     private static void HandleEnumTryParseGeneric(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
         var members = GetEnumFields(enumType);
 
@@ -978,6 +986,8 @@ internal partial class MethodConvert
     private static void HandleEnumTryParseGenericIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         var enumType = EnsureEnumTypeArgument(symbol, 0, instanceExpression);
         var members = GetEnumFields(enumType);
 

@@ -82,6 +82,8 @@ internal partial class MethodConvert
 
     private static void HandleStringLastIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         if (instanceExpression is not null)
@@ -187,6 +189,8 @@ internal partial class MethodConvert
 
     private static void HandleStringSplit(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (symbol.Parameters.Length == 0)
             throw new CompilationException(DiagnosticId.SyntaxNotSupported, "string.Split() without separators is not supported.");
 
@@ -500,6 +504,8 @@ internal partial class MethodConvert
 
     private static void HandleStringIsNullOrWhiteSpace(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
@@ -591,6 +597,8 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringCompare(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -1087,6 +1095,8 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringTrim(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -1155,6 +1165,8 @@ internal partial class MethodConvert
 
     private static void HandleStringTrimCharInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, char? constantTrimChar)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -1216,6 +1228,8 @@ internal partial class MethodConvert
 
     private static void HandleStringTrimStartInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -1269,6 +1283,8 @@ internal partial class MethodConvert
 
     private static void HandleStringTrimEndInternal(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool useTrimChar, char? constantTrimChar)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -1419,6 +1435,8 @@ internal partial class MethodConvert
 
     private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         bool hasCount = symbol.Parameters.Length == 2;
 
         if (arguments is not null)
@@ -1494,6 +1512,8 @@ internal partial class MethodConvert
 
     private static void HandleStringInsert(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         if (instanceExpression is not null)
