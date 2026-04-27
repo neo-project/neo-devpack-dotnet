@@ -13,12 +13,12 @@ public abstract class Contract_Extensions(Neo.SmartContract.Testing.SmartContrac
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Extensions"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testSum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testExtensionMemberMethod"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":61,""safe"":false},{""name"":""testExtensionMemberProperty"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":121,""safe"":false},{""name"":""testExtensionMemberCombination"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":181,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.9.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Extensions"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testSum"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""testExtensionMemberMethod"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":61,""safe"":false},{""name"":""testExtensionMemberProperty"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":121,""safe"":false},{""name"":""testExtensionMemberCombination"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":181,""safe"":false},{""name"":""testExtensionMemberPropertySetter"",""parameters"":[{""name"":""value"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":238,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.9.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAO5XAAJ5eDQDQFcAAnh5nkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwABeDQDQFcAAXgSoEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwABeDQDQFcAAXgToEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwABeDSLeDTEnkoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AqUZ2aA==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP0KAVcAAnl4NANAVwACeHmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAF4NANAVwABeBKgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAF4NANAVwABeBOgSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAAF4NIt4NMSeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0BXAQEQEcBweEpoNAdFaBDOQFcAAnlKeBBR0EVApD9c5w==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -79,6 +79,29 @@ public abstract class Contract_Extensions(Neo.SmartContract.Testing.SmartContrac
     /// </remarks>
     [DisplayName("testExtensionMemberProperty")]
     public abstract BigInteger? TestExtensionMemberProperty(BigInteger? value);
+
+    /// <summary>
+    /// Unsafe method
+    /// </summary>
+    /// <remarks>
+    /// Script: VwEBEBHAcHhKaDQHRWgQzkA=
+    /// INITSLOT 0101 [64 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH1 [1 datoshi]
+    /// PACK [2048 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// LDARG0 [2 datoshi]
+    /// DUP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// CALL 07 [512 datoshi]
+    /// DROP [2 datoshi]
+    /// LDLOC0 [2 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PICKITEM [64 datoshi]
+    /// RET [0 datoshi]
+    /// </remarks>
+    [DisplayName("testExtensionMemberPropertySetter")]
+    public abstract BigInteger? TestExtensionMemberPropertySetter(BigInteger? value);
 
     /// <summary>
     /// Unsafe method

@@ -41,5 +41,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Assert.AreEqual(20, Contract.TestExtensionMemberCombination(4));
         }
+
+        [TestMethod]
+        public void TestExtensionMemberPropertySetter()
+        {
+            Assert.AreEqual(7, Contract.TestExtensionMemberPropertySetter(7));
+        }
     }
 }

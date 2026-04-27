@@ -24,6 +24,20 @@ namespace Neo.Compiler.CSharp.TestContracts
 
             public int Triple => value * 3;
         }
+
+        extension(ExtensionBox box)
+        {
+            public int ExtensionValue
+            {
+                get => box.Value;
+                set => box.Value = value;
+            }
+        }
+    }
+
+    public class ExtensionBox
+    {
+        public int Value { get; set; }
     }
 
     public class Contract_Extensions : SmartContract.Framework.SmartContract
@@ -46,6 +60,13 @@ namespace Neo.Compiler.CSharp.TestContracts
         public static int TestExtensionMemberCombination(int value)
         {
             return value.Twice() + value.Triple;
+        }
+
+        public static int TestExtensionMemberPropertySetter(int value)
+        {
+            var box = new ExtensionBox();
+            box.ExtensionValue = value;
+            return box.Value;
         }
     }
 }
