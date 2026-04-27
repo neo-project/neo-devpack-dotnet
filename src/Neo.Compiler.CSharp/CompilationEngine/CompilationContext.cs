@@ -23,6 +23,7 @@ using Neo.SmartContract.Manifest;
 using scfx::Neo.SmartContract.Framework;
 using scfx::Neo.SmartContract.Framework.Attributes;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -56,6 +57,7 @@ namespace Neo.Compiler
         private readonly System.Collections.Generic.List<byte> _anonymousStaticFields = new();
         private readonly Dictionary<ITypeSymbol, byte> _vtables = new(SymbolEqualityComparer.Default);
         private readonly Dictionary<ISymbol, byte> _capturedStaticFields = new(SymbolEqualityComparer.Default);
+        private readonly ConcurrentDictionary<IMethodSymbol, bool> _needInstanceConstructorCache = new(SymbolEqualityComparer.Default);
         internal readonly struct OutSyncTarget
         {
             public OutSyncTarget(ISymbol symbol, byte? instanceSlot = null)
@@ -600,11 +602,54 @@ namespace Neo.Compiler
             }
 
             MethodConvert convert = ConvertMethod(model, symbol);
-            if (export && MethodConvert.NeedInstanceConstructor(symbol))
+            if (export && NeedInstanceConstructor(symbol))
             {
                 MethodConvert forward = new(this, symbol);
                 forward.ConvertForward(model, convert);
                 _methodsForward.Add(forward);
+            }
+        }
+
+        /// <summary>
+        /// Determines whether non-static calls need an explicit instance constructor receiver.
+        /// </summary>
+        internal bool NeedInstanceConstructor(IMethodSymbol symbol)
+        {
+            if (_needInstanceConstructorCache.TryGetValue(symbol, out bool result))
+                return result;
+
+            result = NeedInstanceConstructorCore(symbol);
+            _needInstanceConstructorCache[symbol] = result;
+            return result;
+
+            static bool NeedInstanceConstructorCore(IMethodSymbol symbol)
+            {
+                if (symbol.IsStatic || symbol.MethodKind == MethodKind.AnonymousFunction)
+                    return false;
+                INamedTypeSymbol? containingClass = symbol.ContainingType;
+                if (containingClass == null)
+                    return false;
+                // non-static methods in class
+                if ((symbol.MethodKind == MethodKind.Constructor || symbol.MethodKind == MethodKind.SharedConstructor)
+                    && !CompilationEngine.IsDerivedFromSmartContract(containingClass))
+                    // is constructor, and is not smart contract
+                    // typically seen in framework methods
+                    return true;
+                if (containingClass!.Constructors
+                    .FirstOrDefault(p => p.Parameters.Length == 0 && !p.IsStatic)?
+                    .DeclaringSyntaxReferences.Length > 0)
+                    // has explicit constructor
+                    return true;
+                // No explicit non-static constructor in class
+                // is smart contract, or is normal non-static method (whether contract or not)
+                if (!MethodConvert.s_pattern.IsMatch(containingClass?.BaseType?.ToString() ?? string.Empty))
+                    // class itself is not directly inheriting smart contract; can have more base classes
+                    return true;
+                // is non-static method, directly inheriting smart contract
+                if (containingClass!.GetFields().Any((IFieldSymbol f) => !f.IsStatic))
+                    // has non-static fields
+                    return true;
+                return false;
             }
         }
 
