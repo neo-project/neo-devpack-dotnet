@@ -154,6 +154,27 @@ namespace Neo.Compiler.CSharp.TestContracts
             return sumDefault(a, b);
         }
 
+        private delegate int ReadIn(in int value);
+        private delegate int ReadRefReadonly(ref readonly int value);
+
+        public static int TestLambdaInModifier(int value)
+        {
+            ReadIn read = (in current) => current + 4;
+            return read(value);
+        }
+
+        public static int TestLambdaScopedInModifier(int value)
+        {
+            ReadIn read = (scoped in current) => current + 5;
+            return read(value);
+        }
+
+        public static int TestLambdaRefReadonlyModifier(int value)
+        {
+            ReadRefReadonly read = (ref readonly current) => current + 6;
+            return read(in value);
+        }
+
         private static bool Any<T>(IEnumerable<T> array, Predicate<T> pre)
         {
             foreach (var i in array)
