@@ -16,6 +16,8 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
 
+#pragma warning disable CS0618
+
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
     [TestClass]
@@ -67,3 +69,5 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         }
     }
 }
+
+#pragma warning restore CS0618
