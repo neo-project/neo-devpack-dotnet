@@ -14,7 +14,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -27,6 +26,9 @@ internal partial class MethodConvert
 
     private static bool IsByRef(RefKind refKind)
         => refKind == RefKind.Ref || refKind == RefKind.Out;
+
+    private bool NeedInstanceConstructor(IMethodSymbol symbol)
+        => _context.NeedInstanceConstructor(symbol);
 
     private void RegisterMethodParameters()
     {
@@ -240,53 +242,5 @@ internal partial class MethodConvert
         var correctModel = semanticModel.GetModelForNode(expression);
         var typeInfo = correctModel.GetTypeInfo(expression);
         return typeInfo.ConvertedType?.SpecialType != SpecialType.System_Void;
-    }
-
-    internal static ConcurrentDictionary<IMethodSymbol, bool> _cacheNeedInstanceConstructor = new ConcurrentDictionary<IMethodSymbol, bool>(SymbolEqualityComparer.Default);
-
-    /// <summary>
-    /// non-static methods needs constructors to be executed
-    /// But non-static method in smart contract classes without explicit constructor
-    /// does not constructors
-    /// Cases we need instance constructors:
-    /// 1. non-static smart contract with explicit instance constructor in itself
-    /// 2. non-static ordinary method, with explicit instance constructor in itself or its base classes
-    /// </summary>
-    /// <param name="symbol">A method in class</param>
-    /// <returns></returns>
-    internal static bool NeedInstanceConstructor(IMethodSymbol symbol)
-    {
-        if (_cacheNeedInstanceConstructor.TryGetValue(symbol, out bool result))
-            return result;
-        static bool NeedInstanceConstructorInner(IMethodSymbol symbol)
-        {
-            if (symbol.IsStatic || symbol.MethodKind == MethodKind.AnonymousFunction)
-                return false;
-            INamedTypeSymbol? containingClass = symbol.ContainingType;
-            if (containingClass == null)
-                return false;
-            // non-static methods in class
-            if ((symbol.MethodKind == MethodKind.Constructor || symbol.MethodKind == MethodKind.SharedConstructor)
-                && !CompilationEngine.IsDerivedFromSmartContract(containingClass))
-                // is constructor, and is not smart contract
-                // typically seen in framework methods
-                return true;
-            if (containingClass!.Constructors
-                .FirstOrDefault(p => p.Parameters.Length == 0 && !p.IsStatic)?
-                .DeclaringSyntaxReferences.Length > 0)
-                // has explicit constructor
-                return true;
-            // No explicit non-static constructor in class
-            // is smart contract, or is normal non-static method (whether contract or not)
-            if (!s_pattern.IsMatch(containingClass?.BaseType?.ToString() ?? string.Empty))
-                // class itself is not directly inheriting smart contract; can have more base classes
-                return true;
-            // is non-static method, directly inheriting smart contract
-            if (containingClass!.GetFields().Any((IFieldSymbol f) => !f.IsStatic))
-                // has non-static fields
-                return true;
-            return false;
-        }
-        return _cacheNeedInstanceConstructor[symbol] = NeedInstanceConstructorInner(symbol);
     }
 }
