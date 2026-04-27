@@ -10,6 +10,9 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<
@@ -450,5 +453,58 @@ public class UnsupportedSyntaxAnalyzerUnitTests
 
         var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.RefReadonlyParameterRuleId).WithLocation(0);
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task DelegateReadOnlyParameters_AreAllowed()
+    {
+        var test = """
+                   class Test
+                   {
+                       delegate int ReadIn(in int value);
+                       delegate int ReadRefReadonly(ref readonly int value);
+                   }
+                   """;
+
+        await VerifyPreviewAnalyzerAsync(test);
+    }
+
+    [TestMethod]
+    public async Task LambdaReadOnlyParameters_AreAllowed()
+    {
+        var test = """
+                   class Test
+                   {
+                       delegate int ReadIn(in int value);
+                       delegate int ReadRefReadonly(ref readonly int value);
+
+                       int Run(int value)
+                       {
+                           ReadIn read = (in current) => current;
+                           ReadIn scopedRead = (scoped in current) => current;
+                           ReadRefReadonly readonlyRead = (ref readonly current) => current;
+                           return read(value) + scopedRead(value) + readonlyRead(value);
+                       }
+                   }
+                   """;
+
+        await VerifyPreviewAnalyzerAsync(test);
+    }
+
+    private static Task VerifyPreviewAnalyzerAsync(string test)
+    {
+        var verifier = new PreviewAnalyzerTest
+        {
+            TestCode = test
+        };
+        return verifier.RunAsync();
+    }
+
+    private sealed class PreviewAnalyzerTest : CSharpAnalyzerTest<UnsupportedSyntaxAnalyzer, DefaultVerifier>
+    {
+        protected override ParseOptions CreateParseOptions()
+        {
+            return ((CSharpParseOptions)base.CreateParseOptions()).WithLanguageVersion(LanguageVersion.Preview);
+        }
     }
 }

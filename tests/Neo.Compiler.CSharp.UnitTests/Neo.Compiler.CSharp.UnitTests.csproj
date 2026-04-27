@@ -7,10 +7,12 @@
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
 		<NoWarn>CS0067;CS8981</NoWarn> <!-- disable CS0067(event is never used) -->
+		<ExcludeByFile>**/src/Neo.SmartContract.Analyzer/**/*.cs</ExcludeByFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+		<ProjectReference Include="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj" />
 		<ProjectReference Include="..\..\src\Neo.SmartContract.Framework\Neo.SmartContract.Framework.csproj">
 			<Aliases>scfx</Aliases>
 		</ProjectReference>

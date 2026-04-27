@@ -89,7 +89,7 @@ int sum = add(2, 3);
 
 Status: unsupported
 Scope: file
-Notes: Contracts must declare a SmartContract class; top-level statements are rejected.
+Notes: Top-level statements are rejected by the contract syntax analyzer and are not treated as deployable contract surface area.
 ```csharp
 using Neo.SmartContract.Framework;
 

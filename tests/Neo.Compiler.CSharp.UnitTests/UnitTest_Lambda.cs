@@ -248,5 +248,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1065780);
             Assert.AreEqual(8, result);
         }
+
+        [TestMethod]
+        public void Test_ReadOnlyLambdaParameterModifiers()
+        {
+            var result = Contract.TestLambdaInModifier(3);
+            Assert.AreEqual(7, result);
+
+            result = Contract.TestLambdaScopedInModifier(3);
+            Assert.AreEqual(8, result);
+
+            result = Contract.TestLambdaRefReadonlyModifier(3);
+            Assert.AreEqual(9, result);
+        }
     }
 }

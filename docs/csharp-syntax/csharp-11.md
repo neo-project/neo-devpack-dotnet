@@ -141,7 +141,7 @@ public class NameofScope
 
 Status: unsupported
 Scope: file
-Notes: Declaring `file` scoped types is not recognized.
+Notes: File-local helper types are rejected by the contract syntax analyzer and are not accepted as Neo contract source.
 ```csharp
 file class FileScopedHelper
 {

@@ -118,7 +118,9 @@ internal partial class MethodConvert
         }
         else
         {
-            throw new NotSupportedException($"Unsupported collection element type: {element.GetType()}");
+            throw CompilationException.UnsupportedSyntax(
+                element,
+                $"Collection element type '{element.GetType().Name}' is not supported. Only expression elements are currently supported.");
         }
     }
 
