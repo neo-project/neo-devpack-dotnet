@@ -11,6 +11,7 @@
 
 extern alias scfx;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -62,6 +63,24 @@ internal partial class MethodConvert
     {
         if (_context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
             _anonymousVariables.Remove(index);
+    }
+
+    private AnonymousVariableScope PreserveAnonymousVariables()
+        => new(this);
+
+    private readonly struct AnonymousVariableScope(MethodConvert convert) : IDisposable
+    {
+        private readonly MethodConvert _convert = convert;
+        private readonly int _count = convert._anonymousVariables.Count;
+
+        public void Dispose()
+        {
+            if (!_convert._context.Options.Optimize.HasFlag(CompilationOptions.OptimizationType.Basic))
+                return;
+
+            while (_convert._anonymousVariables.Count > _count)
+                _convert._anonymousVariables.RemoveAt(_convert._anonymousVariables.Count - 1);
+        }
     }
 
     private void RemoveLocalVariable(ILocalSymbol symbol)
