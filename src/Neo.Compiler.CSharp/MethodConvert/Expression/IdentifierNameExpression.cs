@@ -62,7 +62,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    int index = GetInstanceFieldIndex(field);
                     AddInstruction(OpCode.LDARG0);
                     Push(index);
                     AddInstruction(OpCode.PICKITEM);

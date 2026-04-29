@@ -107,7 +107,7 @@ internal partial class MethodConvert
             ISymbol symbol = model.GetSymbolInfo(ae.Left).Symbol!;
             if (symbol is not IFieldSymbol field)
                 return false;
-            int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+            int index = GetInstanceFieldIndex(field);
             indexToValue.Add(index, ae.Right);
         }
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
@@ -209,7 +209,7 @@ internal partial class MethodConvert
             {
                 case IFieldSymbol field:
                     AddInstruction(OpCode.DUP);
-                    int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    int index = GetInstanceFieldIndex(field);
                     Push(index);
                     ConvertExpression(model, ae.Right);
                     AddInstruction(OpCode.SETITEM);

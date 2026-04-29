@@ -396,7 +396,6 @@ internal partial class MethodConvert
 
         // Get the enum type from the Enum value
         var enumType = symbol.Parameters[0].Type;
-
         if (enumType is not INamedTypeSymbol enumTypeSymbol)
         {
             throw new CompilationException(symbol.Locations.FirstOrDefault()!.MetadataModule!, DiagnosticId.InvalidType, "Unable to determine enum type");
@@ -404,27 +403,25 @@ internal partial class MethodConvert
 
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
-
         foreach (var t in enumMembers)
         {
-            methodConvert.Dup();                                   // Duplicate input value
-            methodConvert.Push(t.ConstantValue);                   // Push enum value
-            methodConvert.Equal();                                 // Compare values
+            methodConvert.Dup();                 // Duplicate input value
+            methodConvert.Push(t.ConstantValue); // Push enum value, the enum value is an int value
 
             var nextCheck = new JumpTarget();
-            methodConvert.JumpIfNot(nextCheck);                    // If not equal, check next
+            methodConvert.Jump(OpCode.JMPNE, nextCheck);  // If not numeric equal, check next
 
-            methodConvert.Drop();                                  // Remove the duplicated input value
-            methodConvert.Push(t.Name);                            // Push enum name
-            methodConvert.Ret();                                   // Return enum name
+            methodConvert.Drop();        // Remove the duplicated input value
+            methodConvert.Push(t.Name);  // Push enum name
+            methodConvert.Ret();         // Return enum name
 
             nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
-        methodConvert.Drop();                                      // Remove the input value
-        methodConvert.PushNull();                                  // Push null (no matching enum name)
-        methodConvert.Ret();                                       // Return null
+        methodConvert.Drop();     // Remove the input value
+        methodConvert.PushNull(); // Push null (no matching enum name)
+        methodConvert.Ret();      // Return null
     }
 
     /// <summary>
@@ -448,7 +445,7 @@ internal partial class MethodConvert
 
         // Get the enum type from the first argument (typeof(enum))
         ITypeSymbol? enumTypeSymbol = null;
-        if (arguments is { Count: > 0 })
+        if (arguments is not null && arguments.Count > 0)
         {
             if ((arguments[0] as ArgumentSyntax)?.Expression is TypeOfExpressionSyntax typeOfExpression)
             {
@@ -467,32 +464,34 @@ internal partial class MethodConvert
 
         if (enumTypeSymbol is not { TypeKind: TypeKind.Enum })
         {
-            throw new CompilationException(arguments![0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
+            throw new CompilationException(arguments[0], DiagnosticId.InvalidType, "Unable to determine enum type from first argument");
         }
 
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
 
+        var valueItem = methodConvert.PopInstruction(); // The second argument is the value to get the name of
+        var enumTypeItem = methodConvert.PopInstruction(); // The first argument is the enum type, It's unused when running
+        methodConvert.AddInstruction(valueItem);
         foreach (var t in enumMembers)
         {
-            methodConvert.Dup();                                   // Duplicate input value
-            methodConvert.Push(t.ConstantValue);                   // Push enum value
-            methodConvert.Equal();                                 // Compare values
+            methodConvert.Dup();                 // Duplicate input value
+            methodConvert.Push(t.ConstantValue); // Push enum value, the enum value is an int value
 
             var nextCheck = new JumpTarget();
-            methodConvert.JumpIfNot(nextCheck);                    // If not equal, check next
+            methodConvert.Jump(OpCode.JMPNE, nextCheck);  // If not numeric equal, check next
 
-            methodConvert.Drop(2);                                 // Remove the duplicated input value
-            methodConvert.Push(t.Name);                            // Push enum name
-            methodConvert.Ret();                                   // Return enum name
+            methodConvert.Drop();       // Remove the duplicated input value
+            methodConvert.Push(t.Name); // Push enum name
+            methodConvert.Ret();         // Return enum name
 
             nextCheck.Instruction = methodConvert.Nop();
         }
 
         // No match found
-        methodConvert.Drop(2);                                     // Remove the input value
-        methodConvert.PushNull();                                  // Push null (no matching enum name)
-        methodConvert.Ret();                                       // Return null
+        methodConvert.Drop();     // Remove the input value
+        methodConvert.PushNull(); // Push null (no matching enum name)
+        methodConvert.Ret();      // Return null
     }
 
     /// <summary>
