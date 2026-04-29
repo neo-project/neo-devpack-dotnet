@@ -82,5 +82,4 @@ public class Contract : SmartContract
         Assert.IsTrue(context.Diagnostics.Any(d => d.Id == diagnosticId), diagnostics);
         Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
     }
-
 }
