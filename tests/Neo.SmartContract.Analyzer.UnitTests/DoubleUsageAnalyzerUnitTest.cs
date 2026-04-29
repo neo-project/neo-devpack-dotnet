@@ -119,5 +119,27 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
         }
 
+        [TestMethod]
+        public async Task DoubleUsageAnalyzer_MethodSignature_ShouldReportDiagnostic()
+        {
+            const string test = """
+
+                                public class TestClass
+                                {
+                                    public {|#0:double|} TestDouble({|#1:double|} value) => value;
+                                }
+
+                                """;
+
+            var returnDiagnostic = Verifier.Diagnostic(DoubleUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("double");
+            var parameterDiagnostic = Verifier.Diagnostic(DoubleUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("double");
+
+            await Verifier.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic).ConfigureAwait(false);
+        }
+
     }
 }

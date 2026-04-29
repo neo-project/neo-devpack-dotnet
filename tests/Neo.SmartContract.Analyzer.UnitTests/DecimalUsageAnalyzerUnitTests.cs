@@ -125,5 +125,26 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             await VerifyCS.VerifyCodeFixAsync(test, expectedDiagnostic, fixtest);
         }
+
+        [TestMethod]
+        public async Task DecimalMethodSignature_ShouldReportDiagnostic()
+        {
+            var test = """
+
+                       class TestClass
+                       {
+                           public {|#0:decimal|} TestDecimal({|#1:decimal|} value) => value;
+                       }
+                       """;
+
+            var returnDiagnostic = VerifyCS.Diagnostic(DecimalUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System_Decimal", "decimal");
+            var parameterDiagnostic = VerifyCS.Diagnostic(DecimalUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("System_Decimal", "decimal");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic);
+        }
     }
 }

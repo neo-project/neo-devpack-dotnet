@@ -47,6 +47,20 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeMethodDeclaration(
+                    context,
+                    SpecialType.System_Single,
+                    Rule,
+                    static type => new object?[] { type.ToString() }),
+                SyntaxKind.MethodDeclaration);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeParameter(
+                    context,
+                    SpecialType.System_Single,
+                    Rule,
+                    static type => new object?[] { type.ToString() }),
+                SyntaxKind.Parameter);
         }
 
         private static void AnalyzeOperation(OperationAnalysisContext context)

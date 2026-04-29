@@ -119,5 +119,27 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
         }
 
+        [TestMethod]
+        public async Task FloatUsageAnalyzer_MethodSignature_ShouldReportDiagnostic()
+        {
+            const string test = """
+
+                                public class TestClass
+                                {
+                                    public {|#0:float|} TestFloat({|#1:float|} value) => value;
+                                }
+
+                                """;
+
+            var returnDiagnostic = Verifier.Diagnostic(FloatUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("float");
+            var parameterDiagnostic = Verifier.Diagnostic(FloatUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("float");
+
+            await Verifier.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic).ConfigureAwait(false);
+        }
+
     }
 }

@@ -17,6 +17,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Operations;
+using System;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
@@ -45,6 +46,20 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeMethodDeclaration(
+                    context,
+                    SpecialType.System_Decimal,
+                    Rule,
+                    static type => new object?[] { type.SpecialType.ToString(), type.ToString() }),
+                SyntaxKind.MethodDeclaration);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzeParameter(
+                    context,
+                    SpecialType.System_Decimal,
+                    Rule,
+                    static type => new object?[] { type.SpecialType.ToString(), type.ToString() }),
+                SyntaxKind.Parameter);
         }
 
         private static void AnalyzeOperation(OperationAnalysisContext context)
