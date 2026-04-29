@@ -9,7 +9,6 @@ namespace Neo.Compiler.CSharp.UnitTests;
 
 public static class TestHelper
 {
-
     public static CompilationContext CompileSingleContract(string sourceCode)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
