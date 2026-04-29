@@ -293,12 +293,30 @@ internal partial class MethodConvert
         }
     }
 
-    private void ConvertConditionalAccessAssignment(SemanticModel model, ConditionalAccessExpressionSyntax conditional, AssignmentExpressionSyntax assignment, byte valueSlot, ITypeSymbol assignedType)
+    private static bool IsSupportedConditionalAccessAssignment(AssignmentExpressionSyntax assignment)
     {
-        if (assignment.Left is not MemberBindingExpressionSyntax memberBinding)
+        return assignment.Kind() switch
         {
-            throw CompilationException.UnsupportedSyntax(assignment.Left, $"Unsupported null-conditional assignment target '{assignment.Left.GetType().Name}'. Only member bindings are supported.");
-        }
+            SyntaxKind.SimpleAssignmentExpression or
+            SyntaxKind.AddAssignmentExpression or
+            SyntaxKind.SubtractAssignmentExpression or
+            SyntaxKind.MultiplyAssignmentExpression or
+            SyntaxKind.DivideAssignmentExpression or
+            SyntaxKind.ModuloAssignmentExpression or
+            SyntaxKind.AndAssignmentExpression or
+            SyntaxKind.ExclusiveOrAssignmentExpression or
+            SyntaxKind.OrAssignmentExpression or
+            SyntaxKind.LeftShiftAssignmentExpression or
+            SyntaxKind.RightShiftAssignmentExpression or
+            SyntaxKind.CoalesceAssignmentExpression => true,
+            _ => false
+        };
+    }
+
+    private void ConvertConditionalAccessAssignment(SemanticModel model, ConditionalAccessExpressionSyntax conditional, AssignmentExpressionSyntax assignment)
+    {
+        if (assignment.Left is not MemberBindingExpressionSyntax and not ElementBindingExpressionSyntax)
+            throw CompilationException.UnsupportedSyntax(assignment.Left, $"Unsupported null-conditional assignment target '{assignment.Left.GetType().Name}'. Only member and element bindings are supported.");
 
         // Build the full ?. chain (outermost to innermost) so we can conditionally guard every hop
         // before the setter runs. This mirrors Roslyn's lowering but keeps the receivers alive for
@@ -346,14 +364,34 @@ internal partial class MethodConvert
             receiverSlot = stageSlot;
         }
 
-        ConvertConditionalMemberBindingAssignment(model, memberBinding, valueSlot, receiverSlot);
+        switch (assignment.Left)
+        {
+            case MemberBindingExpressionSyntax memberBinding:
+                if (assignment.Kind() == SyntaxKind.SimpleAssignmentExpression)
+                    ConvertConditionalMemberBindingAssignment(model, memberBinding, assignment.Right, receiverSlot);
+                else if (assignment.Kind() == SyntaxKind.CoalesceAssignmentExpression)
+                    ConvertConditionalMemberBindingCoalesceAssignment(model, memberBinding, assignment.Right, receiverSlot);
+                else
+                    ConvertConditionalMemberBindingComplexAssignment(model, memberBinding, assignment.Right, assignment.OperatorToken, receiverSlot);
+                break;
+            case ElementBindingExpressionSyntax elementBinding:
+                ITypeSymbol receiverType = model.GetTypeInfo(chain[^1].Expression).Type
+                    ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
+                if (assignment.Kind() == SyntaxKind.SimpleAssignmentExpression)
+                    ConvertConditionalElementBindingAssignment(model, elementBinding, assignment.Right, receiverSlot, receiverType);
+                else if (assignment.Kind() == SyntaxKind.CoalesceAssignmentExpression)
+                    ConvertConditionalElementBindingCoalesceAssignment(model, elementBinding, assignment.Right, receiverSlot, receiverType);
+                else
+                    ConvertConditionalElementBindingComplexAssignment(model, elementBinding, assignment.Right, assignment.OperatorToken, receiverSlot, receiverType);
+                break;
+        }
+
         RemoveAnonymousVariable(receiverSlot);
 
-        AccessSlot(OpCode.LDLOC, valueSlot);
         Jump(OpCode.JMP_L, endTarget);
 
         skipTarget.Instruction = AddInstruction(OpCode.DROP);
-        PushDefault(assignedType);
+        AddInstruction(OpCode.PUSHNULL);
 
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
@@ -375,7 +413,23 @@ internal partial class MethodConvert
         }
     }
 
-    private void ConvertConditionalMemberBindingAssignment(SemanticModel model, MemberBindingExpressionSyntax memberBinding, byte valueSlot, byte receiverSlot)
+    private byte StoreConditionalAssignmentValue(SemanticModel model, ExpressionSyntax value)
+    {
+        byte valueSlot = AddAnonymousVariable();
+        ConvertExpression(model, value);
+        AccessSlot(OpCode.STLOC, valueSlot);
+        return valueSlot;
+    }
+
+    private void ConvertConditionalMemberBindingAssignment(SemanticModel model, MemberBindingExpressionSyntax memberBinding, ExpressionSyntax value, byte receiverSlot)
+    {
+        byte valueSlot = StoreConditionalAssignmentValue(model, value);
+        StoreConditionalMemberBindingValue(model, memberBinding, valueSlot, receiverSlot);
+        AccessSlot(OpCode.LDLOC, valueSlot);
+        RemoveAnonymousVariable(valueSlot);
+    }
+
+    private void StoreConditionalMemberBindingValue(SemanticModel model, MemberBindingExpressionSyntax memberBinding, byte valueSlot, byte receiverSlot)
     {
         ISymbol? symbol = model.GetSymbolInfo(memberBinding).Symbol;
         if (symbol is null)
@@ -408,5 +462,263 @@ internal partial class MethodConvert
             default:
                 throw CompilationException.UnsupportedSyntax(memberBinding, $"Unsupported null-conditional member assignment for symbol type '{symbol.GetType().Name}'.");
         }
+    }
+
+    private void LoadConditionalMemberBindingValue(SemanticModel model, MemberBindingExpressionSyntax memberBinding, byte receiverSlot)
+    {
+        ISymbol? symbol = model.GetSymbolInfo(memberBinding).Symbol;
+        if (symbol is null)
+            throw CompilationException.UnsupportedSyntax(memberBinding, "Unable to resolve symbol for conditional member binding.");
+
+        switch (symbol)
+        {
+            case IPropertySymbol property when property.GetMethod is not null:
+                if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
+                CallMethodWithConvention(model, property.GetMethod);
+                break;
+            case IFieldSymbol field:
+                if (field.IsStatic)
+                {
+                    byte index = _context.AddStaticField(field);
+                    AccessSlot(OpCode.LDSFLD, index);
+                }
+                else
+                {
+                    int fieldIndex = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    AccessSlot(OpCode.LDLOC, receiverSlot);
+                    Push(fieldIndex);
+                    AddInstruction(OpCode.PICKITEM);
+                }
+                break;
+            default:
+                throw CompilationException.UnsupportedSyntax(memberBinding, $"Unsupported null-conditional member assignment for symbol type '{symbol.GetType().Name}'.");
+        }
+    }
+
+    private void ConvertConditionalMemberBindingCoalesceAssignment(SemanticModel model, MemberBindingExpressionSyntax memberBinding, ExpressionSyntax right, byte receiverSlot)
+    {
+        JumpTarget assignmentTarget = new();
+        JumpTarget endTarget = new();
+
+        LoadConditionalMemberBindingValue(model, memberBinding, receiverSlot);
+        AddInstruction(OpCode.DUP);
+        AddInstruction(OpCode.ISNULL);
+        Jump(OpCode.JMPIF_L, assignmentTarget);
+        Jump(OpCode.JMP_L, endTarget);
+
+        assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+        byte valueSlot = StoreConditionalAssignmentValue(model, right);
+        StoreConditionalMemberBindingValue(model, memberBinding, valueSlot, receiverSlot);
+        AccessSlot(OpCode.LDLOC, valueSlot);
+        RemoveAnonymousVariable(valueSlot);
+
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
+    }
+
+    private void ConvertConditionalMemberBindingComplexAssignment(SemanticModel model, MemberBindingExpressionSyntax memberBinding, ExpressionSyntax right, SyntaxToken operatorToken, byte receiverSlot)
+    {
+        ISymbol? symbol = model.GetSymbolInfo(memberBinding).Symbol;
+        if (symbol is null)
+            throw CompilationException.UnsupportedSyntax(memberBinding, "Unable to resolve symbol for conditional member binding.");
+
+        ITypeSymbol type = model.GetTypeInfo(memberBinding).Type
+            ?? model.GetTypeInfo(right).Type
+            ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
+
+        switch (symbol)
+        {
+            case IPropertySymbol property when property.GetMethod is not null && property.SetMethod is not null:
+                if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
+                CallMethodWithConvention(model, property.GetMethod);
+                ConvertExpression(model, right);
+                EmitComplexAssignmentOperator(type, operatorToken);
+                byte propertyValueSlot = AddAnonymousVariable();
+                AccessSlot(OpCode.STLOC, propertyValueSlot);
+                AccessSlot(OpCode.LDLOC, propertyValueSlot);
+                if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
+                CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
+                AccessSlot(OpCode.LDLOC, propertyValueSlot);
+                RemoveAnonymousVariable(propertyValueSlot);
+                break;
+            case IFieldSymbol field:
+                if (field.IsStatic)
+                {
+                    byte index = _context.AddStaticField(field);
+                    AccessSlot(OpCode.LDSFLD, index);
+                    ConvertExpression(model, right);
+                    EmitComplexAssignmentOperator(type, operatorToken);
+                    byte fieldValueSlot = AddAnonymousVariable();
+                    AccessSlot(OpCode.STLOC, fieldValueSlot);
+                    AccessSlot(OpCode.LDLOC, fieldValueSlot);
+                    AccessSlot(OpCode.STSFLD, index);
+                    AccessSlot(OpCode.LDLOC, fieldValueSlot);
+                    RemoveAnonymousVariable(fieldValueSlot);
+                }
+                else
+                {
+                    int fieldIndex = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    AccessSlot(OpCode.LDLOC, receiverSlot);
+                    Push(fieldIndex);
+                    AddInstruction(OpCode.PICKITEM);
+                    ConvertExpression(model, right);
+                    EmitComplexAssignmentOperator(type, operatorToken);
+                    byte fieldValueSlot = AddAnonymousVariable();
+                    AccessSlot(OpCode.STLOC, fieldValueSlot);
+                    AccessSlot(OpCode.LDLOC, receiverSlot);
+                    Push(fieldIndex);
+                    AccessSlot(OpCode.LDLOC, fieldValueSlot);
+                    AddInstruction(OpCode.SETITEM);
+                    AccessSlot(OpCode.LDLOC, fieldValueSlot);
+                    RemoveAnonymousVariable(fieldValueSlot);
+                }
+                break;
+            default:
+                throw CompilationException.UnsupportedSyntax(memberBinding, $"Unsupported null-conditional member compound assignment for symbol type '{symbol.GetType().Name}'.");
+        }
+    }
+
+    private void ConvertConditionalElementBindingAssignment(SemanticModel model, ElementBindingExpressionSyntax elementBinding, ExpressionSyntax value, byte receiverSlot, ITypeSymbol receiverType)
+    {
+        byte[] indexSlots = StoreConditionalElementIndices(model, elementBinding, receiverType);
+        byte valueSlot = StoreConditionalAssignmentValue(model, value);
+        StoreConditionalElementBindingValue(model, elementBinding, valueSlot, receiverSlot, receiverType, indexSlots);
+        AccessSlot(OpCode.LDLOC, valueSlot);
+        RemoveAnonymousVariable(valueSlot);
+        RemoveAnonymousVariables(indexSlots);
+    }
+
+    private void ConvertConditionalElementBindingComplexAssignment(SemanticModel model, ElementBindingExpressionSyntax elementBinding, ExpressionSyntax right, SyntaxToken operatorToken, byte receiverSlot, ITypeSymbol receiverType)
+    {
+        byte[] indexSlots = StoreConditionalElementIndices(model, elementBinding, receiverType);
+        LoadConditionalElementBindingValue(model, elementBinding, receiverSlot, receiverType, indexSlots);
+        ConvertExpression(model, right);
+        ITypeSymbol type = model.GetTypeInfo(elementBinding).Type
+            ?? model.GetTypeInfo(right).Type
+            ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
+        EmitComplexAssignmentOperator(type, operatorToken);
+        byte valueSlot = AddAnonymousVariable();
+        AccessSlot(OpCode.STLOC, valueSlot);
+        StoreConditionalElementBindingValue(model, elementBinding, valueSlot, receiverSlot, receiverType, indexSlots);
+        AccessSlot(OpCode.LDLOC, valueSlot);
+        RemoveAnonymousVariable(valueSlot);
+        RemoveAnonymousVariables(indexSlots);
+    }
+
+    private void ConvertConditionalElementBindingCoalesceAssignment(SemanticModel model, ElementBindingExpressionSyntax elementBinding, ExpressionSyntax right, byte receiverSlot, ITypeSymbol receiverType)
+    {
+        byte[] indexSlots = StoreConditionalElementIndices(model, elementBinding, receiverType);
+        JumpTarget assignmentTarget = new();
+        JumpTarget endTarget = new();
+
+        LoadConditionalElementBindingValue(model, elementBinding, receiverSlot, receiverType, indexSlots);
+        AddInstruction(OpCode.DUP);
+        AddInstruction(OpCode.ISNULL);
+        Jump(OpCode.JMPIF_L, assignmentTarget);
+        Jump(OpCode.JMP_L, endTarget);
+
+        assignmentTarget.Instruction = AddInstruction(OpCode.DROP);
+        byte valueSlot = StoreConditionalAssignmentValue(model, right);
+        StoreConditionalElementBindingValue(model, elementBinding, valueSlot, receiverSlot, receiverType, indexSlots);
+        AccessSlot(OpCode.LDLOC, valueSlot);
+        RemoveAnonymousVariable(valueSlot);
+
+        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        RemoveAnonymousVariables(indexSlots);
+    }
+
+    private byte[] StoreConditionalElementIndices(SemanticModel model, ElementBindingExpressionSyntax elementBinding, ITypeSymbol receiverType)
+    {
+        if (model.GetSymbolInfo(elementBinding).Symbol is IPropertySymbol)
+        {
+            if (elementBinding.ArgumentList.Arguments.Count != 1)
+                throw new CompilationException(elementBinding.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported indexer rank: {elementBinding.ArgumentList.Arguments}");
+        }
+        else
+        {
+            IArrayTypeSymbol arrayType = GetConditionalElementArrayType(elementBinding, receiverType);
+            if (arrayType.Rank > 1)
+            {
+                EnsureMultiDimensionalArguments(elementBinding.ArgumentList.Arguments, arrayType.Rank, elementBinding.ArgumentList);
+            }
+            else if (elementBinding.ArgumentList.Arguments.Count != 1)
+            {
+                throw new CompilationException(elementBinding.ArgumentList, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {elementBinding.ArgumentList.Arguments}");
+            }
+        }
+
+        byte[] indexSlots = new byte[elementBinding.ArgumentList.Arguments.Count];
+        for (int i = 0; i < elementBinding.ArgumentList.Arguments.Count; i++)
+        {
+            ArgumentSyntax argument = elementBinding.ArgumentList.Arguments[i];
+            if (argument.Expression is RangeExpressionSyntax)
+                throw new CompilationException(argument.Expression, DiagnosticId.ArrayRange, "Range expressions cannot be used as assignment targets.");
+            byte indexSlot = AddAnonymousVariable();
+            ConvertExpression(model, argument.Expression);
+            AccessSlot(OpCode.STLOC, indexSlot);
+            indexSlots[i] = indexSlot;
+        }
+        return indexSlots;
+    }
+
+    private IArrayTypeSymbol GetConditionalElementArrayType(ElementBindingExpressionSyntax elementBinding, ITypeSymbol receiverType)
+    {
+        if (receiverType is IArrayTypeSymbol arrayType)
+            return arrayType;
+
+        throw CompilationException.UnsupportedSyntax(elementBinding, $"Unsupported null-conditional element assignment receiver type '{receiverType}'. Only arrays and indexers are supported.");
+    }
+
+    private void LoadConditionalElementBindingValue(SemanticModel model, ElementBindingExpressionSyntax elementBinding, byte receiverSlot, ITypeSymbol receiverType, IReadOnlyList<byte> indexSlots)
+    {
+        if (model.GetSymbolInfo(elementBinding).Symbol is IPropertySymbol property)
+        {
+            if (property.GetMethod is null)
+                throw CompilationException.UnsupportedSyntax(elementBinding, $"Element access through indexer '{property.Name}' is not supported because the indexer does not expose a getter.");
+            AccessSlot(OpCode.LDLOC, receiverSlot);
+            AccessSlot(OpCode.LDLOC, indexSlots[0]);
+            CallMethodWithConvention(model, property.GetMethod, CallingConvention.StdCall);
+            return;
+        }
+
+        IArrayTypeSymbol arrayType = GetConditionalElementArrayType(elementBinding, receiverType);
+        AccessSlot(OpCode.LDLOC, receiverSlot);
+        for (int i = 0; i < arrayType.Rank - 1; i++)
+        {
+            AccessSlot(OpCode.LDLOC, indexSlots[i]);
+            AddInstruction(OpCode.PICKITEM);
+        }
+        AccessSlot(OpCode.LDLOC, indexSlots[arrayType.Rank - 1]);
+        AddInstruction(OpCode.PICKITEM);
+    }
+
+    private void StoreConditionalElementBindingValue(SemanticModel model, ElementBindingExpressionSyntax elementBinding, byte valueSlot, byte receiverSlot, ITypeSymbol receiverType, IReadOnlyList<byte> indexSlots)
+    {
+        if (model.GetSymbolInfo(elementBinding).Symbol is IPropertySymbol property)
+        {
+            if (property.SetMethod is null)
+                throw CompilationException.UnsupportedSyntax(elementBinding, $"Element assignment through indexer '{property.Name}' is not supported because the indexer does not expose a setter.");
+            AccessSlot(OpCode.LDLOC, valueSlot);
+            AccessSlot(OpCode.LDLOC, indexSlots[0]);
+            AccessSlot(OpCode.LDLOC, receiverSlot);
+            CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
+            return;
+        }
+
+        IArrayTypeSymbol arrayType = GetConditionalElementArrayType(elementBinding, receiverType);
+        AccessSlot(OpCode.LDLOC, receiverSlot);
+        for (int i = 0; i < arrayType.Rank - 1; i++)
+        {
+            AccessSlot(OpCode.LDLOC, indexSlots[i]);
+            AddInstruction(OpCode.PICKITEM);
+        }
+        AccessSlot(OpCode.LDLOC, indexSlots[arrayType.Rank - 1]);
+        AccessSlot(OpCode.LDLOC, valueSlot);
+        AddInstruction(OpCode.SETITEM);
+    }
+
+    private void RemoveAnonymousVariables(IEnumerable<byte> slots)
+    {
+        foreach (byte slot in slots)
+            RemoveAnonymousVariable(slot);
     }
 }
