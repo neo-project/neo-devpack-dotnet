@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -57,6 +58,41 @@ namespace Neo.Compiler.CSharp.UnitTests
             var ex = CompilationException.FileOperation("write", "/tmp/out.nef", DiagnosticId.InvalidArgument);
 
             Assert.AreEqual(DiagnosticId.InvalidArgument, ex.Diagnostic.Id);
+        }
+
+        [TestMethod]
+        public void UnsupportedSyntax_ForFloatingPointType_DoesNotRecommendDecimal()
+        {
+            var tree = CSharpSyntaxTree.ParseText(
+                "class Contract { double Test(double value) => value; }",
+                path: "Contract.cs");
+            var doubleType = tree.GetRoot().DescendantNodes().OfType<PredefinedTypeSyntax>()
+                .First(p => p.Keyword.ValueText == "double");
+
+            var message = ErrorMessageBuilder.BuildUnsupportedSyntaxMessage(doubleType);
+
+            StringAssert.Contains(message, "BigInteger");
+            Assert.IsFalse(message.Contains("decimal", StringComparison.OrdinalIgnoreCase), message);
+        }
+
+        [TestMethod]
+        public void InvalidType_ForFloatingPointType_DoesNotRecommendDecimal()
+        {
+            var tree = CSharpSyntaxTree.ParseText(
+                "class Contract { double Test(double value) => value; }",
+                path: "Contract.cs");
+            var compilation = CSharpCompilation.Create(
+                "Contract",
+                new[] { tree },
+                new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
+            var model = compilation.GetSemanticModel(tree);
+            var doubleType = tree.GetRoot().DescendantNodes().OfType<PredefinedTypeSyntax>()
+                .First(p => p.Keyword.ValueText == "double");
+
+            var message = ErrorMessageBuilder.BuildInvalidTypeMessage(doubleType, model.GetTypeInfo(doubleType).Type);
+
+            StringAssert.Contains(message, "BigInteger");
+            Assert.IsFalse(message.Contains("decimal", StringComparison.OrdinalIgnoreCase), message);
         }
 
         [TestMethod]
