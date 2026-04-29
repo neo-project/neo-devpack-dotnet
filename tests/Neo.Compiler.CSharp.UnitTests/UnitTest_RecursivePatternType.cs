@@ -38,8 +38,6 @@ public class Contract : SmartContract
         Assert.IsFalse(contract.Test()!.Value);
     }
 
-
-
     public abstract class RecursivePatternTypeContract(SmartContractInitialize initialize)
         : Neo.SmartContract.Testing.SmartContract(initialize)
     {
