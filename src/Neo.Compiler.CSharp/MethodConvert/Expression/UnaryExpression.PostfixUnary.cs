@@ -160,7 +160,7 @@ internal partial class MethodConvert
         }
         else
         {
-            int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
+            int index = GetInstanceFieldIndex(symbol);
             AddInstruction(OpCode.LDARG0);
             AddInstruction(OpCode.DUP);
             Push(index);
@@ -237,7 +237,7 @@ internal partial class MethodConvert
         }
         else
         {
-            int index = Array.IndexOf(symbol.ContainingType.GetFields(), symbol);
+            int index = GetInstanceFieldIndex(symbol);
             ConvertExpression(model, operand.Expression);
             AddInstruction(OpCode.DUP);
             Push(index);

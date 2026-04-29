@@ -260,9 +260,7 @@ internal partial class MethodConvert
         }
 
         AccessSlot(OpCode.STLOC, instanceSlot);
-        int fieldIndex = Array.IndexOf(field.ContainingType.GetFields(), field);
-        if (fieldIndex < 0)
-            throw new CompilationException(field, DiagnosticId.SyntaxNotSupported, $"Field '{field.Name}' was not found on containing type '{field.ContainingType.Name}'.");
+        int fieldIndex = GetInstanceFieldIndex(field);
         return RefBinding.InstanceField(instanceSlot, fieldIndex);
     }
 

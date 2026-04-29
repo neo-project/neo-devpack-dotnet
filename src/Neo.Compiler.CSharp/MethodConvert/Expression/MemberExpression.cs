@@ -69,7 +69,7 @@ internal partial class MethodConvert
                 }
                 else
                 {
-                    int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                    int index = GetInstanceFieldIndex(field);
                     ConvertExpression(model, expression.Expression);
                     Push(index);
                     AddInstruction(OpCode.PICKITEM);
@@ -104,7 +104,7 @@ internal partial class MethodConvert
             return;
         }
 
-        int fieldIndex = Array.IndexOf(fieldSymbol.ContainingType.GetFields(), fieldSymbol);
+        int fieldIndex = GetInstanceFieldIndex(fieldSymbol);
         AccessSlot(OpCode.LDARG, 0);
         Push(fieldIndex);
         AddInstruction(OpCode.PICKITEM);
@@ -138,7 +138,7 @@ internal partial class MethodConvert
         switch (symbol)
         {
             case IFieldSymbol field:
-                int index = Array.IndexOf(field.ContainingType.GetFields(), field);
+                int index = GetInstanceFieldIndex(field);
                 Push(index);
                 AddInstruction(OpCode.PICKITEM);
                 break;

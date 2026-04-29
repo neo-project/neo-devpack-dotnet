@@ -41,6 +41,18 @@ internal partial class MethodConvert
         });
     }
 
+    /// <summary>
+    /// Remove the last instruction added
+    /// </summary>
+    private Instruction PopInstruction()
+    {
+        if (_instructions.Count == 0)
+            throw new InvalidOperationException("No instructions to remove");
+        var last = _instructions[^1];
+        _instructions.RemoveAt(_instructions.Count - 1);
+        return last;
+    }
+
     private SequencePointInserter InsertSequencePoint(SyntaxNodeOrToken? syntax, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string? callerPath = null, [CallerMemberName] string? caller = null)
     {
         return new SequencePointInserter(_instructions, syntax, LocationInformation.BuildCompilerLocation(lineNumber, callerPath, caller));
