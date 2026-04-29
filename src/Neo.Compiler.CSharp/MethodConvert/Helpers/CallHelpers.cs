@@ -434,7 +434,7 @@ internal partial class MethodConvert
         if (isRef)
         {
             AccessSlot(OpCode.LDSFLD, instanceSlot);
-            int fieldOffset = Array.IndexOf(field.ContainingType.GetFields(), field);
+            int fieldOffset = GetInstanceFieldIndex(field);
             Push(fieldOffset);
             AddInstruction(OpCode.PICKITEM);
         }
@@ -532,7 +532,7 @@ internal partial class MethodConvert
             throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Missing instance context for field '{field.Name}' in out argument synchronization.");
 
         AccessSlot(OpCode.LDSFLD, instanceSlot.Value);
-        int fieldOffset = Array.IndexOf(field.ContainingType.GetFields(), field);
+        int fieldOffset = GetInstanceFieldIndex(field);
         Push(fieldOffset);
         AddInstruction(OpCode.ROT);
         AddInstruction(OpCode.SETITEM);
