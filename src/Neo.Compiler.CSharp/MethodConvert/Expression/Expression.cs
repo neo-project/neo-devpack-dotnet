@@ -255,7 +255,7 @@ internal partial class MethodConvert
         {
             "Neo.SmartContract.Framework.UInt160" => ConvertToUInt160((string)value!),
             "Neo.SmartContract.Framework.UInt256" => ConvertToUInt256((string)value!, syntax),
-            "Neo.SmartContract.Framework.ECPoint" => ConvertToECPoint((string)value!),
+            "Neo.SmartContract.Framework.ECPoint" => ConvertToECPoint((string)value!, syntax),
             "Neo.SmartContract.Framework.ByteArray" => ((string)value!).HexToBytes(true),
             _ => value
         };
@@ -276,9 +276,18 @@ internal partial class MethodConvert
         return value;
     }
 
-    private static byte[] ConvertToECPoint(string strValue)
+    private static byte[] ConvertToECPoint(string strValue, ExpressionSyntax syntax)
     {
-        return ECPoint.Parse(strValue, ECCurve.Secp256r1).EncodePoint(true);
+        try
+        {
+            if (!ECPoint.TryParse(strValue, ECCurve.Secp256r1, out var value))
+                throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, "Invalid ECPoint literal");
+            return value.EncodePoint(true);
+        }
+        catch (Exception ex) when (ex is FormatException or ArgumentException or IndexOutOfRangeException)
+        {
+            throw new CompilationException(syntax, DiagnosticId.InvalidInitialValue, "Invalid ECPoint literal", ex);
+        }
     }
 
 
