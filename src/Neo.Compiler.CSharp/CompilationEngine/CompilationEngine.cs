@@ -273,7 +273,7 @@ namespace Neo.Compiler
                 Contexts.TryAdd(c, context);
             });
 
-            return Contexts.Select(p => p.Value).ToList();
+            return sortedClasses.Select(c => Contexts[c]).ToList();
         }
 
         private List<CompilationContext> CompileProjectContracts(Compilation compilation)
@@ -339,7 +339,7 @@ namespace Neo.Compiler
                 Contexts.TryAdd(c, context);
             });
 
-            return Contexts.Select(p => p.Value).ToList();
+            return sortedClasses.Select(c => Contexts[c]).ToList();
         }
 
         /// <summary>
