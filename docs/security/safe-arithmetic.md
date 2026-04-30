@@ -6,15 +6,13 @@ This guide provides comprehensive patterns for safe arithmetic in Neo N3 smart c
 ## Table of Contents
 
 - [Arithmetic Security Fundamentals](#arithmetic-security-fundamentals)
-- [BigInteger in Neo Contracts](#biginteger-in-neo-contracts)
+- [Neo N3 BigInteger Characteristics](#neo-n3-biginteger-characteristics)
 - [Safe Addition Operations](#safe-addition-operations)
 - [Safe Subtraction Operations](#safe-subtraction-operations)
 - [Safe Multiplication Operations](#safe-multiplication-operations)
 - [Safe Division Operations](#safe-division-operations)
 - [Percentage and Ratio Calculations](#percentage-and-ratio-calculations)
 - [Fixed-Point Arithmetic](#fixed-point-arithmetic)
-- [Rounding and Precision](#rounding-and-precision)
-- [Testing Arithmetic Security](#testing-arithmetic-security)
 
 ## Arithmetic Security Fundamentals
 
