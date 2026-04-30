@@ -242,6 +242,7 @@ internal partial class MethodConvert
         // 1. Process named arguments
         var namedArguments = ProcessNamedArguments(model, arguments);
         var argumentMap = MapArgumentsToParameters(model, symbol, arguments);
+        var argumentExpressions = MapArgumentExpressionsToParameters(symbol, arguments);
 
         // 2. Determine parameter order based on calling convention
         var parameters = DetermineParameterOrder(symbol, callingConvention);
@@ -276,7 +277,7 @@ internal partial class MethodConvert
                 // d. Regular Arguments
                 // Example: MethodCall(42, "Hello")
                 // Where method signature is: void MethodCall(int num, string message)
-                ProcessRegularArgument(model, arguments, parameter);
+                ProcessRegularArgument(model, argumentExpressions, parameter);
             }
         }
     }
@@ -293,6 +294,39 @@ internal partial class MethodConvert
              .ToDictionary(p =>
                  p.Symbol,
                  p => p.Expression, (IEqualityComparer<IParameterSymbol>)SymbolEqualityComparer.Default);
+    }
+
+    private static Dictionary<IParameterSymbol, ExpressionSyntax> MapArgumentExpressionsToParameters(IMethodSymbol symbol, IEnumerable<SyntaxNode> arguments)
+    {
+        Dictionary<IParameterSymbol, ExpressionSyntax> map = new(SymbolEqualityComparer.Default);
+        int positionalIndex = 0;
+
+        foreach (SyntaxNode node in arguments)
+        {
+            IParameterSymbol? targetParameter;
+            ExpressionSyntax expression;
+
+            switch (node)
+            {
+                case ArgumentSyntax argument:
+                    expression = argument.Expression;
+                    targetParameter = argument.NameColon is null
+                        ? symbol.Parameters.ElementAtOrDefault(positionalIndex++)
+                        : symbol.Parameters.FirstOrDefault(p => p.Name == argument.NameColon.Name.Identifier.ValueText);
+                    break;
+                case ExpressionSyntax exp:
+                    expression = exp;
+                    targetParameter = symbol.Parameters.ElementAtOrDefault(positionalIndex++);
+                    break;
+                default:
+                    continue;
+            }
+
+            if (targetParameter is not null && !map.ContainsKey(targetParameter))
+                map[targetParameter] = expression;
+        }
+
+        return map;
     }
 
     private static IEnumerable<IParameterSymbol> DetermineParameterOrder(IMethodSymbol symbol, CallingConvention callingConvention)
@@ -343,24 +377,12 @@ internal partial class MethodConvert
         AddInstruction(OpCode.PACK);
     }
 
-    private void ProcessRegularArgument(SemanticModel model, IReadOnlyList<SyntaxNode> arguments, IParameterSymbol parameter)
+    private void ProcessRegularArgument(SemanticModel model, IReadOnlyDictionary<IParameterSymbol, ExpressionSyntax> argumentExpressions, IParameterSymbol parameter)
     {
-        if (arguments.Count > parameter.Ordinal)
-        {
-            var argument = arguments[parameter.Ordinal];
-            switch (argument)
-            {
-                case ArgumentSyntax { NameColon: null } arg:
-                    ConvertExpression(model, arg.Expression);
-                    return;
-                case ExpressionSyntax ex:
-                    ConvertExpression(model, ex);
-                    return;
-                default:
-                    throw CompilationException.UnsupportedSyntax(argument, $"Unsupported argument syntax '{argument.GetType().Name}'. Use regular expression arguments or omit for default values.");
-            }
-        }
-        Push(parameter.ExplicitDefaultValue);
+        if (argumentExpressions.TryGetValue(parameter, out var expression))
+            ConvertExpression(model, expression);
+        else
+            Push(parameter.ExplicitDefaultValue);
     }
 
     private static ExpressionSyntax ExtractExpression(SyntaxNode node)
