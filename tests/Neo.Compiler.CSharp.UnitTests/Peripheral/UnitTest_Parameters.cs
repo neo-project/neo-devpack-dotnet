@@ -17,7 +17,9 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
     [TestClass]
     public class UnitTest_Parameters
     {
-        readonly string csFileDir = Utils.Extensions.TestContractRoot;
+        static readonly string TestContractRoot = Path.GetFullPath("../../../../Neo.Compiler.CSharp.TestContracts/") + "/";
+
+        readonly string csFileDir = TestContractRoot;
 
         [TestMethod]
         public void TestNoParameter()
