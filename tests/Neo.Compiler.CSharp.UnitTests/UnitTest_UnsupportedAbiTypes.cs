@@ -24,7 +24,7 @@ public class UnitTest_UnsupportedAbiTypes
     [TestMethod]
     public void PublicMethods_WithFloatingPointAbiTypes_FailCompilation()
     {
-        var context = CompileSingleContract("""
+        var context = TestHelper.CompileSingleContract("""
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 
@@ -48,7 +48,7 @@ public static decimal EchoDecimal(decimal value) => value;
     [TestMethod]
     public void PublicMethods_WithTaskAbiTypes_FailCompilation()
     {
-        var context = CompileSingleContract("""
+        var context = TestHelper.CompileSingleContract("""
 using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
 
@@ -67,39 +67,6 @@ public static System.Threading.Tasks.ValueTask EchoValueTask(System.Threading.Ta
 
         Assert.IsFalse(context.Success, "Task-like types must not be accepted in contract ABI methods.");
         StringAssert.Contains(GetDiagnostics(context), "not supported");
-    }
-
-    private static CompilationContext CompileSingleContract(string sourceCode)
-    {
-        var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
-        File.WriteAllText(tempFile, sourceCode);
-
-        try
-        {
-            var options = new CompilationOptions
-            {
-                Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = NullableContextOptions.Enable,
-                SkipRestoreIfAssetsPresent = true
-            };
-
-            var engine = new CompilationEngine(options);
-            var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-            var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-
-            var contexts = engine.CompileSources(new CompilationSourceReferences
-            {
-                Projects = new[] { frameworkProject }
-            }, tempFile);
-
-            Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
-            return contexts[0];
-        }
-        finally
-        {
-            if (File.Exists(tempFile))
-                File.Delete(tempFile);
-        }
     }
 
     private static string GetDiagnostics(CompilationContext context)
