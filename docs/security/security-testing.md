@@ -9,13 +9,8 @@ Comprehensive testing frameworks and methodologies for validating security imple
 - [Security Testing Fundamentals](#security-testing-fundamentals)
 - [Test Planning and Strategy](#test-planning-and-strategy)
 - [Unit Testing for Security](#unit-testing-for-security)
-- [Integration Security Testing](#integration-security-testing)
 - [Vulnerability Testing](#vulnerability-testing)
-- [Performance and DoS Testing](#performance-and-dos-testing)
 - [Access Control Testing](#access-control-testing)
-- [State Management Testing](#state-management-testing)
-- [Automated Security Testing](#automated-security-testing)
-- [Security Test Reporting](#security-test-reporting)
 
 ## Security Testing Fundamentals
 
