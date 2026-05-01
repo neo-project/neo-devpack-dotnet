@@ -18,8 +18,8 @@ namespace Neo.SmartContract.Analyzer;
 
 internal static class UnsupportedTypeUsageAnalyzerHelpers
 {
-    internal static bool IsValidType(ITypeSymbol? type, SpecialType specialType) =>
-        type?.SpecialType == specialType;
+    internal static bool IsUnsupportedType(ITypeSymbol? type, SpecialType unsupportedType) =>
+        type?.SpecialType == unsupportedType;
 
     internal static void AnalyzeMethodDeclaration(
         SyntaxNodeAnalysisContext context,
@@ -30,7 +30,7 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
         if (context.Node is not MethodDeclarationSyntax methodDeclaration) return;
 
         var type = context.SemanticModel.GetTypeInfo(methodDeclaration.ReturnType, context.CancellationToken).Type;
-        ReportIfValidType(context, methodDeclaration.ReturnType.GetLocation(), type, specialType, rule, getMessageArgs);
+        ReportIfUnsupportedType(context, methodDeclaration.ReturnType.GetLocation(), type, specialType, rule, getMessageArgs);
     }
 
     internal static void AnalyzeParameter(
@@ -42,18 +42,18 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
         if (context.Node is not ParameterSyntax parameter || parameter.Type is null) return;
 
         var type = (context.SemanticModel.GetDeclaredSymbol(parameter, context.CancellationToken) as IParameterSymbol)?.Type;
-        ReportIfValidType(context, parameter.Type.GetLocation(), type, specialType, rule, getMessageArgs);
+        ReportIfUnsupportedType(context, parameter.Type.GetLocation(), type, specialType, rule, getMessageArgs);
     }
 
-    private static void ReportIfValidType(
+    private static void ReportIfUnsupportedType(
         SyntaxNodeAnalysisContext context,
         Location location,
         ITypeSymbol? type,
-        SpecialType specialType,
+        SpecialType unsupportedType,
         DiagnosticDescriptor rule,
         Func<ITypeSymbol, object?[]> getMessageArgs)
     {
-        if (!IsValidType(type, specialType)) return;
+        if (!IsUnsupportedType(type, unsupportedType)) return;
 
         var diagnostic = Diagnostic.Create(rule, location, getMessageArgs(type!));
         context.ReportDiagnostic(diagnostic);
