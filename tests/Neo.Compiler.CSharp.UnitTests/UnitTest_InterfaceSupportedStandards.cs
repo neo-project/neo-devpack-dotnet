@@ -32,8 +32,7 @@ public class Contract : SmartContract, INEP17
     public static bool Transfer(UInt160 from, UInt160 to, BigInteger amount, object? data = null) => true;
 }";
 
-        var manifest = CompileSingleContract(source).CreateManifest();
-
+        var manifest = TestHelper.CompileSingleContract(source).CreateManifest();
         CollectionAssert.Contains(manifest.SupportedStandards, "NEP-17");
     }
 
@@ -71,43 +70,7 @@ public class Contract : SmartContract, INEP11
     public static bool Transfer(UInt160 to, ByteString tokenId, object? data = null) => true;
 }";
 
-        var manifest = CompileSingleContract(source).CreateManifest();
-
+        var manifest = TestHelper.CompileSingleContract(source).CreateManifest();
         CollectionAssert.Contains(manifest.SupportedStandards, "NEP-11");
-    }
-
-    private static CompilationContext CompileSingleContract(string sourceCode)
-    {
-        var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
-        File.WriteAllText(tempFile, sourceCode);
-
-        try
-        {
-            var options = new CompilationOptions
-            {
-                Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = NullableContextOptions.Enable,
-                SkipRestoreIfAssetsPresent = true
-            };
-
-            var engine = new CompilationEngine(options);
-            var repoRoot = Syntax.SyntaxProbeLoader.GetRepositoryRoot();
-            var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-
-            var contexts = engine.CompileSources(new CompilationSourceReferences
-            {
-                Projects = new[] { frameworkProject }
-            }, tempFile);
-
-            Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
-            var context = contexts[0];
-            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
-            return context;
-        }
-        finally
-        {
-            if (File.Exists(tempFile))
-                File.Delete(tempFile);
-        }
     }
 }

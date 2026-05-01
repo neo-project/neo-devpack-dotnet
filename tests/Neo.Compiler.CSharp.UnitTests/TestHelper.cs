@@ -17,9 +17,9 @@ using System.IO;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
-internal static class TestHelper
+public static class TestHelper
 {
-    internal static CompilationContext CompileSingleContract(string sourceCode)
+    public static CompilationContext CompileSingleContract(string sourceCode)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
         File.WriteAllText(tempFile, sourceCode);
