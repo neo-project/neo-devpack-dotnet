@@ -36,7 +36,7 @@ public class Contract : SmartContract
     }
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var methodBlock = ExtractMethodBlock(context.CreateAssembly(), "Contract.Main(System.Numerics.BigInteger, System.Numerics.BigInteger)");
@@ -49,39 +49,6 @@ public class Contract : SmartContract
 
         Assert.IsTrue(distinctCapturedSlots.Length >= 2,
             $"Expected at least two distinct captured slots for sequential out byte[] values, but found [{string.Join(", ", distinctCapturedSlots)}].{Environment.NewLine}{methodBlock}");
-    }
-
-    private static CompilationContext CompileSingleContract(string sourceCode)
-    {
-        var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
-        File.WriteAllText(tempFile, sourceCode);
-
-        try
-        {
-            var options = new CompilationOptions
-            {
-                Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = NullableContextOptions.Enable,
-                SkipRestoreIfAssetsPresent = true
-            };
-
-            var engine = new CompilationEngine(options);
-            var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-            var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-
-            var contexts = engine.CompileSources(new CompilationSourceReferences
-            {
-                Projects = new[] { frameworkProject }
-            }, tempFile);
-
-            Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
-            return contexts[0];
-        }
-        finally
-        {
-            if (File.Exists(tempFile))
-                File.Delete(tempFile);
-        }
     }
 
     private static string ExtractMethodBlock(string assembly, string methodSignature)

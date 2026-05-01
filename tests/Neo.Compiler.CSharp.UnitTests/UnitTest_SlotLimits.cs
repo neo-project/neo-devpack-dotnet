@@ -16,8 +16,7 @@ public class UnitTest_SlotLimits
     [TestMethod]
     public void Methods_WithMoreThan255Parameters_FailCompilationCleanly()
     {
-        var context = CompileSingleContract(BuildParameterOverflowSource(256), TimeSpan.FromSeconds(10));
-
+        var context = TestHelper.CompileSingleContract(BuildParameterOverflowSource(256));
         Assert.IsFalse(context.Success, "Compilation should fail cleanly when parameter count exceeds the VM slot limit.");
         StringAssert.Contains(string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())), "255 parameters");
     }
@@ -25,8 +24,7 @@ public class UnitTest_SlotLimits
     [TestMethod]
     public void Methods_WithMoreThan255Locals_FailCompilationCleanly()
     {
-        var context = CompileSingleContract(BuildLocalOverflowSource(256), TimeSpan.FromSeconds(10));
-
+        var context = TestHelper.CompileSingleContract(BuildLocalOverflowSource(256));
         Assert.IsFalse(context.Success, "Compilation should fail cleanly when local count exceeds the VM slot limit.");
         StringAssert.Contains(string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())), "255 local");
     }
@@ -66,46 +64,5 @@ public class Contract : SmartContract
     }
 }
 """;
-    }
-
-    private static CompilationContext CompileSingleContract(string sourceCode, TimeSpan timeout)
-    {
-        var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
-        File.WriteAllText(tempFile, sourceCode);
-
-        try
-        {
-            var task = Task.Run(() =>
-            {
-                var options = new CompilationOptions
-                {
-                    Optimize = CompilationOptions.OptimizationType.All,
-                    Nullable = NullableContextOptions.Enable,
-                    SkipRestoreIfAssetsPresent = true
-                };
-
-                var engine = new CompilationEngine(options);
-                var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-                var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-
-                var contexts = engine.CompileSources(new CompilationSourceReferences
-                {
-                    Projects = new[] { frameworkProject }
-                }, tempFile);
-
-                Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
-                return contexts[0];
-            });
-
-            if (!task.Wait(timeout))
-                Assert.Fail($"Compilation timed out after {timeout.TotalSeconds:0} seconds. Parameter/local overflow should fail cleanly instead of hanging.");
-
-            return task.GetAwaiter().GetResult();
-        }
-        finally
-        {
-            if (File.Exists(tempFile))
-                File.Delete(tempFile);
-        }
     }
 }
