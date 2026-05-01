@@ -193,7 +193,7 @@ namespace Neo.Compiler
                 return syntax.AsNode() switch
                 {
                     PredefinedTypeSyntax predefined when predefined.Keyword.ValueText == "float" || predefined.Keyword.ValueText == "double" =>
-                        "Consider using decimal or BigInteger for precise calculations",
+                        "Consider using integer or BigInteger fixed-point calculations",
                     InterfaceDeclarationSyntax => "Use abstract classes instead of interfaces",
                     UnsafeStatementSyntax => "Remove unsafe code blocks - NEO VM doesn't support unsafe operations",
                     PointerTypeSyntax => "Use arrays or references instead of pointers",
@@ -219,7 +219,7 @@ namespace Neo.Compiler
 
             return typeName switch
             {
-                "float" or "double" => "int, BigInteger, or decimal",
+                "float" or "double" => "integer or BigInteger fixed-point values",
                 "datetime" => "long (timestamp) or string",
                 "guid" => "string or byte array",
                 "tuple" => "custom struct or class",

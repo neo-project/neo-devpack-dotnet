@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract.Native;
@@ -28,6 +29,123 @@ internal partial class MethodConvert
         String,
         CharArray,
         StringArray,
+    }
+
+    private bool TryProcessStringConstructor(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
+    {
+        if (!IsStringCharCountConstructor(symbol))
+            return false;
+
+        if (arguments.Count != 2)
+            throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "string(char, int) requires exactly two arguments.");
+
+        var charExpression = GetConstructorArgument(arguments, symbol.Parameters[0], symbol);
+        var countExpression = GetConstructorArgument(arguments, symbol.Parameters[1], symbol);
+        var charConstant = model.GetConstantValue(charExpression);
+        var countConstant = model.GetConstantValue(countExpression);
+
+        ValidateConstantStringCharCountSize(countExpression, charConstant, countConstant);
+
+        if (charConstant.HasValue && charConstant.Value is char character &&
+            countConstant.HasValue && countConstant.Value is int repeatCount &&
+            repeatCount >= 0)
+        {
+            Push(new string(character, repeatCount));
+            return true;
+        }
+
+        EmitStringCharCountConstructor(model, charExpression, countExpression, charConstant);
+        return true;
+    }
+
+    private static bool IsStringCharCountConstructor(IMethodSymbol symbol)
+    {
+        return symbol.MethodKind == MethodKind.Constructor &&
+               symbol.ContainingType.SpecialType == SpecialType.System_String &&
+               symbol.Parameters.Length == 2 &&
+               symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char &&
+               symbol.Parameters[1].Type.SpecialType == SpecialType.System_Int32;
+    }
+
+    private static ExpressionSyntax GetConstructorArgument(IReadOnlyList<ArgumentSyntax> arguments, IParameterSymbol parameter, IMethodSymbol symbol)
+    {
+        foreach (var argument in arguments)
+        {
+            if (argument.NameColon?.Name.Identifier.ValueText == parameter.Name)
+                return argument.Expression;
+        }
+
+        if (parameter.Ordinal < arguments.Count && arguments[parameter.Ordinal].NameColon is null)
+            return arguments[parameter.Ordinal].Expression;
+
+        throw new CompilationException(symbol, DiagnosticId.InvalidArgument, $"string(char, int) requires an argument for '{parameter.Name}'.");
+    }
+
+    private static void ValidateConstantStringCharCountSize(ExpressionSyntax countExpression, Optional<object?> charConstant, Optional<object?> countConstant)
+    {
+        if (!countConstant.HasValue || countConstant.Value is not int repeatCount || repeatCount < 0)
+            return;
+
+        long maxItemSize = ExecutionEngineLimits.Default.MaxItemSize;
+        long byteCount = repeatCount;
+        if (charConstant.HasValue && charConstant.Value is char character && character > byte.MaxValue)
+            byteCount *= Encoding.UTF8.GetByteCount(character.ToString());
+
+        if (byteCount > maxItemSize)
+            throw new CompilationException(countExpression, DiagnosticId.InvalidArgument, $"String byte length {byteCount} exceeds VM max item size {maxItemSize}.");
+    }
+
+    private void EmitStringCharCountConstructor(SemanticModel model, ExpressionSyntax charExpression, ExpressionSyntax countExpression, Optional<object?> charConstant)
+    {
+        byte charSlot = AddAnonymousVariable();
+        byte countSlot = AddAnonymousVariable();
+        byte resultSlot = AddAnonymousVariable();
+
+        if (charConstant.HasValue && charConstant.Value is char character)
+        {
+            Push(character.ToString());
+        }
+        else
+        {
+            ConvertExpression(model, charExpression);
+            ChangeType(StackItemType.ByteString);
+        }
+        AccessSlot(OpCode.STLOC, charSlot);
+
+        ConvertExpression(model, countExpression);
+        AccessSlot(OpCode.STLOC, countSlot);
+
+        JumpTarget validCountTarget = new();
+        AccessSlot(OpCode.LDLOC, countSlot);
+        Push(0);
+        Jump(OpCode.JMPGE_L, validCountTarget);
+        AddInstruction(OpCode.THROW);
+
+        validCountTarget.Instruction = Push("");
+        AccessSlot(OpCode.STLOC, resultSlot);
+
+        JumpTarget conditionTarget = new();
+        JumpTarget endTarget = new();
+
+        conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, countSlot);
+        Push(0);
+        Jump(OpCode.JMPLE_L, endTarget);
+
+        AccessSlot(OpCode.LDLOC, resultSlot);
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Cat();
+        AccessSlot(OpCode.STLOC, resultSlot);
+
+        AccessSlot(OpCode.LDLOC, countSlot);
+        Dec();
+        AccessSlot(OpCode.STLOC, countSlot);
+        Jump(OpCode.JMP_L, conditionTarget);
+
+        endTarget.Instruction = AccessSlot(OpCode.LDLOC, resultSlot);
+
+        RemoveAnonymousVariable(resultSlot);
+        RemoveAnonymousVariable(countSlot);
+        RemoveAnonymousVariable(charSlot);
     }
 
     private static void HandleStringPickItem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,

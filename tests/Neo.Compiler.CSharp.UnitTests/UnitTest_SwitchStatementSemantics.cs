@@ -30,7 +30,7 @@ public class Contract : SmartContract
     }
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var methodBlock = ExtractMethodBlock(context.CreateAssembly(), "Contract.Main(int)");
@@ -43,39 +43,6 @@ public class Contract : SmartContract
         Assert.IsTrue(stlocIndex >= 0, "Expected switch method to store governing expression in local slot.");
         Assert.IsTrue(stlocIndex + 1 < instructionLines.Length, "Expected instructions after the switch value storage.");
         StringAssert.Contains(instructionLines[stlocIndex + 1], "LDLOC 0", "Switch should begin case evaluation before emitting default fallback jump.");
-    }
-
-    private static CompilationContext CompileSingleContract(string sourceCode)
-    {
-        var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
-        File.WriteAllText(tempFile, sourceCode);
-
-        try
-        {
-            var options = new CompilationOptions
-            {
-                Optimize = CompilationOptions.OptimizationType.None,
-                Nullable = NullableContextOptions.Enable,
-                SkipRestoreIfAssetsPresent = true
-            };
-
-            var engine = new CompilationEngine(options);
-            var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-            var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-
-            var contexts = engine.CompileSources(new CompilationSourceReferences
-            {
-                Projects = new[] { frameworkProject }
-            }, tempFile);
-
-            Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
-            return contexts[0];
-        }
-        finally
-        {
-            if (File.Exists(tempFile))
-                File.Delete(tempFile);
-        }
     }
 
     private static string ExtractMethodBlock(string assembly, string methodSignature)
