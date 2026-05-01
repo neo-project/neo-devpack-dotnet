@@ -76,5 +76,4 @@ public class Contract : SmartContract
         var diagnostics = string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString()));
         Assert.IsTrue(context.Success, diagnostics);
     }
-
 }
