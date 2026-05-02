@@ -104,13 +104,13 @@ public static class Disassembler
         else
         {
             var operandString = BitConverter.ToString(operand.ToArray()).Replace("-", "");
-
             switch (instruction.OpCode)
             {
                 case OpCode.PUSHDATA1:
+                case OpCode.PUSHDATA2:
+                case OpCode.PUSHDATA4:
                     {
                         ret = $"{opcode} {operandString}";
-
                         try
                         {
                             // Try ascii
