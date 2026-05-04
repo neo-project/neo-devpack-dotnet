@@ -109,7 +109,7 @@ jobs:
         /p:CoverletOutput=${{ github.workspace }}/coverage/lcov \
         /p:CoverletOutputFormat=lcov
     - name: Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ${{ github.workspace }}/TestResults/coverage/coverage.info
@@ -267,7 +267,7 @@ jobs:
         sha256sum nccs-win-x64.zip nccs-linux-x64.tar.gz nccs-osx-x64.tar.gz nccs-osx-arm64.tar.gz > checksums.txt
     - name: Create release and upload binaries
       if: steps.check_tag.outputs.statusCode == '404'
-      uses: softprops/action-gh-release@v2.4.1
+      uses: softprops/action-gh-release@v3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
