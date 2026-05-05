@@ -234,6 +234,9 @@ internal partial class MethodConvert
     /// <returns>True if system constructors are successfully processed; otherwise, false.</returns>
     private bool TryProcessSystemConstructors(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
     {
+        if (TryProcessStringConstructor(model, symbol, arguments))
+            return true;
+
         if (symbol.ContainingType.ToString() == "System.Text.StringBuilder")
         {
             HandleStringBuilderConstructor(this, model, symbol, null, arguments);
