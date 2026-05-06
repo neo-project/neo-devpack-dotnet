@@ -32,7 +32,7 @@ public class Contract : SmartContract, IDefaultGreeting
 {
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var manifest = context.CreateManifest();
@@ -68,7 +68,7 @@ public class Contract : SmartContract, IDefaultGreeting
     }
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var manifest = context.CreateManifest();
@@ -97,7 +97,7 @@ public class Contract : SmartContract, IDefaultGreeting
 {
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var engine = new TestEngine(true);
@@ -128,7 +128,7 @@ public class Contract : SmartContract, IDefaultValue
 {
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var manifest = context.CreateManifest();
@@ -296,7 +296,7 @@ public class Contract : SmartContract, ILeftGreeting, IRightGreeting
     }
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var manifest = context.CreateManifest();
@@ -337,17 +337,10 @@ public class Contract : SmartContract, ILeftGreeting, IRightGreeting
 {
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsFalse(context.Success, "Competing unrelated default interface methods should require an explicit class implementation.");
         Assert.IsTrue(context.Diagnostics.Any(d => d.Id == "NC3003"),
             string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
-    }
-
-    private static CompilationContext CompileSingleContract(string sourceCode)
-    {
-        var (_, contexts) = CompileSource(sourceCode);
-        Assert.AreEqual(1, contexts.Length, "Expected exactly one contract compilation context.");
-        return contexts[0];
     }
 
     private static INamedTypeSymbol CompileContractType(string sourceCode, string contractName = "Contract")

@@ -29,46 +29,13 @@ public class Contract : SmartContract
     }
 }";
 
-        var context = CompileSingleContract(source);
+        var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
         var engine = new TestEngine(true);
         var contract = engine.Deploy<RecursivePatternTypeContract>(context.CreateExecutable(), context.CreateManifest());
 
         Assert.IsFalse(contract.Test()!.Value);
-    }
-
-    private static CompilationContext CompileSingleContract(string sourceCode)
-    {
-        var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
-        File.WriteAllText(tempFile, sourceCode);
-
-        try
-        {
-            var options = new CompilationOptions
-            {
-                Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = NullableContextOptions.Enable,
-                SkipRestoreIfAssetsPresent = true
-            };
-
-            var engine = new CompilationEngine(options);
-            var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
-            var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
-
-            var contexts = engine.CompileSources(new CompilationSourceReferences
-            {
-                Projects = new[] { frameworkProject }
-            }, tempFile);
-
-            Assert.AreEqual(1, contexts.Count, "Expected exactly one contract compilation context.");
-            return contexts[0];
-        }
-        finally
-        {
-            if (File.Exists(tempFile))
-                File.Delete(tempFile);
-        }
     }
 
     public abstract class RecursivePatternTypeContract(SmartContractInitialize initialize)

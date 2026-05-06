@@ -45,3 +45,13 @@ Examples:
 - `char.GetNumericValue` returns integer values for `0-9` and `-1` for other characters. It does not return `double` values or implement the full .NET Unicode numeric category behavior.
 
 This keeps contract execution deterministic and avoids culture-dependent behavior.
+
+## `typeof`
+
+`typeof(T)` does not produce a .NET `System.Type` object in Neo contract code. The compiler lowers the expression to the simple type name string, for example `typeof(int)` becomes `"Int32"`.
+
+This behavior exists primarily so supported enum helpers such as `Enum.Parse(typeof(MyEnum), value)` and `Enum.GetNames(typeof(MyEnum))` can identify the enum type during contract compilation.
+
+Guidance:
+- Do not use `typeof` for .NET reflection or `System.Type` behavior in contracts. Reflection is outside the supported contract surface.
+- Treat direct `typeof` results as Neo string semantics, not standard .NET type metadata.
