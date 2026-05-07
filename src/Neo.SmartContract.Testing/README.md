@@ -24,6 +24,8 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Fee watcher](#fee-watcher)
     - [Example of use](#example-of-use)
+- [Runtime log watcher](#runtime-log-watcher)
+    - [Example of use](#example-of-use)
 - [Forging signatures](#forging-signatures)
     - [Example of use](#example-of-use)
 - [Event testing](#event-testing)
@@ -268,6 +270,24 @@ using var fee = engine.CreateFeeWatcher();
     Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
     Assert.AreEqual(984060L, fee);
 }
+```
+
+### Runtime log watcher
+
+The `RuntimeLogWatcher` class captures runtime logs emitted during contract execution, so tests can assert log messages without wiring custom event handlers.
+
+#### Example of use
+
+```csharp
+using var logs = engine.CreateRuntimeLogWatcher();
+
+contract.Save("example");
+
+Assert.AreEqual(1, logs.Logs.Count);
+Assert.AreEqual("saved", logs.Logs[0].Message);
+
+logs.Reset();
+Assert.AreEqual(0, logs.Logs.Count);
 ```
 
 ### Forging signatures
