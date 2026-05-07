@@ -36,11 +36,11 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             // Check symbols
 
-            using var fee = engine.CreateGasWatcher();
+            using var fee = engine.CreateFeeWatcher();
             Assert.AreEqual("NEO", engine.Native.NEO.Symbol);
             Assert.AreEqual(984060L, fee.Value);
 
-            using var gas = engine.CreateGasWatcher();
+            using var gas = engine.CreateFeeWatcher();
             {
                 Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
                 Assert.AreEqual(984060L, gas);
@@ -56,6 +56,17 @@ namespace Neo.SmartContract.Testing.UnitTests
             Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.Symbol)!.CoveredLinesPercentage);
             Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.TotalSupply)!.CoveredLinesPercentage);
             Assert.AreEqual(1M, engine.Native.NEO.GetCoverage(o => o.BalanceOf(It.IsAny<UInt160>()))!.CoveredLinesPercentage);
+        }
+
+        [TestMethod]
+        public void CreateFeeWatcherTracksConsumedFee()
+        {
+            var engine = new TestEngine(true);
+
+            using var fee = engine.CreateFeeWatcher();
+            Assert.AreEqual("GAS", engine.Native.GAS.Symbol);
+
+            Assert.AreEqual(984060L, fee.Value);
         }
 
         [TestMethod]
