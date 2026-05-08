@@ -471,7 +471,10 @@ namespace Neo.Compiler
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
-                            _displayName = (string)attribute.ConstructorArguments[0].Value!;
+                            string displayName = (string)attribute.ConstructorArguments[0].Value!;
+                            if (string.IsNullOrEmpty(displayName))
+                                throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Contract display name cannot be empty.");
+                            _displayName = displayName;
                             break;
                         case nameof(ContractSourceCodeAttribute):
                             Source = (string)attribute.ConstructorArguments[0].Value!;
@@ -586,12 +589,25 @@ namespace Neo.Compiler
 
         internal void AddEvent(AbiEvent ev, bool throwErrorIfExists)
         {
+            ValidateExportedEventName(ev);
             if (_eventsExported.Any(u => u.Name == ev.Name))
             {
                 if (!throwErrorIfExists) return;
                 throw new CompilationException(ev.Symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
             }
             _eventsExported.Add(ev);
+        }
+
+        private static void ValidateExportedEventName(AbiEvent ev)
+        {
+            if (string.IsNullOrEmpty(ev.Name))
+                throw new CompilationException(ev.Symbol, DiagnosticId.InvalidArgument, "Contract event display name cannot be empty.");
+        }
+
+        private static void ValidateExportedMethodName(AbiMethod method)
+        {
+            if (string.IsNullOrEmpty(method.Name))
+                throw new CompilationException(method.Symbol, DiagnosticId.InvalidMethodName, "Contract method display name cannot be empty.");
         }
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
@@ -607,6 +623,7 @@ namespace Neo.Compiler
             if (export)
             {
                 AbiMethod method = new(symbol);
+                ValidateExportedMethodName(method);
                 if (_methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
                 _methodsExported.Add(method);
