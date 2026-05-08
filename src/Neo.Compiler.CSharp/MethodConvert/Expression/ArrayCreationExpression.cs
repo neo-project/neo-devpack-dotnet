@@ -53,6 +53,8 @@ internal partial class MethodConvert
             throw new CompilationException(specifier, DiagnosticId.MultidimensionalArray, $"Unsupported array rank: {specifier}");
         if (expression.Initializer is null)
         {
+            if (type.ElementType.SpecialType == SpecialType.System_Byte)
+                ValidateConstantByteBufferSize(model, specifier.Sizes[0]);
             ConvertExpression(model, specifier.Sizes[0]);
             if (type.ElementType.SpecialType == SpecialType.System_Byte)
                 AddInstruction(OpCode.NEWBUFFER);
@@ -65,6 +67,18 @@ internal partial class MethodConvert
         {
             ConvertInitializerExpression(model, type, expression.Initializer);
         }
+    }
+
+    private static void ValidateConstantByteBufferSize(SemanticModel model, ExpressionSyntax sizeSyntax)
+    {
+        Optional<object?> constant = model.GetConstantValue(sizeSyntax);
+        if (!constant.HasValue || constant.Value is null)
+            return;
+
+        long size = System.Convert.ToInt64(constant.Value);
+        long maxItemSize = ExecutionEngineLimits.Default.MaxItemSize;
+        if (size < 0 || size > maxItemSize)
+            throw new CompilationException(sizeSyntax, DiagnosticId.InvalidArgument, $"Byte array length {size} exceeds VM max item size {maxItemSize}.");
     }
 
     private void ConvertMultiDimensionalArrayCreation(SemanticModel model, ArrayCreationExpressionSyntax expression, IArrayTypeSymbol type, ArrayRankSpecifierSyntax specifier)
