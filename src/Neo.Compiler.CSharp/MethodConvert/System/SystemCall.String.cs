@@ -726,11 +726,11 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
 
         methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
-        methodConvert.Isnull();
+        methodConvert.IsNull();
         methodConvert.JumpIfFalse(leftNotNullTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.Isnull();
+        methodConvert.IsNull();
         methodConvert.JumpIfFalse(rightNotNullWhenLeftNullTarget);
         methodConvert.Push(0);
         methodConvert.JumpAlways(endTarget);
@@ -741,7 +741,7 @@ internal partial class MethodConvert
 
         leftNotNullTarget.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.Isnull();
+        methodConvert.IsNull();
         methodConvert.JumpIfFalse(bothNotNullTarget);
         methodConvert.Push(1);
         methodConvert.JumpAlways(endTarget);
@@ -814,14 +814,14 @@ internal partial class MethodConvert
         var firstNotNull = new JumpTarget();
         var secondNotNull = new JumpTarget();
         methodConvert.Dup();                                       // Duplicate first string
-        methodConvert.Isnull();                                    // Check if null
+        methodConvert.IsNull();                                    // Check if null
         methodConvert.JumpIfNot(firstNotNull);                     // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push("");                                    // Push empty string
         firstNotNull.Instruction = methodConvert.Nop();            // First not null target
         methodConvert.Swap();                                      // Swap strings
         methodConvert.Dup();                                       // Duplicate second string
-        methodConvert.Isnull();                                    // Check if null
+        methodConvert.IsNull();                                    // Check if null
         methodConvert.JumpIfNot(secondNotNull);                    // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push("");                                    // Push empty string
