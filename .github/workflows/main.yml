@@ -8,6 +8,7 @@ on:
 
 env:
   DOTNET_VERSION: 10.0.x
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
   DOTNET_TEST_PARAMETERS: --no-build /p:CollectCoverage=true -l "console;verbosity=detailed"
   COVERLET_EXCLUDE_COVERAGE: /p:Exclude=\"[Neo.SmartContract.TestEngine]*,[Neo.Disassembler.CSharp]*,[Neo.Compiler.CSharp.UnitTests]*,[Neo]*,[Neo.IO]*,[Neo.Json]*,[Neo.VM]*,[Neo.Extensions]*,[Neo.Cryptography.BLS12_381]*\"
   COVERLET_OUTPUT: /p:CoverletOutput=${{ github.workspace }}/coverage-join/
@@ -31,6 +32,11 @@ jobs:
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.NUGET_PACKAGES }}
+        key: ${{ runner.os }}-dotnet-${{ env.DOTNET_VERSION }}-nuget-${{ hashFiles('NuGet.Config', 'src/Directory.Build.props', 'tests/Directory.Build.props', '**/*.csproj') }}
     - name: Check format
       run: |
         dotnet format --no-restore --verify-no-changes --verbosity diagnostic
@@ -74,7 +80,7 @@ jobs:
     - name: Build Solution
       run: dotnet build ./neo-devpack-dotnet.sln
     - name: Add package coverlet.msbuild
-      run: find tests -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
+      run: find tests -path '*UnitTests/*.csproj' | xargs -I % dotnet add % package coverlet.msbuild --source https://api.nuget.org/v3/index.json
     - name: Test Neo.Compiler.CSharp.UnitTests
       run: |
         dotnet test ./tests/Neo.Compiler.CSharp.UnitTests \
