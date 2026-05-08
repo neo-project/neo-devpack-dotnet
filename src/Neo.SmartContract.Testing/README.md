@@ -186,6 +186,8 @@ To create a checkpoint, simply call `Checkpoint()` from a `EngineStorage` class 
 It has the following methods:
 
 - **Restore(snapshot)**: This method can also be called from an `EngineStorage` or from our `TestEngine` class. It is used to restore the storage to a specified checkpoint.
+- **Load(path)**: Loads a checkpoint from a file.
+- **Save(path)**: Saves the checkpoint to a file.
 - **ToArray()**: Exports the checkpoint to a `byte[]`.
 - **Write(stream)**: Writes the checkpoint to a `Stream`.
 
@@ -217,6 +219,16 @@ engine = new TestEngine(false) { Storage = storage };
 // Ensure that all works
 
 Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+```
+
+Checkpoints can also be stored as files:
+
+```csharp
+var checkpoint = engine.Storage.Checkpoint();
+checkpoint.Save("storage.checkpoint");
+
+var loaded = EngineCheckpoint.Load("storage.checkpoint");
+engine.Storage.Restore(loaded);
 ```
 
 ### Custom mocks
