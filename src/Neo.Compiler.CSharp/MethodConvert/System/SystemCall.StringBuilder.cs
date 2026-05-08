@@ -185,7 +185,7 @@ internal partial class MethodConvert
     {
         JumpTarget notNull = new();
         methodConvert.Dup();
-        methodConvert.Isnull();
+        methodConvert.IsNull();
         methodConvert.JumpIfFalse(notNull);
         methodConvert.Drop();
         methodConvert.Push("");
