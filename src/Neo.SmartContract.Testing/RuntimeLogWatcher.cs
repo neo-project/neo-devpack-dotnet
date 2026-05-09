@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing
 {
@@ -26,6 +27,16 @@ namespace Neo.SmartContract.Testing
         /// Captured runtime logs.
         /// </summary>
         public IReadOnlyList<RuntimeLog> Logs => _logs;
+
+        /// <summary>
+        /// Number of captured runtime logs.
+        /// </summary>
+        public int Count => _logs.Count;
+
+        /// <summary>
+        /// Captured runtime log messages.
+        /// </summary>
+        public IReadOnlyList<string> Messages => _logs.Select(log => log.Message).ToArray();
 
         /// <summary>
         /// Clear captured runtime logs.
