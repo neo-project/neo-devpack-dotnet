@@ -26,6 +26,8 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Runtime log watcher](#runtime-log-watcher)
     - [Example of use](#example-of-use)
+- [Notification watcher](#notification-watcher)
+    - [Example of use](#example-of-use)
 - [Forging signatures](#forging-signatures)
     - [Example of use](#example-of-use)
 - [Event testing](#event-testing)
@@ -300,6 +302,24 @@ Assert.AreEqual("saved", logs.Logs[0].Message);
 
 logs.Reset();
 Assert.AreEqual(0, logs.Logs.Count);
+```
+
+### Notification watcher
+
+The `NotificationWatcher` class captures runtime notifications emitted during contract execution, so tests can assert event names, senders, and state without wiring custom event handlers.
+
+#### Example of use
+
+```csharp
+using var notifications = engine.CreateNotificationWatcher();
+
+contract.Transfer(from, to, 1, null);
+
+Assert.AreEqual(1, notifications.Notifications.Count);
+Assert.AreEqual("Transfer", notifications.Notifications[0].EventName);
+
+notifications.Reset();
+Assert.AreEqual(0, notifications.Notifications.Count);
 ```
 
 ### Forging signatures
