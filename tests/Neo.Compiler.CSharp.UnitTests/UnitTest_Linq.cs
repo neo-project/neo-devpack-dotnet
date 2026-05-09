@@ -122,10 +122,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(2);
 
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1157160);
+            AssertGasConsumed(1156710);
             array.Add(3);
             Assert.AreEqual(1, Contract.Average(array));
-            AssertGasConsumed(1161090);
+            AssertGasConsumed(1160490);
         }
 
         [TestMethod]
@@ -141,10 +141,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(1);
             array.Add(2);
             Assert.AreEqual(2, Contract.AverageTwice(array));
-            AssertGasConsumed(1228950);
+            AssertGasConsumed(1228500);
             array.Add(3);
             Assert.AreEqual(3, Contract.AverageTwice(array));
-            AssertGasConsumed(1250850);
+            AssertGasConsumed(1250250);
         }
 
         [TestMethod]
@@ -157,7 +157,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             Assert.AreEqual(3, Contract.Count(array));
-            AssertGasConsumed(1154220);
+            AssertGasConsumed(1153770);
 
             array.Add(1);
             array.Add(-8);
@@ -165,7 +165,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(56);
 
             Assert.AreEqual(7, Contract.Count(array));
-            AssertGasConsumed(1167060);
+            AssertGasConsumed(1166010);
         }
 
         [TestMethod]
@@ -186,7 +186,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(56);
 
             Assert.AreEqual(3, Contract.CountGreaterThanZero(array));
-            AssertGasConsumed(1306830);
+            AssertGasConsumed(1306380);
         }
 
         [TestMethod]
@@ -340,7 +340,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(new BigInteger(100));
 
             result = (Array)Contract.Skip(array, 2)!;
-            AssertGasConsumed(2147730);
+            AssertGasConsumed(2147430);
             Assert.AreEqual(4, result.Count);
             Assert.AreEqual(-100, result[0]);
             Assert.AreEqual(100, result[3].GetInteger());
@@ -387,7 +387,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             array.Add(100);
 
             result = (Array)Contract.Take(array, 2)!;
-            AssertGasConsumed(1646760);
+            AssertGasConsumed(1646460);
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(0, result[0]);
         }

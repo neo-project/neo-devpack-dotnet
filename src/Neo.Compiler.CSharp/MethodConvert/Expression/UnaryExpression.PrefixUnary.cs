@@ -289,13 +289,22 @@ internal partial class MethodConvert
 
     private void EmitIncrementOrDecrement(SyntaxToken operatorToken, ITypeSymbol? typeSymbol)
     {
-        AddInstruction(operatorToken.ValueText switch
+        var opcode = operatorToken.ValueText switch
         {
             "++" => OpCode.INC,
             "--" => OpCode.DEC,
-            _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Invalid increment/decrement operator '{operatorToken.ValueText}'. Only '++' and '--' are supported.")
-        });
-        if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
+            _ => throw CompilationException.UnsupportedSyntax(operatorToken,
+                $"Invalid increment/decrement operator '{operatorToken.ValueText}'. Only '++' and '--' are supported.")
+        };
+        AddInstruction(opcode);
+        if (typeSymbol != null)
+        {
+            EnsureIntegerInRange(
+                typeSymbol,
+                onlyCheckLowerBound: opcode == OpCode.DEC,
+                onlyCheckUpperBound: opcode == OpCode.INC
+            );
+        }
     }
 
     private void EmitNegativeInteger(ITypeSymbol? typeSymbol)

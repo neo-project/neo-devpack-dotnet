@@ -294,14 +294,19 @@ internal partial class MethodConvert
     /// <summary>
     /// Ensures that the value of the incoming integer type is within the specified range.
     /// If the type is BigInteger, no range check is performed.
+    /// The `onlyCheckLowerBound` and `onlyCheckUpperBound` cannot be true at the same time.
     /// </summary>
     /// <param name="type">The integer type to be checked.</param>
-    private void EnsureIntegerInRange(ITypeSymbol type)
+    /// <param name="onlyCheckLowerBound">If true, only check the lower bound.</param>
+    /// <param name="onlyCheckUpperBound">If true, only check the upper bound.</param>
+    private void EnsureIntegerInRange(ITypeSymbol type, bool onlyCheckLowerBound = false, bool onlyCheckUpperBound = false)
     {
         if (type.Name == "BigInteger") return;
-        while (type.NullableAnnotation == NullableAnnotation.Annotated)
+        if (onlyCheckLowerBound && onlyCheckUpperBound)
+            throw new ArgumentException($"{nameof(onlyCheckLowerBound)} and {nameof(onlyCheckUpperBound)} cannot both be true.");
+
+        while (type.NullableAnnotation == NullableAnnotation.Annotated)  // Supporting nullable integer like `byte?`
         {
-            // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
         }
 
@@ -316,26 +321,12 @@ internal partial class MethodConvert
             "UInt16" => (ushort.MinValue, ushort.MaxValue, 0xffff),
             "UInt32" => (uint.MinValue, uint.MaxValue, 0xffffffff),
             "UInt64" => (ulong.MinValue, ulong.MaxValue, 0xffffffffffffffff),
-            //"Boolean" => (0, 1, 0x01),
-            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type '{type}'. Consider using supported types: int, string, byte[], BigInteger, UInt160, UInt256, or custom structs/classes.")
+            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported,
+                $"Unsupported type '{type}'. Consider using supported types: int, string, byte[], BigInteger, UInt160, UInt256, or custom structs/classes.")
         };
 
         JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(minValue);
-        Jump(OpCode.JMPGE_L, checkUpperBoundTarget);
-        if (_checkedStack.Peek())
-            AddInstruction(OpCode.THROW);
-        else
-            Jump(OpCode.JMP_L, adjustTarget);
-        checkUpperBoundTarget.Instruction = AddInstruction(OpCode.DUP);
-        Push(maxValue);
-        Jump(OpCode.JMPLE_L, endTarget);
-        if (_checkedStack.Peek())
-        {
-            AddInstruction(OpCode.THROW);
-        }
-        else
+        void EmitUncheckedWrapToIntegerRange()
         {
             adjustTarget.Instruction = Push(mask);
             AddInstruction(OpCode.AND);
@@ -348,6 +339,38 @@ internal partial class MethodConvert
                 AddInstruction(OpCode.SUB);
             }
         }
+
+        if (!onlyCheckUpperBound)
+        {
+            AddInstruction(OpCode.DUP);
+            Push(minValue);
+            Jump(OpCode.JMPGE_L, onlyCheckLowerBound ? endTarget : checkUpperBoundTarget);
+            if (_checkedStack.Peek())
+                AddInstruction(OpCode.THROW);
+            else
+                Jump(OpCode.JMP_L, adjustTarget);
+        }
+
+        if (!onlyCheckLowerBound)
+        {
+            checkUpperBoundTarget.Instruction = AddInstruction(OpCode.DUP);
+            Push(maxValue);
+            Jump(OpCode.JMPLE_L, endTarget);
+            if (_checkedStack.Peek())
+            {
+                AddInstruction(OpCode.THROW);
+            }
+            else
+            {
+                EmitUncheckedWrapToIntegerRange();
+            }
+        }
+        else if (!onlyCheckUpperBound && !_checkedStack.Peek())
+        {
+            // Lower-bound-only unchecked path: failures jump to adjustTarget without emitting the upper-bound block.
+            EmitUncheckedWrapToIntegerRange();
+        }
+
         endTarget.Instruction = AddInstruction(OpCode.NOP);
     }
 

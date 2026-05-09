@@ -18,7 +18,7 @@ public abstract class Contract_UnboundedOperation(Neo.SmartContract.Testing.Smar
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHVXAgEQcBBxImdoaZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGlKnEoCAAAAgC4EIgpKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWl4tSSYaED9Xhjv").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGtXAgEQcBBxIl1oaZ5KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGlKnEoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3FFaXi1JKJoQGLtSpI=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,13 +28,13 @@ public abstract class Contract_UnboundedOperation(Neo.SmartContract.Testing.Smar
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIBEHAQcSJnaGmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BpSpxKAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcUVpeLUkmGhA
+    /// Script: VwIBEHAQcSJdaGmeSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BpSpxKAv///38yHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9xRWl4tSSiaEA=
     /// INITSLOT 0201 [64 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC1 [2 datoshi]
-    /// JMP 67 [2 datoshi]
+    /// JMP 5D [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// LDLOC1 [2 datoshi]
     /// ADD [8 datoshi]
@@ -57,10 +57,6 @@ public abstract class Contract_UnboundedOperation(Neo.SmartContract.Testing.Smar
     /// DUP [2 datoshi]
     /// INC [4 datoshi]
     /// DUP [2 datoshi]
-    /// PUSHINT32 00000080 [1 datoshi]
-    /// JMPGE 04 [2 datoshi]
-    /// JMP 0A [2 datoshi]
-    /// DUP [2 datoshi]
     /// PUSHINT32 FFFFFF7F [1 datoshi]
     /// JMPLE 1E [2 datoshi]
     /// PUSHINT64 FFFFFFFF00000000 [1 datoshi]
@@ -75,7 +71,7 @@ public abstract class Contract_UnboundedOperation(Neo.SmartContract.Testing.Smar
     /// LDLOC1 [2 datoshi]
     /// LDARG0 [2 datoshi]
     /// LT [8 datoshi]
-    /// JMPIF 98 [2 datoshi]
+    /// JMPIF A2 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// RET [0 datoshi]
     /// </remarks>

@@ -112,7 +112,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             var result = Contract.ForVar(array);
-            AssertGasConsumed(2651040);
+            AssertGasConsumed(2650590);
             Assert.AreEqual(array.Count, result!.Count);
             Assert.AreEqual(new BigInteger(-100), result[0]);
         }
