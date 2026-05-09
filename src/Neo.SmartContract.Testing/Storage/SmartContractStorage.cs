@@ -139,38 +139,114 @@ namespace Neo.SmartContract.Testing.Storage
         /// <summary>
         /// Read an integer entry from the smart contract storage
         /// </summary>
+        /// <remarks>Returns zero when the key is not found. Use TryGetInteger to distinguish missing entries.</remarks>
         /// <param name="key">Key</param>
         public BigInteger GetInteger(byte key) => GetInteger(new byte[] { key });
 
         /// <summary>
         /// Read an integer entry from the smart contract storage
         /// </summary>
+        /// <remarks>Returns zero when the key is not found. Use TryGetInteger to distinguish missing entries.</remarks>
         /// <param name="key">Key</param>
         public BigInteger GetInteger(string key) => GetInteger(Utility.StrictUTF8.GetBytes(key));
 
         /// <summary>
         /// Read an integer entry from the smart contract storage
         /// </summary>
+        /// <remarks>Returns zero when the key is not found. Use TryGetInteger to distinguish missing entries.</remarks>
         /// <param name="key">Key</param>
-        public BigInteger GetInteger(ReadOnlyMemory<byte> key) => new(Get(key).Span);
+        public BigInteger GetInteger(ReadOnlyMemory<byte> key)
+        {
+            TryGetInteger(key, out var value);
+            return value;
+        }
+
+        /// <summary>
+        /// Try to read an integer entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public bool TryGetInteger(byte key, out BigInteger value) => TryGetInteger(new byte[] { key }, out value);
+
+        /// <summary>
+        /// Try to read an integer entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public bool TryGetInteger(string key, out BigInteger value) => TryGetInteger(Utility.StrictUTF8.GetBytes(key), out value);
+
+        /// <summary>
+        /// Try to read an integer entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public bool TryGetInteger(ReadOnlyMemory<byte> key, out BigInteger value)
+        {
+            if (!TryGet(key, out var bytes))
+            {
+                value = BigInteger.Zero;
+                return false;
+            }
+
+            value = new BigInteger(bytes.Span);
+            return true;
+        }
 
         /// <summary>
         /// Read a UTF-8 string entry from the smart contract storage
         /// </summary>
+        /// <remarks>Returns an empty string when the key is not found. Use TryGetString to distinguish missing entries.</remarks>
         /// <param name="key">Key</param>
         public string GetString(byte key) => GetString(new byte[] { key });
 
         /// <summary>
         /// Read a UTF-8 string entry from the smart contract storage
         /// </summary>
+        /// <remarks>Returns an empty string when the key is not found. Use TryGetString to distinguish missing entries.</remarks>
         /// <param name="key">Key</param>
         public string GetString(string key) => GetString(Utility.StrictUTF8.GetBytes(key));
 
         /// <summary>
         /// Read a UTF-8 string entry from the smart contract storage
         /// </summary>
+        /// <remarks>Returns an empty string when the key is not found. Use TryGetString to distinguish missing entries.</remarks>
         /// <param name="key">Key</param>
-        public string GetString(ReadOnlyMemory<byte> key) => Utility.StrictUTF8.GetString(Get(key).Span);
+        public string GetString(ReadOnlyMemory<byte> key)
+        {
+            TryGetString(key, out var value);
+            return value;
+        }
+
+        /// <summary>
+        /// Try to read a UTF-8 string entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public bool TryGetString(byte key, out string value) => TryGetString(new byte[] { key }, out value);
+
+        /// <summary>
+        /// Try to read a UTF-8 string entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public bool TryGetString(string key, out string value) => TryGetString(Utility.StrictUTF8.GetBytes(key), out value);
+
+        /// <summary>
+        /// Try to read a UTF-8 string entry from the smart contract storage
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        public bool TryGetString(ReadOnlyMemory<byte> key, out string value)
+        {
+            if (!TryGet(key, out var bytes))
+            {
+                value = string.Empty;
+                return false;
+            }
+
+            value = Utility.StrictUTF8.GetString(bytes.Span);
+            return true;
+        }
 
         /// <summary>
         /// Put an entry in the smart contract storage

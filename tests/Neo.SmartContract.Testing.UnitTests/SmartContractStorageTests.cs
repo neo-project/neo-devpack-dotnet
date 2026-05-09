@@ -92,7 +92,9 @@ namespace Neo.SmartContract.Testing.UnitTests
             TestEngine engine = new(true);
 
             engine.Native.NEO.Storage.Put("integer-key", BigInteger.MinusOne);
+            engine.Native.NEO.Storage.Put("zero-key", BigInteger.Zero);
             engine.Native.NEO.Storage.Put("string-key", Encoding.UTF8.GetBytes("hello"));
+            engine.Native.NEO.Storage.Put("empty-string-key", ReadOnlyMemory<byte>.Empty);
             engine.Native.NEO.Storage.Put((byte)0x42, BigInteger.One);
             engine.Native.NEO.Storage.Put(new byte[] { 0x43 }, Encoding.UTF8.GetBytes("raw"));
 
@@ -107,6 +109,20 @@ namespace Neo.SmartContract.Testing.UnitTests
             Assert.AreEqual("raw", engine.Native.NEO.Storage.GetString(new byte[] { 0x43 }));
             Assert.AreEqual(BigInteger.Zero, engine.Native.NEO.Storage.GetInteger("missing-key"));
             Assert.AreEqual(string.Empty, engine.Native.NEO.Storage.GetString("missing-key"));
+
+            Assert.IsTrue(engine.Native.NEO.Storage.TryGetInteger("zero-key", out var zeroValue));
+            Assert.AreEqual(BigInteger.Zero, zeroValue);
+            Assert.IsTrue(engine.Native.NEO.Storage.TryGetInteger((byte)0x42, out var byteKeyValue));
+            Assert.AreEqual(BigInteger.One, byteKeyValue);
+            Assert.IsFalse(engine.Native.NEO.Storage.TryGetInteger("missing-key", out var missingInteger));
+            Assert.AreEqual(BigInteger.Zero, missingInteger);
+
+            Assert.IsTrue(engine.Native.NEO.Storage.TryGetString("empty-string-key", out var emptyStringValue));
+            Assert.AreEqual(string.Empty, emptyStringValue);
+            Assert.IsTrue(engine.Native.NEO.Storage.TryGetString(new byte[] { 0x43 }, out var rawKeyValue));
+            Assert.AreEqual("raw", rawKeyValue);
+            Assert.IsFalse(engine.Native.NEO.Storage.TryGetString("missing-key", out var missingString));
+            Assert.AreEqual(string.Empty, missingString);
         }
     }
 }
