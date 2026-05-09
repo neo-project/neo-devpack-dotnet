@@ -99,6 +99,43 @@ namespace Neo.SmartContract.Testing.UnitTests
         }
 
         [TestMethod]
+        public void CreateRuntimeLogWatcherTracksLogs()
+        {
+            TestEngine engine = new(true);
+
+            var watcher = engine.CreateRuntimeLogWatcher();
+
+            var firstSender = ExecuteRuntimeLog(engine, "first");
+            var secondSender = ExecuteRuntimeLog(engine, "second");
+
+            Assert.AreEqual(2, watcher.Logs.Count);
+            Assert.AreEqual(firstSender, watcher.Logs[0].Sender);
+            Assert.AreEqual("first", watcher.Logs[0].Message);
+            Assert.AreEqual(secondSender, watcher.Logs[1].Sender);
+            Assert.AreEqual("second", watcher.Logs[1].Message);
+
+            watcher.Reset();
+
+            Assert.AreEqual(0, watcher.Logs.Count);
+
+            watcher.Dispose();
+            ExecuteRuntimeLog(engine, "ignored");
+
+            Assert.AreEqual(0, watcher.Logs.Count);
+        }
+
+        private static UInt160 ExecuteRuntimeLog(TestEngine engine, string message)
+        {
+            var builder = new ScriptBuilder();
+            builder.EmitPush(message);
+            builder.EmitSysCall(ApplicationEngine.System_Runtime_Log);
+            var script = builder.ToArray();
+            engine.Execute(script);
+
+            return script.ToScriptHash();
+        }
+
+        [TestMethod]
         public void TestHashExists()
         {
             TestEngine engine = new(false);
