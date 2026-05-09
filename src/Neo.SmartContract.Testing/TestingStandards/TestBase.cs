@@ -14,8 +14,10 @@ using Neo.Extensions;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Coverage;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.TestingStandards;
 
@@ -110,17 +112,19 @@ public class TestBase<T> where T : SmartContract, IContractInfo
     /// <param name="logs">Logs</param>
     public void AssertLogs(params string[] logs)
     {
-        Assert.AreEqual(logs.Length, _contractLogs.Count);
-        CollectionAssert.AreEqual(_contractLogs, logs);
+        var message = $"Expected runtime logs: {FormatDiagnosticSequence(logs)}; actual: {FormatDiagnosticSequence(_contractLogs)}.";
+
+        Assert.AreEqual(logs.Length, _contractLogs.Count, message);
+        CollectionAssert.AreEqual(logs, _contractLogs, message);
         _contractLogs.Clear();
     }
 
     /// <summary>
-    /// Assert that Transfer event was NOT raised
+    /// Assert that Log event was NOT raised
     /// </summary>
     public void AssertNoLogs()
     {
-        Assert.AreEqual(0, _contractLogs.Count);
+        Assert.AreEqual(0, _contractLogs.Count, $"Expected no runtime logs, but captured: {FormatDiagnosticSequence(_contractLogs)}.");
     }
 
     protected void AssertGasConsumedInRangeCore(long minimumGasConsumed, long maximumGasConsumed)
@@ -148,6 +152,21 @@ public class TestBase<T> where T : SmartContract, IContractInfo
         {
             AssertGasConsumedInRangeCore(expectedGasConsumed - tolerance, expectedGasConsumed + tolerance);
         }
+    }
+
+    protected static string FormatDiagnosticValue(object? value)
+    {
+        return value switch
+        {
+            null => "null",
+            string text => $"\"{text}\"",
+            _ => value.ToString() ?? string.Empty
+        };
+    }
+
+    protected static string FormatDiagnosticSequence<TItem>(IEnumerable<TItem> values, Func<TItem, string>? formatter = null)
+    {
+        return $"[{string.Join(", ", values.Select(value => formatter?.Invoke(value) ?? FormatDiagnosticValue(value)))}]";
     }
 
     #endregion
