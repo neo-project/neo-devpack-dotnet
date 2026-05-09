@@ -24,8 +24,9 @@ public class TestBase<T> where T : SmartContract, IContractInfo
     private readonly List<string> _contractLogs = [];
 
     public static CoveredContract? Coverage { get; private set; }
-    public static Signer Alice { get; set; } = TestEngine.GetNewSigner();
-    public static Signer Bob { get; set; } = TestEngine.GetNewSigner();
+    public static Signer Alice => TestEngine.Alice;
+    public static Signer Bob => TestEngine.Bob;
+    public static Signer Charlie => TestEngine.Charlie;
 
     public NefFile NefFile { get; private set; } = default!;
     public ContractManifest Manifest { get; private set; } = default!;
