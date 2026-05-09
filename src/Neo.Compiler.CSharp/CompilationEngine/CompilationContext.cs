@@ -126,12 +126,30 @@ namespace Neo.Compiler
             return convert.Instructions[0].Offset;
         }
 
-        private static bool ValidateContractTrust(string value)
+        private static bool ValidateContractDescriptor(string value)
         {
             if (value == "*") return true;
             if (UInt160.TryParse(value, out _)) return true;
-            if (ECPoint.TryParse(value, ECCurve.Secp256r1, out _)) return true;
+            try
+            {
+                return ECPoint.TryParse(value, ECCurve.Secp256r1, out _);
+            }
+            catch (Exception ex) when (ex is FormatException or ArgumentException or IndexOutOfRangeException)
+            {
+            }
             return false;
+        }
+
+        private static void ValidateContractPermission(INamedTypeSymbol symbol, string contract, IReadOnlyCollection<string> methods)
+        {
+            if (!ValidateContractDescriptor(contract))
+                throw new CompilationException(symbol, DiagnosticId.InvalidArgument, $"The value {contract} is not a valid ContractPermission descriptor.");
+
+            foreach (string method in methods)
+            {
+                if (string.IsNullOrEmpty(method))
+                    throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "ContractPermission methods cannot contain empty strings.");
+            }
         }
 
         internal void Compile()
@@ -453,7 +471,10 @@ namespace Neo.Compiler
                     switch (attribute.AttributeClass!.Name)
                     {
                         case nameof(DisplayNameAttribute):
-                            _displayName = (string)attribute.ConstructorArguments[0].Value!;
+                            string displayName = (string)attribute.ConstructorArguments[0].Value!;
+                            if (string.IsNullOrEmpty(displayName))
+                                throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "Contract display name cannot be empty.");
+                            _displayName = displayName;
                             break;
                         case nameof(ContractSourceCodeAttribute):
                             Source = (string)attribute.ConstructorArguments[0].Value!;
@@ -462,12 +483,15 @@ namespace Neo.Compiler
                             _manifestExtra[(string)attribute.ConstructorArguments[0].Value!] = (string)attribute.ConstructorArguments[1].Value!;
                             break;
                         case nameof(ContractPermissionAttribute):
-                            _permissions.Add((string)attribute.ConstructorArguments[0].Value!, attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray());
+                            string contract = (string)attribute.ConstructorArguments[0].Value!;
+                            string[] methods = attribute.ConstructorArguments[1].Values.Select(p => (string)p.Value!).ToArray();
+                            ValidateContractPermission(symbol, contract, methods);
+                            _permissions.Add(contract, methods);
                             break;
                         case nameof(ContractTrustAttribute):
                             string trust = (string)attribute.ConstructorArguments[0].Value!;
-                            if (!ValidateContractTrust(trust))
-                                throw new ArgumentException($"The value {trust} is not a valid one for ContractTrust");
+                            if (!ValidateContractDescriptor(trust))
+                                throw new CompilationException(symbol, DiagnosticId.InvalidArgument, $"The value {trust} is not a valid ContractTrust descriptor.");
                             _trusts.Add(trust);
                             break;
                         case nameof(SupportedStandardsAttribute):
@@ -565,12 +589,25 @@ namespace Neo.Compiler
 
         internal void AddEvent(AbiEvent ev, bool throwErrorIfExists)
         {
+            ValidateExportedEventName(ev);
             if (_eventsExported.Any(u => u.Name == ev.Name))
             {
                 if (!throwErrorIfExists) return;
                 throw new CompilationException(ev.Symbol, DiagnosticId.EventNameConflict, $"Duplicate event name: {ev.Name}.");
             }
             _eventsExported.Add(ev);
+        }
+
+        private static void ValidateExportedEventName(AbiEvent ev)
+        {
+            if (string.IsNullOrEmpty(ev.Name))
+                throw new CompilationException(ev.Symbol, DiagnosticId.InvalidArgument, "Contract event display name cannot be empty.");
+        }
+
+        private static void ValidateExportedMethodName(AbiMethod method)
+        {
+            if (string.IsNullOrEmpty(method.Name))
+                throw new CompilationException(method.Symbol, DiagnosticId.InvalidMethodName, "Contract method display name cannot be empty.");
         }
 
         private void ProcessMethod(SemanticModel model, IMethodSymbol symbol, bool export)
@@ -586,6 +623,7 @@ namespace Neo.Compiler
             if (export)
             {
                 AbiMethod method = new(symbol);
+                ValidateExportedMethodName(method);
                 if (_methodsExported.Any(u => u.Name == method.Name && u.Parameters.Length == method.Parameters.Length))
                     throw new CompilationException(symbol, DiagnosticId.MethodNameConflict, $"Duplicate method key: {method.Name},{method.Parameters.Length}.");
                 _methodsExported.Add(method);
