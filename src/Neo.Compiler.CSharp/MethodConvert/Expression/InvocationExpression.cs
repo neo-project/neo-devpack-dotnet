@@ -82,7 +82,7 @@ internal partial class MethodConvert
                     Push(ConvertToUInt256(stringValue, argument.Expression));
                     return true;
                 case "Neo.SmartContract.Framework.ECPoint":
-                    Push(ConvertToECPoint(stringValue));
+                    Push(ConvertToECPoint(stringValue, argument.Expression));
                     return true;
                 default:
                     return false;
