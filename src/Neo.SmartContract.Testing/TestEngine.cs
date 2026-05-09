@@ -368,6 +368,15 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Create runtime log watcher
+        /// </summary>
+        /// <returns>Runtime log watcher</returns>
+        public RuntimeLogWatcher CreateRuntimeLogWatcher()
+        {
+            return new RuntimeLogWatcher(this);
+        }
+
+        /// <summary>
         /// Get deploy hash
         /// </summary>
         /// <param name="nef">Nef</param>

@@ -241,8 +241,9 @@ namespace Neo.SmartContract.Testing.Storage
         /// </summary>
         public JObject Export()
         {
+            var contractId = GetContractId();
             var buffer = new byte[(sizeof(int))];
-            BinaryPrimitives.WriteInt32LittleEndian(buffer, GetContractId());
+            BinaryPrimitives.WriteInt32LittleEndian(buffer, contractId);
             var keyId = Convert.ToBase64String(buffer);
 
             // Write prefix
@@ -253,6 +254,8 @@ namespace Neo.SmartContract.Testing.Storage
 
             foreach (var entry in _smartContract.Engine.Storage.Snapshot.Seek(Array.Empty<byte>(), Persistence.SeekDirection.Forward))
             {
+                if (entry.Key.Id != contractId) continue;
+
                 // "key":"value" in base64
 
                 prefix[Convert.ToBase64String(entry.Key.Key.ToArray())] = Convert.ToBase64String(entry.Value.Value.ToArray());

@@ -10,9 +10,11 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Json;
 using System;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
@@ -64,6 +66,24 @@ namespace Neo.SmartContract.Testing.UnitTests
             // Check altered data
 
             Assert.AreEqual(BigInteger.MinusOne, engine.Native.NEO.RegisterPrice);
+        }
+
+        [TestMethod]
+        public void TestExportIncludesOnlyCurrentContractStorage()
+        {
+            TestEngine engine = new(true);
+
+            var neoKey = "neo-export-scope";
+            var gasKey = "gas-export-scope";
+
+            engine.Native.NEO.Storage.Put(neoKey, BigInteger.One);
+            engine.Native.GAS.Storage.Put(gasKey, BigInteger.One);
+
+            var storage = engine.Native.NEO.Storage.Export();
+            var prefix = (JObject)storage.Properties.Single().Value!;
+
+            Assert.IsTrue(prefix.ContainsProperty(Convert.ToBase64String(Encoding.UTF8.GetBytes(neoKey))));
+            Assert.IsFalse(prefix.ContainsProperty(Convert.ToBase64String(Encoding.UTF8.GetBytes(gasKey))));
         }
     }
 }
