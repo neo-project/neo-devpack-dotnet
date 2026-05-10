@@ -93,11 +93,7 @@ public class Nep17Tests<T> : TestBase<T>
     /// <param name="amount">Amount</param>
     public void AssertTransferEvent(UInt160? from, UInt160? to, BigInteger? amount)
     {
-        Assert.AreEqual(1, raisedTransfer.Count);
-        Assert.AreEqual(raisedTransfer[0].from, from);
-        Assert.AreEqual(raisedTransfer[0].to, to);
-        Assert.AreEqual(raisedTransfer[0].amount, amount);
-        raisedTransfer.Clear();
+        AssertTransferEvent((from, to, amount));
     }
 
     /// <summary>
@@ -108,10 +104,10 @@ public class Nep17Tests<T> : TestBase<T>
     /// <param name="amount">Amount</param>
     public void AssertTransferEvent(params (UInt160? from, UInt160? to, BigInteger? amount)[] events)
     {
-        Assert.AreEqual(events.Length, raisedTransfer.Count);
-        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.from).ToArray(), events.Select(u => u.from).ToArray());
-        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.to).ToArray(), events.Select(u => u.to).ToArray());
-        CollectionAssert.AreEqual(raisedTransfer.Select(u => u.amount).ToArray(), events.Select(u => u.amount).ToArray());
+        var message = $"Expected transfer events: {FormatDiagnosticSequence(events, FormatTransferEvent)}; actual: {FormatDiagnosticSequence(raisedTransfer, FormatTransferEvent)}.";
+
+        Assert.AreEqual(events.Length, raisedTransfer.Count, message);
+        CollectionAssert.AreEqual(events, raisedTransfer.ToArray(), message);
         raisedTransfer.Clear();
     }
 
@@ -120,7 +116,12 @@ public class Nep17Tests<T> : TestBase<T>
     /// </summary>
     public void AssertNoTransferEvent()
     {
-        Assert.AreEqual(0, raisedTransfer.Count);
+        Assert.AreEqual(0, raisedTransfer.Count, $"Expected no transfer events, but captured: {FormatDiagnosticSequence(raisedTransfer, FormatTransferEvent)}.");
+    }
+
+    private static string FormatTransferEvent((UInt160? from, UInt160? to, BigInteger? amount) transfer)
+    {
+        return $"(from: {FormatDiagnosticValue(transfer.from)}, to: {FormatDiagnosticValue(transfer.to)}, amount: {FormatDiagnosticValue(transfer.amount)})";
     }
 
     #endregion
