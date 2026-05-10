@@ -156,7 +156,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void TestDivRemUlong()
+        public void TestDivRemULong()
         {
             var result = Contract.DivRemUlong((ulong)10, (ulong)3);
             Assert.IsNotNull(result);
