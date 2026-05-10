@@ -338,7 +338,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate result
         methodConvert.Push0();                                     // Push 0 for comparison
         methodConvert.NumEqual();                                  // Check if remainder is 0
-        methodConvert.JumpIfFalse(gcdTarget);            // Continue loop if not 0
+        methodConvert.JumpIfFalse(gcdTarget);                      // Continue loop if not 0
         methodConvert.Drop();                                      // Drop the zero remainder
         methodConvert.Abs();                                       // Return absolute value
     }
@@ -713,21 +713,21 @@ internal partial class MethodConvert
         JumpTarget endFalse = new();
         JumpTarget endTrue = new();
         JumpTarget endTarget = new();
-        JumpTarget nonZero = new();
+        JumpTarget greaterZero = new();
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfNotEqual(nonZero);                 // Jump if non-zero
+        methodConvert.JumpIfGreater(greaterZero);                  // Jump if non-zero
         methodConvert.Drop();                                      // Drop the value if zero
-        methodConvert.JumpAlways(endFalse);                  // Return false for zero
-        nonZero.Instruction = methodConvert.Nop();                 // Non-zero target
+        methodConvert.JumpAlways(endFalse);                        // Return false for zero
+        greaterZero.Instruction = methodConvert.Nop();             // Non-zero target
         methodConvert.Dup();                                       // Duplicate value
         methodConvert.Dec();                                       // Decrement (n-1)
         methodConvert.And();                                       // Calculate n & (n-1)
         methodConvert.Push(0);
-        methodConvert.JumpIfEqual(endTrue);                 // Jump if result is 0
+        methodConvert.JumpIfEqual(endTrue);                        // Jump if result is 0
         endFalse.Instruction = methodConvert.Nop();                // False case target
         methodConvert.Push(false);
-        methodConvert.JumpAlways(endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                       // Jump to end
         endTrue.Instruction = methodConvert.Nop();                 // True case target
         methodConvert.Push(true);
         endTarget.Instruction = methodConvert.Nop();               // End target
