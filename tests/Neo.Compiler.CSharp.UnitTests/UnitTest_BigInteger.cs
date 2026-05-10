@@ -214,11 +214,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Compare()
         {
             Assert.AreEqual(BigInteger.Compare(123, 321), Contract.TestCompare(123, 321));
-            AssertGasConsumed(1047480);
+            AssertGasConsumed(1048020);
             Assert.AreEqual(BigInteger.Compare(123, 123), Contract.TestCompare(123, 123));
-            AssertGasConsumed(1047480);
+            AssertGasConsumed(1048020);
             Assert.AreEqual(BigInteger.Compare(123, -321), Contract.TestCompare(123, -321));
-            AssertGasConsumed(1047480);
+            AssertGasConsumed(1048020);
+            Assert.AreEqual(BigInteger.Compare(-123, 321), Contract.TestCompare(-123, 321));
+            AssertGasConsumed(1048020);
+            Assert.AreEqual(BigInteger.Compare(-123, -321), Contract.TestCompare(-123, -321));
+            AssertGasConsumed(1048020);
         }
 
         [TestMethod]
