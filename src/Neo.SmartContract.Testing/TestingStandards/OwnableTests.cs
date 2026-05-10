@@ -95,7 +95,7 @@ public class OwnableTests<T> : TestBase<T>
         {
             Engine.SetTransactionSigners(Alice);
             Assert.IsTrue(verificable.Verify);
-            Engine.SetTransactionSigners(TestEngine.GetNewSigner());
+            Engine.SetTransactionSigners(Bob);
             Assert.IsFalse(verificable.Verify);
         }
     }
@@ -103,9 +103,7 @@ public class OwnableTests<T> : TestBase<T>
     [TestMethod]
     public virtual void TestSenderAsDefaultOwner()
     {
-        var random = TestEngine.GetNewSigner();
-
-        Engine.SetTransactionSigners(random);
+        Engine.SetTransactionSigners(Charlie);
 
         var expectedHash = Engine.GetDeployHash(NefFile, Manifest);
         var check = Engine.FromHash<T>(expectedHash, false);
@@ -115,8 +113,8 @@ public class OwnableTests<T> : TestBase<T>
         Assert.AreEqual(check.Hash, ownable.Hash);
         check.OnSetOwner -= onSetOwner;
 
-        AssertOnChangeOwnerEvent(null, random.Account);
-        Assert.AreEqual(random.Account, ownable.Owner);
+        AssertOnChangeOwnerEvent(null, Charlie.Account);
+        Assert.AreEqual(Charlie.Account, ownable.Owner);
     }
 
     [TestMethod]
