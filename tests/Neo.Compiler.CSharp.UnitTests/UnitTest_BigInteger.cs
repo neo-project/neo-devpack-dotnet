@@ -227,6 +227,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1048020);
             Assert.AreEqual(BigInteger.Compare(long.MinValue, 1), Contract.TestCompare(long.MinValue, 1));
             AssertGasConsumed(1048020);
+            Assert.AreEqual(BigInteger.Compare(long.MaxValue, -1), Contract.TestCompare(long.MaxValue, -1));
+            AssertGasConsumed(1048020);
+            Assert.AreEqual(BigInteger.Compare(long.MinValue, -1), Contract.TestCompare(long.MinValue, -1));
+            AssertGasConsumed(1048020);
         }
 
         [TestMethod]
