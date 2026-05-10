@@ -47,7 +47,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void UnitTest_Transfer_MissingToken_Throws()
         {
-            var to = TestEngine.GetNewSigner().Account;
+            var to = TestEngine.BobAccount;
             var ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(to, new byte[] { 0x02 }, null));
             StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "does not exist");
         }
