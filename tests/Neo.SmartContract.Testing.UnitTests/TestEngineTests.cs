@@ -25,6 +25,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 
 namespace Neo.SmartContract.Testing.UnitTests
 {
@@ -107,6 +108,17 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             engine.OnGetCallingScriptHash = (current, expected) => UInt160.Parse("0x0000000000000000000000000000000000000001");
             Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160))!.ToString());
+        }
+
+        [TestMethod]
+        public void TestingSyscallRegistrationIsIdempotent()
+        {
+            var engineType = typeof(TestEngine).Assembly.GetType("Neo.SmartContract.Testing.TestingApplicationEngine")!;
+            var registerMethod = engineType.GetMethod("RegisterTestingSyscall", BindingFlags.Static | BindingFlags.NonPublic);
+
+            Assert.IsNotNull(registerMethod);
+            registerMethod.Invoke(null, null);
+            registerMethod.Invoke(null, null);
         }
 
         [TestMethod]
