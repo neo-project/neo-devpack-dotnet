@@ -394,13 +394,20 @@ namespace Neo.SmartContract.Testing
         #endregion
 
         /// <summary>
-        /// Create gas watcher
+        /// Create fee watcher
         /// </summary>
-        /// <returns>Gas watcher</returns>
-        public FeeWatcher CreateGasWatcher()
+        /// <returns>Fee watcher</returns>
+        public FeeWatcher CreateFeeWatcher()
         {
             return new FeeWatcher(this);
         }
+
+        /// <summary>
+        /// Create gas watcher
+        /// </summary>
+        /// <returns>Gas watcher</returns>
+        [Obsolete("Use CreateFeeWatcher instead.")]
+        public FeeWatcher CreateGasWatcher() => CreateFeeWatcher();
 
         /// <summary>
         /// Create runtime log watcher
