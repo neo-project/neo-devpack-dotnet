@@ -143,9 +143,9 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(123, engine.Native.NEO.RegisterPrice);
 
-            // Now test it without this signature
+            // Now test it with another deterministic test account
 
-            engine.SetTransactionSigners(TestEngine.GetNewSigner());
+            engine.SetTransactionSigners(TestEngine.Bob);
 
             var exception = Assert.ThrowsExactly<TestException>(() => _ = engine.Native.NEO.RegisterPrice = 123);
             Assert.IsInstanceOfType<TargetInvocationException>(exception.InnerException);
