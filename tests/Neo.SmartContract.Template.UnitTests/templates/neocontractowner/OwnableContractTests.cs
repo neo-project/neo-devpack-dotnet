@@ -95,19 +95,19 @@ namespace Neo.SmartContract.Template.UnitTests.templates.neocontractowner
                 newOwnerRaised = newOwner;
             };
 
-            // Deploy with random owner, we can use the same storage
-            // because the contract hash contains the Sender, and now it's random
+            // Deploy with another owner, we can use the same storage
+            // because the contract hash contains the Sender
 
-            var rand = TestEngine.GetNewSigner().Account;
-            var nep17 = Engine.Deploy<OwnableTemplate>(NefFile, Manifest, rand);
+            var owner = TestEngine.CharlieAccount;
+            var nep17 = Engine.Deploy<OwnableTemplate>(NefFile, Manifest, owner);
             Assert.AreEqual(check.Hash, nep17.Hash);
 
             Coverage?.Join(nep17.GetCoverage());
 
-            Assert.AreEqual(rand, nep17.Owner);
+            Assert.AreEqual(owner, nep17.Owner);
             Assert.IsNull(previousOwnerRaised);
             Assert.AreEqual(newOwnerRaised, nep17.Owner);
-            Assert.AreEqual(newOwnerRaised, rand);
+            Assert.AreEqual(newOwnerRaised, owner);
         }
 
         [TestMethod]
