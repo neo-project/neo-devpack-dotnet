@@ -306,11 +306,14 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // if left < right return -1;
-        // if left = right return 0;
-        // if left > right return 1;
-        methodConvert.Sub();                                       // Calculate left - right
-        methodConvert.Sign();                                      // Get sign of difference
+        // Stack (StdCall): bottom left, top right. Compare without left-right SUB:
+        // (left > right) - (left < right), using only small-integer SUB on 0/1 flags.
+        methodConvert.Over();                // L, R, L
+        methodConvert.Over();                // L, R, L, R
+        methodConvert.Gt();                  // L, R, (L>R as 0/1)
+        methodConvert.Reverse3();            // L > R, R, L
+        methodConvert.Gt();                  // L > R, R > L (i.e. L < R) as 0/1
+        methodConvert.Sub();                 // (L > R) - (L < R) -> -1, 0, or 1
     }
 
     /// <summary>
