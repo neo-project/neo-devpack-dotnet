@@ -23,7 +23,7 @@ namespace Neo.SmartContract.Framework.UnitTests;
 [TestClass]
 public class PausableTest
 {
-    private static readonly Signer Sender = TestEngine.GetNewSigner();
+    private static readonly Signer Sender = TestEngine.Alice;
 
     [TestMethod]
     public void Pausable_WhenNotPaused_AllowsCalls_And_PauseBlocks()
