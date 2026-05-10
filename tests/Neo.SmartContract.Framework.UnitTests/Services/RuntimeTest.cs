@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Extensions;
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.VM;
@@ -22,15 +23,13 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
     [TestClass]
     public class RuntimeTest : DebugAndTestBase<Contract_Runtime>
     {
-        static RuntimeTest()
-        {
-            // We need a deterministic deployer for Random method
+        private static readonly Signer RandomSigner = TestEngine.CreateSigner(UInt160.Parse("0102030405060708090A0102030405060708090A"));
 
-            Alice = new Network.P2P.Payloads.Signer()
-            {
-                Account = UInt160.Parse("0102030405060708090A0102030405060708090A"),
-                Scopes = Network.P2P.Payloads.WitnessScope.CalledByEntry
-            };
+        protected override TestEngine CreateTestEngine()
+        {
+            var engine = new TestEngine(true);
+            engine.SetTransactionSigners(RandomSigner);
+            return engine;
         }
 
         [TestMethod]
@@ -84,7 +83,9 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         [TestMethod]
         public void Test_Random()
         {
-            Engine.SetTransactionSigners(Alice);
+            // We need a deterministic signer for Random method
+
+            Engine.SetTransactionSigners(RandomSigner);
             Engine.Transaction.Nonce = 0x01020304;
             Engine.PersistingBlock.Nonce = 0x01020304;
             Assert.AreEqual(BigInteger.Parse("140181351494432352371728933832694804614"), Contract.GetRandom());
@@ -120,7 +121,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         {
             // True
 
-            var signer = Testing.TestEngine.GetNewSigner();
+            var signer = Testing.TestEngine.Bob;
 
             Engine.SetTransactionSigners(signer);
             Assert.IsTrue(Contract.CheckWitness(signer.Account));
