@@ -24,8 +24,8 @@ public class Nep11MintUniquenessTest
         var engine = new TestEngine(true);
         var contract = engine.Deploy<Nep11MintUniquenessContract>(nef, manifest);
 
-        var firstOwner = TestEngine.GetNewSigner().Account;
-        var secondOwner = TestEngine.GetNewSigner().Account;
+        var firstOwner = TestEngine.AliceAccount;
+        var secondOwner = TestEngine.BobAccount;
         var tokenId = new byte[] { 0x42 };
 
         contract.Mint(tokenId, firstOwner);
