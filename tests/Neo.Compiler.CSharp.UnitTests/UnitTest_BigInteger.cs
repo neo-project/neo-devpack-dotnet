@@ -237,11 +237,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_GreatestCommonDivisor()
         {
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(48, 18), Contract.TestGreatestCommonDivisor(48, 18));
-            AssertGasConsumed(1049280);
+            AssertGasConsumed(1048980);
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(-48, -18), Contract.TestGreatestCommonDivisor(-48, -18));
-            AssertGasConsumed(1049280);
+            AssertGasConsumed(1048980);
             Assert.AreEqual(BigInteger.GreatestCommonDivisor(24, 12), Contract.TestGreatestCommonDivisor(24, 12));
             AssertGasConsumed(1047960);
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(24, 0), Contract.TestGreatestCommonDivisor(24, 0));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(-24, 0), Contract.TestGreatestCommonDivisor(-24, 0));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(0, -24), Contract.TestGreatestCommonDivisor(0, -24));
+            AssertGasConsumed(1047960);
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(0, 24), Contract.TestGreatestCommonDivisor(0, 24));
+            AssertGasConsumed(1047960);
+            Assert.AreEqual(BigInteger.GreatestCommonDivisor(0, 0), Contract.TestGreatestCommonDivisor(0, 0));
+            AssertGasConsumed(1047450);
         }
 
         // New test methods
