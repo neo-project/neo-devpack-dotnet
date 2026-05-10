@@ -48,6 +48,9 @@ namespace Neo.SmartContract.Testing
         public delegate void OnRuntimeLogDelegate(UInt160 sender, string message);
         public event OnRuntimeLogDelegate? OnRuntimeLog;
 
+        public delegate void OnRuntimeNotifyDelegate(UInt160 sender, string eventName, Neo.VM.Types.Array state);
+        public event OnRuntimeNotifyDelegate? OnRuntimeNotify;
+
         /// <summary>
         /// Default Protocol Settings
         /// </summary>
@@ -348,6 +351,8 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineNotify(object? sender, NotifyEventArgs e)
         {
+            OnRuntimeNotify?.Invoke(e.ScriptHash, e.EventName, e.State);
+
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
             {
                 foreach (var contract in contracts)
@@ -389,13 +394,20 @@ namespace Neo.SmartContract.Testing
         #endregion
 
         /// <summary>
-        /// Create gas watcher
+        /// Create fee watcher
         /// </summary>
-        /// <returns>Gas watcher</returns>
-        public FeeWatcher CreateGasWatcher()
+        /// <returns>Fee watcher</returns>
+        public FeeWatcher CreateFeeWatcher()
         {
             return new FeeWatcher(this);
         }
+
+        /// <summary>
+        /// Create gas watcher
+        /// </summary>
+        /// <returns>Gas watcher</returns>
+        [Obsolete("Use CreateFeeWatcher instead.")]
+        public FeeWatcher CreateGasWatcher() => CreateFeeWatcher();
 
         /// <summary>
         /// Create runtime log watcher
@@ -404,6 +416,15 @@ namespace Neo.SmartContract.Testing
         public RuntimeLogWatcher CreateRuntimeLogWatcher()
         {
             return new RuntimeLogWatcher(this);
+        }
+
+        /// <summary>
+        /// Create notification watcher
+        /// </summary>
+        /// <returns>Notification watcher</returns>
+        public NotificationWatcher CreateNotificationWatcher()
+        {
+            return new NotificationWatcher(this);
         }
 
         /// <summary>

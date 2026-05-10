@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.UnitTests
@@ -118,7 +119,9 @@ namespace Neo.SmartContract.Testing.UnitTests
             var firstSender = ExecuteRuntimeLog(engine, "first");
             var secondSender = ExecuteRuntimeLog(engine, "second");
 
+            Assert.AreEqual(2, watcher.Count);
             Assert.AreEqual(2, watcher.Logs.Count);
+            CollectionAssert.AreEqual(new[] { "first", "second" }, watcher.Messages.ToArray());
             Assert.AreEqual(firstSender, watcher.Logs[0].Sender);
             Assert.AreEqual("first", watcher.Logs[0].Message);
             Assert.AreEqual(secondSender, watcher.Logs[1].Sender);
@@ -126,11 +129,14 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             watcher.Reset();
 
+            Assert.AreEqual(0, watcher.Count);
             Assert.AreEqual(0, watcher.Logs.Count);
+            Assert.AreEqual(0, watcher.Messages.Count);
 
             watcher.Dispose();
             ExecuteRuntimeLog(engine, "ignored");
 
+            Assert.AreEqual(0, watcher.Count);
             Assert.AreEqual(0, watcher.Logs.Count);
         }
 
