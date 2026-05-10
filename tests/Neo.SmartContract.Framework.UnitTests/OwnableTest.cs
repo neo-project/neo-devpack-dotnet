@@ -20,8 +20,8 @@ namespace Neo.SmartContract.Framework.UnitTests;
 [TestClass]
 public class OwnableTest
 {
-    private static readonly Signer Alice = TestEngine.GetNewSigner();
-    private static readonly Signer Bob = TestEngine.GetNewSigner();
+    private static readonly Signer Alice = TestEngine.Alice;
+    private static readonly Signer Bob = TestEngine.Bob;
 
     [TestMethod]
     public void Ownable_UsesSenderAsDefaultOwner_And_OnlyOwnerGuardsProtectedMethods()
