@@ -10,11 +10,9 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Neo.VM;
 
 namespace Neo.Compiler;
 
@@ -243,31 +241,11 @@ internal partial class MethodConvert
         methodConvert.Over();                                      // 5 0 10 0
         methodConvert.Over();                                      // 5 0 10 0 10 <- top
         methodConvert.JumpIfLessOrEqual(exceptionTarget);         // 5 0 10  // if 0 <= 10, continue execution
-        //methodConvert.Push("min>max");
         methodConvert.Throw();                                     // Throw if min > max
         exceptionTarget.Instruction = methodConvert.Nop();         // Exception handling target
         methodConvert.Reverse3();                                  // 10 0 5
-        // MAX&MIN costs 1<<3 each; 16 Datoshi more expensive at runtime
         methodConvert.Max();                                       // 10 5
         methodConvert.Min();                                       // 5
-        //methodConvert.AddInstruction(OpCode.RET);
-        // Alternatively, a slightly cheaper way at runtime; 10 to 16 Datoshi
-        //methodConvert.Over();                                    // 10 0 5 0
-        //methodConvert.Over();                                    // 10 0 5 0 5
-        //methodConvert.JumpIfGreaterOrEqual( minTarget);             // 10 0 5; should return 0 if JMPed
-        //methodConvert.Nip();                                     // 10 5
-        //methodConvert.Over();                                    // 10 5 10
-        //methodConvert.Over();                                    // 10 5 10 5
-        //methodConvert.JumpIfLessOrEqual( maxTarget);             // 10 5; should return 10 if JMPed
-        //methodConvert.Nip();                                     // 5; should return 5
-        //methodConvert.Ret();
-        //minTarget.Instruction = methodConvert.Nop();             // 10 0 5; should return 0
-        //methodConvert.Drop();                                    // 10 0; should return 0
-        //methodConvert.Nip();                                     // 0; should return 0
-        //methodConvert.Ret();
-        //maxTarget.Instruction = methodConvert.Nop();             // 10 5; should return 10
-        //methodConvert.Drop();                                    // 10; should return 10
-        //methodConvert.Ret();
     }
 
     /// <summary>
@@ -290,18 +268,10 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
         methodConvert.Mul();                                       // Multiply the values
         methodConvert.Dup();                                       // Duplicate result for range check
-        methodConvert.Within(long.MinValue, long.MaxValue);     // Check if within long range
-        methodConvert.JumpIfTrue(endTarget);            // Jump if within range
+        methodConvert.Within(long.MinValue, long.MaxValue);        // Check if within long range
+        methodConvert.JumpIfTrue(endTarget);                       // Jump if within range
+        methodConvert.Drop();                                      // Drop the result if not within range
         methodConvert.Throw();                                     // Throw if overflow
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
-
-    // RegisterHandler((double x) => Math.Ceiling(x), HandleMathCeiling);
-    // RegisterHandler((double x) => Math.Floor(x), HandleMathFloor);
-    // RegisterHandler((double x) => Math.Round(x), HandleMathRound);
-    // RegisterHandler((double x) => Math.Truncate(x), HandleMathTruncate);
-    // RegisterHandler((double x, double y) => Math.Pow(x, y), HandleMathPow);
-    // RegisterHandler((double x) => Math.Sqrt(x), HandleMathSqrt);
-    // RegisterHandler((double x) => Math.Log(x), HandleMathLog);
-    // RegisterHandler((double x, double y) => Math.Log(x, y), HandleMathLogBase);
 }

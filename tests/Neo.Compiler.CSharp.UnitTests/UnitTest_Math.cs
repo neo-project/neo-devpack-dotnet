@@ -21,7 +21,7 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_Math : DebugAndTestBase<Contract_Math>
     {
         [TestMethod]
-        public void max_test()
+        public void TestMax()
         {
             Assert.AreEqual(2, Contract.Max(1, 2));
             AssertGasConsumed(1047360);
@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void min_test()
+        public void TestMin()
         {
             Assert.AreEqual(1, Contract.Min(1, 2));
             AssertGasConsumed(1047360);
@@ -39,7 +39,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void sign_test()
+        public void TestSign()
         {
             Assert.AreEqual(1, Contract.Sign(1));
             AssertGasConsumed(1047150);
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void abs_test()
+        public void TestAbs()
         {
             Assert.AreEqual(1, Contract.Abs(1));
             AssertGasConsumed(1047150);
@@ -61,18 +61,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void bigMul_test()
+        public void TestBigMul()
         {
             Assert.AreEqual(((long)int.MaxValue) * int.MaxValue, Contract.BigMul(int.MaxValue, int.MaxValue));
             AssertGasConsumed(1047870);
             Assert.AreEqual(((long)int.MinValue) * int.MinValue, Contract.BigMul(int.MinValue, int.MinValue));
             AssertGasConsumed(1047870);
             Assert.ThrowsException<TestException>(() => Contract.BigMul(long.MaxValue, long.MaxValue));
-            AssertGasConsumed(1063230);
+            AssertGasConsumed(1063290);
         }
 
         [TestMethod]
-        public void divRemByte_test()
+        public void TestDivRemByte()
         {
             var result = Contract.DivRemByte((byte)10, (byte)4);
             Assert.IsNotNull(result);
@@ -84,7 +84,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemShort_test()
+        public void TestDivRemShort()
         {
             var result = Contract.DivRemShort((short)10, (short)3);
             Assert.IsNotNull(result);
@@ -96,7 +96,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemInt_test()
+        public void TestDivRemInt()
         {
             var result = Contract.DivRemInt(10, 3);
             Assert.IsNotNull(result);
@@ -108,7 +108,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemLong_test()
+        public void TestDivRemLong()
         {
             var result = Contract.DivRemLong(10L, 3L);
             Assert.IsNotNull(result);
@@ -120,7 +120,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemSByte_test()
+        public void TestDivRemSByte()
         {
             var result = Contract.DivRemSbyte((sbyte)10, (sbyte)3);
             Assert.IsNotNull(result);
@@ -132,7 +132,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemUShort_test()
+        public void TestDivRemUShort()
         {
             var result = Contract.DivRemUshort((ushort)10, (ushort)3);
             Assert.IsNotNull(result);
@@ -144,7 +144,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemUInt_test()
+        public void TestDivRemUInt()
         {
             var result = Contract.DivRemUint((uint)10, (uint)3);
             Assert.IsNotNull(result);
@@ -156,7 +156,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemULong_test()
+        public void TestDivRemULong()
         {
             var result = Contract.DivRemUlong((ulong)10, (ulong)3);
             Assert.IsNotNull(result);
@@ -168,7 +168,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void divRemZeroU_test()
+        public void TestDivRemZeroU()
         {
             Assert.ThrowsException<TestException>(() => Contract.DivRemUint((uint)10, (uint)0));
             AssertGasConsumed(1047510);
