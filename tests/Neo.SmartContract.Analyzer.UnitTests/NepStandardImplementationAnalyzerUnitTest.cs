@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<
     Neo.SmartContract.Analyzer.NepStandardImplementationAnalyzer,
@@ -316,5 +317,339 @@ public class NepStandardImplementationAnalyzerUnitTest
                                              """;
 
         await Verifier.VerifyAnalyzerAsync(source).ConfigureAwait(false);
+    }
+
+    // -------------------------------------------------------------------------
+    // Line-ending preservation tests
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Verifies that when the source uses CRLF line endings, the code fix only
+    /// introduces CRLF in the generated members and does not rewrite unrelated
+    /// lines in the document.
+    /// </summary>
+    [TestMethod]
+    public async Task Nep17_CodeFix_PreservesCrlfLineEndings()
+    {
+        // Build source with explicit CRLF throughout
+        var source = BuildWithLineEnding(CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public class SampleToken
+                                                 {
+                                                 }
+                                             }
+                                             """, "\r\n");
+
+        var fixedSource = BuildWithLineEnding(CommonSource + """
+
+                                                 namespace Contracts
+                                                 {
+                                                     [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                     public class SampleToken
+                                                     {
+                                                         public static string Symbol()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static byte Decimals()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+                                                     }
+                                                 }
+                                                 """, "\r\n");
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithSpan(51, 6, 51, 110)
+            .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
+
+        var test = new Microsoft.CodeAnalysis.CSharp.Testing.CSharpCodeFixTest<
+            NepStandardImplementationAnalyzer,
+            NepStandardImplementationCodeFixProvider,
+            Microsoft.CodeAnalysis.Testing.Verifiers.XUnitVerifier>
+        {
+            TestCode = source,
+            FixedCode = fixedSource,
+        };
+        test.ExpectedDiagnostics.Add(expectedDiagnostic);
+        await test.RunAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Verifies that when the source uses LF line endings, the code fix only
+    /// introduces LF in the generated members and does not rewrite unrelated
+    /// lines in the document.
+    /// </summary>
+    [TestMethod]
+    public async Task Nep17_CodeFix_PreservesLfLineEndings()
+    {
+        var source = BuildWithLineEnding(CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public class SampleToken
+                                                 {
+                                                 }
+                                             }
+                                             """, "\n");
+
+        var fixedSource = BuildWithLineEnding(CommonSource + """
+
+                                                 namespace Contracts
+                                                 {
+                                                     [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                     public class SampleToken
+                                                     {
+                                                         public static string Symbol()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static byte Decimals()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+                                                     }
+                                                 }
+                                                 """, "\n");
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithSpan(51, 6, 51, 110)
+            .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
+
+        var test = new Microsoft.CodeAnalysis.CSharp.Testing.CSharpCodeFixTest<
+            NepStandardImplementationAnalyzer,
+            NepStandardImplementationCodeFixProvider,
+            Microsoft.CodeAnalysis.Testing.Verifiers.XUnitVerifier>
+        {
+            TestCode = source,
+            FixedCode = fixedSource,
+        };
+        test.ExpectedDiagnostics.Add(expectedDiagnostic);
+        await test.RunAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Verifies that the code fix does not alter existing members (including those
+    /// with string expressions) that are already present in the class body.
+    /// Only the generated stub methods should be added; nothing else should change.
+    /// </summary>
+    [TestMethod]
+    public async Task Nep17_CodeFix_DoesNotAlterExistingMembers()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public class SampleToken
+                                                 {
+                                                     public static string Description() => "A token";
+                                                 }
+                                             }
+                                             """;
+
+        const string fixedSource = CommonSource + """
+
+                                                 namespace Contracts
+                                                 {
+                                                     [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                     public class SampleToken
+                                                     {
+                                                         public static string Description() => "A token";
+
+                                                         public static string Symbol()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static byte Decimals()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+                                                     }
+                                                 }
+                                                 """;
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithSpan(51, 6, 51, 110)
+            .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
+
+        await Verifier.VerifyCodeFixAsync(source, expectedDiagnostic, fixedSource).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Verifies that the interface code fix does not reformat the whole class,
+    /// only the base list entry.
+    /// </summary>
+    [TestMethod]
+    public async Task Nep24_CodeFix_DoesNotReformatUnrelatedClassMembers()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep24)]
+                                                 public class SampleRoyalty
+                                                 {
+                                                     public static string Name() => "Royalty";
+                                                 }
+                                             }
+                                             """;
+
+        const string fixedSource = CommonSource + """
+
+                                                 namespace Contracts
+                                                 {
+                                                     [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep24)]
+                                                     public class SampleRoyalty : Neo.SmartContract.Framework.Interfaces.INep24
+                                                     {
+                                                         public static string Name() => "Royalty";
+                                                     }
+                                                 }
+                                                 """;
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.InterfaceDiagnosticId)
+            .WithSpan(51, 6, 51, 110)
+            .WithArguments("NEP-24", "Neo.SmartContract.Framework.Interfaces.INep24");
+
+        await Verifier.VerifyCodeFixAsync(source, expectedDiagnostic, fixedSource).ConfigureAwait(false);
+    }
+
+    // -------------------------------------------------------------------------
+    // Multiline-literal preservation tests
+    // (line-ending normalization lives only here in the verifier/test, never in
+    //  the production code fix)
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Verifies that a verbatim string literal already present in the class is
+    /// left intact after the code fix runs.  The code fix must not rewrite content
+    /// inside string literals.
+    /// </summary>
+    [TestMethod]
+    public async Task Nep17_CodeFix_DoesNotAlterVerbatimStringLiteral()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                 public class SampleToken
+                                                 {
+                                                     public static string GetDescription() => @"hello\nworld";
+                                                 }
+                                             }
+                                             """;
+
+        const string fixedSource = CommonSource + """
+
+                                                 namespace Contracts
+                                                 {
+                                                     [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep17)]
+                                                     public class SampleToken
+                                                     {
+                                                         public static string GetDescription() => @"hello\nworld";
+
+                                                         public static string Symbol()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static byte Decimals()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger TotalSupply()
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+
+                                                         public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, object data)
+                                                         {
+                                                             throw new System.NotImplementedException();
+                                                         }
+                                                     }
+                                                 }
+                                                 """;
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithSpan(51, 6, 51, 110)
+            .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
+
+        await Verifier.VerifyCodeFixAsync(source, expectedDiagnostic, fixedSource).ConfigureAwait(false);
+    }
+
+    // -------------------------------------------------------------------------
+    // Helper
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Replaces all line endings in <paramref name="text"/> with
+    /// <paramref name="eol"/> so tests can exercise CRLF or LF explicitly.
+    /// Line-ending normalization is intentionally kept here in the test helper
+    /// and is never performed by the production code fix.
+    /// </summary>
+    private static string BuildWithLineEnding(string text, string eol)
+    {
+        // Normalise first to LF, then replace with target EOL
+        var lf = text.Replace("\r\n", "\n");
+        return eol == "\n" ? lf : lf.Replace("\n", eol);
     }
 }
