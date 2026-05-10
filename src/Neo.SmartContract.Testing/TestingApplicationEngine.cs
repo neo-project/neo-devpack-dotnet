@@ -37,6 +37,11 @@ namespace Neo.SmartContract.Testing
         /// </summary>
         static TestingApplicationEngine()
         {
+            RegisterTestingSyscall();
+        }
+
+        private static void RegisterTestingSyscall()
+        {
             var items = typeof(ApplicationEngine)
                 .GetField("services", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
                 .GetValue(null) as Dictionary<uint, InteropDescriptor>;
@@ -50,7 +55,7 @@ namespace Neo.SmartContract.Testing
                 RequiredCallFlags = CallFlags.None,
             };
 
-            items?.Add(descriptor.Hash, descriptor);
+            items?.TryAdd(descriptor.Hash, descriptor);
         }
 
         /// <summary>
