@@ -31,7 +31,7 @@ public static class Disassembler
     {
         return EnumerateInstructions(script)
             .Select(x => x.instruction)
-            .ToList() ?? [];
+            .ToList();
     }
 
     public static List<(int offset, int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, int start, int end)
