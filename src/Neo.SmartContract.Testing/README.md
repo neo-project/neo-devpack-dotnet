@@ -97,12 +97,14 @@ And for read and write, we have:
 
 #### Methods
 
-It has four methods:
+It includes these methods and helpers:
 
 - **Execute(script)**: Executes a script on the neo virtual machine and returns the execution result.
 - **Deploy(nef, manifest, data, customMock)**: Deploys the smart contract by calling the native method `ContractManagement.deploy`. It allows setting [custom mocks](#custom-mocks), which will be detailed later. And returns the instance of the contract that has been deployed.
 - **FromHash(hash, customMocks, checkExistence)**: Creates an instance without needing a `NefFile` or `Manifest`, only requiring the contract's hash. It does not consider whether the contract exists on the chain unless `checkExistence` is set to `true`.
 - **SetTransactionSigners(signers)**: Set the `Signer` of the `Transaction`.
+- **Alice, Bob and Charlie**: Deterministic test signers that can be reused in account-based tests. They are not funded automatically.
+- **CreateSigner(account, scope)**: Creates a `Signer` for an existing account and witness scope.
 - **GetNewSigner(scope)**: A static method that provides us with a random `Signer` signed by default by `CalledByEntry`.
 - **GetDeployHash(nef, manifest)**: Gets the hash that will result from deploying a contract with the defined `NefFile` and `Manifest`.
 
@@ -351,9 +353,9 @@ engine.Native.NEO.RegisterPrice = 123;
 
 Assert.AreEqual(123, engine.Native.NEO.RegisterPrice);
 
-// Now test it without this signature
+// Now test it with another deterministic test account
 
-engine.SetTransactionSigners(TestEngine.GetNewSigner());
+engine.SetTransactionSigners(TestEngine.Bob);
 
 Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.RegisterPrice = 123);
 ```
