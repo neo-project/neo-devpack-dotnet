@@ -69,7 +69,6 @@ namespace Neo.Compiler
             {
                 foreach (StatementSyntax label in section.Statements)
                 {
-
                     if (label is LabeledStatementSyntax l)
                     {
                         ILabelSymbol symbol = (ILabelSymbol)model.GetDeclaredSymbol(l)!;
