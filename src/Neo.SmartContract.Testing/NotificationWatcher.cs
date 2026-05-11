@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Captured runtime notifications.
         /// </summary>
-        public IReadOnlyList<RuntimeNotification> Notifications => _notifications;
+        public IReadOnlyList<RuntimeNotification> Notifications => _notifications.AsReadOnly();
 
         /// <summary>
         /// Clear captured runtime notifications.
@@ -45,7 +45,7 @@ namespace Neo.SmartContract.Testing
             _testEngine.OnRuntimeNotify += OnRuntimeNotify;
         }
 
-        private void OnRuntimeNotify(UInt160 sender, string eventName, Neo.VM.Types.Array state)
+        private void OnRuntimeNotify(UInt160 sender, string eventName, VM.Types.Array state)
         {
             _notifications.Add(new RuntimeNotification(sender, eventName, state));
         }
