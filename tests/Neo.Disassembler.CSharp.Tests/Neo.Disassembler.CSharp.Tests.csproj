@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+		<IsPackable>false</IsPackable>
+		<RootNamespace>Neo.Disassembler.CSharp.Tests</RootNamespace>
+		<IsTestProject>true</IsTestProject>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Neo.Disassembler.CSharp\Neo.Disassembler.CSharp.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -26,7 +26,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Captured runtime logs.
         /// </summary>
-        public IReadOnlyList<RuntimeLog> Logs => _logs;
+        public IReadOnlyList<RuntimeLog> Logs => _logs.AsReadOnly();
 
         /// <summary>
         /// Number of captured runtime logs.
@@ -36,7 +36,7 @@ namespace Neo.SmartContract.Testing
         /// <summary>
         /// Captured runtime log messages.
         /// </summary>
-        public IReadOnlyList<string> Messages => _logs.Select(log => log.Message).ToArray();
+        public IReadOnlyList<string> LogMessages => [.. _logs.Select(log => log.Message)];
 
         /// <summary>
         /// Clear captured runtime logs.

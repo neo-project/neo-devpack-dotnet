@@ -44,7 +44,7 @@ namespace Neo.SmartContract.Testing
         {
             Sender = sender;
             EventName = eventName;
-            State = state.Select(item => item.DeepCopy(true)).ToArray();
+            State = [.. state.Select(item => item.DeepCopy(true))];
         }
     }
 }
