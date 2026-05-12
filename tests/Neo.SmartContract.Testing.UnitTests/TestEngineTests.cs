@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(2, watcher.Count);
             Assert.AreEqual(2, watcher.Logs.Count);
-            CollectionAssert.AreEqual(new[] { "first", "second" }, watcher.Messages.ToArray());
+            CollectionAssert.AreEqual(new[] { "first", "second" }, watcher.LogMessages.ToArray());
             Assert.AreEqual(firstSender, watcher.Logs[0].Sender);
             Assert.AreEqual("first", watcher.Logs[0].Message);
             Assert.AreEqual(secondSender, watcher.Logs[1].Sender);
@@ -131,7 +131,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.AreEqual(0, watcher.Count);
             Assert.AreEqual(0, watcher.Logs.Count);
-            Assert.AreEqual(0, watcher.Messages.Count);
+            Assert.AreEqual(0, watcher.LogMessages.Count);
 
             watcher.Dispose();
             ExecuteRuntimeLog(engine, "ignored");

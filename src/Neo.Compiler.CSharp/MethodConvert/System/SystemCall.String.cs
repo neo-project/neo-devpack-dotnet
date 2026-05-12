@@ -238,16 +238,14 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
         methodConvert.Push(0);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfFalse(valueNotEmptyTarget);
+        methodConvert.JumpIfNotEqual(valueNotEmptyTarget);
         methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
         methodConvert.JumpAlways(endTarget);
         valueNotEmptyTarget.Instruction = methodConvert.Nop();
 
         methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
-        methodConvert.Lt();
-        methodConvert.JumpIfFalse(canSearchTarget);
+        methodConvert.JumpIfGreaterOrEqual(canSearchTarget);
         methodConvert.Push(-1);
         methodConvert.JumpAlways(endTarget);
         canSearchTarget.Instruction = methodConvert.Nop();
@@ -264,8 +262,7 @@ internal partial class MethodConvert
         JumpTarget notFoundTarget = new();
         methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
         methodConvert.Push(-1);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrue(notFoundTarget);
+        methodConvert.JumpIfEqual(notFoundTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
         methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
@@ -287,8 +284,7 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
         methodConvert.Push(-1);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrue(loopEnd);
+        methodConvert.JumpIfEqual(loopEnd);
 
         methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
         methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
@@ -654,8 +650,7 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
         methodConvert.Push(0);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrue(emptyTarget);
+        methodConvert.JumpIfEqual(emptyTarget);
 
         methodConvert.Push(0);
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
@@ -663,8 +658,7 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-        methodConvert.Lt();
-        methodConvert.JumpIfFalse(allWhitespaceTarget);
+        methodConvert.JumpIfGreaterOrEqual(allWhitespaceTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
@@ -864,8 +858,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
-        methodConvert.Lt();                                        // Check if index < length
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if done
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -937,8 +930,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
-        methodConvert.Lt();                                        // Check if index < length
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if done
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -1061,8 +1053,7 @@ internal partial class MethodConvert
     {
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         GetStrLen(methodConvert, strLen);                          // Get string length
-        methodConvert.Lt();                                        // Check if index < length
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not less than
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               //  Check if index < length, Exit if not less than
     }
 
     /// <summary>
@@ -1149,8 +1140,7 @@ internal partial class MethodConvert
             methodConvert.Push((ushort)constantTrimChar.Value);
         else
             methodConvert.LdArg1();                                // Load trim character
-        methodConvert.NumEqual();                                  // Check equality
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not equal
+        methodConvert.JumpIfNotEqual(loopEnd);              // Exit if not equal
     }
 
     /// <summary>
@@ -1167,8 +1157,7 @@ internal partial class MethodConvert
     {
         GetEndIndex(methodConvert, endIndex);                      // Get end index
         GetStartIndex(methodConvert, startIndex);                  // Get start index
-        methodConvert.Gt();                                        // Check if end > start
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not greater
+        methodConvert.JumpIfLessOrEqual(loopEnd);                  // Check if end > start, Exit if not greater
     }
 
     /// <summary>
@@ -1181,8 +1170,7 @@ internal partial class MethodConvert
     {
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Push(-1);
-        methodConvert.Gt();
-        methodConvert.JumpIfFalse(loopEnd);
+        methodConvert.JumpIfLessOrEqual(loopEnd);                  // Check if end > start, Exit if not greater
     }
 
     /// <summary>
@@ -1434,8 +1422,7 @@ internal partial class MethodConvert
 
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Push(-1);
-        methodConvert.Equal();
-        methodConvert.JumpIfTrue(allTrimmed);
+        methodConvert.JumpIfEqual(allTrimmed);
 
         GetString(methodConvert);
         methodConvert.Push0();
@@ -1522,8 +1509,7 @@ internal partial class MethodConvert
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
         methodConvert.Dup();                                       // Duplicate result
         methodConvert.PushM1();                                    // Push -1 for comparison
-        methodConvert.Equal();                                     // Check if not found
-        methodConvert.JumpIfTrue(loopEnd);                 // Exit if not found
+        methodConvert.JumpIfEqual(loopEnd);                        // Check if not found
 
         // Get the index of the substring
         methodConvert.Dup();                                       // Duplicate string
