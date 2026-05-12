@@ -42,4 +42,34 @@ public class TaskLikeTypeUsageAnalyzerUnitTests
 
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
+
+    [TestMethod]
+    public async Task TaskLikeFieldPropertyAndLocal_ShouldReportDiagnostic()
+    {
+        var test = """
+                   using System.Threading.Tasks;
+
+                   class Test
+                   {
+                       private {|#0:Task<int>|} field = Task.FromResult(1);
+                       public {|#1:ValueTask<int>|} Property { get; set; }
+
+                       public void Run()
+                       {
+                           {|#2:Task|} local = Task.CompletedTask;
+                           {|#3:ValueTask<int>|} value = default;
+                       }
+                   }
+                   """;
+
+        var expected = new[]
+        {
+            VerifyCS.Diagnostic(TaskLikeTypeUsageAnalyzer.DiagnosticId).WithLocation(0).WithArguments("System.Threading.Tasks.Task<int>"),
+            VerifyCS.Diagnostic(TaskLikeTypeUsageAnalyzer.DiagnosticId).WithLocation(1).WithArguments("System.Threading.Tasks.ValueTask<int>"),
+            VerifyCS.Diagnostic(TaskLikeTypeUsageAnalyzer.DiagnosticId).WithLocation(2).WithArguments("System.Threading.Tasks.Task"),
+            VerifyCS.Diagnostic(TaskLikeTypeUsageAnalyzer.DiagnosticId).WithLocation(3).WithArguments("System.Threading.Tasks.ValueTask<int>"),
+        };
+
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
 }
