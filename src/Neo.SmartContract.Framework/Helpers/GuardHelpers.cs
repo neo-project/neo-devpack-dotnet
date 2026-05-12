@@ -11,6 +11,7 @@
 
 using Neo.SmartContract.Framework.Services;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -19,6 +20,7 @@ namespace Neo.SmartContract.Framework.Helpers
     /// <summary>
     /// Provides guard utilities for contract preconditions and postconditions
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public static class GuardHelpers
     {
         /// <summary>
