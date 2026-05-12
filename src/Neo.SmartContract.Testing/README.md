@@ -24,6 +24,10 @@ The **Neo.SmartContract.Testing** project is designed to facilitate the developm
     - [Example of use](#example-of-use)
 - [Fee watcher](#fee-watcher)
     - [Example of use](#example-of-use)
+- [Runtime log watcher](#runtime-log-watcher)
+    - [Example of use](#example-of-use)
+- [Notification watcher](#notification-watcher)
+    - [Example of use](#example-of-use)
 - [Forging signatures](#forging-signatures)
     - [Example of use](#example-of-use)
 - [Event testing](#event-testing)
@@ -93,12 +97,14 @@ And for read and write, we have:
 
 #### Methods
 
-It has four methods:
+It includes these methods and helpers:
 
 - **Execute(script)**: Executes a script on the neo virtual machine and returns the execution result.
 - **Deploy(nef, manifest, data, customMock)**: Deploys the smart contract by calling the native method `ContractManagement.deploy`. It allows setting [custom mocks](#custom-mocks), which will be detailed later. And returns the instance of the contract that has been deployed.
 - **FromHash(hash, customMocks, checkExistence)**: Creates an instance without needing a `NefFile` or `Manifest`, only requiring the contract's hash. It does not consider whether the contract exists on the chain unless `checkExistence` is set to `true`.
 - **SetTransactionSigners(signers)**: Set the `Signer` of the `Transaction`.
+- **Alice, Bob and Charlie**: Deterministic test signers that can be reused in account-based tests. They are not funded automatically.
+- **CreateSigner(account, scope)**: Creates a `Signer` for an existing account and witness scope.
 - **GetNewSigner(scope)**: A static method that provides us with a random `Signer` signed by default by `CalledByEntry`.
 - **GetDeployHash(nef, manifest)**: Gets the hash that will result from deploying a contract with the defined `NefFile` and `Manifest`.
 
@@ -186,6 +192,8 @@ To create a checkpoint, simply call `Checkpoint()` from a `EngineStorage` class 
 It has the following methods:
 
 - **Restore(snapshot)**: This method can also be called from an `EngineStorage` or from our `TestEngine` class. It is used to restore the storage to a specified checkpoint.
+- **Load(path)**: Loads a checkpoint from a file.
+- **Save(path)**: Saves the checkpoint to a file.
 - **ToArray()**: Exports the checkpoint to a `byte[]`.
 - **Write(stream)**: Writes the checkpoint to a `Stream`.
 
@@ -217,6 +225,16 @@ engine = new TestEngine(false) { Storage = storage };
 // Ensure that all works
 
 Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+```
+
+Checkpoints can also be stored as files:
+
+```csharp
+var checkpoint = engine.Storage.Checkpoint();
+checkpoint.Save("storage.checkpoint");
+
+var loaded = EngineCheckpoint.Load("storage.checkpoint");
+engine.Storage.Restore(loaded);
 ```
 
 ### Custom mocks
@@ -270,6 +288,42 @@ using var fee = engine.CreateFeeWatcher();
 }
 ```
 
+### Runtime log watcher
+
+The `RuntimeLogWatcher` class captures runtime logs emitted during contract execution, so tests can assert log messages without wiring custom event handlers.
+
+#### Example of use
+
+```csharp
+using var logs = engine.CreateRuntimeLogWatcher();
+
+contract.Save("example");
+
+Assert.AreEqual(1, logs.Logs.Count);
+Assert.AreEqual("saved", logs.Logs[0].Message);
+
+logs.Reset();
+Assert.AreEqual(0, logs.Logs.Count);
+```
+
+### Notification watcher
+
+The `NotificationWatcher` class captures runtime notifications emitted during contract execution, so tests can assert event names, senders, and state without wiring custom event handlers.
+
+#### Example of use
+
+```csharp
+using var notifications = engine.CreateNotificationWatcher();
+
+contract.Transfer(from, to, 1, null);
+
+Assert.AreEqual(1, notifications.Notifications.Count);
+Assert.AreEqual("Transfer", notifications.Notifications[0].EventName);
+
+notifications.Reset();
+Assert.AreEqual(0, notifications.Notifications.Count);
+```
+
 ### Forging signatures
 
 To fake signatures and allow testing our contracts in authorized and unauthorized environments, it's enough to replace the signers of the `Transaction` object in our `TestEngine`. This way, we can simulate the signatures of other users. It's worth noting that it's not necessary to modify the `Witnesses` since it's not checked whether the transaction is well-formed.
@@ -299,9 +353,9 @@ engine.Native.NEO.RegisterPrice = 123;
 
 Assert.AreEqual(123, engine.Native.NEO.RegisterPrice);
 
-// Now test it without this signature
+// Now test it with another deterministic test account
 
-engine.SetTransactionSigners(TestEngine.GetNewSigner());
+engine.SetTransactionSigners(TestEngine.Bob);
 
 Assert.ThrowsException<TargetInvocationException>(() => engine.Native.NEO.RegisterPrice = 123);
 ```

@@ -48,6 +48,9 @@ namespace Neo.SmartContract.Testing
         public delegate void OnRuntimeLogDelegate(UInt160 sender, string message);
         public event OnRuntimeLogDelegate? OnRuntimeLog;
 
+        public delegate void OnRuntimeNotifyDelegate(UInt160 sender, string eventName, Neo.VM.Types.Array state);
+        public event OnRuntimeNotifyDelegate? OnRuntimeNotify;
+
         /// <summary>
         /// Default Protocol Settings
         /// </summary>
@@ -90,6 +93,36 @@ namespace Neo.SmartContract.Testing
             InitialGasDistribution = ProtocolSettings.Default.InitialGasDistribution,
             Hardforks = ProtocolSettings.Default.Hardforks
         };
+
+        /// <summary>
+        /// Stable Alice account for repeatable tests.
+        /// </summary>
+        public static readonly UInt160 AliceAccount = UInt160.Parse("0x0102030405060708090a0b0c0d0e0f1011121314");
+
+        /// <summary>
+        /// Stable Bob account for repeatable tests.
+        /// </summary>
+        public static readonly UInt160 BobAccount = UInt160.Parse("0x1112131415161718191a1b1c1d1e1f2021222324");
+
+        /// <summary>
+        /// Stable Charlie account for repeatable tests.
+        /// </summary>
+        public static readonly UInt160 CharlieAccount = UInt160.Parse("0x2122232425262728292a2b2c2d2e2f3031323334");
+
+        /// <summary>
+        /// Stable Alice signer with CalledByEntry scope.
+        /// </summary>
+        public static Signer Alice => CreateSigner(AliceAccount);
+
+        /// <summary>
+        /// Stable Bob signer with CalledByEntry scope.
+        /// </summary>
+        public static Signer Bob => CreateSigner(BobAccount);
+
+        /// <summary>
+        /// Stable Charlie signer with CalledByEntry scope.
+        /// </summary>
+        public static Signer Charlie => CreateSigner(CharlieAccount);
 
         /// <summary>
         /// Storage
@@ -318,6 +351,8 @@ namespace Neo.SmartContract.Testing
 
         internal void ApplicationEngineNotify(object? sender, NotifyEventArgs e)
         {
+            OnRuntimeNotify?.Invoke(e.ScriptHash, e.EventName, e.State);
+
             if (_contracts.TryGetValue(e.ScriptHash, out var contracts))
             {
                 foreach (var contract in contracts)
@@ -359,12 +394,37 @@ namespace Neo.SmartContract.Testing
         #endregion
 
         /// <summary>
+        /// Create fee watcher
+        /// </summary>
+        /// <returns>Fee watcher</returns>
+        public FeeWatcher CreateFeeWatcher()
+        {
+            return new FeeWatcher(this);
+        }
+
+        /// <summary>
         /// Create gas watcher
         /// </summary>
         /// <returns>Gas watcher</returns>
-        public FeeWatcher CreateGasWatcher()
+        [Obsolete("Use CreateFeeWatcher instead.")]
+        public FeeWatcher CreateGasWatcher() => CreateFeeWatcher();
+
+        /// <summary>
+        /// Create runtime log watcher
+        /// </summary>
+        /// <returns>Runtime log watcher</returns>
+        public RuntimeLogWatcher CreateRuntimeLogWatcher()
         {
-            return new FeeWatcher(this);
+            return new RuntimeLogWatcher(this);
+        }
+
+        /// <summary>
+        /// Create notification watcher
+        /// </summary>
+        /// <returns>Notification watcher</returns>
+        public NotificationWatcher CreateNotificationWatcher()
+        {
+            return new NotificationWatcher(this);
         }
 
         /// <summary>
@@ -800,6 +860,21 @@ namespace Neo.SmartContract.Testing
         }
 
         /// <summary>
+        /// Create a signer for an existing account.
+        /// </summary>
+        /// <param name="account">Account</param>
+        /// <param name="scope">Witness scope</param>
+        /// <returns>Signer</returns>
+        public static Signer CreateSigner(UInt160 account, WitnessScope scope = WitnessScope.CalledByEntry)
+        {
+            return new Signer()
+            {
+                Account = account,
+                Scopes = scope,
+            };
+        }
+
+        /// <summary>
         /// Generate a random new Signers with CalledByEntry scope by default
         /// </summary>
         /// <param name="scope">Witness scope</param>
@@ -814,11 +889,7 @@ namespace Neo.SmartContract.Testing
 
             if (data[0] == 0) data[0] = 1;
 
-            return new Signer()
-            {
-                Account = new UInt160(data),
-                Scopes = scope,
-            };
+            return CreateSigner(new UInt160(data), scope);
         }
     }
 }

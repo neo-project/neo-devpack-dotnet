@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract.Native;
@@ -28,6 +29,123 @@ internal partial class MethodConvert
         String,
         CharArray,
         StringArray,
+    }
+
+    private bool TryProcessStringConstructor(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<ArgumentSyntax> arguments)
+    {
+        if (!IsStringCharCountConstructor(symbol))
+            return false;
+
+        if (arguments.Count != 2)
+            throw new CompilationException(symbol, DiagnosticId.InvalidArgument, "string(char, int) requires exactly two arguments.");
+
+        var charExpression = GetConstructorArgument(arguments, symbol.Parameters[0], symbol);
+        var countExpression = GetConstructorArgument(arguments, symbol.Parameters[1], symbol);
+        var charConstant = model.GetConstantValue(charExpression);
+        var countConstant = model.GetConstantValue(countExpression);
+
+        ValidateConstantStringCharCountSize(countExpression, charConstant, countConstant);
+
+        if (charConstant.HasValue && charConstant.Value is char character &&
+            countConstant.HasValue && countConstant.Value is int repeatCount &&
+            repeatCount >= 0)
+        {
+            Push(new string(character, repeatCount));
+            return true;
+        }
+
+        EmitStringCharCountConstructor(model, charExpression, countExpression, charConstant);
+        return true;
+    }
+
+    private static bool IsStringCharCountConstructor(IMethodSymbol symbol)
+    {
+        return symbol.MethodKind == MethodKind.Constructor &&
+               symbol.ContainingType.SpecialType == SpecialType.System_String &&
+               symbol.Parameters.Length == 2 &&
+               symbol.Parameters[0].Type.SpecialType == SpecialType.System_Char &&
+               symbol.Parameters[1].Type.SpecialType == SpecialType.System_Int32;
+    }
+
+    private static ExpressionSyntax GetConstructorArgument(IReadOnlyList<ArgumentSyntax> arguments, IParameterSymbol parameter, IMethodSymbol symbol)
+    {
+        foreach (var argument in arguments)
+        {
+            if (argument.NameColon?.Name.Identifier.ValueText == parameter.Name)
+                return argument.Expression;
+        }
+
+        if (parameter.Ordinal < arguments.Count && arguments[parameter.Ordinal].NameColon is null)
+            return arguments[parameter.Ordinal].Expression;
+
+        throw new CompilationException(symbol, DiagnosticId.InvalidArgument, $"string(char, int) requires an argument for '{parameter.Name}'.");
+    }
+
+    private static void ValidateConstantStringCharCountSize(ExpressionSyntax countExpression, Optional<object?> charConstant, Optional<object?> countConstant)
+    {
+        if (!countConstant.HasValue || countConstant.Value is not int repeatCount || repeatCount < 0)
+            return;
+
+        long maxItemSize = ExecutionEngineLimits.Default.MaxItemSize;
+        long byteCount = repeatCount;
+        if (charConstant.HasValue && charConstant.Value is char character && character > byte.MaxValue)
+            byteCount *= Encoding.UTF8.GetByteCount(character.ToString());
+
+        if (byteCount > maxItemSize)
+            throw new CompilationException(countExpression, DiagnosticId.InvalidArgument, $"String byte length {byteCount} exceeds VM max item size {maxItemSize}.");
+    }
+
+    private void EmitStringCharCountConstructor(SemanticModel model, ExpressionSyntax charExpression, ExpressionSyntax countExpression, Optional<object?> charConstant)
+    {
+        byte charSlot = AddAnonymousVariable();
+        byte countSlot = AddAnonymousVariable();
+        byte resultSlot = AddAnonymousVariable();
+
+        if (charConstant.HasValue && charConstant.Value is char character)
+        {
+            Push(character.ToString());
+        }
+        else
+        {
+            ConvertExpression(model, charExpression);
+            ChangeType(StackItemType.ByteString);
+        }
+        AccessSlot(OpCode.STLOC, charSlot);
+
+        ConvertExpression(model, countExpression);
+        AccessSlot(OpCode.STLOC, countSlot);
+
+        JumpTarget validCountTarget = new();
+        AccessSlot(OpCode.LDLOC, countSlot);
+        Push(0);
+        Jump(OpCode.JMPGE_L, validCountTarget);
+        AddInstruction(OpCode.THROW);
+
+        validCountTarget.Instruction = Push("");
+        AccessSlot(OpCode.STLOC, resultSlot);
+
+        JumpTarget conditionTarget = new();
+        JumpTarget endTarget = new();
+
+        conditionTarget.Instruction = AccessSlot(OpCode.LDLOC, countSlot);
+        Push(0);
+        Jump(OpCode.JMPLE_L, endTarget);
+
+        AccessSlot(OpCode.LDLOC, resultSlot);
+        AccessSlot(OpCode.LDLOC, charSlot);
+        Cat();
+        AccessSlot(OpCode.STLOC, resultSlot);
+
+        AccessSlot(OpCode.LDLOC, countSlot);
+        Dec();
+        AccessSlot(OpCode.STLOC, countSlot);
+        Jump(OpCode.JMP_L, conditionTarget);
+
+        endTarget.Instruction = AccessSlot(OpCode.LDLOC, resultSlot);
+
+        RemoveAnonymousVariable(resultSlot);
+        RemoveAnonymousVariable(countSlot);
+        RemoveAnonymousVariable(charSlot);
     }
 
     private static void HandleStringPickItem(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression,
@@ -120,16 +238,14 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
         methodConvert.Push(0);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfFalse(valueNotEmptyTarget);
+        methodConvert.JumpIfNotEqual(valueNotEmptyTarget);
         methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
         methodConvert.JumpAlways(endTarget);
         valueNotEmptyTarget.Instruction = methodConvert.Nop();
 
         methodConvert.AccessSlot(OpCode.LDLOC, strLenSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, valueLenSlot);
-        methodConvert.Lt();
-        methodConvert.JumpIfFalse(canSearchTarget);
+        methodConvert.JumpIfGreaterOrEqual(canSearchTarget);
         methodConvert.Push(-1);
         methodConvert.JumpAlways(endTarget);
         canSearchTarget.Instruction = methodConvert.Nop();
@@ -146,8 +262,7 @@ internal partial class MethodConvert
         JumpTarget notFoundTarget = new();
         methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
         methodConvert.Push(-1);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrue(notFoundTarget);
+        methodConvert.JumpIfEqual(notFoundTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, currentSlot);
         methodConvert.AccessSlot(OpCode.STLOC, lastSlot);
@@ -169,8 +284,7 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
         methodConvert.Push(-1);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrue(loopEnd);
+        methodConvert.JumpIfEqual(loopEnd);
 
         methodConvert.AccessSlot(OpCode.LDLOC, nextSlot);
         methodConvert.AccessSlot(OpCode.STLOC, currentSlot);
@@ -536,8 +650,7 @@ internal partial class MethodConvert
 
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
         methodConvert.Push(0);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrue(emptyTarget);
+        methodConvert.JumpIfEqual(emptyTarget);
 
         methodConvert.Push(0);
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
@@ -545,8 +658,7 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-        methodConvert.Lt();
-        methodConvert.JumpIfFalse(allWhitespaceTarget);
+        methodConvert.JumpIfGreaterOrEqual(allWhitespaceTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
@@ -614,11 +726,11 @@ internal partial class MethodConvert
         JumpTarget endTarget = new();
 
         methodConvert.AccessSlot(OpCode.LDLOC, leftSlot);
-        methodConvert.Isnull();
+        methodConvert.IsNull();
         methodConvert.JumpIfFalse(leftNotNullTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.Isnull();
+        methodConvert.IsNull();
         methodConvert.JumpIfFalse(rightNotNullWhenLeftNullTarget);
         methodConvert.Push(0);
         methodConvert.JumpAlways(endTarget);
@@ -629,7 +741,7 @@ internal partial class MethodConvert
 
         leftNotNullTarget.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, rightSlot);
-        methodConvert.Isnull();
+        methodConvert.IsNull();
         methodConvert.JumpIfFalse(bothNotNullTarget);
         methodConvert.Push(1);
         methodConvert.JumpAlways(endTarget);
@@ -702,14 +814,14 @@ internal partial class MethodConvert
         var firstNotNull = new JumpTarget();
         var secondNotNull = new JumpTarget();
         methodConvert.Dup();                                       // Duplicate first string
-        methodConvert.Isnull();                                    // Check if null
+        methodConvert.IsNull();                                    // Check if null
         methodConvert.JumpIfNot(firstNotNull);                     // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push("");                                    // Push empty string
         firstNotNull.Instruction = methodConvert.Nop();            // First not null target
         methodConvert.Swap();                                      // Swap strings
         methodConvert.Dup();                                       // Duplicate second string
-        methodConvert.Isnull();                                    // Check if null
+        methodConvert.IsNull();                                    // Check if null
         methodConvert.JumpIfNot(secondNotNull);                    // Jump if not null
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push("");                                    // Push empty string
@@ -746,8 +858,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
-        methodConvert.Lt();                                        // Check if index < length
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if done
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -819,8 +930,7 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
         methodConvert.Size();                                      // Get string length
-        methodConvert.Lt();                                        // Check if index < length
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if done
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
         methodConvert.LdArg0();                                    // Load string
@@ -943,8 +1053,7 @@ internal partial class MethodConvert
     {
         GetStartIndex(methodConvert, startIndex);                  // Get start index
         GetStrLen(methodConvert, strLen);                          // Get string length
-        methodConvert.Lt();                                        // Check if index < length
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not less than
+        methodConvert.JumpIfGreaterOrEqual(loopEnd);               //  Check if index < length, Exit if not less than
     }
 
     /// <summary>
@@ -1031,8 +1140,7 @@ internal partial class MethodConvert
             methodConvert.Push((ushort)constantTrimChar.Value);
         else
             methodConvert.LdArg1();                                // Load trim character
-        methodConvert.NumEqual();                                  // Check equality
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not equal
+        methodConvert.JumpIfNotEqual(loopEnd);              // Exit if not equal
     }
 
     /// <summary>
@@ -1049,8 +1157,7 @@ internal partial class MethodConvert
     {
         GetEndIndex(methodConvert, endIndex);                      // Get end index
         GetStartIndex(methodConvert, startIndex);                  // Get start index
-        methodConvert.Gt();                                        // Check if end > start
-        methodConvert.JumpIfFalse(loopEnd);              // Exit if not greater
+        methodConvert.JumpIfLessOrEqual(loopEnd);                  // Check if end > start, Exit if not greater
     }
 
     /// <summary>
@@ -1063,8 +1170,7 @@ internal partial class MethodConvert
     {
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Push(-1);
-        methodConvert.Gt();
-        methodConvert.JumpIfFalse(loopEnd);
+        methodConvert.JumpIfLessOrEqual(loopEnd);                  // Check if end > start, Exit if not greater
     }
 
     /// <summary>
@@ -1316,8 +1422,7 @@ internal partial class MethodConvert
 
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Push(-1);
-        methodConvert.Equal();
-        methodConvert.JumpIfTrue(allTrimmed);
+        methodConvert.JumpIfEqual(allTrimmed);
 
         GetString(methodConvert);
         methodConvert.Push0();
@@ -1404,8 +1509,7 @@ internal partial class MethodConvert
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
         methodConvert.Dup();                                       // Duplicate result
         methodConvert.PushM1();                                    // Push -1 for comparison
-        methodConvert.Equal();                                     // Check if not found
-        methodConvert.JumpIfTrue(loopEnd);                 // Exit if not found
+        methodConvert.JumpIfEqual(loopEnd);                        // Check if not found
 
         // Get the index of the substring
         methodConvert.Dup();                                       // Duplicate string

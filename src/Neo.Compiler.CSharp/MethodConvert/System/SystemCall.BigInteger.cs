@@ -306,11 +306,14 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        // if left < right return -1;
-        // if left = right return 0;
-        // if left > right return 1;
-        methodConvert.Sub();                                       // Calculate left - right
-        methodConvert.Sign();                                      // Get sign of difference
+        // Stack (StdCall): bottom left, top right. Compare without left-right SUB:
+        // (left > right) - (left < right), using only small-integer SUB on 0/1 flags.
+        methodConvert.Over();                // L, R, L
+        methodConvert.Over();                // L, R, L, R
+        methodConvert.Gt();                  // L, R, (L>R as 0/1)
+        methodConvert.Reverse3();            // L > R, R, L
+        methodConvert.Gt();                  // L > R, R > L (i.e. L < R) as 0/1
+        methodConvert.Sub();                 // (L > R) - (L < R) -> -1, 0, or 1
     }
 
     /// <summary>
@@ -328,19 +331,22 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
-        JumpTarget gcdTarget = new()
+
+        JumpTarget endTarget = new();
+        methodConvert.Dup();                                // a, b, b
+        methodConvert.Push0();                              // a, b, b, 0
+        methodConvert.JumpIfEqual(endTarget);               // a, b, // if b is 0, result is abs(a)
+        JumpTarget gcdTarget = new()                        // a, b
         {
-            Instruction = methodConvert.Dup()                      // Duplicate for loop check
+            Instruction = methodConvert.Swap()              // b, a
         };
-        methodConvert.Reverse3();                                  // Rearrange stack for GCD algorithm
-        methodConvert.Swap();                                      // Swap top two elements
-        methodConvert.Mod();                                       // Calculate modulo
-        methodConvert.Dup();                                       // Duplicate result
-        methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.NumEqual();                                  // Check if remainder is 0
-        methodConvert.JumpIfFalse(gcdTarget);            // Continue loop if not 0
-        methodConvert.Drop();                                      // Drop the zero remainder
-        methodConvert.Abs();                                       // Return absolute value
+        methodConvert.Over();                               // b, a, b
+        methodConvert.Mod();                                // b, a % b
+        methodConvert.Dup();                                // b, a % b, a % b
+        methodConvert.Push0();                              // b, a % b, a % b, 0
+        methodConvert.JumpIfNotEqual(gcdTarget);            // b, a % b, // if a % b != 0, jump to the start
+        endTarget.Instruction = methodConvert.Drop();       // b (or a if b is 0)
+        methodConvert.Abs();                                // | result |
     }
 
     /// <summary>
@@ -713,21 +719,21 @@ internal partial class MethodConvert
         JumpTarget endFalse = new();
         JumpTarget endTrue = new();
         JumpTarget endTarget = new();
-        JumpTarget nonZero = new();
+        JumpTarget greaterZero = new();
         methodConvert.Dup();                                       // Duplicate value for zero check
         methodConvert.Push0();                                     // Push 0 for comparison
-        methodConvert.JumpIfNotEqual(nonZero);                 // Jump if non-zero
+        methodConvert.JumpIfGreater(greaterZero);                  // Jump if non-zero
         methodConvert.Drop();                                      // Drop the value if zero
-        methodConvert.JumpAlways(endFalse);                  // Return false for zero
-        nonZero.Instruction = methodConvert.Nop();                 // Non-zero target
+        methodConvert.JumpAlways(endFalse);                        // Return false for zero
+        greaterZero.Instruction = methodConvert.Nop();             // Non-zero target
         methodConvert.Dup();                                       // Duplicate value
         methodConvert.Dec();                                       // Decrement (n-1)
         methodConvert.And();                                       // Calculate n & (n-1)
         methodConvert.Push(0);
-        methodConvert.JumpIfEqual(endTrue);                 // Jump if result is 0
+        methodConvert.JumpIfEqual(endTrue);                        // Jump if result is 0
         endFalse.Instruction = methodConvert.Nop();                // False case target
         methodConvert.Push(false);
-        methodConvert.JumpAlways(endTarget);                 // Jump to end
+        methodConvert.JumpAlways(endTarget);                       // Jump to end
         endTrue.Instruction = methodConvert.Nop();                 // True case target
         methodConvert.Push(true);
         endTarget.Instruction = methodConvert.Nop();               // End target

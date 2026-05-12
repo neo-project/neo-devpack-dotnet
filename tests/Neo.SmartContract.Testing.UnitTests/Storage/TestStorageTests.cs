@@ -63,6 +63,33 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         }
 
         [TestMethod]
+        public void SaveAndLoadCheckpoint()
+        {
+            var engine = new TestEngine(true);
+            var checkpoint = engine.Storage.Checkpoint();
+            var path = Path.GetTempFileName();
+
+            try
+            {
+                checkpoint.Save(path);
+
+                Assert.IsTrue(new FileInfo(path).Length > 0);
+
+                var loaded = EngineCheckpoint.Load(path);
+                var storage = new EngineStorage(new MemoryStore());
+                loaded.Restore(storage.Snapshot);
+
+                engine = new TestEngine(storage, false);
+
+                Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [TestMethod]
         public void LoadExportImport()
         {
             EngineStorage store = new(new MemoryStore());

@@ -100,13 +100,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestIsNullOrWhiteSpace()
         {
             Assert.IsTrue(Contract.TestIsNullOrWhiteSpace("   "));
-            AssertGasConsumed(1061910);
+            AssertGasConsumed(1060860);
 
             Assert.IsTrue(Contract.TestIsNullOrWhiteSpace(null));
             AssertGasConsumed(1047300);
 
             Assert.IsFalse(Contract.TestIsNullOrWhiteSpace("hello world"));
-            AssertGasConsumed(1052250);
+            AssertGasConsumed(1051920);
         }
 
         [TestMethod]
@@ -219,89 +219,89 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestTrim()
         {
             Assert.AreEqual("Hello, World!", Contract.TestTrim("  Hello, World!  "));
-            AssertGasConsumed(1136010);
+            AssertGasConsumed(1134570);
 
             Assert.AreEqual("No Trim", Contract.TestTrim("No Trim"));
-            AssertGasConsumed(1118130);
+            AssertGasConsumed(1117650);
 
             Assert.AreEqual("", Contract.TestTrim("   "));
-            AssertGasConsumed(1124040);
+            AssertGasConsumed(1122840);
 
             // Test various whitespace characters
             Assert.AreEqual("Trim Test", Contract.TestTrim("\t\n\r Trim Test \t\n\r"));
-            AssertGasConsumed(1153890);
+            AssertGasConsumed(1151490);
             Assert.AreEqual("Multiple Spaces", Contract.TestTrim("   Multiple Spaces   "));
-            AssertGasConsumed(1144950);
+            AssertGasConsumed(1143030);
 
             Assert.AreEqual("Mix of Whitespace", Contract.TestTrim(" \t \n \r Mix of Whitespace \r \n \t "));
-            AssertGasConsumed(1180710);
+            AssertGasConsumed(1176870);
         }
 
         [TestMethod]
         public void Test_TestTrimStart()
         {
             Assert.AreEqual("Hello", Contract.TestTrimStart("   Hello"));
-            AssertGasConsumed(1127010);
+            AssertGasConsumed(1126050);
 
             Assert.AreEqual("Hello", Contract.TestTrimStart("Hello"));
-            AssertGasConsumed(1113600);
+            AssertGasConsumed(1113360);
 
             Assert.AreEqual("", Contract.TestTrimStart("   "));
-            AssertGasConsumed(1123260);
+            AssertGasConsumed(1122300);
         }
 
         [TestMethod]
         public void Test_TestTrimStartChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("***Hello", '*'));
-            AssertGasConsumed(1121760);
+            AssertGasConsumed(1119840);
 
             Assert.AreEqual("Hello", Contract.TestTrimStartChar("Hello", '*'));
-            AssertGasConsumed(1112400);
+            AssertGasConsumed(1111920);
         }
 
         [TestMethod]
         public void Test_TestTrimEnd()
         {
             Assert.AreEqual("Hello", Contract.TestTrimEnd("Hello   "));
-            AssertGasConsumed(1127940);
+            AssertGasConsumed(1126020);
 
             Assert.AreEqual("Hello", Contract.TestTrimEnd("Hello"));
-            AssertGasConsumed(1114620);
+            AssertGasConsumed(1113420);
 
             Assert.AreEqual("", Contract.TestTrimEnd("   "));
-            AssertGasConsumed(1062720);
+            AssertGasConsumed(1060800);
         }
 
         [TestMethod]
         public void Test_TestTrimEndChar()
         {
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello***", '*'));
-            AssertGasConsumed(1122690);
+            AssertGasConsumed(1119810);
 
             Assert.AreEqual("Hello", Contract.TestTrimEndChar("Hello", '*'));
-            AssertGasConsumed(1113420);
+            AssertGasConsumed(1111980);
         }
 
         [TestMethod]
         public void Test_TestTrimArray()
         {
             Assert.AreEqual("Hello", Contract.TestTrimArray("***Hello***"));
-            AssertGasConsumed(1195470);
+            AssertGasConsumed(1191630);
         }
 
         [TestMethod]
         public void Test_TestTrimStartArray()
         {
             Assert.AreEqual("Hello***", Contract.TestTrimStartArray("***Hello***"));
-            AssertGasConsumed(1183050);
+            AssertGasConsumed(1181130);
         }
 
         [TestMethod]
         public void Test_TestTrimEndArray()
         {
             Assert.AreEqual("***Hello", Contract.TestTrimEndArray("***Hello***"));
-            AssertGasConsumed(1183980);
+            AssertGasConsumed(1181100);
         }
 
         [TestMethod]
@@ -432,42 +432,42 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestToLower()
         {
             Assert.AreEqual("hello world", Contract.TestToLower("Hello World"));
-            AssertGasConsumed(2008350);
+            AssertGasConsumed(2005470);
 
             Assert.AreEqual("123", Contract.TestToLower("123"));
-            AssertGasConsumed(1488390);
+            AssertGasConsumed(1487430);
 
             // Test with already lowercase string
             Assert.AreEqual("lowercase", Contract.TestToLower("lowercase"));
-            AssertGasConsumed(1877550);
+            AssertGasConsumed(1875150);
         }
 
         [TestMethod]
         public void Test_TestToUpper()
         {
             Assert.AreEqual("HELLO WORLD", Contract.TestToUpper("Hello World"));
-            AssertGasConsumed(2011590);
+            AssertGasConsumed(2008710);
 
             Assert.AreEqual("123", Contract.TestToUpper("123"));
-            AssertGasConsumed(1488390);
+            AssertGasConsumed(1487430);
 
             // Test with already uppercase string
             Assert.AreEqual("UPPERCASE", Contract.TestToUpper("UPPERCASE"));
-            AssertGasConsumed(1877550);
+            AssertGasConsumed(1875150);
         }
 
         [TestMethod]
         public void Test_TestTrimChar()
         {
             Assert.AreEqual("Hello World", Contract.TestTrimChar("***Hello World***", '*'));
-            AssertGasConsumed(1134300);
+            AssertGasConsumed(1130460);
 
             Assert.AreEqual("Test", Contract.TestTrimChar("Test", '*'));
-            AssertGasConsumed(1115580);
+            AssertGasConsumed(1114620);
 
             // Test with string containing only trim characters
             Assert.AreEqual("", Contract.TestTrimChar("****", '*'));
-            AssertGasConsumed(1123260);
+            AssertGasConsumed(1120860);
         }
 
         [TestMethod]

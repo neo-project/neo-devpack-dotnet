@@ -1292,20 +1292,11 @@ partial class MethodConvert
     #region Types
 
     /// <summary>
-    /// Checks if the top stack item is null.
-    /// </summary>
-    /// <returns>The ISNULL instruction that was added.</returns>
-    private Instruction Isnull()
-    {
-        return AddInstruction(OpCode.ISNULL);
-    }
-
-    /// <summary>
     /// Checks if the top stack item is of the specified type.
     /// </summary>
     /// <param name="type">The stack item type to check.</param>
     /// <returns>The ISTYPE instruction that was added.</returns>
-    private Instruction Istype(StackItemType type)
+    private Instruction IsType(StackItemType type)
     {
         return AddInstruction(new Instruction
         {
@@ -1319,7 +1310,7 @@ partial class MethodConvert
     /// </summary>
     /// <param name="type">The target stack item type.</param>
     /// <returns>The CONVERT instruction that was added.</returns>
-    private Instruction CONVERT(StackItemType type)
+    private Instruction Convert(StackItemType type)
     {
         return ChangeType(type);
     }

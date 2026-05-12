@@ -11,9 +11,12 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing;
+using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,6 +62,109 @@ namespace Neo.Compiler.CSharp.UnitTests
                     $"Found {strategyMethods[i].method.Name} (priority {currentPriority}) before " +
                     $"{strategyMethods[i + 1].method.Name} (priority {nextPriority})");
             }
+        }
+
+        [TestMethod]
+        public void Test_RegisteredStrategiesDoNotContainDuplicates()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+
+            var duplicates = (orderedStrategies ?? [])
+                .GroupBy(strategy => (strategy.method.Module.ModuleVersionId, strategy.method.MetadataToken))
+                .Where(group => group.Count() > 1)
+                .Select(group => group.First().method.Name)
+                .ToArray();
+
+            Assert.AreEqual(0, duplicates.Length, $"Duplicate optimizer strategies: {string.Join(", ", duplicates)}");
+        }
+
+        [TestMethod]
+        public void Test_RegisterStrategiesDoesNotDuplicateExistingStrategies()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            Assert.IsNotNull(orderedStrategies);
+
+            var count = orderedStrategies!.Count;
+            OptimizerClass.RegisterStrategies(typeof(Neo.Optimizer.Peephole));
+
+            Assert.AreEqual(count, orderedStrategies.Count);
+        }
+
+        [TestMethod]
+        public void Test_RegisterStrategiesSkipsInvalidStrategySignatures()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            Assert.IsNotNull(orderedStrategies);
+
+            var count = orderedStrategies!.Count;
+            OptimizerClass.RegisterStrategies(typeof(InvalidOptimizationStrategies));
+
+            Assert.AreEqual(count, orderedStrategies.Count);
+        }
+
+        [TestMethod]
+        public void Test_RegisterStrategiesUsesExplicitStrategyName()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            var registeredField = optimizerType.GetField("registeredStrategyMethods", BindingFlags.NonPublic | BindingFlags.Static);
+            var registeredStrategyMethods = registeredField!.GetValue(null) as Dictionary<(Guid moduleVersionId, int metadataToken), MethodInfo>;
+            Assert.IsNotNull(orderedStrategies);
+            Assert.IsNotNull(registeredStrategyMethods);
+
+            var originalOrderedStrategies = orderedStrategies!.ToList();
+            var originalStrategies = OptimizerClass.strategies.ToDictionary(p => p.Key, p => p.Value);
+            var originalRegisteredStrategyMethods = registeredStrategyMethods!.ToDictionary(p => p.Key, p => p.Value);
+
+            try
+            {
+                OptimizerClass.RegisterStrategies(typeof(NamedOptimizationStrategy));
+
+                Assert.IsTrue(OptimizerClass.strategies.ContainsKey("named-test-strategy"));
+                Assert.AreEqual(originalOrderedStrategies.Count + 1, orderedStrategies.Count);
+            }
+            finally
+            {
+                orderedStrategies.Clear();
+                orderedStrategies.AddRange(originalOrderedStrategies);
+                OptimizerClass.strategies.Clear();
+                foreach (var strategy in originalStrategies)
+                    OptimizerClass.strategies[strategy.Key] = strategy.Value;
+                registeredStrategyMethods.Clear();
+                foreach (var strategy in originalRegisteredStrategyMethods)
+                    registeredStrategyMethods[strategy.Key] = strategy.Value;
+            }
+        }
+
+        [TestMethod]
+        public void Test_RemoveMethodTokenRemapsRemainingCallTokens()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x01, 0x00,
+                (byte)OpCode.RET
+            ];
+            MethodToken[] tokens =
+            [
+                CreateMethodToken("unused"),
+                CreateMethodToken("used")
+            ];
+            var nef = CreateNefFile(script, tokens);
+
+            var (optimizedNef, _, _) = Neo.Optimizer.Miscellaneous.RemoveMethodToken(nef, CreateEmptyManifest(), null);
+
+            Assert.AreEqual(1, optimizedNef.Tokens.Length);
+            Assert.AreEqual("used", optimizedNef.Tokens[0].Method);
+            var instruction = new Script(optimizedNef.Script.ToArray()).GetInstruction(0);
+            Assert.AreEqual(OpCode.CALLT, instruction.OpCode);
+            Assert.AreEqual(0, instruction.TokenU16);
         }
 
         [TestMethod]
@@ -202,10 +308,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             var optimizerType = typeof(OptimizerClass);
             var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
             var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            var registeredField = optimizerType.GetField("registeredStrategyMethods", BindingFlags.NonPublic | BindingFlags.Static);
+            var registeredStrategyMethods = registeredField!.GetValue(null) as Dictionary<(Guid moduleVersionId, int metadataToken), MethodInfo>;
             Assert.IsNotNull(orderedStrategies);
+            Assert.IsNotNull(registeredStrategyMethods);
             var registeredStrategies = orderedStrategies!;
             var originalOrderedStrategies = registeredStrategies.ToList();
             var originalStrategies = OptimizerClass.strategies.ToDictionary(p => p.Key, p => p.Value);
+            var originalRegisteredStrategyMethods = registeredStrategyMethods!.ToDictionary(p => p.Key, p => p.Value);
 
             try
             {
@@ -225,6 +335,9 @@ namespace Neo.Compiler.CSharp.UnitTests
                 OptimizerClass.strategies.Clear();
                 foreach (var strategy in originalStrategies)
                     OptimizerClass.strategies[strategy.Key] = strategy.Value;
+                registeredStrategyMethods.Clear();
+                foreach (var strategy in originalRegisteredStrategyMethods)
+                    registeredStrategyMethods[strategy.Key] = strategy.Value;
             }
         }
 
@@ -255,6 +368,51 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 registeredStrategies.Clear();
                 registeredStrategies.AddRange(originalOrderedStrategies);
+            }
+        }
+
+        [TestMethod]
+        public void Test_FinalJumpCleanupRunsAfterLateStrategies()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            var registeredField = optimizerType.GetField("registeredStrategyMethods", BindingFlags.NonPublic | BindingFlags.Static);
+            var registeredStrategyMethods = registeredField!.GetValue(null) as Dictionary<(Guid moduleVersionId, int metadataToken), MethodInfo>;
+            Assert.IsNotNull(orderedStrategies);
+            Assert.IsNotNull(registeredStrategyMethods);
+
+            var originalOrderedStrategies = orderedStrategies!.ToList();
+            var originalStrategies = OptimizerClass.strategies.ToDictionary(p => p.Key, p => p.Value);
+            var originalRegisteredStrategyMethods = registeredStrategyMethods!.ToDictionary(p => p.Key, p => p.Value);
+
+            try
+            {
+                OptimizerClass.RegisterStrategies(typeof(LateJumpCleanupStrategy));
+                var nef = CreateNefFile([(byte)OpCode.RET], Array.Empty<MethodToken>());
+
+                var (optimizedNef, _, _) = OptimizerClass.Optimize(
+                    nef,
+                    CreateEmptyManifest(),
+                    null,
+                    CompilationOptions.OptimizationType.Experimental);
+
+                var opcodes = new Script(optimizedNef.Script.ToArray())
+                    .EnumerateInstructions()
+                    .Select(tuple => tuple.instruction.OpCode)
+                    .ToArray();
+                CollectionAssert.AreEqual(new[] { OpCode.RET }, opcodes);
+            }
+            finally
+            {
+                orderedStrategies.Clear();
+                orderedStrategies.AddRange(originalOrderedStrategies);
+                OptimizerClass.strategies.Clear();
+                foreach (var strategy in originalStrategies)
+                    OptimizerClass.strategies[strategy.Key] = strategy.Value;
+                registeredStrategyMethods.Clear();
+                foreach (var strategy in originalRegisteredStrategyMethods)
+                    registeredStrategyMethods[strategy.Key] = strategy.Value;
             }
         }
 
@@ -293,12 +451,104 @@ namespace Neo.Compiler.CSharp.UnitTests
             return strategyMethods;
         }
 
+        private static MethodToken CreateMethodToken(string method)
+        {
+            return new MethodToken
+            {
+                Hash = NativeContract.NEO.Hash,
+                Method = method,
+                ParametersCount = 0,
+                HasReturnValue = false,
+                CallFlags = CallFlags.ReadOnly
+            };
+        }
+
+        private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)
+        {
+            return new NefFile
+            {
+                Compiler = "test",
+                Source = "test.cs",
+                Tokens = tokens,
+                Script = script
+            };
+        }
+
+        private static ContractManifest CreateEmptyManifest()
+        {
+            return new ContractManifest
+            {
+                Name = "TestContract",
+                Groups = Array.Empty<ContractGroup>(),
+                SupportedStandards = Array.Empty<string>(),
+                Abi = new ContractAbi
+                {
+                    Methods = Array.Empty<ContractMethodDescriptor>(),
+                    Events = Array.Empty<ContractEventDescriptor>()
+                },
+                Permissions = Array.Empty<ContractPermission>(),
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
+                Extra = null
+            };
+        }
+
+        public static class InvalidOptimizationStrategies
+        {
+            [Strategy]
+            public static void InvalidReturnType(NefFile nef, ContractManifest manifest, JObject debugInfo)
+            {
+            }
+
+            [Strategy]
+            public static (NefFile, ContractManifest, JObject?) InvalidParameterCount(NefFile nef)
+            {
+                throw new NotSupportedException();
+            }
+
+            [Strategy]
+            public static (NefFile, ContractManifest, JObject?) InvalidFirstParameter(ContractManifest nef, ContractManifest manifest, JObject debugInfo)
+            {
+                throw new NotSupportedException();
+            }
+
+            [Strategy]
+            public static (NefFile, ContractManifest, JObject?) InvalidSecondParameter(NefFile nef, NefFile manifest, JObject debugInfo)
+            {
+                throw new NotSupportedException();
+            }
+
+            [Strategy]
+            public static (NefFile, ContractManifest, JObject?) InvalidThirdParameter(NefFile nef, ContractManifest manifest, ContractManifest debugInfo)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        public static class NamedOptimizationStrategy
+        {
+            [Strategy(Name = "named-test-strategy", Priority = int.MinValue)]
+            public static (NefFile, ContractManifest, JObject?) Named(NefFile nef, ContractManifest manifest, JObject debugInfo)
+            {
+                return (nef, manifest, debugInfo);
+            }
+        }
+
         public static class FailingOptimizationStrategy
         {
             [Strategy(Priority = int.MaxValue)]
             public static (NefFile, ContractManifest, JObject?) Fail(NefFile nef, ContractManifest manifest, JObject debugInfo)
             {
                 throw new FormatException("boom");
+            }
+        }
+
+        public static class LateJumpCleanupStrategy
+        {
+            [Strategy(Name = "late-jump-cleanup-test", Priority = int.MinValue + 1)]
+            public static (NefFile, ContractManifest, JObject?) AddUnnecessaryJump(NefFile nef, ContractManifest manifest, JObject debugInfo)
+            {
+                var updatedNef = CreateNefFile([(byte)OpCode.JMP, 0x02, (byte)OpCode.RET], nef.Tokens);
+                return (updatedNef, manifest, debugInfo);
             }
         }
 

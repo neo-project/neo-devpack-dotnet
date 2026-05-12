@@ -88,7 +88,7 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             Assert.IsTrue(_engine.Native.Treasury.Verify()!.Value);
 
-            _engine.SetTransactionSigners(TestEngine.GetNewSigner());
+            _engine.SetTransactionSigners(TestEngine.Alice);
 
             Assert.IsFalse(_engine.Native.Treasury.Verify()!.Value);
         }

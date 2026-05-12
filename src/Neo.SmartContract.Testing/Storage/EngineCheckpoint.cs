@@ -72,6 +72,17 @@ namespace Neo.SmartContract.Testing.Storage
         }
 
         /// <summary>
+        /// Load checkpoint from file
+        /// </summary>
+        /// <param name="path">File path</param>
+        /// <returns>EngineCheckpoint</returns>
+        public static EngineCheckpoint Load(string path)
+        {
+            using var stream = File.OpenRead(path);
+            return new EngineCheckpoint(stream);
+        }
+
+        /// <summary>
         /// Restore
         /// </summary>
         /// <param name="snapshot">Snapshot</param>
@@ -90,6 +101,16 @@ namespace Neo.SmartContract.Testing.Storage
             {
                 snapshot.Add(new StorageKey(entry.key), new StorageItem(entry.value));
             }
+        }
+
+        /// <summary>
+        /// Save checkpoint to file
+        /// </summary>
+        /// <param name="path">File path</param>
+        public void Save(string path)
+        {
+            using var stream = File.Create(path);
+            Write(stream);
         }
 
         /// <summary>
