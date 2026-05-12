@@ -35,7 +35,7 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
   - `ref` argument targeting span element (`ref_argument_span_element`)
 
 - **C# 8 Syntax Checklist**  
-  - Index and range operators (`index_and_range`)
+  - Range operators on general arrays (`range_on_general_arrays`)
   - Async streams (`async_streams`)
 
 - **C# 9 Syntax Checklist**  
