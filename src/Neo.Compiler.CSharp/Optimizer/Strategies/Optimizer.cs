@@ -27,6 +27,7 @@ namespace Neo.Optimizer
         public static readonly int[] OperandSizeTable = new int[256];
         public static readonly Dictionary<string, Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>> strategies = new();
         private static readonly List<(MethodInfo method, StrategyAttribute attribute)> orderedStrategies = new();
+        private static readonly Dictionary<(Guid moduleVersionId, int metadataToken), MethodInfo> registeredStrategyMethods = new();
 
         static Optimizer()
         {
@@ -61,9 +62,11 @@ namespace Neo.Optimizer
                     continue; // Skip methods with incorrect signature
                 }
 
+                if (!RegisterStrategyMethod(method, attribute))
+                    continue;
+
                 string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
                 strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
-                orderedStrategies.Add((method, attribute));
             }
 
             // Sort strategies by priority (highest priority first)
@@ -95,8 +98,22 @@ namespace Neo.Optimizer
             }
 
             // Order by priority (higher priority first)
-            orderedStrategies.AddRange(strategyMethods.OrderByDescending(s => s.attribute.Priority));
+            foreach (var (method, attribute) in strategyMethods.OrderByDescending(s => s.attribute.Priority))
+                RegisterStrategyMethod(method, attribute);
         }
+
+        private static bool RegisterStrategyMethod(MethodInfo method, StrategyAttribute attribute)
+        {
+            var methodId = GetStrategyMethodId(method);
+            if (!registeredStrategyMethods.TryAdd(methodId, method))
+                return false;
+
+            orderedStrategies.Add((method, attribute));
+            return true;
+        }
+
+        private static (Guid moduleVersionId, int metadataToken) GetStrategyMethodId(MethodInfo method) =>
+            (method.Module.ModuleVersionId, method.MetadataToken);
 
         public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
         {
@@ -125,6 +142,11 @@ namespace Neo.Optimizer
                     throw new InvalidOperationException($"Optimization strategy '{method.Name}' failed: {failure.Message}", failure);
                 }
             }
+            // Late strategies can introduce jump patterns after the high-priority jump cleanup has run.
+            (nef, manifest, debugInfo) = JumpCompresser.RemoveUnnecessaryJumps(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.ReplaceJumpWithRet(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.FoldJump(nef, manifest, debugInfo);
+            (nef, manifest, debugInfo) = JumpCompresser.CompressJump(nef, manifest, debugInfo);
             return (nef, manifest, debugInfo);
         }
     }

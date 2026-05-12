@@ -70,9 +70,11 @@ public class OwnableTests<T> : TestBase<T>
     /// <param name="to">To</param>
     public void AssertOnChangeOwnerEvent(UInt160? from, UInt160? to)
     {
-        Assert.AreEqual(1, raisedOnChangeOwner.Count);
-        Assert.AreEqual(raisedOnChangeOwner[0].from, from);
-        Assert.AreEqual(raisedOnChangeOwner[0].to, to);
+        var expected = new[] { (from, to) };
+        var message = $"Expected owner change events: {FormatDiagnosticSequence(expected, FormatOwnerChangeEvent)}; actual: {FormatDiagnosticSequence(raisedOnChangeOwner, FormatOwnerChangeEvent)}.";
+
+        Assert.AreEqual(expected.Length, raisedOnChangeOwner.Count, message);
+        CollectionAssert.AreEqual(expected, raisedOnChangeOwner.ToArray(), message);
         raisedOnChangeOwner.Clear();
     }
 
@@ -81,7 +83,12 @@ public class OwnableTests<T> : TestBase<T>
     /// </summary>
     public void AssertNoOnChangeOwnerEvent()
     {
-        Assert.AreEqual(0, raisedOnChangeOwner.Count);
+        Assert.AreEqual(0, raisedOnChangeOwner.Count, $"Expected no owner change events, but captured: {FormatDiagnosticSequence(raisedOnChangeOwner, FormatOwnerChangeEvent)}.");
+    }
+
+    private static string FormatOwnerChangeEvent((UInt160? from, UInt160? to) ownerChange)
+    {
+        return $"(from: {FormatDiagnosticValue(ownerChange.from)}, to: {FormatDiagnosticValue(ownerChange.to)})";
     }
 
     #endregion
@@ -95,7 +102,7 @@ public class OwnableTests<T> : TestBase<T>
         {
             Engine.SetTransactionSigners(Alice);
             Assert.IsTrue(verificable.Verify);
-            Engine.SetTransactionSigners(TestEngine.GetNewSigner());
+            Engine.SetTransactionSigners(Bob);
             Assert.IsFalse(verificable.Verify);
         }
     }
@@ -103,9 +110,7 @@ public class OwnableTests<T> : TestBase<T>
     [TestMethod]
     public virtual void TestSenderAsDefaultOwner()
     {
-        var random = TestEngine.GetNewSigner();
-
-        Engine.SetTransactionSigners(random);
+        Engine.SetTransactionSigners(Charlie);
 
         var expectedHash = Engine.GetDeployHash(NefFile, Manifest);
         var check = Engine.FromHash<T>(expectedHash, false);
@@ -115,8 +120,8 @@ public class OwnableTests<T> : TestBase<T>
         Assert.AreEqual(check.Hash, ownable.Hash);
         check.OnSetOwner -= onSetOwner;
 
-        AssertOnChangeOwnerEvent(null, random.Account);
-        Assert.AreEqual(random.Account, ownable.Owner);
+        AssertOnChangeOwnerEvent(null, Charlie.Account);
+        Assert.AreEqual(Charlie.Account, ownable.Owner);
     }
 
     [TestMethod]

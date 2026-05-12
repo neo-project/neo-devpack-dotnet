@@ -12,15 +12,18 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.Extensions;
+using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Testing.Extensions;
 using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Native;
+using Neo.SmartContract.Testing.TestingStandards;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 
 namespace Neo.SmartContract.Testing.UnitTests
@@ -32,6 +35,14 @@ namespace Neo.SmartContract.Testing.UnitTests
         {
             public abstract int myReturnMethod();
             protected MyUndeployedContract(SmartContractInitialize initialize) : base(initialize) { }
+        }
+
+        public abstract class TestingStandardsContract : SmartContract, IContractInfo
+        {
+            public static NefFile Nef => throw new NotSupportedException();
+            public static Neo.SmartContract.Manifest.ContractManifest Manifest => throw new NotSupportedException();
+
+            protected TestingStandardsContract(SmartContractInitialize initialize) : base(initialize) { }
         }
 
         //[TestMethod]
@@ -96,6 +107,100 @@ namespace Neo.SmartContract.Testing.UnitTests
 
             engine.OnGetCallingScriptHash = (current, expected) => UInt160.Parse("0x0000000000000000000000000000000000000001");
             Assert.AreEqual("0x0000000000000000000000000000000000000001", engine.Execute(script).ConvertTo(typeof(UInt160))!.ToString());
+        }
+
+        [TestMethod]
+        public void CreateRuntimeLogWatcherTracksLogs()
+        {
+            TestEngine engine = new(true);
+
+            var watcher = engine.CreateRuntimeLogWatcher();
+
+            var firstSender = ExecuteRuntimeLog(engine, "first");
+            var secondSender = ExecuteRuntimeLog(engine, "second");
+
+            Assert.AreEqual(2, watcher.Count);
+            Assert.AreEqual(2, watcher.Logs.Count);
+            CollectionAssert.AreEqual(new[] { "first", "second" }, watcher.LogMessages.ToArray());
+            Assert.AreEqual(firstSender, watcher.Logs[0].Sender);
+            Assert.AreEqual("first", watcher.Logs[0].Message);
+            Assert.AreEqual(secondSender, watcher.Logs[1].Sender);
+            Assert.AreEqual("second", watcher.Logs[1].Message);
+
+            watcher.Reset();
+
+            Assert.AreEqual(0, watcher.Count);
+            Assert.AreEqual(0, watcher.Logs.Count);
+            Assert.AreEqual(0, watcher.LogMessages.Count);
+
+            watcher.Dispose();
+            ExecuteRuntimeLog(engine, "ignored");
+
+            Assert.AreEqual(0, watcher.Count);
+            Assert.AreEqual(0, watcher.Logs.Count);
+        }
+
+        [TestMethod]
+        public void BuiltInTestSignersUseStableAccounts()
+        {
+            Assert.AreEqual(UInt160.Parse("0x0102030405060708090a0b0c0d0e0f1011121314"), TestEngine.AliceAccount);
+            Assert.AreEqual(UInt160.Parse("0x1112131415161718191a1b1c1d1e1f2021222324"), TestEngine.BobAccount);
+            Assert.AreEqual(UInt160.Parse("0x2122232425262728292a2b2c2d2e2f3031323334"), TestEngine.CharlieAccount);
+
+            Assert.AreEqual(TestEngine.AliceAccount, TestEngine.Alice.Account);
+            Assert.AreEqual(TestEngine.BobAccount, TestEngine.Bob.Account);
+            Assert.AreEqual(TestEngine.CharlieAccount, TestEngine.Charlie.Account);
+            Assert.AreEqual(WitnessScope.CalledByEntry, TestEngine.Alice.Scopes);
+            Assert.AreEqual(WitnessScope.CalledByEntry, TestEngine.Bob.Scopes);
+            Assert.AreEqual(WitnessScope.CalledByEntry, TestEngine.Charlie.Scopes);
+        }
+
+        [TestMethod]
+        public void BuiltInTestSignersReturnFreshSignerInstances()
+        {
+            var alice = TestEngine.Alice;
+            alice.Account = UInt160.Zero;
+            alice.Scopes = WitnessScope.Global;
+
+            Assert.AreEqual(TestEngine.AliceAccount, TestEngine.Alice.Account);
+            Assert.AreEqual(WitnessScope.CalledByEntry, TestEngine.Alice.Scopes);
+        }
+
+        [TestMethod]
+        public void CreateSignerUsesRequestedAccountAndScope()
+        {
+            var signer = TestEngine.CreateSigner(TestEngine.BobAccount, WitnessScope.Global);
+
+            Assert.AreEqual(TestEngine.BobAccount, signer.Account);
+            Assert.AreEqual(WitnessScope.Global, signer.Scopes);
+        }
+
+        [TestMethod]
+        public void GetNewSignerCreatesAdHocAccountWithRequestedScope()
+        {
+            var signer = TestEngine.GetNewSigner(WitnessScope.Global);
+
+            Assert.AreNotEqual(UInt160.Zero, signer.Account);
+            Assert.AreEqual(WitnessScope.Global, signer.Scopes);
+        }
+
+        [TestMethod]
+        public void TestingStandardsUseBuiltInTestSigners()
+        {
+            Assert.AreEqual(TestEngine.AliceAccount, TestBase<TestingStandardsContract>.Alice.Account);
+            Assert.AreEqual(TestEngine.BobAccount, TestBase<TestingStandardsContract>.Bob.Account);
+            Assert.AreEqual(TestEngine.CharlieAccount, TestBase<TestingStandardsContract>.Charlie.Account);
+        }
+
+        private static UInt160 ExecuteRuntimeLog(TestEngine engine, string message)
+        {
+            var builder = new ScriptBuilder();
+            builder.EmitPush(message);
+            builder.EmitSysCall(ApplicationEngine.System_Runtime_Log);
+            var script = builder.ToArray();
+            engine.Execute(script);
+
+            return script.ToScriptHash();
         }
 
         [TestMethod]

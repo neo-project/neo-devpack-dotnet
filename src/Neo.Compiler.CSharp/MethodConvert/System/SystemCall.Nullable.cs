@@ -757,9 +757,9 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         var endTarget = new JumpTarget();
-        methodConvert.JumpIfFalse(endTarget);            // Jump if not null
+        methodConvert.JumpIfFalse(endTarget);                      // Jump if not null
         methodConvert.Drop();                                      // Drop null value
-        methodConvert.Push(0);                                     // Push default value (false)
+        methodConvert.Push(false);                                 // Push default value (false)
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
