@@ -55,11 +55,11 @@ text ??= "neo";
 
 ### using_declaration - Using declarations
 
-Status: supported
+Status: unsupported
 Scope: method
-Notes: Using declarations for contract-compatible IDisposable instances compile and scope the resource to the current block. Roslyn converts using declarations into try/finally disposal code before Neo runs it. This only describes the using-declaration syntax; System.IO stream APIs are not supported in Neo smart contracts.
+Notes: Using declarations and using statements are rejected because Neo compiles C# syntax directly and does not emit deterministic `Dispose` calls for contract execution.
 ```csharp
-using System.IDisposable? scope = null;
+using System.IDisposable scope = null!;
 ```
 
 ### nullable_reference_types - Nullable reference types
