@@ -256,9 +256,60 @@ public class UnsupportedSyntaxAnalyzerUnitTests
         var expected = new[]
         {
             VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.AwaitExpressionRuleId).WithLocation(0),
-            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.AsyncMethodRuleId).WithLocation(1)
+            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.AsyncMethodRuleId).WithLocation(1),
+            VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.UsingStatementRuleId).WithSpan(13, 15, 13, 20)
         };
 
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task UsingStatement_IsFlagged()
+    {
+        var test = """
+                   using System;
+
+                   class Disposable : IDisposable
+                   {
+                       public void Dispose() { }
+                   }
+
+                   class Test
+                   {
+                       public void Run()
+                       {
+                           {|#0:using|} (var disposable = new Disposable())
+                           {
+                           }
+                       }
+                   }
+                   """;
+
+        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.UsingStatementRuleId).WithLocation(0);
+        await VerifyCS.VerifyAnalyzerAsync(test, expected);
+    }
+
+    [TestMethod]
+    public async Task UsingDeclaration_IsFlagged()
+    {
+        var test = """
+                   using System;
+
+                   class Disposable : IDisposable
+                   {
+                       public void Dispose() { }
+                   }
+
+                   class Test
+                   {
+                       public void Run()
+                       {
+                           {|#0:using|} var disposable = new Disposable();
+                       }
+                   }
+                   """;
+
+        var expected = VerifyCS.Diagnostic(UnsupportedSyntaxAnalyzer.UsingStatementRuleId).WithLocation(0);
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
 
