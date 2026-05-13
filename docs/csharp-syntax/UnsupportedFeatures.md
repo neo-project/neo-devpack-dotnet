@@ -36,6 +36,7 @@ The versioned syntax checklists flag every feature the Neo compiler currently re
 
 - **C# 8 Syntax Checklist**  
   - Range operators on general arrays (`range_on_general_arrays`)
+  - Using declarations (`using_declaration`)
   - Async streams (`async_streams`)
 
 - **C# 9 Syntax Checklist**  
