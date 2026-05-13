@@ -60,6 +60,13 @@ namespace Neo.SmartContract.Analyzer
                     Rule,
                     static type => new object?[] { type.SpecialType.ToString(), type.ToString() }),
                 SyntaxKind.Parameter);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzePropertyDeclaration(
+                    context,
+                    SpecialType.System_Decimal,
+                    Rule,
+                    static type => new object?[] { type.SpecialType.ToString(), type.ToString() }),
+                SyntaxKind.PropertyDeclaration);
         }
 
         private static void AnalyzeOperation(OperationAnalysisContext context)

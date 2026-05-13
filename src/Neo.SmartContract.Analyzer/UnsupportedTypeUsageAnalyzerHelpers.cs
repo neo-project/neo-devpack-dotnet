@@ -45,6 +45,18 @@ internal static class UnsupportedTypeUsageAnalyzerHelpers
         ReportIfUnsupportedType(context, parameter.Type.GetLocation(), type, specialType, rule, getMessageArgs);
     }
 
+    internal static void AnalyzePropertyDeclaration(
+        SyntaxNodeAnalysisContext context,
+        SpecialType specialType,
+        DiagnosticDescriptor rule,
+        Func<ITypeSymbol, object?[]> getMessageArgs)
+    {
+        if (context.Node is not PropertyDeclarationSyntax propertyDeclaration) return;
+
+        var type = (context.SemanticModel.GetDeclaredSymbol(propertyDeclaration, context.CancellationToken) as IPropertySymbol)?.Type;
+        ReportIfUnsupportedType(context, propertyDeclaration.Type.GetLocation(), type, specialType, rule, getMessageArgs);
+    }
+
     private static void ReportIfUnsupportedType(
         SyntaxNodeAnalysisContext context,
         Location location,

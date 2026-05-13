@@ -141,5 +141,24 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             await Verifier.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic).ConfigureAwait(false);
         }
 
+        [TestMethod]
+        public async Task FloatUsageAnalyzer_Property_ShouldReportDiagnostic()
+        {
+            const string test = """
+
+                                public class TestClass
+                                {
+                                    public {|#0:float|} Value { get; set; }
+                                }
+
+                                """;
+
+            var propertyDiagnostic = Verifier.Diagnostic(FloatUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("float");
+
+            await Verifier.VerifyAnalyzerAsync(test, propertyDiagnostic).ConfigureAwait(false);
+        }
+
     }
 }
