@@ -543,12 +543,8 @@ internal partial class MethodConvert
                     AccessSlot(OpCode.LDSFLD, index);
                     ConvertExpression(model, right);
                     EmitComplexAssignmentOperator(type, operatorToken);
-                    byte fieldValueSlot = AddAnonymousVariable();
-                    AccessSlot(OpCode.STLOC, fieldValueSlot);
-                    AccessSlot(OpCode.LDLOC, fieldValueSlot);
+                    AddInstruction(OpCode.DUP);
                     AccessSlot(OpCode.STSFLD, index);
-                    AccessSlot(OpCode.LDLOC, fieldValueSlot);
-                    RemoveAnonymousVariable(fieldValueSlot);
                 }
                 else
                 {
