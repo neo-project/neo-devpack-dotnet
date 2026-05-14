@@ -13,7 +13,6 @@ extern alias scfx;
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using scfx::Neo.SmartContract.Framework.Attributes;
@@ -32,48 +31,109 @@ internal partial class MethodConvert
         return (byte)count;
     }
 
-    private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode>? arguments)
+    private bool TryProcessInlineMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        SyntaxNode? syntaxNode = null;
-        if (!symbol.DeclaringSyntaxReferences.IsEmpty)
-            syntaxNode = symbol.DeclaringSyntaxReferences[0].GetSyntax();
-
-        if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
-        if (!symbol.GetAttributesWithInherited().Any(attribute => attribute.ConstructorArguments.Length > 0
-                                                                  && attribute.AttributeClass?.Name == nameof(MethodImplAttribute)
-                                                                  && attribute.ConstructorArguments[0].Value is not null
-                                                                  && (MethodImplOptions)attribute.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+        if (_context.Options.NoInline)
             return false;
 
-        _internalInline = true;
+        IMethodSymbol inlineSymbol = symbol.ReducedFrom ?? symbol;
+        SyntaxNode? syntaxNode = null;
+        if (!inlineSymbol.DeclaringSyntaxReferences.IsEmpty)
+            syntaxNode = inlineSymbol.DeclaringSyntaxReferences[0].GetSyntax();
 
-        using (InsertSequencePoint(syntax))
+        if (syntaxNode is not BaseMethodDeclarationSyntax syntax) return false;
+        if (!inlineSymbol.IsAggressiveInlineMethod())
+            return false;
+
+        if (NeedInstanceConstructor(inlineSymbol) || inlineSymbol.Parameters.Any(parameter => IsByRef(parameter.RefKind)))
+            return false;
+
+        IReadOnlyList<SyntaxNode>? inlineArguments = GetInlineArguments(symbol, inlineSymbol, instanceExpression, arguments);
+        if (inlineArguments is null && inlineSymbol.Parameters.Length > 0)
+            return false;
+
+        Dictionary<IParameterSymbol, byte>? parameterSlots = null;
+        List<byte> anonymousSlots = [];
+        if (inlineArguments is not null && inlineSymbol.Parameters.Length > 0)
         {
-            if (arguments is not null) PrepareArgumentsForMethod(model, symbol, arguments);
-            if (syntax.Body != null)
+            PrepareArgumentsForMethod(model, inlineSymbol, inlineArguments);
+            parameterSlots = new Dictionary<IParameterSymbol, byte>(SymbolEqualityComparer.Default);
+
+            foreach (IParameterSymbol parameter in inlineSymbol.Parameters)
             {
-                ConvertStatement(model, syntax.Body);
-            }
-            else if (syntax.ExpressionBody != null)
-            {
-                ConvertExpression(model, syntax.ExpressionBody.Expression);
+                byte slot = AddAnonymousVariable();
+                AccessSlot(OpCode.STLOC, slot);
+                anonymousSlots.Add(slot);
+                parameterSlots[parameter] = slot;
+
+                IParameterSymbol original = parameter.OriginalDefinition;
+                if (!SymbolEqualityComparer.Default.Equals(parameter, original))
+                    parameterSlots[original] = slot;
             }
         }
 
-        // If the method has no return value,
-        // but the expression body has a return value, example: a+=1;
-        // drop the return value
-        // Problem:
-        //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //   public void Test() => a+=1; // this will push an int value to the stack
-        //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //   public void Test() { a+=1; } // this will not push value to the stack
-        if (syntax is MethodDeclarationSyntax methodSyntax
-            && methodSyntax.ReturnType.ToString() == "void"
-            && IsExpressionReturningValue(model, methodSyntax))
-            AddInstruction(OpCode.DROP);
+        JumpTarget inlineReturnTarget = new();
+        if (parameterSlots is not null)
+            _inlineParameterScopes.Push(parameterSlots);
+        _inlineReturnTargets.Push(inlineReturnTarget);
+
+        try
+        {
+            using (InsertSequencePoint(syntax))
+            {
+                if (syntax.Body != null)
+                {
+                    ConvertStatement(model, syntax.Body);
+                }
+                else if (syntax.ExpressionBody != null)
+                {
+                    ConvertExpression(model, syntax.ExpressionBody.Expression);
+                }
+            }
+
+            // If the method has no return value,
+            // but the expression body has a return value, example: a+=1;
+            // drop the return value
+            // Problem:
+            //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            //   public void Test() => a+=1; // this will push an int value to the stack
+            //   [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            //   public void Test() { a+=1; } // this will not push value to the stack
+            if (syntax is MethodDeclarationSyntax methodSyntax
+                && methodSyntax.ReturnType.ToString() == "void"
+                && IsExpressionReturningValue(model, methodSyntax))
+                AddInstruction(OpCode.DROP);
+        }
+        finally
+        {
+            _inlineReturnTargets.Pop();
+            if (parameterSlots is not null)
+                _inlineParameterScopes.Pop();
+
+            foreach (byte slot in anonymousSlots)
+                RemoveAnonymousVariable(slot);
+        }
+
+        inlineReturnTarget.Instruction = AddInstruction(OpCode.NOP);
 
         return true;
+    }
+
+    private static IReadOnlyList<SyntaxNode>? GetInlineArguments(
+        IMethodSymbol symbol,
+        IMethodSymbol inlineSymbol,
+        ExpressionSyntax? instanceExpression,
+        IReadOnlyList<SyntaxNode>? arguments)
+    {
+        if (SymbolEqualityComparer.Default.Equals(symbol, inlineSymbol))
+            return arguments;
+
+        if (instanceExpression is null || arguments is null)
+            return null;
+
+        List<SyntaxNode> inlineArguments = new(inlineSymbol.Parameters.Length) { instanceExpression };
+        inlineArguments.AddRange(arguments);
+        return inlineArguments;
     }
 
     // Helper methods
