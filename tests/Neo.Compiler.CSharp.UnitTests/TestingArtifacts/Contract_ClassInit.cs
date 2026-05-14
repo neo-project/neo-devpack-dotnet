@@ -18,7 +18,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG0QEBK/QFcHAAsLCxAQCRbAEBASvwwBcxAQCRbAcGh1aBXOdm5tEsBKccpyEHMiG2lrznRsEM4JlzlsEc4QlzlsEs4QlzlrnHNrajDlaBPODAFzlzloFc4Tztg5aBTOEM4QlzloFM4RzhCXOWhAJvlWyQ==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGoQEBK/QFcFAAsLCxAQCRbAEBASvwwBcxAQCRbAcGhoFc5QEsBKccpyEHMiG2lrznRsEM4JlzlsEc4QlzlsEs4QlzlrnHNrajDlaBPODAFzlzloFc4Tztg5aBTOEM4QlzloFM4RzhCXOWhAh4kyCg==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,8 +28,8 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwcACwsLEBAJFsAQEBK/DAFzEBAJFsBwaHVoFc52bm0SwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aEA=
-    /// INITSLOT 0700 [64 datoshi]
+    /// Script: VwUACwsLEBAJFsAQEBK/DAFzEBAJFsBwaGgVzlASwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aEA=
+    /// INITSLOT 0500 [64 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSHNULL [1 datoshi]
@@ -50,13 +50,10 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// PACK [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDLOC0 [2 datoshi]
-    /// STLOC5 [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH5 [1 datoshi]
     /// PICKITEM [64 datoshi]
-    /// STLOC6 [2 datoshi]
-    /// LDLOC6 [2 datoshi]
-    /// LDLOC5 [2 datoshi]
+    /// SWAP [2 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACK [2048 datoshi]
     /// DUP [2 datoshi]

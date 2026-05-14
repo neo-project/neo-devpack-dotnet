@@ -23,7 +23,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Shift()
         {
             var list = Contract.TestShift()?.Cast<BigInteger>().ToArray();
-            AssertGasConsumed(1048950);
+            AssertGasConsumed(1048770);
             CollectionAssert.AreEqual(new BigInteger[] { 16, 4 }, list);
         }
 
@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Shift_BigInteger()
         {
             var list = Contract.TestShiftBigInt()?.Cast<BigInteger>().ToArray();
-            AssertGasConsumed(1049790);
+            AssertGasConsumed(1049370);
             CollectionAssert.AreEqual(new BigInteger[] { 8, 16, 4, 2 }, list);
         }
     }
