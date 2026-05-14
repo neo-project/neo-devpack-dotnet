@@ -532,13 +532,9 @@ internal partial class MethodConvert
                 CallMethodWithConvention(model, property.GetMethod);
                 ConvertExpression(model, right);
                 EmitComplexAssignmentOperator(type, operatorToken);
-                byte propertyValueSlot = AddAnonymousVariable();
-                AccessSlot(OpCode.STLOC, propertyValueSlot);
-                AccessSlot(OpCode.LDLOC, propertyValueSlot);
+                AddInstruction(OpCode.DUP);
                 if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
                 CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
-                AccessSlot(OpCode.LDLOC, propertyValueSlot);
-                RemoveAnonymousVariable(propertyValueSlot);
                 break;
             case IFieldSymbol field:
                 if (field.IsStatic)
