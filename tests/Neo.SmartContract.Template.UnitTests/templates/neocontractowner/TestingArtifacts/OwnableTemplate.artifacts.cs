@@ -13,12 +13,12 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Ownable"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getOwner"",""parameters"":[],""returntype"":""Hash160"",""offset"":0,""safe"":true},{""name"":""setOwner"",""parameters"":[{""name"":""newOwner"",""type"":""Hash160""}],""returntype"":""Void"",""offset"":30,""safe"":false},{""name"":""myMethod"",""parameters"":[],""returntype"":""String"",""offset"":136,""safe"":false},{""name"":""_deploy"",""parameters"":[{""name"":""data"",""type"":""Any""},{""name"":""update"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":154,""safe"":false},{""name"":""update"",""parameters"":[{""name"":""nefFile"",""type"":""ByteArray""},{""name"":""manifest"",""type"":""String""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":275,""safe"":false},{""name"":""destroy"",""parameters"":[],""returntype"":""Void"",""offset"":312,""safe"":false}],""events"":[{""name"":""SetOwner"",""parameters"":[{""name"":""previousOwner"",""type"":""Hash160""},{""name"":""newOwner"",""type"":""Hash160""}]}]},""permissions"":[{""contract"":""0xfffdc93764dbaddd97c48f252a53ea4643faa3fd"",""methods"":[""destroy"",""update""]}],""trusts"":[],""extra"":{""Author"":""\u003CYour Name Or Company Here\u003E"",""Description"":""\u003CDescription Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""Sourcecode"":""https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractowner/Ownable.cs"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Ownable"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getOwner"",""parameters"":[],""returntype"":""Hash160"",""offset"":0,""safe"":true},{""name"":""setOwner"",""parameters"":[{""name"":""newOwner"",""type"":""Hash160""}],""returntype"":""Void"",""offset"":30,""safe"":false},{""name"":""myMethod"",""parameters"":[],""returntype"":""String"",""offset"":136,""safe"":false},{""name"":""_deploy"",""parameters"":[{""name"":""data"",""type"":""Any""},{""name"":""update"",""type"":""Boolean""}],""returntype"":""Void"",""offset"":161,""safe"":false},{""name"":""update"",""parameters"":[{""name"":""nefFile"",""type"":""ByteArray""},{""name"":""manifest"",""type"":""String""},{""name"":""data"",""type"":""Any""}],""returntype"":""Void"",""offset"":288,""safe"":false},{""name"":""destroy"",""parameters"":[],""returntype"":""Void"",""offset"":325,""safe"":false}],""events"":[{""name"":""SetOwner"",""parameters"":[{""name"":""previousOwner"",""type"":""Hash160""},{""name"":""newOwner"",""type"":""Hash160""}]}]},""permissions"":[{""contract"":""0xfffdc93764dbaddd97c48f252a53ea4643faa3fd"",""methods"":[""destroy"",""update""]}],""trusts"":[],""extra"":{""Author"":""\u003CYour Name Or Company Here\u003E"",""Description"":""\u003CDescription Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""Sourcecode"":""https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractowner/Ownable.cs"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL9o/pDRupTKiWPxJfdrdtkN8n9/wZ1cGRhdGUDAAAP/aP6Q0bqUyolj8SX3a3bZDfJ/f8HZGVzdHJveQAAAA8AAP1XAQwB/9swQdWNXuhK2CQJSsoAFCgDOkA06kH4J+yMQFcBATT1JBYMEU5vIEF1dGhvcml6YXRpb24hOnhK2SgkBkUJIgbKABSzJAUJIgR4sSQYDBNvd25lciBtdXN0IGJlIHZhbGlk4DSacHgMAf/bMEE5DOMKeGgSwAwIU2V0T3duZXJBlQFvYUAMBUhlbGxvQfa0a+JBkl3oMUBXAQJ5JgNAeHBo2CYKQS1RCDATzoB4cGhK2SgkBkUJIgbKABSzJAUJIgRosSQWDBFvd25lciBtdXN0IGV4aXN0c+BoDAH/2zBBOQzjCmgLEsAMCFNldE93bmVyQZUBb2EMBVdvcmxkDAVIZWxsb0Gb9mfOQeY/GIRAVwADNQD///8kFgwRTm8gYXV0aG9yaXphdGlvbi46enl4NwAAQDXe/v//JBYMEU5vIGF1dGhvcml6YXRpb24uOjcBAEChAbRh").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAL9o/pDRupTKiWPxJfdrdtkN8n9/wZ1cGRhdGUDAAAP/aP6Q0bqUyolj8SX3a3bZDfJ/f8HZGVzdHJveQAAAA8AAP1kAQwB/9swQdWNXuhK2CQJSsoAFCgDOkA06kH4J+yMQFcBATT1JBYMEU5vIEF1dGhvcml6YXRpb24hOnhK2SgkBkUJIgbKABSzJAUJIgR4sSQYDBNvd25lciBtdXN0IGJlIHZhbGlk4DSacHgMAf/bMEE5DOMKeGgSwAwIU2V0T3duZXJBlQFvYUBXAgBB9rRr4nAMBUhlbGxvcWloQZJd6DFAVwQCeSYDQHhwaNgmCkEtUQgwE86AeHBoStkoJAZFCSIGygAUsyQFCSIEaLEkFgwRb3duZXIgbXVzdCBleGlzdHPgaAwB/9swQTkM4wpoCxLADAhTZXRPd25lckGVAW9hQZv2Z85xDAVIZWxsb3IMBVdvcmxkc2tqaUHmPxiEQFcAAzXz/v//JBYMEU5vIGF1dGhvcml6YXRpb24uOnp5eDcAAEA10f7//yQWDBFObyBhdXRob3JpemF0aW9uLjo3AQBAo6Ezsw==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -44,8 +44,8 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: Nd7+//8kFgwRTm8gYXV0aG9yaXphdGlvbi46NwEAQA==
-    /// CALL_L DEFEFFFF [512 datoshi]
+    /// Script: NdH+//8kFgwRTm8gYXV0aG9yaXphdGlvbi46NwEAQA==
+    /// CALL_L D1FEFFFF [512 datoshi]
     /// JMPIF 16 [2 datoshi]
     /// PUSHDATA1 4E6F20617574686F72697A6174696F6E2E [8 datoshi]
     /// THROW [512 datoshi]
@@ -59,9 +59,14 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAVIZWxsb0H2tGviQZJd6DFA
-    /// PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
+    /// Script: VwIAQfa0a+JwDAVIZWxsb3FpaEGSXegxQA==
+    /// INITSLOT 0200 [64 datoshi]
     /// SYSCALL F6B46BE2 'System.Storage.GetReadOnlyContext' [16 datoshi]
+    /// STLOC0 [2 datoshi]
+    /// PUSHDATA1 48656C6C6F 'Hello' [8 datoshi]
+    /// STLOC1 [2 datoshi]
+    /// LDLOC1 [2 datoshi]
+    /// LDLOC0 [2 datoshi]
     /// SYSCALL 925DE831 'System.Storage.Get' [32768 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
@@ -72,9 +77,9 @@ public abstract class OwnableTemplate(Neo.SmartContract.Testing.SmartContractIni
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwADNQD///8kFgwRTm8gYXV0aG9yaXphdGlvbi46enl4NwAAQA==
+    /// Script: VwADNfP+//8kFgwRTm8gYXV0aG9yaXphdGlvbi46enl4NwAAQA==
     /// INITSLOT 0003 [64 datoshi]
-    /// CALL_L 00FFFFFF [512 datoshi]
+    /// CALL_L F3FEFFFF [512 datoshi]
     /// JMPIF 16 [2 datoshi]
     /// PUSHDATA1 4E6F20617574686F72697A6174696F6E2E [8 datoshi]
     /// THROW [512 datoshi]
