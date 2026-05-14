@@ -103,6 +103,9 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the load operation.</returns>
     private Instruction LdArgSlot(IParameterSymbol parameter)
     {
+        if (TryGetInlineParameterSlot(parameter, out byte inlineSlot))
+            return AccessSlot(OpCode.LDLOC, inlineSlot);
+
         if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
         {
             //using created static fields
@@ -135,6 +138,9 @@ internal partial class MethodConvert
     /// <returns>An instruction representing the store operation.</returns>
     private Instruction StArgSlot(IParameterSymbol parameter)
     {
+        if (TryGetInlineParameterSlot(parameter, out byte inlineSlot))
+            return AccessSlot(OpCode.STLOC, inlineSlot);
+
         if (_context.TryGetCapturedStaticField(parameter, out var staticFieldIndex))
         {
             //using created static fields
@@ -156,6 +162,19 @@ internal partial class MethodConvert
             !_parameters.TryGetValue(parameter.OriginalDefinition, out index))
             throw new KeyNotFoundException(parameter.ToDisplayString());
         return AccessSlot(OpCode.STARG, index);
+    }
+
+    private bool TryGetInlineParameterSlot(IParameterSymbol parameter, out byte index)
+    {
+        foreach (Dictionary<IParameterSymbol, byte> scope in _inlineParameterScopes)
+        {
+            if (scope.TryGetValue(parameter, out index) ||
+                scope.TryGetValue(parameter.OriginalDefinition, out index))
+                return true;
+        }
+
+        index = 0;
+        return false;
     }
 
     /// <summary>

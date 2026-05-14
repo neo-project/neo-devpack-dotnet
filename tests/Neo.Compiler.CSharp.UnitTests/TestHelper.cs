@@ -19,21 +19,24 @@ namespace Neo.Compiler.CSharp.UnitTests;
 
 public static class TestHelper
 {
-    public static CompilationContext CompileSingleContract(string sourceCode)
+    public static CompilationOptions CreateDefaultOptions()
+    {
+        return new CompilationOptions
+        {
+            Optimize = CompilationOptions.OptimizationType.All,
+            Nullable = NullableContextOptions.Enable,
+            SkipRestoreIfAssetsPresent = true
+        };
+    }
+
+    public static CompilationContext CompileSingleContract(string sourceCode, CompilationOptions? options = null)
     {
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
         File.WriteAllText(tempFile, sourceCode);
 
         try
         {
-            var options = new CompilationOptions
-            {
-                Optimize = CompilationOptions.OptimizationType.All,
-                Nullable = NullableContextOptions.Enable,
-                SkipRestoreIfAssetsPresent = true
-            };
-
-            var engine = new CompilationEngine(options);
+            var engine = new CompilationEngine(options ?? CreateDefaultOptions());
             var repoRoot = SyntaxProbeLoader.GetRepositoryRoot();
             var frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
 

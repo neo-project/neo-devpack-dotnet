@@ -37,7 +37,6 @@ namespace Neo.Compiler
         private readonly CompilationContext _context;
         private CallingConvention _callingConvention = CallingConvention.Cdecl;
         private bool _inline;
-        private bool _internalInline;
         // _initSlot is a boolean flag that determines whether an INITSLOT instruction
         // should be added at the beginning of the method's bytecode.
         // It's used to allocate space for local variables and parameters in the Neo VM.
@@ -59,6 +58,8 @@ namespace Neo.Compiler
         private readonly Stack<JumpTarget> _continueTargets = new();
         private readonly Stack<JumpTarget> _breakTargets = new();
         private readonly JumpTarget _returnTarget = new();
+        private readonly Stack<Dictionary<IParameterSymbol, byte>> _inlineParameterScopes = new();
+        private readonly Stack<JumpTarget> _inlineReturnTargets = new();
         private readonly Stack<ExceptionHandling> _tryStack = new();
         private readonly Stack<byte> _exceptionStack = new();
         private readonly Stack<(SwitchLabelSyntax, JumpTarget)[]> _switchStack = new();

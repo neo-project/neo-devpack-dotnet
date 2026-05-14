@@ -169,7 +169,7 @@ internal partial class MethodConvert
         PushOutStaticFieldSyncScope();
         try
         {
-            if (TryProcessSystemMethods(model, symbol, null, null) || TryProcessInlineMethods(model, symbol, null))
+            if (TryProcessSystemMethods(model, symbol, null, null) || TryProcessInlineMethods(model, symbol, null, null))
             {
                 EmitOutStaticFieldSync(symbol.Parameters);
                 return;
@@ -197,7 +197,7 @@ internal partial class MethodConvert
     private bool TryProcessSpecialMethods(SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode> arguments)
     {
         return TryProcessSystemMethods(model, symbol, instanceExpression, arguments) ||
-               TryProcessInlineMethods(model, symbol, arguments);
+               TryProcessInlineMethods(model, symbol, instanceExpression, arguments);
     }
 
     private void PushOutStaticFieldSyncScope()
