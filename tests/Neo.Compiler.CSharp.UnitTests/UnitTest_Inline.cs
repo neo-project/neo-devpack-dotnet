@@ -195,6 +195,5 @@ namespace Neo.Compiler.CSharp.UnitTests
             [DisplayName("main")]
             public abstract BigInteger? Main(BigInteger? value);
         }
-
     }
 }
