@@ -103,6 +103,44 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(unoptimizedOperand[0] > operand[0], "Disabling basic optimization should preserve unreleased anonymous slots.");
         }
 
+        [TestMethod]
+        public void EmitInitSlot_ForStaticFieldInitializerTemps()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using Neo.SmartContract.Framework.Services;
+
+                public class Contract : SmartContract
+                {
+                    private static StorageMap Data = new(Storage.CurrentContext, "data");
+
+                    public static void Put(string message)
+                    {
+                        Data.Put(message, 1);
+                    }
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            var nef = context.CreateExecutable();
+            var manifest = context.CreateManifest();
+            var initialize = manifest.Abi.GetMethod("_initialize", 0);
+
+            Assert.IsNotNull(initialize, "Static field initialization should emit an _initialize method.");
+
+            var script = (Script)nef.Script;
+            var initStaticSlot = script.GetInstruction(initialize.Offset);
+            var initLocalSlot = script.GetInstruction(initialize.Offset + initStaticSlot.Size);
+
+            Assert.AreEqual(OpCode.INITSSLOT, initStaticSlot.OpCode, "_initialize should initialize static slots first.");
+            Assert.AreEqual(OpCode.INITSLOT, initLocalSlot.OpCode, "Static field initializer temporaries should initialize local slots.");
+
+            var operand = initLocalSlot.Operand.Span;
+            Assert.IsTrue(operand.Length >= 2, "INITSLOT must contain local and argument counts.");
+            Assert.AreEqual(2, operand[0], "The StorageMap initializer requires two temporary local slots.");
+            Assert.AreEqual(0, operand[1], "_initialize should not allocate argument slots.");
+        }
+
         private static CompilationContext CompileSource(
             string source,
             CompilationOptions.OptimizationType optimize = CompilationOptions.OptimizationType.Basic)
