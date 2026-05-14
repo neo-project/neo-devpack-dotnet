@@ -13,12 +13,12 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""OracleRequest"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getResponse"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":true},{""name"":""doRequest"",""parameters"":[],""returntype"":""Void"",""offset"":28,""safe"":false},{""name"":""onOracleResponse"",""parameters"":[{""name"":""requestedUrl"",""type"":""String""},{""name"":""userData"",""type"":""Any""},{""name"":""oracleResponse"",""type"":""Integer""},{""name"":""jsonString"",""type"":""String""}],""returntype"":""Void"",""offset"":139,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa"",""jsonDeserialize""]},{""contract"":""0xfe924b7cfe89ddd271abaf7210a80a7e11178758"",""methods"":[""request""]}],""trusts"":[],""extra"":{""Author"":""\u003CYour Name Or Company Here\u003E"",""Description"":""\u003CDescription Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""Sourcecode"":""https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractoracle/OracleRequest.cs"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""OracleRequest"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""getResponse"",""parameters"":[],""returntype"":""String"",""offset"":0,""safe"":true},{""name"":""doRequest"",""parameters"":[],""returntype"":""Void"",""offset"":22,""safe"":false},{""name"":""onOracleResponse"",""parameters"":[{""name"":""requestedUrl"",""type"":""String""},{""name"":""userData"",""type"":""Any""},{""name"":""oracleResponse"",""type"":""Integer""},{""name"":""jsonString"",""type"":""String""}],""returntype"":""Void"",""offset"":133,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""itoa"",""jsonDeserialize""]},{""contract"":""0xfe924b7cfe89ddd271abaf7210a80a7e11178758"",""methods"":[""request""]}],""trusts"":[],""extra"":{""Author"":""\u003CYour Name Or Company Here\u003E"",""Description"":""\u003CDescription Here\u003E"",""Version"":""\u003CVersion String Here\u003E"",""Sourcecode"":""https://github.com/neo-project/neo-devpack-dotnet/tree/master/src/Neo.SmartContract.Template/templates/neocontractoracle/OracleRequest.cs"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANYhxcRfgqoEHKvq3HS3Yn+fEuS/gdyZXF1ZXN0BQAAD8DvOc7g5OklxsKgannhRA3Yb86sBGl0b2EBAAEPwO85zuDk6SXGwqBqeeFEDdhvzqwPanNvbkRlc2VyaWFsaXplAQABDwAA/RYBVwIAQfa0a+JwDAhSZXNwb25zZXFpaEGSXegxQFcBAAw1aHR0cHM6Ly9hcGkuanNvbmJpbi5pby92My9xcy82NTIwYWQzYzEyYTVkMzc2NTk4ODU0MmFwAoCWmAALDBBvbk9yYWNsZVJlc3BvbnNlDBUkLnJlY29yZC5wcm9wZXJ0eU5hbWVoNwAAQFcFBEE5U248DBRYhxcRfgqoEHKvq3HS3Yn+fEuS/pgmFgwRTm8gQXV0aG9yaXphdGlvbiE6ehCYJi4MIk9yYWNsZSByZXNwb25zZSBmYWlsdXJlIHdpdGggY29kZSB6NwEAi9soOns3AgBwaBDOcUGb9mfOcgwIUmVzcG9uc2VzaXRsa2pB5j8YhEAayKHF").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANYhxcRfgqoEHKvq3HS3Yn+fEuS/gdyZXF1ZXN0BQAAD8DvOc7g5OklxsKgannhRA3Yb86sBGl0b2EBAAEPwO85zuDk6SXGwqBqeeFEDdhvzqwPanNvbkRlc2VyaWFsaXplAQABDwAA/QsBQfa0a+IMCFJlc3BvbnNlUEGSXegxQFcBAAw1aHR0cHM6Ly9hcGkuanNvbmJpbi5pby92My9xcy82NTIwYWQzYzEyYTVkMzc2NTk4ODU0MmFwAoCWmAALDBBvbk9yYWNsZVJlc3BvbnNlDBUkLnJlY29yZC5wcm9wZXJ0eU5hbWVoNwAAQFcCBEE5U248DBRYhxcRfgqoEHKvq3HS3Yn+fEuS/pgmFgwRTm8gQXV0aG9yaXphdGlvbiE6ehCYJi4MIk9yYWNsZSByZXNwb25zZSBmYWlsdXJlIHdpdGggY29kZSB6NwEAi9soOns3AgBwaBDOcUGb9mfODAhSZXNwb25zZWlTQeY/GIRAWpO5xA==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -56,8 +56,8 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYWDBFObyBBdXRob3JpemF0aW9uITp6EJgmLgwiT3JhY2xlIHJlc3BvbnNlIGZhaWx1cmUgd2l0aCBjb2RlIHo3AQCL2yg6ezcCAHBoEM5xQZv2Z85yDAhSZXNwb25zZXNpdGxrakHmPxiEQA==
-    /// INITSLOT 0504 [64 datoshi]
+    /// Script: VwIEQTlTbjwMFFiHFxF+CqgQcq+rcdLdif58S5L+mCYWDBFObyBBdXRob3JpemF0aW9uITp6EJgmLgwiT3JhY2xlIHJlc3BvbnNlIGZhaWx1cmUgd2l0aCBjb2RlIHo3AQCL2yg6ezcCAHBoEM5xQZv2Z84MCFJlc3BvbnNlaVNB5j8YhEA=
+    /// INITSLOT 0204 [64 datoshi]
     /// SYSCALL 39536E3C 'System.Runtime.GetCallingScriptHash' [16 datoshi]
     /// PUSHDATA1 588717117E0AA81072AFAB71D2DD89FE7C4B92FE [8 datoshi]
     /// NOTEQUAL [32 datoshi]
@@ -82,14 +82,9 @@ public abstract class OracleRequestTemplate(Neo.SmartContract.Testing.SmartContr
     /// PICKITEM [64 datoshi]
     /// STLOC1 [2 datoshi]
     /// SYSCALL 9BF667CE 'System.Storage.GetContext' [16 datoshi]
-    /// STLOC2 [2 datoshi]
     /// PUSHDATA1 526573706F6E7365 'Response' [8 datoshi]
-    /// STLOC3 [2 datoshi]
     /// LDLOC1 [2 datoshi]
-    /// STLOC4 [2 datoshi]
-    /// LDLOC4 [2 datoshi]
-    /// LDLOC3 [2 datoshi]
-    /// LDLOC2 [2 datoshi]
+    /// REVERSE3 [2 datoshi]
     /// SYSCALL E63F1884 'System.Storage.Put' [32768 datoshi]
     /// RET [0 datoshi]
     /// </remarks>

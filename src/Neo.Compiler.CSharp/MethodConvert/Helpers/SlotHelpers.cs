@@ -342,6 +342,9 @@ internal partial class MethodConvert
 
     private void PrepareArgumentsPreservingEvaluationOrder(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
     {
+        if (TryPrepareArgumentsWithStackReversal(model, symbol, arguments, callingConvention))
+            return;
+
         Dictionary<IParameterSymbol, byte> slots = new(SymbolEqualityComparer.Default);
         List<byte> anonymousSlots = [];
         int positionalIndex = 0;
@@ -370,6 +373,48 @@ internal partial class MethodConvert
 
         foreach (byte slot in anonymousSlots)
             RemoveAnonymousVariable(slot);
+    }
+
+    private bool TryPrepareArgumentsWithStackReversal(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
+    {
+        if (callingConvention != CallingConvention.Cdecl ||
+            !TryMapArgumentsInParameterOrder(symbol, arguments, out ExpressionSyntax?[] orderedExpressions))
+            return false;
+
+        for (int i = 0; i < symbol.Parameters.Length; i++)
+        {
+            if (orderedExpressions[i] is { } expression)
+                ConvertExpression(model, expression);
+            else
+                Push(symbol.Parameters[i].ExplicitDefaultValue);
+        }
+
+        if (symbol.Parameters.Length > 1)
+            ReverseStackItems(symbol.Parameters.Length);
+
+        return true;
+    }
+
+    private static bool TryMapArgumentsInParameterOrder(IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, out ExpressionSyntax?[] orderedExpressions)
+    {
+        orderedExpressions = new ExpressionSyntax?[symbol.Parameters.Length];
+        int positionalIndex = 0;
+        int lastOrdinal = -1;
+
+        foreach (SyntaxNode argument in arguments)
+        {
+            if (!TryGetRegularArgumentExpression(symbol, argument, ref positionalIndex, out IParameterSymbol? parameter, out ExpressionSyntax? expression) ||
+                parameter is null ||
+                expression is null ||
+                parameter.Ordinal < lastOrdinal ||
+                orderedExpressions[parameter.Ordinal] is not null)
+                return false;
+
+            orderedExpressions[parameter.Ordinal] = expression;
+            lastOrdinal = parameter.Ordinal;
+        }
+
+        return true;
     }
 
     private static bool TryGetRegularArgumentExpression(IMethodSymbol symbol, SyntaxNode argument, ref int positionalIndex, out IParameterSymbol? parameter, out ExpressionSyntax? expression)

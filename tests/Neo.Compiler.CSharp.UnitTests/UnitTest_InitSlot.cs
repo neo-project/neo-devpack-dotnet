@@ -108,15 +108,26 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             const string source = """
                 using Neo.SmartContract.Framework;
-                using Neo.SmartContract.Framework.Services;
 
                 public class Contract : SmartContract
                 {
-                    private static StorageMap Data = new(Storage.CurrentContext, "data");
+                    private static int _counter;
+                    private static int Value = Combine(second: Next(), first: Next());
 
-                    public static void Put(string message)
+                    public static int Get()
                     {
-                        Data.Put(message, 1);
+                        return Value;
+                    }
+
+                    private static int Next()
+                    {
+                        _counter++;
+                        return _counter;
+                    }
+
+                    private static int Combine(int first, int second)
+                    {
+                        return first * 10 + second;
                     }
                 }
                 """;
@@ -137,7 +148,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             var operand = initLocalSlot.Operand.Span;
             Assert.IsTrue(operand.Length >= 2, "INITSLOT must contain local and argument counts.");
-            Assert.AreEqual(2, operand[0], "The StorageMap initializer requires two temporary local slots.");
+            Assert.AreEqual(2, operand[0], "The out-of-order named argument initializer requires two temporary local slots.");
             Assert.AreEqual(0, operand[1], "_initialize should not allocate argument slots.");
         }
 
