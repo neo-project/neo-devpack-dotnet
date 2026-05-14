@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Neo.Compiler
 {
@@ -200,6 +201,25 @@ namespace Neo.Compiler
                 if (attribute != null) return attribute;
             } while (i != null);
             return null;
+        }
+
+        public static bool IsAggressiveInlineMethod(this IMethodSymbol symbol)
+        {
+            foreach (AttributeData attribute in symbol.GetAttributesWithInherited())
+            {
+                if (attribute.ConstructorArguments.Length == 0 ||
+                    attribute.AttributeClass?.Name != nameof(MethodImplAttribute) ||
+                    attribute.ConstructorArguments[0].Value is null)
+                    continue;
+
+                MethodImplOptions options = (MethodImplOptions)attribute.ConstructorArguments[0].Value!;
+                if ((options & MethodImplOptions.NoInlining) == MethodImplOptions.NoInlining)
+                    return false;
+                if ((options & MethodImplOptions.AggressiveInlining) == MethodImplOptions.AggressiveInlining)
+                    return true;
+            }
+
+            return false;
         }
 
         public static IEnumerable<AttributeData> GetAttributesWithInherited(this INamedTypeSymbol symbol)

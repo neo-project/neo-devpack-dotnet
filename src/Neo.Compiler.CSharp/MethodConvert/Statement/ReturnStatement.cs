@@ -50,7 +50,9 @@ namespace Neo.Compiler
 
                 // The following case is not considered:
                 // Method -> try (with finally) -> function in method -> return from function in method
-                JumpTarget? returnTarget = _returnTarget;
+                JumpTarget? returnTarget = _inlineReturnTargets.Count > 0
+                    ? _inlineReturnTargets.Peek()
+                    : _returnTarget;
                 List<StatementContext> visitedTry = [];  // from shallow to deep
                 foreach (StatementContext sc in _generalStatementStack)
                 {
