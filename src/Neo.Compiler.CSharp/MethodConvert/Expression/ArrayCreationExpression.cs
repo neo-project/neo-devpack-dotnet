@@ -189,15 +189,16 @@ internal partial class MethodConvert
             return;
         }
 
-        for (int i = initializer.Expressions.Count - 1; i >= 0; i--)
-        {
-            if (initializer.Expressions[i] is not InitializerExpressionSyntax nested)
-                throw new CompilationException(initializer.Expressions[i], DiagnosticId.MultidimensionalArray, "Internal error: initializer shape mismatch detected.");
-            EmitMultiDimensionalInitializer(model, elementType, nested, dimension + 1, totalRank);
-        }
-
-        Push(initializer.Expressions.Count);
-        AddInstruction(OpCode.PACK);
+        EmitPackedItemsLeftToRight(
+            initializer.Expressions.ToArray(),
+            expression =>
+            {
+                if (expression is not InitializerExpressionSyntax nested)
+                    throw new CompilationException(expression, DiagnosticId.MultidimensionalArray, "Internal error: initializer shape mismatch detected.");
+                EmitMultiDimensionalInitializer(model, elementType, nested, dimension + 1, totalRank);
+            },
+            OpCode.PACK,
+            expression => CanDeferExpressionEmission(model, expression));
     }
 
     private void EmitCreateMultiDimensionalArray(ITypeSymbol elementType, byte[] lengthSlots, int dimension)

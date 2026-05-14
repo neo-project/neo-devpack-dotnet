@@ -243,6 +243,60 @@ internal partial class MethodConvert
             : AddInstruction(opcode - 7 + index);
     }
 
+    private void EmitPackedItemsLeftToRight<T>(IReadOnlyList<T> items, Action<T> emitItem, OpCode packOpCode, Func<T, bool>? canDeferEmission = null)
+    {
+        byte?[] slots = new byte?[items.Count];
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (canDeferEmission?.Invoke(items[i]) == true)
+                continue;
+
+            emitItem(items[i]);
+            byte slot = AddAnonymousVariable();
+            slots[i] = slot;
+            AccessSlot(OpCode.STLOC, slot);
+        }
+
+        for (int i = slots.Length - 1; i >= 0; i--)
+        {
+            if (slots[i] is byte slot)
+                AccessSlot(OpCode.LDLOC, slot);
+            else
+                emitItem(items[i]);
+        }
+
+        Push(items.Count);
+        AddInstruction(packOpCode);
+
+        for (int i = slots.Length - 1; i >= 0; i--)
+        {
+            if (slots[i] is byte slot)
+                RemoveAnonymousVariable(slot);
+        }
+    }
+
+    private static bool CanDeferExpressionEmission(SemanticModel model, ExpressionSyntax expression)
+    {
+        return expression switch
+        {
+            InitializerExpressionSyntax initializer =>
+                initializer.Expressions.All(child => CanDeferExpressionEmission(model, child)),
+            ArrayCreationExpressionSyntax { Initializer: { } initializer } =>
+                CanDeferExpressionEmission(model, initializer),
+            ImplicitArrayCreationExpressionSyntax { Initializer: { } initializer } =>
+                CanDeferExpressionEmission(model, initializer),
+            CollectionExpressionSyntax collection =>
+                collection.Elements.All(element => element is ExpressionElementSyntax expressionElement &&
+                    CanDeferExpressionEmission(model, expressionElement.Expression)),
+            TupleExpressionSyntax tuple =>
+                tuple.Arguments.All(argument => CanDeferExpressionEmission(model, argument.Expression)),
+            AnonymousObjectCreationExpressionSyntax anonymousObject =>
+                anonymousObject.Initializers.All(initializer => CanDeferExpressionEmission(model, initializer.Expression)),
+            _ => model.GetConstantValue(expression).HasValue,
+        };
+    }
+
     /// <summary>
     /// Prepares arguments for a method call, handling various parameter types and calling conventions.
     /// </summary>

@@ -37,9 +37,10 @@ internal partial class MethodConvert
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/anonymous-types">Anonymous types</seealso>
     private void ConvertAnonymousObjectCreationExpression(SemanticModel model, AnonymousObjectCreationExpressionSyntax expression)
     {
-        foreach (AnonymousObjectMemberDeclaratorSyntax initializer in expression.Initializers.Reverse())  // PACK works in a reversed way
-            ConvertExpression(model, initializer.Expression);
-        Push(expression.Initializers.Count);
-        AddInstruction(OpCode.PACK);
+        EmitPackedItemsLeftToRight(
+            expression.Initializers.ToArray(),
+            initializer => ConvertExpression(model, initializer.Expression),
+            OpCode.PACK,
+            initializer => CanDeferExpressionEmission(model, initializer.Expression));
     }
 }

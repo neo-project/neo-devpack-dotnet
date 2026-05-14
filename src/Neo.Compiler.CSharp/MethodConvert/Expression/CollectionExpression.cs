@@ -144,11 +144,11 @@ internal partial class MethodConvert
     /// <param name="expression">The collection expression syntax to convert.</param>
     private void ConvertGenericCollectionExpression(SemanticModel model, CollectionExpressionSyntax expression)
     {
-        for (var i = expression.Elements.Count - 1; i >= 0; i--)
-        {
-            ConvertElement(model, expression.Elements[i]);
-        }
-        Push(expression.Elements.Count);
-        AddInstruction(OpCode.PACK);
+        EmitPackedItemsLeftToRight(
+            expression.Elements.ToArray(),
+            element => ConvertElement(model, element),
+            OpCode.PACK,
+            element => element is ExpressionElementSyntax expressionElement &&
+                CanDeferExpressionEmission(model, expressionElement.Expression));
     }
 }
