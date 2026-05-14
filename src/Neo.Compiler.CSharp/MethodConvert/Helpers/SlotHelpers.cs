@@ -245,35 +245,22 @@ internal partial class MethodConvert
 
     private void EmitPackedItemsLeftToRight<T>(IReadOnlyList<T> items, Action<T> emitItem, OpCode packOpCode, Func<T, bool>? canDeferEmission = null)
     {
-        byte?[] slots = new byte?[items.Count];
-
-        for (int i = 0; i < items.Count; i++)
+        if (canDeferEmission is not null && items.All(canDeferEmission))
         {
-            if (canDeferEmission?.Invoke(items[i]) == true)
-                continue;
-
-            emitItem(items[i]);
-            byte slot = AddAnonymousVariable();
-            slots[i] = slot;
-            AccessSlot(OpCode.STLOC, slot);
-        }
-
-        for (int i = slots.Length - 1; i >= 0; i--)
-        {
-            if (slots[i] is byte slot)
-                AccessSlot(OpCode.LDLOC, slot);
-            else
+            for (int i = items.Count - 1; i >= 0; i--)
                 emitItem(items[i]);
+        }
+        else
+        {
+            for (int i = 0; i < items.Count; i++)
+                emitItem(items[i]);
+
+            if (items.Count > 1)
+                ReverseStackItems(items.Count);
         }
 
         Push(items.Count);
         AddInstruction(packOpCode);
-
-        for (int i = slots.Length - 1; i >= 0; i--)
-        {
-            if (slots[i] is byte slot)
-                RemoveAnonymousVariable(slot);
-        }
     }
 
     private static bool CanDeferExpressionEmission(SemanticModel model, ExpressionSyntax expression)

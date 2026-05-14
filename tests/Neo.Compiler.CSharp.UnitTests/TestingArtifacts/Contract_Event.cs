@@ -13,12 +13,12 @@ public abstract class Contract_Event(Neo.SmartContract.Testing.SmartContractInit
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Event"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":42,""safe"":false}],""events"":[{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.9.1"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Event"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""test"",""parameters"":[],""returntype"":""Void"",""offset"":0,""safe"":false},{""name"":""_initialize"",""parameters"":[],""returntype"":""Void"",""offset"":38,""safe"":false}],""events"":[{""name"":""transfer"",""parameters"":[{""name"":""arg1"",""type"":""ByteArray""},{""name"":""arg2"",""type"":""ByteArray""},{""name"":""arg3"",""type"":""Integer""}]}]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.9.1"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADFXAQAXYAhhWHBoDAMEBQbbMAwDAQID2zATwAwIdHJhbnNmZXJBlQFvYUBWAhBgCWFAsDqb8Q==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC0XYAhhDAMBAgPbMAwDBAUG2zBYUxPADAh0cmFuc2ZlckGVAW9hQFYCEGAJYUDi7AD4").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -37,19 +37,17 @@ public abstract class Contract_Event(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwEAF2AIYVhwaAwDBAUG2zAMAwECA9swE8AMCHRyYW5zZmVyQZUBb2FA
-    /// INITSLOT 0100 [64 datoshi]
+    /// Script: F2AIYQwDAQID2zAMAwQFBtswWFMTwAwIdHJhbnNmZXJBlQFvYUA=
     /// PUSH7 [1 datoshi]
     /// STSFLD0 [2 datoshi]
     /// PUSHT [1 datoshi]
     /// STSFLD1 [2 datoshi]
-    /// LDSFLD0 [2 datoshi]
-    /// STLOC0 [2 datoshi]
-    /// LDLOC0 [2 datoshi]
-    /// PUSHDATA1 040506 [8 datoshi]
-    /// CONVERT 30 'Buffer' [8192 datoshi]
     /// PUSHDATA1 010203 [8 datoshi]
     /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// PUSHDATA1 040506 [8 datoshi]
+    /// CONVERT 30 'Buffer' [8192 datoshi]
+    /// LDSFLD0 [2 datoshi]
+    /// REVERSE3 [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// PACK [2048 datoshi]
     /// PUSHDATA1 7472616E73666572 'transfer' [8 datoshi]

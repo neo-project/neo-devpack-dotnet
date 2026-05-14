@@ -46,7 +46,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedArray()
         {
             var arr = Contract.TestJaggedArray();
-            AssertGasConsumed(2095410);
+            AssertGasConsumed(2094990);
 
             Assert.AreEqual(4, arr?.Count);
             var element0 = (Array?)arr?[0];
@@ -57,7 +57,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_JaggedByteArray()
         {
             var arr = Contract.TestJaggedByteArray();
-            AssertGasConsumed(2833050);
+            AssertGasConsumed(2832630);
 
             Assert.AreEqual(4, arr?.Count);
             var element0 = (byte[]?)arr?[0];
@@ -132,7 +132,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArrayInit()
         {
             var result = Contract.TestStructArrayInit();
-            AssertGasConsumed(1912080);
+            AssertGasConsumed(1911960);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -207,7 +207,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Collectionexpressions()
         {
             var arr = Contract.TestCollectionexpressions();
-            AssertGasConsumed(2465970);
+            AssertGasConsumed(2465250);
 
             Assert.AreEqual(4, arr?.Count);
 
@@ -236,7 +236,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ElementBinding()
         {
             Contract.TestElementBinding();
-            AssertGasConsumed(5907960);
+            AssertGasConsumed(5907840);
         }
 
         [TestMethod]
