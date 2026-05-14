@@ -31,6 +31,17 @@ namespace Neo.Compiler.CSharp.TestContracts
             };
         }
 
+        public static int InlineThenUseCallerParameter(int value)
+        {
+            int inlined = inline_with_one_parameters(value);
+            return value + inlined;
+        }
+
+        public static int InlineDuplicateParameter(int value)
+        {
+            return inline_duplicate_parameter(value);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int inline()
         {
@@ -47,6 +58,12 @@ namespace Neo.Compiler.CSharp.TestContracts
         private static int inline_with_multi_parameters(int a, int b)
         {
             return a + b;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int inline_duplicate_parameter(int a)
+        {
+            return a + a;
         }
 
         private static int not_inline()

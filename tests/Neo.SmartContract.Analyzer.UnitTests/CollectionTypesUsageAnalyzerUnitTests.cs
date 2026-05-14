@@ -148,5 +148,30 @@ namespace Neo.SmartContract.Analyzer.Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task UnsupportedCollectionSignatureTypes_ShouldReportDiagnostics()
+        {
+            var test = TestNamespace + """
+
+                                       class TestClass
+                                       {
+                                           public {|#0:Dictionary<int, string>|} GetItems({|#1:Stack<int>|} values) => null;
+                                           public {|#2:System.Collections.Generic.List<int>|} Items { get; set; }
+                                       }
+                                       """;
+
+            var returnDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System.Collections.Generic.Dictionary<TKey, TValue>", "Map<TKey, TValue>");
+            var parameterDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(1)
+                .WithArguments("System.Collections.Generic.Stack<T>", "List<T>");
+            var propertyDiagnostic = VerifyCS.Diagnostic(CollectionTypesUsageAnalyzer.DiagnosticId)
+                .WithLocation(2)
+                .WithArguments("System.Collections.Generic.List<T>", "List<T>");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic, propertyDiagnostic);
+        }
     }
 }
