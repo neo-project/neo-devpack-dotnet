@@ -39,6 +39,8 @@ public sealed class TaskLikeTypeUsageAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
         context.RegisterSyntaxNodeAction(AnalyzeParameter, SyntaxKind.Parameter);
+        context.RegisterSyntaxNodeAction(AnalyzePropertyDeclaration, SyntaxKind.PropertyDeclaration);
+        context.RegisterSyntaxNodeAction(AnalyzeVariableDeclaration, SyntaxKind.VariableDeclaration);
     }
 
     private static void AnalyzeMethodDeclaration(SyntaxNodeAnalysisContext context)
@@ -62,6 +64,28 @@ public sealed class TaskLikeTypeUsageAnalyzer : DiagnosticAnalyzer
 
         var type = context.SemanticModel.GetDeclaredSymbol(parameter, context.CancellationToken)?.Type;
         ReportIfTaskLike(context, parameter.Type.GetLocation(), type);
+    }
+
+    private static void AnalyzePropertyDeclaration(SyntaxNodeAnalysisContext context)
+    {
+        if (context.Node is not PropertyDeclarationSyntax propertyDeclaration)
+        {
+            return;
+        }
+
+        var type = context.SemanticModel.GetTypeInfo(propertyDeclaration.Type, context.CancellationToken).Type;
+        ReportIfTaskLike(context, propertyDeclaration.Type.GetLocation(), type);
+    }
+
+    private static void AnalyzeVariableDeclaration(SyntaxNodeAnalysisContext context)
+    {
+        if (context.Node is not VariableDeclarationSyntax variableDeclaration)
+        {
+            return;
+        }
+
+        var type = context.SemanticModel.GetTypeInfo(variableDeclaration.Type, context.CancellationToken).Type;
+        ReportIfTaskLike(context, variableDeclaration.Type.GetLocation(), type);
     }
 
     private static void ReportIfTaskLike(SyntaxNodeAnalysisContext context, Location location, ITypeSymbol? type)

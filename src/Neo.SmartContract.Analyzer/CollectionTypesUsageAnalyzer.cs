@@ -23,7 +23,6 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Editing;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -72,7 +71,7 @@ namespace Neo.SmartContract.Analyzer
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
             "Unsupported collection type is used",
-            "Do not use collection type: {0}. Use List<T> or Map<TKey, TValue> instead.",
+            "Do not use collection type: {0}. Use {1} instead.",
             "Type",
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
@@ -84,21 +83,70 @@ namespace Neo.SmartContract.Analyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterOperationAction(AnalyzeOperation, OperationKind.VariableDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeParameter, SyntaxKind.Parameter);
+            context.RegisterSyntaxNodeAction(AnalyzePropertyDeclaration, SyntaxKind.PropertyDeclaration);
         }
 
         private void AnalyzeOperation(OperationAnalysisContext context)
         {
             if (context.Operation is not IVariableDeclarationOperation variableDeclaration) return;
 
-            var variableType = variableDeclaration.GetDeclaredVariables()[0].Type;
-            var originalType = variableType.OriginalDefinition.ToString() ?? throw new ArgumentNullException("originalType is null");
+            var variableType = variableDeclaration.GetDeclaredVariables().FirstOrDefault()?.Type;
+            ReportIfUnsupportedCollectionType(context, variableDeclaration.Syntax.GetLocation(), variableType);
+        }
 
-            if (_unsupportedCollectionTypes.Contains(originalType))
-            {
-                var suggestedType = originalType.Contains("Dictionary") ? "Map<TKey, TValue>" : "List<T>";
-                var diagnostic = Diagnostic.Create(Rule, variableDeclaration.Syntax.GetLocation(), originalType, suggestedType);
-                context.ReportDiagnostic(diagnostic);
-            }
+        private void AnalyzeMethodDeclaration(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not MethodDeclarationSyntax methodDeclaration) return;
+
+            var type = context.SemanticModel.GetTypeInfo(methodDeclaration.ReturnType, context.CancellationToken).Type;
+            ReportIfUnsupportedCollectionType(context, methodDeclaration.ReturnType.GetLocation(), type);
+        }
+
+        private void AnalyzeParameter(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not ParameterSyntax parameter || parameter.Type is null) return;
+
+            var type = (context.SemanticModel.GetDeclaredSymbol(parameter, context.CancellationToken) as IParameterSymbol)?.Type;
+            ReportIfUnsupportedCollectionType(context, parameter.Type.GetLocation(), type);
+        }
+
+        private void AnalyzePropertyDeclaration(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is not PropertyDeclarationSyntax propertyDeclaration) return;
+
+            var type = (context.SemanticModel.GetDeclaredSymbol(propertyDeclaration, context.CancellationToken) as IPropertySymbol)?.Type;
+            ReportIfUnsupportedCollectionType(context, propertyDeclaration.Type.GetLocation(), type);
+        }
+
+        private void ReportIfUnsupportedCollectionType(OperationAnalysisContext context, Location location, ITypeSymbol? type)
+        {
+            if (GetUnsupportedCollectionType(type) is not { } originalType) return;
+
+            var diagnostic = Diagnostic.Create(Rule, location, originalType, GetSuggestedType(originalType));
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private void ReportIfUnsupportedCollectionType(SyntaxNodeAnalysisContext context, Location location, ITypeSymbol? type)
+        {
+            if (GetUnsupportedCollectionType(type) is not { } originalType) return;
+
+            var diagnostic = Diagnostic.Create(Rule, location, originalType, GetSuggestedType(originalType));
+            context.ReportDiagnostic(diagnostic);
+        }
+
+        private string? GetUnsupportedCollectionType(ITypeSymbol? type)
+        {
+            if (type is not INamedTypeSymbol namedType) return null;
+
+            var originalType = namedType.OriginalDefinition.ToString() ?? throw new ArgumentNullException("originalType is null");
+            return _unsupportedCollectionTypes.Contains(originalType) ? originalType : null;
+        }
+
+        private static string GetSuggestedType(string originalType)
+        {
+            return originalType.Contains("Dictionary") ? "Map<TKey, TValue>" : "List<T>";
         }
     }
 
@@ -109,83 +157,87 @@ namespace Neo.SmartContract.Analyzer
 
         public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
-        public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
+        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            // var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
-            // var diagnosticSpan = diagnostic.Location.SourceSpan;
-            // var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeSyntax>().First();
+            var diagnosticSpan = diagnostic.Location.SourceSpan;
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf()
+                .OfType<VariableDeclarationSyntax>()
+                .FirstOrDefault();
+
+            if (declaration is null)
+            {
+                return;
+            }
 
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: "Use recommended collection type",
-                    createChangedDocument: c => UseRecommendedCollectionTypeAsync(context.Document, c),
+                    createChangedDocument: c => UseRecommendedCollectionTypeAsync(context.Document, declaration, c),
                     equivalenceKey: "Use recommended collection type"),
                 diagnostic);
-            return Task.CompletedTask;
         }
 
-        private async Task<Document> UseRecommendedCollectionTypeAsync(Document document, CancellationToken cancellationToken)
+        private async Task<Document> UseRecommendedCollectionTypeAsync(Document document, VariableDeclarationSyntax declaration, CancellationToken cancellationToken)
         {
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var root = await document.GetSyntaxRootAsync(cancellationToken);
-            var editor = await DocumentEditor.CreateAsync(document, cancellationToken);
 
-            // Traverse all variable declarations
-            var variableDeclarations = root!.DescendantNodes().OfType<VariableDeclarationSyntax>();
-
-            foreach (var declaration in variableDeclarations)
+            var typeSymbol = semanticModel.GetTypeInfo(declaration.Type, cancellationToken).ConvertedType as INamedTypeSymbol;
+            if (typeSymbol == null || (!ShouldReplaceWithList(typeSymbol) && !ShouldReplaceWithMap(typeSymbol)))
             {
-                var typeSymbol = semanticModel.GetTypeInfo(declaration.Type, cancellationToken).ConvertedType as INamedTypeSymbol;
-
-                // Check if it's a type we want to replace
-                if (typeSymbol != null && (ShouldReplaceWithList(typeSymbol) || ShouldReplaceWithMap(typeSymbol)))
-                {
-                    TypeSyntax? newTypeSyntax = null;
-                    if (ShouldReplaceWithList(typeSymbol))
-                    {
-                        // Generate new List<T> type
-                        var genericTypeArg = typeSymbol.TypeArguments[0];
-                        newTypeSyntax = SyntaxFactory.GenericName(
-                            SyntaxFactory.Identifier("List"),
-                            SyntaxFactory.TypeArgumentList(SyntaxFactory.SingletonSeparatedList<TypeSyntax>(SyntaxFactory.ParseTypeName(genericTypeArg.ToString()!))));
-                    }
-                    else if (ShouldReplaceWithMap(typeSymbol))
-                    {
-                        // Generate new Map<TKey, TValue> type
-                        var keyType = typeSymbol.TypeArguments[0];
-                        var valueType = typeSymbol.TypeArguments[1];
-                        newTypeSyntax = SyntaxFactory.GenericName(
-                            SyntaxFactory.Identifier("Map"),
-                            SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] {
-                        SyntaxFactory.ParseTypeName(keyType.ToString()!),
-                        SyntaxFactory.ParseTypeName(valueType.ToString()!)
-                            })));
-                    }
-
-                    if (newTypeSyntax != null)
-                    {
-                        // Replace the type in the variable declaration
-                        editor.ReplaceNode(declaration.Type, newTypeSyntax.WithTriviaFrom(declaration.Type));
-
-                        // Update the initializer for each variable
-                        foreach (var variable in declaration.Variables)
-                        {
-                            if (variable.Initializer != null)
-                            {
-                                var newInitializer = SyntaxFactory.EqualsValueClause(
-                                    SyntaxFactory.ObjectCreationExpression(newTypeSyntax)
-                                        .WithArgumentList(SyntaxFactory.ArgumentList())
-                                        .WithInitializer(variable.Initializer.Value is ObjectCreationExpressionSyntax oce ? oce.Initializer : null));
-
-                                editor.ReplaceNode(variable.Initializer, newInitializer);
-                            }
-                        }
-                    }
-                }
+                return document;
             }
 
-            return editor.GetChangedDocument();
+            var newTypeSyntax = CreateReplacementType(typeSymbol);
+            if (newTypeSyntax is null)
+            {
+                return document;
+            }
+
+            var newDeclaration = declaration.WithType(newTypeSyntax.WithTriviaFrom(declaration.Type));
+
+            foreach (var variable in declaration.Variables)
+            {
+                if (variable.Initializer is null) continue;
+
+                var newInitializer = SyntaxFactory.EqualsValueClause(
+                    SyntaxFactory.ObjectCreationExpression(newTypeSyntax)
+                        .WithArgumentList(SyntaxFactory.ArgumentList())
+                        .WithInitializer(variable.Initializer.Value is ObjectCreationExpressionSyntax oce ? oce.Initializer : null));
+
+                var oldVariable = newDeclaration.Variables[declaration.Variables.IndexOf(variable)];
+                newDeclaration = newDeclaration.ReplaceNode(oldVariable, variable.WithInitializer(newInitializer));
+            }
+
+            var newRoot = root!.ReplaceNode(declaration, newDeclaration);
+            return document.WithSyntaxRoot(newRoot);
+        }
+
+        private TypeSyntax? CreateReplacementType(INamedTypeSymbol typeSymbol)
+        {
+            if (ShouldReplaceWithList(typeSymbol))
+            {
+                var genericTypeArg = typeSymbol.TypeArguments[0];
+                return SyntaxFactory.GenericName(
+                    SyntaxFactory.Identifier("List"),
+                    SyntaxFactory.TypeArgumentList(SyntaxFactory.SingletonSeparatedList<TypeSyntax>(SyntaxFactory.ParseTypeName(genericTypeArg.ToString()!))));
+            }
+
+            if (ShouldReplaceWithMap(typeSymbol))
+            {
+                var keyType = typeSymbol.TypeArguments[0];
+                var valueType = typeSymbol.TypeArguments[1];
+                return SyntaxFactory.GenericName(
+                    SyntaxFactory.Identifier("Map"),
+                    SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] {
+                        SyntaxFactory.ParseTypeName(keyType.ToString()!),
+                        SyntaxFactory.ParseTypeName(valueType.ToString()!)
+                    })));
+            }
+
+            return null;
         }
 
         private bool ShouldReplaceWithList(ISymbol symbol)

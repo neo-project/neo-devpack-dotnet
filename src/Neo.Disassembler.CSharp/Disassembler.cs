@@ -29,15 +29,14 @@ public static class Disassembler
 
     public static List<Instruction> ConvertScriptToInstructions(byte[] script)
     {
-        var res = EnumerateInstructions(script);
-
-        return res.Select(x => x.instruction).ToList();
+        return EnumerateInstructions(script)
+            .Select(x => x.instruction)
+            .ToList();
     }
 
     public static List<(int offset, int address, Instruction instruction)> ConvertMethodToInstructions(NefFile nef, int start, int end)
     {
-        var instructions = EnumerateInstructions(nef.Script).ToList();
-        return instructions
+        return EnumerateInstructions(nef.Script)
             .Where(ai => ai.address >= start && ai.address <= end)
             .Select(ai => (ai.address, ai.address - start, ai.instruction))
             .ToList();
@@ -50,7 +49,6 @@ public static class Disassembler
             if (method == null) continue;
 
             // Note: Require Debug extended type, we can't relate the abi to the NEP19 and without it, name is compiler dependant
-
             if (method["abi"] is JObject abi)
             {
                 var parsedMethod = ContractMethodDescriptor.FromJson(abi);
@@ -81,7 +79,9 @@ public static class Disassembler
             yield return (address, instruction);
         }
         if (opcode != OpCode.RET)
+        {
             yield return (address, Instruction.RET);
+        }
     }
 
     private static bool IsAsciiAlphanumericSymbol(string text)
@@ -93,10 +93,8 @@ public static class Disassembler
     {
         var opcode = instruction.OpCode.ToString();
         var operand = instruction.Operand;
-
-        var addprice = 0L;
+        var price = 0L;
         string ret;
-
         if (operand.IsEmpty || operand.Length == 0)
         {
             ret = $"{opcode}";
@@ -125,7 +123,6 @@ public static class Disassembler
                             }
                         }
                         catch { }
-
                         break;
                     }
                 case OpCode.ISTYPE:
@@ -138,7 +135,7 @@ public static class Disassembler
                 case OpCode.SYSCALL:
                     {
                         var descriptor = ApplicationEngine.GetInteropDescriptor(instruction.TokenU32);
-                        addprice += descriptor.FixedPrice;
+                        price += descriptor.FixedPrice;
                         ret = $"{opcode} {operandString} '{descriptor.Name}'";
                         break;
                     }
@@ -152,7 +149,7 @@ public static class Disassembler
 
         if (!addPrice) return ret;
 
-        var fixedPrice = ApplicationEngine.OpCodePriceTable[(byte)instruction.OpCode] + addprice;
+        var fixedPrice = ApplicationEngine.OpCodePriceTable[(byte)instruction.OpCode] + price;
         return $"{ret} [{fixedPrice} datoshi]";
     }
 }

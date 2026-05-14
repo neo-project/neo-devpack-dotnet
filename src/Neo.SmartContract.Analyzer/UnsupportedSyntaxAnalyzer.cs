@@ -42,6 +42,7 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
     public const string Utf8LiteralRuleId = "NC4051";
     public const string FileLocalTypeRuleId = "NC4053";
     public const string RefReadonlyParameterRuleId = "NC4054";
+    public const string UsingStatementRuleId = "NC4059";
 
     private static readonly DiagnosticDescriptor UnsafeCodeRule = CreateDescriptor(
         UnsafeCodeRuleId,
@@ -133,6 +134,11 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         "'ref readonly' or 'in' parameters are not supported",
         "'ref readonly' or 'in' parameters are not supported by the Neo compiler.");
 
+    private static readonly DiagnosticDescriptor UsingStatementRule = CreateDescriptor(
+        UsingStatementRuleId,
+        "Using statements are not supported",
+        "Using statements and using declarations are not supported because the Neo compiler does not emit deterministic Dispose calls.");
+
     private static DiagnosticDescriptor CreateDescriptor(string id, string title, string message) =>
         new(id, title, message, Category, DiagnosticSeverity.Error, isEnabledByDefault: true, description: message);
 
@@ -154,7 +160,8 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         ListPatternRule,
         Utf8LiteralRule,
         FileLocalTypeRule,
-        RefReadonlyParameterRule);
+        RefReadonlyParameterRule,
+        UsingStatementRule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -250,7 +257,14 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeUsingStatement(SyntaxNodeAnalysisContext context)
     {
-        if (context.Node is UsingStatementSyntax usingStatement && !usingStatement.AwaitKeyword.IsKind(SyntaxKind.None))
+        if (context.Node is not UsingStatementSyntax usingStatement)
+        {
+            return;
+        }
+
+        context.ReportDiagnostic(Diagnostic.Create(UsingStatementRule, usingStatement.UsingKeyword.GetLocation()));
+
+        if (!usingStatement.AwaitKeyword.IsKind(SyntaxKind.None))
         {
             context.ReportDiagnostic(Diagnostic.Create(AwaitExpressionRule, usingStatement.AwaitKeyword.GetLocation()));
         }
@@ -267,6 +281,8 @@ public sealed class UnsupportedSyntaxAnalyzer : DiagnosticAnalyzer
         {
             return;
         }
+
+        context.ReportDiagnostic(Diagnostic.Create(UsingStatementRule, localDeclaration.UsingKeyword.GetLocation()));
 
         var awaitToken = !localDeclaration.AwaitKeyword.IsKind(SyntaxKind.None)
             ? localDeclaration.AwaitKeyword

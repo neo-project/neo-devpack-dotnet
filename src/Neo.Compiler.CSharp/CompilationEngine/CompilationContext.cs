@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Diagnostic = Microsoft.CodeAnalysis.Diagnostic;
 using ECPoint = Neo.Cryptography.ECC.ECPoint;
@@ -629,10 +628,7 @@ namespace Neo.Compiler
                 _methodsExported.Add(method);
             }
 
-            if (symbol.GetAttributesWithInherited()
-                .Any(p => p.AttributeClass?.Name == nameof(MethodImplAttribute)
-                    && p.ConstructorArguments[0].Value is not null
-                    && (MethodImplOptions)p.ConstructorArguments[0].Value! == MethodImplOptions.AggressiveInlining))
+            if (symbol.IsAggressiveInlineMethod())
             {
                 if (export)
                     throw new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, $"Cannot set contract interface '{symbol.Name}' as inline. Remove [MethodImpl(MethodImplOptions.AggressiveInlining)] attribute from contract interface methods.");

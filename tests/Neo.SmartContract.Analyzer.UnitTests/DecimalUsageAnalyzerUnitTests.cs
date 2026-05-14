@@ -146,5 +146,23 @@ namespace Neo.SmartContract.Analyzer.UnitTests
 
             await VerifyCS.VerifyAnalyzerAsync(test, returnDiagnostic, parameterDiagnostic);
         }
+
+        [TestMethod]
+        public async Task DecimalProperty_ShouldReportDiagnostic()
+        {
+            var test = """
+
+                       class TestClass
+                       {
+                           public {|#0:decimal|} Value { get; set; }
+                       }
+                       """;
+
+            var propertyDiagnostic = VerifyCS.Diagnostic(DecimalUsageAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("System_Decimal", "decimal");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, propertyDiagnostic);
+        }
     }
 }

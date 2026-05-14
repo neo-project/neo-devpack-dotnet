@@ -53,18 +53,12 @@ internal partial class MethodConvert
     private void ConvertConditionalAccessExpression(SemanticModel model, ConditionalAccessExpressionSyntax expression)
     {
         if (expression.WhenNotNull is AssignmentExpressionSyntax assignment &&
-            assignment.Kind() == SyntaxKind.SimpleAssignmentExpression)
+            IsSupportedConditionalAccessAssignment(assignment))
         {
             // Assignment targets must be handled by a single lowering routine so every ?. hop
-            // shares the same guarded receiver/value bookkeeping. We materialize the RHS once,
-            // stash it in a temp slot, and let the assignment helper drive the entire chain.
-            ITypeSymbol assignedType = model.GetTypeInfo(assignment).Type
-                ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
-            ConvertExpression(model, assignment.Right);
-            byte valueSlot = AddAnonymousVariable();
-            AccessSlot(OpCode.STLOC, valueSlot);
-            ConvertConditionalAccessAssignment(model, expression, assignment, valueSlot, assignedType);
-            RemoveAnonymousVariable(valueSlot);
+            // shares the same guarded receiver bookkeeping. The RHS is intentionally lowered
+            // inside that helper so it is evaluated only after all receivers are known non-null.
+            ConvertConditionalAccessAssignment(model, expression, assignment);
             return;
         }
 

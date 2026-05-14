@@ -61,6 +61,13 @@ namespace Neo.SmartContract.Analyzer
                     Rule,
                     static type => new object?[] { type.ToString() }),
                 SyntaxKind.Parameter);
+            context.RegisterSyntaxNodeAction(
+                static context => UnsupportedTypeUsageAnalyzerHelpers.AnalyzePropertyDeclaration(
+                    context,
+                    SpecialType.System_Single,
+                    Rule,
+                    static type => new object?[] { type.ToString() }),
+                SyntaxKind.PropertyDeclaration);
         }
 
         private static void AnalyzeOperation(OperationAnalysisContext context)
@@ -87,7 +94,7 @@ namespace Neo.SmartContract.Analyzer
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<VariableDeclarationSyntax>().First();
+            var declaration = root?.FindToken(diagnosticSpan.Start).Parent?.AncestorsAndSelf().OfType<VariableDeclarationSyntax>().FirstOrDefault();
             if (declaration is null) return;
 
             context.RegisterCodeFix(

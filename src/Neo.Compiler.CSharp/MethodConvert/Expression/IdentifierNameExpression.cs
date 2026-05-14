@@ -80,7 +80,7 @@ internal partial class MethodConvert
                 InvokeMethod(model, method);
                 break;
             case IParameterSymbol parameter:
-                if (!_internalInline) LdArgSlot(parameter);
+                LdArgSlot(parameter);
                 break;
             case IPropertySymbol property:
                 if (NeedInstanceConstructor(property.GetMethod!))
