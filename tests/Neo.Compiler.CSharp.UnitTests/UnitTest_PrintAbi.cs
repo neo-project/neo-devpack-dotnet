@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// UnitTest_GasReport.cs file belongs to the neo project and is free
+// UnitTest_PrintAbi.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -16,38 +16,37 @@ using Neo.SmartContract.Testing;
 using Neo.VM;
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
     [TestClass]
-    public class UnitTest_GasReport
+    public class UnitTest_PrintAbi
     {
         private static string CaptureReport(SmartContract.NefFile nef, SmartContract.Manifest.ContractManifest manifest)
         {
             var writer = new StringWriter();
-            GasReporter.Print(nef, manifest, writer);
+            AbiReporter.Print(nef, manifest, writer);
             return writer.ToString();
         }
 
         [TestMethod]
-        public void Test_GasReport_ContainsContractName()
+        public void Test_PrintAbi_ContainsContractName()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             Assert.IsTrue(output.Contains("Contract:"), "Report must contain 'Contract:' header");
         }
 
         [TestMethod]
-        public void Test_GasReport_ContainsStaticHeader()
+        public void Test_PrintAbi_ContainsStaticHeader()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             // The word "Static" must appear in the report header so readers understand
             // this is a compile-time analysis, not a runtime measurement.
-            Assert.IsTrue(output.Contains("Static Bytecode Report"), "Report header must read 'Static Bytecode Report' to make its nature explicit");
+            Assert.IsTrue(output.Contains("Static ABI Report"), "Report header must read 'Static ABI Report' to make its nature explicit");
         }
 
         [TestMethod]
-        public void Test_GasReport_ContainsScriptSize()
+        public void Test_PrintAbi_ContainsScriptSize()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             Assert.IsTrue(output.Contains("Script size:"), "Report must contain script size");
@@ -56,14 +55,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_ContainsInstructionCount()
+        public void Test_PrintAbi_ContainsInstructionCount()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             Assert.IsTrue(output.Contains("Instruction count:"), "Report must contain instruction count");
         }
 
         [TestMethod]
-        public void Test_GasReport_InstructionCount_IsNumericOrNA()
+        public void Test_PrintAbi_InstructionCount_IsNumericOrNA()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             // Extract the value after "Instruction count:"
@@ -77,32 +76,22 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_ContainsAbiMethods()
+        public void Test_PrintAbi_ContainsAbiMethods()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             Assert.IsTrue(output.Contains("ABI methods:"), "Report must list ABI method count");
         }
 
         [TestMethod]
-        public void Test_GasReport_ContainsGasEstimationDisclaimer()
+        public void Test_PrintAbi_DoesNotMentionGasEstimation()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
-            Assert.IsTrue(output.Contains("Gas estimation:"), "Report must contain gas estimation section");
-            Assert.IsTrue(output.Contains("cannot be estimated exactly"), "Report must include the disclaimer");
-            Assert.IsTrue(output.Contains("Engine.GasConsumed"), "Report must mention Engine.GasConsumed");
+            Assert.IsFalse(output.Contains("Gas estimation:"), "ABI output must not include a gas estimation section");
+            Assert.IsFalse(output.Contains("Engine.GasConsumed"), "ABI output must not reference runtime gas measurement APIs");
         }
 
         [TestMethod]
-        public void Test_GasReport_NoGasValuesInvented()
-        {
-            var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
-            // The report must never contain the GAS token symbol or a "X GAS" pattern,
-            // which would imply a fabricated runtime cost estimate.
-            Assert.IsFalse(Regex.IsMatch(output, @"\d+(\.\d+)?\s*GAS"), "Report must not contain any invented GAS cost values");
-        }
-
-        [TestMethod]
-        public void Test_GasReport_ContainsMethodTable()
+        public void Test_PrintAbi_ContainsMethodTable()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             // NEP-17 standard methods should appear
@@ -112,7 +101,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_SafeFlag()
+        public void Test_PrintAbi_SafeFlag()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             // The method table header must contain the "Safe" column label.
@@ -124,25 +113,25 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_NullNef_Throws()
+        public void Test_PrintAbi_NullNef_Throws()
         {
-            Assert.ThrowsExactly<ArgumentNullException>(() => GasReporter.Print(null!, Contract_NEP17.Manifest, Console.Out));
+            Assert.ThrowsExactly<ArgumentNullException>(() => AbiReporter.Print(null!, Contract_NEP17.Manifest, Console.Out));
         }
 
         [TestMethod]
-        public void Test_GasReport_NullManifest_Throws()
+        public void Test_PrintAbi_NullManifest_Throws()
         {
-            Assert.ThrowsExactly<ArgumentNullException>(() => GasReporter.Print(Contract_NEP17.Nef, null!, Console.Out));
+            Assert.ThrowsExactly<ArgumentNullException>(() => AbiReporter.Print(Contract_NEP17.Nef, null!, Console.Out));
         }
 
         [TestMethod]
-        public void Test_GasReport_NullWriter_Throws()
+        public void Test_PrintAbi_NullWriter_Throws()
         {
-            Assert.ThrowsExactly<ArgumentNullException>(() => GasReporter.Print(Contract_NEP17.Nef, Contract_NEP17.Manifest, null!));
+            Assert.ThrowsExactly<ArgumentNullException>(() => AbiReporter.Print(Contract_NEP17.Nef, Contract_NEP17.Manifest, null!));
         }
 
         [TestMethod]
-        public void Test_GasReport_ScriptSizeMatchesNef()
+        public void Test_PrintAbi_ScriptSizeMatchesNef()
         {
             var nef = Contract_NEP17.Nef;
             var manifest = Contract_NEP17.Manifest;
@@ -154,14 +143,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_EventsSection_WhenPresent()
+        public void Test_PrintAbi_EventsSection_WhenPresent()
         {
             var output = CaptureReport(Contract_Event.Nef, Contract_Event.Manifest);
             Assert.IsTrue(output.Contains("Events:"), "Report must contain events count");
         }
 
         [TestMethod]
-        public void Test_GasReport_DoesNotWriteToStdErr()
+        public void Test_PrintAbi_DoesNotWriteToStdErr()
         {
             var stderrCapture = new StringWriter();
             var originalErr = Console.Error;
@@ -174,11 +163,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 Console.SetError(originalErr);
             }
-            Assert.AreEqual(string.Empty, stderrCapture.ToString(), "GasReporter.Print must not write anything to stderr for a valid contract");
+            Assert.AreEqual(string.Empty, stderrCapture.ToString(), "AbiReporter.Print must not write anything to stderr for a valid contract");
         }
 
         [TestMethod]
-        public void Test_GasReport_SafeMethodCount_MatchesManifest()
+        public void Test_PrintAbi_SafeMethodCount_MatchesManifest()
         {
             var manifest = Contract_NEP17.Manifest;
             var expectedSafe = 0;
@@ -196,7 +185,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_InstructionCount_NA_WhenScriptUndecodable()
+        public void Test_PrintAbi_InstructionCount_NA_WhenScriptUndecodable()
         {
             var badScript = new byte[] { (byte)OpCode.PUSHDATA1 };
             var nef = new NefFile
@@ -219,7 +208,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_NoEventsSection_WhenContractHasNoEvents()
+        public void Test_PrintAbi_NoEventsSection_WhenContractHasNoEvents()
         {
             var output = CaptureReport(Contract_ABISafe.Nef, Contract_ABISafe.Manifest);
 
@@ -229,7 +218,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_Event_WithNoParameters_ShowsDash()
+        public void Test_PrintAbi_Event_WithNoParameters_ShowsDash()
         {
             var nef = Contract_ABISafe.Nef;
             var manifest = BuildManifestWithEvents(
@@ -250,7 +239,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_UnsafeMethod_ShowsNo()
+        public void Test_PrintAbi_UnsafeMethod_ShowsNo()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             var idx = output.IndexOf("transfer", StringComparison.Ordinal);
@@ -260,7 +249,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_Method_WithParameters_ShowsTypes()
+        public void Test_PrintAbi_Method_WithParameters_ShowsTypes()
         {
             var output = CaptureReport(Contract_NEP17.Nef, Contract_NEP17.Manifest);
             var idx = output.IndexOf("transfer", StringComparison.Ordinal);
@@ -270,7 +259,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_Event_WithParameters_ShowsTypes()
+        public void Test_PrintAbi_Event_WithParameters_ShowsTypes()
         {
             var output = CaptureReport(Contract_Event.Nef, Contract_Event.Manifest);
 
@@ -281,7 +270,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
-        public void Test_GasReport_CLI_Flag_PrintsReportToStdout()
+        public void Test_PrintAbi_CLI_Flag_PrintsReportToStdout()
         {
             // Find the Contract_NEP17 source file by navigating from the test binary.
             var baseDir = Directory.GetCurrentDirectory();
@@ -303,7 +292,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 Console.SetOut(stdoutCapture);
                 Console.SetError(stderrCapture);
-                exitCode = Program.Main(new[] { contractPath, "--gas-report" });
+                exitCode = Program.Main(new[] { contractPath, "--print-abi" });
             }
             finally
             {
@@ -313,13 +302,13 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.AreEqual(0, exitCode, $"Compiler must succeed. stderr: {stderrCapture}");
             var stdout = stdoutCapture.ToString();
-            Assert.IsTrue(stdout.Contains("Static Bytecode Report"), "stdout must contain the gas report when --gas-report is passed");
+            Assert.IsTrue(stdout.Contains("Static ABI Report"), "stdout must contain the ABI report when --print-abi is passed");
             Assert.IsTrue(stdout.Contains("Script size:"), "stdout must contain script size line");
-            Assert.IsTrue(stdout.Contains("cannot be estimated exactly"), "stdout must contain the GAS disclaimer");
+            Assert.IsFalse(stdout.Contains("Gas estimation:"), "stdout must not contain a gas estimation section");
         }
 
         [TestMethod]
-        public void Test_GasReport_CLI_WithoutFlag_NoReportInOutput()
+        public void Test_PrintAbi_CLI_WithoutFlag_NoReportInOutput()
         {
             var baseDir = Directory.GetCurrentDirectory();
             var contractPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "tests", "Neo.Compiler.CSharp.TestContracts", "Contract_NEP17.cs"));
@@ -349,14 +338,14 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
 
             Assert.AreEqual(0, exitCode, $"Compiler must succeed. stderr: {stderrCapture}");
-            Assert.IsFalse(stdoutCapture.ToString().Contains("Static Bytecode Report"), "stdout must NOT contain the gas report when --gas-report is absent");
+            Assert.IsFalse(stdoutCapture.ToString().Contains("Static ABI Report"), "stdout must NOT contain the ABI report when --print-abi is absent");
         }
 
         // We redirect Console.Out to a writer that throws on WriteLine to simulate
         // an unexpected failure inside Print, then verify that the compiler still
         // exits with code 0 and logs the error to stderr.
         [TestMethod]
-        public void Test_GasReport_CLI_PrintException_LoggedToStderr_CompilationStillSucceeds()
+        public void Test_PrintAbi_CLI_PrintException_LoggedToStderr_CompilationStillSucceeds()
         {
             var baseDir = Directory.GetCurrentDirectory();
             var contractPath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "tests", "Neo.Compiler.CSharp.TestContracts", "Contract_NEP17.cs"));
@@ -376,7 +365,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             {
                 Console.SetOut(new ThrowingAfterNWritesWriter(originalOut, throwAfter: 5));
                 Console.SetError(stderrCapture);
-                exitCode = Program.Main([contractPath, "--gas-report"]);
+                exitCode = Program.Main([contractPath, "--print-abi"]);
             }
             finally
             {
@@ -384,8 +373,8 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Console.SetError(originalErr);
             }
 
-            Assert.AreEqual(0, exitCode, "Compilation exit code must be 0 even when the gas report throws");
-            Assert.IsTrue(stderrCapture.ToString().Contains("Gas report error:"), $"stderr must contain 'Gas report error:' when Print throws, stderr was: {stderrCapture}");
+            Assert.AreEqual(0, exitCode, "Compilation exit code must be 0 even when the ABI report throws");
+            Assert.IsTrue(stderrCapture.ToString().Contains("ABI report error:"), $"stderr must contain 'ABI report error:' when Print throws, stderr was: {stderrCapture}");
         }
 
         /// <summary>

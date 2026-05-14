@@ -71,7 +71,7 @@ namespace Neo.Compiler
             rootCommand.AddOption(new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"));
             rootCommand.AddOption(new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."));
             rootCommand.AddOption(new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler."));
-            rootCommand.AddOption(new Option<bool>("--gas-report", "Print a static bytecode and ABI report after successful compilation (experimental)."));
+            rootCommand.AddOption(new Option<bool>("--print-abi", "Print a static ABI and bytecode summary after successful compilation."));
 
             var debugOption = new Option<CompilationOptions.DebugType>(["-d", "--debug"],
                 new ParseArgument<CompilationOptions.DebugType>(ParseDebug), description: "Indicates the debug level.")
@@ -635,15 +635,15 @@ namespace Neo.Compiler
                     }
                 }
 
-                if (options.GasReport)
+                if (options.PrintAbi)
                 {
                     try
                     {
-                        GasReporter.Print(nef, manifest, Console.Out);
+                        AbiReporter.Print(nef, manifest, Console.Out);
                     }
                     catch (Exception ex)
                     {
-                        Console.Error.WriteLine($"Gas report error: {ex.Message}");
+                        Console.Error.WriteLine($"ABI report error: {ex.Message}");
                     }
                 }
 

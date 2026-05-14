@@ -41,14 +41,12 @@ nccs MyContract.csproj --debug
 # Generate artifacts
 nccs MyContract.csproj --generate-artifacts source
 
-# Print a static bytecode and ABI report (experimental)
-nccs MyContract.csproj --gas-report
+# Print a static ABI and bytecode summary
+nccs MyContract.csproj --print-abi
 ```
 
-> **Note on `--gas-report`:** This option prints a static analysis of the compiled contract
-> (script size, instruction count, ABI methods and events). It does **not** estimate runtime
-> GAS cost, which depends on inputs, branching, loops, storage, syscalls and contract calls.
-> For precise GAS measurements use `Neo.SmartContract.Testing` and `Engine.GasConsumed`.
+> **Note on `--print-abi`:** This option prints script size, instruction count,
+> ABI methods and events from the compiled contract.
 
 ### MSBuild Integration
 

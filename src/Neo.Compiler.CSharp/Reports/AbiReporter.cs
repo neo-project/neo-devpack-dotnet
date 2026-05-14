@@ -1,6 +1,6 @@
 // Copyright (C) 2015-2026 The Neo Project.
 //
-// GasReporter.cs file belongs to the neo project and is free
+// AbiReporter.cs file belongs to the neo project and is free
 // software distributed under the MIT software license, see the
 // accompanying file LICENSE in the main directory of the
 // repository or http://www.opensource.org/licenses/mit-license.php
@@ -19,20 +19,15 @@ using System.Linq;
 namespace Neo.Compiler
 {
     /// <summary>
-    /// Generates a static bytecode and ABI report from a compiled NEF and manifest.
+    /// Generates a static ABI and bytecode summary from a compiled NEF and manifest.
     /// </summary>
-    /// <remarks>
-    /// This report is purely static and does NOT estimate runtime GAS cost.
-    /// Actual GAS consumption depends on inputs, branching, loops, storage,
-    /// syscalls and contract calls and cannot be determined at compile time.
-    /// </remarks>
-    public static class GasReporter
+    public static class AbiReporter
     {
         private const int ColumnWidth = 26;
         private const string Separator = "------------------------------------------------------------";
 
         /// <summary>
-        /// Prints the static gas report to the specified <paramref name="output"/> writer.
+        /// Prints the static ABI report to the specified <paramref name="output"/> writer.
         /// </summary>
         public static void Print(NefFile nef, ContractManifest manifest, TextWriter output)
         {
@@ -49,7 +44,7 @@ namespace Neo.Compiler
             output.WriteLine();
             output.WriteLine($"Contract: {manifest.Name}");
             output.WriteLine();
-            output.WriteLine("Static Bytecode Report");
+            output.WriteLine("Static ABI Report");
             output.WriteLine(Separator);
             output.WriteLine($"{"Script size:",-ColumnWidth}{scriptSize} bytes");
             output.WriteLine($"{"Instruction count:",-ColumnWidth}{(instructionCount.HasValue ? instructionCount.Value.ToString() : "N/A")}");
@@ -85,12 +80,6 @@ namespace Neo.Compiler
                     output.WriteLine($"{ev.Name,-ColumnWidth}{parameters}");
                 }
             }
-
-            output.WriteLine();
-            output.WriteLine("Gas estimation:");
-            output.WriteLine("  Runtime GAS cannot be estimated exactly at compile time because it depends on");
-            output.WriteLine("  inputs, branching, loops, storage, syscalls and contract calls.");
-            output.WriteLine("  For precise measurements, use Neo.SmartContract.Testing and Engine.GasConsumed.");
             output.WriteLine();
         }
 
