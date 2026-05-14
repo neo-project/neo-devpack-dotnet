@@ -74,7 +74,7 @@ public class ExtensionMemberContract : SmartContract
 
 Status: supported
 Scope: class
-Notes: Assignments that use `?.` on the left-hand side are lowered into guarded stores. Neo now emits the conditional checks and setter invocations so the code behaves like the equivalent `if (obj != null)` block.
+Notes: Assignments that use `?.` on the left-hand side are lowered into guarded stores. Neo now emits the conditional checks and setter invocations so the code behaves like the equivalent `if (obj != null)` block. The right side is evaluated only after all conditional receivers are non-null.
 ```csharp
 public class Node
 {
@@ -84,6 +84,40 @@ public class Node
 public static void Update(Node? node)
 {
     node?.Child = new Node();
+}
+```
+
+### null_conditional_compound_assignment - Null-conditional compound assignment
+
+Status: supported
+Scope: class
+Notes: Compound assignments on null-conditional member or element access are guarded the same way as simple assignment. The receiver chain is evaluated once, and the right side is skipped when any receiver is null.
+```csharp
+public class Node
+{
+    public int Count { get; set; }
+}
+
+public static int? Add(Node? node)
+{
+    return node?.Count += 4;
+}
+```
+
+### null_conditional_coalesce_assignment - Null-conditional null-coalescing assignment
+
+Status: supported
+Scope: class
+Notes: `??=` assignments are guarded first by the conditional receiver and then by the current target value. Neo only evaluates the right side when the receiver exists and the current value is null.
+```csharp
+public class Node
+{
+    public Node? Child { get; set; }
+}
+
+public static Node? Ensure(Node? node)
+{
+    return node?.Child ??= new Node();
 }
 ```
 
