@@ -75,7 +75,7 @@ namespace Neo.Compiler
             }
 
             if (type is IArrayTypeSymbol arrayType)
-                return arrayType.ElementType.SpecialType == SpecialType.System_Byte
+                return arrayType.Rank == 1 && arrayType.ElementType.SpecialType == SpecialType.System_Byte
                     ? ContractParameterType.ByteArray
                     : ContractParameterType.Array;
 
