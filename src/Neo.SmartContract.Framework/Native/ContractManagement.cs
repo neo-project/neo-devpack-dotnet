@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework.Native
         /// The execution will fail if the 'hash' is null.
         /// </para>
         /// </summary>
-        public static extern Contract GetContract(UInt160 hash);
+        public static extern Contract? GetContract(UInt160 hash);
 
         /// <summary>
         /// Checks if the contract with the specified hash exists.
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework.Native
         /// Gets the contract by the specified id, null if not found.
         /// CallFlags requirement: CallFlags.ReadStates.
         /// </summary>
-        public static extern Contract GetContractById(int id);
+        public static extern Contract? GetContractById(int id);
 
         /// <summary>
         /// Gets hashes of all non native deployed contracts.
