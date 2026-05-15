@@ -437,14 +437,12 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleNullableToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
-        if (instanceExpression is not null)
-            methodConvert.ConvertExpression(model, instanceExpression);
-        if (arguments is not null)
-            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         JumpTarget endTarget = new();
         JumpTarget endTarget2 = new();
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         methodConvert.JumpIfTrue(endTarget);                       // Jump if null
