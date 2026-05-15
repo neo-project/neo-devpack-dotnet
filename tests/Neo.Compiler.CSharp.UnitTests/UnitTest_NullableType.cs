@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 using System.Numerics;
 
@@ -314,11 +315,24 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(1108830, Engine.FeeConsumed.Value);
 
             Assert.AreEqual(1, Contract.TestByteArrayLength([1]));
-            Assert.AreEqual(1108980, Engine.FeeConsumed.Value);
+            Assert.AreEqual(1047720, Engine.FeeConsumed.Value);
             Assert.AreEqual(0, Contract.TestByteArrayLength(null));
             Assert.AreEqual(1047480, Engine.FeeConsumed.Value);
             Assert.AreEqual(1, Contract.TestByteArrayLengthNonNullable([1]));
             Assert.AreEqual(1047360, Engine.FeeConsumed.Value);
+        }
+
+        [TestMethod]
+        public void TestNullableByteArrayAbi()
+        {
+            var method = Contract_NullableType.Manifest.Abi.GetMethod("testByteArrayLength", 1);
+            Assert.IsNotNull(method);
+            Assert.AreEqual(ContractParameterType.ByteArray, method!.Parameters[0].Type);
+
+            var parameter = typeof(Contract_NullableType)
+                .GetMethod(nameof(Contract_NullableType.TestByteArrayLength))!
+                .GetParameters()[0];
+            Assert.AreEqual(typeof(byte[]), parameter.ParameterType);
         }
 
         [TestMethod]
