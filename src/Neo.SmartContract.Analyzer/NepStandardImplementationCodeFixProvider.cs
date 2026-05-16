@@ -22,6 +22,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Neo.SmartContract.Analyzer;
 
@@ -76,13 +77,14 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
             return document;
 
         var standard = ParseStandard(diagnostic);
+        var formatAnnotation = new SyntaxAnnotation("NepGeneratedMember");
 
         foreach (var member in GenerateMembers(missingMembers, standard))
         {
-            editor.AddMember(classDeclaration, member);
+            editor.AddMember(classDeclaration, member.WithAdditionalAnnotations(formatAnnotation));
         }
 
-        return editor.GetChangedDocument();
+        return await FormatAnnotatedNodesAsync(editor.GetChangedDocument(), document, formatAnnotation, cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task<Document> AddInterfaceAsync(Document document, ClassDeclarationSyntax classDeclaration, Diagnostic diagnostic, CancellationToken cancellationToken)
@@ -101,27 +103,29 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
         if (AlreadyImplements(classDeclaration))
             return document;
 
+        var formatAnnotation = new SyntaxAnnotation("NepGeneratedInterface");
         var interfaceTypeSyntax = SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(interfaceName));
 
-        var updatedClass = classDeclaration.AddBaseListTypes(interfaceTypeSyntax)
-            .WithAdditionalAnnotations(Formatter.Annotation);
+        var updatedClass = classDeclaration.AddBaseListTypes(interfaceTypeSyntax);
 
         if (updatedClass.BaseList is { } baseList)
         {
-            var colonToken = baseList.ColonToken
-                .WithLeadingTrivia(SyntaxFactory.Space)
-                .WithTrailingTrivia(SyntaxFactory.Space);
-            updatedClass = updatedClass.WithBaseList(baseList.WithColonToken(colonToken));
+            var colonToken = baseList.ColonToken.WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space);
+            updatedClass = updatedClass.WithBaseList(baseList.WithColonToken(colonToken).WithAdditionalAnnotations(formatAnnotation));
         }
 
         var identifier = updatedClass.Identifier;
         if (identifier.TrailingTrivia.Any(trivia => trivia.IsKind(SyntaxKind.EndOfLineTrivia)))
         {
-            updatedClass = updatedClass.WithIdentifier(identifier.WithTrailingTrivia(SyntaxFactory.Space));
+            var hasComment = identifier.TrailingTrivia.Any(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia) || t.IsKind(SyntaxKind.MultiLineCommentTrivia));
+
+            if (!hasComment)
+                updatedClass = updatedClass.WithIdentifier(
+                    identifier.WithTrailingTrivia(SyntaxFactory.Space));
         }
 
         editor.ReplaceNode(classDeclaration, updatedClass);
-        return editor.GetChangedDocument();
+        return await FormatAnnotatedNodesAsync(editor.GetChangedDocument(), document, formatAnnotation, cancellationToken).ConfigureAwait(false);
     }
 
     private static ImmutableArray<string> ParseMissingMembers(Diagnostic diagnostic)
@@ -209,6 +213,40 @@ public sealed class NepStandardImplementationCodeFixProvider : CodeFixProvider
             .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword))
             .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameterList)))
             .WithBody(SyntaxFactory.Block(throwStatement));
+    }
+
+    private static async Task<Document> FormatAnnotatedNodesAsync(
+        Document changedDocument,
+        Document originalDocument,
+        SyntaxAnnotation annotation,
+        CancellationToken cancellationToken)
+    {
+        var originalText = await originalDocument.GetTextAsync(cancellationToken).ConfigureAwait(false);
+        var eol = DetectLineEnding(originalText);
+        var options = changedDocument.Project.Solution.Workspace.Options
+            .WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, eol);
+        return await Formatter.FormatAsync(changedDocument, annotation, options, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static string DetectLineEnding(SourceText sourceText)
+    {
+        var crlfCount = 0;
+        var lfCount = 0;
+
+        for (var i = 0; i < sourceText.Length; i++)
+        {
+            if (sourceText[i] == '\r' && i + 1 < sourceText.Length && sourceText[i + 1] == '\n')
+            {
+                crlfCount++;
+                i++; // skip the \n already counted as part of \r\n
+            }
+            else if (sourceText[i] == '\n')
+            {
+                lfCount++;
+            }
+        }
+
+        return crlfCount > 0 && crlfCount >= lfCount ? "\r\n" : "\n";
     }
 
     private enum NepStandardKind
