@@ -536,7 +536,7 @@ internal partial class MethodConvert
     }
 
     /// <summary>
-    /// Handles the char.ToLowerInvariant method to check if a character is lowercase (invariant culture).
+    /// Handles the char.ToLowerInvariant method to convert an uppercase character to lowercase.
     /// Only ASCII characters are supported.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
@@ -545,17 +545,24 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Checks if character is within lowercase range (a-z) using invariant culture
+    /// Algorithm: Converts uppercase letters (A-Z) to lowercase (a-z), leaves other characters unchanged
     /// </remarks>
     private static void HandleCharToLowerInvariant(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Dup();                                       // Duplicate character for range check
-        methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
+        methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
+        var endTarget = new JumpTarget();
+        methodConvert.JumpIfFalse(endTarget);                      // Jump if not uppercase
+        methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
+        methodConvert.Add();                                       // Add 32 to get lowercase for ASCII
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
     /// <summary>
-    /// Handles the char.ToUpperInvariant method to check if a character is uppercase (invariant culture).
+    /// Handles the char.ToUpperInvariant method to convert a lowercase character to uppercase.
     /// Only ASCII characters are supported.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>
@@ -564,13 +571,20 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Checks if character is within lowercase range (a-z) using invariant culture
+    /// Algorithm: Converts lowercase letters (a-z) to uppercase (A-Z), leaves other characters unchanged
     /// </remarks>
     private static void HandleCharToUpperInvariant(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (arguments is not null)
+            methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Dup();                                       // Duplicate character for range check
         methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
+        var endTarget = new JumpTarget();
+        methodConvert.JumpIfFalse(endTarget);                      // Jump if not lowercase
+        methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
+        methodConvert.Sub();                                       // Subtract 32 to get uppercase for ASCII
+        endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
     /// <summary>

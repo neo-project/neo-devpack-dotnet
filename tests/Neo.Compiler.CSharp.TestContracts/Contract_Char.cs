@@ -53,6 +53,16 @@ public class Contract_Char : SmartContract.Framework.SmartContract
         return char.ToUpper(c);
     }
 
+    public static char TestCharToUpperInvariant(char c)
+    {
+        return char.ToUpperInvariant(c);
+    }
+
+    public static char TestCharToLowerInvariant(char c)
+    {
+        return char.ToLowerInvariant(c);
+    }
+
     public static int TestCharGetNumericValue(char c)
     {
         return (int)char.GetNumericValue(c);
