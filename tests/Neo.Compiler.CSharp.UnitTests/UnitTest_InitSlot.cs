@@ -16,9 +16,11 @@ using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 using Neo.VM;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -108,12 +110,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             const string source = """
                 using Neo.SmartContract.Framework;
+                using System.ComponentModel;
 
                 public class Contract : SmartContract
                 {
                     private static int _counter;
                     private static int Value = Combine(second: Next(), first: Next());
 
+                    [DisplayName("get")]
                     public static int Get()
                     {
                         return Value;
@@ -150,6 +154,10 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(operand.Length >= 2, "INITSLOT must contain local and argument counts.");
             Assert.AreEqual(2, operand[0], "The out-of-order named argument initializer requires two temporary local slots.");
             Assert.AreEqual(0, operand[1], "_initialize should not allocate argument slots.");
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<StaticInitializerContract>(nef, manifest);
+            Assert.AreEqual(new BigInteger(21), contract.Get());
         }
 
         private static CompilationContext CompileSource(
@@ -212,6 +220,13 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.Fail($"Unable to resolve instruction at offset {startOffset} for the selected method.");
             throw new InvalidOperationException();
+        }
+
+        public abstract class StaticInitializerContract(SmartContractInitialize initialize)
+            : SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("get")]
+            public abstract BigInteger? Get();
         }
     }
 }
