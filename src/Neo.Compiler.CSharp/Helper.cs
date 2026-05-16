@@ -74,6 +74,11 @@ namespace Neo.Compiler
                 ThrowIfUnsupportedContractType(type);
             }
 
+            if (type is IArrayTypeSymbol arrayType)
+                return arrayType.Rank == 1 && arrayType.ElementType.SpecialType == SpecialType.System_Byte
+                    ? ContractParameterType.ByteArray
+                    : ContractParameterType.Array;
+
             switch (type.ToString())
             {
                 case "void": return ContractParameterType.Void;
@@ -102,7 +107,6 @@ namespace Neo.Compiler
             if (type.Name == "Map") return ContractParameterType.Map;
             if (type.Name == "List") return ContractParameterType.Array;
             if (type.TypeKind == TypeKind.Enum) return ContractParameterType.Integer;
-            if (type is IArrayTypeSymbol) return ContractParameterType.Array;
             if (type.AllInterfaces.Any(p => p.Name == nameof(scfx::Neo.SmartContract.Framework.IApiInterface)))
                 return ContractParameterType.InteropInterface;
             if (type.IsValueType) return ContractParameterType.Array;
