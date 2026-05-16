@@ -136,6 +136,32 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestCharToUpperInvariant()
+        {
+            Assert.AreEqual('A', Contract.TestCharToUpperInvariant('a'));
+            AssertGasConsumed(1047990);
+            Assert.AreEqual('A', Contract.TestCharToUpperInvariant('A'));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual(' ', Contract.TestCharToUpperInvariant(' '));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual('1', Contract.TestCharToUpperInvariant('1'));
+            AssertGasConsumed(1047450);
+        }
+
+        [TestMethod]
+        public void TestCharToLowerInvariant()
+        {
+            Assert.AreEqual('a', Contract.TestCharToLowerInvariant('A'));
+            AssertGasConsumed(1047990);
+            Assert.AreEqual('a', Contract.TestCharToLowerInvariant('a'));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual(' ', Contract.TestCharToLowerInvariant(' '));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual('1', Contract.TestCharToLowerInvariant('1'));
+            AssertGasConsumed(1047450);
+        }
+
+        [TestMethod]
         public void TestCharIsLetterOrDigit()
         {
             Assert.IsTrue(Contract.TestCharIsLetterOrDigit('a'));
