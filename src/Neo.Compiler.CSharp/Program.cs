@@ -71,6 +71,7 @@ namespace Neo.Compiler
             rootCommand.AddOption(new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"));
             rootCommand.AddOption(new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."));
             rootCommand.AddOption(new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler."));
+            rootCommand.AddOption(new Option<bool>("--print-abi", "Print a static ABI and bytecode summary after successful compilation."));
 
             var debugOption = new Option<CompilationOptions.DebugType>(["-d", "--debug"],
                 new ParseArgument<CompilationOptions.DebugType>(ParseDebug), description: "Indicates the debug level.")
@@ -631,6 +632,18 @@ namespace Neo.Compiler
                     else
                     {
                         Console.WriteLine($"Skipping interface generation for {baseName} as no contract hash was found.");
+                    }
+                }
+
+                if (options.PrintAbi)
+                {
+                    try
+                    {
+                        AbiReporter.Print(nef, manifest, Console.Out);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"ABI report error: {ex.Message}");
                     }
                 }
 

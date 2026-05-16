@@ -40,7 +40,13 @@ nccs MyContract.csproj --debug
 
 # Generate artifacts
 nccs MyContract.csproj --generate-artifacts source
+
+# Print a static ABI and bytecode summary
+nccs MyContract.csproj --print-abi
 ```
+
+> **Note on `--print-abi`:** This option prints script size, instruction count,
+> ABI methods and events from the compiled contract.
 
 ### MSBuild Integration
 
