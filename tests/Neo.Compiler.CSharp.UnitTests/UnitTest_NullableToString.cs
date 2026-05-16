@@ -11,8 +11,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
+using Neo.SmartContract.Testing;
 using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -20,20 +23,36 @@ namespace Neo.Compiler.CSharp.UnitTests;
 public class UnitTest_NullableToString
 {
     [TestMethod]
-    public void NullableIntegerToString_LoadsReceiverOnce()
+    public void NullableIntegerToString_ExecutesInVmAndLoadsReceiverOnce()
     {
-        var context = TestHelper.CompileSingleContract("""
-using Neo.SmartContract.Framework;
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+            using System.Numerics;
 
-public class Contract : SmartContract
-{
-    public static string Main(int? value) => value.ToString();
-}
-""");
+            public class Contract : SmartContract
+            {
+                [DisplayName("direct")]
+                public static string Direct(BigInteger? value) => value.ToString();
+
+                [DisplayName("withSuffix")]
+                public static string WithSuffix(BigInteger? value) => value.ToString() + "|done";
+            }
+            """;
+
+        var context = TestHelper.CompileSingleContract(source);
 
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-        var methodBlock = ExtractMethodBlock(context.CreateAssembly(), "Contract.Main(int?)");
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<NullableToStringContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual("42", contract.Direct(42));
+        Assert.AreEqual("", contract.Direct(null));
+        Assert.AreEqual("42|done", contract.WithSuffix(42));
+        Assert.AreEqual("|done", contract.WithSuffix(null));
+
+        var methodBlock = ExtractMethodBlock(context.CreateAssembly(), "Contract.Direct(System.Numerics.BigInteger?)");
         var receiverLoads = methodBlock
             .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
             .Count(line => line.Contains("LDARG 0", StringComparison.Ordinal));
@@ -53,5 +72,15 @@ public class Contract : SmartContract
             next = normalized.Length;
 
         return normalized[start..next];
+    }
+
+    public abstract class NullableToStringContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("direct")]
+        public abstract string? Direct(BigInteger? value);
+
+        [DisplayName("withSuffix")]
+        public abstract string? WithSuffix(BigInteger? value);
     }
 }
