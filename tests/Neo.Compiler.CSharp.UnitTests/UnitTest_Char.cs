@@ -121,9 +121,17 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047990);
             Assert.AreEqual('A', Contract.TestCharToUpper('A'));
             AssertGasConsumed(1047450);
+            Assert.AreEqual(' ', Contract.TestCharToUpper(' '));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual('D', Contract.TestCharToUpper('d'));
+            AssertGasConsumed(1047450);
             Assert.AreEqual('a', Contract.TestCharToLower('A'));
             AssertGasConsumed(1047990);
             Assert.AreEqual('a', Contract.TestCharToLower('a'));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual(' ', Contract.TestCharToLower(' '));
+            AssertGasConsumed(1047450);
+            Assert.AreEqual('d', Contract.TestCharToLower('D'));
             AssertGasConsumed(1047450);
         }
 
