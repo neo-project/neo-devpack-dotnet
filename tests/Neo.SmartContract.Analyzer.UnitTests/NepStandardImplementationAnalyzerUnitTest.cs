@@ -382,16 +382,7 @@ public class NepStandardImplementationAnalyzerUnitTest
             .WithSpan(51, 6, 51, 110)
             .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
 
-        var test = new Microsoft.CodeAnalysis.CSharp.Testing.CSharpCodeFixTest<
-            NepStandardImplementationAnalyzer,
-            NepStandardImplementationCodeFixProvider,
-            Microsoft.CodeAnalysis.Testing.Verifiers.XUnitVerifier>
-        {
-            TestCode = source,
-            FixedCode = fixedSource,
-        };
-        test.ExpectedDiagnostics.Add(expectedDiagnostic);
-        await test.RunAsync().ConfigureAwait(false);
+        await Verifier.VerifyCodeFixAsync(source, expectedDiagnostic, fixedSource).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -452,16 +443,7 @@ public class NepStandardImplementationAnalyzerUnitTest
             .WithSpan(51, 6, 51, 110)
             .WithArguments("NEP-17", "Symbol, Decimals, TotalSupply, BalanceOf, Transfer");
 
-        var test = new Microsoft.CodeAnalysis.CSharp.Testing.CSharpCodeFixTest<
-            NepStandardImplementationAnalyzer,
-            NepStandardImplementationCodeFixProvider,
-            Microsoft.CodeAnalysis.Testing.Verifiers.XUnitVerifier>
-        {
-            TestCode = source,
-            FixedCode = fixedSource,
-        };
-        test.ExpectedDiagnostics.Add(expectedDiagnostic);
-        await test.RunAsync().ConfigureAwait(false);
+        await Verifier.VerifyCodeFixAsync(source, expectedDiagnostic, fixedSource).ConfigureAwait(false);
     }
 
     /// <summary>

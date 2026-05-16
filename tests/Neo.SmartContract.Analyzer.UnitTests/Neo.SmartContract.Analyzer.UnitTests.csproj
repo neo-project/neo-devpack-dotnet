@@ -22,9 +22,4 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Neo.SmartContract.Analyzer\Neo.SmartContract.Analyzer.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Helpers\" />
-	</ItemGroup>
-
 </Project>
