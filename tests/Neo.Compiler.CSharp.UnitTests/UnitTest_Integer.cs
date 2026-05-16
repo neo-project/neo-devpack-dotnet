@@ -1273,6 +1273,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestRotateLeftIntFromExpressions()
+        {
+            Assert.AreEqual(int.RotateLeft(0x12345679, 5), Contract.RotateLeftIntFromExpressions(0x12345678, 4));
+        }
+
+        [TestMethod]
         public void TestRotateLeftUInt()
         {
 
@@ -1282,6 +1288,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(uint.RotateLeft(0x80000000U, 1), Contract.RotateLeftUInt(0x80000000U, 1));
             Assert.AreEqual(uint.RotateLeft(0x00000001U, 32), Contract.RotateLeftUInt(0x00000001U, 32));
             Assert.AreEqual(uint.RotateLeft(0x00000001U, 33), Contract.RotateLeftUInt(0x00000001U, 33));
+        }
+
+        [TestMethod]
+        public void TestRotateLeftUIntFromExpressions()
+        {
+            Assert.AreEqual(uint.RotateLeft(0x12345679U, 5), Contract.RotateLeftUIntFromExpressions(0x12345678U, 4));
         }
 
         [TestMethod]
@@ -1366,6 +1378,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestRotateRightIntFromExpressions()
+        {
+            Assert.AreEqual(int.RotateRight(0x12345679, 5), Contract.RotateRightIntFromExpressions(0x12345678, 4));
+        }
+
+        [TestMethod]
         public void TestRotateRightUInt()
         {
             Assert.AreEqual(uint.RotateRight(1U, 1), Contract.RotateRightUInt(1U, 1));
@@ -1374,6 +1392,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(uint.RotateRight(0x00000001U, 1), Contract.RotateRightUInt(0x00000001U, 1));
             Assert.AreEqual(uint.RotateRight(0x00000001U, 32), Contract.RotateRightUInt(0x00000001U, 32));
             Assert.AreEqual(uint.RotateRight(0x00000001U, 33), Contract.RotateRightUInt(0x00000001U, 33));
+        }
+
+        [TestMethod]
+        public void TestRotateRightUIntFromExpressions()
+        {
+            Assert.AreEqual(uint.RotateRight(0x12345679U, 5), Contract.RotateRightUIntFromExpressions(0x12345678U, 4));
         }
 
         [TestMethod]
