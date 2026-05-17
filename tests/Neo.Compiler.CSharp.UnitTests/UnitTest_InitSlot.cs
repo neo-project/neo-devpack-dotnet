@@ -16,9 +16,11 @@ using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 using Neo.VM;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -103,6 +105,61 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(unoptimizedOperand[0] > operand[0], "Disabling basic optimization should preserve unreleased anonymous slots.");
         }
 
+        [TestMethod]
+        public void EmitInitSlot_ForStaticFieldInitializerTemps()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    private static int _counter;
+                    private static int Value = Combine(second: Next(), first: Next());
+
+                    [DisplayName("get")]
+                    public static int Get()
+                    {
+                        return Value;
+                    }
+
+                    private static int Next()
+                    {
+                        _counter++;
+                        return _counter;
+                    }
+
+                    private static int Combine(int first, int second)
+                    {
+                        return first * 10 + second;
+                    }
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            var nef = context.CreateExecutable();
+            var manifest = context.CreateManifest();
+            var initialize = manifest.Abi.GetMethod("_initialize", 0);
+
+            Assert.IsNotNull(initialize, "Static field initialization should emit an _initialize method.");
+
+            var script = (Script)nef.Script;
+            var initStaticSlot = script.GetInstruction(initialize.Offset);
+            var initLocalSlot = script.GetInstruction(initialize.Offset + initStaticSlot.Size);
+
+            Assert.AreEqual(OpCode.INITSSLOT, initStaticSlot.OpCode, "_initialize should initialize static slots first.");
+            Assert.AreEqual(OpCode.INITSLOT, initLocalSlot.OpCode, "Static field initializer temporaries should initialize local slots.");
+
+            var operand = initLocalSlot.Operand.Span;
+            Assert.IsTrue(operand.Length >= 2, "INITSLOT must contain local and argument counts.");
+            Assert.AreEqual(2, operand[0], "The out-of-order named argument initializer requires two temporary local slots.");
+            Assert.AreEqual(0, operand[1], "_initialize should not allocate argument slots.");
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<StaticInitializerContract>(nef, manifest);
+            Assert.AreEqual(new BigInteger(21), contract.Get());
+        }
+
         private static CompilationContext CompileSource(
             string source,
             CompilationOptions.OptimizationType optimize = CompilationOptions.OptimizationType.Basic)
@@ -163,6 +220,13 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.Fail($"Unable to resolve instruction at offset {startOffset} for the selected method.");
             throw new InvalidOperationException();
+        }
+
+        public abstract class StaticInitializerContract(SmartContractInitialize initialize)
+            : SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("get")]
+            public abstract BigInteger? Get();
         }
     }
 }
