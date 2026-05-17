@@ -33,6 +33,11 @@ public class Contract_Char : SmartContract.Framework.SmartContract
         return char.IsLetterOrDigit(c);
     }
 
+    public static bool TestCharIsAsciiLetter(char c)
+    {
+        return char.IsAsciiLetter(c);
+    }
+
     public static bool TestCharIsLower(char c)
     {
         return char.IsLower(c);

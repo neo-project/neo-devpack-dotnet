@@ -175,6 +175,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestCharIsAsciiLetter()
+        {
+            Assert.IsTrue(Contract.TestCharIsAsciiLetter('A'));
+            Assert.IsTrue(Contract.TestCharIsAsciiLetter('z'));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('0'));
+            Assert.IsFalse(Contract.TestCharIsAsciiLetter('\u00C0'));
+        }
+
+        [TestMethod]
         public void TestCharIsBetween()
         {
             Assert.IsTrue(Contract.TestCharIsBetween('a', 'a', 'z'));

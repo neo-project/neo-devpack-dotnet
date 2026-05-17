@@ -172,14 +172,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        // Check for uppercase letters (A-Z)
-        methodConvert.Dup();                                       // Duplicate character for second check
-        methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
-        methodConvert.Swap();                                      // Bring original character back to top
-
-        // Check for lowercase letters (a-z)
-        methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
-        methodConvert.BoolOr();                                    // Combine both checks with OR
+        EmitCharIsAsciiLetter(methodConvert);
     }
 
     /// <summary>
@@ -643,10 +636,19 @@ internal partial class MethodConvert
     {
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
+
+        EmitCharIsAsciiLetter(methodConvert);
+    }
+
+    private static void EmitCharIsAsciiLetter(MethodConvert methodConvert)
+    {
+        // Check for uppercase letters (A-Z)
+        methodConvert.Dup();                                       // Duplicate character for second check
         methodConvert.Within((ushort)'A', (ushort)'Z');            // Check if within uppercase range
-        var endTarget = new JumpTarget();
-        methodConvert.JumpIfTrue(endTarget);                       // Jump if uppercase letter found
+        methodConvert.Swap();                                      // Bring original character back to top
+
+        // Check for lowercase letters (a-z)
         methodConvert.Within((ushort)'a', (ushort)'z');            // Check if within lowercase range
-        endTarget.Instruction = methodConvert.Nop();               // End target
+        methodConvert.BoolOr();                                    // Combine both checks with OR
     }
 }
