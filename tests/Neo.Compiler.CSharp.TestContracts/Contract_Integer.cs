@@ -420,9 +420,23 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return int.RotateLeft(value, offset);
     }
 
+    public static int RotateLeftIntFromExpressions(int value, int offset)
+    {
+        int rotatedValue = value + 1;
+        int rotatedOffset = offset + 1;
+        return int.RotateLeft(rotatedValue, rotatedOffset);
+    }
+
     public static uint RotateLeftUInt(uint value, int offset)
     {
         return uint.RotateLeft(value, offset);
+    }
+
+    public static uint RotateLeftUIntFromExpressions(uint value, int offset)
+    {
+        uint rotatedValue = value + 1;
+        int rotatedOffset = offset + 1;
+        return uint.RotateLeft(rotatedValue, rotatedOffset);
     }
 
     public static long RotateLeftLong(long value, int offset)
@@ -460,9 +474,23 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return int.RotateRight(value, offset);
     }
 
+    public static int RotateRightIntFromExpressions(int value, int offset)
+    {
+        int rotatedValue = value + 1;
+        int rotatedOffset = offset + 1;
+        return int.RotateRight(rotatedValue, rotatedOffset);
+    }
+
     public static uint RotateRightUInt(uint value, int offset)
     {
         return uint.RotateRight(value, offset);
+    }
+
+    public static uint RotateRightUIntFromExpressions(uint value, int offset)
+    {
+        uint rotatedValue = value + 1;
+        int rotatedOffset = offset + 1;
+        return uint.RotateRight(rotatedValue, rotatedOffset);
     }
 
     public static long RotateRightLong(long value, int offset)

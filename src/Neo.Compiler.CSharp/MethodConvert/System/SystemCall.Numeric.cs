@@ -171,26 +171,32 @@ internal partial class MethodConvert
 
     private static void HandleNumericRotateLeft(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        var (valueSlot, offsetSlot) = StoreRotateOperands(methodConvert);
         if (descriptor.IsSigned)
-            EmitRotateLeftSigned(methodConvert, descriptor.BitSize);
+            EmitRotateLeftSigned(methodConvert, descriptor.BitSize, valueSlot, offsetSlot);
         else
-            EmitRotateLeftUnsigned(methodConvert, descriptor.BitSize);
+            EmitRotateLeftUnsigned(methodConvert, descriptor.BitSize, valueSlot, offsetSlot);
     }
 
     private static void HandleNumericRotateRight(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
+        var (valueSlot, offsetSlot) = StoreRotateOperands(methodConvert);
         if (descriptor.IsSigned)
-            EmitRotateRightSigned(methodConvert, descriptor.BitSize);
+            EmitRotateRightSigned(methodConvert, descriptor.BitSize, valueSlot, offsetSlot);
         else
-            EmitRotateRightUnsigned(methodConvert, descriptor.BitSize);
+            EmitRotateRightUnsigned(methodConvert, descriptor.BitSize, valueSlot, offsetSlot);
     }
 
     private static void HandleNumericPopCount(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -322,56 +328,40 @@ internal partial class MethodConvert
         SystemCallHandlers[key] = handler;
     }
 
-    private static void EmitRotateLeftUnsigned(MethodConvert methodConvert, int bitWidth)
+    private static (byte valueSlot, byte offsetSlot) StoreRotateOperands(MethodConvert methodConvert)
     {
-        var mask = (BigInteger.One << bitWidth) - 1;
-        methodConvert.Push(bitWidth - 1);
-        methodConvert.And();
-        methodConvert.Swap();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.Swap();
-        methodConvert.ShL();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.LdArg0();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.LdArg1();
-        methodConvert.Push(bitWidth);
-        methodConvert.Swap();
-        methodConvert.Sub();
-        methodConvert.Push(bitWidth - 1);
-        methodConvert.And();
-        methodConvert.ShR();
-        methodConvert.Or();
+        byte offsetSlot = methodConvert.AddAnonymousVariable();
+        byte valueSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, offsetSlot);
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+        return (valueSlot, offsetSlot);
+    }
+
+    private static void LoadMaskedRotateValue(MethodConvert methodConvert, byte valueSlot, BigInteger mask)
+    {
+        methodConvert.AccessSlot(OpCode.LDLOC, valueSlot);
         methodConvert.Push(mask);
         methodConvert.And();
     }
 
-    private static void EmitRotateLeftSigned(MethodConvert methodConvert, int bitWidth)
+    private static void LoadMaskedRotateOffset(MethodConvert methodConvert, byte offsetSlot, int bitWidth)
     {
-        var mask = (BigInteger.One << bitWidth) - 1;
+        methodConvert.AccessSlot(OpCode.LDLOC, offsetSlot);
         methodConvert.Push(bitWidth - 1);
         methodConvert.And();
-        methodConvert.Swap();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.Swap();
-        methodConvert.ShL();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.LdArg0();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.LdArg1();
+    }
+
+    private static void LoadInverseRotateOffset(MethodConvert methodConvert, byte offsetSlot, int bitWidth)
+    {
         methodConvert.Push(bitWidth);
-        methodConvert.Swap();
+        LoadMaskedRotateOffset(methodConvert, offsetSlot, bitWidth);
         methodConvert.Sub();
         methodConvert.Push(bitWidth - 1);
         methodConvert.And();
-        methodConvert.ShR();
-        methodConvert.Or();
+    }
+
+    private static void EmitSignedRotateResult(MethodConvert methodConvert, int bitWidth)
+    {
         methodConvert.Dup();
         methodConvert.Push(BigInteger.One << (bitWidth - 1));
         JumpTarget endTarget = new();
@@ -381,64 +371,46 @@ internal partial class MethodConvert
         endTarget.Instruction = methodConvert.Nop();
     }
 
-    private static void EmitRotateRightUnsigned(MethodConvert methodConvert, int bitWidth)
+    private static void EmitRotateLeftUnsigned(MethodConvert methodConvert, int bitWidth, byte valueSlot, byte offsetSlot)
     {
         var mask = (BigInteger.One << bitWidth) - 1;
-        methodConvert.Push(bitWidth - 1);
+        LoadMaskedRotateValue(methodConvert, valueSlot, mask);
+        LoadMaskedRotateOffset(methodConvert, offsetSlot, bitWidth);
+        methodConvert.ShL();
+        methodConvert.Push(mask);
         methodConvert.And();
+        LoadMaskedRotateValue(methodConvert, valueSlot, mask);
+        LoadInverseRotateOffset(methodConvert, offsetSlot, bitWidth);
         methodConvert.ShR();
-        methodConvert.LdArg0();
-        methodConvert.Push(bitWidth);
-        methodConvert.LdArg1();
-        methodConvert.Sub();
-        methodConvert.Push(bitWidth - 1);
+        methodConvert.Or();
+        methodConvert.Push(mask);
         methodConvert.And();
+    }
+
+    private static void EmitRotateLeftSigned(MethodConvert methodConvert, int bitWidth, byte valueSlot, byte offsetSlot)
+    {
+        EmitRotateLeftUnsigned(methodConvert, bitWidth, valueSlot, offsetSlot);
+        EmitSignedRotateResult(methodConvert, bitWidth);
+    }
+
+    private static void EmitRotateRightUnsigned(MethodConvert methodConvert, int bitWidth, byte valueSlot, byte offsetSlot)
+    {
+        var mask = (BigInteger.One << bitWidth) - 1;
+        LoadMaskedRotateValue(methodConvert, valueSlot, mask);
+        LoadMaskedRotateOffset(methodConvert, offsetSlot, bitWidth);
+        methodConvert.ShR();
+        LoadMaskedRotateValue(methodConvert, valueSlot, mask);
+        LoadInverseRotateOffset(methodConvert, offsetSlot, bitWidth);
         methodConvert.ShL();
         methodConvert.Or();
         methodConvert.Push(mask);
         methodConvert.And();
     }
 
-    private static void EmitRotateRightSigned(MethodConvert methodConvert, int bitWidth)
+    private static void EmitRotateRightSigned(MethodConvert methodConvert, int bitWidth, byte valueSlot, byte offsetSlot)
     {
-        var mask = (BigInteger.One << bitWidth) - 1;
-        methodConvert.Push(bitWidth - 1);
-        methodConvert.And();
-        methodConvert.Push(bitWidth);
-        methodConvert.Mod();
-        methodConvert.Push(bitWidth);
-        methodConvert.Swap();
-        methodConvert.Sub();
-        methodConvert.Swap();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.Swap();
-        methodConvert.ShL();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.LdArg0();
-        methodConvert.Push(mask);
-        methodConvert.And();
-        methodConvert.LdArg1();
-        methodConvert.Push(bitWidth);
-        methodConvert.Mod();
-        methodConvert.Push(bitWidth);
-        methodConvert.Swap();
-        methodConvert.Sub();
-        methodConvert.Push(bitWidth);
-        methodConvert.Swap();
-        methodConvert.Sub();
-        methodConvert.Push(bitWidth - 1);
-        methodConvert.And();
-        methodConvert.ShR();
-        methodConvert.Or();
-        methodConvert.Dup();
-        methodConvert.Push(BigInteger.One << (bitWidth - 1));
-        JumpTarget endTarget = new();
-        methodConvert.JumpIfLess(endTarget);
-        methodConvert.Push(BigInteger.One << bitWidth);
-        methodConvert.Sub();
-        endTarget.Instruction = methodConvert.Nop();
+        EmitRotateRightUnsigned(methodConvert, bitWidth, valueSlot, offsetSlot);
+        EmitSignedRotateResult(methodConvert, bitWidth);
     }
 
 }
