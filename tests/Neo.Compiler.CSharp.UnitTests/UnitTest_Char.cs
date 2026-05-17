@@ -14,6 +14,7 @@ using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -73,6 +74,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047450);
             Assert.IsFalse(Contract.TestCharIsPunctuation('a'));
             AssertGasConsumed(1048590);
+
+            for (char c = '\0'; c < 128; c++)
+            {
+                Assert.AreEqual(char.IsSymbol(c), Contract.TestCharIsSymbol(c), $"IsSymbol failed for '{c}'");
+                AssertGasConsumed(1047450);
+            }
 
             Assert.IsTrue(Contract.TestCharIsSymbol('$'));
             AssertGasConsumed(1047450);

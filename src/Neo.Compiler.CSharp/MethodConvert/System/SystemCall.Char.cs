@@ -10,6 +10,8 @@
 // modifications are permitted.
 
 using System.Collections.Generic;
+using System.Globalization;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -277,7 +279,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: Checks if character is within ASCII symbol ranges: $%&'()*+ <=> >?@ [\]^_` {|}~
+    /// Algorithm: Checks if character is within ASCII symbol ranges: "<$+<=>^`|~>"
     /// </remarks>
     private static void HandleCharIsSymbol(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -285,19 +287,16 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         var endTarget = new JumpTarget();
+        var bits = BigInteger.Parse("50000001400000007000081000000000", NumberStyles.AllowHexSpecifier);
         methodConvert.Dup();                                       // Duplicate character for multiple checks
-        methodConvert.Within((ushort)'$', (ushort)'+');            // Check if within range $%&'()*+
-        methodConvert.JumpIfTrue(endTarget);                       // Jump if found symbol
-        methodConvert.Dup();                                       // Duplicate character for next check
-        methodConvert.Within((ushort)'<', (ushort)'=');            // Check if within range <=>
-        methodConvert.JumpIfTrue(endTarget);                       // Jump if found symbol
-        methodConvert.Dup();                                       // Duplicate character for next check
-        methodConvert.Within((ushort)'>', (ushort)'@');            // Check if within range >?@
-        methodConvert.JumpIfTrue(endTarget);                       // Jump if found symbol
-        methodConvert.Dup();                                       // Duplicate character for next check
-        methodConvert.Within((ushort)'[', (ushort)'`');            // Check if within range [\]^_`
-        methodConvert.JumpIfTrue(endTarget);                       // Jump if found symbol
-        methodConvert.Within((ushort)'{', (ushort)'~');            // Check if within range {|}~
+        methodConvert.Push(127);                                   // Push 127 for comparison
+        methodConvert.JumpIfGreater(endTarget);                    // Only ASCII characters are checked
+        methodConvert.Push(bits);                                  // Push bits for comparison
+        methodConvert.Push1();                                     // Push 1 for AND with bits
+        methodConvert.Rot();                                       // v | bits | 1 ->  bits | 1 | v
+        methodConvert.ShL();                                       // bits | 1 | v -> bbit | (1 << v)
+        methodConvert.And();                                       // bits | (1 << v) -> bits & (1 << v)
+        methodConvert.Nz();                                        // Check if bits & (1 << v) is not zero
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
