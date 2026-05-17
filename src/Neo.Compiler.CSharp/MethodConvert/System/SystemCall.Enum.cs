@@ -224,6 +224,8 @@ internal partial class MethodConvert
     private static void HandleEnumTryParseIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
@@ -258,9 +260,12 @@ internal partial class MethodConvert
 
         var enumMembers = enumTypeSymbol.GetMembers().OfType<IFieldSymbol>()
             .Where(field => field is { HasConstantValue: true, IsImplicitlyDeclared: false }).ToArray();
+
+        byte ignoreCaseSlot = methodConvert.AddAnonymousVariable();
         var ignoreCase = new JumpTarget();
-        var ignoreCase2 = new JumpTarget();
         methodConvert.Drop();
+        methodConvert.Dup();
+        methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
         methodConvert.JumpIfNot(ignoreCase);
         methodConvert.Swap();
         methodConvert.Drop();
@@ -270,13 +275,13 @@ internal partial class MethodConvert
         {
             // Duplicate inputString
             methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
-            methodConvert.LdArg1();
-            methodConvert.JumpIfNot(ignoreCase2);
-            JumpTarget endCase = new JumpTarget();
-            // Push enum name
+            JumpTarget lowerCaseName = new();
+            JumpTarget endCase = new();
+            methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
+            methodConvert.JumpIfNot(lowerCaseName);
             methodConvert.Push(t.Name.ToUpper());                  // Stack: [..., inputString, inputString, enumName]
             methodConvert.Jump(endCase);
-            ignoreCase2.Instruction = methodConvert.Nop();
+            lowerCaseName.Instruction = methodConvert.Nop();
             methodConvert.Push(t.Name);
             endCase.Instruction = methodConvert.Nop();
 
