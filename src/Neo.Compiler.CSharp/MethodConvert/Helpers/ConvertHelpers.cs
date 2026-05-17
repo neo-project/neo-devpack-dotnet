@@ -178,19 +178,29 @@ internal partial class MethodConvert
             InsertStaticFieldInitialization();
         }
 
-        if (_initSlot)
+        if (_initSlot || _localsCount > 0)
+            InsertLocalSlotInitialization();
+    }
+
+    private void InsertLocalSlotInitialization()
+    {
+        if (_instructions.Count > 0 && _instructions[0].OpCode == OpCode.INITSLOT)
+            return;
+
+        int insertionIndex = _instructions.Count > 0 && _instructions[0].OpCode == OpCode.INITSSLOT ? 1 : 0;
+        if (_instructions.Count > insertionIndex && _instructions[insertionIndex].OpCode == OpCode.INITSLOT)
+            return;
+
+        int parameterSlotCount = Symbol.Parameters.Length + (NeedInstanceConstructor(Symbol) ? 1 : 0);
+        byte pc = RequireByteSizedSlotCount(Symbol, parameterSlotCount, "parameters");
+        byte lc = RequireByteSizedSlotCount(Symbol, _localsCount, "local slots");
+        if (pc > 0 || lc > 0)
         {
-            int parameterSlotCount = Symbol.Parameters.Length + (NeedInstanceConstructor(Symbol) ? 1 : 0);
-            byte pc = RequireByteSizedSlotCount(Symbol, parameterSlotCount, "parameters");
-            byte lc = RequireByteSizedSlotCount(Symbol, _localsCount, "local slots");
-            if (pc > 0 || lc > 0)
+            _instructions.Insert(insertionIndex, new Instruction
             {
-                _instructions.Insert(0, new Instruction
-                {
-                    OpCode = OpCode.INITSLOT,
-                    Operand = [lc, pc]
-                });
-            }
+                OpCode = OpCode.INITSLOT,
+                Operand = [lc, pc]
+            });
         }
     }
 
