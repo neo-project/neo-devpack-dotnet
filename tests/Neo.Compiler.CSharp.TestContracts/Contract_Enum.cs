@@ -35,9 +35,9 @@ namespace Neo.Compiler.CSharp.TestContracts
             return System.Enum.Parse(typeof(TestEnum), value, ignoreCase);
         }
 
-        public static object TestEnumParseIgnoreCaseFromExpression(string value, bool ignoreCase)
+        public static object TestEnumParseIgnoreCaseFromExpression(string value, bool caseSensitive)
         {
-            return System.Enum.Parse(typeof(TestEnum), Normalize(value), !ignoreCase);
+            return System.Enum.Parse(typeof(TestEnum), Normalize(value), !caseSensitive);
         }
 
 #pragma warning disable CS8600
