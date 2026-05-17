@@ -263,6 +263,12 @@ internal partial class MethodConvert
         var argumentMap = MapArgumentsToParameters(model, symbol, arguments);
         var argumentExpressions = MapArgumentExpressionsToParameters(symbol, arguments);
 
+        if (ShouldPreserveArgumentEvaluationOrder(model, symbol, arguments, callingConvention))
+        {
+            PrepareArgumentsPreservingEvaluationOrder(model, symbol, arguments, callingConvention);
+            return;
+        }
+
         // 2. Determine parameter order based on calling convention
         var parameters = DetermineParameterOrder(symbol, callingConvention);
 
@@ -351,6 +357,151 @@ internal partial class MethodConvert
     private static IEnumerable<IParameterSymbol> DetermineParameterOrder(IMethodSymbol symbol, CallingConvention callingConvention)
     {
         return callingConvention == CallingConvention.Cdecl ? symbol.Parameters.Reverse() : symbol.Parameters;
+    }
+
+    private void PrepareArgumentsPreservingEvaluationOrder(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
+    {
+        if (TryPrepareArgumentsWithStackReversal(model, symbol, arguments, callingConvention))
+            return;
+
+        Dictionary<IParameterSymbol, byte> slots = new(SymbolEqualityComparer.Default);
+        List<byte> anonymousSlots = [];
+        int positionalIndex = 0;
+
+        foreach (SyntaxNode argument in arguments)
+        {
+            if (!TryGetRegularArgumentExpression(symbol, argument, ref positionalIndex, out IParameterSymbol? parameter, out ExpressionSyntax? expression) ||
+                parameter is null ||
+                expression is null)
+                continue;
+
+            ConvertExpression(model, expression);
+            byte slot = AddAnonymousVariable();
+            AccessSlot(OpCode.STLOC, slot);
+            anonymousSlots.Add(slot);
+            slots[parameter] = slot;
+        }
+
+        foreach (IParameterSymbol parameter in DetermineParameterOrder(symbol, callingConvention))
+        {
+            if (slots.TryGetValue(parameter, out byte slot))
+                AccessSlot(OpCode.LDLOC, slot);
+            else
+                Push(parameter.ExplicitDefaultValue);
+        }
+
+        foreach (byte slot in anonymousSlots)
+            RemoveAnonymousVariable(slot);
+    }
+
+    private bool TryPrepareArgumentsWithStackReversal(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
+    {
+        if (callingConvention != CallingConvention.Cdecl ||
+            !TryMapArgumentsInParameterOrder(symbol, arguments, out ExpressionSyntax?[] orderedExpressions))
+            return false;
+
+        for (int i = 0; i < symbol.Parameters.Length; i++)
+        {
+            if (orderedExpressions[i] is { } expression)
+                ConvertExpression(model, expression);
+            else
+                Push(symbol.Parameters[i].ExplicitDefaultValue);
+        }
+
+        if (symbol.Parameters.Length > 1)
+            ReverseStackItems(symbol.Parameters.Length);
+
+        return true;
+    }
+
+    private static bool TryMapArgumentsInParameterOrder(IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, out ExpressionSyntax?[] orderedExpressions)
+    {
+        orderedExpressions = new ExpressionSyntax?[symbol.Parameters.Length];
+        int positionalIndex = 0;
+        int lastOrdinal = -1;
+
+        foreach (SyntaxNode argument in arguments)
+        {
+            if (!TryGetRegularArgumentExpression(symbol, argument, ref positionalIndex, out IParameterSymbol? parameter, out ExpressionSyntax? expression) ||
+                parameter is null ||
+                expression is null ||
+                parameter.Ordinal < lastOrdinal ||
+                orderedExpressions[parameter.Ordinal] is not null)
+                return false;
+
+            orderedExpressions[parameter.Ordinal] = expression;
+            lastOrdinal = parameter.Ordinal;
+        }
+
+        return true;
+    }
+
+    private static bool TryGetRegularArgumentExpression(IMethodSymbol symbol, SyntaxNode argument, ref int positionalIndex, out IParameterSymbol? parameter, out ExpressionSyntax? expression)
+    {
+        switch (argument)
+        {
+            case ArgumentSyntax syntax:
+                expression = syntax.Expression;
+                parameter = syntax.NameColon is null
+                    ? symbol.Parameters.ElementAtOrDefault(positionalIndex++)
+                    : symbol.Parameters.FirstOrDefault(p => p.Name == syntax.NameColon.Name.Identifier.ValueText);
+                return parameter is not null;
+            case ExpressionSyntax syntax:
+                expression = syntax;
+                parameter = symbol.Parameters.ElementAtOrDefault(positionalIndex++);
+                return parameter is not null;
+            default:
+                expression = null;
+                parameter = null;
+                return false;
+        }
+    }
+
+    private static bool ShouldPreserveArgumentEvaluationOrder(SemanticModel model, IMethodSymbol symbol, IReadOnlyList<SyntaxNode> arguments, CallingConvention callingConvention)
+    {
+        if (callingConvention != CallingConvention.Cdecl || symbol.Parameters.Length <= 1)
+            return false;
+
+        if (symbol.Parameters.Any(parameter => parameter.IsParams || IsByRef(parameter.RefKind)))
+            return false;
+
+        foreach (SyntaxNode argument in arguments)
+        {
+            if (argument is ArgumentSyntax { RefKindKeyword.RawKind: not 0 })
+                return false;
+            if (argument is not ArgumentSyntax and not ExpressionSyntax)
+                return false;
+        }
+
+        return arguments
+            .Select(ExtractExpression)
+            .Any(expression => HasObservableEvaluationOrder(model, expression));
+    }
+
+    private static bool HasObservableEvaluationOrder(SemanticModel model, ExpressionSyntax expression)
+    {
+        foreach (SyntaxNode node in expression.DescendantNodesAndSelf(descendIntoChildren: node =>
+            node is not LambdaExpressionSyntax and not AnonymousMethodExpressionSyntax &&
+            (node is not ExpressionSyntax childExpression || !model.GetConstantValue(childExpression).HasValue)))
+        {
+            switch (node)
+            {
+                case InvocationExpressionSyntax invocation when !model.GetConstantValue(invocation).HasValue:
+                case AssignmentExpressionSyntax:
+                case AwaitExpressionSyntax:
+                case ThrowExpressionSyntax:
+                case ObjectCreationExpressionSyntax:
+                case ImplicitObjectCreationExpressionSyntax:
+                case PostfixUnaryExpressionSyntax postfix when postfix.IsKind(SyntaxKind.PostIncrementExpression) || postfix.IsKind(SyntaxKind.PostDecrementExpression):
+                case PrefixUnaryExpressionSyntax prefix when prefix.IsKind(SyntaxKind.PreIncrementExpression) || prefix.IsKind(SyntaxKind.PreDecrementExpression):
+                    return true;
+                case MemberAccessExpressionSyntax memberAccess when model.GetSymbolInfo(memberAccess).Symbol is IPropertySymbol:
+                case ElementAccessExpressionSyntax elementAccess when model.GetSymbolInfo(elementAccess).Symbol is IPropertySymbol:
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private bool TryProcessNamedArgument(SemanticModel model, Dictionary<IParameterSymbol, ExpressionSyntax> namedArguments, IParameterSymbol parameter)

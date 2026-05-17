@@ -125,6 +125,7 @@ namespace Neo.Compiler
                     // This method is used for contract initialization
                     ProcessStaticFields(model);
                     InsertStaticFieldInitialization();
+                    InsertLocalSlotInitialization();
                 }
                 else
                 {
