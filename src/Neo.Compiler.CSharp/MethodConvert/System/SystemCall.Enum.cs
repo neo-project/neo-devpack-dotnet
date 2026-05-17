@@ -130,6 +130,8 @@ internal partial class MethodConvert
     private static void HandleEnumParseIgnoreCase(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
         ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
@@ -164,6 +166,9 @@ internal partial class MethodConvert
 
         var ignoreCase = new JumpTarget();
         var ignoreCase2 = new JumpTarget();
+        byte ignoreCaseSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
         methodConvert.JumpIfNot(ignoreCase);
         ConvertToUpper(methodConvert);                             // Convert inputString to upper case
         ignoreCase.Instruction = methodConvert.Nop();
@@ -171,7 +176,7 @@ internal partial class MethodConvert
         {
             // Duplicate inputString
             methodConvert.Dup();                                   // Stack: [..., inputString, inputString]
-            methodConvert.LdArg1();
+            methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
             methodConvert.JumpIfNot(ignoreCase2);
             JumpTarget endCase = new JumpTarget();
             // Push enum name

@@ -51,6 +51,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestEnumParseIgnoreCaseFromExpression()
+        {
+            Assert.AreEqual(new Integer(1), Contract.TestEnumParseIgnoreCaseFromExpression("value1", false));
+        }
+
+        [TestMethod]
         public void TestEnumTryParse()
         {
             Assert.IsTrue(Contract.TestEnumTryParse("Value1"));
