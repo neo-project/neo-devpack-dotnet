@@ -169,6 +169,17 @@ internal partial class MethodConvert
         EmitClampToRangeLegacy(methodConvert);
     }
 
+    private static void HandleNumericCreateTruncating(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        methodConvert.PrepareArgumentsForMethod(model, symbol, arguments!);
+
+        methodConvert.Push((BigInteger.One << descriptor.BitSize) - 1);
+        methodConvert.And();
+
+        if (descriptor.IsSigned)
+            EmitSignedRotateResult(methodConvert, descriptor.BitSize);
+    }
+
     private static void HandleNumericRotateLeft(NumericTypeDescriptor descriptor, MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         using var tempScope = methodConvert.PreserveAnonymousVariables();
@@ -319,6 +330,7 @@ internal partial class MethodConvert
 
         RegisterCreateCheckedHandlers(type, (mc, model, symbol, instanceExpression, arguments) => HandleNumericCreateChecked(descriptor, mc, model, symbol, instanceExpression, arguments));
         RegisterCreateSaturatingHandlers(type, (mc, model, symbol, instanceExpression, arguments) => HandleNumericCreateSaturating(descriptor, mc, model, symbol, instanceExpression, arguments));
+        RegisterCreateTruncatingHandlers(type, (mc, model, symbol, instanceExpression, arguments) => HandleNumericCreateTruncating(descriptor, mc, model, symbol, instanceExpression, arguments));
     }
 
     private static void RegisterNumericMethod(MethodInfo method, SystemCallHandler handler)
