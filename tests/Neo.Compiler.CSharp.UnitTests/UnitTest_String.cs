@@ -432,28 +432,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestToLower()
         {
             Assert.AreEqual("hello world", Contract.TestToLower("Hello World"));
-            AssertGasConsumed(2005470);
+            AssertGasConsumed(2005590);
 
             Assert.AreEqual("123", Contract.TestToLower("123"));
-            AssertGasConsumed(1487430);
+            AssertGasConsumed(1487550);
 
             // Test with already lowercase string
             Assert.AreEqual("lowercase", Contract.TestToLower("lowercase"));
-            AssertGasConsumed(1875150);
+            AssertGasConsumed(1875270);
         }
 
         [TestMethod]
         public void Test_TestToUpper()
         {
             Assert.AreEqual("HELLO WORLD", Contract.TestToUpper("Hello World"));
-            AssertGasConsumed(2008710);
+            AssertGasConsumed(2008830);
 
             Assert.AreEqual("123", Contract.TestToUpper("123"));
-            AssertGasConsumed(1487430);
+            AssertGasConsumed(1487550);
 
             // Test with already uppercase string
             Assert.AreEqual("UPPERCASE", Contract.TestToUpper("UPPERCASE"));
-            AssertGasConsumed(1875150);
+            AssertGasConsumed(1875270);
         }
 
         [TestMethod]
