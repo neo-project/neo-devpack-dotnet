@@ -60,6 +60,36 @@ public class UnitTest_NullableToString
         Assert.AreEqual(1, receiverLoads, $"Nullable<T>.ToString() should leave only the string result on the stack.\n{methodBlock}");
     }
 
+    [TestMethod]
+    public void NullableCharToString_UsesCharacterText()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+
+            public class Contract : SmartContract
+            {
+                [DisplayName("direct")]
+                public static string Direct(char? value) => value.ToString();
+
+                [DisplayName("withSuffix")]
+                public static string WithSuffix(char? value) => value.ToString() + "|done";
+            }
+            """;
+
+        var context = TestHelper.CompileSingleContract(source);
+
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<NullableCharToStringContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual("A", contract.Direct('A'));
+        Assert.AreEqual("", contract.Direct(null));
+        Assert.AreEqual("A|done", contract.WithSuffix('A'));
+        Assert.AreEqual("|done", contract.WithSuffix(null));
+    }
+
     private static string ExtractMethodBlock(string assembly, string methodSignature)
     {
         var normalized = assembly.Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -82,5 +112,15 @@ public class UnitTest_NullableToString
 
         [DisplayName("withSuffix")]
         public abstract string? WithSuffix(BigInteger? value);
+    }
+
+    public abstract class NullableCharToStringContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("direct")]
+        public abstract string? Direct(char? value);
+
+        [DisplayName("withSuffix")]
+        public abstract string? WithSuffix(char? value);
     }
 }
