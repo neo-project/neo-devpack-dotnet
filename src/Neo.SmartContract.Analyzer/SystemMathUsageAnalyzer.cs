@@ -14,7 +14,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Neo.SmartContract.Analyzer
 {
@@ -23,13 +22,16 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4005";
 
-        private readonly string[] _unsupportedMathMethods =
-        {
+        private static readonly ImmutableHashSet<string> UnsupportedMathMethods = ImmutableHashSet.Create(
             "Acos", "Asin", "Atan", "Atan2", "Ceiling", "Cos", "Cosh",
             "Exp", "Floor", "IEEERemainder", "Log", "Log10", "Pow", "Round",
             "Sin", "Sinh", "Sqrt", "Tan", "Tanh",
-            "Truncate"
-        };
+            "Truncate");
+
+        private static readonly SymbolDisplayFormat FullyQualifiedFormat =
+            SymbolDisplayFormat.FullyQualifiedFormat;
+
+        private const string SystemMathTypeName = "global::System.Math";
 
         private static readonly DiagnosticDescriptor Rule = new(
             DiagnosticId,
@@ -53,14 +55,14 @@ namespace Neo.SmartContract.Analyzer
         {
             if (context.Node is not InvocationExpressionSyntax invocationExpression) return;
 
-            if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccess ||
-                memberAccess.Expression is not IdentifierNameSyntax identifier ||
-                !identifier.Identifier.Text.Equals("Math") ||
-                !_unsupportedMathMethods.Contains(memberAccess.Name.Identifier.Text)) return;
+            if (context.SemanticModel.GetSymbolInfo(invocationExpression).Symbol is not IMethodSymbol methodSymbol ||
+                methodSymbol.ContainingType?.ToDisplayString(FullyQualifiedFormat) != SystemMathTypeName ||
+                !UnsupportedMathMethods.Contains(methodSymbol.Name))
+                return;
 
             var diagnostic = Diagnostic.Create(Rule,
                 invocationExpression.GetLocation(),
-                memberAccess.Name.Identifier.Text);
+                methodSymbol.Name);
 
             context.ReportDiagnostic(diagnostic);
         }
