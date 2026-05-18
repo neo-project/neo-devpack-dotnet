@@ -53,11 +53,21 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAbs()
         {
             Assert.AreEqual(1, Contract.Abs(1));
-            AssertGasConsumed(1047150);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(1, Contract.Abs(-1));
-            AssertGasConsumed(1047150);
+            AssertGasConsumed(1047300);
             Assert.AreEqual(0, Contract.Abs(0));
-            AssertGasConsumed(1047150);
+            AssertGasConsumed(1047300);
+            Assert.ThrowsException<TestException>(() => Contract.Abs(int.MinValue));
+
+            Assert.AreEqual(sbyte.MaxValue, Contract.AbsSByte(sbyte.MinValue + 1));
+            Assert.ThrowsException<TestException>(() => Contract.AbsSByte(sbyte.MinValue));
+
+            Assert.AreEqual(short.MaxValue, Contract.AbsShort(short.MinValue + 1));
+            Assert.ThrowsException<TestException>(() => Contract.AbsShort(short.MinValue));
+
+            Assert.AreEqual(long.MaxValue, Contract.AbsLong(long.MinValue + 1));
+            Assert.ThrowsException<TestException>(() => Contract.AbsLong(long.MinValue));
         }
 
         [TestMethod]
