@@ -622,9 +622,16 @@ internal partial class MethodConvert
 
     private static void RegisterBitOperationsHandlers()
     {
+        var uintDescriptor = GetDescriptor(typeof(uint));
+        var ulongDescriptor = GetDescriptor(typeof(ulong));
+
         // Static Methods
         RegisterHandler((uint value) => BitOperations.Log2(value), HandleBigIntegerLog2);
         RegisterHandler((ulong value) => BitOperations.Log2(value), HandleBigIntegerLog2);
+        RegisterHandler((uint value) => BitOperations.PopCount(value),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericPopCount(uintDescriptor, mc, model, symbol, instanceExpression, arguments));
+        RegisterHandler((ulong value) => BitOperations.PopCount(value),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericPopCount(ulongDescriptor, mc, model, symbol, instanceExpression, arguments));
     }
 
     private static void RegisterEnumHandlers()

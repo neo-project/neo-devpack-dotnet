@@ -30,6 +30,15 @@ internal partial class MethodConvert
         // Core methods
         RegisterHandler((StringBuilder builder, string value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(string)");
         RegisterHandler((StringBuilder builder, char value) => builder.Append(value), HandleStringBuilderAppendChar, $"{BuilderType}.Append(char)");
+        RegisterHandler((StringBuilder builder, sbyte value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(sbyte)");
+        RegisterHandler((StringBuilder builder, byte value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(byte)");
+        RegisterHandler((StringBuilder builder, short value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(short)");
+        RegisterHandler((StringBuilder builder, ushort value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(ushort)");
+        RegisterHandler((StringBuilder builder, int value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(int)");
+        RegisterHandler((StringBuilder builder, uint value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(uint)");
+        RegisterHandler((StringBuilder builder, long value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(long)");
+        RegisterHandler((StringBuilder builder, ulong value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(ulong)");
+        RegisterHandler((StringBuilder builder, bool value) => builder.Append(value), HandleStringBuilderAppendString, $"{BuilderType}.Append(bool)");
         RegisterHandler((StringBuilder builder, StringBuilder other) => builder.Append(other), HandleStringBuilderAppendBuilder, $"{BuilderType}.Append({BuilderType})");
         RegisterHandler((StringBuilder builder) => builder.AppendLine(), HandleStringBuilderAppendLine, $"{BuilderType}.AppendLine()");
         RegisterHandler((StringBuilder builder, string value) => builder.AppendLine(value), HandleStringBuilderAppendLineWithValue, $"{BuilderType}.AppendLine(string)");
@@ -212,6 +221,19 @@ internal partial class MethodConvert
             case SpecialType.System_Object:
                 methodConvert.ConvertObjectToString(model, ExtractExpression(argument));
                 EnsureStringValue(methodConvert);
+                slot = methodConvert.AddAnonymousVariable();
+                methodConvert.AccessSlot(OpCode.STLOC, slot);
+                return slot;
+            case SpecialType.System_SByte:
+            case SpecialType.System_Byte:
+            case SpecialType.System_Int16:
+            case SpecialType.System_UInt16:
+            case SpecialType.System_Int32:
+            case SpecialType.System_UInt32:
+            case SpecialType.System_Int64:
+            case SpecialType.System_UInt64:
+            case SpecialType.System_Boolean:
+                methodConvert.ConvertObjectToString(model, ExtractExpression(argument));
                 slot = methodConvert.AddAnonymousVariable();
                 methodConvert.AccessSlot(OpCode.STLOC, slot);
                 return slot;

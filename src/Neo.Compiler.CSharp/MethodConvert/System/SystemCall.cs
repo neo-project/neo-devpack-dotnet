@@ -206,6 +206,7 @@ internal partial class MethodConvert
             _ when type == typeof(ushort) => "ushort",
             // _ when type == typeof(byte[]) => "byte[]",
             _ when type == typeof(BigInteger) => "System.Numerics.BigInteger",
+            _ when type == typeof(BitOperations) => "System.Numerics.BitOperations",
             _ when type == typeof(Array) => "System.Array",
             _ when type == typeof(Math) => "System.Math",
             _ when type == typeof(Type) => "System.Type",
