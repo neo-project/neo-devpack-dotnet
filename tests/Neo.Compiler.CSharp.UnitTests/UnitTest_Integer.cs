@@ -1062,6 +1062,17 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestMethodBigIntegerLeadingZeroCount()
+        {
+            Assert.AreEqual((BigInteger)BigInteger.LeadingZeroCount(BigInteger.Zero), Contract.LeadingZeroCountBigInteger(BigInteger.Zero));
+            Assert.AreEqual((BigInteger)BigInteger.LeadingZeroCount(BigInteger.One), Contract.LeadingZeroCountBigInteger(BigInteger.One));
+            Assert.AreEqual((BigInteger)BigInteger.LeadingZeroCount(new BigInteger(255)), Contract.LeadingZeroCountBigInteger(new BigInteger(255)));
+            Assert.AreEqual((BigInteger)BigInteger.LeadingZeroCount(new BigInteger(256)), Contract.LeadingZeroCountBigInteger(new BigInteger(256)));
+            Assert.AreEqual((BigInteger)BigInteger.LeadingZeroCount((BigInteger)uint.MaxValue + 1), Contract.LeadingZeroCountBigInteger((BigInteger)uint.MaxValue + 1));
+            Assert.AreEqual((BigInteger)BigInteger.LeadingZeroCount(BigInteger.MinusOne), Contract.LeadingZeroCountBigInteger(BigInteger.MinusOne));
+        }
+
+        [TestMethod]
         public void TestMethodUIntLog2()
         {
             Assert.AreEqual(uint.Log2(1U), Contract.Log2UInt(1U));
