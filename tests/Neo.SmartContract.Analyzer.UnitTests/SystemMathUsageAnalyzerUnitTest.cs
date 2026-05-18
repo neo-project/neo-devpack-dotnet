@@ -40,6 +40,87 @@ class TestClass
         }
 
         [TestMethod]
+        public async Task UnsupportedFullyQualifiedMathSqrt_ShouldReportDiagnostic()
+        {
+            var test = @"
+using System;
+
+class TestClass
+{
+    void TestMethod()
+    {
+        var result = System.Math.Sqrt(4.0);
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
+                .WithSpan(8, 22, 8, 43)
+                .WithArguments("Sqrt");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task UnsupportedAliasedMathSqrt_ShouldReportDiagnostic()
+        {
+            var test = @"
+using System;
+using M = System.Math;
+
+class TestClass
+{
+    void TestMethod()
+    {
+        var result = M.Sqrt(4.0);
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
+                .WithSpan(9, 22, 9, 33)
+                .WithArguments("Sqrt");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task UnsupportedStaticImportedMathSqrt_ShouldReportDiagnostic()
+        {
+            var test = @"
+using static System.Math;
+
+class TestClass
+{
+    void TestMethod()
+    {
+        var result = Sqrt(4.0);
+    }
+}";
+
+            var expected = VerifyCS.Diagnostic(SystemMathUsageAnalyzer.DiagnosticId)
+                .WithSpan(8, 22, 8, 31)
+                .WithArguments("Sqrt");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task CustomMathType_ShouldNotReportDiagnostic()
+        {
+            var test = @"
+class Math
+{
+    public static double Sqrt(double value) => value;
+}
+
+class TestClass
+{
+    void TestMethod()
+    {
+        var result = Math.Sqrt(4.0);
+    }
+}";
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
         public async Task UnsupportedMathCos_ShouldReportDiagnostic()
         {
             var test = @"
