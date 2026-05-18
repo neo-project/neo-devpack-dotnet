@@ -34,6 +34,29 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
         methodConvert.Abs();                                       // Get absolute value
+        if (!TryGetMathAbsMaxValue(symbol.ReturnType.SpecialType, out var maxValue))
+            return;
+
+        JumpTarget endTarget = new();
+        methodConvert.Dup();
+        methodConvert.Push(maxValue);
+        methodConvert.JumpIfLessOrEqual(endTarget);
+        methodConvert.Drop();
+        methodConvert.Throw();
+        endTarget.Instruction = methodConvert.Nop();
+    }
+
+    private static bool TryGetMathAbsMaxValue(SpecialType returnType, out long maxValue)
+    {
+        maxValue = returnType switch
+        {
+            SpecialType.System_SByte => sbyte.MaxValue,
+            SpecialType.System_Int16 => short.MaxValue,
+            SpecialType.System_Int32 => int.MaxValue,
+            SpecialType.System_Int64 => long.MaxValue,
+            _ => 0
+        };
+        return maxValue != 0;
     }
 
     /// <summary>

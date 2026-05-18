@@ -33,6 +33,15 @@ public class StringBuilderUsageAnalyzerUnitTests
                            var other = new StringBuilder();
                            var result = sb.Append("neo")
                                            .Append(' ')
+                                           .Append((sbyte)-1)
+                                           .Append((byte)2)
+                                           .Append((short)-3)
+                                           .Append((ushort)4)
+                                           .Append(-5)
+                                           .Append(6U)
+                                           .Append(-7L)
+                                           .Append(8UL)
+                                           .Append(true)
                                            .Append(other)
                                            .AppendLine()
                                            .AppendLine("runtime")
@@ -80,14 +89,14 @@ public class StringBuilderUsageAnalyzerUnitTests
                        void Test()
                        {
                            var sb = new StringBuilder();
-                           sb.Append(42);
+                           sb.Append(42m);
                        }
                    }
                    """;
 
         var expected = VerifyCS.Diagnostic(StringBuilderUsageAnalyzer.DiagnosticId)
-            .WithSpan(8, 9, 8, 22)
-            .WithArguments("StringBuilder.Append(int)");
+            .WithSpan(8, 9, 8, 23)
+            .WithArguments("StringBuilder.Append(decimal)");
 
         await VerifyCS.VerifyAnalyzerAsync(test, expected);
     }
