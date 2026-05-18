@@ -862,7 +862,7 @@ internal partial class MethodConvert
     /// <param name="instanceExpression">The instance expression (if any)</param>
     /// <param name="arguments">The method arguments</param>
     /// <remarks>
-    /// Algorithm: For negative values returns 0, otherwise counts leading zeros by right-shifting until zero
+    /// Algorithm: For negative values returns 0, otherwise counts leading zeros in the current 32-bit limb
     /// </remarks>
     private static void HandleBigIntegerLeadingZeroCount(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
@@ -890,9 +890,23 @@ internal partial class MethodConvert
         methodConvert.Inc();                                       // Increment count
         methodConvert.JumpAlways(loopStart);                 // Continue loop
         endLoop.Instruction = methodConvert.Drop();                // Drop remaining value
-        methodConvert.Push(256);                                   // Push 256 (estimated bit width)
-        methodConvert.Swap();                                      // Swap 256 and count
-        methodConvert.Sub();                                       // Calculate 256 - count
+        JumpTarget nonZeroCount = new();
+        methodConvert.Dup();                                       // Duplicate count for zero check
+        methodConvert.Push0();                                     // Push 0 for comparison
+        methodConvert.JumpIfNotEqual(nonZeroCount);                // Jump if count != 0
+        methodConvert.Drop();                                      // Drop zero count
+        methodConvert.Push(32);                                    // Zero has one empty 32-bit limb
+        methodConvert.JumpAlways(endTarget);                       // Jump to end
+        nonZeroCount.Instruction = methodConvert.Nop();            // Non-zero count target
+        methodConvert.Dup();                                       // Preserve count for final subtraction
+        methodConvert.Push(31);                                    // Round bit count up to a 32-bit limb
+        methodConvert.Add();                                       // count + 31
+        methodConvert.Push(32);                                    // 32-bit limb divisor
+        methodConvert.Div();                                       // (count + 31) / 32
+        methodConvert.Push(32);                                    // 32-bit limb width
+        methodConvert.Mul();                                       // rounded width
+        methodConvert.Swap();                                      // Swap width and count
+        methodConvert.Sub();                                       // Calculate rounded width - count
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
