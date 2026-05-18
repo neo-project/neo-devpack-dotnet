@@ -68,6 +68,11 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TestCharSpecialCategories()
         {
+            for (char c = '\0'; c < 128; c++)
+            {
+                Assert.AreEqual(char.IsPunctuation(c), Contract.TestCharIsPunctuation(c), $"IsPunctuation failed for '{c}'");
+                AssertGasConsumed(1047450);
+            }
             Assert.IsTrue(Contract.TestCharIsPunctuation('.'));
             AssertGasConsumed(1047450);
             Assert.IsTrue(Contract.TestCharIsPunctuation(','));
@@ -80,7 +85,6 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Assert.AreEqual(char.IsSymbol(c), Contract.TestCharIsSymbol(c), $"IsSymbol failed for '{c}'");
                 AssertGasConsumed(1047450);
             }
-
             Assert.IsTrue(Contract.TestCharIsSymbol('$'));
             AssertGasConsumed(1047450);
             Assert.IsTrue(Contract.TestCharIsSymbol('+'));
@@ -88,6 +92,11 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse(Contract.TestCharIsSymbol('a'));
             AssertGasConsumed(1049010);
 
+            for (char c = '\0'; c < 128; c++)
+            {
+                Assert.AreEqual(char.IsControl(c), Contract.TestCharIsControl(c), $"IsControl failed for '{c}'");
+                AssertGasConsumed(1047990);
+            }
             Assert.IsTrue(Contract.TestCharIsControl('\n'));
             AssertGasConsumed(1047990);
             Assert.IsTrue(Contract.TestCharIsControl('\0'));
