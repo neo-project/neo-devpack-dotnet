@@ -832,6 +832,8 @@ internal partial class MethodConvert
     private static void HandleStringToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
     ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -845,23 +847,28 @@ internal partial class MethodConvert
     /// <remarks>
     /// Algorithm: Iterates through string characters, converting uppercase to lowercase
     /// </remarks>
-    private static void ConvertToLower(MethodConvert methodConvert)
+    private static void ConvertToLower(MethodConvert methodConvert, bool preserveInput = false)
     {
+        byte strSlot = methodConvert.AddAnonymousVariable();
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         var charIsLower = new JumpTarget();
+
+        if (preserveInput)
+            methodConvert.Dup();
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
         methodConvert.Push("");                                    // Create empty result string
 
         methodConvert.Push0();                                     // Initialize index to 0
         loopStart.Instruction = methodConvert.Nop();               // Loop start marker
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
         methodConvert.Swap();                                      // Swap for PickItem
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
@@ -889,6 +896,7 @@ internal partial class MethodConvert
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
         methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert to ByteString
+        methodConvert.RemoveAnonymousVariable(strSlot);
     }
 
     /// <summary>
@@ -904,6 +912,8 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringToUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
@@ -917,23 +927,28 @@ internal partial class MethodConvert
     /// <remarks>
     /// Algorithm: Iterates through string characters, converting lowercase to uppercase
     /// </remarks>
-    private static void ConvertToUpper(MethodConvert methodConvert)
+    private static void ConvertToUpper(MethodConvert methodConvert, bool preserveInput = false)
     {
+        byte strSlot = methodConvert.AddAnonymousVariable();
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
         var charIsLower = new JumpTarget();
+
+        if (preserveInput)
+            methodConvert.Dup();
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
         methodConvert.Push("");                                    // Create empty result string
 
         methodConvert.Push0();                                     // Initialize index to 0
         loopStart.Instruction = methodConvert.Nop();               // Loop start marker
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);           // Load string
         methodConvert.Swap();                                      // Swap for PickItem
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
@@ -961,6 +976,7 @@ internal partial class MethodConvert
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
         methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert to ByteString
+        methodConvert.RemoveAnonymousVariable(strSlot);
     }
 
     /// <summary>
