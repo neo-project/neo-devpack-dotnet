@@ -35,6 +35,21 @@ namespace Neo.Compiler.CSharp.TestContracts
             return Math.Abs(a);
         }
 
+        public static sbyte absSByte(sbyte a)
+        {
+            return Math.Abs(a);
+        }
+
+        public static short absShort(short a)
+        {
+            return Math.Abs(a);
+        }
+
+        public static long absLong(long a)
+        {
+            return Math.Abs(a);
+        }
+
         public static long bigMul(int a, int b)
         {
             return Math.BigMul(a, b);
