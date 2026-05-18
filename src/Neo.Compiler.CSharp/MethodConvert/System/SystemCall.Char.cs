@@ -243,15 +243,19 @@ internal partial class MethodConvert
     private static void EmitCheckingCharacters(MethodConvert methodConvert, BigInteger bits)
     {
         var endTarget = new JumpTarget();
+        var nonAsciiTarget = new JumpTarget();
         methodConvert.Dup();                                       // Duplicate character for multiple checks
         methodConvert.Push(127);                                   // Push 127 for checking if character is ASCII
-        methodConvert.JumpIfGreater(endTarget);                    // Only ASCII characters are checked
+        methodConvert.JumpIfGreater(nonAsciiTarget);               // Only ASCII characters are checked
         methodConvert.Push(bits);                                  // Push bits as bitmap
         methodConvert.Push1();                                     // Push 1 for AND with bits
         methodConvert.Rot();                                       // v | bits | 1 ->  bits | 1 | v
         methodConvert.ShL();                                       // bits | 1 | v -> bbit | (1 << v)
         methodConvert.And();                                       // bits | (1 << v) -> bits & (1 << v)
         methodConvert.Nz();                                        // Check if bits & (1 << v) is not zero
+        methodConvert.JumpAlways(endTarget);
+        nonAsciiTarget.Instruction = methodConvert.Drop();
+        methodConvert.PushF();
         endTarget.Instruction = methodConvert.Nop();               // End target
     }
 
