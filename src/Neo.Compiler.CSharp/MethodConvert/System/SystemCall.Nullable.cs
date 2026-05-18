@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.SmartContract.Native;
 using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler;
 
@@ -446,12 +447,21 @@ internal partial class MethodConvert
         methodConvert.Dup();                                       // Duplicate value for null check
         methodConvert.IsNull();                                    // Check if value is null
         methodConvert.JumpIfTrue(endTarget);                       // Jump if null
-        methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
+        if (IsNullableChar(symbol.ContainingType))
+            methodConvert.ChangeType(StackItemType.ByteString);
+        else
+            methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "itoa", 1, true);
         methodConvert.JumpAlwaysLong(endTarget2);                   // Jump to end
         endTarget.Instruction = methodConvert.Nop();               // Null case target
         methodConvert.Drop();                                      // Drop null value
         methodConvert.Push("");                                    // Push empty string
         endTarget2.Instruction = methodConvert.Nop();              // End target
+    }
+
+    private static bool IsNullableChar(INamedTypeSymbol type)
+    {
+        return type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T &&
+               type.TypeArguments is [{ SpecialType: SpecialType.System_Char }];
     }
 
     /// <summary>
