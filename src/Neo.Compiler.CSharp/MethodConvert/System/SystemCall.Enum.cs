@@ -170,7 +170,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.STLOC, ignoreCaseSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreCaseSlot);
         methodConvert.JumpIfNot(ignoreCase);
-        ConvertToUpper(methodConvert);                             // Convert inputString to upper case
+        ConvertToUpper(methodConvert, preserveInput: true);        // Convert inputString to upper case
         ignoreCase.Instruction = methodConvert.Nop();
         foreach (var t in enumMembers)
         {
@@ -269,7 +269,7 @@ internal partial class MethodConvert
         methodConvert.JumpIfNot(ignoreCase);
         methodConvert.Swap();
         methodConvert.Drop();
-        ConvertToUpper(methodConvert);                             // Convert inputString to upper case
+        ConvertToUpper(methodConvert, preserveInput: true);        // Convert inputString to upper case
         ignoreCase.Instruction = methodConvert.Nop();
         foreach (var t in enumMembers)
         {
@@ -903,7 +903,7 @@ internal partial class MethodConvert
         JumpTarget skipUpper = new();
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
         methodConvert.JumpIfFalse(skipUpper);
-        ConvertToUpper(methodConvert);
+        ConvertToUpper(methodConvert, preserveInput: true);
         skipUpper.Instruction = methodConvert.Nop();
 
         foreach (var member in members)
@@ -1021,7 +1021,7 @@ internal partial class MethodConvert
         JumpTarget skipUpper = new();
         methodConvert.AccessSlot(OpCode.LDLOC, ignoreSlot);
         methodConvert.JumpIfFalse(skipUpper);
-        ConvertToUpper(methodConvert);
+        ConvertToUpper(methodConvert, preserveInput: true);
         skipUpper.Instruction = methodConvert.Nop();
 
         foreach (var member in members)
