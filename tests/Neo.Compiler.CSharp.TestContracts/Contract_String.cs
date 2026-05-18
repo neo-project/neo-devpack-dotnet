@@ -214,9 +214,19 @@ namespace Neo.Compiler.CSharp.TestContracts
             return s.ToLower();
         }
 
+        public static string TestToLowerFromExpression(string s)
+        {
+            return (s + "Neo").ToLower();
+        }
+
         public static string TestToUpper(string s)
         {
             return s.ToUpper();
+        }
+
+        public static string TestToUpperFromExpression(string s)
+        {
+            return (s + "Neo").ToUpper();
         }
 
         public static string TestTrimChar(string s, char trimChar)

@@ -443,6 +443,12 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestToLowerFromExpression()
+        {
+            Assert.AreEqual("helloneo", Contract.TestToLowerFromExpression("Hello"));
+        }
+
+        [TestMethod]
         public void Test_TestToUpper()
         {
             Assert.AreEqual("HELLO WORLD", Contract.TestToUpper("Hello World"));
@@ -454,6 +460,12 @@ namespace Neo.Compiler.CSharp.UnitTests
             // Test with already uppercase string
             Assert.AreEqual("UPPERCASE", Contract.TestToUpper("UPPERCASE"));
             AssertGasConsumed(1875150);
+        }
+
+        [TestMethod]
+        public void Test_TestToUpperFromExpression()
+        {
+            Assert.AreEqual("HELLONEO", Contract.TestToUpperFromExpression("Hello"));
         }
 
         [TestMethod]

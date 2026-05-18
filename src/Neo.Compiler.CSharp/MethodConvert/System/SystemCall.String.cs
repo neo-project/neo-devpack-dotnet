@@ -832,10 +832,42 @@ internal partial class MethodConvert
     private static void HandleStringToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
     ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetDirectStringReceiverLoader(methodConvert, model, instanceExpression, out var loadString))
+        {
+            ConvertToLower(methodConvert, loadString);
+            return;
+        }
+
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        ConvertToLower(methodConvert);
+        byte valueSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+        ConvertToLower(methodConvert, () => methodConvert.AccessSlot(OpCode.LDLOC, valueSlot));
+    }
+
+    private static bool TryGetDirectStringReceiverLoader(MethodConvert methodConvert, SemanticModel model, ExpressionSyntax? instanceExpression, out Action loadString)
+    {
+        loadString = null!;
+
+        if (instanceExpression is not IdentifierNameSyntax identifierName)
+            return false;
+
+        switch (model.GetSymbolInfo(identifierName).Symbol)
+        {
+            case IParameterSymbol parameter:
+                loadString = () => methodConvert.LdArgSlot(parameter);
+                return true;
+            case ILocalSymbol local:
+                loadString = () => methodConvert.LdLocSlot(local);
+                return true;
+            default:
+                return false;
+        }
     }
 
     /// <summary>
@@ -846,6 +878,9 @@ internal partial class MethodConvert
     /// Algorithm: Iterates through string characters, converting uppercase to lowercase
     /// </remarks>
     private static void ConvertToLower(MethodConvert methodConvert)
+        => ConvertToLower(methodConvert, () => methodConvert.LdArg0());
+
+    private static void ConvertToLower(MethodConvert methodConvert, Action loadString)
     {
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
@@ -856,12 +891,12 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();               // Loop start marker
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        loadString();                                              // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        loadString();                                              // Load string
         methodConvert.Swap();                                      // Swap for PickItem
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
@@ -904,10 +939,22 @@ internal partial class MethodConvert
     /// </remarks>
     private static void HandleStringToUpper(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
+        if (TryGetDirectStringReceiverLoader(methodConvert, model, instanceExpression, out var loadString))
+        {
+            ConvertToUpper(methodConvert, loadString);
+            return;
+        }
+
+        using var tempScope = methodConvert.PreserveAnonymousVariables();
+
+        if (instanceExpression is not null)
+            methodConvert.ConvertExpression(model, instanceExpression);
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments);
 
-        ConvertToUpper(methodConvert);
+        byte valueSlot = methodConvert.AddAnonymousVariable();
+        methodConvert.AccessSlot(OpCode.STLOC, valueSlot);
+        ConvertToUpper(methodConvert, () => methodConvert.AccessSlot(OpCode.LDLOC, valueSlot));
     }
 
     /// <summary>
@@ -918,6 +965,9 @@ internal partial class MethodConvert
     /// Algorithm: Iterates through string characters, converting lowercase to uppercase
     /// </remarks>
     private static void ConvertToUpper(MethodConvert methodConvert)
+        => ConvertToUpper(methodConvert, () => methodConvert.LdArg0());
+
+    private static void ConvertToUpper(MethodConvert methodConvert, Action loadString)
     {
         var loopStart = new JumpTarget();
         var loopEnd = new JumpTarget();
@@ -928,12 +978,12 @@ internal partial class MethodConvert
         loopStart.Instruction = methodConvert.Nop();               // Loop start marker
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        loadString();                                              // Load string
         methodConvert.Size();                                      // Get string length
         methodConvert.JumpIfGreaterOrEqual(loopEnd);               // Exit if done
 
         methodConvert.Dup();                                       // Duplicate index
-        methodConvert.LdArg0();                                    // Load string
+        loadString();                                              // Load string
         methodConvert.Swap();                                      // Swap for PickItem
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
