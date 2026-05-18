@@ -945,6 +945,22 @@ internal partial class MethodConvert
     }
 
     /// <summary>
+    /// Handles the BigInteger.CreateTruncating method by creating a BigInteger without truncation.
+    /// </summary>
+    /// <param name="methodConvert">The method converter instance</param>
+    /// <param name="model">The semantic model</param>
+    /// <param name="symbol">The method symbol</param>
+    /// <param name="instanceExpression">The instance expression (if any)</param>
+    /// <param name="arguments">The method arguments</param>
+    /// <remarks>
+    /// Algorithm: Direct conversion since BigInteger can represent any integer value without truncation
+    /// </remarks>
+    private static void HandleBigIntegerCreateTruncating(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+    {
+        methodConvert.PrepareArgumentsForMethod(model, symbol, arguments!);
+    }
+
+    /// <summary>
     /// Handles the BigInteger.Equals method by comparing two BigInteger values for equality.
     /// </summary>
     /// <param name="methodConvert">The method converter instance</param>

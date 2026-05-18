@@ -112,6 +112,7 @@ internal partial class MethodConvert
             RegisterNumericHandlers(descriptor);
 
         RegisterCreateCheckedHandlers(typeof(BigInteger), HandleBigIntegerCreatedChecked);
+        RegisterCreateTruncatingHandlers(typeof(BigInteger), HandleBigIntegerCreateTruncating);
 
         // Numeric explicit cast from BigInteger methods
         RegisterHandler((BigInteger b) => (sbyte)b, HandleBigIntegerToSByte);
@@ -283,6 +284,11 @@ internal partial class MethodConvert
     private static void RegisterCreateSaturatingHandlers(Type targetType, SystemCallHandler handler)
     {
         RegisterCreateNumericHandlers("CreateSaturating", targetType, handler);
+    }
+
+    private static void RegisterCreateTruncatingHandlers(Type targetType, SystemCallHandler handler)
+    {
+        RegisterCreateNumericHandlers("CreateTruncating", targetType, handler);
     }
 
     private static void RegisterCreateNumericHandlers(string methodName, Type targetType, SystemCallHandler handler)
