@@ -380,6 +380,11 @@ public class Contract_Integer : SmartContract.Framework.SmartContract
         return sbyte.LeadingZeroCount(value);
     }
 
+    public static BigInteger LeadingZeroCountBigInteger(BigInteger value)
+    {
+        return BigInteger.LeadingZeroCount(value);
+    }
+
     public static int Log2Int(int value)
     {
         return int.Log2(value);
