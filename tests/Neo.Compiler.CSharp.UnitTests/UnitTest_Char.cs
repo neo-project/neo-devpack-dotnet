@@ -79,6 +79,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047450);
             Assert.IsFalse(Contract.TestCharIsPunctuation('a'));
             AssertGasConsumed(1048590);
+            Assert.IsFalse(Contract.TestCharIsPunctuation('\u00A9'));
 
             for (char c = '\0'; c < 128; c++)
             {
@@ -91,6 +92,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047450);
             Assert.IsFalse(Contract.TestCharIsSymbol('a'));
             AssertGasConsumed(1049010);
+            Assert.IsFalse(Contract.TestCharIsSymbol('\u00A9'));
 
             for (char c = '\0'; c < 128; c++)
             {
