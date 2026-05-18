@@ -9,10 +9,10 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.Exceptions;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -37,7 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse((bool)res[0]);
             Assert.AreEqual((BigInteger)0, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestByteTryParse("abc"));
+            AssertTryParseFailure(Contract.TestByteTryParse("abc"));
 
             // Edge cases
             res = Contract.TestByteTryParse("0");
@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)255, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestByteTryParse(" 123 "));
+            AssertTryParseFailure(Contract.TestByteTryParse(" 123 "));
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse((bool)res[0]);
             Assert.AreEqual((BigInteger)0, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestSByteTryParse("abc"));
+            AssertTryParseFailure(Contract.TestSByteTryParse("abc"));
 
             // Edge cases
             res = Contract.TestSByteTryParse("0");
@@ -108,7 +108,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse((bool)res[0]);
             Assert.AreEqual((BigInteger)0, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestShortTryParse("abc"));
+            AssertTryParseFailure(Contract.TestShortTryParse("abc"));
 
             // Edge cases
             res = Contract.TestShortTryParse("0");
@@ -156,9 +156,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)65535, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestUShortTryParse("1.5"));
+            AssertTryParseFailure(Contract.TestUShortTryParse("1.5"));
 
-            Assert.ThrowsException<TestException>(() => Contract.TestUShortTryParse("0x1234"));
+            AssertTryParseFailure(Contract.TestUShortTryParse("0x1234"));
         }
 
         [TestMethod]
@@ -179,7 +179,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse((bool)res[0]);
             Assert.AreEqual((BigInteger)0, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestIntTryParse("abc"));
+            AssertTryParseFailure(Contract.TestIntTryParse("abc"));
 
             // Edge cases
             res = Contract.TestIntTryParse("0");
@@ -192,7 +192,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue((bool)res[0]);
             Assert.AreEqual((BigInteger)0, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestIntTryParse("2147483647.5"));
+            AssertTryParseFailure(Contract.TestIntTryParse("2147483647.5"));
         }
 
         [TestMethod]
@@ -253,7 +253,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsFalse((bool)res[0]);
             Assert.AreEqual((BigInteger)0, res[1]);
 
-            Assert.ThrowsException<TestException>(() => Contract.TestLongTryParse("abc"));
+            AssertTryParseFailure(Contract.TestLongTryParse("abc"));
 
             // Edge cases
             res = Contract.TestLongTryParse("0");
@@ -403,6 +403,13 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsNotNull(res);
             Assert.IsFalse((bool)res[0]);
             Assert.IsFalse((bool)res[1]);
+        }
+
+        private static void AssertTryParseFailure(IList<object>? res)
+        {
+            Assert.IsNotNull(res);
+            Assert.IsFalse((bool)res[0]);
+            Assert.AreEqual((BigInteger)0, res[1]);
         }
     }
 }
