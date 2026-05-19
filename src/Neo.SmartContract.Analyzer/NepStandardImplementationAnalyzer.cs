@@ -151,8 +151,10 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
             {
                 0 when memberName is "Symbol" or "Decimals" or "TotalSupply" or "Tokens" => true,
                 1 when memberName is "BalanceOf" or "OwnerOf" or "TokensOf" or "Properties" => true,
+                2 when memberName == "BalanceOf" && standard == NepStandardKind.Nep11 => true,
                 3 when memberName == "Transfer" && standard == NepStandardKind.Nep11 => true,
                 4 when memberName == "Transfer" && standard == NepStandardKind.Nep17 => true,
+                5 when memberName == "Transfer" && standard == NepStandardKind.Nep11 => true,
                 _ => false
             };
 

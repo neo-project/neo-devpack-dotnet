@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Modif
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.NEP17", "Example.SmartContract.NEP17\Example.SmartContract.NEP17.csproj", "{FBDF111C-65C0-45E4-8D25-9BE78C35CDC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.DivisibleNEP11", "Example.SmartContract.DivisibleNEP11\Example.SmartContract.DivisibleNEP11.csproj", "{B2AA9B4C-D278-4C88-9EA3-5D70B4A115E5}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.NFT", "Example.SmartContract.NFT\Example.SmartContract.NFT.csproj", "{051A2A1E-2225-405F-82F6-79E4D5345DF6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SmartContract.Oracle", "Example.SmartContract.Oracle\Example.SmartContract.Oracle.csproj", "{A39DA537-024A-430F-A3BA-034D6E947FA6}"
@@ -91,6 +93,9 @@ Global
 		{FBDF111C-65C0-45E4-8D25-9BE78C35CDC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FBDF111C-65C0-45E4-8D25-9BE78C35CDC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBDF111C-65C0-45E4-8D25-9BE78C35CDC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2AA9B4C-D278-4C88-9EA3-5D70B4A115E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2AA9B4C-D278-4C88-9EA3-5D70B4A115E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2AA9B4C-D278-4C88-9EA3-5D70B4A115E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA7106D4-E077-4C9A-A2D5-82C5176D6E99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA7106D4-E077-4C9A-A2D5-82C5176D6E99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{051A2A1E-2225-405F-82F6-79E4D5345DF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

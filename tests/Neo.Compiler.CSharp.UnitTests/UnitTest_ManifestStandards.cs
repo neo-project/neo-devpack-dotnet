@@ -89,8 +89,47 @@ namespace Neo.Compiler.CSharp.UnitTests
             string output = stdout.ToString();
             StringAssert.Contains(output, "tokensOf, it is not found in the ABI");
             StringAssert.Contains(output, "ownerOf, it is not safe");
-            StringAssert.Contains(output, "ownerOf, it's return type is not a Hash160");
+            StringAssert.Contains(output, "ownerOf, it's return type is not a Hash160 or an InteropInterface");
             StringAssert.Contains(output, "ownerOf, it's parameters type is not a ByteArray");
+        }
+
+        [TestMethod]
+        public void Nep11_DivisibleMethodShape_IsAccepted()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            JArray methods = (JArray)json["abi"]!["methods"]!;
+
+            JObject ownerOf = (JObject)methods.First(m => m!["name"]!.GetString() == "ownerOf")!;
+            ownerOf["returntype"] = "InteropInterface";
+
+            JObject balanceOf = (JObject)methods.First(m => m!["name"]!.GetString() == "balanceOf")!;
+            balanceOf["parameters"] = new JArray(
+                new JObject { ["name"] = "owner", ["type"] = "Hash160" },
+                new JObject { ["name"] = "tokenId", ["type"] = "ByteArray" });
+
+            JObject transfer = (JObject)methods.First(m => m!["name"]!.GetString() == "transfer")!;
+            transfer["parameters"] = new JArray(
+                new JObject { ["name"] = "from", ["type"] = "Hash160" },
+                new JObject { ["name"] = "to", ["type"] = "Hash160" },
+                new JObject { ["name"] = "amount", ["type"] = "Integer" },
+                new JObject { ["name"] = "tokenId", ["type"] = "ByteArray" },
+                new JObject { ["name"] = "data", ["type"] = "Any" });
+
+            ContractManifest manifest = ContractManifest.FromJson(json);
+            var stdout = new StringWriter();
+            TextWriter originalOut = Console.Out;
+
+            try
+            {
+                Console.SetOut(stdout);
+                manifest.CheckStandards();
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+            }
+
+            Assert.AreEqual(string.Empty, stdout.ToString());
         }
 
         [TestMethod]
