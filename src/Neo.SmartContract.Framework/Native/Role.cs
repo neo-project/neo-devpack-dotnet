@@ -27,7 +27,7 @@ namespace Neo.SmartContract.Framework.Native
         Oracle = 8,
 
         /// <summary>
-        /// NeoFS Alphabet nodes.
+        /// NeoFS Alphabet nodes. Use RoleManagement.GetDesignatedByRole to inspect the nodes designated for NeoFS network maintenance.
         /// </summary>
         NeoFSAlphabetNode = 16,
 
