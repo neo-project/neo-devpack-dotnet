@@ -133,6 +133,42 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Nep11_OwnerOfHelper_Reports_InvalidVariants()
+        {
+            Type extensionsType = typeof(CompilationEngine).Assembly.GetType("Neo.Compiler.ContractManifestExtensions")!;
+            MethodInfo helper = extensionsType.GetMethod(
+                "ValidateNep11OwnerOfMethod",
+                BindingFlags.NonPublic | BindingFlags.Static)!;
+
+            var errors = new System.Collections.Generic.List<CompilationException>();
+            helper.Invoke(null, [errors, null]);
+
+            Type methodParameterType = helper.GetParameters()[1].ParameterType;
+            Type descriptorType = Nullable.GetUnderlyingType(methodParameterType) ?? methodParameterType;
+
+            object emptyParametersDescriptor = CreateContractMethodDescriptor(
+                descriptorType,
+                ContractParameterType.InteropInterface,
+                safe: true,
+                Array.Empty<ContractParameterDefinition>());
+            helper.Invoke(null, [errors, BoxDescriptor(methodParameterType, descriptorType, emptyParametersDescriptor)]);
+
+            object invalidDescriptor = CreateContractMethodDescriptor(
+                descriptorType,
+                ContractParameterType.ByteArray,
+                safe: false,
+                new[] { new ContractParameterDefinition { Name = "tokenId", Type = ContractParameterType.Hash160 } });
+            helper.Invoke(null, [errors, BoxDescriptor(methodParameterType, descriptorType, invalidDescriptor)]);
+
+            string[] messages = errors.Select(e => e.Diagnostic.GetMessage()).ToArray();
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it is not found in the ABI");
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it's parameters length is not 1");
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it is not safe, you should add a 'Safe' attribute to the ownerOf method");
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it's return type is not a Hash160 or an InteropInterface");
+            CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it's parameters type is not a ByteArray");
+        }
+
+        [TestMethod]
         public void Nep11_Helper_Reports_LengthMismatch_For_SingleParameterMethods()
         {
             Type extensionsType = typeof(CompilationEngine).Assembly.GetType("Neo.Compiler.ContractManifestExtensions")!;
@@ -143,20 +179,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             var errors = new System.Collections.Generic.List<CompilationException>();
             Type methodParameterType = helper.GetParameters()[1].ParameterType;
             Type descriptorType = Nullable.GetUnderlyingType(methodParameterType) ?? methodParameterType;
-            object descriptor = Activator.CreateInstance(descriptorType)!;
-            SetMember(descriptorType, descriptor, "Name", "ownerOf");
-            SetMember(descriptorType, descriptor, "ReturnType", ContractParameterType.ByteArray);
-            SetMember(descriptorType, descriptor, "Safe", false);
-            SetMember(descriptorType, descriptor, "Parameters", Array.Empty<ContractParameterDefinition>());
-
-            object? boxedDescriptor = methodParameterType == descriptorType
-                ? descriptor
-                : Activator.CreateInstance(methodParameterType, descriptor);
+            object descriptor = CreateContractMethodDescriptor(
+                descriptorType,
+                ContractParameterType.ByteArray,
+                safe: false,
+                Array.Empty<ContractParameterDefinition>());
 
             helper.Invoke(null,
             [
                 errors,
-                boxedDescriptor,
+                BoxDescriptor(methodParameterType, descriptorType, descriptor),
                 "ownerOf",
                 ContractParameterType.Hash160,
                 "a Hash160",
@@ -168,6 +200,27 @@ namespace Neo.Compiler.CSharp.UnitTests
             CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it is not safe, you should add a 'Safe' attribute to the ownerOf method");
             CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it's return type is not a Hash160");
             CollectionAssert.Contains(messages, "Incomplete or unsafe NEP standard NEP-11 implementation: ownerOf, it's parameters length is not 1");
+        }
+
+        private static object CreateContractMethodDescriptor(
+            Type descriptorType,
+            ContractParameterType returnType,
+            bool safe,
+            ContractParameterDefinition[] parameters)
+        {
+            object descriptor = Activator.CreateInstance(descriptorType)!;
+            SetMember(descriptorType, descriptor, "Name", "ownerOf");
+            SetMember(descriptorType, descriptor, "ReturnType", returnType);
+            SetMember(descriptorType, descriptor, "Safe", safe);
+            SetMember(descriptorType, descriptor, "Parameters", parameters);
+            return descriptor;
+        }
+
+        private static object? BoxDescriptor(Type methodParameterType, Type descriptorType, object descriptor)
+        {
+            return methodParameterType == descriptorType
+                ? descriptor
+                : Activator.CreateInstance(methodParameterType, descriptor);
         }
 
         private static void SetMember(Type type, object instance, string name, object value)
