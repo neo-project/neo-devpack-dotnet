@@ -12,9 +12,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.Optimizer;
+using Neo.SmartContract.Testing;
 using Neo.VM;
 using Neo.VM.Types;
 using System;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests;
@@ -156,6 +158,51 @@ public class Contract : SmartContract
             "Plain byte[] literals should still compile as Buffer values.");
     }
 
+    [TestMethod]
+    public void OptimizedByteStringLiteralExecutesInVm()
+    {
+        const string source = """
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+using System.ComponentModel;
+
+public class Contract : SmartContract
+{
+    [DisplayName("literal")]
+    public static ByteString Literal()
+    {
+        return (ByteString)new byte[] { 0x01, 0x02 };
+    }
+
+    [DisplayName("parenthesizedImplicit")]
+    public static ByteString ParenthesizedImplicit()
+    {
+        return (ByteString)(new[] { (byte)0x03, (byte)0x04 });
+    }
+
+    [DisplayName("storageRoundTrip")]
+    public static ByteString? StorageRoundTrip()
+    {
+        Storage.Put(
+            Storage.CurrentContext,
+            (ByteString)new byte[] { 0x05 },
+            (ByteString)new byte[] { 0x06, 0x07 });
+        return Storage.Get(Storage.CurrentContext, (ByteString)new byte[] { 0x05 });
+    }
+}
+""";
+
+        var context = TestHelper.CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<ByteStringLiteralContract>(context.CreateExecutable(), context.CreateManifest());
+
+        CollectionAssert.AreEqual(new byte[] { 0x01, 0x02 }, contract.Literal());
+        CollectionAssert.AreEqual(new byte[] { 0x03, 0x04 }, contract.ParenthesizedImplicit());
+        CollectionAssert.AreEqual(new byte[] { 0x06, 0x07 }, contract.StorageRoundTrip());
+    }
+
     private static Neo.VM.Instruction[] GetMethodInstructions(string source, string methodId)
     {
         return GetMethodInstructions(source, methodId, exactMatch: true);
@@ -212,5 +259,18 @@ public class Contract : SmartContract
             instruction.OpCode == OpCode.CONVERT &&
             instruction.Operand.Span.Length == 1 &&
             instruction.Operand.Span[0] == (byte)type);
+    }
+
+    public abstract class ByteStringLiteralContract(SmartContractInitialize initialize)
+        : Neo.SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("literal")]
+        public abstract byte[]? Literal();
+
+        [DisplayName("parenthesizedImplicit")]
+        public abstract byte[]? ParenthesizedImplicit();
+
+        [DisplayName("storageRoundTrip")]
+        public abstract byte[]? StorageRoundTrip();
     }
 }
