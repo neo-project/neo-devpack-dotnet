@@ -284,7 +284,8 @@ internal partial class MethodConvert
         bool isBoolean = itemType == VM.Types.StackItemType.Boolean;
         bool isString = itemType == VM.Types.StackItemType.ByteString;
 
-        var (opcode, checkResult) = operatorToken.ValueText switch
+        var opText = operatorToken.ValueText;
+        var (opcode, checkResult) = opText switch
         {
             "+=" => isString ? (OpCode.CAT, false) : (OpCode.ADD, true),
             "-=" => (OpCode.SUB, true),
@@ -297,13 +298,9 @@ internal partial class MethodConvert
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
             "<<=" => (OpCode.SHL, true),
             ">>=" => (OpCode.SHR, true),
-            _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Complex assignment operator '{operatorToken.ValueText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
+            _ => throw CompilationException.UnsupportedSyntax(operatorToken,
+                $"Complex assignment operator '{opText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
         };
-
-        if (operatorToken.ValueText == "/=")
-        {
-            CheckDivideOverflow(type);
-        }
 
         AddInstruction(opcode);
         if (opcode == OpCode.XOR && isBoolean)

@@ -72,16 +72,20 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         /// <summary>
-        /// Test: int.MinValue /= -1 in unchecked context should throw.
+        /// Test: int.MinValue /= -1 in unchecked context shouldn't throw.
         /// Compound division should align with binary division.
         /// </summary>
         [TestMethod]
-        public void Test_DivideAssignUncheckedInt32_Overflow_ShouldThrow()
+        public void Test_DivideAssignUncheckedInt32_ShouldWork()
         {
-            Assert.ThrowsException<TestException>(() =>
+            var r1 = Contract.DivideAssignUncheckedInt32(int.MinValue, -1);
+            Assert.AreEqual(int.MinValue, r1);
+
+            unchecked
             {
-                Contract.DivideAssignUncheckedInt32(int.MinValue, -1);
-            });
+                int r2 = int.MinValue / -1;
+                Assert.AreEqual(int.MinValue, r2); // Should work in unchecked context
+            }
         }
 
         #endregion
@@ -124,16 +128,20 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         /// <summary>
-        /// Test: long.MinValue /= -1 in unchecked context should throw.
+        /// Test: long.MinValue /= -1 in unchecked context shouldn't throw.
         /// Compound division should align with binary division.
         /// </summary>
         [TestMethod]
-        public void Test_DivideAssignUncheckedInt64_Overflow_ShouldThrow()
+        public void Test_DivideAssignUncheckedInt64_ShouldWork()
         {
-            Assert.ThrowsException<TestException>(() =>
+            var r1 = Contract.DivideAssignUncheckedInt64(long.MinValue, -1);
+            Assert.AreEqual(long.MinValue, r1);
+
+            unchecked
             {
-                Contract.DivideAssignUncheckedInt64(long.MinValue, -1);
-            });
+                long r2 = long.MinValue / -1;
+                Assert.AreEqual(long.MinValue, r2); // Should work in unchecked context
+            }
         }
 
         #endregion
