@@ -89,7 +89,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_Checked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_Checked()!;
-            AssertGasConsumed(1049100);
+            AssertGasConsumed(1048500);
             Assert.AreEqual(new BigInteger(checked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(checked(int.MinValue >> 1)), values[1]);
         }
@@ -98,7 +98,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RightShiftAssign_UnChecked()
         {
             var values = Contract.UnitTest_Right_Shift_Assign_UnChecked()!;
-            AssertGasConsumed(1049100);
+            AssertGasConsumed(1048500);
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue >> 1)), values[0]);
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue >> 1)), values[1]);
         }
