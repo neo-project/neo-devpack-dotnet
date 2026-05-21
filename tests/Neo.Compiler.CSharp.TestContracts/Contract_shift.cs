@@ -63,5 +63,15 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return value << shift;
         }
+
+        public static int ShiftRightChecked(int value, int shift)
+        {
+            return checked(value >>= shift);
+        }
+
+        public static int ShiftRightUnchecked(int value, int shift)
+        {
+            return unchecked(value >>= shift);
+        }
     }
 }

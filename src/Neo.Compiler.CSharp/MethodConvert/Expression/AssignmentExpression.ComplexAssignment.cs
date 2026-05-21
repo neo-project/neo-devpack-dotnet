@@ -296,7 +296,7 @@ internal partial class MethodConvert
             "^=" when isBoolean => (OpCode.XOR, false),
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
             "<<=" => (OpCode.SHL, true),
-            ">>=" => (OpCode.SHR, true),
+            ">>=" => (OpCode.SHR, false),
             _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Complex assignment operator '{operatorToken.ValueText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
         };
 
