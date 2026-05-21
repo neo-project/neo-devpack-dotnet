@@ -74,11 +74,7 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's return type is not a Hash160 or an InteropInterface"));
 
-        if (method.Parameters.Length != 1)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's parameters length is not 1"));
-
-        if (method.Parameters.Length > 0 && method.Parameters[0].Type != ContractParameterType.ByteArray)
+        if (method.Parameters[0].Type != ContractParameterType.ByteArray)
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: {methodName}, it's parameters type is not a ByteArray"));
     }
