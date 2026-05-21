@@ -83,6 +83,23 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
+    public void NumericToStringStillCompiles()
+    {
+        AssertCompiles("""
+using Neo.SmartContract.Framework;
+using System.Numerics;
+
+public class Contract : SmartContract
+{
+    public static string Test(int value, long longValue, BigInteger bigInteger)
+    {
+        return value.ToString() + "|" + longValue.ToString() + "|" + bigInteger.ToString();
+    }
+}
+""");
+    }
+
+    [TestMethod]
     public void FrameworkValueToStringTypesStillCompile()
     {
         AssertCompiles("""
