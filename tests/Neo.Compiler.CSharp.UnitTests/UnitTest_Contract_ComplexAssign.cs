@@ -107,7 +107,67 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Member_Element_Complex_Assign()
         {
             Contract.UnitTest_Member_Element_Complex_Assign();
-            AssertGasConsumed(1800780);
+            AssertGasConsumed(1800480);
+        }
+
+        [TestMethod]
+        public void Test_AndAssign()
+        {
+            Assert.AreEqual(0, Contract.TestAndAssign(1, 2));
+            AssertGasConsumed(1047480);
+        }
+
+        [TestMethod]
+        public void Test_OrAssign()
+        {
+            Assert.AreEqual(3, Contract.TestOrAssign(1, 2));
+            AssertGasConsumed(1047480);
+        }
+
+        [TestMethod]
+        public void Test_XorAssign()
+        {
+            Assert.AreEqual(3, Contract.TestXorAssign(1, 2));
+            AssertGasConsumed(1047480);
+        }
+
+        [TestMethod]
+        public void Test_BoolXorAssign()
+        {
+            Assert.AreEqual(true, Contract.TestBoolXorAssign(true, false));
+            AssertGasConsumed(1293240);
+
+            Assert.AreEqual(false, Contract.TestBoolXorAssign(false, false));
+            AssertGasConsumed(1293240);
+
+            Assert.AreEqual(false, Contract.TestBoolXorAssign(true, true));
+            AssertGasConsumed(1293240);
+        }
+
+        [TestMethod]
+        public void Test_BoolAndAssign()
+        {
+            Assert.AreEqual(false, Contract.TestBoolAndAssign(true, false));
+            AssertGasConsumed(1047480);
+
+            Assert.AreEqual(false, Contract.TestBoolAndAssign(false, false));
+            AssertGasConsumed(1047480);
+
+            Assert.AreEqual(true, Contract.TestBoolAndAssign(true, true));
+            AssertGasConsumed(1047480);
+        }
+
+        [TestMethod]
+        public void Test_BoolOrAssign()
+        {
+            Assert.AreEqual(true, Contract.TestBoolOrAssign(true, false));
+            AssertGasConsumed(1047480);
+
+            Assert.AreEqual(false, Contract.TestBoolOrAssign(false, false));
+            AssertGasConsumed(1047480);
+
+            Assert.AreEqual(true, Contract.TestBoolOrAssign(true, true));
+            AssertGasConsumed(1047480);
         }
     }
 }

@@ -137,6 +137,42 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (value1, value2);
         }
 
+        public static int TestAndAssign(int value, int shift)
+        {
+            value &= shift;
+            return value;
+        }
+
+        public static int TestOrAssign(int value, int shift)
+        {
+            value |= shift;
+            return value;
+        }
+
+        public static int TestXorAssign(int value, int shift)
+        {
+            value ^= shift;
+            return value;
+        }
+
+        public static bool TestBoolXorAssign(bool left, bool right)
+        {
+            left ^= right;
+            return left;
+        }
+
+        public static bool TestBoolAndAssign(bool left, bool right)
+        {
+            left &= right;
+            return left;
+        }
+
+        public static bool TestBoolOrAssign(bool left, bool right)
+        {
+            left |= right;
+            return left;
+        }
+
         public class TestClass
         {
             public byte Property = 7;
