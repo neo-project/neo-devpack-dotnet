@@ -10,8 +10,11 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.SmartContract.Testing;
 using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -96,6 +99,47 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
+    public void SupportedToStringConversionsExecuteInVm()
+    {
+        const string source = """
+using Neo.SmartContract.Framework;
+using System.ComponentModel;
+using System.Numerics;
+
+public class Contract : SmartContract
+{
+    [DisplayName("numeric")]
+    public static string Numeric(int value, long longValue, BigInteger bigInteger)
+    {
+        return value.ToString() + "|" + longValue.ToString() + "|" + bigInteger.ToString();
+    }
+
+    [DisplayName("text")]
+    public static string Text(string value)
+    {
+        return value.ToString();
+    }
+
+    [DisplayName("character")]
+    public static string Character(char value)
+    {
+        return value.ToString();
+    }
+}
+""";
+
+        var context = TestHelper.CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<ToStringDiagnosticsContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.AreEqual("42|-17|12345678901234567890", contract.Numeric(42, -17, BigInteger.Parse("12345678901234567890")));
+        Assert.AreEqual("neo", contract.Text("neo"));
+        Assert.AreEqual("N", contract.Character('N'));
+    }
+
+    [TestMethod]
     public void FrameworkValueToStringTypesStillCompile()
     {
         AssertCompiles("""
@@ -151,5 +195,18 @@ public class Contract : SmartContract
     {
         var context = TestHelper.CompileSingleContract(source);
         Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+    }
+
+    public abstract class ToStringDiagnosticsContract(SmartContractInitialize initialize)
+        : SmartContract.Testing.SmartContract(initialize)
+    {
+        [DisplayName("numeric")]
+        public abstract string? Numeric(BigInteger? value, BigInteger? longValue, BigInteger? bigInteger);
+
+        [DisplayName("text")]
+        public abstract string? Text(string? value);
+
+        [DisplayName("character")]
+        public abstract string? Character(char? value);
     }
 }
