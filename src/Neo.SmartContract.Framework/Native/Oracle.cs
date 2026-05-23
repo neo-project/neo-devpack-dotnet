@@ -30,6 +30,8 @@ namespace Neo.SmartContract.Framework.Native
 
         /// <summary>
         /// Requests an Oracle response from the specified URL.
+        /// The Oracle service supports both https:// URLs and NeoFS URLs such as
+        /// neofs://&lt;Container-ID&gt;/&lt;Object-ID&gt;.
         /// The `gasForResponse` is in the unit of datoshi(1 datoshi = 1e-8 GAS),
         /// and must greater than the price of the Oracle request(see `GetPrice`).
         /// CallFlags requirement: CallFlags.States | CallFlags.AllowNotify.
@@ -46,7 +48,7 @@ namespace Neo.SmartContract.Framework.Native
         /// </para>
         /// </summary>
         /// <param name="url">The URL to request an Oracle response from.</param>
-        /// <param name="filter">The filter(json path expression) to apply to the response.</param>
+        /// <param name="filter">The filter(json path expression) to apply to the response. Use null or an empty string to return the original response.</param>
         /// <param name="callback">The method name of calling contract to call when the response is received.</param>
         /// <param name="userData">The user data to pass to the callback.</param>
         /// <param name="gasForResponse">The amount of GAS(in the unit of datoshi) for the response.</param>
