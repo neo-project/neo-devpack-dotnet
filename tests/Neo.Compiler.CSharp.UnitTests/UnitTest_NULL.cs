@@ -136,7 +136,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void NullCollationAndCollation()
         {
             Assert.AreEqual(new BigInteger(123), ((VM.Types.ByteString)Contract.NullCollationAndCollation("nes")!).GetInteger());
-            AssertGasConsumed(2523540);
+            AssertGasConsumed(2032020);
         }
 
         [TestMethod]

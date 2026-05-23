@@ -14,25 +14,38 @@ using Neo.SmartContract.Testing;
 using System.Linq;
 using System.Numerics;
 
-namespace Neo.Compiler.CSharp.UnitTests
-{
-    [TestClass]
-    public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
-    {
-        [TestMethod]
-        public void Test_Shift()
-        {
-            var list = Contract.TestShift()?.Cast<BigInteger>().ToArray();
-            AssertGasConsumed(1048770);
-            CollectionAssert.AreEqual(new BigInteger[] { 16, 4 }, list);
-        }
+namespace Neo.Compiler.CSharp.UnitTests;
 
-        [TestMethod]
-        public void Test_Shift_BigInteger()
-        {
-            var list = Contract.TestShiftBigInt()?.Cast<BigInteger>().ToArray();
-            AssertGasConsumed(1049370);
-            CollectionAssert.AreEqual(new BigInteger[] { 8, 16, 4, 2 }, list);
-        }
+[TestClass]
+public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
+{
+    [TestMethod]
+    public void Test_Shift()
+    {
+        var list = Contract.TestShift()?.Cast<BigInteger>().ToArray();
+        AssertGasConsumed(1048770);
+        CollectionAssert.AreEqual(new BigInteger[] { 16, 4 }, list);
+    }
+
+    [TestMethod]
+    public void Test_Shift_BigInteger()
+    {
+        var list = Contract.TestShiftBigInt()?.Cast<BigInteger>().ToArray();
+        AssertGasConsumed(1049370);
+        CollectionAssert.AreEqual(new BigInteger[] { 8, 16, 4, 2 }, list);
+    }
+
+    [TestMethod]
+    public void Test_ShiftRightChecked()
+    {
+        Assert.AreEqual(0, Contract.ShiftRightChecked(8, 4));
+        AssertGasConsumed(1047480);
+    }
+
+    [TestMethod]
+    public void Test_ShiftRightUnchecked()
+    {
+        Assert.AreEqual(0, Contract.ShiftRightUnchecked(8, 4));
+        AssertGasConsumed(1047480);
     }
 }

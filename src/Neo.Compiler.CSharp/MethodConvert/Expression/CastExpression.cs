@@ -46,7 +46,10 @@ internal partial class MethodConvert
     {
         ITypeSymbol sType = model.GetTypeInfo(expression.Expression).Type!;
         ITypeSymbol tType = model.GetTypeInfo(expression.Type).Type!;
-        IMethodSymbol method = (IMethodSymbol)model.GetSymbolInfo(expression).Symbol!;
+        if (IsByteArrayToByteStringCast(sType, tType) && TryConvertConstantByteArrayToByteString(model, expression.Expression))
+            return;
+
+        IMethodSymbol? method = model.GetSymbolInfo(expression).Symbol as IMethodSymbol;
         if (method is not null)
         {
             CallMethodWithInstanceExpression(model, method, null, expression.Expression);
@@ -168,5 +171,40 @@ internal partial class MethodConvert
                 }
                 break;
         }
+    }
+
+    private bool TryConvertConstantByteArrayToByteString(SemanticModel model, ExpressionSyntax expression)
+    {
+        while (expression is ParenthesizedExpressionSyntax parenthesizedExpression)
+            expression = parenthesizedExpression.Expression;
+
+        InitializerExpressionSyntax? initializer = expression switch
+        {
+            ArrayCreationExpressionSyntax { Initializer: { } arrayInitializer } => arrayInitializer,
+            ImplicitArrayCreationExpressionSyntax { Initializer: { } implicitInitializer } => implicitInitializer,
+            _ => null
+        };
+
+        if (initializer is null)
+            return false;
+
+        byte[] data = new byte[initializer.Expressions.Count];
+        for (int i = 0; i < initializer.Expressions.Count; i++)
+        {
+            Optional<object?> value = model.GetConstantValue(initializer.Expressions[i]);
+            if (!value.HasValue || value.Value is null)
+                return false;
+
+            data[i] = (byte)System.Convert.ChangeType(value.Value, typeof(byte))!;
+        }
+
+        Push(data);
+        return true;
+    }
+
+    private static bool IsByteArrayToByteStringCast(ITypeSymbol sourceType, ITypeSymbol targetType)
+    {
+        return sourceType is IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Byte }
+            && targetType.ToString() == "Neo.SmartContract.Framework.ByteString";
     }
 }
