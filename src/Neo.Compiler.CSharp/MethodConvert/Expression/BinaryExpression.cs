@@ -12,11 +12,11 @@
 extern alias scfx;
 
 using System.Linq;
-using System.Numerics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
+using Neo.VM.Types;
 
 namespace Neo.Compiler;
 
@@ -105,9 +105,15 @@ internal partial class MethodConvert
         }
 
         AddInstruction(opcode);
+
+        ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+        if (expression.OperatorToken.ValueText == "^" && type.GetStackItemType() == StackItemType.Boolean)
+        {
+            ChangeType(StackItemType.Boolean);
+        }
+
         if (checkResult)
         {
-            ITypeSymbol type = model.GetTypeInfo(expression).Type!;
             EnsureIntegerInRange(type);
         }
     }
