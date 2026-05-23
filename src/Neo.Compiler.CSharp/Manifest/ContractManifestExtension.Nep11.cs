@@ -134,7 +134,7 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
             $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: totalSupply, it's return type is not an integer"));
 
-        if (balanceOfMethod1 is null && balanceOfMethod2 is null)
+        if (balanceOfMethod1 is null)
         {
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
             $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: balanceOf, it is not found in the ABI"));

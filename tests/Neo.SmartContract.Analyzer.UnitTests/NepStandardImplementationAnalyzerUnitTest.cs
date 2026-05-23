@@ -262,6 +262,8 @@ public class NepStandardImplementationAnalyzerUnitTest
 
                                                      public static System.Numerics.BigInteger TotalSupply() => 0;
 
+                                                     public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner) => 0;
+
                                                      public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner, Neo.SmartContract.Framework.ByteString tokenId) => 0;
 
                                                      public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, Neo.SmartContract.Framework.ByteString tokenId, object data) => true;
@@ -278,6 +280,44 @@ public class NepStandardImplementationAnalyzerUnitTest
                                              """;
 
         await Verifier.VerifyAnalyzerAsync(source).ConfigureAwait(false);
+    }
+
+    [TestMethod]
+    public async Task Nep11_DivisibleSpecificBalanceOnly_ShouldReportMissingCommonBalanceOf()
+    {
+        const string source = CommonSource + """
+
+                                             namespace Contracts
+                                             {
+                                                 [Neo.SmartContract.Framework.Attributes.SupportedStandards(Neo.SmartContract.Framework.NepStandard.Nep11)]
+                                                 public class DivisibleNft
+                                                 {
+                                                     public static string Symbol() => "DNFT";
+
+                                                     public static byte Decimals() => 8;
+
+                                                     public static System.Numerics.BigInteger TotalSupply() => 0;
+
+                                                     public static System.Numerics.BigInteger BalanceOf(Neo.SmartContract.Framework.UInt160 owner, Neo.SmartContract.Framework.ByteString tokenId) => 0;
+
+                                                     public static bool Transfer(Neo.SmartContract.Framework.UInt160 from, Neo.SmartContract.Framework.UInt160 to, System.Numerics.BigInteger amount, Neo.SmartContract.Framework.ByteString tokenId, object data) => true;
+
+                                                     public static Neo.SmartContract.Framework.Services.Iterator OwnerOf(Neo.SmartContract.Framework.ByteString tokenId) => null;
+
+                                                     public static Neo.SmartContract.Framework.Map<string, object> Properties(Neo.SmartContract.Framework.ByteString tokenId) => null;
+
+                                                     public static Neo.SmartContract.Framework.Services.Iterator Tokens() => null;
+
+                                                     public static Neo.SmartContract.Framework.Services.Iterator TokensOf(Neo.SmartContract.Framework.UInt160 owner) => null;
+                                                 }
+                                             }
+                                             """;
+
+        var expectedDiagnostic = Verifier.Diagnostic(NepStandardImplementationAnalyzer.DiagnosticId)
+            .WithSpan(51, 6, 51, 110)
+            .WithArguments("NEP-11", "BalanceOf");
+
+        await Verifier.VerifyAnalyzerAsync(source, expectedDiagnostic).ConfigureAwait(false);
     }
 
     [TestMethod]

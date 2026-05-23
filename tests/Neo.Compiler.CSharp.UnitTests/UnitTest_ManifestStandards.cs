@@ -72,10 +72,16 @@ namespace Neo.Compiler.CSharp.UnitTests
             JObject ownerOf = (JObject)methods.First(m => m!["name"]!.GetString() == "ownerOf")!;
             ownerOf["returntype"] = "InteropInterface";
 
-            JObject balanceOf = (JObject)methods.First(m => m!["name"]!.GetString() == "balanceOf")!;
-            balanceOf["parameters"] = new JArray(
-                new JObject { ["name"] = "owner", ["type"] = "Hash160" },
-                new JObject { ["name"] = "tokenId", ["type"] = "ByteArray" });
+            methods.Add(new JObject
+            {
+                ["name"] = "balanceOf",
+                ["parameters"] = new JArray(
+                    new JObject { ["name"] = "owner", ["type"] = "Hash160" },
+                    new JObject { ["name"] = "tokenId", ["type"] = "ByteArray" }),
+                ["returntype"] = "Integer",
+                ["offset"] = 0,
+                ["safe"] = true
+            });
 
             JObject transfer = (JObject)methods.First(m => m!["name"]!.GetString() == "transfer")!;
             transfer["parameters"] = new JArray(
@@ -86,6 +92,21 @@ namespace Neo.Compiler.CSharp.UnitTests
                 new JObject { ["name"] = "data", ["type"] = "Any" });
 
             Assert.AreEqual(string.Empty, CheckStandards(json));
+        }
+
+        [TestMethod]
+        public void Nep11_DivisibleSpecificBalanceOf_DoesNotReplaceCommonBalanceOf()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            JArray methods = (JArray)json["abi"]!["methods"]!;
+
+            JObject balanceOf = (JObject)methods.First(m => m!["name"]!.GetString() == "balanceOf")!;
+            balanceOf["parameters"] = new JArray(
+                new JObject { ["name"] = "owner", ["type"] = "Hash160" },
+                new JObject { ["name"] = "tokenId", ["type"] = "ByteArray" });
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "balanceOf, it is not found in the ABI");
         }
 
         [TestMethod]

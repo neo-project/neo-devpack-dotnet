@@ -38,6 +38,7 @@ namespace DivisibleNEP11
         private const byte PrefixTokenOwner = 0x07;
 
         private const byte TokenDecimals = 8;
+        private const long TokenUnit = 100_000_000;
 
         private static readonly UInt160 InitialOwner = Neo.SmartContract.Framework.UInt160.Parse("NUuJw4C4XJFzxAvSZnFTfsNoWZytmQKXQP");
         public delegate void OnTransferDelegate(UInt160? from, UInt160? to, BigInteger amount, ByteString tokenId);
@@ -107,11 +108,12 @@ namespace DivisibleNEP11
             ValidateOwner(from);
             ValidateOwner(to);
             ValidateTokenId(tokenId);
-            if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
+            EnsureTokenExists(tokenId);
+            ValidateTransferAmount(amount);
             if (!Runtime.CheckWitness(from)) return false;
             if (BalanceOf(from, tokenId) < amount) return false;
 
-            if (from != to)
+            if (amount != 0 && from != to)
             {
                 UpdateBalance(from, tokenId, -amount);
                 UpdateBalance(to, tokenId, amount);
@@ -140,7 +142,7 @@ namespace DivisibleNEP11
             if (!Runtime.CheckWitness(GetOwner())) throw new InvalidOperationException("No authorization.");
             ValidateOwner(to);
             ValidateTokenId(tokenId);
-            if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
+            ValidateMintAmount(amount);
             if (Storage.Get(MapKey(PrefixTokenSupply, tokenId)) is not null) throw new InvalidOperationException("Token already exists.");
 
             Storage.Put(MapKey(PrefixTokenName, tokenId), name);
@@ -255,6 +257,16 @@ namespace DivisibleNEP11
         {
             if (tokenId.Length == 0 || tokenId.Length > 64)
                 throw new ArgumentException("Token ID must be between 1 and 64 bytes.");
+        }
+
+        private static void ValidateTransferAmount(BigInteger amount)
+        {
+            if (amount < 0 || amount > TokenUnit) throw new ArgumentOutOfRangeException(nameof(amount));
+        }
+
+        private static void ValidateMintAmount(BigInteger amount)
+        {
+            if (amount <= 0 || amount > TokenUnit) throw new ArgumentOutOfRangeException(nameof(amount));
         }
     }
 }
