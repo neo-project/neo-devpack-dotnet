@@ -777,8 +777,34 @@ internal partial class MethodConvert
     private static void HandleObjectToString(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
         if (instanceExpression is not null)
+        {
+            ITypeSymbol? instanceType = model.GetTypeInfo(instanceExpression).Type;
+            if (!IsSupportedObjectToStringType(instanceType))
+            {
+                string typeName = instanceType?.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) ?? "unknown";
+                throw new CompilationException(instanceExpression, DiagnosticId.InvalidToStringType, $"ToString() is not supported for type '{typeName}'. Use StdLib.Serialize(...) for maps and arrays, or convert a supported primitive type.");
+            }
+
             methodConvert.ConvertExpression(model, instanceExpression);
+        }
+
         methodConvert.ChangeType(StackItemType.ByteString);
+    }
+
+    private static bool IsSupportedObjectToStringType(ITypeSymbol? type)
+    {
+        if (type?.SpecialType is SpecialType.System_String or SpecialType.System_Object)
+            return true;
+
+        return type?.ToString() switch
+        {
+            "char" or
+            "Neo.SmartContract.Framework.ECPoint" or
+            "Neo.SmartContract.Framework.ByteString" or
+            "Neo.SmartContract.Framework.UInt160" or
+            "Neo.SmartContract.Framework.UInt256" => true,
+            _ => false
+        };
     }
 
     // Handler for numeric types' ToString() methods
