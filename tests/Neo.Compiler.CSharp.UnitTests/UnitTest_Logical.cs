@@ -65,7 +65,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 {
                     var result = Contract.TestLogicalExclusiveOr(x, y);
                     Assert.AreEqual(x ^ y, result);
-                    AssertGasConsumed(1047360);
+                    AssertGasConsumed(1293120);
                 }
         }
 

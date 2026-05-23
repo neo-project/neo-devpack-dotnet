@@ -15,7 +15,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.VM;
-using System;
 using System.Runtime.InteropServices;
 
 namespace Neo.Compiler;
@@ -291,10 +290,9 @@ internal partial class MethodConvert
             "*=" => (OpCode.MUL, true),
             "/=" => (OpCode.DIV, true),
             "%=" => (OpCode.MOD, true),
-            "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, true),
-            "^=" when !isBoolean => (OpCode.XOR, true),
-            "^=" when isBoolean => (OpCode.XOR, false),
-            "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, true),
+            "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, false),
+            "^=" => (OpCode.XOR, false),
+            "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, false),
             "<<=" => (OpCode.SHL, true),
             ">>=" => (OpCode.SHR, false),
             _ => throw CompilationException.UnsupportedSyntax(operatorToken, $"Complex assignment operator '{operatorToken.ValueText}' is not supported. Supported operators are: +=, -=, *=, /=, %=, &=, |=, ^=, <<=, and >>=.")
