@@ -103,10 +103,11 @@ internal partial class MethodConvert
     /// <example><see href="https://github.com/neo-project/neo-devpack-dotnet/blob/master/examples/Example.SmartContract.Event/Event.cs"/></example>
     private void ConvertEventInvocationExpression(SemanticModel model, IEventSymbol symbol, ArgumentSyntax[] arguments)
     {
-        foreach (ArgumentSyntax argument in arguments.Reverse())  // PACK works in a reversed way
-            ConvertExpression(model, argument.Expression);
-        Push(arguments.Length);
-        AddInstruction(OpCode.PACK);
+        EmitPackedItemsLeftToRight(
+            arguments,
+            argument => ConvertExpression(model, argument.Expression),
+            OpCode.PACK,
+            argument => CanDeferExpressionEmission(model, argument.Expression));
         Push(symbol.GetDisplayName());
         CallInteropMethod(ApplicationEngine.System_Runtime_Notify);
     }
