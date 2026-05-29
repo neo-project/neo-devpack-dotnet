@@ -88,7 +88,7 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             Engine.SetTransactionSigners(RandomSigner);
             Engine.Transaction.Nonce = 0x01020304;
             Engine.PersistingBlock.Nonce = 0x01020304;
-            Assert.AreEqual(BigInteger.Parse("203630149582713095410123900400373236154"), Contract.GetRandom());
+            Assert.AreEqual(BigInteger.Parse("335959155865337060031915506280866261075"), Contract.GetRandom());
         }
 
         [TestMethod]

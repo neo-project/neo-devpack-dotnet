@@ -243,6 +243,47 @@ internal partial class MethodConvert
             : AddInstruction(opcode - 7 + index);
     }
 
+    private void EmitPackedItemsLeftToRight<T>(IReadOnlyList<T> items, Action<T> emitItem, OpCode packOpCode, Func<T, bool>? canDeferEmission = null)
+    {
+        if (canDeferEmission is not null && items.All(canDeferEmission))
+        {
+            for (int i = items.Count - 1; i >= 0; i--)
+                emitItem(items[i]);
+        }
+        else
+        {
+            for (int i = 0; i < items.Count; i++)
+                emitItem(items[i]);
+
+            if (items.Count > 1)
+                ReverseStackItems(items.Count);
+        }
+
+        Push(items.Count);
+        AddInstruction(packOpCode);
+    }
+
+    private static bool CanDeferExpressionEmission(SemanticModel model, ExpressionSyntax expression)
+    {
+        return expression switch
+        {
+            InitializerExpressionSyntax initializer =>
+                initializer.Expressions.All(child => CanDeferExpressionEmission(model, child)),
+            ArrayCreationExpressionSyntax { Initializer: { } initializer } =>
+                CanDeferExpressionEmission(model, initializer),
+            ImplicitArrayCreationExpressionSyntax { Initializer: { } initializer } =>
+                CanDeferExpressionEmission(model, initializer),
+            CollectionExpressionSyntax collection =>
+                collection.Elements.All(element => element is ExpressionElementSyntax expressionElement &&
+                    CanDeferExpressionEmission(model, expressionElement.Expression)),
+            TupleExpressionSyntax tuple =>
+                tuple.Arguments.All(argument => CanDeferExpressionEmission(model, argument.Expression)),
+            AnonymousObjectCreationExpressionSyntax anonymousObject =>
+                anonymousObject.Initializers.All(initializer => CanDeferExpressionEmission(model, initializer.Expression)),
+            _ => model.GetConstantValue(expression).HasValue,
+        };
+    }
+
     /// <summary>
     /// Prepares arguments for a method call, handling various parameter types and calling conventions.
     /// </summary>

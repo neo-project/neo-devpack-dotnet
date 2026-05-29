@@ -86,10 +86,11 @@ internal partial class MethodConvert
         }
         else
         {
-            for (int i = expressions.Count - 1; i >= 0; i--)
-                ConvertExpression(model, expressions[i]);
-            Push(expressions.Count);
-            AddInstruction(OpCode.PACK);
+            EmitPackedItemsLeftToRight(
+                expressions.ToArray(),
+                expression => ConvertExpression(model, expression),
+                OpCode.PACK,
+                expression => CanDeferExpressionEmission(model, expression));
         }
     }
 }
