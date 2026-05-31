@@ -53,7 +53,7 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
         }
 
         [TestMethod]
-        public void TestValueTypeFieldCountMismatchThrows()
+        public void TestValueType_FieldCountMismatch_ThrowsFormatException()
         {
             StackItem stackItem = new Array([1]);
 
