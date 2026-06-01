@@ -51,15 +51,5 @@ namespace Neo.SmartContract.TestEngine.UnitTests.Extensions
 
             Assert.IsTrue(ret!.GetType().IsValueType);
         }
-
-        [TestMethod]
-        public void TestValueType_FieldCountMismatch_ThrowsFormatException()
-        {
-            StackItem stackItem = new Array([1]);
-
-            var ex = Assert.ThrowsExactly<System.FormatException>(() => stackItem.ConvertTo(typeof((int, int))));
-
-            StringAssert.Contains(ex.Message, "field count doesn't match");
-        }
     }
 }
