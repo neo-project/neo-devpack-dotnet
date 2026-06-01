@@ -214,7 +214,7 @@ namespace Neo.SmartContract.Testing.Extensions
         private static object CreateValueType(IEnumerable<StackItem> objects, Type valueType, IStringInterpreter stringInterpreter)
         {
             var arr = objects.ToArray();
-            var value = Activator.CreateInstance(valueType) ?? new NoNullAllowedException("Impossible create value type");
+            var value = Activator.CreateInstance(valueType) ?? throw new NoNullAllowedException($"Impossible create value type {valueType}");
 
             // Cache the object properties by offset
 
