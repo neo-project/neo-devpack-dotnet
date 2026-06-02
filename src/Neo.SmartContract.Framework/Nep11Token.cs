@@ -147,7 +147,7 @@ namespace Neo.SmartContract.Framework
         protected static void PostTransfer(UInt160? from, UInt160? to, ByteString tokenId, object? data)
         {
             OnTransfer(from, to, 1, tokenId);
-            if (to is not null && ContractManagement.GetContract(to) is not null)
+            if (to is not null && ContractManagement.IsContract(to))
                 Contract.Call(to, Method.OnNEP11Payment, CallFlags.All, from, 1, tokenId, data);
         }
     }
