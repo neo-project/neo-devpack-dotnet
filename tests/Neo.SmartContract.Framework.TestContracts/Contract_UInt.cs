@@ -89,5 +89,31 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
                 return false;
             }
         }
+
+        public static bool ToUInt160(byte[] value)
+        {
+            try
+            {
+                _ = (UInt160)value;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool ToUInt256(byte[] value)
+        {
+            try
+            {
+                _ = (UInt256)value;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

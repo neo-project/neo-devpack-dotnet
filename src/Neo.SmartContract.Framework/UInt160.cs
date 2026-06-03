@@ -64,10 +64,10 @@ namespace Neo.SmartContract.Framework
         /// Explicitly converts a byte array to a UInt160 object.
         /// Exception will be thrown if the value is null, or not 20 bytes.
         /// </summary>
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
-        [OpCode(OpCode.JMPIF, "09")]
+        [OpCode(OpCode.JMPIF, "0A")]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
         [OpCode(OpCode.PUSHINT8, "14")] // 0x14 == 20 bytes expected array size
