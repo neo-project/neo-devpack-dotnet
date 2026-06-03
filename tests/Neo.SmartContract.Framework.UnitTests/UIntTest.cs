@@ -14,7 +14,6 @@ using Neo.Cryptography;
 using Neo.Cryptography.ECC;
 using Neo.SmartContract.Testing;
 using Neo.SmartContract.Testing.Exceptions;
-using Neo.Network.P2P;
 using CryptoECPoint = Neo.Cryptography.ECC.ECPoint;
 
 namespace Neo.SmartContract.Framework.UnitTests
@@ -134,6 +133,32 @@ namespace Neo.SmartContract.Framework.UnitTests
 
             Assert.IsFalse(Contract.IsValidUInt160(null));
             Assert.IsFalse(Contract.IsValidUInt256(null));
+        }
+
+        [TestMethod]
+        public void TestToUInt160()
+        {
+            Assert.IsTrue(Contract.ToUInt160(new byte[20]));
+            AssertGasConsumed(1293780);
+            Assert.IsFalse(Contract.ToUInt160(new byte[19]));
+            AssertGasConsumed(1309140);
+            Assert.IsFalse(Contract.ToUInt160(new byte[21]));
+            AssertGasConsumed(1309140);
+            Assert.IsFalse(Contract.ToUInt160(null));
+            AssertGasConsumed(1062900);
+        }
+
+        [TestMethod]
+        public void TestToUInt256()
+        {
+            Assert.IsTrue(Contract.ToUInt256(new byte[32]));
+            AssertGasConsumed(1293780);
+            Assert.IsFalse(Contract.ToUInt256(new byte[31]));
+            AssertGasConsumed(1309140);
+            Assert.IsFalse(Contract.ToUInt256(new byte[33]));
+            AssertGasConsumed(1309140);
+            Assert.IsFalse(Contract.ToUInt256(null));
+            AssertGasConsumed(1062900);
         }
     }
 }
