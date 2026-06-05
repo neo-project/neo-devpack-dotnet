@@ -12,7 +12,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Extensions;
 using Neo.SmartContract.Testing;
-using Neo.SmartContract.Testing.Exceptions;
 using Neo.SmartContract.Testing.Interpreters;
 using Neo.SmartContract.Testing.InvalidTypes;
 
@@ -25,13 +24,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void ECPoint_test()
         {
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.InvalidLength));
-            AssertGasConsumed(1048050);
+            AssertGasConsumed(1047810);
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.InvalidType));
-            AssertGasConsumed(1047840);
-            Assert.ThrowsException<TestException>(() => Contract.IsValid(InvalidECPoint.Null));
-            AssertGasConsumed(1047330);
+            AssertGasConsumed(1047300);
+            Assert.IsFalse(Contract.IsValid(InvalidECPoint.Null));
+            AssertGasConsumed(1047300);
             Assert.IsTrue(Contract.IsValid(Cryptography.ECC.ECPoint.Parse("024700db2e90d9f02c4f9fc862abaca92725f95b4fddcc8d7ffa538693ecf463a9", Cryptography.ECC.ECCurve.Secp256r1)));
-            AssertGasConsumed(1048050);
+            AssertGasConsumed(1047810);
 
             Engine.StringInterpreter = new HexStringInterpreter();
 
