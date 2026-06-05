@@ -243,6 +243,49 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
             StringAssert.Contains(source, "public event delBad_event? OnBad_event;");
         }
 
+        [TestMethod]
+        public void TestGetArtifactsSourceEscapesControlCharactersAndFallbackNames()
+        {
+            var methodName = "line\nreturn\rtab\tbell\aback\bform\fvert\vnull\0unit\u001fslash\\quote\"";
+            var manifest = new ContractManifest
+            {
+                Name = "",
+                Groups = [],
+                SupportedStandards = [],
+                Abi = new ContractAbi
+                {
+                    Methods =
+                    [
+                        new ContractMethodDescriptor
+                        {
+                            Name = methodName,
+                            Parameters = [],
+                            ReturnType = ContractParameterType.Void
+                        }
+                    ],
+                    Events =
+                    [
+                        new ContractEventDescriptor
+                        {
+                            Name = "1event",
+                            Parameters = []
+                        }
+                    ]
+                },
+                Permissions = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
+
+            var source = manifest.GetArtifactsSource("", generateProperties: false);
+            var diagnostics = CSharpSyntaxTree.ParseText(source).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(source, "public abstract class Contract(");
+            StringAssert.Contains(source, "[DisplayName(\"line\\nreturn\\rtab\\tbell\\aback\\bform\\fvert\\vnull\\0unit\\u001fslash\\\\quote\\\"\")]");
+            StringAssert.Contains(source, "public delegate void del_1event();");
+            StringAssert.Contains(source, "public event del_1event? On_1event;");
+        }
+
         private static ContractManifest CreateVerifyManifest(bool safe)
         {
             return new ContractManifest

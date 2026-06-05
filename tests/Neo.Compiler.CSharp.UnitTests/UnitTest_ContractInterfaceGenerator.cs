@@ -62,5 +62,86 @@ namespace Neo.Compiler.CSharp.UnitTests
             StringAssert.Contains(source, "[DisplayName(\"bad\\\"Name\")]");
             StringAssert.Contains(source, "extern BigInteger bad_Name(string arg_name);");
         }
+
+        [TestMethod]
+        public void TestGenerateInterfaceSanitizesPropertiesAndKeywordContractName()
+        {
+            var manifest = new ContractManifest
+            {
+                Name = "class",
+                Groups = [],
+                SupportedStandards = [],
+                Abi = new ContractAbi
+                {
+                    Methods =
+                    [
+                        new ContractMethodDescriptor
+                        {
+                            Name = "get_bad-name",
+                            Parameters = [],
+                            ReturnType = ContractParameterType.String,
+                            Safe = true
+                        },
+                        new ContractMethodDescriptor
+                        {
+                            Name = "set_bad-name",
+                            Parameters =
+                            [
+                                new ContractParameterDefinition
+                                {
+                                    Name = "value",
+                                    Type = ContractParameterType.String
+                                }
+                            ],
+                            ReturnType = ContractParameterType.Void
+                        },
+                        new ContractMethodDescriptor
+                        {
+                            Name = "get_lonely",
+                            Parameters = [],
+                            ReturnType = ContractParameterType.Integer,
+                            Safe = true
+                        }
+                    ],
+                    Events = []
+                },
+                Permissions = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
+
+            var source = ContractInterfaceGenerator.GenerateInterface(manifest.Name, manifest, UInt160.Zero);
+            var diagnostics = CSharpSyntaxTree.ParseText(source).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(source, "namespace Neo.SmartContract.Generated.@class");
+            StringAssert.Contains(source, "public interface Iclass");
+            StringAssert.Contains(source, "string bad_name { [DisplayName(\"get_bad-name\")] get; [DisplayName(\"set_bad-name\")] set; }");
+            StringAssert.Contains(source, "BigInteger lonely { [DisplayName(\"get_lonely\")] get; }");
+        }
+
+        [TestMethod]
+        public void TestGenerateInterfaceUsesFallbackContractName()
+        {
+            var manifest = new ContractManifest
+            {
+                Name = "",
+                Groups = [],
+                SupportedStandards = [],
+                Abi = new ContractAbi
+                {
+                    Methods = [],
+                    Events = []
+                },
+                Permissions = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
+
+            var source = ContractInterfaceGenerator.GenerateInterface(manifest.Name, manifest, UInt160.Zero);
+            var diagnostics = CSharpSyntaxTree.ParseText(source).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(source, "namespace Neo.SmartContract.Generated.Contract");
+            StringAssert.Contains(source, "public interface IContract");
+        }
     }
 }
