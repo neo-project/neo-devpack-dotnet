@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -455,24 +456,23 @@ namespace Neo.Compiler
             ExtractVersionInfo(document, Path.GetDirectoryName(csproj)!);
 
             var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove")
-                .Select(p => p.Value.Contains('*') ? p.Value : Path.GetFullPath(p.Value)).ToArray();
+                .SelectMany(p => SplitItemSpec(p.Value))
+                .Select(p => CompileRemovePattern.Create(folder, p))
+                .ToArray();
             var sourceFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            if (!remove.Contains("*.cs"))
+            var obj = Path.Combine(folder, "obj");
+            var binSc = Path.Combine(folder, "bin");
+            foreach (var entry in Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+                  .Where(p => !IsInDirectory(p, obj) && !IsInDirectory(p, binSc))
+                  .Select(Path.GetFullPath))
             {
-                var obj = Path.Combine(folder, "obj");
-                var binSc = Path.Combine(folder, "bin");
-                foreach (var entry in Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
-                      .Where(p => !p.StartsWith(obj) && !p.StartsWith(binSc))
-                      .Select(u => u))
-                //.GroupBy(Path.GetFileName)
-                //.Select(g => g.First()))
-                {
-                    if (!remove.Contains(entry)) sourceFiles.Add(entry);
-                }
+                if (!remove.Any(pattern => pattern.IsMatch(entry))) sourceFiles.Add(entry);
             }
 
-            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include").Select(p => Path.GetFullPath(p.Value, folder)));
+            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include")
+                .SelectMany(p => SplitItemSpec(p.Value))
+                .Select(p => Path.GetFullPath(p, folder)));
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
             List<MetadataReference> references = new(CommonReferences);
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
@@ -483,6 +483,95 @@ namespace Neo.Compiler
             }
             IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
             return CSharpCompilation.Create(assets["project"]!["restore"]!["projectName"]!.GetString(), syntaxTrees, references, compilationOptions);
+        }
+
+        private static IEnumerable<string> SplitItemSpec(string value)
+        {
+            return value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        }
+
+        private static bool IsInDirectory(string path, string directory)
+        {
+            string relative = Path.GetRelativePath(directory, path);
+            return relative != "." && relative != ".." && !relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) && !Path.IsPathRooted(relative);
+        }
+
+        private sealed class CompileRemovePattern
+        {
+            private readonly string _projectFolder;
+            private readonly string? _fullPath;
+            private readonly Regex? _relativeRegex;
+
+            private CompileRemovePattern(string projectFolder, string? fullPath, Regex? relativeRegex)
+            {
+                _projectFolder = projectFolder;
+                _fullPath = fullPath;
+                _relativeRegex = relativeRegex;
+            }
+
+            public static CompileRemovePattern Create(string projectFolder, string pattern)
+            {
+                if (pattern.IndexOfAny(['*', '?']) < 0)
+                {
+                    return new CompileRemovePattern(projectFolder, NormalizePath(Path.GetFullPath(pattern, projectFolder)), null);
+                }
+
+                string normalizedPattern = NormalizeRelativePattern(pattern);
+                var regex = new Regex("^" + WildcardToRegex(normalizedPattern) + "$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                return new CompileRemovePattern(projectFolder, null, regex);
+            }
+
+            public bool IsMatch(string fullPath)
+            {
+                string normalizedFullPath = NormalizePath(fullPath);
+                if (_fullPath is not null) return string.Equals(normalizedFullPath, _fullPath, StringComparison.OrdinalIgnoreCase);
+
+                string relativePath = NormalizeRelativePattern(Path.GetRelativePath(_projectFolder, fullPath));
+                return _relativeRegex!.IsMatch(relativePath);
+            }
+
+            private static string NormalizePath(string path) => Path.GetFullPath(path).Replace('\\', '/');
+
+            private static string NormalizeRelativePattern(string pattern) => pattern.Replace('\\', '/');
+
+            private static string WildcardToRegex(string pattern)
+            {
+                var builder = new StringBuilder();
+                for (int i = 0; i < pattern.Length; i++)
+                {
+                    char current = pattern[i];
+                    if (current == '*')
+                    {
+                        if (i + 1 < pattern.Length && pattern[i + 1] == '*')
+                        {
+                            i++;
+                            if (i + 1 < pattern.Length && pattern[i + 1] == '/')
+                            {
+                                i++;
+                                builder.Append("(?:.*/)?");
+                            }
+                            else
+                            {
+                                builder.Append(".*");
+                            }
+                        }
+                        else
+                        {
+                            builder.Append("[^/]*");
+                        }
+                    }
+                    else if (current == '?')
+                    {
+                        builder.Append("[^/]");
+                    }
+                    else
+                    {
+                        builder.Append(Regex.Escape(current.ToString()));
+                    }
+                }
+
+                return builder.ToString();
+            }
         }
 
         private MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, CSharpCompilationOptions compilationOptions)
