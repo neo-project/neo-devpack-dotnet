@@ -21,6 +21,19 @@ namespace Neo.Compiler.CSharp.UnitTests
     public class UnitTest_Types_ECPoint : DebugAndTestBase<Contract_Types_ECPoint>
     {
         [TestMethod]
+        public void TestToECPoint()
+        {
+            Assert.IsTrue(Contract.ToECPoint(new byte[33]));
+            AssertGasConsumed(1293780);
+            Assert.IsFalse(Contract.ToECPoint(new byte[32]));
+            AssertGasConsumed(1309140);
+            Assert.IsFalse(Contract.ToECPoint(new byte[34]));
+            AssertGasConsumed(1309140);
+            Assert.IsFalse(Contract.ToECPoint(null));
+            AssertGasConsumed(1062900);
+        }
+
+        [TestMethod]
         public void ECPoint_test()
         {
             Assert.IsFalse(Contract.IsValid(InvalidECPoint.InvalidLength));
