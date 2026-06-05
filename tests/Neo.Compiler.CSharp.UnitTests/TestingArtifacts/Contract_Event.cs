@@ -24,10 +24,10 @@ public abstract class Contract_Event(Neo.SmartContract.Testing.SmartContractInit
 
     #region Events
 
-    public delegate void deltransfer(byte[]? arg1, byte[]? arg2, BigInteger? arg3);
+    public delegate void delTransfer(byte[]? arg1, byte[]? arg2, BigInteger? arg3);
 
     [DisplayName("transfer")]
-    public event deltransfer? OnTransfer;
+    public event delTransfer? OnTransfer;
 
     #endregion
 
