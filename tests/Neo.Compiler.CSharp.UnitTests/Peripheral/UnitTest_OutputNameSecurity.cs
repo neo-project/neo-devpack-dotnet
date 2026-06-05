@@ -65,6 +65,29 @@ public class Contract : SmartContract
             Assert.IsFalse(Directory.EnumerateFiles(workspace.ProjectDirectory, "outside-name.*").Any());
         }
 
+        [TestMethod]
+        public void TestBaseNameRejectsEmptyAndInvalidFileNameCharacters()
+        {
+            using var workspace = TempWorkspace.Create();
+            string projectPath = workspace.CreateProject("""
+using Neo.SmartContract.Framework;
+
+public class Contract : SmartContract
+{
+    public static int Main() => 1;
+}
+""");
+
+            string outputPath = Path.Combine(workspace.ProjectDirectory, "out");
+
+            int whitespaceExitCode = Program.Main([projectPath, "--debug", "None", "--base-name", " ", "-o", outputPath]);
+            int invalidCharExitCode = Program.Main([projectPath, "--debug", "None", "--base-name", "bad\0name", "-o", outputPath]);
+
+            Assert.AreEqual(1, whitespaceExitCode);
+            Assert.AreEqual(1, invalidCharExitCode);
+            Assert.IsFalse(Directory.EnumerateFiles(workspace.ProjectDirectory, "*.nef", SearchOption.AllDirectories).Any());
+        }
+
         private sealed class TempWorkspace : IDisposable
         {
             public string Root { get; }
