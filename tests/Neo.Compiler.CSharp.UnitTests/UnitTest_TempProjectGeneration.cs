@@ -74,13 +74,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TempProjectEscapesXmlAttributeValues()
         {
-            var sourceFile = Path.Combine(Path.GetTempPath(), "Source\"<&>.cs");
-            var projectFile = Path.Combine(Path.GetTempPath(), "Project\"<&>.csproj");
+            var sourceFile = Path.Combine(Path.GetTempPath(), "Source\n\r\t\"<&>.cs");
+            var projectFile = Path.Combine(Path.GetTempPath(), "Project\n\r\t\"<&>.csproj");
             var references = new CompilationSourceReferences
             {
                 Packages =
                 [
-                    ("Neo\"<&>", "3.9\"<&>")
+                    ("Neo\n\r\t\"<&>", "3.9\n\r\t\"<&>")
                 ],
                 Projects =
                 [
@@ -96,8 +96,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             var project = document.Descendants("ProjectReference").Single();
 
             Assert.AreEqual(Path.GetFullPath(sourceFile), compile.Attribute("Include")!.Value);
-            Assert.AreEqual("Neo\"<&>", package.Attribute("Include")!.Value);
-            Assert.AreEqual("3.9\"<&>", package.Attribute("Version")!.Value);
+            Assert.AreEqual("Neo\n\r\t\"<&>", package.Attribute("Include")!.Value);
+            Assert.AreEqual("3.9\n\r\t\"<&>", package.Attribute("Version")!.Value);
             Assert.AreEqual(projectFile, project.Attribute("Include")!.Value);
         }
 
