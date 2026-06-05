@@ -392,7 +392,8 @@ namespace Neo.Compiler
         {
             try
             {
-                s = Utility.StrictUTF8.GetString(span);
+                var raw = Utility.StrictUTF8.GetString(span);
+                s = System.Text.Json.JsonSerializer.Serialize(raw); // use json serializer to escape the string
                 return true;
             }
             catch
