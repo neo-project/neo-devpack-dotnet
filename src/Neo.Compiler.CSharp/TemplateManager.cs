@@ -29,6 +29,14 @@ namespace Neo.Compiler
 
     public class TemplateManager
     {
+        private static readonly HashSet<string> CSharpStringTokens = new(StringComparer.Ordinal)
+        {
+            "{{Author}}",
+            "{{Email}}",
+            "{{Description}}",
+            "{{Version}}"
+        };
+
         private readonly Dictionary<ContractTemplate, TemplateInfo> templates;
 
         public TemplateManager()
@@ -127,7 +135,10 @@ namespace Neo.Compiler
             foreach (var file in templateInfo.Files)
             {
                 string fileName = ReplaceTokens(file.Key, replacements);
-                string fileContent = ReplaceTokens(file.Value, replacements);
+                string fileContent = ReplaceTokens(
+                    file.Value,
+                    replacements,
+                    Path.GetExtension(fileName).Equals(".cs", StringComparison.OrdinalIgnoreCase));
                 string filePath = Path.Combine(projectPath, fileName);
 
                 File.WriteAllText(filePath, fileContent);
@@ -141,13 +152,42 @@ namespace Neo.Compiler
             Console.WriteLine($"  dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- {Path.Combine(projectPath, projectName + ".csproj")}");
         }
 
-        private string ReplaceTokens(string content, Dictionary<string, string> replacements)
+        private string ReplaceTokens(string content, Dictionary<string, string> replacements, bool escapeCSharpStringTokens = false)
         {
             foreach (var replacement in replacements)
             {
-                content = content.Replace(replacement.Key, replacement.Value);
+                var value = escapeCSharpStringTokens && CSharpStringTokens.Contains(replacement.Key)
+                    ? EscapeCSharpStringLiteralValue(replacement.Value)
+                    : replacement.Value;
+                content = content.Replace(replacement.Key, value);
             }
             return content;
+        }
+
+        private static string EscapeCSharpStringLiteralValue(string value)
+        {
+            var builder = new StringBuilder(value.Length);
+
+            foreach (var ch in value)
+            {
+                builder.Append(ch switch
+                {
+                    '\\' => @"\\",
+                    '"' => "\\\"",
+                    '\0' => @"\0",
+                    '\a' => @"\a",
+                    '\b' => @"\b",
+                    '\f' => @"\f",
+                    '\n' => @"\n",
+                    '\r' => @"\r",
+                    '\t' => @"\t",
+                    '\v' => @"\v",
+                    _ when char.IsControl(ch) => $"\\u{(int)ch:x4}",
+                    _ => ch.ToString()
+                });
+            }
+
+            return builder.ToString();
         }
 
         public IEnumerable<(ContractTemplate template, string name, string description)> GetAvailableTemplates()
