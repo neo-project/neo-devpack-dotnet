@@ -17,15 +17,22 @@ namespace Neo.SmartContract.Framework
 {
     public abstract class ECPoint : ByteString
     {
+        /// <summary>
+        /// Checks if the value is valid.
+        /// It returns true if the value is a 33 bytes compressed public key, false otherwise.
+        /// It only checks the length and type, not the actual validity of the public key.
+        /// </summary>
         public extern bool IsValid
         {
             [OpCode(OpCode.DUP)]
-            [OpCode(OpCode.ISTYPE, "0x28")] //ByteString
-            [OpCode(OpCode.SWAP)]
-            [OpCode(OpCode.SIZE)]
+            [OpCode(OpCode.ISTYPE, "0x28")] // ByteString
+            [OpCode(OpCode.JMPIF, "06")]    // Jump to SIZE
+            [OpCode(OpCode.DROP)]
+            [OpCode(OpCode.PUSHF)]          // Push false if is not a ByteString
+            [OpCode(OpCode.JMP, "06")]      // Jump to the end
+            [OpCode(OpCode.SIZE)]           // Get the size of the ByteString
             [OpCode(OpCode.PUSHINT8, "21")] // 0x21 == 33 bytes expected array size
-            [OpCode(OpCode.NUMEQUAL)]
-            [OpCode(OpCode.BOOLAND)]
+            [OpCode(OpCode.NUMEQUAL)]       // Check if the size is 33 bytes
             get;
         }
 
