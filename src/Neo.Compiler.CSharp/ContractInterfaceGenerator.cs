@@ -31,6 +31,8 @@ namespace Neo.Compiler
         /// <returns>The generated interface code</returns>
         public static string GenerateInterface(string contractName, ContractManifest manifest, UInt160 contractHash)
         {
+            var contractIdentifier = CSharpSourceName.Identifier(contractName, "Contract");
+            var interfaceName = "I" + CSharpSourceName.IdentifierSuffix(contractName, "Contract");
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
@@ -50,10 +52,10 @@ namespace Neo.Compiler
             sourceCode.WriteLine("using System.ComponentModel;");
             sourceCode.WriteLine("using System.Numerics;");
             sourceCode.WriteLine();
-            sourceCode.WriteLine("namespace " + GetNamespace(contractName));
+            sourceCode.WriteLine("namespace " + GetNamespace(contractIdentifier));
             sourceCode.WriteLine("{");
             sourceCode.WriteLine($"    [Contract(\"{contractHash}\")]");
-            sourceCode.WriteLine($"    public interface I{contractName}");
+            sourceCode.WriteLine($"    public interface {interfaceName}");
             sourceCode.WriteLine("    {");
             sourceCode.WriteLine("        [ContractHash]");
             sourceCode.WriteLine("        static extern UInt160 Hash { get; }");
@@ -69,6 +71,7 @@ namespace Neo.Compiler
                 {
                     string returnType = ConvertTypeToString(property.getter.ReturnType);
                     string propertyName = GetPropertyName(property.getter.Name);
+                    string getterName = CSharpSourceName.StringLiteralValue(property.getter.Name);
 
                     if (property.getter.Safe)
                     {
@@ -77,11 +80,11 @@ namespace Neo.Compiler
 
                     if (property.setter is not null)
                     {
-                        sourceCode.WriteLine($"        {returnType} {propertyName} {{ get; set; }}");
+                        sourceCode.WriteLine($"        {returnType} {propertyName} {{ [DisplayName(\"{getterName}\")] get; [DisplayName(\"{CSharpSourceName.StringLiteralValue(property.setter.Name)}\")] set; }}");
                     }
                     else
                     {
-                        sourceCode.WriteLine($"        {returnType} {propertyName} {{ get; }}");
+                        sourceCode.WriteLine($"        {returnType} {propertyName} {{ [DisplayName(\"{getterName}\")] get; }}");
                     }
 
                     sourceCode.WriteLine();
@@ -96,10 +99,14 @@ namespace Neo.Compiler
                     continue;
 
                 string returnType = ConvertTypeToString(method.ReturnType);
-                string parameters = string.Join(", ", method.Parameters.Select(p => $"{ConvertTypeToString(p.Type)} {p.Name}"));
+                string methodName = CSharpSourceName.Identifier(method.Name, "Method");
+                string parameters = string.Join(", ", method.Parameters.Select(p => $"{ConvertTypeToString(p.Type)} {CSharpSourceName.Identifier(p.Name, "arg")}"));
 
-                sourceCode.WriteLine($"        {(method.Safe ? "[Safe]" : "")}");
-                sourceCode.WriteLine($"        extern {returnType} {method.Name}({parameters});");
+                if (method.Safe)
+                    sourceCode.WriteLine("        [Safe]");
+                if (method.Name != methodName)
+                    sourceCode.WriteLine($"        [DisplayName(\"{CSharpSourceName.StringLiteralValue(method.Name)}\")]");
+                sourceCode.WriteLine($"        extern {returnType} {methodName}({parameters});");
                 sourceCode.WriteLine();
             }
 
@@ -119,9 +126,9 @@ namespace Neo.Compiler
             // Extract property name from get/set_X method names
             if (methodName.StartsWith("get_") || methodName.StartsWith("set_"))
             {
-                return methodName.Substring(4);
+                return CSharpSourceName.Identifier(methodName.Substring(4), "Property");
             }
-            return methodName;
+            return CSharpSourceName.Identifier(methodName, "Property");
         }
 
         private static string ConvertTypeToString(ContractParameterType type)
