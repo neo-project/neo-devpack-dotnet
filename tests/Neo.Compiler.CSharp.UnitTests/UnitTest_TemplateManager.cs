@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -197,6 +198,44 @@ namespace Neo.Compiler.CSharp.UnitTests
             StringAssert.Contains(csContent, "[ContractAuthor(\"Jane \\\"JJ\\\" Doe\", \"jane\\\\mail@example.com\")]");
             StringAssert.Contains(csContent, "[ContractDescription(\"Line one\\nLine two \\\"quoted\\\"\")]");
             StringAssert.Contains(csContent, "[ContractVersion(\"1.0\\\"beta\")]");
+        }
+
+        [TestMethod]
+        public void TestMetadataReplacementsEscapeControlCharacters()
+        {
+            string projectName = "EscapedControlMetadata";
+            var customReplacements = new Dictionary<string, string>
+            {
+                { "{{Author}}", "A\0\a\b\f\r\t\v\u001fZ" },
+                { "{{Email}}", "test@example.com" },
+                { "{{Description}}", "Control characters" },
+                { "{{Version}}", "1.0.0" }
+            };
+
+            _templateManager.GenerateContract(ContractTemplate.Basic, projectName, _testOutputPath, customReplacements);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+            var diagnostics = CSharpSyntaxTree.ParseText(csContent).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(csContent, "[ContractAuthor(\"A\\0\\a\\b\\f\\r\\t\\v\\u001fZ\", \"test@example.com\")]");
+        }
+
+        [TestMethod]
+        public void TestReplaceTokensCanLeaveCSharpStringTokensUnescaped()
+        {
+            var replaceTokens = typeof(TemplateManager).GetMethod("ReplaceTokens", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException("Unable to locate ReplaceTokens method.");
+
+            var result = (string)replaceTokens.Invoke(_templateManager, new object[]
+            {
+                "{{Author}}",
+                new Dictionary<string, string> { { "{{Author}}", "Jane \"JJ\" Doe" } },
+                false
+            })!;
+
+            Assert.AreEqual("Jane \"JJ\" Doe", result);
         }
 
         [TestMethod]
