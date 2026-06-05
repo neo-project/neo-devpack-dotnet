@@ -436,20 +436,20 @@ namespace Neo.Compiler
                 else
                     Console.WriteLine(diagnostic.ToString());
             }
-                if (context.Success)
+            if (context.Success)
+            {
+                string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
+                string baseName = context.ContractName!;
+
+                if (!IsSafeOutputBaseName(baseName))
                 {
-                    string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
-                    string baseName = context.ContractName!;
+                    Console.Error.WriteLine($"Invalid output base name '{baseName}'. The output base name must be a file name and cannot contain directory separators or invalid file name characters.");
+                    return 1;
+                }
 
-                    if (!IsSafeOutputBaseName(baseName))
-                    {
-                        Console.Error.WriteLine($"Invalid output base name '{baseName}'. The output base name must be a file name and cannot contain directory separators or invalid file name characters.");
-                        return 1;
-                    }
-
-                    NefFile nef;
-                    ContractManifest manifest;
-                    JToken debugInfo;
+                NefFile nef;
+                ContractManifest manifest;
+                JToken debugInfo;
                 try
                 {
                     (nef, manifest, debugInfo) = context.CreateResults(folder);
