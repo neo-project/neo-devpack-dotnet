@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.CodeAnalysis.CSharp;
 using Neo.Compiler;
 using System;
 using System.Collections.Generic;
@@ -172,6 +173,30 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(csContent.Contains("Custom Description"));
             Assert.IsTrue(csContent.Contains("John Doe"));
             Assert.IsTrue(csContent.Contains("john@example.com"));
+        }
+
+        [TestMethod]
+        public void TestMetadataReplacementsAreEscapedInGeneratedSource()
+        {
+            string projectName = "EscapedMetadata";
+            var customReplacements = new Dictionary<string, string>
+            {
+                { "{{Author}}", "Jane \"JJ\" Doe" },
+                { "{{Email}}", "jane\\mail@example.com" },
+                { "{{Description}}", "Line one\nLine two \"quoted\"" },
+                { "{{Version}}", "1.0\"beta" }
+            };
+
+            _templateManager.GenerateContract(ContractTemplate.Basic, projectName, _testOutputPath, customReplacements);
+
+            string csFilePath = Path.Combine(_testOutputPath, projectName, $"{projectName}.cs");
+            string csContent = File.ReadAllText(csFilePath);
+            var diagnostics = CSharpSyntaxTree.ParseText(csContent).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(csContent, "[ContractAuthor(\"Jane \\\"JJ\\\" Doe\", \"jane\\\\mail@example.com\")]");
+            StringAssert.Contains(csContent, "[ContractDescription(\"Line one\\nLine two \\\"quoted\\\"\")]");
+            StringAssert.Contains(csContent, "[ContractVersion(\"1.0\\\"beta\")]");
         }
 
         [TestMethod]
