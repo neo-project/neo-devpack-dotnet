@@ -441,6 +441,12 @@ namespace Neo.Compiler
                 string outputFolder = options.Output ?? Path.Combine(folder, "bin", "sc");
                 string baseName = context.ContractName!;
 
+                if (!IsSafeOutputBaseName(baseName))
+                {
+                    Console.Error.WriteLine($"Invalid output base name '{baseName}'. The output base name must be a file name and cannot contain directory separators or invalid file name characters.");
+                    return 1;
+                }
+
                 NefFile nef;
                 ContractManifest manifest;
                 JToken debugInfo;
@@ -654,6 +660,14 @@ namespace Neo.Compiler
                 Console.Error.WriteLine("Compilation failed.");
                 return 1;
             }
+        }
+
+        private static bool IsSafeOutputBaseName(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return false;
+            if (value.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return false;
+            if (value.Contains('/') || value.Contains('\\')) return false;
+            return Path.GetFileName(value) == value;
         }
 
         private static bool TryFileOperation(string operation, string target, Action action)

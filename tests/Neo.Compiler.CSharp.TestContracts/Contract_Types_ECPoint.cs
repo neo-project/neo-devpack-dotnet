@@ -33,5 +33,18 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return (byte[])publicKey2Ecpoint;
         }
+
+        public static bool ToECPoint(byte[] value)
+        {
+            try
+            {
+                _ = (ECPoint)value;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
