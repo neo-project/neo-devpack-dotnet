@@ -158,6 +158,106 @@ public class ExcludedOne
     }
 
     [TestMethod]
+    public void GetCompilation_HonorsSemicolonSeparatedCompileItems()
+    {
+        using var project = TempContractProject.Create("""
+  <ItemGroup>
+    <Compile Remove="*.cs" />
+    <Compile Include="IncludedOne.cs;IncludedTwo.cs" />
+  </ItemGroup>
+""");
+        project.WriteSource("IncludedOne.cs", """
+using Neo.SmartContract.Framework;
+
+public class IncludedOne : SmartContract
+{
+    public static int Main() => 1;
+}
+""");
+        project.WriteSource("IncludedTwo.cs", """
+public class IncludedTwo
+{
+}
+""");
+        project.WriteSource("Excluded.cs", """
+public class Excluded
+{
+}
+""");
+
+        var compilation = new CompilationEngine(new CompilationOptions()).GetCompilation(project.ProjectFile);
+        var sourceFileNames = compilation.SyntaxTrees.Select(tree => Path.GetFileName(tree.FilePath)).ToArray();
+
+        CollectionAssert.Contains(sourceFileNames, "IncludedOne.cs");
+        CollectionAssert.Contains(sourceFileNames, "IncludedTwo.cs");
+        CollectionAssert.DoesNotContain(sourceFileNames, "Excluded.cs");
+    }
+
+    [TestMethod]
+    public void GetCompilation_HonorsRecursiveAndQuestionWildcardCompileRemove()
+    {
+        using var project = TempContractProject.Create("""
+  <ItemGroup>
+    <Compile Remove="**/Excluded?.cs;Nested/**.cs" />
+  </ItemGroup>
+""");
+        project.WriteSource("Contract.cs", """
+using Neo.SmartContract.Framework;
+
+public class Contract : SmartContract
+{
+    public static int Main() => 1;
+}
+""");
+        project.WriteSource(Path.Combine("Deep", "Excluded1.cs"), """
+public class Excluded1
+{
+}
+""");
+        project.WriteSource(Path.Combine("Nested", "Generated.cs"), """
+public class Generated
+{
+}
+""");
+
+        var compilation = new CompilationEngine(new CompilationOptions()).GetCompilation(project.ProjectFile);
+        var sourceFileNames = compilation.SyntaxTrees.Select(tree => Path.GetFileName(tree.FilePath)).ToArray();
+
+        CollectionAssert.DoesNotContain(sourceFileNames, "Excluded1.cs");
+        CollectionAssert.DoesNotContain(sourceFileNames, "Generated.cs");
+    }
+
+    [TestMethod]
+    public void GetCompilation_SkipsGeneratedOutputFolders()
+    {
+        using var project = TempContractProject.Create("");
+        project.WriteSource("Contract.cs", """
+using Neo.SmartContract.Framework;
+
+public class Contract : SmartContract
+{
+    public static int Main() => 1;
+}
+""");
+        project.WriteSource(Path.Combine("obj", "Generated.cs"), """
+public class ObjGenerated
+{
+}
+""");
+        project.WriteSource(Path.Combine("bin", "sc", "Generated.cs"), """
+public class BinGenerated
+{
+}
+""");
+
+        var compilation = new CompilationEngine(new CompilationOptions()).GetCompilation(project.ProjectFile);
+        var sourcePaths = compilation.SyntaxTrees.Select(tree => tree.FilePath).ToArray();
+
+        Assert.IsFalse(sourcePaths.Any(path => path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)));
+        Assert.IsFalse(sourcePaths.Any(path => path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}sc{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)));
+    }
+
+    [TestMethod]
     public void UnsupportedDependencyAssetTypeIncludesContext()
     {
         const string dependencyName = "bad.asset/1.0.0";
@@ -236,7 +336,13 @@ public class ExcludedOne
 
         public void WriteSource(string name, string source)
         {
-            File.WriteAllText(Path.Combine(ProjectDirectory, name), source);
+            var path = Path.Combine(ProjectDirectory, name);
+            var directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            File.WriteAllText(path, source);
         }
 
         public void Dispose()
