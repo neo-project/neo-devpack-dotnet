@@ -529,6 +529,8 @@ namespace Neo.Compiler
                                 {
                                     Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
                                 }
+
+                                return 1;
                             }
                             else
                             {
@@ -547,6 +549,7 @@ namespace Neo.Compiler
                         catch (Exception ex)
                         {
                             Console.Error.WriteLine($"Artifacts compilation error: {ex.Message}");
+                            return 1;
                         }
                     }
                 }
