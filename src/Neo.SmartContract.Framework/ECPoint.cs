@@ -36,10 +36,16 @@ namespace Neo.SmartContract.Framework
             get;
         }
 
-        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
+        /// <summary>
+        /// Explicitly converts a byte array to a PublicKey object.
+        /// It must be a 33-bytes byte-array (compressed public key).
+        /// It will throw an exception if the value is null, or not 33 bytes.
+        /// </summary>
+        /// <param name="value"></param>
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.ISNULL)]
-        [OpCode(OpCode.JMPIF, "09")]
+        [OpCode(OpCode.JMPIF, "0A")]
+        [OpCode(OpCode.CONVERT, StackItemType.ByteString)]
         [OpCode(OpCode.DUP)]
         [OpCode(OpCode.SIZE)]
         [OpCode(OpCode.PUSHINT8, "21")] // 0x21 == 33 bytes expected array size
