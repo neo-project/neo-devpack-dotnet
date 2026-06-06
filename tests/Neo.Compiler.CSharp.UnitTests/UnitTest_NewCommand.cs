@@ -247,6 +247,7 @@ public class {{contractName}} : SmartContract
             var result = RunCompilerCommand($"\"{projectPath}\" --generate-artifacts Library");
 
             Assert.AreEqual(1, result.ExitCode, $"Expected artifact compilation failure to fail the command. Output: {result.StdOut}{result.StdErr}");
+            StringAssert.Contains(result.StdErr, "Artifacts compilation error");
             StringAssert.Contains(result.StdErr, "CS");
             Assert.IsFalse(File.Exists(Path.Combine(projectDirectory, "bin", "sc", $"{contractName}.artifacts.dll")));
         }

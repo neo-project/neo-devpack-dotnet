@@ -495,58 +495,67 @@ namespace Neo.Compiler
 
                     if (options.GenerateArtifacts.HasFlag(Options.GenerateArtifactsKind.Library))
                     {
-                        // Try to compile the artifacts into a dll
-
-                        var references = new MetadataReference[]
+                        try
                         {
-                            RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.dll"),
-                            RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.InteropServices.dll"),
-                            RuntimeAssemblyResolver.CreateFrameworkReference("System.ComponentModel.Primitives.dll"),
-                            RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll"),
-                            RuntimeAssemblyResolver.CreateFrameworkReference("System.Collections.dll"),
-                            RuntimeAssemblyResolver.CreateFrameworkReference("System.Memory.dll"),
-                            MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(IO.MemoryReader))),
-                            MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(NeoSystem))),
-                            MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveDependencyAssembly("Neo.SmartContract.Testing.dll"))
-                        };
+                            // Try to compile the artifacts into a dll
 
-                        CSharpCompilationOptions csOptions = new(
-                                OutputKind.DynamicallyLinkedLibrary,
-                                optimizationLevel: OptimizationLevel.Debug,
-                                platform: Platform.AnyCpu,
-                                nullableContextOptions: NullableContextOptions.Enable,
-                                deterministic: true);
-
-                        var syntaxTree = CSharpSyntaxTree.ParseText(artifact, options: CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest));
-                        var compilation = CSharpCompilation.Create(baseName, new[] { syntaxTree }, references, csOptions);
-
-                        using var ms = new MemoryStream();
-                        EmitResult result = compilation.Emit(ms);
-
-                        if (!result.Success)
-                        {
-                            var failures = result.Diagnostics.Where(diagnostic =>
-                                diagnostic.IsWarningAsError ||
-                                diagnostic.Severity == DiagnosticSeverity.Error);
-
-                            foreach (var diagnostic in failures)
+                            var references = new MetadataReference[]
                             {
-                                Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.InteropServices.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.ComponentModel.Primitives.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Runtime.Numerics.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Collections.dll"),
+                                RuntimeAssemblyResolver.CreateFrameworkReference("System.Memory.dll"),
+                                MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(IO.MemoryReader))),
+                                MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveAssemblyFromType(typeof(NeoSystem))),
+                                MetadataReference.CreateFromFile(RuntimeAssemblyResolver.ResolveDependencyAssembly("Neo.SmartContract.Testing.dll"))
+                            };
+
+                            CSharpCompilationOptions csOptions = new(
+                                    OutputKind.DynamicallyLinkedLibrary,
+                                    optimizationLevel: OptimizationLevel.Debug,
+                                    platform: Platform.AnyCpu,
+                                    nullableContextOptions: NullableContextOptions.Enable,
+                                    deterministic: true);
+
+                            var syntaxTree = CSharpSyntaxTree.ParseText(artifact, options: CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest));
+                            var compilation = CSharpCompilation.Create(baseName, new[] { syntaxTree }, references, csOptions);
+
+                            using var ms = new MemoryStream();
+                            EmitResult result = compilation.Emit(ms);
+
+                            if (!result.Success)
+                            {
+                                Console.Error.WriteLine("Artifacts compilation error.");
+                                var failures = result.Diagnostics.Where(diagnostic =>
+                                    diagnostic.IsWarningAsError ||
+                                    diagnostic.Severity == DiagnosticSeverity.Error);
+
+                                foreach (var diagnostic in failures)
+                                {
+                                    Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                                }
+
+                                return 1;
                             }
 
-                            return 1;
+                            ms.Seek(0, SeekOrigin.Begin);
+
+                            // Write dll
+
+                            var artifactDllPath = Path.Combine(outputFolder, $"{baseName}.artifacts.dll");
+                            if (!TryFileOperation("write", artifactDllPath, () => File.WriteAllBytes(artifactDllPath, ms.ToArray())))
+                            {
+                                return 1;
+                            }
+                            Console.WriteLine($"Created {artifactDllPath}");
                         }
-
-                        ms.Seek(0, SeekOrigin.Begin);
-
-                        // Write dll
-
-                        var artifactDllPath = Path.Combine(outputFolder, $"{baseName}.artifacts.dll");
-                        if (!TryFileOperation("write", artifactDllPath, () => File.WriteAllBytes(artifactDllPath, ms.ToArray())))
+                        catch (Exception ex)
                         {
+                            Console.Error.WriteLine($"Artifacts compilation error: {ex.Message}");
                             return 1;
                         }
-                        Console.WriteLine($"Created {artifactDllPath}");
                     }
                 }
                 if (options.Debug != CompilationOptions.DebugType.None)
