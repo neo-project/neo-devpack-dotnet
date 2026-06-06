@@ -39,7 +39,7 @@ namespace Neo.SmartContract.Template
             if (!IsOwner())
                 throw new InvalidOperationException("No Authorization!");
 
-            ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
+            ExecutionEngine.Assert(newOwner.IsValid && newOwner.NotZero, "owner must be valid");
 
             UInt160? previousOwner = GetOwner();
             ExecutionEngine.Assert(previousOwner != newOwner, "owner must change");
@@ -59,7 +59,7 @@ namespace Neo.SmartContract.Template
             if (!IsOwner())
                 throw new InvalidOperationException("No Authorization!");
 
-            ExecutionEngine.Assert(to.IsValid && !to.IsZero, "recipient must be valid");
+            ExecutionEngine.Assert(to.IsValid && to.NotZero, "recipient must be valid");
 
             ByteString tokenId = NewTokenId();
             Nep11Token<TokenState>.Mint(tokenId, new TokenState
@@ -110,7 +110,7 @@ namespace Neo.SmartContract.Template
             if (data is null) data = Runtime.Transaction.Sender;
             UInt160 initialOwner = (UInt160)data;
 
-            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must exists");
+            ExecutionEngine.Assert(initialOwner.IsValid && initialOwner.NotZero, "owner must exists");
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
             OnSetOwner(null, initialOwner);
