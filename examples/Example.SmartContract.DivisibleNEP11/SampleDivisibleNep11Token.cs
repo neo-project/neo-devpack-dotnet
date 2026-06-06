@@ -109,7 +109,7 @@ namespace DivisibleNEP11
             ValidateOwner(to);
             ValidateTokenId(tokenId);
             EnsureTokenExists(tokenId);
-            ValidateTransferAmount(amount);
+            ValidateAmount(amount, allowZero: true);
             if (!Runtime.CheckWitness(from)) return false;
             if (BalanceOf(from, tokenId) < amount) return false;
 
@@ -142,7 +142,7 @@ namespace DivisibleNEP11
             if (!Runtime.CheckWitness(GetOwner())) throw new InvalidOperationException("No authorization.");
             ValidateOwner(to);
             ValidateTokenId(tokenId);
-            ValidateMintAmount(amount);
+            ValidateAmount(amount, allowZero: false);
             if (Storage.Get(MapKey(PrefixTokenSupply, tokenId)) is not null) throw new InvalidOperationException("Token already exists.");
 
             Storage.Put(MapKey(PrefixTokenName, tokenId), name);
@@ -259,14 +259,10 @@ namespace DivisibleNEP11
                 throw new ArgumentException("Token ID must be between 1 and 64 bytes.");
         }
 
-        private static void ValidateTransferAmount(BigInteger amount)
+        private static void ValidateAmount(BigInteger amount, bool allowZero)
         {
-            if (amount < 0 || amount > TokenUnit) throw new ArgumentOutOfRangeException(nameof(amount));
-        }
-
-        private static void ValidateMintAmount(BigInteger amount)
-        {
-            if (amount <= 0 || amount > TokenUnit) throw new ArgumentOutOfRangeException(nameof(amount));
+            if (amount > TokenUnit || amount < 0 || (!allowZero && amount == 0))
+                throw new ArgumentOutOfRangeException(nameof(amount));
         }
     }
 }
