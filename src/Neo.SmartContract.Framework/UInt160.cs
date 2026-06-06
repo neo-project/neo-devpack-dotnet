@@ -24,7 +24,7 @@ namespace Neo.SmartContract.Framework
         public static int Size => 20;
 
         /// <summary>
-        /// Checks if the value is zero(all bytes are 0).
+        /// Checks if the value is zero (all bytes are 0).
         /// The execution will fail if the value is null.
         /// </summary>
         public extern bool IsZero
