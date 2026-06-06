@@ -246,7 +246,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
         [TestMethod]
         public void TestGetArtifactsSourceEscapesControlCharactersAndFallbackNames()
         {
-            var methodName = "line\nreturn\rtab\tbell\aback\bform\fvert\vnull\0unit\u001fslash\\quote\"";
+            var methodName = "line\nreturn\rtab\tbell\aback\bform\fvert\vnull\0unit\u001fslash\\quote\"hex\\x41unicode\\u0042";
             var manifest = new ContractManifest
             {
                 Name = "",
@@ -281,7 +281,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
 
             Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
             StringAssert.Contains(source, "public abstract class Contract(");
-            StringAssert.Contains(source, "[DisplayName(\"line\\nreturn\\rtab\\tbell\\aback\\bform\\fvert\\vnull\\0unit\\u001fslash\\\\quote\\\"\")]");
+            StringAssert.Contains(source, "[DisplayName(\"line\\nreturn\\rtab\\tbell\\aback\\bform\\fvert\\vnull\\0unit\\u001fslash\\\\quote\\\"hex\\\\x41unicode\\\\u0042\")]");
             StringAssert.Contains(source, "public delegate void del_1event();");
             StringAssert.Contains(source, "public event del_1event? On_1event;");
         }

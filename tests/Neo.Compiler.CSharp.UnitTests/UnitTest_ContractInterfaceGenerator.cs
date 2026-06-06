@@ -34,7 +34,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                     [
                         new ContractMethodDescriptor
                         {
-                            Name = "bad\"Name",
+                            Name = "bad\"Name\\x41\\u0042",
                             Parameters =
                             [
                                 new ContractParameterDefinition
@@ -59,8 +59,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
             StringAssert.Contains(source, "namespace Neo.SmartContract.Generated.Bad_Contract");
             StringAssert.Contains(source, "public interface IBad_Contract");
-            StringAssert.Contains(source, "[DisplayName(\"bad\\\"Name\")]");
-            StringAssert.Contains(source, "extern BigInteger bad_Name(string arg_name);");
+            StringAssert.Contains(source, "[DisplayName(\"bad\\\"Name\\\\x41\\\\u0042\")]");
+            StringAssert.Contains(source, "extern BigInteger bad_Name_x41_u0042(string arg_name);");
         }
 
         [TestMethod]
