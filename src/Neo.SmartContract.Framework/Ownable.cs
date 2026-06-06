@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework
             if (!IsOwner())
                 throw new System.InvalidOperationException("No Authorization!");
 
-            ExecutionEngine.Assert(newOwner.IsValid && !newOwner.IsZero, "owner must be valid");
+            ExecutionEngine.Assert(newOwner.IsValid && newOwner.NotZero, "owner must be valid");
 
             UInt160? previousOwner = GetOwner();
             ExecutionEngine.Assert(previousOwner != newOwner, "owner must change");
@@ -58,7 +58,7 @@ namespace Neo.SmartContract.Framework
             data ??= Runtime.Transaction.Sender;
 
             UInt160 initialOwner = (UInt160)data;
-            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, "owner must be valid");
+            ExecutionEngine.Assert(initialOwner.IsValid && initialOwner.NotZero, "owner must be valid");
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
             OnSetOwner(null, initialOwner);

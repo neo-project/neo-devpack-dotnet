@@ -160,5 +160,25 @@ namespace Neo.SmartContract.Framework.UnitTests
             Assert.IsFalse(Contract.ToUInt256(null));
             AssertGasConsumed(1062900);
         }
+
+        [TestMethod]
+        public void TestNotZeroUInt256()
+        {
+            Assert.IsFalse(Contract.NotZeroUInt256(UInt256.Zero));
+            AssertGasConsumed(1047360);
+
+            Assert.IsTrue(Contract.NotZeroUInt256(UInt256.Parse("0xa400ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff01")));
+            AssertGasConsumed(1047360);
+        }
+
+        [TestMethod]
+        public void TestNotZeroUInt160()
+        {
+            Assert.IsFalse(Contract.NotZeroUInt160(UInt160.Zero));
+            AssertGasConsumed(1047360);
+
+            Assert.IsTrue(Contract.NotZeroUInt160(UInt160.Parse("01ff00ff00ff00ff00ff00ff00ff00ff00ff00a4")));
+            AssertGasConsumed(1047360);
+        }
     }
 }
