@@ -31,6 +31,10 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return value.IsZero;
         }
 
+        public static bool NotZeroUInt256(UInt256 value) { return value.NotZero; }
+
+        public static bool NotZeroUInt160(UInt160 value) { return value.NotZero; }
+
         public static string ToAddress(UInt160 value)
         {
             return value.ToAddress();
