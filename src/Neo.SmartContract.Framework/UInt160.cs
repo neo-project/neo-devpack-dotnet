@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Checks if the value is not zero(any byte is not 0).
+        /// Checks if the value is not zero (any byte is not 0).
         /// The execution will fail if the value is null.
         /// </summary>
         public extern bool NotZero
