@@ -74,13 +74,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void TempProjectEscapesXmlAttributeValues()
         {
-            var sourceFile = Path.Combine(Path.GetTempPath(), "Source\n\r\t\"<&>.cs");
-            var projectFile = Path.Combine(Path.GetTempPath(), "Project\n\r\t\"<&>.csproj");
+            var sourceFile = Path.Combine(Path.GetTempPath(), "Source\n\r\t'\"<&>.cs");
+            var projectFile = Path.Combine(Path.GetTempPath(), "Project\n\r\t'\"<&>.csproj");
             var references = new CompilationSourceReferences
             {
                 Packages =
                 [
-                    ("Neo\n\r\t\"<&>", "3.9\n\r\t\"<&>")
+                    ("Neo\n\r\t'\"<&>", "3.9\n\r\t'\"<&>")
                 ],
                 Projects =
                 [
@@ -91,13 +91,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             var content = InvokeBuildTempProjectContent(references, new[] { sourceFile });
             var document = XDocument.Parse(content);
 
+            StringAssert.Contains(content, "&apos;");
+            StringAssert.Contains(content, "&#xA;");
+            StringAssert.Contains(content, "&#xD;");
+            StringAssert.Contains(content, "&#x9;");
+
             var compile = document.Descendants("Compile").Single(u => u.Attribute("Include") is not null);
             var package = document.Descendants("PackageReference").Single();
             var project = document.Descendants("ProjectReference").Single();
 
             Assert.AreEqual(Path.GetFullPath(sourceFile), compile.Attribute("Include")!.Value);
-            Assert.AreEqual("Neo\n\r\t\"<&>", package.Attribute("Include")!.Value);
-            Assert.AreEqual("3.9\n\r\t\"<&>", package.Attribute("Version")!.Value);
+            Assert.AreEqual("Neo\n\r\t'\"<&>", package.Attribute("Include")!.Value);
+            Assert.AreEqual("3.9\n\r\t'\"<&>", package.Attribute("Version")!.Value);
             Assert.AreEqual(projectFile, project.Attribute("Include")!.Value);
         }
 

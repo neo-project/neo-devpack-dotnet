@@ -12,6 +12,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 
 namespace Neo.Compiler
@@ -139,24 +140,11 @@ namespace Neo.Compiler
 
         private static string EscapeXmlAttributeValue(string value)
         {
-            var builder = new StringBuilder(value.Length);
-
-            foreach (var ch in value)
-            {
-                builder.Append(ch switch
-                {
-                    '&' => "&amp;",
-                    '"' => "&quot;",
-                    '<' => "&lt;",
-                    '>' => "&gt;",
-                    '\n' => "&#xA;",
-                    '\r' => "&#xD;",
-                    '\t' => "&#x9;",
-                    _ => ch.ToString()
-                });
-            }
-
-            return builder.ToString();
+            var escaped = SecurityElement.Escape(value) ?? string.Empty;
+            return escaped
+                .Replace("\r", "&#xD;")
+                .Replace("\n", "&#xA;")
+                .Replace("\t", "&#x9;");
         }
 
         internal static string BuildReferencesKey(CompilationSourceReferences references)
