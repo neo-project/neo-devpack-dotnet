@@ -22,13 +22,23 @@ namespace Neo.SmartContract.Framework
         public static int Size => 32;
 
         /// <summary>
-        /// Checks if the value is zero.
+        /// Checks if the value is zero (all bytes are 0).
         /// The execution will fail if the value is null.
         /// </summary>
         public extern bool IsZero
         {
-            [OpCode(OpCode.PUSH0)]
-            [OpCode(OpCode.NUMEQUAL)]
+            [OpCode(OpCode.NZ)]
+            [OpCode(OpCode.NOT)]
+            get;
+        }
+
+        /// <summary>
+        /// Checks if the value is not zero (any byte is not 0).
+        /// The execution will fail if the value is null.
+        /// </summary>
+        public extern bool NotZero
+        {
+            [OpCode(OpCode.NZ)]
             get;
         }
 
@@ -56,7 +66,7 @@ namespace Neo.SmartContract.Framework
         /// It returns true if the value is not null, has 32 bytes ByteString, and is not zero, false otherwise.
         /// It's OK to call this method even if the value is null.
         /// </summary>
-        public bool IsValidAndNotZero => IsValid && !IsZero;
+        public bool IsValidAndNotZero => IsValid && NotZero;
 
         /// <summary>
         /// Explicitly converts a byte array to a UInt256 object.
