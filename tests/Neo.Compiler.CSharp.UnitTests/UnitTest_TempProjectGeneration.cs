@@ -2,7 +2,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace Neo.Compiler.CSharp.UnitTests
 {
@@ -67,6 +69,41 @@ namespace Neo.Compiler.CSharp.UnitTests
             var secondKey = InvokeBuildReferencesKey(second);
 
             Assert.AreEqual(firstKey, secondKey);
+        }
+
+        [TestMethod]
+        public void TempProjectEscapesXmlAttributeValues()
+        {
+            var sourceFile = Path.Combine(Path.GetTempPath(), "Source\n\r\t'\"<&>.cs");
+            var projectFile = Path.Combine(Path.GetTempPath(), "Project\n\r\t'\"<&>.csproj");
+            var references = new CompilationSourceReferences
+            {
+                Packages =
+                [
+                    ("Neo\n\r\t'\"<&>", "3.9\n\r\t'\"<&>")
+                ],
+                Projects =
+                [
+                    projectFile
+                ]
+            };
+
+            var content = InvokeBuildTempProjectContent(references, new[] { sourceFile });
+            var document = XDocument.Parse(content);
+
+            StringAssert.Contains(content, "&apos;");
+            StringAssert.Contains(content, "&#xA;");
+            StringAssert.Contains(content, "&#xD;");
+            StringAssert.Contains(content, "&#x9;");
+
+            var compile = document.Descendants("Compile").Single(u => u.Attribute("Include") is not null);
+            var package = document.Descendants("PackageReference").Single();
+            var project = document.Descendants("ProjectReference").Single();
+
+            Assert.AreEqual(Path.GetFullPath(sourceFile), compile.Attribute("Include")!.Value);
+            Assert.AreEqual("Neo\n\r\t'\"<&>", package.Attribute("Include")!.Value);
+            Assert.AreEqual("3.9\n\r\t'\"<&>", package.Attribute("Version")!.Value);
+            Assert.AreEqual(projectFile, project.Attribute("Include")!.Value);
         }
 
         private static string InvokeBuildTempProjectContent(CompilationSourceReferences references, string[] sourceFiles)
