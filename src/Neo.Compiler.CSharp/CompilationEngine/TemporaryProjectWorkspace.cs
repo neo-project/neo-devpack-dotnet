@@ -12,6 +12,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 
 namespace Neo.Compiler
@@ -100,7 +101,7 @@ namespace Neo.Compiler
                 ? string.Empty
                 : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, packages.Select(u => $" <PackageReference Include =\"{u.packageName}\" Version=\"{u.packageVersion}\" />"))}
+        {string.Join(Environment.NewLine, packages.Select(u => $" <PackageReference Include =\"{EscapeXmlAttributeValue(u.packageName)}\" Version=\"{EscapeXmlAttributeValue(u.packageVersion)}\" />"))}
     </ItemGroup>";
 
             var projects = references.Projects;
@@ -108,7 +109,7 @@ namespace Neo.Compiler
                 ? string.Empty
                 : $@"
     <ItemGroup>
-        {string.Join(Environment.NewLine, projects.Select(u => $" <ProjectReference Include =\"{u}\"/>"))}
+        {string.Join(Environment.NewLine, projects.Select(u => $" <ProjectReference Include =\"{EscapeXmlAttributeValue(u)}\"/>"))}
     </ItemGroup>";
 
             return $@"
@@ -128,13 +129,22 @@ namespace Neo.Compiler
 
     <!-- Add specific files for compilation -->
     <ItemGroup>
-        {string.Join(Environment.NewLine, sourceFiles.Select(u => $"<Compile Include=\"{Path.GetFullPath(u)}\" />"))}
+        {string.Join(Environment.NewLine, sourceFiles.Select(u => $"<Compile Include=\"{EscapeXmlAttributeValue(Path.GetFullPath(u))}\" />"))}
     </ItemGroup>
 
     {packageGroup}
     {projectsGroup}
 
 </Project>";
+        }
+
+        private static string EscapeXmlAttributeValue(string value)
+        {
+            var escaped = SecurityElement.Escape(value) ?? string.Empty;
+            return escaped
+                .Replace("\r", "&#xD;")
+                .Replace("\n", "&#xA;")
+                .Replace("\t", "&#x9;");
         }
 
         internal static string BuildReferencesKey(CompilationSourceReferences references)
