@@ -47,9 +47,12 @@ internal partial class MethodConvert
         ValidateConstantStringCharCountSize(countExpression, charConstant, countConstant);
 
         if (charConstant.HasValue && charConstant.Value is char character &&
-            countConstant.HasValue && countConstant.Value is int repeatCount &&
-            repeatCount >= 0)
+            countConstant.HasValue && countConstant.Value is int repeatCount)
         {
+            long limit = ExecutionEngineLimits.Default.MaxItemSize;
+            if (repeatCount < 0 || repeatCount > limit)
+                throw new CompilationException(countExpression, DiagnosticId.InvalidArgument, $"String repeat count {repeatCount} not in range [0, {limit}].");
+
             Push(new string(character, repeatCount));
             return true;
         }
