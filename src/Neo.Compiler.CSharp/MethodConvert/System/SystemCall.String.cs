@@ -186,8 +186,7 @@ internal partial class MethodConvert
         if (instanceExpression is not null)
             methodConvert.ConvertExpression(model, instanceExpression);
         methodConvert.CallContractMethod(NativeContract.StdLib.Hash, "memorySearch", 2, true);
-        methodConvert.Push(0);
-        methodConvert.NumEqual();
+        methodConvert.Not();
     }
 
     private static void HandleStringIndexOf(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -611,8 +610,7 @@ internal partial class MethodConvert
         methodConvert.IsNull();
         methodConvert.JumpIfTrue(nullOrEmptyTarget);
         methodConvert.Size();
-        methodConvert.Push(0);
-        methodConvert.NumEqual();
+        methodConvert.Not();
         methodConvert.JumpAlways(endTarget);
         nullOrEmptyTarget.Instruction = methodConvert.Drop();
         methodConvert.PushT();
