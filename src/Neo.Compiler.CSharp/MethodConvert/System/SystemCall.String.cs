@@ -853,6 +853,7 @@ internal partial class MethodConvert
         methodConvert.Push("");                                    // Push empty string
         secondNotNull.Instruction = methodConvert.Nop();           // Second not null target
         methodConvert.Cat();                                       // Concatenate strings
+        methodConvert.ChangeType(StackItemType.ByteString);        // The CAT result is a buffer, so add CONVERT opcode.
     }
 
     private static void HandleStringToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
@@ -919,7 +920,7 @@ internal partial class MethodConvert
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
-        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert to ByteString
+        methodConvert.ChangeType(StackItemType.ByteString);       // Convert to ByteString
         methodConvert.RemoveAnonymousVariable(strSlot);
     }
 
@@ -997,7 +998,7 @@ internal partial class MethodConvert
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
-        methodConvert.ChangeType(VM.Types.StackItemType.ByteString); // Convert to ByteString
+        methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
         methodConvert.RemoveAnonymousVariable(strSlot);
     }
 
@@ -1280,6 +1281,7 @@ internal partial class MethodConvert
         methodConvert.Sub();                                       // Calculate length
         methodConvert.Inc();                                       // Increment for inclusive end
         methodConvert.SubStr();                                    // Extract substring
+        methodConvert.ChangeType(StackItemType.ByteString);        // The SUBSTR result is a buffer, so add CONVERT opcode.
     }
 
     /// <summary>
@@ -1351,6 +1353,7 @@ internal partial class MethodConvert
         methodConvert.Sub();                                       // Calculate length
         methodConvert.Inc();                                       // Increment for inclusive end
         methodConvert.SubStr();                                    // Extract substring
+        methodConvert.ChangeType(StackItemType.ByteString);        // The SUBSTR result is a buffer, so add CONVERT opcode.
     }
 
     private static void HandleStringTrimStart(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -1406,6 +1409,7 @@ internal partial class MethodConvert
         GetStartIndex(methodConvert, startIndex);
         methodConvert.Sub();
         methodConvert.SubStr();
+        methodConvert.ChangeType(StackItemType.ByteString); // The SUBSTR result is a buffer, so add CONVERT opcode.
     }
 
     private static void HandleStringTrimEnd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -1467,6 +1471,7 @@ internal partial class MethodConvert
         GetEndIndex(methodConvert, endIndex);
         methodConvert.Inc();
         methodConvert.SubStr();
+        methodConvert.ChangeType(StackItemType.ByteString); // The SUBSTR result is a buffer, so add CONVERT opcode.
         methodConvert.JumpAlways(endTarget);
 
         allTrimmed.Instruction = methodConvert.Nop();
@@ -1650,6 +1655,7 @@ internal partial class MethodConvert
         methodConvert.AccessSlot(OpCode.LDLOC, prefixSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, suffixSlot);
         methodConvert.Cat();
+        methodConvert.ChangeType(StackItemType.ByteString); // The CAT result is a buffer, so add CONVERT opcode.
     }
 
     private static void HandleStringInsert(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -1712,6 +1718,7 @@ internal partial class MethodConvert
         methodConvert.Cat();
         methodConvert.AccessSlot(OpCode.LDLOC, suffixSlot);
         methodConvert.Cat();
+        methodConvert.ChangeType(StackItemType.ByteString); // The CAT result is a buffer, so add CONVERT opcode.
     }
 
     /// <summary>
