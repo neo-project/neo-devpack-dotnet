@@ -207,6 +207,52 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void TestArtifactLibraryCompilationFailureReturnsError()
+        {
+            string contractName = "ArtifactDuplicateContract";
+            string projectDirectory = Path.Combine(_testOutputPath, contractName);
+            Directory.CreateDirectory(projectDirectory);
+
+            string projectPath = Path.Combine(projectDirectory, $"{contractName}.csproj");
+            string sourcePath = Path.Combine(projectDirectory, $"{contractName}.cs");
+            string frameworkProject = GetFrameworkProjectPath();
+
+            File.WriteAllText(projectPath, $$"""
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="{{frameworkProject}}" />
+  </ItemGroup>
+</Project>
+""");
+
+            File.WriteAllText(sourcePath, $$"""
+using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public class {{contractName}} : SmartContract
+{
+    [DisplayName("a-b")]
+    public static int First() => 1;
+
+    [DisplayName("a_b")]
+    public static int Second() => 2;
+}
+""");
+
+            var result = RunCompilerCommand($"\"{projectPath}\" --generate-artifacts Library");
+
+            Assert.AreEqual(1, result.ExitCode, $"Expected artifact compilation failure to fail the command. Output: {result.StdOut}{result.StdErr}");
+            StringAssert.Contains(result.StdErr, "Artifacts compilation error");
+            StringAssert.Contains(result.StdErr, "CS");
+            Assert.IsFalse(File.Exists(Path.Combine(projectDirectory, "bin", "sc", $"{contractName}.artifacts.dll")));
+        }
+
+        [TestMethod]
         public void TestSolutionProjectCompilationErrorsGoToStdErr()
         {
             string solutionPath = Path.Combine(_testOutputPath, "Broken.sln");
@@ -258,9 +304,7 @@ EndGlobal
 
         private void UseLocalFrameworkReference(string projectPath)
         {
-            string compilerDirectory = Path.GetDirectoryName(_compilerPath)!;
-            string repoRoot = Path.GetFullPath(Path.Combine(compilerDirectory, "..", ".."));
-            string frameworkProject = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
+            string frameworkProject = GetFrameworkProjectPath();
             if (!File.Exists(frameworkProject))
             {
                 return;
@@ -276,6 +320,13 @@ EndGlobal
             {
                 File.WriteAllText(projectPath, updated);
             }
+        }
+
+        private string GetFrameworkProjectPath()
+        {
+            string compilerDirectory = Path.GetDirectoryName(_compilerPath)!;
+            string repoRoot = Path.GetFullPath(Path.Combine(compilerDirectory, "..", ".."));
+            return Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "Neo.SmartContract.Framework.csproj");
         }
 
         private sealed record CommandResult(int ExitCode, string StdOut, string StdErr);

@@ -899,25 +899,23 @@ internal partial class MethodConvert
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
         methodConvert.Within('A', 'Z');                            // Check if uppercase
-        methodConvert.JumpIfTrue(charIsLower);             // Jump if uppercase
+        methodConvert.JumpIfTrue(charIsLower);                     // Jump if uppercase
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append original character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Uppercase processing
-        methodConvert.Push((ushort)'A');                           // Push 'A'
-        methodConvert.Sub();                                       // Subtract 'A'
-        methodConvert.Push((ushort)'a');                           // Push 'a'
-        methodConvert.Add();                                       // Add 'a' for lowercase
+        methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
+        methodConvert.Add();                                       // Add 32 to get lowercase for ASCII
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append lowercase character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index
@@ -978,26 +976,24 @@ internal partial class MethodConvert
         methodConvert.Swap();                                      // Swap for PickItem
         methodConvert.PickItem();                                  // Get character at index
         methodConvert.Dup();                                       // Duplicate character
-        methodConvert.Within('a', 'z');                     // Check if lowercase
-        methodConvert.JumpIfTrue(charIsLower);             // Jump if lowercase
+        methodConvert.Within('a', 'z');                            // Check if lowercase
+        methodConvert.JumpIfTrue(charIsLower);                     // Jump if lowercase
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append original character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         charIsLower.Instruction = methodConvert.Nop();             // Lowercase processing
-        methodConvert.Push((ushort)'a');                           // Push 'a'
-        methodConvert.Sub();                                       // Subtract 'a'
-        methodConvert.Push((ushort)'A');                           // Push 'A'
-        methodConvert.Add();                                       // Add 'A' for uppercase
+        methodConvert.Push(32);                                    // Push 32 (difference between uppercase and lowercase for ASCII)
+        methodConvert.Sub();                                       // Subtract 32 to get uppercase for ASCII
         methodConvert.Rot();                                       // Rotate stack
         methodConvert.Swap();                                      // Swap elements
         methodConvert.Cat();                                       // Append uppercase character
         methodConvert.Swap();                                      // Swap back
         methodConvert.Inc();                                       // Increment index
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                       // Continue loop
 
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Drop index

@@ -432,7 +432,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestToLower()
         {
             Assert.AreEqual("hello world", Contract.TestToLower("Hello World"));
-            AssertGasConsumed(2005590);
+            AssertGasConsumed(2005050);
 
             Assert.AreEqual("123", Contract.TestToLower("123"));
             AssertGasConsumed(1487550);
@@ -446,7 +446,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestToUpper()
         {
             Assert.AreEqual("HELLO WORLD", Contract.TestToUpper("Hello World"));
-            AssertGasConsumed(2008830);
+            AssertGasConsumed(2006670);
 
             Assert.AreEqual("123", Contract.TestToUpper("123"));
             AssertGasConsumed(1487550);
