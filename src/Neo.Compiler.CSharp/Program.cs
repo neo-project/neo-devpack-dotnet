@@ -575,6 +575,7 @@ namespace Neo.Compiler
 
                             if (!result.Success)
                             {
+                                Console.Error.WriteLine("Artifacts compilation error.");
                                 var failures = result.Diagnostics.Where(diagnostic =>
                                     diagnostic.IsWarningAsError ||
                                     diagnostic.Severity == DiagnosticSeverity.Error);
@@ -583,24 +584,25 @@ namespace Neo.Compiler
                                 {
                                     Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
                                 }
+
+                                return 1;
                             }
-                            else
+
+                            ms.Seek(0, SeekOrigin.Begin);
+
+                            // Write dll
+
+                            var artifactDllPath = Path.Combine(outputFolder, $"{baseName}.artifacts.dll");
+                            if (!TryFileOperation("write", artifactDllPath, () => File.WriteAllBytes(artifactDllPath, ms.ToArray())))
                             {
-                                ms.Seek(0, SeekOrigin.Begin);
-
-                                // Write dll
-
-                                var artifactDllPath = Path.Combine(outputFolder, $"{baseName}.artifacts.dll");
-                                if (!TryFileOperation("write", artifactDllPath, () => File.WriteAllBytes(artifactDllPath, ms.ToArray())))
-                                {
-                                    return 1;
-                                }
-                                Console.WriteLine($"Created {artifactDllPath}");
+                                return 1;
                             }
+                            Console.WriteLine($"Created {artifactDllPath}");
                         }
                         catch (Exception ex)
                         {
                             Console.Error.WriteLine($"Artifacts compilation error: {ex.Message}");
+                            return 1;
                         }
                     }
                 }
