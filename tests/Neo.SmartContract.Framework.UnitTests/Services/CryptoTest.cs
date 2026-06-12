@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Cryptography;
 using Neo.Network.P2P;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using Neo.Wallets;
 using System;
 using System.Security.Cryptography;
@@ -160,11 +161,11 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
             invalidSignature[0] ^= 0x01; // Flip one bit
             Assert.IsFalse(Contract.VerifyWithEd25519(message, publicKey, invalidSignature));
 
-            // Test with an invalid public key
+            // Test with an invalid public key (Neo 3.10+ throws instead of returning false)
             byte[] invalidPublicKey = new byte[publicKey.Length];
             Buffer.BlockCopy(publicKey, 0, invalidPublicKey, 0, publicKey.Length);
             invalidPublicKey[0] ^= 0x01; // Flip one bit
-            Assert.IsFalse(Contract.VerifyWithEd25519(message, invalidPublicKey, signature));
+            Assert.ThrowsException<TestException>(() => Contract.VerifyWithEd25519(message, invalidPublicKey, signature));
         }
 
         [TestMethod]

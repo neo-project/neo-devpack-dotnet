@@ -74,11 +74,11 @@ namespace Neo.Compiler
 
         public byte[] ToArray()
         {
-            if (Operand is null) return new[] { (byte)OpCode };
+            if (Operand is null) return [(byte)OpCode];
             return Operand.Prepend((byte)OpCode).ToArray();
         }
 
-        public void ToString(StringBuilder builder)
+        public void ToString(StringBuilder builder, bool stringInJson = true)
         {
             switch (OpCode)
             {
@@ -228,17 +228,17 @@ namespace Neo.Compiler
                     break;
                 case OpCode.PUSHDATA1:
                     builder.Append($"[{Convert.ToHexString(Operand.AsSpan(1))}]");
-                    if (TryGetString(Operand.AsSpan(1), out string? s))
+                    if (TryGetString(Operand.AsSpan(1), out string? s, stringInJson))
                         builder.Append($" // {s}");
                     break;
                 case OpCode.PUSHDATA2:
                     builder.Append($"[{Convert.ToHexString(Operand.AsSpan(2))}]");
-                    if (TryGetString(Operand.AsSpan(2), out s))
+                    if (TryGetString(Operand.AsSpan(2), out s, stringInJson))
                         builder.Append($" // {s}");
                     break;
                 case OpCode.PUSHDATA4:
                     builder.Append($"[{Convert.ToHexString(Operand.AsSpan(4))}]");
-                    if (TryGetString(Operand.AsSpan(4), out s))
+                    if (TryGetString(Operand.AsSpan(4), out s, stringInJson))
                         builder.Append($" // {s}");
                     break;
                 case OpCode.PUSHM1:
@@ -388,11 +388,16 @@ namespace Neo.Compiler
             }
         }
 
-        private static bool TryGetString(Span<byte> span, [NotNullWhen(true)] out string? s)
+        private static bool TryGetString(Span<byte> span, [NotNullWhen(true)] out string? s, bool stringInJson = true)
         {
             try
             {
                 s = Utility.StrictUTF8.GetString(span);
+                if (stringInJson)
+                {
+                    // Use json serializer to escape the string
+                    s = System.Text.Json.JsonSerializer.Serialize(s);
+                }
                 return true;
             }
             catch

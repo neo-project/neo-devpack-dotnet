@@ -243,7 +243,7 @@ namespace Neo.Compiler
                 foreach (Instruction i in method.Instructions)
                 {
                     builder.Append($"{i.Offset:x8}: ");
-                    i.ToString(builder);
+                    i.ToString(builder, stringInJson: true);
                     builder.AppendLine();
                 }
                 builder.AppendLine();
