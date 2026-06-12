@@ -1,3 +1,11 @@
+## Release 3.10.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|------------------------------------------------
+NC4059  | Syntax   | Error    | UnsupportedSyntaxAnalyzer (using statements and declarations)
+
 ## Release 3.9.1
 
 ### New Rules
