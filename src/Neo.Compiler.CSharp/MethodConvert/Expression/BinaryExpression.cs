@@ -73,6 +73,9 @@ internal partial class MethodConvert
             return;
         ConvertExpression(model, expression.Left);
         ConvertExpression(model, expression.Right);
+
+        ITypeSymbol type = model.GetTypeInfo(expression).Type!;
+        bool isBoolean = type.GetStackItemType() == StackItemType.Boolean;
         var (opcode, checkResult) = expression.OperatorToken.ValueText switch
         {
             "+" => (OpCode.ADD, true),
@@ -82,8 +85,8 @@ internal partial class MethodConvert
             "%" => (OpCode.MOD, false),
             "<<" => (OpCode.SHL, true),
             ">>" => (OpCode.SHR, false),
-            "|" => (OpCode.OR, false),
-            "&" => (OpCode.AND, false),
+            "|" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, false),
+            "&" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, false),
             "^" => (OpCode.XOR, false),
             "==" => (OpCode.EQUAL, false),
             "!=" => (OpCode.NOTEQUAL, false),
@@ -103,10 +106,8 @@ internal partial class MethodConvert
         {
             CheckShiftOverflow(model, expression);
         }
-
         AddInstruction(opcode);
 
-        ITypeSymbol type = model.GetTypeInfo(expression).Type!;
         if (expression.OperatorToken.ValueText == "^" && type.GetStackItemType() == StackItemType.Boolean)
         {
             ChangeType(StackItemType.Boolean);
