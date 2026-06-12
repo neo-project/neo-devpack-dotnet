@@ -118,7 +118,7 @@ jobs:
       uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ${{ github.workspace }}/TestResults/coverage/coverage.info
+        files: ${{ github.workspace }}/coverage/lcov.info
         fail_ci_if_error: false
 
   PublishPackage:

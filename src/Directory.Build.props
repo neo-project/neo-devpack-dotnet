@@ -4,8 +4,8 @@
   <PropertyGroup>
     <Copyright>2015-2026 The Neo Project</Copyright>
     <Company>The Neo Project</Company>
-    <VersionPrefix>3.9.1</VersionPrefix>
-    <NeoCorePackageVersion>3.9.3-CI02036</NeoCorePackageVersion>
+    <VersionPrefix>3.10.0</VersionPrefix>
+    <NeoCorePackageVersion>3.10.0</NeoCorePackageVersion>
     <Authors>The Neo Project</Authors>
     <PackageProjectUrl>https://github.com/neo-project/neo-devpack-dotnet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
