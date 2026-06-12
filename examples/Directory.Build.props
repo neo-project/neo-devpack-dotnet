@@ -2,8 +2,8 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
-        <Copyright>2024 The Neo SmartContract Examples Project</Copyright>
-        <VersionPrefix>3.9.1</VersionPrefix>
+        <Copyright>2024-2026 The Neo SmartContract Examples Project</Copyright>
+        <VersionPrefix>3.10.0</VersionPrefix>
         <TargetFramework>net10.0</TargetFramework>
         <Authors>The Neo SmartContract Examples Project</Authors>
         <PackageIcon>neo.png</PackageIcon>
@@ -34,7 +34,7 @@
         <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
         <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
         
-        <NeoPackageVersion>3.9.1</NeoPackageVersion>
+        <NeoPackageVersion>3.10.0</NeoPackageVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">

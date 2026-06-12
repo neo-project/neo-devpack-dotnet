@@ -151,7 +151,7 @@ namespace Neo.Compiler
             }
             else
             {
-                references.Packages = [new("Neo.SmartContract.Framework", "3.9.0")];
+                references.Packages = [new("Neo.SmartContract.Framework", "3.10.0")];
             }
 
             return CompileSources(references, sourceFiles);
