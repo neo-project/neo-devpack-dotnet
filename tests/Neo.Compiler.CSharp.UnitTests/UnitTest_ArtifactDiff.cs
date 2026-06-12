@@ -15,6 +15,7 @@ using Neo.Json;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.VM;
 using System;
 using System.IO;
 using System.Linq;
@@ -106,6 +107,131 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Assert.IsTrue(report.HasBreakingChanges);
             Assert.IsTrue(report.Changes.Any(c => c.Description.Contains("Removed method: get(Hash160) -> Integer")));
+        }
+
+        [TestMethod]
+        public void CompareReportsNefManifestEventAndStandardChanges()
+        {
+            var oldNef = CreateNef("old-compiler", [(byte)OpCode.RET]);
+            var newNef = CreateNef("new-compiler", [(byte)OpCode.PUSH1, (byte)OpCode.RET]);
+            ContractManifest oldManifest = CreateManifest(
+                [],
+                name: "OldContract",
+                standards: ["NEP-17"],
+                events: [Event("Transfer", Parameter("from", ContractParameterType.Hash160))]);
+            ContractManifest newManifest = CreateManifest(
+                [],
+                name: "NewContract",
+                standards: ["NEP-11"],
+                events: [Event("Mint", Parameter("to", ContractParameterType.Hash160))]);
+
+            ArtifactDiffReport report = ArtifactDiffReporter.Compare(oldNef, oldManifest, newNef, newManifest);
+
+            Assert.IsTrue(report.HasBreakingChanges);
+            Assert.IsTrue(report.HasWarnings);
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description.Contains("Checksum changed")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description.Contains("Script size changed")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description.Contains("Compiler changed")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Manifest && c.Description.Contains("Name changed")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Abi && c.Description.Contains("Removed event: Transfer")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Abi && c.Description.Contains("Added event: Mint")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Standard && c.Description.Contains("Removed supported standard: NEP-17")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Standard && c.Description.Contains("Added supported standard: NEP-11")));
+        }
+
+        [TestMethod]
+        public void CompareReportsSafeFlagChanges()
+        {
+            ContractManifest oldManifest = CreateManifest(
+            [
+                Method("read", ContractParameterType.Integer, false),
+                Method("write", ContractParameterType.Void, true)
+            ]);
+            ContractManifest newManifest = CreateManifest(
+            [
+                Method("read", ContractParameterType.Integer, true),
+                Method("write", ContractParameterType.Void, false)
+            ]);
+
+            ArtifactDiffReport report = ArtifactDiffReporter.Compare(oldManifest, newManifest);
+
+            Assert.IsTrue(report.HasWarnings);
+            Assert.IsTrue(report.Changes.Any(c => c.Severity == ArtifactDiffSeverity.Info && c.Description.Contains("Changed safe flag: read: no => yes")));
+            Assert.IsTrue(report.Changes.Any(c => c.Severity == ArtifactDiffSeverity.Warning && c.Description.Contains("Changed safe flag: write: yes => no")));
+        }
+
+        [TestMethod]
+        public void CompareReportsOverloadedReturnAndSafeChanges()
+        {
+            ContractManifest oldManifest = CreateManifest(
+            [
+                Method("get", ContractParameterType.Integer, true),
+                Method("get", ContractParameterType.Integer, true, Parameter("account", ContractParameterType.Hash160))
+            ]);
+            ContractManifest newManifest = CreateManifest(
+            [
+                Method("get", ContractParameterType.String, true),
+                Method("get", ContractParameterType.Integer, false, Parameter("account", ContractParameterType.Hash160))
+            ]);
+
+            ArtifactDiffReport report = ArtifactDiffReporter.Compare(oldManifest, newManifest);
+
+            Assert.IsTrue(report.HasBreakingChanges);
+            Assert.IsTrue(report.HasWarnings);
+            Assert.IsTrue(report.Changes.Any(c => c.Severity == ArtifactDiffSeverity.Breaking && c.Description.Contains("Changed method signature: get() -> Integer => get() -> String")));
+            Assert.IsTrue(report.Changes.Any(c => c.Severity == ArtifactDiffSeverity.Warning && c.Description.Contains("Changed safe flag: get(Hash160): yes => no")));
+        }
+
+        [TestMethod]
+        public void CompareReportsOverloadedEvents()
+        {
+            ContractManifest oldManifest = CreateManifest(
+                [],
+                events:
+                [
+                    Event("Notify"),
+                    Event("Notify", Parameter("value", ContractParameterType.Integer))
+                ]);
+            ContractManifest newManifest = CreateManifest(
+                [],
+                events:
+                [
+                    Event("Notify"),
+                    Event("Notify", Parameter("value", ContractParameterType.String))
+                ]);
+
+            ArtifactDiffReport report = ArtifactDiffReporter.Compare(oldManifest, newManifest);
+
+            Assert.IsTrue(report.HasBreakingChanges);
+            Assert.IsTrue(report.Changes.Any(c => c.Description.Contains("Removed event: Notify(Integer)")));
+            Assert.IsTrue(report.Changes.Any(c => c.Description.Contains("Added event: Notify(String)")));
+        }
+
+        [TestMethod]
+        public void PrintReportsNoChanges()
+        {
+            ContractManifest manifest = CreateManifest([]);
+            ArtifactDiffReport report = ArtifactDiffReporter.Compare(manifest, manifest);
+            var writer = new StringWriter();
+
+            ArtifactDiffReporter.Print(report, writer);
+            string output = writer.ToString();
+
+            Assert.IsFalse(report.HasBreakingChanges);
+            Assert.IsFalse(report.HasWarnings);
+            StringAssert.Contains(output, "No artifact changes detected.");
+        }
+
+        [TestMethod]
+        public void CompareValidatesArguments()
+        {
+            ContractManifest manifest = CreateManifest([]);
+
+            Assert.ThrowsExactly<ArgumentNullException>(() => ArtifactDiffReporter.Compare(null!, manifest));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ArtifactDiffReporter.Compare(manifest, null!));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ArtifactDiffReporter.Compare(null, manifest, null, null!));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ArtifactDiffReporter.Print(null!, new StringWriter()));
+            Assert.ThrowsExactly<ArgumentNullException>(() => ArtifactDiffReporter.Print(ArtifactDiffReporter.Compare(manifest, manifest), null!));
         }
 
         [TestMethod]
@@ -222,22 +348,76 @@ namespace Neo.Compiler.CSharp.UnitTests
             }
         }
 
-        private static ContractManifest CreateManifest(ContractMethodDescriptor[] methods, ContractPermission[]? permissions = null)
+        [TestMethod]
+        public void DiffCommandReportsMissingArtifact()
+        {
+            string missingPath = Path.Combine(Path.GetTempPath(), "missing-" + Guid.NewGuid().ToString("N") + ".nef");
+            var stdout = new StringWriter();
+            var stderr = new StringWriter();
+            TextWriter originalOut = Console.Out;
+            TextWriter originalErr = Console.Error;
+            int exitCode;
+            try
+            {
+                Console.SetOut(stdout);
+                Console.SetError(stderr);
+                exitCode = Program.Main(["diff", missingPath, missingPath, missingPath, missingPath]);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                Console.SetError(originalErr);
+            }
+
+            Assert.AreEqual(1, exitCode);
+            Assert.AreEqual(string.Empty, stdout.ToString());
+            StringAssert.Contains(stderr.ToString(), "Error comparing artifacts:");
+            StringAssert.Contains(stderr.ToString(), "NEF file not found:");
+        }
+
+        private static ContractManifest CreateManifest(
+            ContractMethodDescriptor[] methods,
+            ContractPermission[]? permissions = null,
+            string name = "TestContract",
+            string[]? standards = null,
+            ContractEventDescriptor[]? events = null)
         {
             return new ContractManifest
             {
-                Name = "TestContract",
+                Name = name,
                 Groups = [],
-                SupportedStandards = [],
+                SupportedStandards = standards ?? [],
                 Abi = new ContractAbi
                 {
                     Methods = methods,
-                    Events = []
+                    Events = events ?? []
                 },
                 Permissions = permissions ?? [],
                 Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
                 Extra = null
             };
+        }
+
+        private static ContractEventDescriptor Event(string name, params ContractParameterDefinition[] parameters)
+        {
+            return new ContractEventDescriptor
+            {
+                Name = name,
+                Parameters = parameters
+            };
+        }
+
+        private static NefFile CreateNef(string compiler, byte[] script)
+        {
+            var nef = new NefFile
+            {
+                Compiler = compiler,
+                Source = "test.cs",
+                Tokens = [],
+                Script = script
+            };
+            nef.CheckSum = NefFile.ComputeChecksum(nef);
+            return nef;
         }
 
         private static ContractMethodDescriptor Method(string name, ContractParameterType returnType, bool safe, params ContractParameterDefinition[] parameters)

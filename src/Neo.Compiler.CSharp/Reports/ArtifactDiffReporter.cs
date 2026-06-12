@@ -216,8 +216,8 @@ namespace Neo.Compiler
 
         private static void CompareOverloadedMethods(ContractMethodDescriptor[] oldMethods, ContractMethodDescriptor[] newMethods, List<ArtifactDiffChange> changes)
         {
-            Dictionary<string, ContractMethodDescriptor> oldByParameters = GroupMethodsByParameterTypes(oldMethods);
-            Dictionary<string, ContractMethodDescriptor> newByParameters = GroupMethodsByParameterTypes(newMethods);
+            var oldByParameters = GroupMethodsByParameterTypes(oldMethods);
+            var newByParameters = GroupMethodsByParameterTypes(newMethods);
 
             foreach (string removed in oldByParameters.Keys.Except(newByParameters.Keys, StringComparer.Ordinal).OrderBy(u => u, StringComparer.Ordinal))
             {
