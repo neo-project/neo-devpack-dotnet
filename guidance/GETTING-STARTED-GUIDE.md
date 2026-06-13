@@ -120,7 +120,7 @@ Edit `HelloWorldContract.csproj`:
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="3.9.1" />
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.10.0" />
   </ItemGroup>
 </Project>
 ```
@@ -356,7 +356,7 @@ Edit `HelloWorldContract.Tests.csproj`:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Neo.SmartContract.Testing" Version="3.9.1" />
+    <PackageReference Include="Neo.SmartContract.Testing" Version="3.10.0" />
   </ItemGroup>
 
   <ItemGroup>

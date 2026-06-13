@@ -68,7 +68,7 @@ Add to your `.csproj` file:
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Neo.SmartContract.Framework" Version="3.9.1" />
+    <PackageReference Include="Neo.SmartContract.Framework" Version="3.10.0" />
   </ItemGroup>
 </Project>
 ```

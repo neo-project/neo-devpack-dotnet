@@ -34,6 +34,16 @@ namespace Neo.Compiler.CSharp.TestContracts
             return x & y;
         }
 
+        public static bool TestBoolAnd(bool x, bool y)
+        {
+            return x & y;
+        }
+
+        public static bool TestBoolOr(bool x, bool y)
+        {
+            return x | y;
+        }
+
         public static int TestLogicalOr(byte x, byte y)
         {
             return x | y;
