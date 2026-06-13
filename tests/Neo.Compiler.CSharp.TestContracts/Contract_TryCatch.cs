@@ -432,5 +432,12 @@ namespace Neo.Compiler.CSharp.TestContracts
             catch (System.Exception e) { result += e; }
             return result;
         }
+
+        public static string CatchException()
+        {
+            string result = "Exception";
+            try { throw new System.Exception("Example"); }
+            catch (System.Exception e) { return result + e; }
+        }
     }
 }

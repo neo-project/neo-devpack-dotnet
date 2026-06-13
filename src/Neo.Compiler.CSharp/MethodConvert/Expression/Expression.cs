@@ -402,12 +402,15 @@ internal partial class MethodConvert
                     break;
                 }
             case "byte[]":
-                {
-                    Push("System.Byte[]");
-                    break;
-                }
+                Push("System.Byte[]");
+                break;
             default:
-                throw new CompilationException(expression, DiagnosticId.InvalidToStringType, $"Unsupported interpolation: {expression}");
+                if (type is not null && type.IsSubclassOf(nameof(Exception), true))
+                {
+                    ConvertExpression(model, expression);
+                    return; // Exception is represented as ByteString, so just return.
+                }
+                throw new CompilationException(expression, DiagnosticId.InvalidToStringType, $"'{expression}' (type '{type}') ToString() is not supported");
         }
     }
 }

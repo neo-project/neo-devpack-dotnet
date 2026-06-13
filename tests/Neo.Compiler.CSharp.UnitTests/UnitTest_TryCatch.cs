@@ -320,6 +320,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             string? result = Contract.CatchExceptionType();
             Assert.AreEqual(result, "NoExceptionexception");
+            AssertGasConsumed(1309590);
+        }
+
+        [TestMethod]
+        public void Test_CatchException()
+        {
+            string? result = Contract.CatchException();
+            Assert.AreEqual(result, "ExceptionExample");
+            AssertGasConsumed(1309470);
         }
     }
 }
