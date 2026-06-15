@@ -127,7 +127,12 @@ namespace Neo.Compiler
                 changes.Add(new ArtifactDiffChange(ArtifactDiffSeverity.Info, ArtifactDiffCategory.Nef, $"Checksum changed: {FormatChecksum(oldNef.CheckSum)} => {FormatChecksum(newNef.CheckSum)}"));
 
             if (!oldNef.Script.Span.SequenceEqual(newNef.Script.Span))
-                changes.Add(new ArtifactDiffChange(ArtifactDiffSeverity.Info, ArtifactDiffCategory.Nef, $"Script size changed: {oldNef.Script.Length} bytes => {newNef.Script.Length} bytes"));
+            {
+                string message = oldNef.Script.Length == newNef.Script.Length
+                    ? "Script changed (same size, different content)"
+                    : $"Script changed: {oldNef.Script.Length} bytes => {newNef.Script.Length} bytes";
+                changes.Add(new ArtifactDiffChange(ArtifactDiffSeverity.Info, ArtifactDiffCategory.Nef, message));
+            }
 
             if (!string.Equals(oldNef.Compiler, newNef.Compiler, StringComparison.Ordinal))
                 changes.Add(new ArtifactDiffChange(ArtifactDiffSeverity.Info, ArtifactDiffCategory.Nef, $"Compiler changed: {oldNef.Compiler} => {newNef.Compiler}"));

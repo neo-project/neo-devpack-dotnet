@@ -130,13 +130,27 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(report.HasBreakingChanges);
             Assert.IsTrue(report.HasWarnings);
             Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description.Contains("Checksum changed")));
-            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description.Contains("Script size changed")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description.Contains("Script changed: 1 bytes => 2 bytes")));
             Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description.Contains("Compiler changed")));
             Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Manifest && c.Description.Contains("Name changed")));
             Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Abi && c.Description.Contains("Removed event: Transfer")));
             Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Abi && c.Description.Contains("Added event: Mint")));
-            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Standard && c.Description.Contains("Removed supported standard: NEP-17")));
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Standard && c.Severity == ArtifactDiffSeverity.Warning && c.Description.Contains("Removed supported standard: NEP-17")));
             Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Standard && c.Description.Contains("Added supported standard: NEP-11")));
+        }
+
+        [TestMethod]
+        public void CompareReportsSameSizeScriptContentChanges()
+        {
+            var oldNef = CreateNef("compiler", [(byte)OpCode.PUSH1, (byte)OpCode.RET]);
+            var newNef = CreateNef("compiler", [(byte)OpCode.PUSH2, (byte)OpCode.RET]);
+            ContractManifest manifest = CreateManifest([]);
+
+            ArtifactDiffReport report = ArtifactDiffReporter.Compare(oldNef, manifest, newNef, manifest);
+
+            Assert.IsFalse(report.HasBreakingChanges);
+            Assert.IsFalse(report.HasWarnings);
+            Assert.IsTrue(report.Changes.Any(c => c.Category == ArtifactDiffCategory.Nef && c.Description == "Script changed (same size, different content)"));
         }
 
         [TestMethod]
