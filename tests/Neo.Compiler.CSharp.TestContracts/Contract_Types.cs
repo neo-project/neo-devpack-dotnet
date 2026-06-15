@@ -99,6 +99,11 @@ namespace Neo.Compiler.CSharp.TestContracts
         {
             return a + b + a.Concat(b);
         }
+
+        public static string StringConcatInt(string a, int b) => a += b;
+
+        public static string StringConcatBool(string a, bool b) => a += b;
+
         public static string toAddress(UInt160 address, byte version)
         {
             return address.ToAddress(version);
