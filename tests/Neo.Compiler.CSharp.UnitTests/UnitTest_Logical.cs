@@ -58,6 +58,46 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestBoolAnd()
+        {
+            var result = Contract.TestBoolAnd(true, true);
+            Assert.AreEqual(true & true, result);
+            AssertGasConsumed(1047360);
+
+            result = Contract.TestBoolAnd(true, false);
+            Assert.AreEqual(true & false, result);
+            AssertGasConsumed(1047360);
+
+            result = Contract.TestBoolAnd(false, true);
+            Assert.AreEqual(false & true, result);
+            AssertGasConsumed(1047360);
+
+            result = Contract.TestBoolAnd(false, false);
+            Assert.AreEqual(false & false, result);
+            AssertGasConsumed(1047360);
+        }
+
+        [TestMethod]
+        public void Test_TestBoolOr()
+        {
+            var result = Contract.TestBoolOr(true, true);
+            Assert.AreEqual(true | true, result);
+            AssertGasConsumed(1047360);
+
+            result = Contract.TestBoolOr(true, false);
+            Assert.AreEqual(true | false, result);
+            AssertGasConsumed(1047360);
+
+            result = Contract.TestBoolOr(false, true);
+            Assert.AreEqual(false | true, result);
+            AssertGasConsumed(1047360);
+
+            result = Contract.TestBoolOr(false, false);
+            Assert.AreEqual(false | false, result);
+            AssertGasConsumed(1047360);
+        }
+
+        [TestMethod]
         public void Test_TestLogicalExclusiveOr()
         {
             foreach (var x in new bool[] { true, false })

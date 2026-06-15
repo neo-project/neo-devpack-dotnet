@@ -34,7 +34,7 @@
         <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
         <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
         
-        <NeoPackageVersion>3.9.1</NeoPackageVersion>
+        <NeoPackageVersion>3.10.0</NeoPackageVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">

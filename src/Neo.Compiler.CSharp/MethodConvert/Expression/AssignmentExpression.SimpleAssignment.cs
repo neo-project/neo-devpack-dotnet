@@ -530,8 +530,7 @@ internal partial class MethodConvert
             case IPropertySymbol property when property.GetMethod is not null && property.SetMethod is not null:
                 if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
                 CallMethodWithConvention(model, property.GetMethod);
-                ConvertExpression(model, right);
-                EmitComplexAssignmentOperator(type, operatorToken);
+                EmitComplexAssignmentOperator(model, type, operatorToken, right);
                 AddInstruction(OpCode.DUP);
                 if (!property.IsStatic) AccessSlot(OpCode.LDLOC, receiverSlot);
                 CallMethodWithConvention(model, property.SetMethod, CallingConvention.Cdecl);
@@ -541,8 +540,7 @@ internal partial class MethodConvert
                 {
                     byte index = _context.AddStaticField(field);
                     AccessSlot(OpCode.LDSFLD, index);
-                    ConvertExpression(model, right);
-                    EmitComplexAssignmentOperator(type, operatorToken);
+                    EmitComplexAssignmentOperator(model, type, operatorToken, right);
                     AddInstruction(OpCode.DUP);
                     AccessSlot(OpCode.STSFLD, index);
                 }
@@ -552,8 +550,7 @@ internal partial class MethodConvert
                     AccessSlot(OpCode.LDLOC, receiverSlot);
                     Push(fieldIndex);
                     AddInstruction(OpCode.PICKITEM);
-                    ConvertExpression(model, right);
-                    EmitComplexAssignmentOperator(type, operatorToken);
+                    EmitComplexAssignmentOperator(model, type, operatorToken, right);
                     byte fieldValueSlot = AddAnonymousVariable();
                     AccessSlot(OpCode.STLOC, fieldValueSlot);
                     AccessSlot(OpCode.LDLOC, receiverSlot);
@@ -583,11 +580,10 @@ internal partial class MethodConvert
     {
         byte[] indexSlots = StoreConditionalElementIndices(model, elementBinding, receiverType);
         LoadConditionalElementBindingValue(model, elementBinding, receiverSlot, receiverType, indexSlots);
-        ConvertExpression(model, right);
         ITypeSymbol type = model.GetTypeInfo(elementBinding).Type
             ?? model.GetTypeInfo(right).Type
             ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
-        EmitComplexAssignmentOperator(type, operatorToken);
+        EmitComplexAssignmentOperator(model, type, operatorToken, right);
         byte valueSlot = AddAnonymousVariable();
         AccessSlot(OpCode.STLOC, valueSlot);
         StoreConditionalElementBindingValue(model, elementBinding, valueSlot, receiverSlot, receiverType, indexSlots);

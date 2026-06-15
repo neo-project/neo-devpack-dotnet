@@ -17,10 +17,10 @@
       "datatype": "choice",
       "choices": [
         {
-          "choice": "3.9.1"
+          "choice": "3.10.0"
         }
       ],
-      "defaultValue": "3.9.1",
+      "defaultValue": "3.10.0",
       "replaces": "TemplateNeoVersion"
     }
   }

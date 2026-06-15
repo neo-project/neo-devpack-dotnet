@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="3.9.1"/>
+        <PackageReference Include="Neo.SmartContract.Testing" Version="3.10.0"/>
     </ItemGroup>
 
     <ItemGroup>
