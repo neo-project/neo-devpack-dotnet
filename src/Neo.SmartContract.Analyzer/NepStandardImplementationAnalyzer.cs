@@ -153,6 +153,7 @@ public sealed class NepStandardImplementationAnalyzer : DiagnosticAnalyzer
                 1 when memberName is "BalanceOf" or "OwnerOf" or "TokensOf" or "Properties" => true,
                 3 when memberName == "Transfer" && standard == NepStandardKind.Nep11 => true,
                 4 when memberName == "Transfer" && standard == NepStandardKind.Nep17 => true,
+                5 when memberName == "Transfer" && standard == NepStandardKind.Nep11 => true,
                 _ => false
             };
 

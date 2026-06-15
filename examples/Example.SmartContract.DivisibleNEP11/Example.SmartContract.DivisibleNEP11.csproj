@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <RootNamespace>DivisibleNEP11</RootNamespace>
+        <DisableArtifactGeneration>true</DisableArtifactGeneration>
+        <NoWarn>$(NoWarn);CS1591;NC4029</NoWarn>
+    </PropertyGroup>
+
+</Project>
