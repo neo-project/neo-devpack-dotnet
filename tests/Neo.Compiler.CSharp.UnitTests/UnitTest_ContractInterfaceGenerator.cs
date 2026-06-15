@@ -143,5 +143,38 @@ namespace Neo.Compiler.CSharp.UnitTests
             StringAssert.Contains(source, "namespace Neo.SmartContract.Generated.Contract");
             StringAssert.Contains(source, "public interface IContract");
         }
+
+        [TestMethod]
+        public void TestGenerateInterfaceUsesMethodFallbackForEmptyPropertyName()
+        {
+            var manifest = new ContractManifest
+            {
+                Name = "EmptyProperty",
+                Groups = [],
+                SupportedStandards = [],
+                Abi = new ContractAbi
+                {
+                    Methods =
+                    [
+                        new ContractMethodDescriptor
+                        {
+                            Name = "get_",
+                            Parameters = [],
+                            ReturnType = ContractParameterType.Integer,
+                            Safe = true
+                        }
+                    ],
+                    Events = []
+                },
+                Permissions = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
+
+            var source = ContractInterfaceGenerator.GenerateInterface(manifest.Name, manifest, UInt160.Zero);
+            var diagnostics = CSharpSyntaxTree.ParseText(source).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(source, "BigInteger Method { [DisplayName(\"get_\")] get; }");
+        }
     }
 }

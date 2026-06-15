@@ -126,9 +126,9 @@ namespace Neo.Compiler
             // Extract property name from get/set_X method names
             if (methodName.StartsWith("get_") || methodName.StartsWith("set_"))
             {
-                return CSharpSourceName.Identifier(methodName.Substring(4), "Property");
+                return CSharpSourceName.Identifier(methodName.Substring(4), "Method");
             }
-            return CSharpSourceName.Identifier(methodName, "Property");
+            return CSharpSourceName.Identifier(methodName, "Method");
         }
 
         private static string ConvertTypeToString(ContractParameterType type)
