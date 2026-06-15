@@ -282,5 +282,18 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual("neo", notifications.Last());
             AssertGasConsumed(2029020);
         }
+
+        [TestMethod]
+        public void TestStringConcat()
+        {
+            Assert.AreEqual("neo1234", Contract.StringConcatInt("neo", 1234));
+            AssertGasConsumed(2460600);
+
+            Assert.AreEqual("neoTrue", Contract.StringConcatBool("neo", true));
+            AssertGasConsumed(1355010);
+
+            Assert.AreEqual("neoFalse", Contract.StringConcatBool("neo", false));
+            AssertGasConsumed(1354950);
+        }
     }
 }
