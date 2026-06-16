@@ -282,8 +282,8 @@ internal partial class MethodConvert
             "+=" => (OpCode.ADD, true),
             "-=" => (OpCode.SUB, true),
             "*=" => (OpCode.MUL, true),
-            "/=" => (OpCode.DIV, true),
-            "%=" => (OpCode.MOD, true),
+            "/=" => (OpCode.DIV, false),
+            "%=" => (OpCode.MOD, false),
             "&=" => isBoolean ? (OpCode.BOOLAND, false) : (OpCode.AND, false),
             "^=" => (OpCode.XOR, false),
             "|=" => isBoolean ? (OpCode.BOOLOR, false) : (OpCode.OR, false),
@@ -295,6 +295,10 @@ internal partial class MethodConvert
         if (operatorToken.ValueText == "/=")
         {
             CheckDivideOverflow(type);
+        }
+        else if (operatorToken.ValueText == "<<=")
+        {
+            CheckShiftOverflow(model, type);
         }
 
         AddInstruction(opcode);
