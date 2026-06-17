@@ -205,6 +205,18 @@ The NEO C# compiler supports the following options:
 | `--checked` | Enables overflow checking for arithmetic operations |
 | `--address-version` | Sets the address version for script hash calculations |
 
+#### Comparing Compiled Artifacts
+
+Use `diff` before deployment or upgrade reviews to compare two compiled artifact sets:
+
+```shell
+dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- diff \
+    old/Contract.nef old/Contract.manifest.json \
+    new/Contract.nef new/Contract.manifest.json
+```
+
+The report flags ABI removals and signature changes as breaking, highlights permission additions as warnings, and summarizes NEF checksum, script size, manifest, event, and supported-standard changes. Add `--fail-on-breaking` to return exit code `2` when breaking ABI changes are found.
+
 ### Testing a Smart Contract
 
 The NEO DevPack includes a comprehensive testing framework specifically designed for smart contracts. Here's how to create unit tests for your contracts:
