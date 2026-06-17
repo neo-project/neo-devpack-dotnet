@@ -22,8 +22,9 @@ public static class ByteStringExtension
     /// <returns>True if is number</returns>
     public static bool IsNumber(this ByteString byteString)
     {
-        foreach (var value in byteString)
+        for (int i = 0; i < byteString.Length; i++)
         {
+            byte value = byteString[i];
             if (value is < 48 or > 57)
                 return false;
         }
@@ -37,8 +38,9 @@ public static class ByteStringExtension
     /// <returns>True if is Alpha character</returns>
     public static bool IsLowerAlphabet(this ByteString byteString)
     {
-        foreach (var value in byteString)
+        for (int i = 0; i < byteString.Length; i++)
         {
+            byte value = byteString[i];
             if (value is < 97 or > 122)
                 return false;
         }
@@ -52,8 +54,9 @@ public static class ByteStringExtension
     /// <returns>True if is Alpha character</returns>
     public static bool IsUpperAlphabet(this ByteString byteString)
     {
-        foreach (var value in byteString)
+        for (int i = 0; i < byteString.Length; i++)
         {
+            byte value = byteString[i];
             if (value is < 65 or > 90)
                 return false;
         }
@@ -67,8 +70,9 @@ public static class ByteStringExtension
     /// <returns>True if is Alpha character</returns>
     public static bool IsAlphabet(this ByteString byteString)
     {
-        foreach (var value in byteString)
+        for (int i = 0; i < byteString.Length; i++)
         {
+            byte value = byteString[i];
             if (!((value >= 65 && value <= 90) || (value >= 97 && value <= 122)))
                 return false;
         }

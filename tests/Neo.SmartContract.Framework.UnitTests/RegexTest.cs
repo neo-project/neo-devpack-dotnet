@@ -49,18 +49,18 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestNumberOnly()
         {
             Assert.IsTrue(Contract.TestNumberOnly());
-            AssertGasConsumed(1036470);
+            AssertGasConsumed(1044270);
         }
 
         [TestMethod]
         public void TestAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestAlphabetOnly());
-            AssertGasConsumed(1198050);
+            AssertGasConsumed(1238610);
             Assert.IsTrue(Contract.TestLowerAlphabetOnly());
-            AssertGasConsumed(1108350);
+            AssertGasConsumed(1128630);
             Assert.IsTrue(Contract.TestUpperAlphabetOnly());
-            AssertGasConsumed(1091970);
+            AssertGasConsumed(1112250);
         }
     }
 }
