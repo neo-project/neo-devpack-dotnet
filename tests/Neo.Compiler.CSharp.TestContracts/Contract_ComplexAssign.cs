@@ -101,6 +101,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return (value1, value2);
         }
 
+        public static int LeftShiftAssignChecked(int value, int shift)
+        {
+            return checked(value <<= shift);
+        }
+
         public static (uint, int) UnitTest_Left_Shift_Assign_UnChecked()
         {
             uint value1 = uint.MaxValue;
