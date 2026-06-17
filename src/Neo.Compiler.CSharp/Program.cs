@@ -39,6 +39,17 @@ namespace Neo.Compiler
         {
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title);
 
+            var diffCommand = new Command("diff", "Compare two compiled smart contract artifact sets")
+            {
+                new Argument<string>("old-nef", "The old .nef file."),
+                new Argument<string>("old-manifest", "The old manifest.json file."),
+                new Argument<string>("new-nef", "The new .nef file."),
+                new Argument<string>("new-manifest", "The new manifest.json file."),
+                new Option<bool>("--fail-on-breaking", "Return exit code 2 when breaking ABI changes are found.")
+            };
+            diffCommand.Handler = CommandHandler.Create<string, string, string, string, bool>(HandleDiff);
+            rootCommand.AddCommand(diffCommand);
+
             // Add the 'new' subcommand for creating contracts from templates
             var newCommand = new Command("new", "Create a new smart contract from a template")
             {
@@ -82,6 +93,43 @@ namespace Neo.Compiler
 
             rootCommand.Handler = CommandHandler.Create<RootCommand, Options, string[], InvocationContext>(Handle);
             return rootCommand.Invoke(args);
+        }
+
+        private static int HandleDiff(string oldNef, string oldManifest, string newNef, string newManifest, bool failOnBreaking)
+        {
+            try
+            {
+                NefFile oldNefFile = ReadNefArtifact(oldNef);
+                ContractManifest oldManifestFile = ReadManifestArtifact(oldManifest);
+                NefFile newNefFile = ReadNefArtifact(newNef);
+                ContractManifest newManifestFile = ReadManifestArtifact(newManifest);
+
+                ArtifactDiffReport report = ArtifactDiffReporter.Compare(oldNefFile, oldManifestFile, newNefFile, newManifestFile);
+                ArtifactDiffReporter.Print(report, Console.Out);
+
+                return failOnBreaking && report.HasBreakingChanges ? 2 : 0;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error comparing artifacts: {ex.Message}");
+                return 1;
+            }
+        }
+
+        private static NefFile ReadNefArtifact(string path)
+        {
+            if (!File.Exists(path))
+                throw new FileNotFoundException($"NEF file not found: {path}");
+
+            return NefFile.Parse(File.ReadAllBytes(path));
+        }
+
+        private static ContractManifest ReadManifestArtifact(string path)
+        {
+            if (!File.Exists(path))
+                throw new FileNotFoundException($"Manifest file not found: {path}");
+
+            return ContractManifest.Parse(File.ReadAllText(path));
         }
 
         private static CompilationOptions.DebugType ParseDebug(ArgumentResult result)
