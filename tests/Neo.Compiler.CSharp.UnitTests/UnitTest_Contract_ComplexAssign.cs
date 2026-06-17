@@ -73,7 +73,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LeftShiftAssign_Checked()
         {
             Assert.ThrowsException<TestException>(Contract.UnitTest_Left_Shift_Assign_Checked);
-            AssertGasConsumed(1002120);
+            AssertGasConsumed(1002420);
+
+            Assert.ThrowsException<TestException>(() => Contract.LeftShiftAssignChecked(1, 33));
+            AssertGasConsumed(1062780);
         }
 
         [TestMethod]
@@ -107,7 +110,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Member_Element_Complex_Assign()
         {
             Contract.UnitTest_Member_Element_Complex_Assign();
-            AssertGasConsumed(1800480);
+            AssertGasConsumed(1800180);
         }
 
         [TestMethod]
