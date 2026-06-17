@@ -212,7 +212,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void StaticNullableCoalesceAssignment()
         {
             Contract.StaticNullableCoalesceAssignment();
-            AssertGasConsumed(993870);
+            AssertGasConsumed(993810);
         }
     }
 }

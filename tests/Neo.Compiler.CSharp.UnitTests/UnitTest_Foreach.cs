@@ -25,18 +25,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void IntForeachTest()
         {
             Assert.AreEqual(10, Contract.IntForeach());
-            AssertGasConsumed(1061400);
+            AssertGasConsumed(1061280);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1125240);
+            AssertGasConsumed(1125030);
         }
 
         [TestMethod]
         public void IntForloopTest()
         {
             Assert.AreEqual(10, Contract.IntForloop());
-            AssertGasConsumed(1064040);
+            AssertGasConsumed(1063800);
             Assert.AreEqual(6, Contract.IntForeachBreak(3));
-            AssertGasConsumed(1125240);
+            AssertGasConsumed(1125030);
         }
 
         [TestMethod]
