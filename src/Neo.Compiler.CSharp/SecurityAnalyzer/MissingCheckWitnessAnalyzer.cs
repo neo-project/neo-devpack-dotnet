@@ -141,6 +141,14 @@ namespace Neo.Compiler.SecurityAnalyzer
                         continue;
                     }
 
+                    if (instruction.OpCode == OpCode.CALLA)
+                    {
+                        // Dynamic calls cannot be resolved through the static call graph here.
+                        // Treat them as potentially reaching storage writes unless guarded.
+                        hasStorageWrite = true;
+                        continue;
+                    }
+
                     if (instruction.OpCode == OpCode.CALL || instruction.OpCode == OpCode.CALL_L)
                     {
                         int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
