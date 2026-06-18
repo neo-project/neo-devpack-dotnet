@@ -8,7 +8,6 @@ WORKDIR /source
 COPY *.sln .
 COPY src/ ./src/
 COPY tests/ ./tests/
-COPY neo/ ./neo/
 
 # Restore dependencies
 RUN dotnet restore
