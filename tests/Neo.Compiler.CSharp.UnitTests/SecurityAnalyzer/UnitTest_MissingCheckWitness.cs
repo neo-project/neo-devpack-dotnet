@@ -12,7 +12,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
+using Neo.SmartContract;
+using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.VM;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -103,6 +106,71 @@ public class Contract : SmartContract
 
             Assert.IsFalse(result.vulnerableMethodNames.Contains("_deploy"));
             Assert.IsFalse(result.vulnerableMethodNames.Contains("_initialize"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_Flags_DynamicCall_WithoutWitness()
+        {
+            const int helperOffset = 8;
+            byte[] script =
+            [
+                (byte)OpCode.PUSHA, .. BitConverter.GetBytes(helperOffset),
+                (byte)OpCode.CALLA,
+                (byte)OpCode.RET,
+                (byte)OpCode.RET,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script),
+                CreateManifest(
+                    Method("dynamicWrite", 0),
+                    Method("_deploy", 7)),
+                null);
+
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("dynamicWrite"));
+        }
+
+        private static NefFile CreateNefFile(byte[] script)
+        {
+            return new NefFile
+            {
+                Compiler = "test",
+                Source = "test.cs",
+                Tokens = Array.Empty<MethodToken>(),
+                Script = script
+            };
+        }
+
+        private static ContractManifest CreateManifest(params ContractMethodDescriptor[] methods)
+        {
+            return new ContractManifest
+            {
+                Name = "TestContract",
+                Groups = Array.Empty<ContractGroup>(),
+                SupportedStandards = Array.Empty<string>(),
+                Abi = new ContractAbi
+                {
+                    Methods = methods,
+                    Events = Array.Empty<ContractEventDescriptor>()
+                },
+                Permissions = Array.Empty<ContractPermission>(),
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
+                Extra = null
+            };
+        }
+
+        private static ContractMethodDescriptor Method(string name, int offset)
+        {
+            return new ContractMethodDescriptor
+            {
+                Name = name,
+                Offset = offset,
+                Parameters = Array.Empty<ContractParameterDefinition>(),
+                ReturnType = ContractParameterType.Void,
+                Safe = false
+            };
         }
     }
 }
