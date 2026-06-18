@@ -45,12 +45,32 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
 
         public static bool TestLowerAlphabetOnly()
         {
-            return ((ByteString)"abcdefghijklmnopqrstuvwxyz").IsAlphabet();
+            return ((ByteString)"abcdefghijklmnopqrstuvwxyz").IsLowerAlphabet();
         }
 
         public static bool TestUpperAlphabetOnly()
         {
-            return ((ByteString)"ABCDEFGHIJKLMNOPQRSTUVWXYZ").IsAlphabet();
+            return ((ByteString)"ABCDEFGHIJKLMNOPQRSTUVWXYZ").IsUpperAlphabet();
+        }
+
+        public static bool TestNumberRejectsNonDigit()
+        {
+            return ((ByteString)"0123456789A").IsNumber();
+        }
+
+        public static bool TestAlphabetRejectsNumber()
+        {
+            return ((ByteString)"ABCxyz1").IsAlphabet();
+        }
+
+        public static bool TestLowerAlphabetRejectsUpper()
+        {
+            return ((ByteString)"abcZ").IsLowerAlphabet();
+        }
+
+        public static bool TestUpperAlphabetRejectsLower()
+        {
+            return ((ByteString)"ABCz").IsUpperAlphabet();
         }
     }
 }

@@ -9,9 +9,12 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Neo.SmartContract.Framework.UnitTests;
 
@@ -24,7 +27,25 @@ public class ByteStringExtensionSourceTest
         var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
         var sourcePath = Path.Combine(repoRoot, "src", "Neo.SmartContract.Framework", "ByteString.Extension.cs");
         var source = File.ReadAllText(sourcePath);
+        var root = CSharpSyntaxTree.ParseText(source).GetRoot();
 
-        Assert.IsFalse(source.Contains("foreach", StringComparison.Ordinal));
+        string[] helperNames =
+        [
+            "IsNumber",
+            "IsLowerAlphabet",
+            "IsUpperAlphabet",
+            "IsAlphabet"
+        ];
+
+        foreach (var helperName in helperNames)
+        {
+            var helper = root.DescendantNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .Single(method => method.Identifier.Text == helperName);
+
+            Assert.IsFalse(
+                helper.DescendantNodes().OfType<ForEachStatementSyntax>().Any(),
+                $"{helperName} should use index access instead of ByteString enumeration.");
+        }
     }
 }
