@@ -316,7 +316,7 @@ internal partial class MethodConvert
             "UInt16" => (ushort.MinValue, ushort.MaxValue, 0xffff),
             "UInt32" => (uint.MinValue, uint.MaxValue, 0xffffffff),
             "UInt64" => (ulong.MinValue, ulong.MaxValue, 0xffffffffffffffff),
-            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type '{type}'. Consider any integer type.")
+            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported integer type '{type}'. Supported integer types: sbyte, byte, short, ushort, int, uint, long, ulong, char, BigInteger.")
         };
 
         var endTarget = new JumpTarget();
