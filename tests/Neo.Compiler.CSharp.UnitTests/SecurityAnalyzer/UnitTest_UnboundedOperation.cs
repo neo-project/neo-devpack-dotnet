@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         public void Test_UnboundedOperation()
         {
             var result = UnboundedOperationAnalyzer.AnalyzeUnboundedOperations(NefFile, Manifest, null);
-            // The for loop in Sum currently compiles into a single backward jump at address 113.
+            // The for loop in Sum currently compiles into a single backward jump at address 87.
             Assert.AreEqual(1, result.backwardJumpAddresses.Count);
             Assert.AreEqual(87, result.backwardJumpAddresses[0]);
         }
