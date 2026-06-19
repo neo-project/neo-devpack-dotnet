@@ -103,7 +103,7 @@ internal partial class MethodConvert
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
-            CheckShiftOverflow(model, model.GetTypeInfo(expression.Left).Type);
+            CheckShiftOverflow(model.GetTypeInfo(expression.Left).Type, true);
         }
         AddInstruction(opcode);
 
@@ -177,9 +177,9 @@ internal partial class MethodConvert
     /// Checks for left shift overflow in checked context.
     /// Validates that the shift amount is non-negative and within the bit width of the left operand type.
     /// </summary>
-    /// <param name="model">The semantic model.</param>
-    /// <param name="expression">The binary expression containing the shift operation.</param>
-    private void CheckShiftOverflow(SemanticModel model, ITypeSymbol? leftType)
+    /// <param name="leftType">The left type of the shift operation.</param>
+    /// <param name="promotedIfSmall">Whether to promote the left type to int if it is a small integer type(less than 32-bits).</param>
+    private void CheckShiftOverflow(ITypeSymbol? leftType, bool promotedIfSmall)
     {
         // Only check overflow in checked context
         if (!_checkedStack.Peek()) return;
@@ -195,8 +195,9 @@ internal partial class MethodConvert
         // Note: In NEO, BigInteger is Int256 (256-bit integer)
         var maxShift = leftType.Name switch
         {
-            "SByte" or "Byte" => 8,
-            "Int16" or "UInt16" or "Char" => 16,
+            // Integer types that less than 32-bits, it will be promoted to int except compound-assignment operator.
+            "SByte" or "Byte" => promotedIfSmall ? 32 : 8,
+            "Int16" or "UInt16" or "Char" => promotedIfSmall ? 32 : 16,
             "Int32" or "UInt32" => 32,
             "Int64" or "UInt64" => 64,
             "BigInteger" => 256, // In NEO, BigInteger is Int256
