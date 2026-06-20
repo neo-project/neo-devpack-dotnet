@@ -324,7 +324,7 @@ internal partial class MethodConvert
         {
             Dup();
             Size(); // Get the bytes length of the integer
-            Push(maxValue.ToByteArray(isUnsigned: true).Length);
+            Push(maxValue.GetByteCount());
             JumpIfLessOrEqual(endTarget);
             if (_checkedStack.Peek())
             {

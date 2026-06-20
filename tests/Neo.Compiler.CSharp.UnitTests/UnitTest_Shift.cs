@@ -11,6 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Exceptions;
 using System.Linq;
 using System.Numerics;
 
@@ -47,5 +48,25 @@ public class UnitTest_Shift : DebugAndTestBase<Contract_shift>
     {
         Assert.AreEqual(0, Contract.ShiftRightUnchecked(8, 4));
         AssertGasConsumed(1047480);
+    }
+
+    [TestMethod]
+    public void Test_ShiftLeftCheckedByte()
+    {
+        Assert.AreEqual(128, Contract.ShiftLeftCheckedByte(8, 4));
+        AssertGasConsumed(1047930);
+
+        Assert.ThrowsException<TestException>(() => Contract.ShiftLeftCheckedByte(8, 33));
+        AssertGasConsumed(1062780);
+    }
+
+    [TestMethod]
+    public void Test_ShiftLeftCheckedShort()
+    {
+        Assert.AreEqual(128, Contract.ShiftLeftCheckedShort(8, 4));
+        AssertGasConsumed(1047930);
+
+        Assert.ThrowsException<TestException>(() => Contract.ShiftLeftCheckedShort(8, 33));
+        AssertGasConsumed(1062780);
     }
 }

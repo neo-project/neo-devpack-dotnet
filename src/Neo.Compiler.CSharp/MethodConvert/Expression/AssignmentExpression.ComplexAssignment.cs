@@ -298,7 +298,7 @@ internal partial class MethodConvert
         }
         else if (operatorToken.ValueText == "<<=")
         {
-            CheckShiftOverflow(model, type);
+            CheckShiftOverflow(type, false);
         }
 
         AddInstruction(opcode);

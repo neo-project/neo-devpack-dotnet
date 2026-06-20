@@ -58,6 +58,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return checked(value << shift);
         }
 
+        public static int ShiftLeftCheckedShort(short value, int shift)
+        {
+            return checked(value << shift);
+        }
+
         // BigInteger shift (no limit)
         public static System.Numerics.BigInteger ShiftLeftBigInteger(System.Numerics.BigInteger value, int shift)
         {
