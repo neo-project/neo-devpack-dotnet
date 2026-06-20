@@ -316,39 +316,52 @@ internal partial class MethodConvert
             "UInt16" => (ushort.MinValue, ushort.MaxValue, 0xffff),
             "UInt32" => (uint.MinValue, uint.MaxValue, 0xffffffff),
             "UInt64" => (ulong.MinValue, ulong.MaxValue, 0xffffffffffffffff),
-            //"Boolean" => (0, 1, 0x01),
-            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported type '{type}'. Consider using supported types: int, string, byte[], BigInteger, UInt160, UInt256, or custom structs/classes.")
+            _ => throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Unsupported integer type '{type}'. Supported integer types: sbyte, byte, short, ushort, int, uint, long, ulong, char, BigInteger.")
         };
 
-        JumpTarget checkUpperBoundTarget = new(), adjustTarget = new(), endTarget = new();
-        AddInstruction(OpCode.DUP);
-        Push(minValue);
-        Jump(OpCode.JMPGE_L, checkUpperBoundTarget);
-        if (_checkedStack.Peek())
-            AddInstruction(OpCode.THROW);
-        else
-            Jump(OpCode.JMP_L, adjustTarget);
-        checkUpperBoundTarget.Instruction = AddInstruction(OpCode.DUP);
-        Push(maxValue);
-        Jump(OpCode.JMPLE_L, endTarget);
-        if (_checkedStack.Peek())
+        var endTarget = new JumpTarget();
+        if (minValue < 0) // Signed integer
         {
-            AddInstruction(OpCode.THROW);
-        }
-        else
-        {
-            adjustTarget.Instruction = Push(mask);
-            AddInstruction(OpCode.AND);
-            if (minValue < 0)
+            Dup();
+            Size(); // Get the bytes length of the integer
+            Push(maxValue.GetByteCount());
+            JumpIfLessOrEqual(endTarget);
+            if (_checkedStack.Peek())
             {
-                AddInstruction(OpCode.DUP);
+                Throw();
+            }
+            else
+            {
+                Push(mask);
+                And(); // Adjust
+                Dup();
                 Push(maxValue);
-                Jump(OpCode.JMPLE_L, endTarget);
+                JumpIfLessOrEqual(endTarget);
                 Push(mask + 1);
-                AddInstruction(OpCode.SUB);
+                Sub();
             }
         }
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        else // Unsigned integer
+        {
+            JumpTarget checkUpperBoundTarget = new(), adjustTarget = new JumpTarget();
+            Dup();
+            Push(minValue);
+            JumpIfGreaterOrEqual(checkUpperBoundTarget);
+            _ = _checkedStack.Peek() ? Throw() : Jump(adjustTarget);
+            checkUpperBoundTarget.Instruction = Dup();
+            Push(maxValue);
+            JumpIfLessOrEqual(endTarget);
+            if (_checkedStack.Peek())
+            {
+                Throw();
+            }
+            else
+            {
+                adjustTarget.Instruction = Push(mask);
+                And(); // Adjust
+            }
+        }
+        endTarget.Instruction = Nop();
     }
 
     /// <summary>

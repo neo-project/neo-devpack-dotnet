@@ -152,7 +152,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayInit()
         {
             var arr = Contract.TestDynamicArrayInit(3);
-            AssertGasConsumed(2605350);
+            AssertGasConsumed(2605260);
 
             Assert.AreEqual(3, arr?.Count);
             Assert.AreEqual(new BigInteger(0), arr?[0]);
@@ -280,7 +280,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalAssignments()
         {
             var value = Contract.MultiDimensionalAssignments();
-            AssertGasConsumed(3582390);
+            AssertGasConsumed(3582270);
             Assert.AreEqual(new BigInteger(10), value);
         }
 
@@ -298,7 +298,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalForeachSum()
         {
             var sum = Contract.MultiDimensionalForeachSum();
-            AssertGasConsumed(1998450);
+            AssertGasConsumed(1998270);
             Assert.AreEqual(new BigInteger(21), sum);
         }
 

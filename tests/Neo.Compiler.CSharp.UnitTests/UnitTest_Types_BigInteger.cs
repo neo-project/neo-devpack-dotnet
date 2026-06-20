@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(984060);
 
             Assert.AreEqual(-2147483648, Contract.SumOverflow());
-            AssertGasConsumed(987210);
+            AssertGasConsumed(987180);
         }
 
         [TestMethod]

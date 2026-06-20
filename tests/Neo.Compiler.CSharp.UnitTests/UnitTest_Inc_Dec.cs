@@ -132,28 +132,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntProperty_Inc_Checked()
         {
             Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Inc_Checked_Int());
-            AssertGasConsumed(1000620);
+            AssertGasConsumed(1000590);
         }
 
         [TestMethod]
         public void Test_IntProperty_Inc_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue + 2)), Contract.UnitTest_Property_Inc_UnChecked_Int());
-            AssertGasConsumed(986730);
+            AssertGasConsumed(986670);
         }
 
         [TestMethod]
         public void Test_IntProperty_Dec_Checked()
         {
             Assert.ThrowsException<TestException>(() => Contract.UnitTest_Property_Dec_Checked_Int());
-            AssertGasConsumed(1000470);
+            AssertGasConsumed(1000590);
         }
 
         [TestMethod]
         public void Test_IntProperty_Dec_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue - 2)), Contract.UnitTest_Property_Dec_UnChecked_Int());
-            AssertGasConsumed(986370);
+            AssertGasConsumed(986400);
         }
 
         // Local Variable Tests for int
@@ -161,28 +161,28 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Local_Inc_Checked_Int()
         {
             Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Inc_Checked_Int());
-            AssertGasConsumed(1002540);
+            AssertGasConsumed(1002510);
         }
 
         [TestMethod]
         public void Test_Local_Inc_UnChecked_Int()
         {
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue + 2)), Contract.UnitTest_Local_Inc_UnChecked_Int());
-            AssertGasConsumed(988650);
+            AssertGasConsumed(988590);
         }
 
         [TestMethod]
         public void Test_Local_Dec_Checked_Int()
         {
             Assert.ThrowsException<TestException>(() => Contract.UnitTest_Local_Dec_Checked_Int());
-            AssertGasConsumed(1002390);
+            AssertGasConsumed(1002510);
         }
 
         [TestMethod]
         public void Test_Local_Dec_UnChecked_Int()
         {
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue - 2)), Contract.UnitTest_Local_Dec_UnChecked_Int());
-            AssertGasConsumed(988290);
+            AssertGasConsumed(988320);
         }
 
         // Parameter Tests for int
@@ -190,76 +190,76 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Param_Inc_Checked_Int()
         {
             Assert.AreEqual(new BigInteger(checked(0 + 2)), Contract.UnitTest_Param_Inc_Checked_Int(0));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Inc_Checked_Int(int.MaxValue));
-            AssertGasConsumed(1063470);
+            AssertGasConsumed(1063440);
 
             Assert.AreEqual(new BigInteger(checked(int.MinValue + 2)), Contract.UnitTest_Param_Inc_Checked_Int(int.MinValue));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(checked(-1 + 2)), Contract.UnitTest_Param_Inc_Checked_Int(-1));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(checked(1 + 2)), Contract.UnitTest_Param_Inc_Checked_Int(1));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
         }
 
         [TestMethod]
         public void Test_Param_Inc_UnChecked_Int()
         {
             Assert.AreEqual(new BigInteger(unchecked(0 + 2)), Contract.UnitTest_Param_Inc_UnChecked_Int(0));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue + 2)), Contract.UnitTest_Param_Inc_UnChecked_Int(int.MaxValue));
-            AssertGasConsumed(1049580);
+            AssertGasConsumed(1049520);
 
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue + 2)), Contract.UnitTest_Param_Inc_UnChecked_Int(int.MinValue));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(unchecked(2 + 2)), Contract.UnitTest_Param_Inc_UnChecked_Int(2));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(unchecked(-2 + 2)), Contract.UnitTest_Param_Inc_UnChecked_Int(-2));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
         }
 
         [TestMethod]
         public void Test_Param_Dec_Checked_Int()
         {
             Contract.UnitTest_Param_Dec_Checked_Int(0);
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Contract.UnitTest_Param_Dec_Checked_Int(int.MaxValue);
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.ThrowsException<TestException>(() => Contract.UnitTest_Param_Dec_Checked_Int(int.MinValue));
-            AssertGasConsumed(1063320);
+            AssertGasConsumed(1063440);
 
             Contract.UnitTest_Param_Dec_Checked_Int(1);
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Contract.UnitTest_Param_Dec_Checked_Int(-1);
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
         }
 
         [TestMethod]
         public void Test_Param_Dec_UnChecked_Int()
         {
             Assert.AreEqual(new BigInteger(unchecked(0 - 2)), Contract.UnitTest_Param_Dec_UnChecked_Int(0));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(unchecked(int.MaxValue - 2)), Contract.UnitTest_Param_Dec_UnChecked_Int(int.MaxValue));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(unchecked(int.MinValue - 2)), Contract.UnitTest_Param_Dec_UnChecked_Int(int.MinValue));
-            AssertGasConsumed(1049220);
+            AssertGasConsumed(1049250);
 
             Assert.AreEqual(new BigInteger(unchecked(2 - 2)), Contract.UnitTest_Param_Dec_UnChecked_Int(2));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Assert.AreEqual(new BigInteger(unchecked(-2 - 2)), Contract.UnitTest_Param_Dec_UnChecked_Int(-2));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
         }
 
         [TestMethod]

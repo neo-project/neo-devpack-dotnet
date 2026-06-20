@@ -50,7 +50,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 24;
             var result = Contract.Test_UpdateRecord(name, age)! as Struct;
-            AssertGasConsumed(2004900);
+            AssertGasConsumed(2004870);
             Assert.AreEqual(2, result!.Count);
             Assert.AreEqual(name, result[0].GetString());
             Assert.AreEqual(age, result[1].GetInteger());
@@ -62,7 +62,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 2;
             var result = Contract.Test_UpdateRecord2(name, age)!;
-            AssertGasConsumed(2575650);
+            AssertGasConsumed(2575620);
             var arr = result as Struct;
             Assert.AreEqual(2, arr!.Count);
             Assert.AreEqual("0" + name, arr[0].GetString());
@@ -100,7 +100,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "client";
             var tag = "tag";
             var result = Contract.Test_WithRecordExtras(name, tag, 2)!;
-            AssertGasConsumed(2543340);
+            AssertGasConsumed(2543310);
             var arr = result as Struct;
             Assert.IsNotNull(arr);
             Assert.AreEqual(3, arr!.Count);
@@ -113,7 +113,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RecordStructWith()
         {
             var result = Contract.Test_RecordStructWith(1, 2, 3, 4)!;
-            AssertGasConsumed(2250930);
+            AssertGasConsumed(2250900);
             var arr = result as Struct;
             Assert.IsNotNull(arr);
             Assert.AreEqual(3, arr!.Count);
@@ -126,7 +126,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DerivedRecordWith()
         {
             var result = Contract.Test_DerivedRecordWith("neo", 2, "silver", 1)!;
-            AssertGasConsumed(3578550);
+            AssertGasConsumed(3578460);
             var arr = result as Struct;
             Assert.IsNotNull(arr);
             Assert.AreEqual(4, arr!.Count);
@@ -148,7 +148,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_RecordStructIsolation()
         {
             var result = Contract.Test_RecordStructIsolation(1, 2, 3);
-            AssertGasConsumed(2297220);
+            AssertGasConsumed(2297160);
             Assert.IsTrue(result);
         }
     }

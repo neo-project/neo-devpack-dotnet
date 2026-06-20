@@ -42,7 +42,8 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 
             Assert.IsTrue(output.Contains("[SECURITY]"));
             Assert.IsTrue(output.Contains("Potential unbounded operations"));
-            Assert.IsTrue(output.Contains("113"));
+            Assert.IsTrue(output.Contains("Backward jumps at instruction addresses:"));
+            Assert.IsTrue(output.Contains("\t87"));
         }
 
         private static string CaptureAnalyzeWithPrintOutput(

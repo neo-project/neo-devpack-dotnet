@@ -13,12 +13,12 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Regex"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testStartWith"",""parameters"":[],""returntype"":""Boolean"",""offset"":0,""safe"":false},{""name"":""testIndexOf"",""parameters"":[],""returntype"":""Integer"",""offset"":34,""safe"":false},{""name"":""testEndWith"",""parameters"":[],""returntype"":""Boolean"",""offset"":62,""safe"":false},{""name"":""testContains"",""parameters"":[],""returntype"":""Boolean"",""offset"":164,""safe"":false},{""name"":""testNumberOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":195,""safe"":false},{""name"":""testAlphabetOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":299,""safe"":false},{""name"":""testLowerAlphabetOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":461,""safe"":false},{""name"":""testUpperAlphabetOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":581,""safe"":false},{""name"":""testNumberRejectsNonDigit"",""parameters"":[],""returntype"":""Boolean"",""offset"":701,""safe"":false},{""name"":""testAlphabetRejectsNumber"",""parameters"":[],""returntype"":""Boolean"",""offset"":720,""safe"":false},{""name"":""testLowerAlphabetRejectsUpper"",""parameters"":[],""returntype"":""Boolean"",""offset"":735,""safe"":false},{""name"":""testUpperAlphabetRejectsLower"",""parameters"":[],""returntype"":""Boolean"",""offset"":747,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""memorySearch""]}],""trusts"":[],""extra"":{""Version"":""3.10.0"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Regex"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""testStartWith"",""parameters"":[],""returntype"":""Boolean"",""offset"":0,""safe"":false},{""name"":""testIndexOf"",""parameters"":[],""returntype"":""Integer"",""offset"":34,""safe"":false},{""name"":""testEndWith"",""parameters"":[],""returntype"":""Boolean"",""offset"":62,""safe"":false},{""name"":""testContains"",""parameters"":[],""returntype"":""Boolean"",""offset"":151,""safe"":false},{""name"":""testNumberOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":182,""safe"":false},{""name"":""testAlphabetOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":273,""safe"":false},{""name"":""testLowerAlphabetOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":422,""safe"":false},{""name"":""testUpperAlphabetOnly"",""parameters"":[],""returntype"":""Boolean"",""offset"":529,""safe"":false},{""name"":""testNumberRejectsNonDigit"",""parameters"":[],""returntype"":""Boolean"",""offset"":636,""safe"":false},{""name"":""testAlphabetRejectsNumber"",""parameters"":[],""returntype"":""Boolean"",""offset"":655,""safe"":false},{""name"":""testLowerAlphabetRejectsUpper"",""parameters"":[],""returntype"":""Boolean"",""offset"":670,""safe"":false},{""name"":""testUpperAlphabetRejectsLower"",""parameters"":[],""returntype"":""Boolean"",""offset"":682,""safe"":false}],""events"":[]},""permissions"":[{""contract"":""0xacce6fd80d44e1796aa0c2c625e9e4e0ce39efc0"",""methods"":[""memorySearch""]}],""trusts"":[],""extra"":{""Version"":""3.10.0"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrAxtZW1vcnlTZWFyY2gCAAEPwO85zuDk6SXGwqBqeeFEDdhvzqwMbWVtb3J5U2VhcmNoAwABDwAA/fcCDAVIZWxsbwwLSGVsbG8gV29ybGQ0A0BXAAJ5eDcAALGqQAwBbwwLSGVsbG8gV29ybGQ0A0BXAAJ5eDcAAEAMBVdvcmxkDAtIZWxsbyBXb3JsZDQDQFcBAnnKEJcmBAhAeMp5yp9KAgAAAIAuBCIKSgL///9/Mh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcGgQtSYECUBoeXg3AQBos0AMAmxsDAtIZWxsbyBXb3JsZDQDQFcAAnl4NwAAD5hADAowMTIzNDU2Nzg5NANAVwMBEHAiTHhoznFpcmoAMLUmBQgiBmoAObcmBAlAaEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFaHjKtSSyCEAMNEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo0A0BXAgEQcCJceGjOcWkAQbgkBQkiBmkAWrYmBQgiD2kAYbgkBQkiBmkAerYkBAlAaEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFaHjKtSSiCEAMGmFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6NANAVwMBEHAiTHhoznFpcmoAYbUmBQgiBmoAercmBAlAaEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFaHjKtSSyCEAMGkFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaNANAVwMBEHAiTHhoznFpcmoAQbUmBQgiBmoAWrcmBAlAaEqcSgIAAACALgQiCkoC////fzIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFaHjKtSSyCEAMCzAxMjM0NTY3ODlBNQj+//9ADAdBQkN4eXoxNYv+//9ADARhYmNaNQf///9ADARBQkN6NXP///9AWesstQ==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALA7znO4OTpJcbCoGp54UQN2G/OrAxtZW1vcnlTZWFyY2gCAAEPwO85zuDk6SXGwqBqeeFEDdhvzqwMbWVtb3J5U2VhcmNoAwABDwAA/bMCDAVIZWxsbwwLSGVsbG8gV29ybGQ0A0BXAAJ5eDcAALGqQAwBbwwLSGVsbG8gV29ybGQ0A0BXAAJ5eDcAAEAMBVdvcmxkDAtIZWxsbyBXb3JsZDQDQFcBAnnKEJcmBAhAeMp5yp9KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9waBC1JgQJQGh5eDcBAGizQAwCbGwMC0hlbGxvIFdvcmxkNANAVwACeXg3AAAPmEAMCjAxMjM0NTY3ODk0A0BXAwEQcCI/eGjOcWlyagAwtSYFCCIGagA5tyYECUBoSpxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRWh4yrUkvwhADDRBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWmFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6NANAVwIBEHAiT3hoznFpAEG4JAUJIgZpAFq2JgUIIg9pAGG4JAUJIgZpAHq2JAQJQGhKnErKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn3BFaHjKtSSvCEAMGmFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6NANAVwMBEHAiP3hoznFpcmoAYbUmBQgiBmoAercmBAlAaEqcSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfcEVoeMq1JL8IQAwaQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo0A0BXAwEQcCI/eGjOcWlyagBBtSYFCCIGagBatyYECUBoSpxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9wRWh4yrUkvwhADAswMTIzNDU2Nzg5QTU8/v//QAwHQUJDeHl6MTWy/v//QAwEYWJjWjUh////QAwEQUJDejSAQBXuw4M=").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -40,9 +40,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAdBQkN4eXoxNYv+//9A
+    /// Script: DAdBQkN4eXoxNbL+//9A
     /// PUSHDATA1 41424378797A31 'ABCxyz1' [8 datoshi]
-    /// CALL_L 8BFEFFFF [512 datoshi]
+    /// CALL_L B2FEFFFF [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testAlphabetRejectsNumber")]
@@ -103,9 +103,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DARhYmNaNQf///9A
+    /// Script: DARhYmNaNSH///9A
     /// PUSHDATA1 6162635A 'abcZ' [8 datoshi]
-    /// CALL_L 07FFFFFF [512 datoshi]
+    /// CALL_L 21FFFFFF [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testLowerAlphabetRejectsUpper")]
@@ -127,9 +127,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DAswMTIzNDU2Nzg5QTUI/v//QA==
+    /// Script: DAswMTIzNDU2Nzg5QTU8/v//QA==
     /// PUSHDATA1 3031323334353637383941 '0123456789A' [8 datoshi]
-    /// CALL_L 08FEFFFF [512 datoshi]
+    /// CALL_L 3CFEFFFF [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testNumberRejectsNonDigit")]
@@ -164,9 +164,9 @@ public abstract class Contract_Regex(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: DARBQkN6NXP///9A
+    /// Script: DARBQkN6NIBA
     /// PUSHDATA1 4142437A 'ABCz' [8 datoshi]
-    /// CALL_L 73FFFFFF [512 datoshi]
+    /// CALL 80 [512 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
     [DisplayName("testUpperAlphabetRejectsLower")]

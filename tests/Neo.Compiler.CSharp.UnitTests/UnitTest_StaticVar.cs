@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             //test (1+5)*7 == 42
             Assert.AreEqual(new BigInteger(42), Contract.TestMain());
-            AssertGasConsumed(1016760);
+            AssertGasConsumed(1016700);
         }
 
         [TestMethod]
