@@ -112,7 +112,7 @@ namespace Neo.Compiler.CSharp.UnitTests
                 -100
             };
             var result = Contract.ForVar(array);
-            AssertGasConsumed(2651040);
+            AssertGasConsumed(2650950);
             Assert.AreEqual(array.Count, result!.Count);
             Assert.AreEqual(new BigInteger(-100), result[0]);
         }
@@ -137,7 +137,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_InvokeSum()
         {
             var result = Contract.InvokeSum(2, 3);
-            AssertGasConsumed(1065660);
+            AssertGasConsumed(1065630);
             Assert.AreEqual(5, result);
         }
 
@@ -145,7 +145,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_InvokeSum2()
         {
             var result = Contract.InvokeSum2(2, 3);
-            AssertGasConsumed(1083930);
+            AssertGasConsumed(1083870);
             Assert.AreEqual(6, result);
         }
 
@@ -153,15 +153,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Fibo()
         {
             var result = Contract.Fibo(2);
-            AssertGasConsumed(1102830);
+            AssertGasConsumed(1102740);
             Assert.AreEqual(1, result);
 
             result = Contract.Fibo(3);
-            AssertGasConsumed(1139970);
+            AssertGasConsumed(1139790);
             Assert.AreEqual(2, result);
 
             result = Contract.Fibo(4);
-            AssertGasConsumed(1214250);
+            AssertGasConsumed(1213890);
             Assert.AreEqual(3, result);
         }
 
@@ -237,15 +237,15 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_LambdaDefault()
         {
             var result = Contract.TestLambdaDefault(3);
-            AssertGasConsumed(1065720);
+            AssertGasConsumed(1065690);
             Assert.AreEqual(4, result);
 
             result = Contract.TestLambdaDefault(5);
-            AssertGasConsumed(1065720);
+            AssertGasConsumed(1065690);
             Assert.AreEqual(6, result);
 
             result = Contract.TestLambdaNotDefault(5, 3);
-            AssertGasConsumed(1065780);
+            AssertGasConsumed(1065750);
             Assert.AreEqual(8, result);
         }
 

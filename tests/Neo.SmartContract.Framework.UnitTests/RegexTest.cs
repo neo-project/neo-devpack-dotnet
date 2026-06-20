@@ -35,7 +35,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestEndWith()
         {
             Assert.IsTrue(Contract.TestEndWith());
-            AssertGasConsumed(1989840);
+            AssertGasConsumed(1989810);
         }
 
         [TestMethod]
@@ -49,36 +49,40 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestNumberOnly()
         {
             Assert.IsTrue(Contract.TestNumberOnly());
-            AssertGasConsumed(1044270);
+            AssertGasConsumed(1043970);
+
             Assert.IsFalse(Contract.TestNumberRejectsNonDigit());
-            AssertGasConsumed(1047270);
+            AssertGasConsumed(1046970);
         }
 
         [TestMethod]
         public void TestAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestAlphabetOnly());
-            AssertGasConsumed(1238610);
+            AssertGasConsumed(1237050);
+
             Assert.IsFalse(Contract.TestAlphabetRejectsNumber());
-            AssertGasConsumed(1032720);
+            AssertGasConsumed(1032540);
         }
 
         [TestMethod]
         public void TestLowerAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestLowerAlphabetOnly());
-            AssertGasConsumed(1111470);
+            AssertGasConsumed(1110690);
+
             Assert.IsFalse(Contract.TestLowerAlphabetRejectsUpper());
-            AssertGasConsumed(1017630);
+            AssertGasConsumed(1017540);
         }
 
         [TestMethod]
         public void TestUpperAlphabetOnly()
         {
             Assert.IsTrue(Contract.TestUpperAlphabetOnly());
-            AssertGasConsumed(1111470);
+            AssertGasConsumed(1110690);
+
             Assert.IsFalse(Contract.TestUpperAlphabetRejectsLower());
-            AssertGasConsumed(1017870);
+            AssertGasConsumed(1017780);
         }
     }
 }

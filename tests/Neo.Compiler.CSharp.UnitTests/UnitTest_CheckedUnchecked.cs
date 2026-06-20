@@ -22,14 +22,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void TestAddChecked()
         {
             Assert.ThrowsException<TestException>(() => Contract.AddChecked(int.MaxValue, 1));
-            AssertGasConsumed(1063020);
+            AssertGasConsumed(1062990);
         }
 
         [TestMethod]
         public void TestAddUnchecked()
         {
             Assert.AreEqual(int.MinValue, Contract.AddUnchecked(int.MaxValue, 1));
-            AssertGasConsumed(1048350);
+            AssertGasConsumed(1048320);
         }
 
         [TestMethod]

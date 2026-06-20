@@ -84,11 +84,10 @@ namespace Neo.SmartContract.Framework.UnitTests.Services
         public void Test_Random()
         {
             // We need a deterministic signer for Random method
-
             Engine.SetTransactionSigners(RandomSigner);
             Engine.Transaction.Nonce = 0x01020304;
             Engine.PersistingBlock.Nonce = 0x01020304;
-            Assert.AreEqual(BigInteger.Parse("335959155865337060031915506280866261075"), Contract.GetRandom());
+            Assert.AreEqual(BigInteger.Parse("160278804246495668747752412149607630709"), Contract.GetRandom());
         }
 
         [TestMethod]

@@ -25,7 +25,7 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void TestCount()
         {
             Assert.AreEqual(4, Contract.TestCount(4));
-            AssertGasConsumed(2036820);
+            AssertGasConsumed(2036700);
         }
 
         [TestMethod]
