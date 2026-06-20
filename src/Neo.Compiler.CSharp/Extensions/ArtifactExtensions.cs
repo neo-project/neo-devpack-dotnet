@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.Disassembler.CSharp;
+using Neo.Compiler;
 using Neo.Extensions;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
@@ -30,87 +31,6 @@ namespace Neo.SmartContract.Testing.Extensions
         private const string TestingOwnableType = "Neo.SmartContract.Testing.TestingStandards.IOwnable";
         private const string TestingVerifiableType = "Neo.SmartContract.Testing.TestingStandards.IVerifiable";
 
-        static readonly string[] _protectedWords =
-        [
-            "abstract",
-            "as",
-            "base",
-            "bool",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "checked",
-            "class",
-            "const",
-            "continue",
-            "decimal",
-            "default",
-            "delegate",
-            "do",
-            "double",
-            "else",
-            "enum",
-            "event",
-            "explicit",
-            "extern",
-            "false",
-            "finally",
-            "fixed",
-            "float",
-            "for",
-            "foreach",
-            "goto",
-            "if",
-            "implicit",
-            "in",
-            "int",
-            "interface",
-            "internal",
-            "is",
-            "lock",
-            "long",
-            "namespace",
-            "new",
-            "null",
-            "object",
-            "operator",
-            "out",
-            "override",
-            "params",
-            "private",
-            "protected",
-            "public",
-            "readonly",
-            "ref",
-            "return",
-            "sbyte",
-            "sealed",
-            "short",
-            "sizeof",
-            "stackalloc",
-            "static",
-            "string",
-            "struct",
-            "switch",
-            "this",
-            "throw",
-            "true",
-            "try",
-            "typeof",
-            "uint",
-            "ulong",
-            "unchecked",
-            "unsafe",
-            "ushort",
-            "using",
-            "virtual",
-            "void",
-            "volatile",
-            "while"
-        ];
-
         /// <summary>
         /// Get source code from contract Manifest
         /// </summary>
@@ -124,6 +44,7 @@ namespace Neo.SmartContract.Testing.Extensions
         public static string GetArtifactsSource(this ContractManifest manifest, string? name = null, NefFile? nef = null, bool generateProperties = true, JToken? debugInfo = null, bool traceRemarks = false)
         {
             name ??= manifest.Name;
+            var sourceName = CSharpSourceName.Identifier(name, "Contract");
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
             {
@@ -150,7 +71,7 @@ namespace Neo.SmartContract.Testing.Extensions
             sourceCode.WriteLine("");
             sourceCode.WriteLine("namespace Neo.SmartContract.Testing;");
             sourceCode.WriteLine("");
-            sourceCode.WriteLine($"public abstract class {name}({TestingSmartContractInitializeType} initialize) : {FormatInheritance(inheritance, "initialize")}, IContractInfo");
+            sourceCode.WriteLine($"public abstract class {sourceName}({TestingSmartContractInitializeType} initialize) : {FormatInheritance(inheritance, "initialize")}, IContractInfo");
             sourceCode.WriteLine("{");
 
             // Write compiled data
@@ -307,7 +228,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
         private static string GetPropertyName(ContractMethodDescriptor getter)
         {
-            return TongleLowercase(EscapeName(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name));
+            return CSharpSourceName.Identifier(TongleLowercase(getter.Name.StartsWith("get") ? getter.Name[3..] : getter.Name), "Property");
         }
 
         /// <summary>
@@ -333,7 +254,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[1].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[2].Type == ContractParameterType.Integer)
                         {
-                            sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
+                            sourceCode.WriteLine($"    [DisplayName(\"{CSharpSourceName.StringLiteralValue(ev.Name)}\")]");
                             sourceCode.WriteLine($"    public event {TestingNep17StandardType}.delTransfer? OnTransfer;");
                             return builder.ToString();
                         }
@@ -346,7 +267,7 @@ namespace Neo.SmartContract.Testing.Extensions
                             ev.Parameters[0].Type == ContractParameterType.Hash160 &&
                             ev.Parameters[1].Type == ContractParameterType.Hash160)
                         {
-                            sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
+                            sourceCode.WriteLine($"    [DisplayName(\"{CSharpSourceName.StringLiteralValue(ev.Name)}\")]");
                             sourceCode.WriteLine($"    public event {TestingOwnableType}.delSetOwner? OnSetOwner;");
                             return builder.ToString();
                         }
@@ -357,12 +278,13 @@ namespace Neo.SmartContract.Testing.Extensions
 
             // Add On prefix
 
-            var evName = TongleLowercase(EscapeName(ev.Name));
+            var evName = CSharpSourceName.Identifier(TongleLowercase(ev.Name), "Event");
             if (!evName.StartsWith("On")) evName = "On" + evName;
+            var delegateName = "del" + CSharpSourceName.IdentifierSuffix(TongleLowercase(ev.Name), "Event");
 
             // Compose delegate
 
-            sourceCode.Write($"    public delegate void del{ev.Name}(");
+            sourceCode.Write($"    public delegate void {delegateName}(");
 
             var isFirst = true;
             foreach (var arg in ev.Parameters)
@@ -370,7 +292,7 @@ namespace Neo.SmartContract.Testing.Extensions
                 if (!isFirst) sourceCode.Write(", ");
                 else isFirst = false;
 
-                sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                sourceCode.Write($"{TypeToSource(arg.Type)} {CSharpSourceName.Identifier(arg.Name, "arg")}");
             }
 
             sourceCode.WriteLine(");");
@@ -380,9 +302,9 @@ namespace Neo.SmartContract.Testing.Extensions
 
             if (ev.Name != evName)
             {
-                sourceCode.WriteLine($"    [DisplayName(\"{ev.Name}\")]");
+                sourceCode.WriteLine($"    [DisplayName(\"{CSharpSourceName.StringLiteralValue(ev.Name)}\")]");
             }
-            sourceCode.WriteLine($"    public event del{ev.Name}? {evName};");
+            sourceCode.WriteLine($"    public event {delegateName}? {evName};");
 
             return builder.ToString();
         }
@@ -396,7 +318,10 @@ namespace Neo.SmartContract.Testing.Extensions
         private static string CreateSourcePropertyFromManifest(ContractMethodDescriptor getter, ContractMethodDescriptor? setter)
         {
             var propertyName = GetPropertyName(getter);
-            var getset = setter is not null ? $"{{ [DisplayName(\"{getter.Name}\")] get; [DisplayName(\"{setter.Name}\")] set; }}" : $"{{ [DisplayName(\"{getter.Name}\")] get; }}";
+            var getterName = CSharpSourceName.StringLiteralValue(getter.Name);
+            var getset = setter is not null
+                ? $"{{ [DisplayName(\"{getterName}\")] get; [DisplayName(\"{CSharpSourceName.StringLiteralValue(setter.Name)}\")] set; }}"
+                : $"{{ [DisplayName(\"{getterName}\")] get; }}";
 
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
@@ -422,7 +347,7 @@ namespace Neo.SmartContract.Testing.Extensions
         /// <returns>Source</returns>
         private static string CreateSourceMethodFromManifest(ContractMethodDescriptor method, NefFile? nefFile = null, JToken? debugInfo = null, bool traceRemarks = false)
         {
-            var methodName = TongleLowercase(EscapeName(method.Name));
+            var methodName = CSharpSourceName.Identifier(TongleLowercase(method.Name), "Method");
 
             var builder = new StringBuilder();
             using var sourceCode = new StringWriter(builder)
@@ -487,7 +412,7 @@ namespace Neo.SmartContract.Testing.Extensions
 
             if (method.Name != methodName)
             {
-                sourceCode.WriteLine($"    [DisplayName(\"{method.Name}\")]");
+                sourceCode.WriteLine($"    [DisplayName(\"{CSharpSourceName.StringLiteralValue(method.Name)}\")]");
             }
             sourceCode.Write($"    public abstract {TypeToSource(method.ReturnType)} {methodName}(");
 
@@ -504,11 +429,11 @@ namespace Neo.SmartContract.Testing.Extensions
                 {
                     // it will be `object X`, we can add a default value
 
-                    sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)} = null");
+                    sourceCode.Write($"{TypeToSource(arg.Type)} {CSharpSourceName.Identifier(arg.Name, "arg")} = null");
                 }
                 else
                 {
-                    sourceCode.Write($"{TypeToSource(arg.Type)} {EscapeName(arg.Name)}");
+                    sourceCode.Write($"{TypeToSource(arg.Type)} {CSharpSourceName.Identifier(arg.Name, "arg")}");
                 }
             }
 
@@ -562,19 +487,6 @@ namespace Neo.SmartContract.Testing.Extensions
             }
 
             return value;
-        }
-
-        /// <summary>
-        /// Escape name
-        /// </summary>
-        /// <param name="name">Name</param>
-        /// <returns>Escaped name</returns>
-        private static string EscapeName(string name)
-        {
-            if (_protectedWords.Contains(name))
-                return "@" + name;
-
-            return name;
         }
 
         /// <summary>

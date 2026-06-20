@@ -9,10 +9,12 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Json;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing.Extensions;
+using System.Linq;
 
 namespace Neo.SmartContract.Testing.UnitTests.Extensions
 {
@@ -167,6 +169,121 @@ namespace Neo.SmartContract.Testing.UnitTests.Extensions
             var manifest = CreateVerifyManifest(safe: false);
 
             Assert.IsFalse(manifest.IsVerifiable());
+        }
+
+        [TestMethod]
+        public void TestGetArtifactsSourceEscapesAbiNames()
+        {
+            var manifest = new ContractManifest
+            {
+                Name = "Bad-Contract",
+                Groups = [],
+                SupportedStandards = [],
+                Abi = new ContractAbi
+                {
+                    Methods =
+                    [
+                        new ContractMethodDescriptor
+                        {
+                            Name = "bad\"Name",
+                            Parameters =
+                            [
+                                new ContractParameterDefinition
+                                {
+                                    Name = "arg-name",
+                                    Type = ContractParameterType.String
+                                }
+                            ],
+                            ReturnType = ContractParameterType.Integer,
+                            Safe = true
+                        },
+                        new ContractMethodDescriptor
+                        {
+                            Name = "class",
+                            Parameters =
+                            [
+                                new ContractParameterDefinition
+                                {
+                                    Name = "event",
+                                    Type = ContractParameterType.Any
+                                }
+                            ],
+                            ReturnType = ContractParameterType.Void
+                        }
+                    ],
+                    Events =
+                    [
+                        new ContractEventDescriptor
+                        {
+                            Name = "bad-event",
+                            Parameters =
+                            [
+                                new ContractParameterDefinition
+                                {
+                                    Name = "arg-name",
+                                    Type = ContractParameterType.String
+                                }
+                            ]
+                        }
+                    ]
+                },
+                Permissions = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
+
+            var source = manifest.GetArtifactsSource(manifest.Name, generateProperties: false);
+            var diagnostics = CSharpSyntaxTree.ParseText(source).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(source, "public abstract class Bad_Contract(");
+            StringAssert.Contains(source, "[DisplayName(\"bad\\\"Name\")]");
+            StringAssert.Contains(source, "public abstract BigInteger? Bad_Name(string? arg_name);");
+            StringAssert.Contains(source, "public abstract void Class(object? @event = null);");
+            StringAssert.Contains(source, "public delegate void delBad_event(string? arg_name);");
+            StringAssert.Contains(source, "public event delBad_event? OnBad_event;");
+        }
+
+        [TestMethod]
+        public void TestGetArtifactsSourceEscapesControlCharactersAndFallbackNames()
+        {
+            var methodName = "line\nreturn\rtab\tbell\aback\bform\fvert\vnull\0unit\u001fslash\\quote\"hex\\x41unicode\\u0042";
+            var manifest = new ContractManifest
+            {
+                Name = "",
+                Groups = [],
+                SupportedStandards = [],
+                Abi = new ContractAbi
+                {
+                    Methods =
+                    [
+                        new ContractMethodDescriptor
+                        {
+                            Name = methodName,
+                            Parameters = [],
+                            ReturnType = ContractParameterType.Void
+                        }
+                    ],
+                    Events =
+                    [
+                        new ContractEventDescriptor
+                        {
+                            Name = "1event",
+                            Parameters = []
+                        }
+                    ]
+                },
+                Permissions = [],
+                Trusts = WildcardContainer<ContractPermissionDescriptor>.Create()
+            };
+
+            var source = manifest.GetArtifactsSource("", generateProperties: false);
+            var diagnostics = CSharpSyntaxTree.ParseText(source).GetDiagnostics().ToArray();
+
+            Assert.AreEqual(0, diagnostics.Length, string.Join("\n", diagnostics.Select(u => u.ToString())));
+            StringAssert.Contains(source, "public abstract class Contract(");
+            StringAssert.Contains(source, "[DisplayName(\"line\\nreturn\\rtab\\tbell\\aback\\bform\\fvert\\vnull\\0unit\\u001fslash\\\\quote\\\"hex\\\\x41unicode\\\\u0042\")]");
+            StringAssert.Contains(source, "public delegate void del_1event();");
+            StringAssert.Contains(source, "public event del_1event? On_1event;");
         }
 
         private static ContractManifest CreateVerifyManifest(bool safe)
