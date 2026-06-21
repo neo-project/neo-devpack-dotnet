@@ -137,6 +137,39 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Nep11_DivisibleTransferMarkedSafe_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            JArray methods = (JArray)json["abi"]!["methods"]!;
+
+            JObject ownerOf = (JObject)methods.First(m => m!["name"]!.GetString() == "ownerOf")!;
+            ownerOf["returntype"] = "InteropInterface";
+
+            methods.Add(new JObject
+            {
+                ["name"] = "balanceOf",
+                ["parameters"] = new JArray(
+                    new JObject { ["name"] = "owner", ["type"] = "Hash160" },
+                    new JObject { ["name"] = "tokenId", ["type"] = "ByteArray" }),
+                ["returntype"] = "Integer",
+                ["offset"] = 0,
+                ["safe"] = true
+            });
+
+            JObject transfer = (JObject)methods.First(m => m!["name"]!.GetString() == "transfer")!;
+            transfer["parameters"] = new JArray(
+                new JObject { ["name"] = "from", ["type"] = "Hash160" },
+                new JObject { ["name"] = "to", ["type"] = "Hash160" },
+                new JObject { ["name"] = "amount", ["type"] = "Integer" },
+                new JObject { ["name"] = "tokenId", ["type"] = "ByteArray" },
+                new JObject { ["name"] = "data", ["type"] = "Any" });
+            transfer["safe"] = true;
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "transfer, it should not be marked as Safe");
+        }
+
+        [TestMethod]
         public void Nep11_CompliantTransfer_ProducesNoSafeDiagnostic()
         {
             JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
