@@ -44,6 +44,48 @@ public class Contract : SmartContract
     }
 
     [TestMethod]
+    public void RelationalPattern_ObjectScrutinee_IsRejected()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public class Contract : SmartContract
+{
+    [DisplayName(""test"")]
+    public static bool Test(object value) => value is > 5;
+}";
+
+        var context = TestHelper.CompileSingleContract(source);
+
+        Assert.IsFalse(context.Success, "Relational pattern on an object scrutinee must be rejected.");
+        Assert.IsTrue(
+            context.Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error && d.GetMessage().Contains("Relational patterns")),
+            "Expected the relational-pattern compatibility diagnostic.");
+    }
+
+    [TestMethod]
+    public void RelationalPattern_ObjectScrutineeWithNumericTypePattern_Compiles()
+    {
+        const string source = @"using Neo.SmartContract.Framework;
+using System.ComponentModel;
+
+public class Contract : SmartContract
+{
+    [DisplayName(""test"")]
+    public static bool Test(object value) => value is int and > 5;
+}";
+
+        var context = TestHelper.CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<RelationalPatternGuardContract>(context.CreateExecutable(), context.CreateManifest());
+
+        Assert.IsTrue(contract.Test(10)!.Value);
+        Assert.IsFalse(contract.Test(3)!.Value);
+    }
+
+    [TestMethod]
     public void RelationalPattern_NumericScrutinee_Compiles()
     {
         const string source = @"using Neo.SmartContract.Framework;
