@@ -18,5 +18,9 @@ namespace Neo.SmartContract.Framework.Native
         public readonly BigInteger Balance;
         public readonly BigInteger Height;
         public readonly ECPoint? VoteTo;
+        // The amount of GAS distributed per vote the last time the account's reward was settled.
+        // This is the fourth field of the native NeoToken.NeoAccountState struct; without it the
+        // value is inaccessible to contracts.
+        public readonly BigInteger LastGasPerVote;
     }
 }
