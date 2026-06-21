@@ -25,7 +25,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(3, Contract.Sum());
             AssertGasConsumed(1052070);
             Assert.AreEqual(12, Contract.Sum1(5, 7));
-            AssertGasConsumed(1113180);
+            AssertGasConsumed(1113240);
             Assert.AreEqual(12, Contract.Sum2(5, 7));
             AssertGasConsumed(1605300);
         }

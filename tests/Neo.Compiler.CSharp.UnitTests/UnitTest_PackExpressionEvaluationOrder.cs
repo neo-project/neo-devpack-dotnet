@@ -79,10 +79,33 @@ public class UnitTest_PackExpressionEvaluationOrder
                     return _trace;
                 }
 
+                [DisplayName("objectInitializer")]
+                public static int ObjectInitializer()
+                {
+                    _trace = 0;
+                    var value = new Box { A = Next(1), B = Next(2), C = Next(3) };
+                    return _trace;
+                }
+
+                [DisplayName("listInitializer")]
+                public static int ListInitializer()
+                {
+                    _trace = 0;
+                    var values = new List<int> { Next(1), Next(2), Next(3) };
+                    return _trace;
+                }
+
                 private static int Next(int value)
                 {
                     _trace = _trace * 10 + value;
                     return value;
+                }
+
+                public class Box
+                {
+                    public int A;
+                    public int B;
+                    public int C;
                 }
             }
             """;
@@ -99,6 +122,8 @@ public class UnitTest_PackExpressionEvaluationOrder
         Assert.AreEqual(new BigInteger(123), contract.AnonymousObject());
         Assert.AreEqual(new BigInteger(123), contract.EventInvocation());
         Assert.AreEqual(new BigInteger(123), contract.CollectionExpression());
+        Assert.AreEqual(new BigInteger(123), contract.ObjectInitializer());
+        Assert.AreEqual(new BigInteger(123), contract.ListInitializer());
     }
 
     public abstract class PackExpressionEvaluationOrderContract(SmartContractInitialize initialize)
@@ -121,5 +146,11 @@ public class UnitTest_PackExpressionEvaluationOrder
 
         [DisplayName("collectionExpression")]
         public abstract BigInteger? CollectionExpression();
+
+        [DisplayName("objectInitializer")]
+        public abstract BigInteger? ObjectInitializer();
+
+        [DisplayName("listInitializer")]
+        public abstract BigInteger? ListInitializer();
     }
 }

@@ -111,20 +111,39 @@ internal partial class MethodConvert
             indexToValue.Add(index, ae.Right);
         }
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        int needVirtualMethodTable = 0;
-        if (!type.IsRecord && virtualMethods.Length > 0)
+        bool needVirtualMethodTable = !type.IsRecord && virtualMethods.Length > 0;
+
+        // Build the packed slots in field-index order (initializer value or default), with the
+        // optional virtual method table as the final slot. Routing through
+        // EmitPackedItemsLeftToRight preserves left-to-right evaluation order when the
+        // initializer values have side effects, instead of evaluating them in reverse (#1685).
+        // The virtual method table load and field defaults are side-effect free, so the
+        // all-constant case still emits the same instructions as before.
+        var slots = new List<(Action Emit, bool CanDefer)>(fields.Length + (needVirtualMethodTable ? 1 : 0));
+        for (int i = 0; i < fields.Length; i++)
         {
-            needVirtualMethodTable += 1;
-            byte vTableIndex = _context.AddVTable(type);
-            AccessSlot(OpCode.LDSFLD, vTableIndex);
-        }
-        for (int i = fields.Length - 1; i >= 0; --i)
             if (indexToValue.TryGetValue(i, out ExpressionSyntax? right))
-                ConvertExpression(model, right);
+            {
+                ExpressionSyntax value = right;
+                slots.Add((() => ConvertExpression(model, value), CanDeferExpressionEmission(model, value)));
+            }
             else
-                PushDefault(fields[i].Type);
-        Push(fields.Length + needVirtualMethodTable);
-        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+            {
+                ITypeSymbol fieldType = fields[i].Type;
+                slots.Add((() => PushDefault(fieldType), true));
+            }
+        }
+        if (needVirtualMethodTable)
+        {
+            byte vTableIndex = _context.AddVTable(type);
+            slots.Add((() => AccessSlot(OpCode.LDSFLD, vTableIndex), true));
+        }
+
+        EmitPackedItemsLeftToRight(
+            slots,
+            slot => slot.Emit(),
+            type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK,
+            slot => slot.CanDefer);
         return true;
     }
 
@@ -192,10 +211,13 @@ internal partial class MethodConvert
             }
             else
             {
-                for (var i = initializer.Expressions.Count - 1; i >= 0; i--)
-                    ConvertExpression(model, initializer.Expressions[i]);
-                Push(initializer.Expressions.Count);
-                AddInstruction(OpCode.PACK);
+                // Preserve left-to-right evaluation order of the elements when they have
+                // side effects, instead of emitting them in reverse (see #1685).
+                EmitPackedItemsLeftToRight(
+                    initializer.Expressions.ToArray(),
+                    expression => ConvertExpression(model, expression),
+                    OpCode.PACK,
+                    expression => CanDeferExpressionEmission(model, expression));
             }
             return;
         }
