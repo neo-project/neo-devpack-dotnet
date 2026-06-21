@@ -47,6 +47,13 @@ public class Contract : SmartContract
         Box? box = value < 0 ? null : new Box { Value = value };
         return box is { Value: 5 };
     }
+
+    [DisplayName(""matchParenthesized"")]
+    public static bool MatchParenthesized(int value)
+    {
+        Box? box = value < 0 ? null : new Box { Value = value };
+        return box is ({ Value: 5 });
+    }
 }";
 
         var context = TestHelper.CompileSingleContract(source);
@@ -60,6 +67,9 @@ public class Contract : SmartContract
         Assert.IsFalse(contract.MatchValue(-1)!.Value, "A null scrutinee from a value branch must not match.");
         Assert.IsFalse(contract.MatchValue(4)!.Value, "A non-null scrutinee with a different property value must not match.");
         Assert.IsTrue(contract.MatchValue(5)!.Value, "A non-null scrutinee with the expected value must match.");
+        Assert.IsFalse(contract.MatchParenthesized(-1)!.Value, "A parenthesized pattern must keep the same null semantics.");
+        Assert.IsFalse(contract.MatchParenthesized(4)!.Value, "A parenthesized pattern must keep the same mismatch semantics.");
+        Assert.IsTrue(contract.MatchParenthesized(5)!.Value, "A parenthesized pattern must keep the same match semantics.");
     }
 
     public abstract class RecursivePatternNullCheckContract(SmartContractInitialize initialize)
@@ -70,5 +80,8 @@ public class Contract : SmartContract
 
         [DisplayName("matchValue")]
         public abstract bool? MatchValue(BigInteger value);
+
+        [DisplayName("matchParenthesized")]
+        public abstract bool? MatchParenthesized(BigInteger value);
     }
 }
