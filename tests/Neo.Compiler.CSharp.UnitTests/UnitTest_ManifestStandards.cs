@@ -123,6 +123,30 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Nep11_TransferMarkedSafe_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            JArray methods = (JArray)json["abi"]!["methods"]!;
+
+            // A NEP-11 transfer changes state, so it must NOT be marked as Safe.
+            JObject transfer = (JObject)methods.First(m => m!["name"]!.GetString() == "transfer")!;
+            transfer["safe"] = true;
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "transfer, it should not be marked as Safe");
+        }
+
+        [TestMethod]
+        public void Nep11_CompliantTransfer_ProducesNoSafeDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+
+            string output = CheckStandards(json);
+            Assert.IsFalse(output.Contains("transfer, it should not be marked as Safe"));
+            Assert.IsFalse(output.Contains("you should add a 'Safe' attribute to the transfer method"));
+        }
+
+        [TestMethod]
         public void Nep11_TokensOfShapeVariants_ProduceExpectedDiagnostics()
         {
             JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
