@@ -137,6 +137,37 @@ namespace Neo.Compiler.CSharp.UnitTests
             StringAssert.Contains(output, "tokensOf, it's return type is not an InteropInterface");
         }
 
+        [TestMethod]
+        public void Nep11_MalformedTransferEvent_DoesNotCrashAndReportsLength()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            JArray events = (JArray)json["abi"]!["events"]!;
+
+            // A Transfer event with fewer than 4 parameters previously crashed the
+            // compiler with IndexOutOfRangeException because the event is matched by
+            // name only and the per-parameter checks indexed it unconditionally.
+            JObject transferEvent = (JObject)events.First(e => e!["name"]!.GetString() == "Transfer")!;
+            transferEvent["parameters"] = new JArray(
+                new JObject { ["name"] = "from", ["type"] = "Hash160" });
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "transfer, it's parameters length is not 4");
+        }
+
+        [TestMethod]
+        public void Nep17_MalformedTransferEvent_DoesNotCrashAndReportsLength()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            JArray events = (JArray)json["abi"]!["events"]!;
+
+            JObject transferEvent = (JObject)events.First(e => e!["name"]!.GetString() == "Transfer")!;
+            transferEvent["parameters"] = new JArray(
+                new JObject { ["name"] = "from", ["type"] = "Hash160" });
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "Transfer event parameters length is not 3");
+        }
+
         private static string CheckStandards(JObject json)
         {
             ContractManifest manifest = ContractManifest.FromJson(json);
