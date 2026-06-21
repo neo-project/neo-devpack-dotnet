@@ -14,6 +14,7 @@ using Neo.SmartContract.Testing;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 
 namespace Neo.Compiler.CSharp.UnitTests;
 
@@ -39,6 +40,13 @@ public class Contract : SmartContract
         Box? box = useNull ? null : new Box { Value = 5 };
         return box is { Value: 5 };
     }
+
+    [DisplayName(""matchValue"")]
+    public static bool MatchValue(int value)
+    {
+        Box? box = value < 0 ? null : new Box { Value = value };
+        return box is { Value: 5 };
+    }
 }";
 
         var context = TestHelper.CompileSingleContract(source);
@@ -49,6 +57,9 @@ public class Contract : SmartContract
 
         Assert.IsFalse(contract.Match(true)!.Value, "A null scrutinee must not match the property pattern.");
         Assert.IsTrue(contract.Match(false)!.Value, "A matching property value must match the pattern.");
+        Assert.IsFalse(contract.MatchValue(-1)!.Value, "A null scrutinee from a value branch must not match.");
+        Assert.IsFalse(contract.MatchValue(4)!.Value, "A non-null scrutinee with a different property value must not match.");
+        Assert.IsTrue(contract.MatchValue(5)!.Value, "A non-null scrutinee with the expected value must match.");
     }
 
     public abstract class RecursivePatternNullCheckContract(SmartContractInitialize initialize)
@@ -56,5 +67,8 @@ public class Contract : SmartContract
     {
         [DisplayName("match")]
         public abstract bool? Match(bool useNull);
+
+        [DisplayName("matchValue")]
+        public abstract bool? MatchValue(BigInteger value);
     }
 }
