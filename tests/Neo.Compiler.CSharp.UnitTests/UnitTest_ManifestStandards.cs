@@ -155,6 +155,26 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Nep11_TransferEventWithExpectedLength_ReportsParameterTypeErrors()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            JArray events = (JArray)json["abi"]!["events"]!;
+
+            JObject transferEvent = (JObject)events.First(e => e!["name"]!.GetString() == "Transfer")!;
+            transferEvent["parameters"] = new JArray(
+                new JObject { ["name"] = "from", ["type"] = "ByteArray" },
+                new JObject { ["name"] = "to", ["type"] = "ByteArray" },
+                new JObject { ["name"] = "amount", ["type"] = "Hash160" },
+                new JObject { ["name"] = "tokenId", ["type"] = "Integer" });
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "transfer, it's first parameters type is not a Hash160");
+            StringAssert.Contains(output, "transfer, it's second parameters type is not a Hash160");
+            StringAssert.Contains(output, "transfer, it's third parameters type is not an Integer");
+            StringAssert.Contains(output, "transfer, it's fourth parameters type is not a ByteArray");
+        }
+
+        [TestMethod]
         public void Nep17_MalformedTransferEvent_DoesNotCrashAndReportsLength()
         {
             JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
@@ -166,6 +186,24 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             string output = CheckStandards(json);
             StringAssert.Contains(output, "Transfer event parameters length is not 3");
+        }
+
+        [TestMethod]
+        public void Nep17_TransferEventWithExpectedLength_ReportsParameterTypeErrors()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            JArray events = (JArray)json["abi"]!["events"]!;
+
+            JObject transferEvent = (JObject)events.First(e => e!["name"]!.GetString() == "Transfer")!;
+            transferEvent["parameters"] = new JArray(
+                new JObject { ["name"] = "from", ["type"] = "ByteArray" },
+                new JObject { ["name"] = "to", ["type"] = "Integer" },
+                new JObject { ["name"] = "amount", ["type"] = "Hash160" });
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "Transfer event first parameter (from) type is not Hash160");
+            StringAssert.Contains(output, "Transfer event second parameter (to) type is not Hash160");
+            StringAssert.Contains(output, "Transfer event third parameter (amount) type is not Integer");
         }
 
         private static string CheckStandards(JObject json)
