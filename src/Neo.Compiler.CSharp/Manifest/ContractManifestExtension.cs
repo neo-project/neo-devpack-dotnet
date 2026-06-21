@@ -53,11 +53,13 @@ namespace Neo.Compiler
             CheckNep11PayableCompliant(this ContractManifest manifest)
         {
             var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 4);
+            // The tokenId is a NEP-11 token id (ByteString), which maps to the ByteArray
+            // contract parameter type. See INEP26.OnNEP11Payment.
             var onNEP11PaymentValid = onNEP11PaymentMethod is { ReturnType: ContractParameterType.Void } &&
                                         onNEP11PaymentMethod.Parameters.Length == 4 &&
                                         onNEP11PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                         onNEP11PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
-                                        onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.String &&
+                                        onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.ByteArray &&
                                         onNEP11PaymentMethod.Parameters[3].Type == ContractParameterType.Any;
 
             System.Collections.Generic.List<CompilationException> errors = [];
