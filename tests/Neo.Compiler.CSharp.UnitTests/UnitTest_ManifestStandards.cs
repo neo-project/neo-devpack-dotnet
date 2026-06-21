@@ -181,20 +181,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         private static string CheckStandards(JObject json)
         {
             ContractManifest manifest = ContractManifest.FromJson(json);
-            var stdout = new StringWriter();
-            TextWriter originalOut = Console.Out;
-
-            try
-            {
-                Console.SetOut(stdout);
-                manifest.CheckStandards();
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
-
-            return stdout.ToString();
+            return string.Join(Environment.NewLine,
+                manifest.GetStandardsViolations().Select(v => v.Diagnostic.ToString()));
         }
     }
 }
