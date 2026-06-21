@@ -158,10 +158,49 @@ namespace Neo.Compiler.CSharp.UnitTests
             StringAssert.Contains(output, "onNEP11Payment");
         }
 
+        [TestMethod]
+        public void Nep24_DeclaredWithoutRoyaltyInfo_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-24");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "royaltyInfo");
+        }
+
+        [TestMethod]
+        public void Nep27_DeclaredWithoutOnNep17Payment_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-27");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "onNEP17Payment");
+        }
+
+        [TestMethod]
+        public void Nep29_DeclaredWithoutDeploy_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-29");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "_deploy");
+        }
+
+        [TestMethod]
+        public void Nep30_DeclaredWithoutVerify_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-30");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "verify");
+        }
+
         private static void AddNep26OnPayment(JObject json, string tokenIdType)
         {
-            JArray standards = (JArray)json["supportedstandards"]!;
-            standards.Add((JString)"NEP-26");
+            AddSupportedStandard(json, "NEP-26");
 
             JArray methods = (JArray)json["abi"]!["methods"]!;
             methods.Add(new JObject
@@ -176,6 +215,12 @@ namespace Neo.Compiler.CSharp.UnitTests
                 ["offset"] = 0,
                 ["safe"] = false
             });
+        }
+
+        private static void AddSupportedStandard(JObject json, string standard)
+        {
+            JArray standards = (JArray)json["supportedstandards"]!;
+            standards.Add((JString)standard);
         }
 
         private static string CheckStandards(JObject json)
