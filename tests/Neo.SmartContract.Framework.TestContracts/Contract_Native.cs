@@ -43,6 +43,12 @@ namespace Neo.SmartContract.Framework.UnitTests.TestClasses
             return NEO.GetAccountState(account);
         }
 
+        [DisplayName("NEO_GetAccountStateLastGasPerVote")]
+        public static BigInteger NEO_GetAccountStateLastGasPerVote(UInt160 account)
+        {
+            return NEO.GetAccountState(account).LastGasPerVote;
+        }
+
         [DisplayName("NEO_GetGasPerBlock")]
         public static BigInteger NEO_GetGasPerBlock()
         {
