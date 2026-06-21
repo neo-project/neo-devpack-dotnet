@@ -205,7 +205,7 @@ internal static partial class ContractManifestExtensions
         if (transferMethod1 is not null)
         {
             // NEP-11 transfer must change state, so it must NOT be marked as Safe.
-            if (transferMethod1 is { Safe: true })
+            if (transferMethod1.Safe)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it should not be marked as Safe"));
 
@@ -233,7 +233,7 @@ internal static partial class ContractManifestExtensions
         if (transferMethod2 is not null)
         {
             // NEP-11 transfer must change state, so it must NOT be marked as Safe.
-            if (transferMethod2 is { Safe: true })
+            if (transferMethod2.Safe)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                 $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it should not be marked as Safe"));
 
