@@ -859,6 +859,96 @@ internal partial class MethodConvert
         methodConvert.ChangeType(StackItemType.ByteString);        // The CAT result is a buffer, so add CONVERT opcode.
     }
 
+    private static void HandleStringPadLeft(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+        => EmitStringPad(methodConvert, model, instanceExpression, arguments, padLeft: true);
+
+    private static void HandleStringPadRight(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
+        => EmitStringPad(methodConvert, model, instanceExpression, arguments, padLeft: false);
+
+    /// <summary>
+    /// Handles string.PadLeft / string.PadRight by prepending or appending the padding
+    /// character until the length reaches totalWidth. The string is returned unchanged when it
+    /// is already at least totalWidth long (no truncation), matching .NET. The default padding
+    /// character is a space (' ').
+    /// </summary>
+    /// <remarks>
+    /// Width is measured in bytes, consistent with how the compiler treats string length
+    /// (<see cref="OpCode.SIZE"/>); for ASCII text this matches .NET's character semantics.
+    /// </remarks>
+    private static void EmitStringPad(MethodConvert methodConvert, SemanticModel model,
+        ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments, bool padLeft)
+    {
+        byte strSlot = methodConvert.AddAnonymousVariable();
+        byte widthSlot = methodConvert.AddAnonymousVariable();
+        byte fillSlot = methodConvert.AddAnonymousVariable();
+        byte countSlot = methodConvert.AddAnonymousVariable();
+        byte resultSlot = methodConvert.AddAnonymousVariable();
+
+        // Store the string to pad.
+        methodConvert.ConvertExpression(model, instanceExpression!);
+        methodConvert.AccessSlot(OpCode.STLOC, strSlot);
+
+        // Store the requested total width.
+        methodConvert.ConvertExpression(model, ((ArgumentSyntax)arguments![0]).Expression);
+        methodConvert.AccessSlot(OpCode.STLOC, widthSlot);
+
+        // Store the padding character (default is a space).
+        if (arguments.Count >= 2)
+            methodConvert.ConvertExpression(model, ((ArgumentSyntax)arguments[1]).Expression);
+        else
+            methodConvert.Push(' ');
+        methodConvert.AccessSlot(OpCode.STLOC, fillSlot);
+
+        // count = totalWidth - size(str)
+        methodConvert.AccessSlot(OpCode.LDLOC, widthSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        methodConvert.Size();
+        methodConvert.Sub();
+        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
+
+        // Build the padding: count copies of the padding character (empty when count <= 0).
+        methodConvert.Push("");
+        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+
+        JumpTarget loopStart = new();
+        JumpTarget loopEnd = new();
+        loopStart.Instruction = methodConvert.Nop();
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
+        methodConvert.Push0();
+        methodConvert.JumpIfLessOrEqual(loopEnd);
+        methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, fillSlot);
+        methodConvert.Cat();
+        methodConvert.AccessSlot(OpCode.STLOC, resultSlot);
+        methodConvert.AccessSlot(OpCode.LDLOC, countSlot);
+        methodConvert.Dec();
+        methodConvert.AccessSlot(OpCode.STLOC, countSlot);
+        methodConvert.JumpAlways(loopStart);
+        loopEnd.Instruction = methodConvert.Nop();
+
+        // Combine: PadLeft -> padding + str ; PadRight -> str + padding.
+        if (padLeft)
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+        }
+        else
+        {
+            methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
+            methodConvert.AccessSlot(OpCode.LDLOC, resultSlot);
+        }
+        methodConvert.Cat();
+        methodConvert.ChangeType(StackItemType.ByteString);
+
+        methodConvert.RemoveAnonymousVariable(strSlot);
+        methodConvert.RemoveAnonymousVariable(widthSlot);
+        methodConvert.RemoveAnonymousVariable(fillSlot);
+        methodConvert.RemoveAnonymousVariable(countSlot);
+        methodConvert.RemoveAnonymousVariable(resultSlot);
+    }
+
     private static void HandleStringToLower(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol,
     ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
     {
