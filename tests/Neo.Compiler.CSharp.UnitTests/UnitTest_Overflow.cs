@@ -56,8 +56,26 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(unchecked(uint.MaxValue * 2), Contract.MulUInt(uint.MaxValue, 2));
             Assert.AreEqual(unchecked(uint.MaxValue * (uint)(-2)), Contract.MulUInt(uint.MaxValue, -2));
             Assert.AreEqual(unchecked(uint.MinValue * uint.MaxValue), Contract.MulUInt(uint.MinValue, uint.MaxValue));
+            Assert.AreEqual(unchecked(uint.MaxValue * uint.MaxValue), Contract.MulUInt(uint.MaxValue, uint.MaxValue));
             Assert.AreEqual(unchecked(uint.MinValue * (-uint.MaxValue)), Contract.MulUInt(uint.MinValue, -uint.MaxValue));
             Assert.AreEqual(unchecked((-uint.MinValue) * uint.MaxValue), Contract.MulUInt(unchecked(-uint.MinValue), uint.MaxValue));
+        }
+
+        [TestMethod]
+        public void Test_AddUIntChecked()
+        {
+            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MaxValue, 1));
+            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MinValue, -1));
+            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MinValue, -uint.MaxValue));
+            Assert.ThrowsException<TestException>(() => Contract.AddUIntChecked(uint.MaxValue, uint.MaxValue));
+        }
+
+        [TestMethod]
+        public void Test_MulUIntChecked()
+        {
+            Assert.ThrowsException<TestException>(() => Contract.MulUIntChecked(uint.MaxValue, 2));
+            Assert.ThrowsException<TestException>(() => Contract.MulUIntChecked(1, -2));
+            Assert.ThrowsException<TestException>(() => Contract.MulUIntChecked(uint.MaxValue, uint.MaxValue));
         }
 
         [TestMethod]

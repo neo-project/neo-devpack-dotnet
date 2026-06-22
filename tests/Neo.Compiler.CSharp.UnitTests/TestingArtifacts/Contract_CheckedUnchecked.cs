@@ -18,7 +18,7 @@ public abstract class Contract_CheckedUnchecked(Neo.SmartContract.Testing.SmartC
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG1XAAJ4eZ5KyhQyAzpAVwACeHmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAAXhKEC4DOkoD/////wAAAAAyAzpAVwABeEoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFAvl1nvg==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFtXAAJ4eZ5KyhQyAzpAVwACeHmeSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcAAXhKEC4DOkoD/////wAAAAAyAzpAVwABeAP/////AAAAAJFAjzfTIA==").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -92,16 +92,9 @@ public abstract class Contract_CheckedUnchecked(Neo.SmartContract.Testing.SmartC
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwABeEoQLgQiDkoD/////wAAAAAyDAP/////AAAAAJFA
+    /// Script: VwABeAP/////AAAAAJFA
     /// INITSLOT 0001 [64 datoshi]
     /// LDARG0 [2 datoshi]
-    /// DUP [2 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// JMPGE 04 [2 datoshi]
-    /// JMP 0E [2 datoshi]
-    /// DUP [2 datoshi]
-    /// PUSHINT64 FFFFFFFF00000000 [1 datoshi]
-    /// JMPLE 0C [2 datoshi]
     /// PUSHINT64 FFFFFFFF00000000 [1 datoshi]
     /// AND [8 datoshi]
     /// RET [0 datoshi]
