@@ -121,9 +121,17 @@ Edit `HelloWorldContract.csproj`:
   
   <ItemGroup>
     <PackageReference Include="Neo.SmartContract.Framework" Version="3.10.0" />
+    <!-- Compile-time checks for NeoVM constraints and NEP standards (recommended). -->
+    <PackageReference Include="Neo.SmartContract.Analyzer" Version="3.10.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>
 ```
+
+> The `dotnet new neocontract` template wires the analyzer in for you. See
+> [Static Analysis](#static-analysis) below for what it catches.
 
 ### Step 3: Write Your Contract
 
@@ -218,6 +226,16 @@ ls bin/sc/
 This should generate:
 - `HelloWorldContract.nef` - The compiled bytecode
 - `HelloWorldContract.manifest.json` - Contract metadata
+
+## Static Analysis
+
+The `Neo.SmartContract.Analyzer` package (added in [Step 2](#step-2-add-neo-framework-reference)) runs a suite of Roslyn analyzers during `dotnet build`. They catch contract mistakes at compile time instead of on-chain, including:
+
+- unsupported primitives and BCL APIs (`float`/`double`/`decimal`, LINQ, generic collections, `System.Math`/`System.Diagnostics`);
+- NEP standard problems (incorrect `SupportedStandards`, missing interface members, event-name mismatches);
+- determinism and storage hazards (non-deterministic static-field initialization, colliding storage keys, unsupported `ref`/`volatile`/multiple `catch`).
+
+Many diagnostics ship with code fixes, so your IDE can apply the correction for you. For the full rule catalog, see the [analyzer README](../src/Neo.SmartContract.Analyzer/README.md).
 
 ## Understanding Contract Basics
 
