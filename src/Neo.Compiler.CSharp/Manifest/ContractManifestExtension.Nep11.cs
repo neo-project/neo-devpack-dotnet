@@ -204,10 +204,10 @@ internal static partial class ContractManifestExtensions
 
         if (transferMethod1 is not null)
         {
-            if (transferMethod1 is { Safe: false } &&
-           transferMethod1.ReturnType != ContractParameterType.Boolean)
+            // NEP-11 transfer must change state, so it must NOT be marked as Safe.
+            if (transferMethod1.Safe)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it is not safe, you should add a 'Safe' attribute to the transfer method"));
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it should not be marked as Safe"));
 
             if (transferMethod1 is not null && transferMethod1.ReturnType != ContractParameterType.Boolean)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
@@ -232,10 +232,10 @@ internal static partial class ContractManifestExtensions
 
         if (transferMethod2 is not null)
         {
-            if (transferMethod2 is { Safe: false } &&
-          transferMethod2.ReturnType != ContractParameterType.Boolean)
+            // NEP-11 transfer must change state, so it must NOT be marked as Safe.
+            if (transferMethod2.Safe)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it is not safe, you should add a 'Safe' attribute to the transfer method"));
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it should not be marked as Safe"));
 
             if (transferMethod2 is not null && transferMethod2.ReturnType != ContractParameterType.Boolean)
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
