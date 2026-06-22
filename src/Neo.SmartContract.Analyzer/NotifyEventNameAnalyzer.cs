@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -48,39 +49,60 @@ namespace Neo.SmartContract.Analyzer
         private void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
         {
             var invocationExpr = (InvocationExpressionSyntax)context.Node;
-            var memberAccessExpr = invocationExpr.Expression as MemberAccessExpressionSyntax;
+            if (invocationExpr.Expression is not MemberAccessExpressionSyntax memberAccessExpr)
+                return;
 
-            if (memberAccessExpr?.Name.Identifier.ValueText == "Notify")
+            if (memberAccessExpr.Name.Identifier.ValueText != "Notify")
+                return;
+
+            if (!(invocationExpr.ArgumentList?.Arguments.Count > 0))
+                return;
+
+            // Only a string literal event name can be checked statically.
+            if (invocationExpr.ArgumentList.Arguments[0].Expression is not LiteralExpressionSyntax firstArgument ||
+                !firstArgument.IsKind(SyntaxKind.StringLiteralExpression))
+                return;
+
+            var passedName = firstArgument.Token.ValueText;
+
+            // Only analyze calls that actually bind to the framework's Runtime.Notify; a method
+            // merely named "Notify" on some unrelated type must not be flagged.
+            if (context.SemanticModel.GetSymbolInfo(invocationExpr).Symbol is not IMethodSymbol method ||
+                !IsRuntimeNotify(method))
+                return;
+
+            // Resolve event names the way the compiler does: an event's [DisplayName] when present,
+            // otherwise the event field name. Events inherited from base types count as well.
+            var containingTypeSyntax = memberAccessExpr.FirstAncestorOrSelf<TypeDeclarationSyntax>();
+            if (containingTypeSyntax is null ||
+                context.SemanticModel.GetDeclaredSymbol(containingTypeSyntax) is not INamedTypeSymbol containingType)
+                return;
+
+            if (EnumerateEventNames(containingType).Any(name => name == passedName))
+                return;
+
+            context.ReportDiagnostic(Diagnostic.Create(Rule, firstArgument.GetLocation(), passedName));
+        }
+
+        private static IEnumerable<string> EnumerateEventNames(INamedTypeSymbol type)
+        {
+            for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
             {
-                if (invocationExpr.ArgumentList?.Arguments.Count > 0)
+                foreach (var eventSymbol in current.GetMembers().OfType<IEventSymbol>())
                 {
-                    var firstArgument = invocationExpr.ArgumentList.Arguments[0].Expression as LiteralExpressionSyntax;
-                    var passedName = firstArgument?.Token.ValueText;
-
-                    // Get all events in the containing type
-                    var containingType = memberAccessExpr.FirstAncestorOrSelf<TypeDeclarationSyntax>();
-                    var events = containingType?.Members.OfType<EventFieldDeclarationSyntax>();
-
-                    // Check if the passed name matches any event's DisplayName
-                    bool nameMatches = events?.Any(ev => EventHasMatchingDisplayName(ev, passedName, context.SemanticModel)) == true;
-
-                    if (!nameMatches)
-                    {
-                        var diagnostic = Diagnostic.Create(Rule, firstArgument?.GetLocation(), passedName);
-                        context.ReportDiagnostic(diagnostic);
-                    }
+                    var displayName = eventSymbol.GetAttributes()
+                        .FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == "System.ComponentModel.DisplayNameAttribute")
+                        ?.ConstructorArguments.FirstOrDefault().Value as string;
+                    yield return displayName ?? eventSymbol.Name;
                 }
             }
         }
 
-        private static bool EventHasMatchingDisplayName(EventFieldDeclarationSyntax eventDeclaration, string? name, SemanticModel semanticModel)
+        private static bool IsRuntimeNotify(IMethodSymbol method)
         {
-            return eventDeclaration.Declaration.Variables
-                .Select(variable => semanticModel.GetDeclaredSymbol(variable) as IEventSymbol)
-                .Select(symbol => symbol?.GetAttributes().FirstOrDefault(attr => attr.AttributeClass?.Name == "DisplayNameAttribute"))
-                .OfType<AttributeData>()
-                .Select(displayNameAttr => displayNameAttr.ConstructorArguments.FirstOrDefault())
-                .Any(displayNameArg => displayNameArg.Value as string == name);
+            return method.Name == "Notify" &&
+                   method.ContainingType?.Name == "Runtime" &&
+                   method.ContainingType.ContainingNamespace?.ToDisplayString() == "Neo.SmartContract.Framework.Services";
         }
     }
 }
