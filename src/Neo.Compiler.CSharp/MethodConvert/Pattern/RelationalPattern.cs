@@ -13,6 +13,7 @@ extern alias scfx;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using Neo.VM;
 
 namespace Neo.Compiler;
@@ -47,6 +48,21 @@ internal partial class MethodConvert
     /// </example>
     private void ConvertRelationalPattern(SemanticModel model, RelationalPatternSyntax pattern, byte localIndex)
     {
+        // A relational pattern lowers to a NeoVM numeric comparison (LT/LE/GT/GE) on the
+        // scrutinee. That is only well defined when the scrutinee is guaranteed to be a
+        // concrete numeric value at runtime. If the scrutinee may be null or a non-numeric
+        // reference value (e.g. an `object` or a `Nullable<T>`), C# requires the pattern to
+        // evaluate to false, but the comparison would instead fault the VM. Reject that
+        // shape with a clear diagnostic rather than emitting code that faults at runtime.
+        if (model.GetOperation(pattern) is IRelationalPatternOperation { InputType: { } inputType } &&
+            RelationalPatternInputMayFault(inputType))
+        {
+            throw CompilationException.UnsupportedSyntax(pattern,
+                $"Relational patterns ('<', '<=', '>', '>=') are only supported on non-nullable numeric value types. " +
+                $"The scrutinee type '{inputType.ToDisplayString()}' may be null or non-numeric at runtime. " +
+                $"Match the value as a numeric type first (for example 'value is int and > 5').");
+        }
+
         AccessSlot(OpCode.LDLOC, localIndex);
         ConvertExpression(model, pattern.Expression);
         AddInstruction(pattern.OperatorToken.ValueText switch
@@ -57,5 +73,20 @@ internal partial class MethodConvert
             ">=" => OpCode.GE,
             _ => throw CompilationException.UnsupportedSyntax(pattern, $"Relational operator '{pattern.OperatorToken.ValueText}' is not supported in patterns. Only <, <=, >, and >= are allowed.")
         });
+    }
+
+    /// <summary>
+    /// Determines whether a relational pattern over the given scrutinee type could fault the
+    /// NeoVM comparison at runtime. Non-nullable value types (int, BigInteger, char, enum, ...)
+    /// are always a concrete value and are safe; reference types and <see cref="System.Nullable{T}"/>
+    /// may be null or a non-numeric value and are not.
+    /// </summary>
+    private static bool RelationalPatternInputMayFault(ITypeSymbol inputType)
+    {
+        if (!inputType.IsValueType)
+            return true;
+        if (inputType is INamedTypeSymbol { OriginalDefinition.SpecialType: SpecialType.System_Nullable_T })
+            return true;
+        return false;
     }
 }
