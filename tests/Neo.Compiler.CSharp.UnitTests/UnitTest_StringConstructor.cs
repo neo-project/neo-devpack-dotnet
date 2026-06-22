@@ -45,6 +45,27 @@ public class UnitTest_StringConstructor
         Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError), diagnostics);
     }
 
+    [TestMethod]
+    public void StringReplace_Compiles()
+    {
+        const string source = """
+            using Neo.SmartContract.Framework;
+            using System.ComponentModel;
+
+            public class Contract : SmartContract
+            {
+                [DisplayName("replace")]
+                public static string Replace(string value, string oldValue, string newValue)
+                    => value.Replace(oldValue, newValue);
+            }
+            """;
+
+        var context = TestHelper.CompileSingleContract(source);
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        Assert.IsFalse(context.Diagnostics.Any(d => d.Id == DiagnosticId.UnexpectedCompilerError));
+    }
+
     private static StringConstructorContract DeployContract()
     {
         const string source = """

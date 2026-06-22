@@ -32,7 +32,7 @@ namespace Neo.Compiler.CSharp.UnitTests
 
             Contract.OnRuntimeLog += method;
             Contract.TestSubstring();
-            AssertGasConsumed(3075900);
+            AssertGasConsumed(3567420);
             Contract.OnRuntimeLog -= method;
 
             Assert.AreEqual(2, log.Count);
@@ -322,10 +322,10 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_TestSubstringToEnd()
         {
             Assert.AreEqual("World", Contract.TestSubstringToEnd("Hello World", 6));
-            AssertGasConsumed(1109250);
+            AssertGasConsumed(1355010);
 
             Assert.AreEqual("", Contract.TestSubstringToEnd("Test", 4));
-            AssertGasConsumed(1109250);
+            AssertGasConsumed(1355010);
 
             // Test invalid start index
             Assert.ThrowsException<TestException>(() => Contract.TestSubstringToEnd("Test", 5));
