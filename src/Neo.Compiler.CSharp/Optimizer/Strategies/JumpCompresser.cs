@@ -401,7 +401,11 @@ namespace Neo.Optimizer
                     if (unconditionalJump.Contains(i.OpCode) || conditionalJump_L.Contains(i.OpCode))
                     {
                         Instruction target = jumpSourceToTargets[i];
-                        if (unconditionalJump.Contains(target.OpCode) || unconditionalJump.Contains(target.OpCode))
+                        // Thread the jump only when its target is itself an unconditional jump.
+                        // (The second operand was a copy-paste of the same condition. Folding a
+                        // jump into a conditional target is intentionally not done; see the FoldJump
+                        // remarks.)
+                        if (unconditionalJump.Contains(target.OpCode))
                         {
                             modified = true;
                             Instruction finalTarget = jumpSourceToTargets[target];
