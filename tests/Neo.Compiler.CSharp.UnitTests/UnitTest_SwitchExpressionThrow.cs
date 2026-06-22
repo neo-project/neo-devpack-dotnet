@@ -49,7 +49,7 @@ public class Contract : SmartContract
 
         // An unmatched value throws a meaningful message rather than the governing value.
         var ex = Assert.ThrowsException<TestException>(() => contract.Classify(5));
-        StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "did not match");
+        StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "No switch arm matched");
     }
 
     public abstract class SwitchExpressionThrowContract(SmartContractInitialize initialize)
