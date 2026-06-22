@@ -56,7 +56,7 @@ Complete checklist and procedures for mainnet deployment:
 - Governance and compliance
 - Emergency response procedures
 
-### 4. [Security Implementation Guide](SECURITY-IMPLEMENTATION-GUIDE.md)
+### 4. [Security Implementation Guide](security-guide.md)
 Practical security patterns and implementations:
 - Input validation frameworks
 - Access control patterns
@@ -73,7 +73,7 @@ Comprehensive debugging techniques and tools:
 - Debugging tools (Neo Express, Neo CLI)
 - Troubleshooting checklist
 
-### 6. [Performance Optimization Guide](PERFORMANCE-OPTIMIZATION-GUIDE.md) 🆕
+### 6. [Performance Optimization Guide](performance-guide.md) 🆕
 Advanced techniques for optimizing smart contract performance:
 - Gas optimization strategies
 - Storage optimization patterns
@@ -81,14 +81,11 @@ Advanced techniques for optimizing smart contract performance:
 - Batch operations
 - Performance testing and benchmarks
 
-### 7. [Quality Assurance Report](QUALITY-ASSURANCE-REPORT.md)
-Comprehensive quality assessment and validation results for all documentation.
-
 ## 🚀 Quick Start
 
 If you're new to NEO development:
 1. Start with the [Getting Started Guide](GETTING-STARTED-GUIDE.md)
-2. Review the [Security Implementation Guide](SECURITY-IMPLEMENTATION-GUIDE.md)
+2. Review the [Security Implementation Guide](security-guide.md)
 3. Use the [Debugging Guide](DEBUGGING-GUIDE.md) when you encounter issues
 4. Follow the [Production Deployment Guide](PRODUCTION-DEPLOYMENT-GUIDE.md) before mainnet deployment
 
@@ -122,8 +119,8 @@ All guides meet enterprise-grade standards for:
 | Need | Guide | Difficulty |
 |------|-------|------------|
 | Setup environment | [Getting Started](GETTING-STARTED-GUIDE.md) | 🟢 Beginner |
-| Write secure code | [Security](SECURITY-IMPLEMENTATION-GUIDE.md) | 🟡 Intermediate |
-| Optimize performance | [Performance](PERFORMANCE-OPTIMIZATION-GUIDE.md) | 🔴 Advanced |
+| Write secure code | [Security](security-guide.md) | 🟡 Intermediate |
+| Optimize performance | [Performance](performance-guide.md) | 🔴 Advanced |
 | Fix issues | [Debugging](DEBUGGING-GUIDE.md) | 🟡 Intermediate |
 | Deploy to production | [Production](PRODUCTION-DEPLOYMENT-GUIDE.md) | 🔴 Advanced |
 | Contribute code | [Contributing](CONTRIBUTING-GUIDE.md) | 🟡 Intermediate |
