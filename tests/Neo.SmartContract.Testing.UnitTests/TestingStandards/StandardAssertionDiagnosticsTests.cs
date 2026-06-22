@@ -107,9 +107,40 @@ public class StandardAssertionDiagnosticsTests
         StringAssert.Contains(exception.Message, account.ToString());
     }
 
+    [TestMethod]
+    public void AssertGasConsumedInRangeUsesExactMessageForExactExpectation()
+    {
+        var test = CreateGasAssertionTest(100);
+
+        test.AssertGasRange(100, 100);
+
+        var exception = Assert.ThrowsExactly<AssertFailedException>(() => test.AssertGasRange(99, 99));
+
+        StringAssert.Contains(exception.Message, "Expected consumed gas to be 99 datoshi, but was 100.");
+    }
+
+    [TestMethod]
+    public void AssertGasConsumedInRangeUsesRangeMessageForRangeExpectation()
+    {
+        var test = CreateGasAssertionTest(100);
+
+        var exception = Assert.ThrowsExactly<AssertFailedException>(() => test.AssertGasRange(80, 90));
+
+        StringAssert.Contains(exception.Message, "Expected consumed gas to be between 80 and 90 datoshi, but was 100.");
+    }
+
     private static T CreateUninitialized<T>() where T : class
     {
         return (T)RuntimeHelpers.GetUninitializedObject(typeof(T));
+    }
+
+    private static GasAssertionTest CreateGasAssertionTest(long feeConsumed)
+    {
+        var test = CreateUninitialized<GasAssertionTest>();
+        var engine = new TestEngine(true);
+        engine.FeeConsumed.Value = feeConsumed;
+        SetPrivateField(typeof(TestBase<DiagnosticContract>), test, "<Engine>k__BackingField", engine);
+        return test;
     }
 
     private static void SetPrivateField<T>(Type declaringType, T instance, string fieldName, object value)
@@ -152,5 +183,13 @@ public class StandardAssertionDiagnosticsTests
 #pragma warning restore CS0067
 
         public abstract UInt160? Owner { get; set; }
+    }
+
+    private class GasAssertionTest : TestBase<DiagnosticContract>
+    {
+        public void AssertGasRange(long minimumGasConsumed, long maximumGasConsumed)
+        {
+            AssertGasConsumedInRangeCore(minimumGasConsumed, maximumGasConsumed);
+        }
     }
 }
