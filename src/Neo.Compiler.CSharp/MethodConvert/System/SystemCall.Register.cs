@@ -440,6 +440,10 @@ internal partial class MethodConvert
         RegisterHandler((string s, int index) => s[index], HandleStringPickItem);
         RegisterHandler((string s, int startIndex) => s.Substring(startIndex), HandleStringSubStringToEnd);
         RegisterHandler((string? s1, string? s2) => string.Concat(s1, s2), HandleStringConcat);
+        RegisterHandler((string s, int totalWidth) => s.PadLeft(totalWidth), HandleStringPadLeft);
+        RegisterHandler((string s, int totalWidth, char paddingChar) => s.PadLeft(totalWidth, paddingChar), HandleStringPadLeft);
+        RegisterHandler((string s, int totalWidth) => s.PadRight(totalWidth), HandleStringPadRight);
+        RegisterHandler((string s, int totalWidth, char paddingChar) => s.PadRight(totalWidth, paddingChar), HandleStringPadRight);
         RegisterHandler((string s, char c) => s.IndexOf(c), HandleStringIndexOfChar);
         RegisterHandler((string s) => s.ToLower(), HandleStringToLower);
         RegisterHandler((string s) => s.ToUpper(), HandleStringToUpper);
