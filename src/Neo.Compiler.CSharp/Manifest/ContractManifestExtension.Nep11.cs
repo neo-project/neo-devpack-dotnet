@@ -279,21 +279,27 @@ internal static partial class ContractManifestExtensions
             errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
             $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's parameters length is not 4"));
 
-        if (transferEvent is not null && transferEvent.Parameters[0].Type != ContractParameterType.Hash160)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's first parameters type is not a Hash160"));
+        // Only inspect individual parameters when the expected count is present; the
+        // event is matched by name only, so a malformed event would otherwise index
+        // out of range and crash the compiler.
+        if (transferEvent is { Parameters.Length: 4 })
+        {
+            if (transferEvent.Parameters[0].Type != ContractParameterType.Hash160)
+                errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's first parameters type is not a Hash160"));
 
-        if (transferEvent is not null && transferEvent.Parameters[1].Type != ContractParameterType.Hash160)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's second parameters type is not a Hash160"));
+            if (transferEvent.Parameters[1].Type != ContractParameterType.Hash160)
+                errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's second parameters type is not a Hash160"));
 
-        if (transferEvent is not null && transferEvent.Parameters[2].Type != ContractParameterType.Integer)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's third parameters type is not an Integer"));
+            if (transferEvent.Parameters[2].Type != ContractParameterType.Integer)
+                errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's third parameters type is not an Integer"));
 
-        if (transferEvent is not null && transferEvent.Parameters[3].Type != ContractParameterType.ByteArray)
-            errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-            $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's fourth parameters type is not a ByteArray"));
+            if (transferEvent.Parameters[3].Type != ContractParameterType.ByteArray)
+                errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                $"Incomplete or unsafe NEP standard {NepStandard.Nep11.ToStandard()} implementation: transfer, it's fourth parameters type is not a ByteArray"));
+        }
 
         return errors;
     }
