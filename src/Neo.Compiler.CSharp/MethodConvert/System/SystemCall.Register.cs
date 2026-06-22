@@ -642,6 +642,21 @@ internal partial class MethodConvert
             (mc, model, symbol, instanceExpression, arguments) => HandleNumericPopCount(uintDescriptor, mc, model, symbol, instanceExpression, arguments));
         RegisterHandler((ulong value) => BitOperations.PopCount(value),
             (mc, model, symbol, instanceExpression, arguments) => HandleNumericPopCount(ulongDescriptor, mc, model, symbol, instanceExpression, arguments));
+
+        RegisterHandler((uint value) => BitOperations.LeadingZeroCount(value),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericLeadingZeroCount(uintDescriptor, mc, model, symbol, instanceExpression, arguments));
+        RegisterHandler((ulong value) => BitOperations.LeadingZeroCount(value),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericLeadingZeroCount(ulongDescriptor, mc, model, symbol, instanceExpression, arguments));
+
+        RegisterHandler((uint value, int offset) => BitOperations.RotateLeft(value, offset),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericRotateLeft(uintDescriptor, mc, model, symbol, instanceExpression, arguments));
+        RegisterHandler((ulong value, int offset) => BitOperations.RotateLeft(value, offset),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericRotateLeft(ulongDescriptor, mc, model, symbol, instanceExpression, arguments));
+
+        RegisterHandler((uint value, int offset) => BitOperations.RotateRight(value, offset),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericRotateRight(uintDescriptor, mc, model, symbol, instanceExpression, arguments));
+        RegisterHandler((ulong value, int offset) => BitOperations.RotateRight(value, offset),
+            (mc, model, symbol, instanceExpression, arguments) => HandleNumericRotateRight(ulongDescriptor, mc, model, symbol, instanceExpression, arguments));
     }
 
     private static void RegisterEnumHandlers()
