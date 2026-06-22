@@ -30,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Property_Inc_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue + 2)), Contract.UnitTest_Property_Inc_UnChecked());
-            AssertGasConsumed(986310);
+            AssertGasConsumed(985980);
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Property_Dec_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue - 2)), Contract.UnitTest_Property_Dec_UnChecked());
-            AssertGasConsumed(986220);
+            AssertGasConsumed(985980);
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Local_Inc_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(uint.MaxValue + 2)), Contract.UnitTest_Local_Inc_UnChecked());
-            AssertGasConsumed(988230);
+            AssertGasConsumed(987900);
         }
 
         [TestMethod]
@@ -72,7 +72,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Local_Dec_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue - 2)), Contract.UnitTest_Local_Dec_UnChecked());
-            AssertGasConsumed(988140);
+            AssertGasConsumed(987900);
         }
 
         [TestMethod]
@@ -86,7 +86,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Param_Inc_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue + 2)), Contract.UnitTest_Param_Inc_UnChecked(0));
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
         }
 
         [TestMethod]
@@ -112,19 +112,19 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Param_Dec_UnChecked()
         {
             Assert.AreEqual(new BigInteger(unchecked(uint.MinValue - 2)), Contract.UnitTest_Param_Dec_UnChecked(0));
-            AssertGasConsumed(1049070);
+            AssertGasConsumed(1048830);
 
             Contract.UnitTest_Param_Dec_UnChecked(uint.MaxValue);
-            AssertGasConsumed(1048890);
+            AssertGasConsumed(1048830);
 
             Contract.UnitTest_Param_Dec_UnChecked(uint.MinValue);
-            AssertGasConsumed(1049070);
+            AssertGasConsumed(1048830);
 
             Contract.UnitTest_Param_Dec_UnChecked(-1);
-            AssertGasConsumed(1049070);
+            AssertGasConsumed(1048830);
 
             Contract.UnitTest_Param_Dec_UnChecked(1);
-            AssertGasConsumed(1049070);
+            AssertGasConsumed(1048830);
         }
 
         // Test Methods for int type
@@ -266,7 +266,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_Not_DeadLoop()
         {
             Contract.UnitTest_Not_DeadLoop(); // No error
-            AssertGasConsumed(993630);
+            AssertGasConsumed(993270);
         }
     }
 }
