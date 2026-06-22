@@ -37,7 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayAssignmentOverflow()
         {
             CollectionAssert.AreEqual(new byte[] { 0xff, 0x02, 0x03 }, Contract.TestAssignmentOverflow());
-            AssertGasConsumed(1478820);
+            AssertGasConsumed(1478520);
         }
 
         [TestMethod]
