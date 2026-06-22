@@ -343,21 +343,21 @@ internal partial class MethodConvert
         }
         else // Unsigned integer
         {
-            JumpTarget checkUpperBoundTarget = new(), adjustTarget = new JumpTarget();
-            Dup();
-            Push(minValue);
-            JumpIfGreaterOrEqual(checkUpperBoundTarget);
-            _ = _checkedStack.Peek() ? Throw() : Jump(adjustTarget);
-            checkUpperBoundTarget.Instruction = Dup();
-            Push(maxValue);
-            JumpIfLessOrEqual(endTarget);
             if (_checkedStack.Peek())
             {
+                var checkUpperBoundTarget = new JumpTarget();
+                Dup();
+                Push(minValue);
+                JumpIfGreaterOrEqual(checkUpperBoundTarget);
+                Throw();
+                checkUpperBoundTarget.Instruction = Dup();
+                Push(maxValue);
+                JumpIfLessOrEqual(endTarget);
                 Throw();
             }
             else
             {
-                adjustTarget.Instruction = Push(mask);
+                Push(mask);
                 And(); // Adjust
             }
         }
