@@ -142,6 +142,7 @@ internal partial class MethodConvert
         Jump(OpCode.JMP_L, conditionTarget);
 
         endTarget.Instruction = AccessSlot(OpCode.LDLOC, resultSlot);
+        ChangeType(StackItemType.ByteString);
 
         RemoveAnonymousVariable(resultSlot);
         RemoveAnonymousVariable(countSlot);
@@ -581,6 +582,7 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
         methodConvert.SubStr();
+        methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
     }
 
     private static void HandleStringSubStringToEnd(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -594,6 +596,7 @@ internal partial class MethodConvert
         methodConvert.Over();
         methodConvert.Sub();
         methodConvert.SubStr();
+        methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
     }
 
     private static void HandleStringIsNullOrEmpty(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
@@ -1663,11 +1666,12 @@ internal partial class MethodConvert
         replaceEnd.Instruction = methodConvert.Nop();              // Replace end marker
 
         // Continue the loop
-        methodConvert.JumpAlways(loopStart);                 // Continue loop
+        methodConvert.JumpAlways(loopStart);                      // Continue loop
 
         // End of the loop
         loopEnd.Instruction = methodConvert.Nop();                 // Loop end marker
         methodConvert.Drop();                                      // Clean up stack
+        methodConvert.ChangeType(StackItemType.ByteString);        // Convert to ByteString
     }
 
     private static void HandleStringRemove(MethodConvert methodConvert, SemanticModel model, IMethodSymbol symbol, ExpressionSyntax? instanceExpression, IReadOnlyList<SyntaxNode>? arguments)
