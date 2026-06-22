@@ -686,11 +686,11 @@ public class ProxyContract : SmartContract
 ### Learn More
 
 1. **Token Standards**
-   - [NEP-17 Token Tutorial](../examples/04-token-standards/README.md#nep-17-fungible-token)
-   - [NEP-11 NFT Tutorial](../examples/04-token-standards/README.md#nep-11-non-fungible-token)
+   - [NEP-17 Token Tutorial](../examples/Example.SmartContract.NEP17/README.md)
+   - [NEP-11 NFT Tutorial](../examples/Example.SmartContract.NFT/README.md)
 
 2. **Advanced Topics**
-   - [Oracle Integration](../examples/03-advanced/README.md#oracle)
+   - [Oracle Integration](../examples/Example.SmartContract.Oracle/README.md)
    - [Security Best Practices](../docs/security/security-best-practices.md)
 
 3. **Tools and Resources**
