@@ -34,6 +34,18 @@ internal partial class MethodConvert
             IsType(type.GetPatternType());
             hasPredicate = true;
         }
+        else if (propertyClause.Subpatterns.Count > 0)
+        {
+            // A typeless property pattern such as `obj is { Prop: value }` must first
+            // null-check the scrutinee: in C# a null value never matches, and invoking the
+            // property getter on null would fault the VM. Seed a not-null predicate so the
+            // first subpattern short-circuits to false when the scrutinee is null. The `{ }`
+            // empty-pattern case is handled separately below.
+            AccessSlot(OpCode.LDLOC, localIndex);
+            AddInstruction(OpCode.ISNULL);
+            AddInstruction(OpCode.NOT);
+            hasPredicate = true;
+        }
 
         foreach (var subpattern in propertyClause.Subpatterns)
         {
