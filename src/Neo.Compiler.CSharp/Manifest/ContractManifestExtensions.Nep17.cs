@@ -140,17 +140,23 @@ internal static partial class ContractManifestExtensions
                 errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
                     $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event parameters length is not 3"));
 
-            if (transferEvent.Parameters[0].Type != ContractParameterType.Hash160)
-                errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event first parameter (from) type is not Hash160"));
+            // Only inspect individual parameters when the expected count is present; the
+            // event is matched by name only, so a malformed event would otherwise index
+            // out of range and crash the compiler.
+            if (transferEvent.Parameters.Length == 3)
+            {
+                if (transferEvent.Parameters[0].Type != ContractParameterType.Hash160)
+                    errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                        $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event first parameter (from) type is not Hash160"));
 
-            if (transferEvent.Parameters[1].Type != ContractParameterType.Hash160)
-                errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event second parameter (to) type is not Hash160"));
+                if (transferEvent.Parameters[1].Type != ContractParameterType.Hash160)
+                    errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                        $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event second parameter (to) type is not Hash160"));
 
-            if (transferEvent.Parameters[2].Type != ContractParameterType.Integer)
-                errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
-                    $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event third parameter (amount) type is not Integer"));
+                if (transferEvent.Parameters[2].Type != ContractParameterType.Integer)
+                    errors.Add(new CompilationException(DiagnosticId.IncorrectNEPStandard,
+                        $"Incomplete NEP standard {NepStandard.Nep17.ToStandard()} implementation: Transfer event third parameter (amount) type is not Integer"));
+            }
         }
 
         return errors;
