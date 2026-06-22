@@ -136,7 +136,14 @@ public class TestBase<T> where T : SmartContract, IContractInfo
         }
 
         long actualGasConsumed = Engine.FeeConsumed.Value;
-        if (actualGasConsumed < minimumGasConsumed || actualGasConsumed > maximumGasConsumed)
+        if (minimumGasConsumed == maximumGasConsumed)
+        {
+            if (actualGasConsumed != minimumGasConsumed)
+            {
+                Assert.Fail($"Expected consumed gas to be {minimumGasConsumed} datoshi, but was {Engine.FeeConsumed.Value}.");
+            }
+        }
+        else if (actualGasConsumed < minimumGasConsumed || actualGasConsumed > maximumGasConsumed)
         {
             Assert.Fail($"Expected consumed gas to be between {minimumGasConsumed} and {maximumGasConsumed} datoshi, but was {actualGasConsumed}.");
         }
