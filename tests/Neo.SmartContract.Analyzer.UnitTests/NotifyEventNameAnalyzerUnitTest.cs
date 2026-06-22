@@ -179,5 +179,34 @@ class Contract
                 .WithArguments("Tranfser");
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
+
+        [TestMethod]
+        public async Task Notify_WithCustomDisplayNameAttribute_ShouldReportDiagnostic()
+        {
+            var test = @"
+using Neo.SmartContract.Framework.Services;
+using CustomAttributes;
+
+namespace CustomAttributes
+{
+    public sealed class DisplayNameAttribute : System.Attribute
+    {
+        public DisplayNameAttribute(string displayName) { }
+    }
+}
+
+class Contract
+{
+    [DisplayName(""Transfer"")]
+    public static event System.Action<int> OnTransfer;
+
+    public void Main() => Runtime.Notify({|#0:""Transfer""|}, 1);
+}" + FrameworkStubs;
+
+            var expected = VerifyCS.Diagnostic(NotifyEventNameAnalyzer.DiagnosticId)
+                .WithLocation(0)
+                .WithArguments("Transfer");
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }

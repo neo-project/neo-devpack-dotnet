@@ -91,7 +91,7 @@ namespace Neo.SmartContract.Analyzer
                 foreach (var eventSymbol in current.GetMembers().OfType<IEventSymbol>())
                 {
                     var displayName = eventSymbol.GetAttributes()
-                        .FirstOrDefault(attr => attr.AttributeClass?.Name == "DisplayNameAttribute")
+                        .FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == "System.ComponentModel.DisplayNameAttribute")
                         ?.ConstructorArguments.FirstOrDefault().Value as string;
                     yield return displayName ?? eventSymbol.Name;
                 }
