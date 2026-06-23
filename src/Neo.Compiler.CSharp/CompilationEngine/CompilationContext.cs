@@ -178,6 +178,14 @@ namespace Neo.Compiler
                 BasicOptimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
             }
+            if (Success && _supportedStandards.Count > 0)
+            {
+                // A contract that advertises a NEP standard in its manifest must implement it
+                // correctly; otherwise the declaration is misleading to wallets and explorers.
+                // Surface any violation as a compilation error so the build fails.
+                foreach (CompilationException violation in CreateManifest().GetStandardsViolations())
+                    _diagnostics.Add(violation.Diagnostic);
+            }
         }
 
         public (NefFile nef, ContractManifest manifest, JObject debugInfo) CreateResults(string folder = "")
@@ -302,7 +310,7 @@ namespace Neo.Compiler
             };
 
             // Ensure that is serializable
-            return ContractManifest.Parse(json.ToString(false)).CheckStandards();
+            return ContractManifest.Parse(json.ToString(false));
         }
 
         private JObject CreateAbiMethod(AbiMethod method)

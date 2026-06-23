@@ -45,11 +45,12 @@ public class Nep11MintUniquenessTest
     private static (NefFile nef, ContractManifest manifest) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 using System.ComponentModel;
 
 public class Contract : Nep11Token<TestTokenState>
 {
-    public override string Symbol => ""TEST"";
+    public override string Symbol { [Safe] get => ""TEST""; }
 
     [DisplayName(""mint"")]
     public static void Mint(byte[] tokenId, UInt160 owner)

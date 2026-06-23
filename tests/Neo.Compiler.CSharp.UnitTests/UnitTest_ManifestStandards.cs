@@ -195,6 +195,67 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Nep26_OnNep11Payment_AcceptsByteArrayTokenId()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            // A NEP-11 token id is a ByteString (ByteArray), matching INEP26.OnNEP11Payment.
+            AddNep26OnPayment(json, tokenIdType: "ByteArray");
+
+            string output = CheckStandards(json);
+            Assert.IsFalse(output.Contains("onNEP11Payment"), $"Unexpected NEP-26 diagnostic: {output}");
+        }
+
+        [TestMethod]
+        public void Nep26_OnNep11Payment_RejectsNonByteArrayTokenId()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            AddNep26OnPayment(json, tokenIdType: "Integer");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "onNEP11Payment");
+        }
+
+        [TestMethod]
+        public void Nep24_DeclaredWithoutRoyaltyInfo_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-24");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "royaltyInfo");
+        }
+
+        [TestMethod]
+        public void Nep27_DeclaredWithoutOnNep17Payment_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-27");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "onNEP17Payment");
+        }
+
+        [TestMethod]
+        public void Nep29_DeclaredWithoutDeploy_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-29");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "_deploy");
+        }
+
+        [TestMethod]
+        public void Nep30_DeclaredWithoutVerify_ProducesExpectedDiagnostic()
+        {
+            JObject json = (JObject)JToken.Parse(Contract_NEP17.Manifest.ToJson().ToString(false))!;
+            AddSupportedStandard(json, "NEP-30");
+
+            string output = CheckStandards(json);
+            StringAssert.Contains(output, "verify");
+        }
+
+        [TestMethod]
         public void Nep11_MalformedTransferEvent_DoesNotCrashAndReportsLength()
         {
             JObject json = (JObject)JToken.Parse(Contract_NEP11.Manifest.ToJson().ToString(false))!;
@@ -263,23 +324,36 @@ namespace Neo.Compiler.CSharp.UnitTests
             StringAssert.Contains(output, "Transfer event third parameter (amount) type is not Integer");
         }
 
+        private static void AddNep26OnPayment(JObject json, string tokenIdType)
+        {
+            AddSupportedStandard(json, "NEP-26");
+
+            JArray methods = (JArray)json["abi"]!["methods"]!;
+            methods.Add(new JObject
+            {
+                ["name"] = "onNEP11Payment",
+                ["parameters"] = new JArray(
+                    new JObject { ["name"] = "from", ["type"] = "Hash160" },
+                    new JObject { ["name"] = "amount", ["type"] = "Integer" },
+                    new JObject { ["name"] = "tokenId", ["type"] = tokenIdType },
+                    new JObject { ["name"] = "data", ["type"] = "Any" }),
+                ["returntype"] = "Void",
+                ["offset"] = 0,
+                ["safe"] = false
+            });
+        }
+
+        private static void AddSupportedStandard(JObject json, string standard)
+        {
+            JArray standards = (JArray)json["supportedstandards"]!;
+            standards.Add((JString)standard);
+        }
+
         private static string CheckStandards(JObject json)
         {
             ContractManifest manifest = ContractManifest.FromJson(json);
-            var stdout = new StringWriter();
-            TextWriter originalOut = Console.Out;
-
-            try
-            {
-                Console.SetOut(stdout);
-                manifest.CheckStandards();
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-            }
-
-            return stdout.ToString();
+            return string.Join(Environment.NewLine,
+                manifest.GetStandardsViolations().Select(v => v.Diagnostic.ToString()));
         }
     }
 }
