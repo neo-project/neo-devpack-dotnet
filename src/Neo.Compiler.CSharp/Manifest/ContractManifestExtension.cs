@@ -53,11 +53,13 @@ namespace Neo.Compiler
             CheckNep11PayableCompliant(this ContractManifest manifest)
         {
             var onNEP11PaymentMethod = manifest.Abi.GetMethod("onNEP11Payment", 4);
+            // The tokenId is a NEP-11 token id (ByteString), which maps to the ByteArray
+            // contract parameter type. See INEP26.OnNEP11Payment.
             var onNEP11PaymentValid = onNEP11PaymentMethod is { ReturnType: ContractParameterType.Void } &&
                                         onNEP11PaymentMethod.Parameters.Length == 4 &&
                                         onNEP11PaymentMethod.Parameters[0].Type == ContractParameterType.Hash160 &&
                                         onNEP11PaymentMethod.Parameters[1].Type == ContractParameterType.Integer &&
-                                        onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.String &&
+                                        onNEP11PaymentMethod.Parameters[2].Type == ContractParameterType.ByteArray &&
                                         onNEP11PaymentMethod.Parameters[3].Type == ContractParameterType.Any;
 
             System.Collections.Generic.List<CompilationException> errors = [];
@@ -82,41 +84,38 @@ namespace Neo.Compiler
             return errors;
         }
 
-        internal static ContractManifest CheckStandards(this ContractManifest manifest)
+        /// <summary>
+        /// Collects every NEP standard compliance violation for the standards the
+        /// manifest declares in <c>supportedstandards</c>. A non-empty result means the
+        /// contract advertises a standard it does not correctly implement and must fail
+        /// compilation, otherwise wallets, explorers and exchanges would trust an
+        /// inaccurate declaration.
+        /// </summary>
+        internal static System.Collections.Generic.List<CompilationException> GetStandardsViolations(this ContractManifest manifest)
         {
-            System.Collections.Generic.IEnumerable<CompilationException> errors = [];
+            System.Collections.Generic.List<CompilationException> errors = [];
             if (manifest.SupportedStandards.Contains(NepStandard.Nep11.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep11Compliant());
+                errors.AddRange(manifest.CheckNep11Compliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep17.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep17Compliant());
+                errors.AddRange(manifest.CheckNep17Compliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep24.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep24Compliant());
+                errors.AddRange(manifest.CheckNep24Compliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep26.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep11PayableCompliant());
+                errors.AddRange(manifest.CheckNep11PayableCompliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep27.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep17PayableCompliant());
+                errors.AddRange(manifest.CheckNep17PayableCompliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep29.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep29Compliant());
+                errors.AddRange(manifest.CheckNep29Compliant());
 
             if (manifest.SupportedStandards.Contains(NepStandard.Nep30.ToStandard()))
-                errors = errors.Concat(manifest.CheckNep30Compliant());
+                errors.AddRange(manifest.CheckNep30Compliant());
 
-            foreach (CompilationException ex in errors)
-                Console.WriteLine(ex.Diagnostic);
-            if (errors.Count() > 0)
-            {
-                Console.WriteLine("Examples:\n" +
-                    "        public override string Symbol\n        {\n            [Safe]  // Do not drop `[Safe]`!\n            get => \"GAS\";\n        }\n        public override byte Decimals\n        {\n            [Safe]  // Do not drop `[Safe]`!\n            get => 8;\n        }");
-                Console.WriteLine("Do not write `[Safe]` for `Transfer` method! `[Safe]` forbids writing to storage and emitting events.");
-                Console.WriteLine();
-            }
-
-            return manifest;
+            return errors;
         }
     }
 }
