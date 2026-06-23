@@ -205,7 +205,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void NullCoalescingAssignment()
         {
             Contract.NullCoalescingAssignment(null);
-            AssertGasConsumed(2867790);
+            AssertGasConsumed(2867550);
         }
 
         [TestMethod]

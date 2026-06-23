@@ -43,12 +43,14 @@ internal partial class MethodConvert
     /// </code>
     /// </example>
     /// <seealso cref="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator"/>
-    private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
+    private void ConvertAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression, bool leaveResultOnStack = true)
     {
         switch (expression.OperatorToken.ValueText)
         {
             case "=":
-                ConvertSimpleAssignmentExpression(model, expression);
+                // Only the simple assignment can currently suppress its result; the compound
+                // (`+=`) and coalesce (`??=`) forms always leave their result on the stack.
+                ConvertSimpleAssignmentExpression(model, expression, leaveResultOnStack);
                 break;
             case "??=":
                 ConvertCoalesceAssignmentExpression(model, expression);

@@ -18,7 +18,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwUExIRFL9AVwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUU00EVpSmgTUdBFaEBi7byw").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADYUExIRFL9AVwIACxAQCwsVv3AQCxK/aBRR0BBxNOTBRWgSUdBoFM4RUdBFcTTURWloE1HQaEBULDvA").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -44,7 +44,7 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwIACxAQCwsVv3AQCxK/SmgUUdBFEHE04krBRWgSUdBoFM4RUdBFcUU00EVpSmgTUdBFaEA=
+    /// Script: VwIACxAQCwsVv3AQCxK/aBRR0BBxNOTBRWgSUdBoFM4RUdBFcTTURWloE1HQaEA=
     /// INITSLOT 0200 [64 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSH0 [1 datoshi]
@@ -58,16 +58,13 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// PUSHNULL [1 datoshi]
     /// PUSH2 [1 datoshi]
     /// PACKSTRUCT [2048 datoshi]
-    /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH4 [1 datoshi]
     /// ROT [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// DROP [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// STLOC1 [2 datoshi]
-    /// CALL E2 [512 datoshi]
-    /// DUP [2 datoshi]
+    /// CALL E4 [512 datoshi]
     /// UNPACK [2048 datoshi]
     /// DROP [2 datoshi]
     /// LDLOC0 [2 datoshi]
@@ -82,16 +79,13 @@ public abstract class Contract_Tuple(Neo.SmartContract.Testing.SmartContractInit
     /// SETITEM [8192 datoshi]
     /// DROP [2 datoshi]
     /// STLOC1 [2 datoshi]
-    /// DROP [2 datoshi]
-    /// CALL D0 [512 datoshi]
+    /// CALL D4 [512 datoshi]
     /// DROP [2 datoshi]
     /// LDLOC1 [2 datoshi]
-    /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH3 [1 datoshi]
     /// ROT [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// DROP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// RET [0 datoshi]
     /// </remarks>
