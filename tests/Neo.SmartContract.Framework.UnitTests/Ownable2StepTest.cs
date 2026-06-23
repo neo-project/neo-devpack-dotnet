@@ -49,6 +49,17 @@ public class Ownable2StepTest
     }
 
     [TestMethod]
+    public void Deploy_WithExplicitOwner_InitializesOwnerFromData()
+    {
+        var engine = CreateEngine();
+        var contract = engine.Deploy<OwnableTwoStepProxy>(_compiled.nef, _compiled.manifest, Bob.Account);
+
+        Assert.AreEqual(Bob.Account, contract.GetOwner());
+        Assert.IsNull(contract.GetPendingOwner());
+        Merge(contract);
+    }
+
+    [TestMethod]
     public void HappyPath_TwoStepTransfer()
     {
         var engine = CreateEngine();
@@ -229,6 +240,24 @@ public class Ownable2StepTest
     }
 
     [TestMethod]
+    public void InitializeOwner_UpdateIsNoOp_AndInvalidOwnerAborts()
+    {
+        var engine = CreateEngine();
+        var contract = Deploy(engine, out _, out _);
+
+        contract.TransferOwnership(Bob.Account);
+        contract.InitializeForTest(Charlie.Account, true);
+
+        Assert.AreEqual(Alice.Account, contract.GetOwner());
+        Assert.AreEqual(Bob.Account, contract.GetPendingOwner());
+
+        Assert.ThrowsException<TestException>(() => contract.InitializeForTest(UInt160.Zero, false));
+        Assert.AreEqual(Alice.Account, contract.GetOwner());
+        Assert.AreEqual(Bob.Account, contract.GetPendingOwner());
+        Merge(contract);
+    }
+
+    [TestMethod]
     public void RePropose_SupersedesPending()
     {
         var engine = CreateEngine();
@@ -331,6 +360,11 @@ public class Contract : Ownable2Step
     {
         InitializeOwner(data, update);
     }
+
+    public static void InitializeForTest(object data, bool update)
+    {
+        InitializeOwner(data, update);
+    }
 }";
 
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
@@ -383,6 +417,9 @@ public class Contract : Ownable2Step
 
         [DisplayName("getPendingOwner")]
         public abstract UInt160? GetPendingOwner();
+
+        [DisplayName("initializeForTest")]
+        public abstract void InitializeForTest(object data, bool update);
 
         [DisplayName("transferOwnership")]
         public abstract void TransferOwnership(UInt160 newOwner);
