@@ -72,7 +72,9 @@ internal partial class MethodConvert
             Jump(OpCode.JMP_L, breakTarget);
             nextTarget.Instruction = AddInstruction(OpCode.NOP);
         }
-        AccessSlot(OpCode.LDLOC, anonymousIndex);
+        // No arm matched. C# throws a SwitchExpressionException here; throw a concise
+        // constant message instead of the governing value, so a caught exception is meaningful.
+        Push("No switch arm matched.");
         AddInstruction(OpCode.THROW);
         breakTarget.Instruction = AddInstruction(OpCode.NOP);
         RemoveAnonymousVariable(anonymousIndex);
