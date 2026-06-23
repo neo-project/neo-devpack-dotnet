@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <RootNamespace>Neo.SmartContract.Debugging.UnitTests</RootNamespace>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Debugging\Neo.SmartContract.Debugging.csproj" />
+    </ItemGroup>
+
+</Project>

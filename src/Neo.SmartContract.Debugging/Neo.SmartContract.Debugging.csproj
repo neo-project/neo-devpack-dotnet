@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Title>Neo.SmartContract.Debugging</Title>
+        <LangVersion>latest</LangVersion>
+        <AssemblyTitle>Neo.SmartContract.Debugging</AssemblyTitle>
+        <AssemblyName>Neo.SmartContract.Debugging</AssemblyName>
+        <RootNamespace>Neo.SmartContract.Debugging</RootNamespace>
+        <PackageId>Neo.SmartContract.Debugging</PackageId>
+        <PackageTags>NEO;Blockchain;Smart Contract;Debugging</PackageTags>
+        <Description>Source-level debugging support for NEO smart contracts.</Description>
+        <Nullable>enable</Nullable>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj" />
+    </ItemGroup>
+
+</Project>
