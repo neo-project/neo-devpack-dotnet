@@ -51,6 +51,20 @@ namespace Neo.SmartContract.Testing
         public delegate void OnRuntimeNotifyDelegate(UInt160 sender, string eventName, Neo.VM.Types.Array state);
         public event OnRuntimeNotifyDelegate? OnRuntimeNotify;
 
+        public delegate void OnPreExecuteInstructionDelegate(ApplicationEngine engine, Instruction instruction);
+
+        /// <summary>
+        /// Raised before each instruction is executed during <see cref="Execute"/>. A debugger can
+        /// observe execution through this hook; because the handler runs on the execution thread,
+        /// blocking inside it pauses the virtual machine until the handler returns.
+        /// </summary>
+        public event OnPreExecuteInstructionDelegate? OnPreExecuteInstruction;
+
+        internal bool HasPreExecuteInstructionObserver => OnPreExecuteInstruction is not null;
+
+        internal void RaisePreExecuteInstruction(ApplicationEngine engine, Instruction instruction)
+            => OnPreExecuteInstruction?.Invoke(engine, instruction);
+
         /// <summary>
         /// Default Protocol Settings
         /// </summary>
