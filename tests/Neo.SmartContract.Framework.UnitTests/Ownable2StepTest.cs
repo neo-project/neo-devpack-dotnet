@@ -121,6 +121,19 @@ public class Ownable2StepTest
     }
 
     [TestMethod]
+    public void AcceptOwnership_InvalidStoredPending_Aborts()
+    {
+        var engine = CreateEngine();
+        var contract = Deploy(engine, out _, out _);
+
+        contract.SetPendingOwnerForTest(UInt160.Zero);
+
+        Assert.AreEqual(UInt160.Zero, contract.GetPendingOwner());
+        Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Merge(contract);
+    }
+
+    [TestMethod]
     public void AcceptOwnership_ByWrongAccount_Aborts()
     {
         var engine = CreateEngine();
@@ -240,6 +253,19 @@ public class Ownable2StepTest
     }
 
     [TestMethod]
+    public void OwnerGatedMethods_WithNoStoredOwner_Throw()
+    {
+        var engine = CreateEngine();
+        var contract = Deploy(engine, out _, out _);
+
+        contract.ClearOwnerForTest();
+
+        Assert.IsNull(contract.GetOwner());
+        Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Bob.Account));
+        Merge(contract);
+    }
+
+    [TestMethod]
     public void InitializeOwner_UpdateIsNoOp_AndInvalidOwnerAborts()
     {
         var engine = CreateEngine();
@@ -353,6 +379,7 @@ public class Ownable2StepTest
     private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
 
 public class Contract : Ownable2Step
 {
@@ -364,6 +391,16 @@ public class Contract : Ownable2Step
     public static void InitializeForTest(object data, bool update)
     {
         InitializeOwner(data, update);
+    }
+
+    public static void SetPendingOwnerForTest(UInt160 pendingOwner)
+    {
+        Storage.Put(new byte[] { 0xFC }, pendingOwner);
+    }
+
+    public static void ClearOwnerForTest()
+    {
+        Storage.Delete(new byte[] { 0xFD });
     }
 }";
 
@@ -420,6 +457,12 @@ public class Contract : Ownable2Step
 
         [DisplayName("initializeForTest")]
         public abstract void InitializeForTest(object data, bool update);
+
+        [DisplayName("setPendingOwnerForTest")]
+        public abstract void SetPendingOwnerForTest(UInt160 pendingOwner);
+
+        [DisplayName("clearOwnerForTest")]
+        public abstract void ClearOwnerForTest();
 
         [DisplayName("transferOwnership")]
         public abstract void TransferOwnership(UInt160 newOwner);
