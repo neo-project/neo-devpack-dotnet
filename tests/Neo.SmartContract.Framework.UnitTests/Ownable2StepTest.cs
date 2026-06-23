@@ -15,6 +15,7 @@ using Neo.Compiler;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.ComponentModel;
@@ -31,7 +32,7 @@ public class Ownable2StepTest
     private static readonly Signer Bob = TestEngine.Bob;
     private static readonly Signer Charlie = TestEngine.Charlie;
 
-    private static (NefFile nef, ContractManifest manifest) _compiled;
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) _compiled;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext _) => _compiled = CompileContract();
@@ -44,6 +45,7 @@ public class Ownable2StepTest
 
         Assert.AreEqual(Alice.Account, contract.GetOwner());
         Assert.IsNull(contract.GetPendingOwner());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -62,6 +64,7 @@ public class Ownable2StepTest
         contract.AcceptOwnership();
         Assert.AreEqual(Bob.Account, contract.GetOwner());
         Assert.IsNull(contract.GetPendingOwner());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -72,6 +75,7 @@ public class Ownable2StepTest
 
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Bob.Account));
+        Merge(contract);
     }
 
     [TestMethod]
@@ -81,6 +85,7 @@ public class Ownable2StepTest
         var contract = Deploy(engine, out _, out _);
 
         Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Alice.Account));
+        Merge(contract);
     }
 
     [TestMethod]
@@ -90,6 +95,7 @@ public class Ownable2StepTest
         var contract = Deploy(engine, out _, out _);
 
         Assert.ThrowsException<TestException>(() => contract.TransferOwnership(UInt160.Zero));
+        Merge(contract);
     }
 
     [TestMethod]
@@ -100,6 +106,7 @@ public class Ownable2StepTest
 
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -119,6 +126,7 @@ public class Ownable2StepTest
 
         // Pending is still Bob; the offer survives the failed attempts.
         Assert.AreEqual(Bob.Account, contract.GetPendingOwner());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -132,6 +140,7 @@ public class Ownable2StepTest
         contract.AcceptOwnership();
 
         Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -149,6 +158,7 @@ public class Ownable2StepTest
         // Bob can no longer seize the abandoned contract.
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -166,6 +176,7 @@ public class Ownable2StepTest
         // The formerly-pending account can no longer accept.
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => contract.AcceptOwnership());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -175,6 +186,7 @@ public class Ownable2StepTest
         var contract = Deploy(engine, out _, out _);
 
         Assert.ThrowsException<TestException>(() => contract.CancelOwnershipTransfer());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -186,6 +198,7 @@ public class Ownable2StepTest
         contract.TransferOwnership(Bob.Account);
         engine.SetTransactionSigners(Charlie);
         Assert.ThrowsException<TestException>(() => contract.CancelOwnershipTransfer());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -201,6 +214,7 @@ public class Ownable2StepTest
         Assert.ThrowsException<TestException>(() => contract.TransferOwnership(Bob.Account));
         Assert.ThrowsException<TestException>(() => contract.CancelOwnershipTransfer());
         Assert.ThrowsException<TestException>(() => contract.RenounceOwnership());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -211,6 +225,7 @@ public class Ownable2StepTest
 
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => contract.RenounceOwnership());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -232,6 +247,7 @@ public class Ownable2StepTest
         engine.SetTransactionSigners(Charlie);
         contract.AcceptOwnership();
         Assert.AreEqual(Charlie.Account, contract.GetOwner());
+        Merge(contract);
     }
 
     [TestMethod]
@@ -272,12 +288,13 @@ public class Ownable2StepTest
         Assert.IsTrue(transferredRaised);
         Assert.AreEqual(Charlie.Account, transferredPrev);
         Assert.IsNull(transferredNew);
+        Merge(contract);
     }
 
     [TestMethod]
     public void Manifest_SafeFlags_GettersSafe_MutatorsUnsafe()
     {
-        var (_, manifest) = _compiled;
+        var (_, manifest, _) = _compiled;
         var abi = manifest.Abi.Methods;
 
         foreach (var safe in new[] { "getOwner", "getPendingOwner" })
@@ -289,9 +306,13 @@ public class Ownable2StepTest
 
     private static OwnableTwoStepProxy Deploy(TestEngine engine, out NefFile nef, out ContractManifest manifest)
     {
-        (nef, manifest) = _compiled;
+        nef = _compiled.nef;
+        manifest = _compiled.manifest;
         return engine.Deploy<OwnableTwoStepProxy>(nef, manifest, null);
     }
+
+    private static void Merge(OwnableTwoStepProxy contract)
+        => DynamicCoverageMergeHelper.Merge(contract, _compiled.debugInfo);
 
     private static TestEngine CreateEngine()
     {
@@ -300,7 +321,7 @@ public class Ownable2StepTest
         return engine;
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompileContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
 
@@ -331,8 +352,8 @@ public class Contract : Ownable2Step
             var context = contexts[0];
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-            var (nef, manifest, _) = context.CreateResults(repoRoot);
-            return (nef, manifest);
+            var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+            return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
         }
         finally
         {
