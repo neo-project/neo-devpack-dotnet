@@ -15,6 +15,7 @@ using Neo.Compiler;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.ComponentModel;
@@ -36,13 +37,16 @@ public class AccessControlTest
     private static readonly byte[] Minter = Enumerable.Repeat((byte)0x11, 32).ToArray();
     private static readonly byte[] MinterAdmin = Enumerable.Repeat((byte)0x22, 32).ToArray();
 
-    private static (NefFile nef, ContractManifest manifest) _compiled;
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) _compiled;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext _) => _compiled = CompileContract();
 
     private static AccessControlProxy Deploy(TestEngine engine, object? admin = null)
         => engine.Deploy<AccessControlProxy>(_compiled.nef, _compiled.manifest, admin);
+
+    private static void Merge(AccessControlProxy contract)
+        => DynamicCoverageMergeHelper.Merge(contract, _compiled.debugInfo);
 
     private static TestEngine CreateEngine()
     {
@@ -61,6 +65,7 @@ public class AccessControlTest
 
         Assert.IsTrue(c.HasRole(DefaultAdmin, Alice.Account));
         Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(DefaultAdmin));
+        Merge(c);
     }
 
     [TestMethod]
@@ -70,6 +75,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         CollectionAssert.AreEqual(new byte[32], c.DEFAULT_ADMIN_ROLE());
+        Merge(c);
     }
 
     [TestMethod]
@@ -82,6 +88,7 @@ public class AccessControlTest
         Assert.ThrowsException<TestException>(() => c.ReInit(Bob.Account));
         Assert.IsFalse(c.HasRole(DefaultAdmin, Bob.Account));
         Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(DefaultAdmin));
+        Merge(c);
     }
 
     [TestMethod]
@@ -102,6 +109,7 @@ public class AccessControlTest
         Assert.IsFalse(c.HasRole(Minter, Bob.Account));
         c.GrantRole(Minter, Alice.Account, Bob.Account);
         Assert.IsTrue(c.HasRole(Minter, Bob.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -112,6 +120,7 @@ public class AccessControlTest
 
         Assert.ThrowsException<TestException>(() => c.HasRole(new byte[31], Alice.Account));
         Assert.ThrowsException<TestException>(() => c.HasRole(new byte[33], Alice.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -121,6 +130,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         CollectionAssert.AreEqual(DefaultAdmin, c.GetRoleAdmin(Minter));
+        Merge(c);
     }
 
     // ---- Grant ----
@@ -142,6 +152,7 @@ public class AccessControlTest
         CollectionAssert.AreEqual(Minter, grantedRole);
         Assert.AreEqual(Bob.Account, grantedAccount);
         Assert.AreEqual(Alice.Account, grantedSender);
+        Merge(c);
     }
 
     [TestMethod]
@@ -153,6 +164,7 @@ public class AccessControlTest
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Bob.Account, Charlie.Account));
         Assert.IsFalse(c.HasRole(Minter, Charlie.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -166,6 +178,7 @@ public class AccessControlTest
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, Charlie.Account));
         Assert.IsFalse(c.HasRole(Minter, Charlie.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -181,6 +194,7 @@ public class AccessControlTest
 
         Assert.AreEqual(0, events);
         Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(Minter));
+        Merge(c);
     }
 
     [TestMethod]
@@ -190,6 +204,7 @@ public class AccessControlTest
         var c = Deploy(engine);
 
         Assert.ThrowsException<TestException>(() => c.GrantRole(Minter, Alice.Account, UInt160.Zero));
+        Merge(c);
     }
 
     // ---- Revoke / renounce ----
@@ -204,6 +219,7 @@ public class AccessControlTest
         c.RevokeRole(Minter, Alice.Account, Bob.Account);
         Assert.IsFalse(c.HasRole(Minter, Bob.Account));
         Assert.AreEqual(BigInteger.Zero, c.GetRoleMemberCount(Minter));
+        Merge(c);
     }
 
     [TestMethod]
@@ -216,6 +232,7 @@ public class AccessControlTest
         c.OnRoleRevoked += (_, _, _) => events++;
         c.RevokeRole(Minter, Alice.Account, Bob.Account); // never granted
         Assert.AreEqual(0, events);
+        Merge(c);
     }
 
     [TestMethod]
@@ -228,6 +245,7 @@ public class AccessControlTest
         engine.SetTransactionSigners(Bob);
         c.RenounceRole(Minter, Bob.Account);
         Assert.IsFalse(c.HasRole(Minter, Bob.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -241,6 +259,7 @@ public class AccessControlTest
         engine.SetTransactionSigners(Charlie);
         Assert.ThrowsException<TestException>(() => c.RenounceRole(Minter, Bob.Account));
         Assert.IsTrue(c.HasRole(Minter, Bob.Account));
+        Merge(c);
     }
 
     // ---- Last-admin guard ----
@@ -253,6 +272,7 @@ public class AccessControlTest
 
         Assert.ThrowsException<TestException>(() => c.RevokeRole(DefaultAdmin, Alice.Account, Alice.Account));
         Assert.IsTrue(c.HasRole(DefaultAdmin, Alice.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -263,6 +283,7 @@ public class AccessControlTest
 
         Assert.ThrowsException<TestException>(() => c.RenounceRole(DefaultAdmin, Alice.Account));
         Assert.IsTrue(c.HasRole(DefaultAdmin, Alice.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -283,6 +304,7 @@ public class AccessControlTest
         engine.SetTransactionSigners(Bob);
         c.GrantRole(Minter, Bob.Account, Charlie.Account);
         Assert.IsTrue(c.HasRole(Minter, Charlie.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -295,6 +317,7 @@ public class AccessControlTest
         // The sole minter can be revoked freely.
         c.RevokeRole(Minter, Alice.Account, Bob.Account);
         Assert.IsFalse(c.HasRole(Minter, Bob.Account));
+        Merge(c);
     }
 
     // ---- Admin hierarchy ----
@@ -323,6 +346,7 @@ public class AccessControlTest
         engine.SetTransactionSigners(Bob);
         c.GrantRole(Minter, Bob.Account, Charlie.Account);
         Assert.IsTrue(c.HasRole(Minter, Charlie.Account));
+        Merge(c);
     }
 
     [TestMethod]
@@ -333,6 +357,7 @@ public class AccessControlTest
 
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => c.SetRoleAdmin(Minter, MinterAdmin, Bob.Account));
+        Merge(c);
     }
 
     // ---- OnlyRole guard ----
@@ -351,6 +376,7 @@ public class AccessControlTest
         // Non-holder fails.
         engine.SetTransactionSigners(Charlie);
         Assert.ThrowsException<TestException>(() => c.GuardedAction(Minter, Charlie.Account));
+        Merge(c);
     }
 
     // ---- Manifest / ABI surface ----
@@ -373,7 +399,7 @@ public class AccessControlTest
             Assert.IsFalse(names.Contains(hidden), $"{hidden} must not be exported to the ABI");
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompileContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
 
@@ -421,8 +447,8 @@ public class Contract : AccessControl
             var context = contexts[0];
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-            var (nef, manifest, _) = context.CreateResults(repoRoot);
-            return (nef, manifest);
+            var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+            return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
         }
         finally
         {
