@@ -63,7 +63,7 @@ namespace Neo.SmartContract.Testing
         internal bool HasPreExecuteInstructionObserver => OnPreExecuteInstruction is not null;
 
         internal void RaisePreExecuteInstruction(ApplicationEngine engine, Instruction instruction)
-            => OnPreExecuteInstruction!.Invoke(engine, instruction);
+            => OnPreExecuteInstruction?.Invoke(engine, instruction);
 
         /// <summary>
         /// Default Protocol Settings

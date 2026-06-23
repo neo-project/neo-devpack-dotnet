@@ -143,6 +143,7 @@ namespace Neo.SmartContract.Debugging
             _disposed = true;
             if (_attached)
                 _engine.OnPreExecuteInstruction -= OnPreExecuteInstruction;
+            _resume.Set();
             _resume.Dispose();
         }
     }
