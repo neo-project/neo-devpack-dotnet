@@ -623,6 +623,9 @@ internal partial class MethodConvert
 
     private void EmitCall(MethodConvert target)
     {
+        // Record the static call edge so post-codegen analyses (such as [Safe]-flag
+        // verification) can follow the intra-contract call graph.
+        _callees.Add(target);
         if (target._inline && !_context.Options.NoInline)
             EmitInlineInstructions(target);
         else
