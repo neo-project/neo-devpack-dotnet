@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <RootNamespace>Neo.SmartContract.Debugging.Host.UnitTests</RootNamespace>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Neo.SmartContract.Debugging.Host\Neo.SmartContract.Debugging.Host.csproj" />
+        <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
+    </ItemGroup>
+
+</Project>

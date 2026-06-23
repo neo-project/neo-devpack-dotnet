@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <Title>Neo.SmartContract.Debugging.Host</Title>
+        <LangVersion>latest</LangVersion>
+        <AssemblyName>neodbg</AssemblyName>
+        <RootNamespace>Neo.SmartContract.Debugging.Host</RootNamespace>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.VisualStudio.Shared.VSCodeDebugProtocol" Version="17.14.10225.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Neo.SmartContract.Debugging\Neo.SmartContract.Debugging.csproj" />
+    </ItemGroup>
+
+</Project>
