@@ -34,7 +34,7 @@ using ECPoint = Neo.Cryptography.ECC.ECPoint;
 
 namespace Neo.Compiler
 {
-    public class CompilationContext
+    public partial class CompilationContext
     {
         private readonly CompilationEngine _engine;
         private readonly INamedTypeSymbol _targetContract;
@@ -177,6 +177,14 @@ namespace Neo.Compiler
                 // disabled, we still prefer short-form jumps when the target is within range.
                 BasicOptimizer.CompressJumps(instructions);
                 instructions.RebuildOperands();
+            }
+            if (Success)
+            {
+                // A method advertised as [Safe] promises wallets and dApps it is read-only and can
+                // be invoked without a signature prompt. Verify that promise: fail the build when a
+                // Safe method mutates contract state, so the manifest cannot ship a false guarantee.
+                foreach (CompilationException violation in GetSafeMethodViolations())
+                    _diagnostics.Add(violation.Diagnostic);
             }
             if (Success && _supportedStandards.Count > 0)
             {
