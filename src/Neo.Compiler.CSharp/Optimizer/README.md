@@ -4,7 +4,10 @@ The Neo Compiler includes a powerful bytecode optimizer that reduces contract si
 
 ## Overview
 
-The optimizer runs after initial compilation and applies various strategies to improve the generated NeoVM bytecode. Each strategy can be enabled/disabled independently.
+Optimization happens in two layers:
+
+1. **In-codegen cleanup** — applied while bytecode is generated, regardless of the optimization level (except `None`): NOP removal, short-form jump encoding (preferring 1-byte `JMP` over `JMP_L` when the target is in range), and pruning of unused local slots.
+2. **Post-codegen strategy passes** — the strategies described below. These run **only** at the `Experimental` and `All` levels; the default `Basic` level does *not* run them.
 
 ## Optimization Types
 
@@ -25,10 +28,10 @@ public enum OptimizationType : byte
 
 | Option | Value | Description |
 |--------|-------|-------------|
-| `None` | 0 | No optimization. Outputs raw compiled bytecode without any optimization passes. |
-| `Basic` | 1 | Safe, well-tested optimizations. Recommended for production use. Includes peephole optimization, jump compression, and dead code elimination. |
-| `Experimental` | 2 | Advanced optimizations that may be more aggressive. Use with caution and thorough testing. |
-| `All` | 3 | Enables all available optimizations (Basic + Experimental). Maximum optimization level. |
+| `None` | 0 | No optimization at all, including the in-codegen cleanup. Outputs raw compiled bytecode. |
+| `Basic` | 1 | **Default.** In-codegen cleanup only (NOP removal and short-form jump encoding). The post-codegen strategy passes below are not run. |
+| `Experimental` | 2 | Runs the post-codegen strategy passes (peephole, reachability/dead-code, jump folding & compression) in addition to the in-codegen cleanup. |
+| `All` | 3 | `Basic \| Experimental` — the full set of optimizations. Currently equivalent to `Experimental` plus the in-codegen cleanup. |
 
 ### Usage Examples
 
@@ -60,21 +63,19 @@ nccs MyContract.csproj --optimize all          # All optimizations
 
 ## Optimization Strategies
 
+> These strategy passes run only at the `Experimental` and `All` levels (see the table above).
+
 ### 1. Peephole Optimization (`Peephole.cs`)
 
 **Purpose**: Pattern-based local optimizations that replace inefficient instruction sequences with more efficient equivalents.
 
 **Key Optimizations**:
-- **Dead code elimination**: Removes unreachable instructions
-- **Redundant operation removal**: Eliminates unnecessary DUP/DROP pairs
-- **Constant folding**: Pre-computes constant expressions at compile time
-- **Instruction simplification**: Replaces complex sequences with simpler equivalents
+- **Redundant DUP/DROP removal** (`RemoveDupDrop`): eliminates a `DUP` whose value is immediately dropped or overwritten
+- **Increment/decrement folding** (`UseIncDec`): rewrites `PUSH1 ADD` / `PUSH1 SUB` to `INC` / `DEC`
+- **Non-zero simplification** (`UseNz`): collapses compare-against-zero sequences
+- **Boolean-negation folding** (`FoldNotInEqual`, `FoldNotInJmp`): folds a `NOT` into the following `EQUAL`/`NOTEQUAL` or conditional jump
 
-**Example**:
-```
-Before: PUSH1 PUSH2 ADD
-After:  PUSH3
-```
+There is currently no arithmetic constant folding (e.g. `PUSH1 PUSH2 ADD` is **not** folded to `PUSH3`).
 
 ### 2. Jump Compression (`JumpCompresser.cs`)
 
@@ -101,23 +102,25 @@ After:  PUSH3
 **Purpose**: Various small optimizations that don't fit other categories.
 
 **Key Optimizations**:
-- NOP removal
-- Redundant type conversion elimination
-- Stack operation simplification
+- **Method-token rewriting** (`RemoveMethodToken`): drops unused method tokens and renumbers `CALLT` operands accordingly
+
+(NOP removal is part of the in-codegen cleanup, not a strategy pass.)
 
 ## Usage
 
-Optimization is enabled by default. Control it via compiler options:
+The in-codegen cleanup runs by default (level `Basic`). The post-codegen strategy
+passes require the `Experimental` or `All` level. Control it via compiler options:
 
 ```bash
-# Full optimization (default)
+# Default: Basic — in-codegen cleanup only
 nccs MyContract.csproj
 
-# Disable optimization
-nccs MyContract.csproj --no-optimize
+# Disable all optimization (including the in-codegen cleanup)
+nccs MyContract.csproj --optimize none
 
-# Specific optimization level
-nccs MyContract.csproj --optimize basic
+# Run the post-codegen strategy passes
+nccs MyContract.csproj --optimize experimental
+nccs MyContract.csproj --optimize all
 ```
 
 ## Architecture
