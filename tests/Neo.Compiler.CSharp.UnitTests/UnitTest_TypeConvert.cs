@@ -22,7 +22,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void UnitTest_TestTypeConvert()
         {
             var arr = (Array)Contract.TestType()!;
-            AssertGasConsumed(4207710);
+            AssertGasConsumed(4206750);
 
             //test 0,1,2
             Assert.IsTrue(arr[0].Type == StackItemType.Integer);

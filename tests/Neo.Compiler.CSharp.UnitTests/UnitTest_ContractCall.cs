@@ -22,14 +22,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             Engine.SetTransactionSigners(TestEngine.CreateSigner(UInt160.Parse("0102030405060708090A0102030405060708090A")));
             var c1 = Engine.Deploy<Contract1>(Contract1.Nef, Contract1.Manifest);
-            Assert.AreEqual("0x2974411427334d352644aca594ce562ccd17cb20", c1.Hash.ToString());
+            Assert.AreEqual("0xe7a98ee2c70b3024d5091d72c0a52bb71df4e322", c1.Hash.ToString());
         }
 
         [TestMethod]
         public void Test_ContractCall()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.TestContractCall());
-            AssertGasConsumed(2461230);
+            AssertGasConsumed(2461110);
         }
 
         [TestMethod]

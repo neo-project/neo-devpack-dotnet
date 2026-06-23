@@ -13,12 +13,12 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
 {
     #region Compiled data
 
-    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Initializer"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""sum1"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":49,""safe"":false},{""name"":""sum2"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":98,""safe"":false},{""name"":""anonymousObjectCreation"",""parameters"":[],""returntype"":""Void"",""offset"":161,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.0"",""nef"":{""optimization"":""All""}}}");
+    public static Neo.SmartContract.Manifest.ContractManifest Manifest => Neo.SmartContract.Manifest.ContractManifest.Parse(@"{""name"":""Contract_Initializer"",""groups"":[],""features"":{},""supportedstandards"":[],""abi"":{""methods"":[{""name"":""sum"",""parameters"":[],""returntype"":""Integer"",""offset"":0,""safe"":false},{""name"":""sum1"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":49,""safe"":false},{""name"":""sum2"",""parameters"":[{""name"":""a"",""type"":""Integer""},{""name"":""b"",""type"":""Integer""}],""returntype"":""Integer"",""offset"":98,""safe"":false},{""name"":""anonymousObjectCreation"",""parameters"":[],""returntype"":""Void"",""offset"":157,""safe"":false}],""events"":[]},""permissions"":[],""trusts"":[],""extra"":{""Version"":""3.10.0"",""nef"":{""optimization"":""All""}}}");
 
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOhXAQASERLAcGgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwECeXgSwHBoEM5oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcBAhIREsBweEpoEFHQRXlKaBFR0EVoEM5oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcCAAwFSGVsbG8AbBLAcGg0KUHP50eWEQwFZ3JhcGUSwBQMBWFwcGxlEsASwHFpEM40D0HP50eWQFcAAXgRzkBXAAF4EM5ALvwHMw==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAORXAQASERLAcGgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwECeXgSwHBoEM5oEc6eSsoUMh4D/////wAAAACRSgL///9/MgwDAAAAAAEAAACfQFcBAhIREsBweGgQUdB5aBFR0GgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9AVwIADAVIZWxsbwBsEsBwaDQpQc/nR5YRDAVncmFwZRLAFAwFYXBwbGUSwBLAcWkQzjQPQc/nR5ZAVwABeBHOQFcAAXgQzkA2eQUT").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -131,7 +131,7 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwECEhESwHB4SmgQUdBFeUpoEVHQRWgQzmgRzp5KyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9A
+    /// Script: VwECEhESwHB4aBBR0HloEVHQaBDOaBHOnkrKFDIeA/////8AAAAAkUoC////fzIMAwAAAAABAAAAn0A=
     /// INITSLOT 0102 [64 datoshi]
     /// PUSH2 [1 datoshi]
     /// PUSH1 [1 datoshi]
@@ -139,19 +139,15 @@ public abstract class Contract_Initializer(Neo.SmartContract.Testing.SmartContra
     /// PACK [2048 datoshi]
     /// STLOC0 [2 datoshi]
     /// LDARG0 [2 datoshi]
-    /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// ROT [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// DROP [2 datoshi]
     /// LDARG1 [2 datoshi]
-    /// DUP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH1 [1 datoshi]
     /// ROT [2 datoshi]
     /// SETITEM [8192 datoshi]
-    /// DROP [2 datoshi]
     /// LDLOC0 [2 datoshi]
     /// PUSH0 [1 datoshi]
     /// PICKITEM [64 datoshi]
