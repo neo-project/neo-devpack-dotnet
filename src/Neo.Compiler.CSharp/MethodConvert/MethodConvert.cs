@@ -53,6 +53,7 @@ namespace Neo.Compiler
         private int _localsCount;
         private readonly Stack<List<ILocalSymbol>> _blockSymbols = new();
         private readonly List<Instruction> _instructions = new();
+        private readonly HashSet<MethodConvert> _callees = new();
         private readonly JumpTarget _startTarget = new();
         private readonly Dictionary<ILabelSymbol, JumpTarget> _labels = new(SymbolEqualityComparer.Default);
         private readonly Stack<JumpTarget> _continueTargets = new();
@@ -72,6 +73,15 @@ namespace Neo.Compiler
         public IMethodSymbol Symbol { get; }
         public SyntaxNode? SyntaxNode { get; private set; }
         public IReadOnlyList<Instruction> Instructions => _instructions;
+
+        /// <summary>
+        /// The set of in-contract methods this method directly calls through a statically
+        /// resolvable CALL (or inline expansion). Used to follow the intra-contract call graph
+        /// when verifying the <c>[Safe]</c> ABI flag. Virtual/dynamic (CALLA) dispatch and
+        /// cross-contract (CALLT) calls are not represented here.
+        /// </summary>
+        public IReadOnlyCollection<MethodConvert> Callees => _callees;
+
         public IReadOnlyList<(ILocalSymbol Symbol, byte SlotIndex)> Variables => _variableSymbols;
         public bool IsEmpty => _instructions.Count == 0
             || _instructions is [{ OpCode: OpCode.RET }]
