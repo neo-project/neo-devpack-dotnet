@@ -103,6 +103,16 @@ public class Contract : SmartContract
         return a;         // 15
     }
 
+    [DisplayName(""refAssignExpression"")]
+    public static int RefAssignExpression()
+    {
+        int a = 1;
+        int b = 7;
+        ref int alias = ref a;
+        int c = alias = ref b;
+        return c + b;
+    }
+
     private static int Inc(ref int x) { x = x + 1; return x; }
 }";
 
@@ -120,6 +130,7 @@ public class Contract : SmartContract
         Assert.AreEqual(new BigInteger(10), contract.ExprContextAssign());
         Assert.AreEqual(new BigInteger(12), contract.ChainedAssign());
         Assert.AreEqual(new BigInteger(15), contract.CompoundAssign());
+        Assert.AreEqual(new BigInteger(14), contract.RefAssignExpression());
     }
 
     public abstract class AssignmentContract(SmartContractInitialize initialize)
@@ -133,5 +144,6 @@ public class Contract : SmartContract
         [DisplayName("exprContextAssign")] public abstract BigInteger? ExprContextAssign();
         [DisplayName("chainedAssign")] public abstract BigInteger? ChainedAssign();
         [DisplayName("compoundAssign")] public abstract BigInteger? CompoundAssign();
+        [DisplayName("refAssignExpression")] public abstract BigInteger? RefAssignExpression();
     }
 }
