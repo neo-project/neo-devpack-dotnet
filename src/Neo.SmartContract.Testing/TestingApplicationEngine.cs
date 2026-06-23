@@ -195,6 +195,11 @@ namespace Neo.SmartContract.Testing
             // Regular action
 
             base.PreExecuteInstruction(instruction);
+
+            // Notify a debug observer that this instruction is about to execute (after the base
+            // gas/limit checks). A blocking handler pauses execution here until it returns.
+            if (Engine.HasPreExecuteInstructionObserver)
+                Engine.RaisePreExecuteInstruction(this, instruction);
         }
 
         protected override void OnFault(Exception ex)
