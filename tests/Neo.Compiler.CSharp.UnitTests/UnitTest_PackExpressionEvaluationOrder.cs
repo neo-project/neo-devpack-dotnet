@@ -87,6 +87,30 @@ public class UnitTest_PackExpressionEvaluationOrder
                     return _trace;
                 }
 
+                [DisplayName("objectInitializerOutOfFieldOrder")]
+                public static int ObjectInitializerOutOfFieldOrder()
+                {
+                    _trace = 0;
+                    var value = new Box { C = Next(1), A = Next(2) };
+                    return _trace * 1000 + value.A * 100 + value.B * 10 + value.C;
+                }
+
+                [DisplayName("objectInitializerWithDefaultField")]
+                public static int ObjectInitializerWithDefaultField()
+                {
+                    _trace = 0;
+                    var value = new Box { A = Next(1), C = Next(2) };
+                    return _trace * 1000 + value.A * 100 + value.B * 10 + value.C;
+                }
+
+                [DisplayName("virtualObjectInitializer")]
+                public static int VirtualObjectInitializer()
+                {
+                    _trace = 0;
+                    var value = new VirtualBox { A = Next(1) };
+                    return _trace * 100 + value.GetA();
+                }
+
                 [DisplayName("listInitializer")]
                 public static int ListInitializer()
                 {
@@ -107,6 +131,16 @@ public class UnitTest_PackExpressionEvaluationOrder
                     public int B;
                     public int C;
                 }
+
+                public class VirtualBox
+                {
+                    public int A;
+
+                    public virtual int GetA()
+                    {
+                        return A;
+                    }
+                }
             }
             """;
 
@@ -123,6 +157,9 @@ public class UnitTest_PackExpressionEvaluationOrder
         Assert.AreEqual(new BigInteger(123), contract.EventInvocation());
         Assert.AreEqual(new BigInteger(123), contract.CollectionExpression());
         Assert.AreEqual(new BigInteger(123), contract.ObjectInitializer());
+        Assert.AreEqual(new BigInteger(12201), contract.ObjectInitializerOutOfFieldOrder());
+        Assert.AreEqual(new BigInteger(12102), contract.ObjectInitializerWithDefaultField());
+        Assert.AreEqual(new BigInteger(101), contract.VirtualObjectInitializer());
         Assert.AreEqual(new BigInteger(123), contract.ListInitializer());
     }
 
@@ -149,6 +186,15 @@ public class UnitTest_PackExpressionEvaluationOrder
 
         [DisplayName("objectInitializer")]
         public abstract BigInteger? ObjectInitializer();
+
+        [DisplayName("objectInitializerOutOfFieldOrder")]
+        public abstract BigInteger? ObjectInitializerOutOfFieldOrder();
+
+        [DisplayName("objectInitializerWithDefaultField")]
+        public abstract BigInteger? ObjectInitializerWithDefaultField();
+
+        [DisplayName("virtualObjectInitializer")]
+        public abstract BigInteger? VirtualObjectInitializer();
 
         [DisplayName("listInitializer")]
         public abstract BigInteger? ListInitializer();
