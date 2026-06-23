@@ -48,7 +48,7 @@
 
     <Target Name="ExecuteBeforeBuild" BeforeTargets="PreBuildEvent"
             Condition="'$(IsTestProject)' != 'true' AND '$(MSBuildProjectName)' != 'TestContract' AND '$(DisableArtifactGeneration)' != 'true'">
-        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot;" ContinueOnError="true"/>
+        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot;"/>
     </Target>
 
     <!-- Smart Contract Artifact Generation Target -->
@@ -67,8 +67,7 @@
         <MakeDir Directories="$(TestingArtifactsDir)" Condition="Exists('$(UnitTestProjectDir)') AND !Exists('$(TestingArtifactsDir)')" />
         
         <!-- Use nccs to generate artifacts for unit tests -->
-        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source" 
-              ContinueOnError="true" 
+        <Exec Command="nccs &quot;$(MSBuildProjectFile)&quot; --base-name &quot;$(ArtifactClassName)&quot; --output &quot;$(TestingArtifactsDir)&quot; --generate-artifacts Source"
               Condition="Exists('$(UnitTestProjectDir)')" />
     </Target>
 
