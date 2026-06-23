@@ -15,6 +15,7 @@ using Neo.Compiler;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.ComponentModel;
@@ -30,13 +31,16 @@ public class PausableOwnableTest
     private static readonly Signer Alice = TestEngine.Alice;
     private static readonly Signer Bob = TestEngine.Bob;
 
-    private static (NefFile nef, ContractManifest manifest) _compiled;
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) _compiled;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext _) => _compiled = CompileContract();
 
     private static PausableOwnableProxy Deploy(TestEngine engine)
         => engine.Deploy<PausableOwnableProxy>(_compiled.nef, _compiled.manifest, null);
+
+    private static void Merge(PausableOwnableProxy contract)
+        => DynamicCoverageMergeHelper.Merge(contract, _compiled.debugInfo);
 
     private static TestEngine CreateEngine()
     {
@@ -50,6 +54,7 @@ public class PausableOwnableTest
     {
         var c = Deploy(CreateEngine());
         Assert.IsFalse(c.Paused);
+        Merge(c);
     }
 
     [TestMethod]
@@ -69,6 +74,7 @@ public class PausableOwnableTest
         c.Unpause();
         Assert.IsFalse(c.Paused);
         Assert.AreEqual(Alice.Account, unpausedBy);
+        Merge(c);
     }
 
     [TestMethod]
@@ -80,6 +86,7 @@ public class PausableOwnableTest
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => c.Pause());
         Assert.IsFalse(c.Paused);
+        Merge(c);
     }
 
     [TestMethod]
@@ -92,6 +99,7 @@ public class PausableOwnableTest
         engine.SetTransactionSigners(Bob);
         Assert.ThrowsException<TestException>(() => c.Unpause());
         Assert.IsTrue(c.Paused);
+        Merge(c);
     }
 
     [TestMethod]
@@ -102,6 +110,7 @@ public class PausableOwnableTest
         c.Pause();
 
         Assert.ThrowsException<TestException>(() => c.Pause());
+        Merge(c);
     }
 
     [TestMethod]
@@ -109,6 +118,7 @@ public class PausableOwnableTest
     {
         var c = Deploy(CreateEngine());
         Assert.ThrowsException<TestException>(() => c.Unpause());
+        Merge(c);
     }
 
     [TestMethod]
@@ -127,6 +137,7 @@ public class PausableOwnableTest
         // Runs again after unpausing.
         c.Unpause();
         Assert.IsTrue(c.DoWork()!.Value);
+        Merge(c);
     }
 
     [TestMethod]
@@ -141,6 +152,7 @@ public class PausableOwnableTest
         // Runs once paused.
         c.Pause();
         Assert.IsTrue(c.DoWhilePaused()!.Value);
+        Merge(c);
     }
 
     [TestMethod]
@@ -156,7 +168,7 @@ public class PausableOwnableTest
         Assert.IsFalse(names.Contains("whenPaused"));
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompileContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
 
@@ -199,8 +211,8 @@ public class Contract : PausableOwnable
             var context = contexts[0];
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-            var (nef, manifest, _) = context.CreateResults(repoRoot);
-            return (nef, manifest);
+            var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+            return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
         }
         finally
         {
