@@ -35,7 +35,16 @@ namespace Neo.SmartContract.Analyzer
             Category,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "Duplicate constant StorageMap/LocalStorageMap prefixes in the same contract can cause storage namespace collisions.");
+            description: "Duplicate constant StorageMap/LocalStorageMap prefixes in the same contract, or a prefix that reuses a reserved prefix of an inherited framework base class, can cause storage namespace collisions.");
+
+        // Reserved single-byte storage prefixes used internally by framework base classes. A
+        // derived contract that builds a StorageMap with one of these prefixes silently shares the
+        // base class's storage namespace (e.g. corrupting the stored owner).
+        private static readonly Dictionary<string, byte> ReservedBasePrefixes = new(StringComparer.Ordinal)
+        {
+            ["global::Neo.SmartContract.Framework.Ownable"] = 0xFF,
+            ["global::Neo.SmartContract.Framework.Pausable"] = 0xFE,
+        };
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
 
@@ -54,6 +63,8 @@ namespace Neo.SmartContract.Analyzer
                 return;
 
             Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
+            SeedInheritedReservedPrefixes(typeSymbol, seenPrefixes);
+
             foreach (VariableDeclaratorSyntax declarator in classDeclaration.Members
                 .OfType<FieldDeclarationSyntax>()
                 .SelectMany(fieldDeclaration => fieldDeclaration.Declaration.Variables))
@@ -89,13 +100,31 @@ namespace Neo.SmartContract.Analyzer
                             declarator.Identifier.GetLocation(),
                             normalizedPrefix,
                             field.Name,
-                            existing.Field.Name));
+                            existing.Description));
                     }
 
                     continue;
                 }
 
-                seenPrefixes[normalizedPrefix] = new PrefixUsage(field);
+                seenPrefixes[normalizedPrefix] = new PrefixUsage(field, field.Name);
+            }
+        }
+
+        private static void SeedInheritedReservedPrefixes(INamedTypeSymbol typeSymbol, Dictionary<string, PrefixUsage> seenPrefixes)
+        {
+            for (INamedTypeSymbol? baseType = typeSymbol.BaseType; baseType is not null; baseType = baseType.BaseType)
+            {
+                string baseName = baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                if (!ReservedBasePrefixes.TryGetValue(baseName, out byte reserved))
+                    continue;
+
+                string normalizedPrefix = reserved.ToString("X2");
+                if (seenPrefixes.ContainsKey(normalizedPrefix))
+                    continue;
+
+                seenPrefixes[normalizedPrefix] = new PrefixUsage(
+                    null,
+                    $"the reserved prefix of base class {baseType.Name}");
             }
         }
 
@@ -312,12 +341,15 @@ namespace Neo.SmartContract.Analyzer
 
         private sealed class PrefixUsage
         {
-            public PrefixUsage(IFieldSymbol field)
+            public PrefixUsage(IFieldSymbol? field, string description)
             {
                 Field = field;
+                Description = description;
             }
 
-            public IFieldSymbol Field { get; }
+            public IFieldSymbol? Field { get; }
+
+            public string Description { get; }
         }
     }
 }

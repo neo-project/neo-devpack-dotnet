@@ -44,6 +44,79 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
+        private const string BaseStubs = """
+            namespace Neo.SmartContract.Framework
+            {
+                public abstract class Ownable { }
+                public abstract class Pausable { }
+            }
+            """;
+
+        [TestMethod]
+        public async Task InheritedOwnablePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenA : Neo.SmartContract.Framework.Ownable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0xFF);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(28, 77, 28, 85)
+                .WithArguments("FF", "Balances", "the reserved prefix of base class Ownable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedPausablePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenB : Neo.SmartContract.Framework.Pausable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Flags =
+                        new((byte)0xFE);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(28, 82, 28, 87)
+                .WithArguments("FE", "Flags", "the reserved prefix of base class Pausable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task NonInheritedReservedPrefix_DoesNotReportDiagnostic()
+        {
+            // A contract that does not inherit Ownable is free to use 0xFF for its own data.
+            var test = StorageStubs + BaseStubs + """
+                public class TokenC
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0xFF);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task InheritedOwnable_DifferentPrefix_DoesNotReportDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenD : Neo.SmartContract.Framework.Ownable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x01);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
         [TestMethod]
         public async Task DuplicateBytePrefixFields_ReportDiagnostic()
         {
