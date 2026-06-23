@@ -12,6 +12,7 @@
 using Neo.SmartContract.Framework.Attributes;
 using Neo.SmartContract.Framework.Services;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Neo.SmartContract.Framework
 {
@@ -37,6 +38,7 @@ namespace Neo.SmartContract.Framework
     /// in-flight transfer to a compromised account can always be neutralized.
     /// </para>
     /// </remarks>
+    [ExcludeFromCodeCoverage]
     public abstract class Ownable2Step : SmartContract
     {
         // The current confirmed owner. Absent (null) means renounced or not yet initialized.
