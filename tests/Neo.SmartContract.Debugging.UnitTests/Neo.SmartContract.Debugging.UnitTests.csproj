@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Neo.SmartContract.Debugging\Neo.SmartContract.Debugging.csproj" />
+        <ProjectReference Include="..\..\src\Neo.Compiler.CSharp\Neo.Compiler.CSharp.csproj" />
     </ItemGroup>
 
 </Project>
