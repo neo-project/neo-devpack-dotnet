@@ -15,6 +15,7 @@ using Neo.Compiler;
 using Neo.Network.P2P.Payloads;
 using Neo.SmartContract.Manifest;
 using Neo.SmartContract.Testing;
+using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Exceptions;
 using System;
 using System.ComponentModel;
@@ -33,13 +34,16 @@ public class RoyaltyNep11TokenTest
     private static readonly Signer Charlie = TestEngine.Charlie;
     private static readonly UInt160 Gas = UInt160.Parse("0xd2a4cff31913016155e38e474a2c06d08be276cf");
 
-    private static (NefFile nef, ContractManifest manifest) _compiled;
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) _compiled;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext _) => _compiled = CompileContract();
 
     private static RoyaltyProxy Deploy(TestEngine engine)
         => engine.Deploy<RoyaltyProxy>(_compiled.nef, _compiled.manifest, null);
+
+    private static void Merge(RoyaltyProxy contract)
+        => DynamicCoverageMergeHelper.Merge(contract, _compiled.debugInfo);
 
     private static TestEngine CreateEngine()
     {
@@ -65,6 +69,7 @@ public class RoyaltyNep11TokenTest
         Assert.AreEqual(new BigInteger(500), c.RoyaltyAmount(id, Gas, 10_000));
         // Integer division floors.
         Assert.AreEqual(new BigInteger(5), c.RoyaltyAmount(id, Gas, 100));
+        Merge(c);
     }
 
     [TestMethod]
@@ -76,6 +81,7 @@ public class RoyaltyNep11TokenTest
 
         Assert.AreEqual(Charlie.Account, c.RoyaltyRecipient(id, Gas, 10_000));
         Assert.AreEqual(new BigInteger(1000), c.RoyaltyAmount(id, Gas, 10_000));
+        Merge(c);
     }
 
     [TestMethod]
@@ -83,6 +89,7 @@ public class RoyaltyNep11TokenTest
     {
         var (c, id) = DeployAndMint();
         Assert.AreEqual(BigInteger.Zero, c.RoyaltyCount(id, Gas, 10_000));
+        Merge(c);
     }
 
     [TestMethod]
@@ -90,6 +97,7 @@ public class RoyaltyNep11TokenTest
     {
         var c = Deploy(CreateEngine());
         Assert.ThrowsException<TestException>(() => c.RoyaltyCount(new byte[] { 0xde, 0xad }, Gas, 10_000));
+        Merge(c);
     }
 
     [TestMethod]
@@ -97,6 +105,7 @@ public class RoyaltyNep11TokenTest
     {
         var (c, _) = DeployAndMint();
         Assert.ThrowsException<TestException>(() => c.SetDefault(Bob.Account, 10_001));
+        Merge(c);
     }
 
     [TestMethod]
@@ -104,6 +113,7 @@ public class RoyaltyNep11TokenTest
     {
         var (c, _) = DeployAndMint();
         Assert.ThrowsException<TestException>(() => c.SetDefault(UInt160.Zero, 500));
+        Merge(c);
     }
 
     [TestMethod]
@@ -116,6 +126,7 @@ public class RoyaltyNep11TokenTest
 
         Assert.AreEqual(Bob.Account, c.RoyaltyRecipient(id, Gas, 10_000));
         Assert.AreEqual(new BigInteger(500), c.RoyaltyAmount(id, Gas, 10_000));
+        Merge(c);
     }
 
     [TestMethod]
@@ -125,6 +136,7 @@ public class RoyaltyNep11TokenTest
         c.SetDefault(Bob.Account, 500);
         c.DelDefault();
         Assert.AreEqual(BigInteger.Zero, c.RoyaltyCount(id, Gas, 10_000));
+        Merge(c);
     }
 
     [TestMethod]
@@ -143,7 +155,7 @@ public class RoyaltyNep11TokenTest
         Assert.IsTrue(_compiled.manifest.SupportedStandards.Contains("NEP-24"));
     }
 
-    private static (NefFile nef, ContractManifest manifest) CompileContract()
+    private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
 using Neo.SmartContract.Framework.Attributes;
@@ -204,8 +216,8 @@ public class Contract : RoyaltyNep11Token<Nep11TokenState>
             var context = contexts[0];
             Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
 
-            var (nef, manifest, _) = context.CreateResults(repoRoot);
-            return (nef, manifest);
+            var (nef, manifest, debugInfoJson) = context.CreateResults(repoRoot);
+            return (nef, manifest, NeoDebugInfo.FromDebugInfoJson(debugInfoJson));
         }
         finally
         {
