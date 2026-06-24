@@ -43,10 +43,14 @@ namespace Neo.SmartContract.Analyzer
         private static readonly Dictionary<string, byte[]> ReservedBasePrefixes = new(StringComparer.Ordinal)
         {
             ["global::Neo.SmartContract.Framework.Ownable"] = [0xFF],
+            ["global::Neo.SmartContract.Framework.Ownable2Step"] = [0xFD, 0xFC],
             ["global::Neo.SmartContract.Framework.Pausable"] = [0xFE],
+            ["global::Neo.SmartContract.Framework.PausableOwnable"] = [0xFE],
+            ["global::Neo.SmartContract.Framework.AccessControl"] = [0xFB],
             ["global::Neo.SmartContract.Framework.TokenContract"] = [0x00, 0x01],
             ["global::Neo.SmartContract.Framework.Nep17Token"] = [0x00, 0x01],
             ["global::Neo.SmartContract.Framework.Nep11Token`1"] = [0x02, 0x03, 0x04],
+            ["global::Neo.SmartContract.Framework.RoyaltyNep11Token`1"] = [0x05, 0x06],
         };
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);

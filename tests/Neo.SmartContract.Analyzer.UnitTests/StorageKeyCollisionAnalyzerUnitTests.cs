@@ -55,6 +55,16 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
+        private const string ExtendedBaseStubs = """
+            namespace Neo.SmartContract.Framework
+            {
+                public abstract class Ownable2Step { }
+                public abstract class AccessControl { }
+                public abstract class PausableOwnable : Ownable { }
+                public abstract class RoyaltyNep11Token<TState> : Nep11Token<TState> { }
+            }
+            """;
+
         [TestMethod]
         public async Task InheritedOwnablePrefix_ReportsDiagnostic()
         {
@@ -123,6 +133,78 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
                 .WithSpan(31, 77, 31, 83)
                 .WithArguments("03", "Tokens", "the reserved prefix of base class Nep11Token");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedOwnable2StepPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenG : Neo.SmartContract.Framework.Ownable2Step
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap PendingOwners =
+                        new((byte)0xFC);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 82, 37, 95)
+                .WithArguments("FC", "PendingOwners", "the reserved prefix of base class Ownable2Step");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedAccessControlPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenH : Neo.SmartContract.Framework.AccessControl
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Roles =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0xFB);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 77, 37, 82)
+                .WithArguments("FB", "Roles", "the reserved prefix of base class AccessControl");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedPausableOwnablePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenI : Neo.SmartContract.Framework.PausableOwnable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Paused =
+                        new((byte)0xFE);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 82, 37, 88)
+                .WithArguments("FE", "Paused", "the reserved prefix of base class PausableOwnable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedRoyaltyNep11TokenPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenJ : Neo.SmartContract.Framework.RoyaltyNep11Token<object>
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap TokenRoyalties =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x06);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 77, 37, 91)
+                .WithArguments("06", "TokenRoyalties", "the reserved prefix of base class RoyaltyNep11Token");
 
             await VerifyCS.VerifyAnalyzerAsync(test, expected);
         }
