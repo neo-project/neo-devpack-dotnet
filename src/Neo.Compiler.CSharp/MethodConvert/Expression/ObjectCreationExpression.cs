@@ -100,6 +100,7 @@ internal partial class MethodConvert
         var members = type.GetAllMembers().Where(p => !p.IsStatic).ToArray();
         var fields = members.OfType<IFieldSymbol>().ToArray();
         Dictionary<int, ExpressionSyntax> indexToValue = new();
+        List<(int Index, ExpressionSyntax Value)> initializerValues = new();
         foreach (ExpressionSyntax e in expression.Initializer.Expressions)
         {
             if (e is not AssignmentExpressionSyntax ae)
@@ -109,22 +110,44 @@ internal partial class MethodConvert
                 return false;
             int index = GetInstanceFieldIndex(field);
             indexToValue.Add(index, ae.Right);
+            initializerValues.Add((index, ae.Right));
         }
+        if (!CanUseFieldOrderPackedInitializer(model, initializerValues))
+            return false;
         var virtualMethods = members.OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-        int needVirtualMethodTable = 0;
-        if (!type.IsRecord && virtualMethods.Length > 0)
+        bool needVirtualMethodTable = !type.IsRecord && virtualMethods.Length > 0;
+
+        // Build the packed slots in field-index order (initializer value or default), with the
+        // optional virtual method table as the final slot. Routing through
+        // EmitPackedItemsLeftToRight preserves left-to-right evaluation order when the
+        // initializer values have side effects, instead of evaluating them in reverse (#1685).
+        // The virtual method table load and field defaults are side-effect free, so the
+        // all-constant case still emits the same instructions as before.
+        var slots = new List<(Action Emit, bool CanDefer)>(fields.Length + (needVirtualMethodTable ? 1 : 0));
+        for (int i = 0; i < fields.Length; i++)
         {
-            needVirtualMethodTable += 1;
-            byte vTableIndex = _context.AddVTable(type);
-            AccessSlot(OpCode.LDSFLD, vTableIndex);
-        }
-        for (int i = fields.Length - 1; i >= 0; --i)
             if (indexToValue.TryGetValue(i, out ExpressionSyntax? right))
-                ConvertExpression(model, right);
+            {
+                ExpressionSyntax value = right;
+                slots.Add((() => ConvertExpression(model, value), CanDeferExpressionEmission(model, value)));
+            }
             else
-                PushDefault(fields[i].Type);
-        Push(fields.Length + needVirtualMethodTable);
-        AddInstruction(type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK);
+            {
+                ITypeSymbol fieldType = fields[i].Type;
+                slots.Add((() => PushDefault(fieldType), true));
+            }
+        }
+        if (needVirtualMethodTable)
+        {
+            byte vTableIndex = _context.AddVTable(type);
+            slots.Add((() => AccessSlot(OpCode.LDSFLD, vTableIndex), true));
+        }
+
+        EmitPackedItemsLeftToRight(
+            slots,
+            slot => slot.Emit(),
+            type.IsValueType || type.IsRecord ? OpCode.PACKSTRUCT : OpCode.PACK,
+            slot => slot.CanDefer);
         return true;
     }
 
@@ -192,10 +215,13 @@ internal partial class MethodConvert
             }
             else
             {
-                for (var i = initializer.Expressions.Count - 1; i >= 0; i--)
-                    ConvertExpression(model, initializer.Expressions[i]);
-                Push(initializer.Expressions.Count);
-                AddInstruction(OpCode.PACK);
+                // Preserve left-to-right evaluation order of the elements when they have
+                // side effects, instead of emitting them in reverse (see #1685).
+                EmitPackedItemsLeftToRight(
+                    initializer.Expressions.ToArray(),
+                    expression => ConvertExpression(model, expression),
+                    OpCode.PACK,
+                    expression => CanDeferExpressionEmission(model, expression));
             }
             return;
         }
@@ -252,6 +278,19 @@ internal partial class MethodConvert
                     throw CompilationException.UnsupportedSyntax(ae.Left, $"Unsupported member '{symbol.Name}' in object initializer. Only fields and properties can be initialized.");
             }
         }
+    }
+
+    private static bool CanUseFieldOrderPackedInitializer(SemanticModel model, IReadOnlyList<(int Index, ExpressionSyntax Value)> initializerValues)
+    {
+        bool hasSideEffects = initializerValues.Any(value => !CanDeferExpressionEmission(model, value.Value));
+        if (!hasSideEffects)
+            return true;
+
+        for (int i = 1; i < initializerValues.Count; i++)
+            if (initializerValues[i].Index < initializerValues[i - 1].Index)
+                return false;
+
+        return true;
     }
 
     private void ConvertDelegateCreationExpression(SemanticModel model, BaseObjectCreationExpressionSyntax expression)
