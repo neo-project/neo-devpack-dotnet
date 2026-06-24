@@ -77,7 +77,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_IntArray()
         {
             var arr = Contract.TestIntArray();
-            AssertGasConsumed(2540310);
+            AssertGasConsumed(2539950);
 
             //test 0,1,2
             CollectionAssert.AreEqual(new BigInteger[] { 0, 1, 2 }, arr?.ToArray());
@@ -88,18 +88,18 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             //test 1,4,5
             var arr = Contract.TestIntArrayInit();
-            AssertGasConsumed(2340420);
+            AssertGasConsumed(2340180);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
 
 
             //test 1,4,5
             arr = Contract.TestIntArrayInit2();
-            AssertGasConsumed(2340420);
+            AssertGasConsumed(2340180);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
 
             //test 1,4,5
             arr = Contract.TestIntArrayInit3();
-            AssertGasConsumed(2340420);
+            AssertGasConsumed(2340180);
             CollectionAssert.AreEqual(new BigInteger[] { 1, 4, 5 }, arr?.ToArray());
         }
 
@@ -107,7 +107,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_StructArray()
         {
             var result = Contract.TestStructArray();
-            AssertGasConsumed(2111790);
+            AssertGasConsumed(2111670);
 
             //test (1+5)*7 == 42
             var bequal = result as Struct != null;
@@ -152,7 +152,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DynamicArrayInit()
         {
             var arr = Contract.TestDynamicArrayInit(3);
-            AssertGasConsumed(2605260);
+            AssertGasConsumed(2604900);
 
             Assert.AreEqual(3, arr?.Count);
             Assert.AreEqual(new BigInteger(0), arr?[0]);
@@ -243,7 +243,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalCreatedBySize()
         {
             var matrix = Contract.MultiDimensionalCreatedBySize();
-            AssertGasConsumed(2822370);
+            AssertGasConsumed(2822130);
 
             Assert.AreEqual(2, matrix?.Count);
             var firstRow = (Array?)matrix?[0];
@@ -280,7 +280,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_MultiDimensionalAssignments()
         {
             var value = Contract.MultiDimensionalAssignments();
-            AssertGasConsumed(3582270);
+            AssertGasConsumed(3582030);
             Assert.AreEqual(new BigInteger(10), value);
         }
 
