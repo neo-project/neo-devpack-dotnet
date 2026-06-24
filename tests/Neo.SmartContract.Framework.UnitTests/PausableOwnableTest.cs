@@ -162,7 +162,6 @@ public class PausableOwnableTest
         Assert.IsTrue(abi.Single(m => m.Name == "paused").Safe, "paused must be safe");
         Assert.IsFalse(abi.Single(m => m.Name == "pause").Safe, "pause must not be safe");
         Assert.IsFalse(abi.Single(m => m.Name == "unpause").Safe, "unpause must not be safe");
-        // The protected guards are not exported.
         var names = abi.Select(m => m.Name).ToArray();
         Assert.IsFalse(names.Contains("whenNotPaused"));
         Assert.IsFalse(names.Contains("whenPaused"));
@@ -171,6 +170,7 @@ public class PausableOwnableTest
     private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Attributes;
 
 public class Contract : PausableOwnable
 {
@@ -179,15 +179,15 @@ public class Contract : PausableOwnable
         InitializeOwner(data, update);
     }
 
+    [WhenNotPaused]
     public static bool DoWork()
     {
-        WhenNotPaused();
         return true;
     }
 
+    [WhenPaused]
     public static bool DoWhilePaused()
     {
-        WhenPaused();
         return true;
     }
 }";

@@ -27,11 +27,11 @@ namespace Neo.SmartContract.Framework
     /// witness, so a contract is never left with an anyone-can-pause denial-of-service.
     /// <para>
     /// Initialize the owner from your <c>_deploy</c> method with <see cref="Ownable.InitializeOwner"/>,
-    /// then guard your state-changing methods with <see cref="WhenNotPaused"/>:
+    /// then guard your state-changing methods with <see cref="WhenNotPausedAttribute"/>:
     /// <code>
+    /// [WhenNotPaused]
     /// public static void Transfer(/* ... */)
     /// {
-    ///     WhenNotPaused();
     ///     // ...
     /// }
     /// </code>
@@ -88,15 +88,5 @@ namespace Neo.SmartContract.Framework
             Storage.Delete(new[] { Prefix_Paused });
             OnUnpaused(GetOwner());
         }
-
-        /// <summary>
-        /// Guard for an author's method that must only run while the contract is not paused.
-        /// </summary>
-        protected static void WhenNotPaused() => ExecutionEngine.Assert(!Paused, "contract is paused");
-
-        /// <summary>
-        /// Guard for an author's method that must only run while the contract is paused.
-        /// </summary>
-        protected static void WhenPaused() => ExecutionEngine.Assert(Paused, "contract is not paused");
     }
 }
