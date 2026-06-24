@@ -18,7 +18,7 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGoQEBK/QFcFAAsLCxAQCRbAEBASvwwBcxAQCRbAcGhoFc5QEsBKccpyEHMiG2lrznRsEM4JlzlsEc4QlzlsEs4QlzlrnHNrajDlaBPODAFzlzloFc4Tztg5aBTOEM4QlzloFM4RzhCXOWhAh4kyCg==").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGwQEBK/QFcFAAkQEAwBcxAQEr8LCwsQEAkWwBZVFsBwaGgVzlASwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aECF9lVj").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 
@@ -28,8 +28,16 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// Unsafe method
     /// </summary>
     /// <remarks>
-    /// Script: VwUACwsLEBAJFsAQEBK/DAFzEBAJFsBwaGgVzlASwEpxynIQcyIbaWvOdGwQzgmXOWwRzhCXOWwSzhCXOWucc2tqMOVoE84MAXOXOWgVzhPO2DloFM4QzhCXOWgUzhHOEJc5aEA=
+    /// Script: VwUACRAQDAFzEBASvwsLCxAQCRbAFlUWwHBoaBXOUBLASnHKchBzIhtpa850bBDOCZc5bBHOEJc5bBLOEJc5a5xza2ow5WgTzgwBc5c5aBXOE87YOWgUzhDOEJc5aBTOEc4QlzloQA==
     /// INITSLOT 0500 [64 datoshi]
+    /// PUSHF [1 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSHDATA1 73 's' [8 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH0 [1 datoshi]
+    /// PUSH2 [1 datoshi]
+    /// PACKSTRUCT [2048 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSHNULL [1 datoshi]
     /// PUSHNULL [1 datoshi]
@@ -38,14 +46,8 @@ public abstract class Contract_ClassInit(Neo.SmartContract.Testing.SmartContract
     /// PUSHF [1 datoshi]
     /// PUSH6 [1 datoshi]
     /// PACK [2048 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// PUSH2 [1 datoshi]
-    /// PACKSTRUCT [2048 datoshi]
-    /// PUSHDATA1 73 's' [8 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// PUSH0 [1 datoshi]
-    /// PUSHF [1 datoshi]
+    /// PUSH6 [1 datoshi]
+    /// REVERSEN [16 datoshi]
     /// PUSH6 [1 datoshi]
     /// PACK [2048 datoshi]
     /// STLOC0 [2 datoshi]
