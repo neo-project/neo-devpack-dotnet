@@ -48,7 +48,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_DoubleReturnB()
         {
             Assert.AreEqual(new BigInteger(-3), Contract.Mix(9, 5));
-            AssertGasConsumed(1206570);
+            AssertGasConsumed(1206450);
         }
 
         [TestMethod]

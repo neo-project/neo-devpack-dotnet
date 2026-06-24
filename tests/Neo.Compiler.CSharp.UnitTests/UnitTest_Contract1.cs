@@ -31,7 +31,7 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_testArgs1()
         {
             CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, Contract.TestArgs1(4));
-            AssertGasConsumed(1539180);
+            AssertGasConsumed(1539060);
         }
 
         [TestMethod]
