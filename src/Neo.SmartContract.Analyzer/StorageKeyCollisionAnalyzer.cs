@@ -40,10 +40,13 @@ namespace Neo.SmartContract.Analyzer
         // Reserved single-byte storage prefixes used internally by framework base classes. A
         // derived contract that builds a StorageMap with one of these prefixes silently shares the
         // base class's storage namespace (e.g. corrupting the stored owner).
-        private static readonly Dictionary<string, byte> ReservedBasePrefixes = new(StringComparer.Ordinal)
+        private static readonly Dictionary<string, byte[]> ReservedBasePrefixes = new(StringComparer.Ordinal)
         {
-            ["global::Neo.SmartContract.Framework.Ownable"] = 0xFF,
-            ["global::Neo.SmartContract.Framework.Pausable"] = 0xFE,
+            ["global::Neo.SmartContract.Framework.Ownable"] = [0xFF],
+            ["global::Neo.SmartContract.Framework.Pausable"] = [0xFE],
+            ["global::Neo.SmartContract.Framework.TokenContract"] = [0x00, 0x01],
+            ["global::Neo.SmartContract.Framework.Nep17Token"] = [0x00, 0x01],
+            ["global::Neo.SmartContract.Framework.Nep11Token`1"] = [0x02, 0x03, 0x04],
         };
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(Rule);
@@ -114,18 +117,27 @@ namespace Neo.SmartContract.Analyzer
         {
             for (INamedTypeSymbol? baseType = typeSymbol.BaseType; baseType is not null; baseType = baseType.BaseType)
             {
-                string baseName = baseType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                if (!ReservedBasePrefixes.TryGetValue(baseName, out byte reserved))
+                string baseName = GetReservedBaseTypeName(baseType);
+                if (!ReservedBasePrefixes.TryGetValue(baseName, out byte[] reservedPrefixes))
                     continue;
 
-                string normalizedPrefix = reserved.ToString("X2");
-                if (seenPrefixes.ContainsKey(normalizedPrefix))
-                    continue;
+                foreach (byte reserved in reservedPrefixes)
+                {
+                    string normalizedPrefix = reserved.ToString("X2");
+                    if (seenPrefixes.ContainsKey(normalizedPrefix))
+                        continue;
 
-                seenPrefixes[normalizedPrefix] = new PrefixUsage(
-                    null,
-                    $"the reserved prefix of base class {baseType.Name}");
+                    seenPrefixes[normalizedPrefix] = new PrefixUsage(
+                        null,
+                        $"the reserved prefix of base class {baseType.Name}");
+                }
             }
+        }
+
+        private static string GetReservedBaseTypeName(INamedTypeSymbol baseType)
+        {
+            string namespaceName = baseType.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            return $"{namespaceName}.{baseType.MetadataName}";
         }
 
         private static bool IsStorageNamespaceType(ITypeSymbol typeSymbol)
