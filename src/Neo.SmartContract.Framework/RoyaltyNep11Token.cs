@@ -121,7 +121,7 @@ namespace Neo.SmartContract.Framework
         {
             ExecutionEngine.Assert(recipient.IsValidAndNotZero, "The royalty recipient is invalid.");
             ExecutionEngine.Assert(basisPoints >= 0 && basisPoints <= RoyaltyDenominator,
-                "The royalty basis points must be between 0 and 10000.");
+                "The royalty basis points must be between [0, 10000].");
             return StdLib.Serialize(new object[] { recipient, basisPoints });
         }
     }
