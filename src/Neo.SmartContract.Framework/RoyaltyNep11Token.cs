@@ -39,6 +39,8 @@ namespace Neo.SmartContract.Framework
         protected const byte Prefix_DefaultRoyalty = 0x05;
         protected const byte Prefix_TokenRoyalty = 0x06;
 
+        private static LocalStorageMap DefaultRoyaltyStorage => new(Prefix_DefaultRoyalty);
+
         /// <summary>
         /// The denominator royalties are measured against: 10000 basis points = 100% of the sale
         /// price.
@@ -62,7 +64,7 @@ namespace Neo.SmartContract.Framework
             ExecutionEngine.Assert(salePrice >= 0, "The argument \"salePrice\" must be non-negative.");
 
             ByteString? data = new StorageMap(Prefix_TokenRoyalty)[tokenId]
-                ?? Storage.Get(new[] { Prefix_DefaultRoyalty });
+                ?? DefaultRoyaltyStorage.Get(ByteString.Empty);
             if (data is null)
                 return new Map<string, object>[0];
 
@@ -85,7 +87,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         protected static void SetDefaultRoyalty(UInt160 recipient, BigInteger basisPoints)
         {
-            Storage.Put(new[] { Prefix_DefaultRoyalty }, SerializeRoyalty(recipient, basisPoints));
+            DefaultRoyaltyStorage.Put(ByteString.Empty, SerializeRoyalty(recipient, basisPoints));
         }
 
         /// <summary>
@@ -94,7 +96,7 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         protected static void DeleteDefaultRoyalty()
         {
-            Storage.Delete(new[] { Prefix_DefaultRoyalty });
+            DefaultRoyaltyStorage.Delete(ByteString.Empty);
         }
 
         /// <summary>
