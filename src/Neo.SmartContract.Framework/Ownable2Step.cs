@@ -47,6 +47,9 @@ namespace Neo.SmartContract.Framework
         // The proposed owner awaiting acceptance. Absent (null) means no transfer is in flight.
         private const byte Prefix_PendingOwner = 0xFC;
 
+        private static LocalStorageMap OwnerStorage => new(Prefix_Owner);
+        private static LocalStorageMap PendingOwnerStorage => new(Prefix_PendingOwner);
+
         /// <summary>
         /// Returns the current owner, or <see langword="null"/> if ownership has been renounced
         /// or the contract has not been initialized.
@@ -54,7 +57,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static UInt160? GetOwner()
         {
-            return (UInt160)Storage.Get(new[] { Prefix_Owner })!;
+            return (UInt160)OwnerStorage.Get(ByteString.Empty)!;
         }
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static UInt160? GetPendingOwner()
         {
-            return (UInt160)Storage.Get(new[] { Prefix_PendingOwner })!;
+            return (UInt160)PendingOwnerStorage.Get(ByteString.Empty)!;
         }
 
         protected static bool IsOwner()
@@ -116,11 +119,11 @@ namespace Neo.SmartContract.Framework
 
             // A new proposal supersedes any earlier one; emit a terminal event for the dropped
             // candidate so off-chain indexers never see a pending offer left dangling.
-            UInt160? oldPending = (UInt160)Storage.Get(new[] { Prefix_PendingOwner })!;
+            UInt160? oldPending = (UInt160)PendingOwnerStorage.Get(ByteString.Empty)!;
             if (oldPending is not null)
                 OnOwnershipTransferCanceled(previousOwner, oldPending);
 
-            Storage.Put(new[] { Prefix_PendingOwner }, newOwner);
+            PendingOwnerStorage.Put(ByteString.Empty, newOwner);
             OnOwnershipTransferStarted(previousOwner, newOwner);
         }
 
@@ -130,14 +133,14 @@ namespace Neo.SmartContract.Framework
         /// </summary>
         public static void AcceptOwnership()
         {
-            UInt160? pendingOwner = (UInt160)Storage.Get(new[] { Prefix_PendingOwner })!;
+            UInt160? pendingOwner = (UInt160)PendingOwnerStorage.Get(ByteString.Empty)!;
             ExecutionEngine.Assert(pendingOwner is not null, "no pending owner");
             ExecutionEngine.Assert(pendingOwner!.IsValidAndNotZero, "no pending owner");
             ExecutionEngine.Assert(Runtime.CheckWitness(pendingOwner), "only pending owner");
 
             UInt160? previousOwner = GetOwner();
-            Storage.Put(new[] { Prefix_Owner }, pendingOwner);
-            Storage.Delete(new[] { Prefix_PendingOwner });
+            OwnerStorage.Put(ByteString.Empty, pendingOwner);
+            PendingOwnerStorage.Delete(ByteString.Empty);
             OnOwnershipTransferred(previousOwner, pendingOwner);
         }
 
@@ -150,10 +153,10 @@ namespace Neo.SmartContract.Framework
             if (!IsOwner())
                 throw new System.InvalidOperationException("No Authorization!");
 
-            UInt160? pendingOwner = (UInt160)Storage.Get(new[] { Prefix_PendingOwner })!;
+            UInt160? pendingOwner = (UInt160)PendingOwnerStorage.Get(ByteString.Empty)!;
             ExecutionEngine.Assert(pendingOwner is not null, "no pending owner");
 
-            Storage.Delete(new[] { Prefix_PendingOwner });
+            PendingOwnerStorage.Delete(ByteString.Empty);
             OnOwnershipTransferCanceled(GetOwner(), pendingOwner);
         }
 
@@ -168,8 +171,8 @@ namespace Neo.SmartContract.Framework
                 throw new System.InvalidOperationException("No Authorization!");
 
             UInt160? previousOwner = GetOwner();
-            Storage.Delete(new[] { Prefix_Owner });
-            Storage.Delete(new[] { Prefix_PendingOwner });
+            OwnerStorage.Delete(ByteString.Empty);
+            PendingOwnerStorage.Delete(ByteString.Empty);
             OnOwnershipTransferred(previousOwner, null);
         }
 
@@ -191,7 +194,7 @@ namespace Neo.SmartContract.Framework
             UInt160 initialOwner = (UInt160)data;
             ExecutionEngine.Assert(initialOwner.IsValidAndNotZero, "owner must be valid");
 
-            Storage.Put(new[] { Prefix_Owner }, initialOwner);
+            OwnerStorage.Put(ByteString.Empty, initialOwner);
             OnOwnershipTransferred(null, initialOwner);
         }
     }
