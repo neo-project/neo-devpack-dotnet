@@ -41,7 +41,13 @@ internal partial class MethodConvert
     /// <c>a = b = c</c> is evaluated as <c>a = (b = c)</c>
     /// </example>
     /// <seealso href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/assignment-operator">Assignment operators</seealso>
-    private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression)
+    /// <param name="leaveResultOnStack">
+    /// When <see langword="true"/> (the default, and the only value used in expression context) the
+    /// assigned value is left on the stack as the expression result. When <see langword="false"/>
+    /// (statement context) the result is not produced, avoiding a dead <c>DUP</c> that the statement
+    /// would immediately <c>DROP</c>.
+    /// </param>
+    private void ConvertSimpleAssignmentExpression(SemanticModel model, AssignmentExpressionSyntax expression, bool leaveResultOnStack = true)
     {
         ITypeSymbol assignedType = model.GetTypeInfo(expression).Type ?? model.Compilation.GetSpecialType(SpecialType.System_Object);
 
@@ -55,12 +61,14 @@ internal partial class MethodConvert
             }
 
             BindRefLocal(model, local, refExpression);
-            LdLocSlot(local);
+            if (leaveResultOnStack)
+                LdLocSlot(local);
             return;
         }
 
         ConvertExpression(model, expression.Right);
-        AddInstruction(OpCode.DUP);
+        if (leaveResultOnStack)
+            AddInstruction(OpCode.DUP);
         switch (expression.Left)
         {
             case DeclarationExpressionSyntax left:
