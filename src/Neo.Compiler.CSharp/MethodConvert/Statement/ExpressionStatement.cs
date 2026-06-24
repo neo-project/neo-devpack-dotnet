@@ -44,9 +44,18 @@ namespace Neo.Compiler
             ITypeSymbol type = model.GetTypeInfo(syntax.Expression).Type!;
             using (InsertSequencePoint(syntax.Expression))
             {
-                ConvertExpression(model, syntax.Expression);
-                if (type.SpecialType != SpecialType.System_Void)
-                    AddInstruction(OpCode.DROP);
+                // A simple assignment used as a statement discards its result. Convert it without
+                // producing the result so we avoid emitting a dead DUP followed by this DROP.
+                if (syntax.Expression is AssignmentExpressionSyntax { OperatorToken.ValueText: "=" } assignment)
+                {
+                    ConvertAssignmentExpression(model, assignment, leaveResultOnStack: false);
+                }
+                else
+                {
+                    ConvertExpression(model, syntax.Expression);
+                    if (type.SpecialType != SpecialType.System_Void)
+                        AddInstruction(OpCode.DROP);
+                }
             }
         }
     }

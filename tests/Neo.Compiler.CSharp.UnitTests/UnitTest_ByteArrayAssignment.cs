@@ -23,30 +23,30 @@ namespace Neo.Compiler.CSharp.UnitTests
         public void Test_ByteArrayAssignment()
         {
             CollectionAssert.AreEqual(new byte[] { 0x01, 0x02, 0x04 }, Contract.TestAssignment());
-            AssertGasConsumed(1724190);
+            AssertGasConsumed(1723950);
         }
 
         [TestMethod]
         public void Test_ByteArrayAssignmentOutOfBounds()
         {
             Assert.ThrowsException<TestException>(Contract.TestAssignmentOutOfBounds);
-            AssertGasConsumed(1724070);
+            AssertGasConsumed(1723890);
         }
 
         [TestMethod]
         public void Test_ByteArrayAssignmentOverflow()
         {
             CollectionAssert.AreEqual(new byte[] { 0xff, 0x02, 0x03 }, Contract.TestAssignmentOverflow());
-            AssertGasConsumed(1478520);
+            AssertGasConsumed(1478400);
         }
 
         [TestMethod]
         public void Test_ByteArrayAssignmentWrongCasting()
         {
             var exception = Assert.ThrowsException<TestException>(Contract.TestAssignmentWrongCasting);
-            AssertGasConsumed(1478340);
+            AssertGasConsumed(1478280);
             Assert.IsInstanceOfType<InvalidOperationException>(exception.InnerException);
-            AssertGasConsumed(1478340);
+            AssertGasConsumed(1478280);
         }
 
         [TestMethod]

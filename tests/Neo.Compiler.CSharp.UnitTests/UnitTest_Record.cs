@@ -37,7 +37,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 24;
             var result = Contract.Test_CreateRecord2(name, age)!;
-            AssertGasConsumed(1618320);
+            AssertGasConsumed(1618200);
             var arr = result as Struct;
             Assert.AreEqual(2, arr!.Count);
             Assert.AreEqual(name, arr[0].GetString());
@@ -75,7 +75,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             var name = "klsas";
             var age = 24;
             var result = Contract.Test_DeconstructRecord(name, age)!;
-            AssertGasConsumed(1679970);
+            AssertGasConsumed(1679850);
             Assert.AreEqual(name, result);
         }
 
