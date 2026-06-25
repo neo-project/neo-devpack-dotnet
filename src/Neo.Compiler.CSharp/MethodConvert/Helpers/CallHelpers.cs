@@ -11,7 +11,6 @@
 
 extern alias scfx;
 
-using Akka.Util.Internal;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
