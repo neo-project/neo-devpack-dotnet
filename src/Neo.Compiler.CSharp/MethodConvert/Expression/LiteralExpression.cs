@@ -110,10 +110,17 @@ internal partial class MethodConvert
                 {
                     AddInstruction(OpCode.PUSHNULL);
                 }
+                else if (type.TypeKind == TypeKind.Enum)
+                {
+                    // An enum's default value is its underlying zero, not a struct.
+                    AddInstruction(OpCode.PUSH0);
+                }
                 else if (type.IsValueType)
                 {
-                    // For structs and other value types, we need to create a default instance
-                    AddInstruction(OpCode.NEWSTRUCT0);
+                    // A struct's default is a struct whose fields are themselves default-initialized
+                    // (the same shape as new T()). Emitting NEWSTRUCT0 produced a zero-field struct that
+                    // faulted on any later field access.
+                    CreateObject(model, type);
                 }
                 else
                 {
