@@ -112,8 +112,6 @@ namespace Neo.SmartContract.Framework
             if (!IsOwner())
                 throw new System.InvalidOperationException("No Authorization!");
 
-            var pendingOwnerStorage = PendingOwnerStorage;
-
             ExecutionEngine.Assert(newOwner.IsValidAndNotZero, "owner must be valid");
 
             UInt160? previousOwner = GetOwner();
@@ -121,6 +119,7 @@ namespace Neo.SmartContract.Framework
 
             // A new proposal supersedes any earlier one; emit a terminal event for the dropped
             // candidate so off-chain indexers never see a pending offer left dangling.
+            var pendingOwnerStorage = PendingOwnerStorage;
             UInt160? oldPending = (UInt160)pendingOwnerStorage.Get(ByteString.Empty)!;
             if (oldPending is not null)
                 OnOwnershipTransferCanceled(previousOwner, oldPending);
