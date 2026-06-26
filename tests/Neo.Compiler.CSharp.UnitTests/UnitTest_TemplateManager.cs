@@ -76,6 +76,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(csContent.Contains($"public class {projectName} : SmartContract"));
             Assert.IsTrue(csContent.Contains("GetMessage"));
             Assert.IsTrue(csContent.Contains("SetMessage"));
+            // Update/Destroy must be owner-gated, not callable by anyone.
+            Assert.IsTrue(csContent.Contains("IsOwner"));
+            Assert.IsTrue(csContent.Contains("No authorization."));
         }
 
         [TestMethod]
