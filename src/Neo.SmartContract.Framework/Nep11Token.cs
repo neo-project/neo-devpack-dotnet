@@ -41,7 +41,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public static UInt160 OwnerOf(ByteString tokenId)
         {
-            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
+            if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
             var tokenMap = new LocalStorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
@@ -51,7 +51,7 @@ namespace Neo.SmartContract.Framework
         [Safe]
         public virtual Map<string, object> Properties(ByteString tokenId)
         {
-            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
+            if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
             var tokenMap = new LocalStorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
             TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
@@ -80,7 +80,7 @@ namespace Neo.SmartContract.Framework
         public static bool Transfer(UInt160 to, ByteString tokenId, object? data = null)
         {
             if (!to.IsValid) throw new Exception("The argument \"to\" is invalid.");
-            if (tokenId.Length > 64) throw new Exception("The argument \"tokenId\" should be 64 or less bytes long.");
+            if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
 
             var tokenMap = new LocalStorageMap(Prefix_Token);
             var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
@@ -115,6 +115,7 @@ namespace Neo.SmartContract.Framework
 
         protected static void Mint(ByteString tokenId, TokenState token)
         {
+            if (tokenId.Length > 43) throw new Exception("The argument \"tokenId\" should be 43 or less bytes long.");
             var tokenMap = new LocalStorageMap(Prefix_Token);
             if (tokenMap[tokenId] is not null) throw new InvalidOperationException("The token with given \"tokenId\" already exists.");
             tokenMap[tokenId] = StdLib.Serialize(token);
