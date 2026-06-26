@@ -72,6 +72,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.Contains("world");
         }
 
+        public static bool TestContainsChar(string str, char c)
+        {
+            return str.Contains(c);
+        }
+
         public static bool TestStartsWith(string str)
         {
             return str.StartsWith("world");

@@ -33,8 +33,8 @@ namespace Neo.Compiler.CSharp.UnitTests
         [TestMethod]
         public void UnitTest_Properties_ValidateTokenIdLength()
         {
-            var ex = Assert.ThrowsException<TestException>(() => Contract.Properties(new byte[65]));
-            StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "64 or less bytes long");
+            var ex = Assert.ThrowsException<TestException>(() => Contract.Properties(new byte[44]));
+            StringAssert.Contains(ex.InnerException?.Message ?? ex.Message, "43 or less bytes long");
         }
 
         [TestMethod]
