@@ -30,8 +30,8 @@ namespace Neo.SmartContract.Analyzer
             "Copy", "CopyTo", "Format", "GetEnumerator",
             "GetHashCode", "GetType", "GetTypeCode",
             "IndexOfAny", "Intern", "IsInterned", "IsNormalized",
-            "Join", "LastIndexOfAny", "Normalize", "PadLeft",
-            "PadRight", "ToCharArray", "ToLowerInvariant", "ToUpperInvariant"
+            "Join", "LastIndexOfAny", "Normalize",
+            "ToCharArray", "ToLowerInvariant", "ToUpperInvariant"
         };
 
         private static readonly DiagnosticDescriptor Rule = new(
