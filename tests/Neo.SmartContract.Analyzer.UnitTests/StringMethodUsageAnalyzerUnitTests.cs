@@ -35,5 +35,50 @@ namespace Neo.SmartContract.Analyzer.Test
 
             await VerifyCS.VerifyAnalyzerAsync(test);
         }
+
+        [TestMethod]
+        public async Task PadLeftAndPadRight_ShouldNotReportDiagnostic()
+        {
+            // The compiler supports string.PadLeft/PadRight (all overloads), so the
+            // analyzer must not flag them as unsupported.
+            var test = """
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               string x = "Hello";
+                               string a = x.PadLeft(10);
+                               string b = x.PadLeft(10, '*');
+                               string c = x.PadRight(10);
+                               string d = x.PadRight(10, '*');
+                           }
+                       }
+                       """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task UnsupportedStringMethod_ShouldReportDiagnostic()
+        {
+            var test = """
+
+                       class TestClass
+                       {
+                           public void TestMethod()
+                           {
+                               string x = "Hello";
+                               string y = x.Normalize();
+                           }
+                       }
+                       """;
+
+            var expected = VerifyCS.Diagnostic(StringMethodUsageAnalyzer.DiagnosticId)
+                .WithSpan(7, 20, 7, 33)
+                .WithArguments("Normalize");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
     }
 }
