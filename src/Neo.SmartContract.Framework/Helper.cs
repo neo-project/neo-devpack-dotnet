@@ -220,7 +220,8 @@ namespace Neo.SmartContract.Framework
         public extern static byte[] Last(this byte[] source, int count);
 
         /// <summary>
-        /// Returns a reversed copy of parameter 'source'.
+        /// Reverses 'source' in place and returns the same reference.
+        /// The argument is mutated, so do not keep using 'source' expecting its original order.
         /// Example: [0a,0b,0c,0d,0e] -> [0e,0d,0c,0b,0a]
         /// </summary>
         [OpCode(OpCode.DUP)]
