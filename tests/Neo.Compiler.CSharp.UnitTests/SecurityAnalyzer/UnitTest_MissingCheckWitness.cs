@@ -14,12 +14,15 @@ using Neo.Compiler.SecurityAnalyzer;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
+using Neo.SmartContract.Native;
 using Neo.SmartContract.Testing;
 using Neo.VM;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
 {
@@ -132,13 +135,172 @@ public class Contract : SmartContract
             Assert.IsTrue(result.vulnerableMethodNames.Contains("dynamicWrite"));
         }
 
+        [TestMethod]
+        public void Test_MissingCheckWitness_Flags_ContractManagementUpdate_ViaCallT_WithoutWitness()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                LifecycleToken("update", CallFlags.All)
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script, tokens),
+                CreateManifest(Method("unsafeUpgrade", 0)),
+                null);
+
+            Assert.IsTrue(result.unauthenticatedLifecycleMethodNames.Contains("unsafeUpgrade"));
+            // It does not write storage, so it must not appear in the storage-write list.
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("unsafeUpgrade"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_Flags_ContractManagementDestroy_ViaCallT_WithoutWitness()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                LifecycleToken("destroy", CallFlags.All)
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script, tokens),
+                CreateManifest(Method("unsafeDestroy", 0)),
+                null);
+
+            Assert.IsTrue(result.unauthenticatedLifecycleMethodNames.Contains("unsafeDestroy"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_ContractManagementUpdate_WhenWitnessPresent()
+        {
+            // SYSCALL CheckWitness, then CALLT update, then RET.
+            var script = new List<byte>();
+            script.Add((byte)OpCode.SYSCALL);
+            script.AddRange(BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash));
+            script.Add((byte)OpCode.CALLT);
+            script.Add(0x00);
+            script.Add(0x00);
+            script.Add((byte)OpCode.RET);
+
+            MethodToken[] tokens =
+            [
+                LifecycleToken("update", CallFlags.All)
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script.ToArray(), tokens),
+                CreateManifest(Method("guardedUpgrade", 0)),
+                null);
+
+            Assert.IsFalse(result.unauthenticatedLifecycleMethodNames.Contains("guardedUpgrade"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_NonWriteCapableContractManagementToken()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            // Read-only call flags must not be reported as a lifecycle mutation.
+            MethodToken[] tokens =
+            [
+                LifecycleToken("update", CallFlags.ReadOnly)
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script, tokens),
+                CreateManifest(Method("readOnlyish", 0)),
+                null);
+
+            Assert.IsFalse(result.unauthenticatedLifecycleMethodNames.Contains("readOnlyish"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_Flags_ContractManagementUpdate_ViaSyscallPattern()
+        {
+            byte[] updateBytes = Encoding.UTF8.GetBytes("update");
+            byte[] hashBytes = NativeContract.ContractManagement.Hash.GetSpan().ToArray();
+
+            var script = new List<byte>();
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)updateBytes.Length);
+            script.AddRange(updateBytes);
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)hashBytes.Length);
+            script.AddRange(hashBytes);
+            script.Add((byte)OpCode.SYSCALL);
+            script.AddRange(BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash));
+            script.Add((byte)OpCode.RET);
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script.ToArray(), Array.Empty<MethodToken>()),
+                CreateManifest(Method("unsafeUpgrade", 0)),
+                null);
+
+            Assert.IsTrue(result.unauthenticatedLifecycleMethodNames.Contains("unsafeUpgrade"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_WarningInfo_IncludesLifecycleSection()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                LifecycleToken("update", CallFlags.All)
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script, tokens),
+                CreateManifest(Method("unsafeUpgrade", 0)),
+                null);
+
+            string warning = result.GetWarningInfo(print: false);
+            Assert.IsTrue(warning.Contains("[SECURITY]"));
+            Assert.IsTrue(warning.Contains("ContractManagement.Update/Destroy"));
+            Assert.IsTrue(warning.Contains("unsafeUpgrade"));
+        }
+
+        private static MethodToken LifecycleToken(string method, CallFlags flags)
+        {
+            return new MethodToken
+            {
+                Hash = NativeContract.ContractManagement.Hash,
+                Method = method,
+                ParametersCount = (ushort)(method == "destroy" ? 0 : 3),
+                HasReturnValue = false,
+                CallFlags = flags
+            };
+        }
+
         private static NefFile CreateNefFile(byte[] script)
+            => CreateNefFile(script, Array.Empty<MethodToken>());
+
+        private static NefFile CreateNefFile(byte[] script, MethodToken[] tokens)
         {
             return new NefFile
             {
                 Compiler = "test",
                 Source = "test.cs",
-                Tokens = Array.Empty<MethodToken>(),
+                Tokens = tokens,
                 Script = script
             };
         }
