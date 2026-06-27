@@ -140,8 +140,8 @@ namespace Neo.SmartContract.Framework
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
-            ExecutionEngine.Assert(HasRole(role, account) && Runtime.CheckWitness(account),
-                "AccessControl: account is missing role");
+            ExecutionEngine.Assert(HasRole(role, account), "AccessControl: account is missing role");
+            ExecutionEngine.Assert(Runtime.CheckWitness(account), "AccessControl: missing witness for account");
         }
 
         /// <summary>
