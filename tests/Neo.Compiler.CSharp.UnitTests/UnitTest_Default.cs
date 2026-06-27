@@ -115,7 +115,22 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             var result = Contract.TestStructDefault();
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.Count);
+            // default(TestStruct) is a struct with its one (zero-initialized) field, not an empty struct.
+            Assert.AreEqual(1, result.Count);
+        }
+
+        [TestMethod]
+        public void TestStructDefaultFieldAccess()
+        {
+            // Accessing a field of default(struct) used to fault (PICKITEM on a zero-field struct).
+            Assert.AreEqual(0, Contract.TestStructDefaultFieldAccess());
+        }
+
+        [TestMethod]
+        public void TestEnumDefault()
+        {
+            // default(enum) is its underlying zero, not a struct.
+            Assert.AreEqual(0, Contract.TestEnumDefault());
         }
 
         [TestMethod]

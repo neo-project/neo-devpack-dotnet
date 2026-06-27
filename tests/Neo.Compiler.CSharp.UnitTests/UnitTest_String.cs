@@ -139,6 +139,14 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestContainsChar()
+        {
+            Assert.IsTrue(Contract.TestContainsChar("hello world", 'w'));
+            Assert.IsTrue(Contract.TestContainsChar("hello world", ' '));
+            Assert.IsFalse(Contract.TestContainsChar("hello", 'z'));
+        }
+
+        [TestMethod]
         public void Test_TestStartsWith()
         {
             Assert.IsTrue(Contract.TestStartsWith("worldwide"));
