@@ -183,13 +183,15 @@ namespace Neo.SmartContract.Framework
         /// Initializes the owner. Call this from the contract's <c>_deploy</c> method.
         /// </summary>
         /// <remarks>
-        /// On a contract update this is a no-op and never resets the owner. Note that an in-flight
-        /// pending transfer is intentionally left untouched across an update; operators should
-        /// cancel any in-flight transfer before upgrading if the upgrade changes trust assumptions.
+        /// On a contract update this preserves the current owner. If no owner is stored yet, it
+        /// initializes one so contracts adopting <see cref="Ownable2Step"/> during an upgrade do not
+        /// remain ownerless. Note that an in-flight pending transfer is intentionally left untouched
+        /// across an update; operators should cancel any in-flight transfer before upgrading if the
+        /// upgrade changes trust assumptions.
         /// </remarks>
         protected static void InitializeOwner(object? data, bool update)
         {
-            if (update)
+            if (update && GetOwner() is not null)
                 return;
 
             data ??= Runtime.Transaction.Sender;

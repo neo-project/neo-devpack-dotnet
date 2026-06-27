@@ -284,6 +284,22 @@ public class Ownable2StepTest
     }
 
     [TestMethod]
+    public void InitializeOwner_UpdateInitializesWhenOwnerMissing()
+    {
+        var engine = CreateEngine();
+        var contract = Deploy(engine, out _, out _);
+
+        contract.ClearOwnerForTest();
+        Assert.IsNull(contract.GetOwner());
+
+        contract.InitializeForTest(Bob.Account, true);
+
+        Assert.AreEqual(Bob.Account, contract.GetOwner());
+        Assert.IsNull(contract.GetPendingOwner());
+        Merge(contract);
+    }
+
+    [TestMethod]
     public void RePropose_SupersedesPending()
     {
         var engine = CreateEngine();
