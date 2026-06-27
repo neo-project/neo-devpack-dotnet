@@ -401,6 +401,7 @@ internal partial class MethodConvert
         RegisterHandler((string? s) => string.IsNullOrWhiteSpace(s), HandleStringIsNullOrWhiteSpace);
         RegisterHandler((string s, int startIndex, int length) => s.Substring(startIndex, length), HandleStringSubstring);
         RegisterHandler((string s, string value) => s.Contains(value), HandleStringContains);
+        RegisterHandler((string s, char value) => s.Contains(value), HandleStringContains);
         RegisterHandler((string s, string value) => s.StartsWith(value), HandleStringStartsWith);
         RegisterHandler((string s, string value) => s.EndsWith(value), HandleStringEndsWith);
         RegisterHandler((string s, string value) => s.IndexOf(value), HandleStringIndexOf);
