@@ -101,9 +101,28 @@ namespace Neo.Compiler.CSharp.TestContracts
             return a;
         }
 
+        public static int TestStructDefaultFieldAccess()
+        {
+            TestStruct a = default;
+            return a.Value;
+        }
+
+        public static int TestEnumDefault()
+        {
+            TestEnum e = default;
+            return (int)e;
+        }
+
         public struct TestStruct
         {
             public int Value;
+        }
+
+        public enum TestEnum
+        {
+            A,
+            B,
+            C
         }
 
 #pragma warning disable CS8600,CS8603
