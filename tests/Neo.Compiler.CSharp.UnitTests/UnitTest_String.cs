@@ -438,7 +438,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             // No occurrence returns the original string.
             Assert.AreEqual("abc", Contract.TestReplace("abc", "x", "y"));
 
-            // newValue contains oldValue must not loop or re-match the inserted text.
+            // newValue containing oldValue must not loop or re-match the inserted text.
             Assert.AreEqual("aa", Contract.TestReplace("a", "a", "aa"));
             Assert.AreEqual("xbxxbx", Contract.TestReplace("bb", "b", "xbx"));
 
