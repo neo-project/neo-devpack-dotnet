@@ -39,14 +39,14 @@ namespace Neo.SmartContract.Framework.UnitTests
         [TestMethod]
         public void Test_Nep11_OwnerOf_And_Properties_Validate_TokenId_Length_And_Existence()
         {
-            byte[] tooLongTokenId = new byte[65];
-            byte[] validLengthTokenId = new byte[64];
+            byte[] tooLongTokenId = new byte[44];
+            byte[] validLengthTokenId = new byte[43];
 
             var ownerOf = Assert.ThrowsException<TestException>(() => Contract.OwnerOf(tooLongTokenId));
-            Assert.IsTrue(ownerOf.Message.Contains("64 or less bytes long."));
+            Assert.IsTrue(ownerOf.Message.Contains("43 or less bytes long."));
 
             var properties = Assert.ThrowsException<TestException>(() => Contract.Properties(tooLongTokenId));
-            Assert.IsTrue(properties.Message.Contains("64 or less bytes long."));
+            Assert.IsTrue(properties.Message.Contains("43 or less bytes long."));
 
             ownerOf = Assert.ThrowsException<TestException>(() => Contract.OwnerOf(validLengthTokenId));
             Assert.IsTrue(ownerOf.Message.Contains("does not exist."));
@@ -71,14 +71,14 @@ namespace Neo.SmartContract.Framework.UnitTests
         public void Test_Transfer_Validates_To_And_TokenId_Length_And_Existence()
         {
             var validTo = UInt160.Parse("0x0000000000000000000000000000000000000002");
-            byte[] tooLongTokenId = new byte[65];
-            byte[] validLengthTokenId = new byte[64];
+            byte[] tooLongTokenId = new byte[44];
+            byte[] validLengthTokenId = new byte[43];
 
             var ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(null, validLengthTokenId, null));
             Assert.IsTrue(ex.Message.Contains("argument \"to\""));
 
             ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(validTo, tooLongTokenId, null));
-            Assert.IsTrue(ex.Message.Contains("64 or less bytes long."));
+            Assert.IsTrue(ex.Message.Contains("43 or less bytes long."));
 
             ex = Assert.ThrowsException<TestException>(() => Contract.Transfer(validTo, validLengthTokenId, null));
             Assert.IsTrue(ex.Message.Contains("does not exist."));

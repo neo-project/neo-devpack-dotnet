@@ -44,6 +44,200 @@ namespace Neo.SmartContract.Analyzer.UnitTests
             }
             """;
 
+        private const string BaseStubs = """
+            namespace Neo.SmartContract.Framework
+            {
+                public abstract class Ownable { }
+                public abstract class Pausable { }
+                public abstract class TokenContract { }
+                public abstract class Nep17Token : TokenContract { }
+                public abstract class Nep11Token<TState> : TokenContract { }
+            }
+            """;
+
+        private const string ExtendedBaseStubs = """
+            namespace Neo.SmartContract.Framework
+            {
+                public abstract class Ownable2Step { }
+                public abstract class AccessControl { }
+                public abstract class PausableOwnable : Ownable { }
+                public abstract class RoyaltyNep11Token<TState> : Nep11Token<TState> { }
+            }
+            """;
+
+        [TestMethod]
+        public async Task InheritedOwnablePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenA : Neo.SmartContract.Framework.Ownable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0xFF);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(31, 77, 31, 85)
+                .WithArguments("FF", "Balances", "the reserved prefix of base class Ownable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedPausablePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenB : Neo.SmartContract.Framework.Pausable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Flags =
+                        new((byte)0xFE);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(31, 82, 31, 87)
+                .WithArguments("FE", "Flags", "the reserved prefix of base class Pausable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedNep17BalancePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenE : Neo.SmartContract.Framework.Nep17Token
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Balances =
+                        new((byte)0x01);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(31, 82, 31, 90)
+                .WithArguments("01", "Balances", "the reserved prefix of base class Nep17Token");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedNep11TokenPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenF : Neo.SmartContract.Framework.Nep11Token<object>
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Tokens =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x03);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(31, 77, 31, 83)
+                .WithArguments("03", "Tokens", "the reserved prefix of base class Nep11Token");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedOwnable2StepPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenG : Neo.SmartContract.Framework.Ownable2Step
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap PendingOwners =
+                        new((byte)0xFC);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 82, 37, 95)
+                .WithArguments("FC", "PendingOwners", "the reserved prefix of base class Ownable2Step");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedAccessControlPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenH : Neo.SmartContract.Framework.AccessControl
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Roles =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0xFB);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 77, 37, 82)
+                .WithArguments("FB", "Roles", "the reserved prefix of base class AccessControl");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedPausableOwnablePrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenI : Neo.SmartContract.Framework.PausableOwnable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.LocalStorageMap Paused =
+                        new((byte)0xFE);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 82, 37, 88)
+                .WithArguments("FE", "Paused", "the reserved prefix of base class PausableOwnable");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task InheritedRoyaltyNep11TokenPrefix_ReportsDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + ExtendedBaseStubs + """
+                public class TokenJ : Neo.SmartContract.Framework.RoyaltyNep11Token<object>
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap TokenRoyalties =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x06);
+                }
+                """;
+
+            var expected = VerifyCS.Diagnostic(StorageKeyCollisionAnalyzer.DiagnosticId)
+                .WithSpan(37, 77, 37, 91)
+                .WithArguments("06", "TokenRoyalties", "the reserved prefix of base class RoyaltyNep11Token");
+
+            await VerifyCS.VerifyAnalyzerAsync(test, expected);
+        }
+
+        [TestMethod]
+        public async Task NonInheritedReservedPrefix_DoesNotReportDiagnostic()
+        {
+            // A contract that does not inherit Ownable is free to use 0xFF for its own data.
+            var test = StorageStubs + BaseStubs + """
+                public class TokenC
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0xFF);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
+        [TestMethod]
+        public async Task InheritedOwnable_DifferentPrefix_DoesNotReportDiagnostic()
+        {
+            var test = StorageStubs + BaseStubs + """
+                public class TokenD : Neo.SmartContract.Framework.Ownable
+                {
+                    private static readonly Neo.SmartContract.Framework.Services.StorageMap Balances =
+                        new(Neo.SmartContract.Framework.Services.Storage.CurrentContext, (byte)0x01);
+                }
+                """;
+
+            await VerifyCS.VerifyAnalyzerAsync(test);
+        }
+
         [TestMethod]
         public async Task DuplicateBytePrefixFields_ReportDiagnostic()
         {
