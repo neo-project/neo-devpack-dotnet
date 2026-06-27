@@ -78,6 +78,8 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.IsTrue(csContent.Contains("SetMessage"));
             // Update/Destroy must be owner-gated, not callable by anyone.
             Assert.IsTrue(csContent.Contains("IsOwner"));
+            Assert.IsTrue(csContent.Contains("EnsureOwner();"));
+            Assert.IsTrue(csContent.Contains("[MethodImpl(MethodImplOptions.AggressiveInlining)]"));
             Assert.IsTrue(csContent.Contains("No authorization."));
         }
 

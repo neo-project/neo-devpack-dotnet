@@ -224,6 +224,7 @@ using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace {{Namespace}}
 {
@@ -244,7 +245,15 @@ namespace {{Namespace}}
             return (UInt160)Storage.Get(new[] { Prefix_Owner });
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsOwner() => Runtime.CheckWitness(GetOwner());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EnsureOwner()
+        {
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+        }
 
         [Safe]
         public static string GetMessage(string name)
@@ -277,15 +286,13 @@ namespace {{Namespace}}
 
         public static void Update(ByteString nefFile, string manifest, object? data = null)
         {
-            if (!IsOwner())
-                throw new InvalidOperationException(""No authorization."");
+            EnsureOwner();
             ContractManagement.Update(nefFile, manifest, data);
         }
 
         public static void Destroy()
         {
-            if (!IsOwner())
-                throw new InvalidOperationException(""No authorization."");
+            EnsureOwner();
             ContractManagement.Destroy();
         }
     }
