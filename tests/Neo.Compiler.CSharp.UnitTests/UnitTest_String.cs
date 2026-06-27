@@ -424,6 +424,32 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_TestReplace()
+        {
+            // Single occurrence, plus matches at the start and the end.
+            Assert.AreEqual("Hello Neo", Contract.TestReplace("Hello World", "World", "Neo"));
+            Assert.AreEqual("XYbc", Contract.TestReplace("abc", "a", "XY"));
+            Assert.AreEqual("abXY", Contract.TestReplace("abc", "c", "XY"));
+
+            // Multiple occurrences.
+            Assert.AreEqual("bbb", Contract.TestReplace("aaa", "a", "b"));
+            Assert.AreEqual("a-b-c", Contract.TestReplace("aXXbXXc", "XX", "-"));
+
+            // No occurrence returns the original string.
+            Assert.AreEqual("abc", Contract.TestReplace("abc", "x", "y"));
+
+            // newValue contains oldValue must not loop or re-match the inserted text.
+            Assert.AreEqual("aa", Contract.TestReplace("a", "a", "aa"));
+            Assert.AreEqual("xbxxbx", Contract.TestReplace("bb", "b", "xbx"));
+
+            // Replacing with the empty string removes every occurrence.
+            Assert.AreEqual("abc", Contract.TestReplace("a-b-c", "-", ""));
+
+            // An empty oldValue throws in C#; the contract faults instead of looping forever.
+            Assert.ThrowsException<TestException>(() => Contract.TestReplace("abc", "", "x"));
+        }
+
+        [TestMethod]
         public void Test_TestIndexOfChar()
         {
             Assert.AreEqual(1, Contract.TestIndexOfChar("Hello", 'e'));

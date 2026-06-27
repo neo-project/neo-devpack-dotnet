@@ -209,6 +209,11 @@ namespace Neo.Compiler.CSharp.TestContracts
             return str.Insert(startIndex, value);
         }
 
+        public static string TestReplace(string str, string oldValue, string newValue)
+        {
+            return str.Replace(oldValue, newValue);
+        }
+
         public static int TestIndexOfChar(string s, char c)
         {
             return s.IndexOf(c);
