@@ -78,6 +78,58 @@ public class Contract : SmartContract
         }
 
         [TestMethod]
+        public void Test_MissingCheckWitness_Flags_BranchConsumedWitness_ThenUnguardedWrite()
+        {
+            // The witness gates only the if-body; the storage write after the branches rejoin is
+            // reachable whether or not the witness held. The control-flow-sensitive pass must flag it
+            // even though a CheckWitness is present in the method.
+            const string source = @"using Neo;
+using Neo.SmartContract.Framework;
+using Neo.SmartContract.Framework.Services;
+
+public class Contract : SmartContract
+{
+    public static void Exploit(UInt160 owner, byte[] key, byte[] value)
+    {
+        if (Runtime.CheckWitness(owner))
+        {
+            Runtime.Log(""authorized"");
+        }
+        Storage.Put(Storage.CurrentContext, key, value);
+    }
+
+    public static void Guarded(UInt160 owner, byte[] key, byte[] value)
+    {
+        if (Runtime.CheckWitness(owner))
+        {
+            Storage.Put(Storage.CurrentContext, key, value);
+        }
+    }
+
+    public static void WriteThenCheck(UInt160 owner, byte[] key, byte[] value)
+    {
+        Storage.Put(Storage.CurrentContext, key, value);
+        ExecutionEngine.Assert(Runtime.CheckWitness(owner));
+    }
+}";
+
+            var context = TestHelper.CompileSingleContract(source);
+            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                context.CreateExecutable(),
+                context.CreateManifest(),
+                null);
+
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("exploit"),
+                "Branch-consumed witness with an unguarded write must be flagged.");
+            Assert.IsTrue(result.vulnerableMethodNames.Contains("writeThenCheck"),
+                "A write reached before the witness assertion must be flagged.");
+            Assert.IsFalse(result.vulnerableMethodNames.Contains("guarded"),
+                "A write inside the witness-guarded branch must not be flagged.");
+        }
+
+        [TestMethod]
         public void Test_MissingCheckWitness_Skips_Deploy_And_Initialize_Callbacks()
         {
             const string source = @"using Neo.SmartContract.Framework;
