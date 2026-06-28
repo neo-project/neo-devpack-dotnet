@@ -294,30 +294,26 @@ partial class MethodConvert
         methodConvert.Push0();
         methodConvert.PickItem();
         methodConvert.Push((ushort)'-');
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrueLong(signTarget);
+        methodConvert.JumpIfEqual(signTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.Push0();
         methodConvert.PickItem();
         methodConvert.Push((ushort)'+');
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrueLong(signTarget);
+        methodConvert.JumpIfEqual(signTarget);
         methodConvert.JumpAlwaysLong(loopTarget);
 
         signTarget.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
         methodConvert.Push1();
-        methodConvert.NumEqual();
-        methodConvert.JumpIfTrueLong(failTarget);
+        methodConvert.JumpIfEqual(failTarget);
         methodConvert.Push1();
         methodConvert.AccessSlot(OpCode.STLOC, indexSlot);
 
         loopTarget.Instruction = methodConvert.Nop();
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, lengthSlot);
-        methodConvert.Ge();
-        methodConvert.JumpIfTrueLong(successTarget);
+        methodConvert.JumpIfGreaterOrEqual(successTarget);
 
         methodConvert.AccessSlot(OpCode.LDLOC, strSlot);
         methodConvert.AccessSlot(OpCode.LDLOC, indexSlot);

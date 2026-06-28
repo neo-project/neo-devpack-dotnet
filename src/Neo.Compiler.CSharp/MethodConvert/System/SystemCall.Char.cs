@@ -48,9 +48,8 @@ internal partial class MethodConvert
         methodConvert.Dup();
         methodConvert.Size();
         methodConvert.Push(1);
-        methodConvert.NumEqual();
         JumpTarget sizeOk = new();
-        methodConvert.JumpIfTrue(sizeOk);
+        methodConvert.JumpIfEqual(sizeOk);
         methodConvert.Throw();
         sizeOk.Instruction = methodConvert.Nop();
 
@@ -83,8 +82,7 @@ internal partial class MethodConvert
         methodConvert.Dup();
         methodConvert.Size();
         methodConvert.Push(1);
-        methodConvert.NumEqual();
-        methodConvert.JumpIfFalseLong(failTarget);
+        methodConvert.JumpIfNotEqual(failTarget);
 
         // take the first byte as the resulting char
         methodConvert.Push(0);
