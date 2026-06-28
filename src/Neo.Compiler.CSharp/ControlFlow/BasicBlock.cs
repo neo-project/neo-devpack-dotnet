@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -17,8 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
-using Neo.Optimizer;
 namespace Neo.Compiler.ControlFlow
 {
     using Instruction = Neo.VM.Instruction;
