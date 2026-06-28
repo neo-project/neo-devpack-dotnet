@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.ControlFlow;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
 using Neo.SmartContract;
@@ -184,6 +185,82 @@ public class Contract : SmartContract
             Assert.IsTrue(result.vulnerableMethodNames.Contains("dynamicWrite"));
         }
 
+        [TestMethod]
+        public void Test_WitnessFlowAnalysis_TreatsAssertAsGuard()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.ASSERT,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            Assert.AreEqual(false, AnalyzeWitnessFlow(script));
+        }
+
+        [TestMethod]
+        public void Test_WitnessFlowAnalysis_TreatsJumpIfTargetAsGuarded()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.JMPIF, 0x03,
+                (byte)OpCode.RET,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+
+            Assert.AreEqual(false, AnalyzeWitnessFlow(script));
+        }
+
+        [TestMethod]
+        public void Test_WitnessFlowAnalysis_TreatsJumpIfNotFallthroughAsGuarded()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.JMPIFNOT, 0x08,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET,
+                (byte)OpCode.RET
+            ];
+
+            Assert.AreEqual(false, AnalyzeWitnessFlow(script));
+        }
+
+        [TestMethod]
+        public void Test_WitnessFlowAnalysis_BailsOutOnUnmodelledWitnessConsumers()
+        {
+            byte[] negativeAssertScript =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.NOT,
+                (byte)OpCode.ASSERT,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+            Assert.IsNull(AnalyzeWitnessFlow(negativeAssertScript));
+
+            byte[] unusedWitnessScript =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+            Assert.IsNull(AnalyzeWitnessFlow(unusedWitnessScript));
+
+            byte[] duplicateWitnessScript =
+            [
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
+                (byte)OpCode.ASSERT,
+                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
+                (byte)OpCode.RET
+            ];
+            Assert.IsNull(AnalyzeWitnessFlow(duplicateWitnessScript));
+        }
+
         private static NefFile CreateNefFile(byte[] script)
         {
             return new NefFile
@@ -223,6 +300,15 @@ public class Contract : SmartContract
                 ReturnType = ContractParameterType.Void,
                 Safe = false
             };
+        }
+
+        private static bool? AnalyzeWitnessFlow(byte[] script)
+        {
+            var cfg = new ContractInBasicBlocks(
+                CreateNefFile(script),
+                CreateManifest(Method("main", 0)),
+                null);
+            return WitnessFlowAnalysis.HasUnguardedWrite(cfg, 0);
         }
     }
 }
