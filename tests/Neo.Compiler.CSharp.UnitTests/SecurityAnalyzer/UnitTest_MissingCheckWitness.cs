@@ -230,6 +230,50 @@ public class Contract : SmartContract
         }
 
         [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_InvalidLifecycleTokenIndex()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x01, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                LifecycleToken("update", CallFlags.All)
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script, tokens),
+                CreateManifest(Method("badToken", 0)),
+                null);
+
+            Assert.IsFalse(result.unauthenticatedLifecycleMethodNames.Contains("badToken"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_NonLifecycleContractManagementToken()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0x00, 0x00,
+                (byte)OpCode.RET
+            ];
+
+            MethodToken[] tokens =
+            [
+                LifecycleToken("getContract", CallFlags.All)
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script, tokens),
+                CreateManifest(Method("readContract", 0)),
+                null);
+
+            Assert.IsFalse(result.unauthenticatedLifecycleMethodNames.Contains("readContract"));
+        }
+
+        [TestMethod]
         public void Test_MissingCheckWitness_Flags_ContractManagementUpdate_ViaSyscallPattern()
         {
             byte[] updateBytes = Encoding.UTF8.GetBytes("update");
@@ -252,6 +296,74 @@ public class Contract : SmartContract
                 null);
 
             Assert.IsTrue(result.unauthenticatedLifecycleMethodNames.Contains("unsafeUpgrade"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_ShortContractCallSyscallPattern()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.SYSCALL,
+                .. BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash),
+                (byte)OpCode.RET
+            ];
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script, Array.Empty<MethodToken>()),
+                CreateManifest(Method("tooShort", 0)),
+                null);
+
+            Assert.IsFalse(result.unauthenticatedLifecycleMethodNames.Contains("tooShort"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_NonLifecycleContractCallSyscallPattern()
+        {
+            byte[] methodBytes = Encoding.UTF8.GetBytes("balanceOf");
+            byte[] hashBytes = NativeContract.ContractManagement.Hash.GetSpan().ToArray();
+
+            var script = new List<byte>();
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)methodBytes.Length);
+            script.AddRange(methodBytes);
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)hashBytes.Length);
+            script.AddRange(hashBytes);
+            script.Add((byte)OpCode.SYSCALL);
+            script.AddRange(BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash));
+            script.Add((byte)OpCode.RET);
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script.ToArray(), Array.Empty<MethodToken>()),
+                CreateManifest(Method("readCall", 0)),
+                null);
+
+            Assert.IsFalse(result.unauthenticatedLifecycleMethodNames.Contains("readCall"));
+        }
+
+        [TestMethod]
+        public void Test_MissingCheckWitness_DoesNotFlag_WrongLifecycleSyscallHash()
+        {
+            byte[] updateBytes = Encoding.UTF8.GetBytes("update");
+            byte[] hashBytes = new byte[20];
+
+            var script = new List<byte>();
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)updateBytes.Length);
+            script.AddRange(updateBytes);
+            script.Add((byte)OpCode.PUSHDATA1);
+            script.Add((byte)hashBytes.Length);
+            script.AddRange(hashBytes);
+            script.Add((byte)OpCode.SYSCALL);
+            script.AddRange(BitConverter.GetBytes(ApplicationEngine.System_Contract_Call.Hash));
+            script.Add((byte)OpCode.RET);
+
+            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
+                CreateNefFile(script.ToArray(), Array.Empty<MethodToken>()),
+                CreateManifest(Method("wrongHash", 0)),
+                null);
+
+            Assert.IsFalse(result.unauthenticatedLifecycleMethodNames.Contains("wrongHash"));
         }
 
         [TestMethod]

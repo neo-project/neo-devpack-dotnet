@@ -135,6 +135,19 @@ public class Contract : SmartContract
         }
 
         [TestMethod]
+        public void SafeMethod_WriteStatesContractCall_FailsCompilation()
+        {
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    [Safe]
+    public static object Get(UInt160 h) => Neo.SmartContract.Framework.Services.Contract.Call(h, ""m"", CallFlags.WriteStates, new object[] { 1 });"));
+
+            Assert.IsFalse(context.Success, "CallFlags.WriteStates must fail for a [Safe] method.");
+            Assert.IsTrue(
+                context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId && d.Severity == DiagnosticSeverity.Error),
+                "Expected an NC3012 error for CallFlags.WriteStates.");
+        }
+
+        [TestMethod]
         public void SafeMethod_TransitiveWriteCapableCall_FailsCompilation()
         {
             // The write-capable call is hidden behind a private helper; the analysis must
@@ -164,6 +177,36 @@ public class Contract : SmartContract
             Assert.IsFalse(
                 context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId),
                 "A read-only Contract.Call must not produce an NC3012 diagnostic.");
+        }
+
+        [TestMethod]
+        public void SafeMethod_UnknownNonWriteConstantContractCall_Compiles()
+        {
+            // This exercises the non-small integer constant path while preserving the no-WriteStates bit.
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    [Safe]
+    public static object Get(UInt160 h) => Neo.SmartContract.Framework.Services.Contract.Call(h, ""m"", (CallFlags)32, new object[] { 1 });"));
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            Assert.IsFalse(
+                context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId),
+                "A constant without WriteStates must not produce an NC3012 diagnostic.");
+        }
+
+        [TestMethod]
+        public void SafeMethod_DynamicContractCallFlags_Compiles()
+        {
+            // The check only fails the build when the flags are compile-time resolvable.
+            var context = TestHelper.CompileSingleContract(Compile(@"
+    [Safe]
+    public static object Get(UInt160 h, CallFlags flags) => Neo.SmartContract.Framework.Services.Contract.Call(h, ""m"", flags, new object[] { 1 });"));
+
+            Assert.IsTrue(context.Success,
+                string.Join('\n', context.Diagnostics.Select(d => d.ToString())));
+            Assert.IsFalse(
+                context.Diagnostics.Any(d => d.Id == SafeWriteCapableCallDiagnosticId),
+                "Dynamic call flags must not produce an NC3012 diagnostic.");
         }
 
         [TestMethod]
