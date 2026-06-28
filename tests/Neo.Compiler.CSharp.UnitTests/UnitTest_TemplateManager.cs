@@ -57,6 +57,23 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void AllTemplatesGenerateCompilableContracts()
+        {
+            foreach (var (template, _, _) in _templateManager.GetAvailableTemplates())
+            {
+                string projectName = "Tpl" + template;
+                _templateManager.GenerateContract(template, projectName, _testOutputPath);
+
+                string csPath = Path.Combine(_testOutputPath, projectName, projectName + ".cs");
+                Assert.IsTrue(File.Exists(csPath), $"{template}: contract source was not generated.");
+
+                var context = TestHelper.CompileSingleContract(File.ReadAllText(csPath));
+                var diagnostics = string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString()));
+                Assert.IsTrue(context.Success, $"The {template} template does not compile:{Environment.NewLine}{diagnostics}");
+            }
+        }
+
+        [TestMethod]
         public void TestGenerateBasicContract()
         {
             string projectName = "TestBasicContract";

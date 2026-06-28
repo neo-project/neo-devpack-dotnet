@@ -392,7 +392,6 @@ namespace {{Namespace}}
     public class {{ClassName}} : Nep11Token<TokenState>
     {
         private const byte Prefix_Owner = 0xff;
-        private const byte Prefix_TokenId = 0xfe;
 
         public override string Symbol { [Safe] get => ""{{ProjectName}}""; }
 
@@ -423,15 +422,6 @@ namespace {{Namespace}}
             ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, ""owner must exists"");
 
             Storage.Put(new[] { Prefix_Owner }, initialOwner);
-            Storage.Put(new[] { Prefix_TokenId }, 0);
-        }
-
-        protected override byte[] GetKey(string tokenId) =>
-            ConcatKey(Prefix_TokenId, tokenId);
-
-        private static byte[] ConcatKey(byte prefix, string tokenId)
-        {
-            return Helper.Concat((byte[])new[] { prefix }, tokenId);
         }
 
         public static void Update(ByteString nefFile, string manifest, object? data = null)
@@ -513,7 +503,7 @@ namespace {{Namespace}}
             return Storage.Get(key);
         }
 
-        public static void SetData(string key, object value)
+        public static void SetData(string key, ByteString value)
         {
             if (!IsOwner())
                 throw new InvalidOperationException(""No Authorization!"");
