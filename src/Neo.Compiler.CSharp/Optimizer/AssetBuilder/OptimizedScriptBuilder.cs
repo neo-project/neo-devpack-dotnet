@@ -14,7 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using static Neo.Optimizer.OpCodeTypes;
+using static Neo.Compiler.ControlFlow.OpCodeTypes;
 using static Neo.Optimizer.Optimizer;
 
 namespace Neo.Optimizer

@@ -15,8 +15,10 @@ using System.Collections.Generic;
 using System.Linq;
 using static Neo.VM.OpCode;
 
-namespace Neo.Optimizer
+using Neo.Optimizer;
+namespace Neo.Compiler.ControlFlow
 {
+    using Instruction = Neo.VM.Instruction;
     static class OpCodeTypes
     {
         public static readonly HashSet<OpCode> pushConst = new();

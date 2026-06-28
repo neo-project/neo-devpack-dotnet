@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Neo.Compiler.ControlFlow;
 namespace Neo.Optimizer
 {
     public static class Miscellaneous

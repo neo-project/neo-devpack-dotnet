@@ -15,6 +15,8 @@ using Neo.SmartContract.Testing;
 using System.Collections.Generic;
 using System.Linq;
 
+using Neo.Compiler.ControlFlow;
+
 namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 {
     [TestClass]

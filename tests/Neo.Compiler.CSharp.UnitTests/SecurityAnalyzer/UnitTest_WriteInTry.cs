@@ -14,6 +14,7 @@ using Neo;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Json;
 using Neo.Optimizer;
+using Neo.Compiler.ControlFlow;
 using Neo.SmartContract;
 using Neo.SmartContract.Testing;
 using Neo.VM;

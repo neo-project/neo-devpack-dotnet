@@ -17,11 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using static Neo.Optimizer.JumpTarget;
-using static Neo.Optimizer.OpCodeTypes;
+using static Neo.Compiler.ControlFlow.JumpTarget;
+using static Neo.Compiler.ControlFlow.OpCodeTypes;
 
-namespace Neo.Optimizer
+using Neo.Optimizer;
+namespace Neo.Compiler.ControlFlow
 {
+    using Instruction = Neo.VM.Instruction;
     [DebuggerDisplay($"{nameof(TryCatchFinallySingleCoverage)} {nameof(tryAddr)}={{{nameof(tryAddr)}}}")]
     public class TryCatchFinallySingleCoverage
     {

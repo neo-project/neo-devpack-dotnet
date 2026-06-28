@@ -18,8 +18,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Neo.Optimizer
+using Neo.Optimizer;
+namespace Neo.Compiler.ControlFlow
 {
+    using Instruction = Neo.VM.Instruction;
     /// <summary>
     /// A basic block is a group of assembly instructions that are surely executed together.
     /// The start of a basic block can be the target of a jump, or an entry point of execution.

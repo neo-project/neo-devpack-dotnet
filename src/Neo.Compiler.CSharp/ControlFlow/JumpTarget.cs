@@ -14,11 +14,13 @@ using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Neo.Optimizer.OpCodeTypes;
+using static Neo.Compiler.ControlFlow.OpCodeTypes;
 using static Neo.VM.OpCode;
 
-namespace Neo.Optimizer
+using Neo.Optimizer;
+namespace Neo.Compiler.ControlFlow
 {
+    using Instruction = Neo.VM.Instruction;
     static class JumpTarget
     {
         public static bool SingleJumpInOperand(Instruction instruction) => SingleJumpInOperand(instruction.OpCode);

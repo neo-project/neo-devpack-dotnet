@@ -15,8 +15,10 @@ using Neo.VM;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Neo.Optimizer
+using Neo.Optimizer;
+namespace Neo.Compiler.ControlFlow
 {
+    using Instruction = Neo.VM.Instruction;
     public enum EntryType
     {
         PublicMethod,
