@@ -98,7 +98,9 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Returns the admin role that controls granting and revoking <paramref name="role"/>.
-        /// Defaults to <see cref="DEFAULT_ADMIN_ROLE"/> when no override has been set.
+        /// Defaults to <see cref="DEFAULT_ADMIN_ROLE"/> when no override has been set. This is
+        /// the admin role id, not a single admin account; every account holding the admin role can
+        /// administer <paramref name="role"/>.
         /// </summary>
         [Safe]
         public static ByteString GetRoleAdmin(ByteString role)
