@@ -230,12 +230,20 @@ namespace Neo.Compiler.SecurityAnalyzer
             if (b.jumpTargetBlocks.Count != 1)
                 return null;
 
-            bool jumpOnWitnessTrue = consumer switch
+            bool jumpOnWitnessTrue;
+            switch (consumer)
             {
-                OpCode.JMPIF or OpCode.JMPIF_L => polarity,        // jumps when tested value is true
-                OpCode.JMPIFNOT or OpCode.JMPIFNOT_L => !polarity, // jumps when tested value is false
-                _ => false,
-            };
+                case OpCode.JMPIF:
+                case OpCode.JMPIF_L:
+                    jumpOnWitnessTrue = polarity; // jumps when tested value is true
+                    break;
+                case OpCode.JMPIFNOT:
+                case OpCode.JMPIFNOT_L:
+                    jumpOnWitnessTrue = !polarity; // jumps when tested value is false
+                    break;
+                default:
+                    return null;
+            }
 
             BasicBlock? jumpTarget = b.jumpTargetBlocks.First();
             BasicBlock? witnessTrue = jumpOnWitnessTrue ? jumpTarget : b.nextBlock;

@@ -18,9 +18,11 @@ using static Neo.Compiler.ControlFlow.OpCodeTypes;
 using static Neo.VM.OpCode;
 
 using Neo.Optimizer;
+
 namespace Neo.Compiler.ControlFlow
 {
     using Instruction = Neo.VM.Instruction;
+
     static class JumpTarget
     {
         public static bool SingleJumpInOperand(Instruction instruction) => SingleJumpInOperand(instruction.OpCode);

@@ -20,9 +20,11 @@ using static Neo.Compiler.ControlFlow.JumpTarget;
 using static Neo.Compiler.ControlFlow.OpCodeTypes;
 
 using Neo.Optimizer;
+
 namespace Neo.Compiler.ControlFlow
 {
     using Instruction = Neo.VM.Instruction;
+
     [Flags]
     public enum TryType
     {
