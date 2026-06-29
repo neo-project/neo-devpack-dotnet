@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 namespace Neo.SmartContract.Testing.Coverage.Formats
 {
@@ -91,7 +92,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
             {
                 writer.WriteLine($@"
 <div class=""bar"">
-    <div class=""hash"">{contract.Name}</div>
+    <div class=""hash"">{WebUtility.HtmlEncode(contract.Name)}</div>
     <div class=""coverage"">&nbsp;{contract.CoveredBranchPercentage:P2}&nbsp;</div>
     <div class=""coverage"">&nbsp;{contract.CoveredLinesPercentage:P2}&nbsp;</div>
     <div style=""clear: both;""></div>
@@ -110,7 +111,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
 
                     writer.WriteLine($@"
 <div class=""method {kind}-coverage"">
-    <div class=""method-name"">{method.Method}</div>
+    <div class=""method-name"">{WebUtility.HtmlEncode(method.Method.ToString())}</div>
     <div class=""coverage"">&nbsp;{method.CoveredBranchPercentage:P2}&nbsp;</div>
     <div class=""coverage"">&nbsp;{method.CoveredLinesPercentage:P2}&nbsp;</div>
     <div style=""clear: both;""></div>
@@ -129,7 +130,7 @@ namespace Neo.SmartContract.Testing.Coverage.Formats
                             branch = $" <span class=\"branch\">[ᛦ {b.Hits}/{b.Count}]</span>";
                         }
 
-                        writer.WriteLine($@"<div class=""opcode {noHit}hit""><span class=""icon"">{icon}</span><span class=""hits"">{hit.Hits} Hits</span>{hit.Description}{branch}</div>");
+                        writer.WriteLine($@"<div class=""opcode {noHit}hit""><span class=""icon"">{icon}</span><span class=""hits"">{hit.Hits} Hits</span>{WebUtility.HtmlEncode(hit.Description)}{branch}</div>");
                     }
 
                     writer.WriteLine($@"</div>");

@@ -12,6 +12,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Neo.SmartContract.Testing.Coverage;
+using Neo.SmartContract.Testing.Coverage.Formats;
 using System;
 using System.IO;
 using System.Numerics;
@@ -226,6 +227,41 @@ NeoToken [0xef4073a0f2b305a38ec4050e4d3d28bc40ea63f5] [4.76 % - 100.00 %]
             methodCovered = engine.GetCoverage(engine.Native.NEO, "transfer", 4);
             Assert.AreEqual(3, methodCovered?.TotalLines);
             Assert.AreEqual(0, methodCovered?.CoveredLines);
+        }
+
+        [TestMethod]
+        public void TestHtmlReport_EncodesUntrustedText()
+        {
+            // Coverage HTML is generated from attacker-influenced metadata (contract name,
+            // ABI method signatures, instruction descriptions). The report must HTML-encode
+            // those values so a crafted contract cannot inject active markup into a report
+            // that a developer/CI later opens or hosts.
+            var engine = new TestEngine(true);
+            Assert.AreEqual(100_000_000, engine.Native.NEO.TotalSupply); // produce some coverage
+
+            var covered = engine.GetCoverage(engine.Native.NEO);
+            Assert.IsNotNull(covered);
+
+            // Inject an XSS payload where an attacker-controlled manifest name would land.
+            const string payload = "<script>alert(1)</script>";
+            typeof(CoveredContract).GetProperty(nameof(CoveredContract.Name))!
+                .SetValue(covered, payload);
+
+            var format = new IntructionHtmlFormat(covered!);
+            string html;
+            using (var ms = new MemoryStream())
+            {
+                format.WriteReport((_, write) => write(ms));
+                html = Encoding.UTF8.GetString(ms.ToArray());
+            }
+
+            Assert.IsFalse(html.Contains(payload, StringComparison.Ordinal),
+                "The raw payload must not appear unescaped in the coverage HTML report.");
+            Assert.IsTrue(html.Contains("&lt;script&gt;alert(1)&lt;/script&gt;", StringComparison.Ordinal),
+                "The contract name must be HTML-encoded in the coverage HTML report.");
+            // The method/description rendering paths executed without error and remain present.
+            Assert.IsTrue(html.Contains("totalSupply", StringComparison.Ordinal),
+                "Method signatures should still be rendered.");
         }
 
         [TestMethod]
