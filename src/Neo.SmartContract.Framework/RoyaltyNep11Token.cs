@@ -39,6 +39,7 @@ namespace Neo.SmartContract.Framework
         protected const byte Prefix_DefaultRoyalty = 0x05;
         protected const byte Prefix_TokenRoyalty = 0x06;
 
+        // The default royalty is a singleton under this prefix, stored at ByteString.Empty.
         private static LocalStorageMap DefaultRoyaltyStorage => new(Prefix_DefaultRoyalty);
         private static StorageMap TokenRoyaltyStorage => new(Prefix_TokenRoyalty);
 
