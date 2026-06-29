@@ -224,6 +224,7 @@ using Neo.SmartContract.Framework.Native;
 using Neo.SmartContract.Framework.Services;
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace {{Namespace}}
 {
@@ -236,6 +237,23 @@ namespace {{Namespace}}
     public class {{ClassName}} : SmartContract
     {
         private const string HelloPrefix = ""Hello, "";
+        private const byte Prefix_Owner = 0xff;
+
+        [Safe]
+        public static UInt160 GetOwner()
+        {
+            return (UInt160)Storage.Get(new[] { Prefix_Owner });
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsOwner() => Runtime.CheckWitness(GetOwner());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void EnsureOwner()
+        {
+            if (!IsOwner())
+                throw new InvalidOperationException(""No authorization."");
+        }
 
         [Safe]
         public static string GetMessage(string name)
@@ -256,19 +274,25 @@ namespace {{Namespace}}
 
         public static void _deploy(object data, bool update)
         {
-            if (!update)
-            {
-                Storage.Put(""Deployed"", Runtime.Time);
-            }
+            if (update) return;
+
+            if (data is null) data = Runtime.Transaction.Sender;
+            UInt160 initialOwner = (UInt160)data;
+            ExecutionEngine.Assert(initialOwner.IsValid && !initialOwner.IsZero, ""owner must be valid"");
+            Storage.Put(new[] { Prefix_Owner }, initialOwner);
+
+            Storage.Put(""Deployed"", Runtime.Time);
         }
 
         public static void Update(ByteString nefFile, string manifest, object? data = null)
         {
+            EnsureOwner();
             ContractManagement.Update(nefFile, manifest, data);
         }
 
         public static void Destroy()
         {
+            EnsureOwner();
             ContractManagement.Destroy();
         }
     }
