@@ -14,6 +14,7 @@ using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Neo.Optimizer
 {
@@ -51,12 +52,35 @@ namespace Neo.Optimizer
                 if (oldAddressToInstruction.TryGetValue(method.Offset, out Instruction? i)
                  && simplifiedInstructionsToAddress.Contains(i))
                     method.Offset = (int)simplifiedInstructionsToAddress[i]!;
-                else  // old start of method was deleted
-                    method.Offset = oldSequencePointAddressToNew![method.Offset];
+                else if (oldSequencePointAddressToNew is not null && oldSequencePointAddressToNew.TryGetValue(method.Offset, out int newOffset))
+                    method.Offset = newOffset;
+                else if (TryResolveDeletedMethodOffset(method.Offset, simplifiedInstructionsToAddress, oldAddressToInstruction, out newOffset))
+                    method.Offset = newOffset;
             debugInfo = DebugInfoBuilder.ModifyDebugInfo(
                 debugInfo, simplifiedInstructionsToAddress, oldAddressToInstruction,
                 oldSequencePointAddressToNew: oldSequencePointAddressToNew);
             return (nef, manifest, debugInfo);
+        }
+
+        private static bool TryResolveDeletedMethodOffset(
+            int oldOffset,
+            OrderedDictionary simplifiedInstructionsToAddress,
+            Dictionary<int, Instruction> oldAddressToInstruction,
+            out int newOffset)
+        {
+            for (int currentOffset = oldOffset;
+                oldAddressToInstruction.TryGetValue(currentOffset, out Instruction? instruction);
+                currentOffset += instruction.Size)
+            {
+                if (simplifiedInstructionsToAddress.Contains(instruction))
+                {
+                    newOffset = (int)simplifiedInstructionsToAddress[instruction]!;
+                    return true;
+                }
+            }
+
+            newOffset = oldOffset;
+            return false;
         }
     }
 }
