@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -19,8 +20,6 @@ using System.Diagnostics;
 using System.Linq;
 using static Neo.Compiler.ControlFlow.JumpTarget;
 using static Neo.Compiler.ControlFlow.OpCodeTypes;
-
-using Neo.Optimizer;
 
 namespace Neo.Compiler.ControlFlow
 {

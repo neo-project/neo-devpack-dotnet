@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.Json;
+using Neo.Compiler.ControlFlow;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -17,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Neo.Compiler.ControlFlow;
 namespace Neo.Optimizer
 {
     public static class Miscellaneous
