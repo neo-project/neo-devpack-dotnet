@@ -47,8 +47,12 @@ namespace Neo.SmartContract.Framework
         // The proposed owner awaiting acceptance. Absent (null) means no transfer is in flight.
         private const byte Prefix_PendingOwner = 0xFC;
 
+        // Separates "not initialized yet" from "initialized and later renounced".
+        private const byte Prefix_OwnerInitialized = 0xFB;
+
         private static LocalStorageMap OwnerStorage => new(Prefix_Owner);
         private static LocalStorageMap PendingOwnerStorage => new(Prefix_PendingOwner);
+        private static LocalStorageMap OwnerInitializedStorage => new(Prefix_OwnerInitialized);
 
         /// <summary>
         /// Returns the current owner, or <see langword="null"/> if ownership has been renounced
@@ -175,6 +179,7 @@ namespace Neo.SmartContract.Framework
 
             UInt160? previousOwner = GetOwner();
             OwnerStorage.Delete(ByteString.Empty);
+            OwnerInitializedStorage.Put(ByteString.Empty, true);
             PendingOwnerStorage.Delete(ByteString.Empty);
             OnOwnershipTransferred(previousOwner, null);
         }
@@ -191,8 +196,17 @@ namespace Neo.SmartContract.Framework
         /// </remarks>
         protected static void InitializeOwner(object? data, bool update)
         {
-            if (update && GetOwner() is not null)
-                return;
+            if (update)
+            {
+                if (OwnerInitializedStorage.GetBoolean(ByteString.Empty))
+                    return;
+
+                if (GetOwner() is not null)
+                {
+                    OwnerInitializedStorage.Put(ByteString.Empty, true);
+                    return;
+                }
+            }
 
             data ??= Runtime.Transaction.Sender;
 
@@ -200,6 +214,7 @@ namespace Neo.SmartContract.Framework
             ExecutionEngine.Assert(initialOwner.IsValidAndNotZero, "owner must be valid");
 
             OwnerStorage.Put(ByteString.Empty, initialOwner);
+            OwnerInitializedStorage.Put(ByteString.Empty, true);
             OnOwnershipTransferred(null, initialOwner);
         }
     }
