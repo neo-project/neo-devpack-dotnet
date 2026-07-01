@@ -33,9 +33,9 @@ public class AccessControlTest
     private static readonly Signer Bob = TestEngine.Bob;
     private static readonly Signer Charlie = TestEngine.Charlie;
 
-    private static readonly byte[] DefaultAdmin = new byte[32];
-    private static readonly byte[] Minter = Enumerable.Repeat((byte)0x11, 32).ToArray();
-    private static readonly byte[] MinterAdmin = Enumerable.Repeat((byte)0x22, 32).ToArray();
+    private static readonly byte[] DefaultAdmin = new byte[4];
+    private static readonly byte[] Minter = { 1, 0, 0, 0 };
+    private static readonly byte[] MinterAdmin = { 2, 0, 0, 0 };
 
     private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) _compiled;
 
@@ -69,12 +69,22 @@ public class AccessControlTest
     }
 
     [TestMethod]
-    public void Init_DefaultAdminRole_Is32ZeroBytes()
+    public void Init_DefaultAdminRole_IsFourZeroBytes()
     {
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        CollectionAssert.AreEqual(new byte[32], c.DEFAULT_ADMIN_ROLE());
+        CollectionAssert.AreEqual(new byte[4], c.DEFAULT_ADMIN_ROLE());
+        Merge(c);
+    }
+
+    [TestMethod]
+    public void RoleKey_EnumValue_IsFourByteLittleEndian()
+    {
+        var engine = CreateEngine();
+        var c = Deploy(engine);
+
+        CollectionAssert.AreEqual(Minter, c.MinterRoleForTest());
         Merge(c);
     }
 
@@ -118,8 +128,8 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.HasRole(new byte[31], Alice.Account));
-        Assert.ThrowsException<TestException>(() => c.HasRole(new byte[33], Alice.Account));
+        Assert.ThrowsException<TestException>(() => c.HasRole(new byte[3], Alice.Account));
+        Assert.ThrowsException<TestException>(() => c.HasRole(new byte[5], Alice.Account));
         Merge(c);
     }
 
@@ -394,7 +404,7 @@ public class AccessControlTest
             Assert.IsFalse(abi.Single(m => m.Name == mutator).Safe, $"{mutator} must not be safe");
 
         // Protected cores and private helpers must not be exported.
-        foreach (var hidden in new[] { "checkRole", "onlyRole", "GrantRoleInternal", "RevokeRoleInternal", "SetRoleAdminInternal",
+        foreach (var hidden in new[] { "roleKey", "checkRole", "onlyRole", "GrantRoleInternal", "RevokeRoleInternal", "SetRoleAdminInternal",
             "initializeAccessControl", "validateRole", "guardLastAdmin", "memberKey", "adminKey", "countKey" })
             Assert.IsFalse(names.Contains(hidden), $"{hidden} must not be exported to the ABI");
     }
@@ -405,9 +415,20 @@ public class AccessControlTest
 
 public class Contract : AccessControl
 {
+    private enum TestRole
+    {
+        Minter = 1,
+        MinterAdmin = 2
+    }
+
     public static void _deploy(object data, bool update)
     {
         InitializeAccessControl(data, update);
+    }
+
+    public static ByteString MinterRoleForTest()
+    {
+        return RoleKey((int)TestRole.Minter);
     }
 
     public static bool GuardedAction(ByteString role, UInt160 actor)
@@ -484,6 +505,9 @@ public class Contract : AccessControl
 
         [DisplayName("getRoleMemberCount")]
         public abstract BigInteger GetRoleMemberCount(byte[] role);
+
+        [DisplayName("minterRoleForTest")]
+        public abstract byte[] MinterRoleForTest();
 
         [DisplayName("grantRole")]
         public abstract void GrantRole(byte[] role, UInt160 admin, UInt160 account);

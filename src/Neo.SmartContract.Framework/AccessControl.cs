@@ -23,10 +23,10 @@ namespace Neo.SmartContract.Framework
     /// administered by another role.
     /// </summary>
     /// <remarks>
-    /// A role is identified by a 32-byte id. Derive named roles deterministically, e.g.
-    /// <c>CryptoLib.Sha256((ByteString)"MINTER_ROLE")</c>. <see cref="DEFAULT_ADMIN_ROLE"/> (32
-    /// zero bytes) is the root role and is its own admin; the account it is granted to at
-    /// deployment can administer every other role.
+    /// A role is identified by a compact 4-byte key. Define role enums in your contract and derive
+    /// keys with <see cref="RoleKey"/>, e.g. <c>RoleKey((int)Roles.Minter)</c>.
+    /// <see cref="DEFAULT_ADMIN_ROLE"/> (four zero bytes) is the root role and is its own admin;
+    /// the account it is granted to at deployment can administer every other role.
     /// <para>
     /// Authorization is by explicit actor: callers pass the acting account and the contract
     /// verifies it both holds the required role and witnessed the call
@@ -53,11 +53,11 @@ namespace Neo.SmartContract.Framework
     {
         private const byte Prefix = 0xFB;
 
-        // Sub-namespace tags. 0x00 is reserved for the one-time init flag only; the variable-length
-        // membership/admin/count keys use non-zero tags so they can never collide with it.
-        private const byte TAG_MEMBER = 0x01;  // [role:32][account:20] -> granted
-        private const byte TAG_ADMIN = 0x02;   // [role:32]             -> admin role override
-        private const byte TAG_COUNT = 0x03;   // [role:32]             -> member count
+        // Sub-namespace tags. 0x00 is reserved for the one-time init flag only; the role keys use
+        // non-zero tags so they can never collide with it.
+        private const byte TAG_MEMBER = 0x01;  // [role:4][account:20] -> granted
+        private const byte TAG_ADMIN = 0x02;   // [role:4]             -> admin role override
+        private const byte TAG_COUNT = 0x03;   // [role:4]             -> member count
 
         // The init flag lives under tag 0x00 (a fixed single-byte key) so it can never collide with
         // the non-zero tagged variable-length role keys.
@@ -74,17 +74,26 @@ namespace Neo.SmartContract.Framework
         private static byte[] CountKey(ByteString role)
             => new byte[] { TAG_COUNT }.Concat((byte[])role);
 
-        // Roles are fixed 32 bytes so that the flat (role ++ account) key is injective: with both
-        // fields fixed-width, two distinct (role, account) pairs can never alias to one key.
+        /// <summary>
+        /// Converts an enum-style integer role id to the fixed 4-byte role key used by storage.
+        /// </summary>
+        protected static ByteString RoleKey(int role)
+        {
+            ExecutionEngine.Assert(role >= 0, "AccessControl: role must be non-negative");
+            return (ByteString)new byte[] { (byte)role, (byte)(role >> 8), (byte)(role >> 16), (byte)(role >> 24) };
+        }
+
+        // Roles are fixed 4 bytes so that the flat (role ++ account) key is injective with lower
+        // storage overhead than 32-byte hashes.
         private static void ValidateRole(ByteString role)
-            => ExecutionEngine.Assert(role.Length == 32, "AccessControl: role must be 32 bytes");
+            => ExecutionEngine.Assert(role.Length == 4, "AccessControl: role must be 4 bytes");
 
         /// <summary>
-        /// The root admin role (32 zero bytes). It is its own admin, and the account granted this
+        /// The root admin role (four zero bytes). It is its own admin, and the account granted this
         /// role at deployment can administer every other role.
         /// </summary>
         [Safe]
-        public static ByteString DEFAULT_ADMIN_ROLE() => (ByteString)new byte[32];
+        public static ByteString DEFAULT_ADMIN_ROLE() => RoleKey(0);
 
         /// <summary>
         /// Returns whether <paramref name="account"/> has been granted <paramref name="role"/>.
