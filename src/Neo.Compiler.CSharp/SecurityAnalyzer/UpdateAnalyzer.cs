@@ -57,7 +57,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 {
                     uint tokenId = instruction.TokenU16;
                     if (tokenId >= nef.Tokens.Length)
-                        continue;
+                        throw new BadScriptException($"Invalid CALLT token {tokenId} at address {instructions[i].addr}");
                     MethodToken token = nef.Tokens[tokenId];
                     if (token.Hash == NativeContract.ContractManagement.Hash && token.Method == methodName && ((token.CallFlags & CallFlags.WriteStates) != 0))
                         return true;

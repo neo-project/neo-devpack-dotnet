@@ -142,7 +142,7 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
         }
 
         [TestMethod]
-        public void Test_UpdateAnalyzer_CallT_OutOfRangeToken_NotDetected()
+        public void Test_UpdateAnalyzer_CallT_OutOfRangeToken_Throws()
         {
             byte[] script =
             [
@@ -153,8 +153,11 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             NefFile nef = CreateNefFile(script, Array.Empty<MethodToken>());
             var manifest = CreateManifest();
 
-            Assert.IsFalse(UpdateAnalyzer.AnalyzeUpdate(nef, manifest), "Out-of-range CALLT token should not be detected as update");
-            Assert.IsFalse(UpdateAnalyzer.AnalyzeDestroy(nef, manifest), "Out-of-range CALLT token should not be detected as destroy");
+            var updateException = Assert.ThrowsException<BadScriptException>(() => UpdateAnalyzer.AnalyzeUpdate(nef, manifest));
+            StringAssert.Contains(updateException.Message, "Invalid CALLT token");
+
+            var destroyException = Assert.ThrowsException<BadScriptException>(() => UpdateAnalyzer.AnalyzeDestroy(nef, manifest));
+            StringAssert.Contains(destroyException.Message, "Invalid CALLT token");
         }
 
         /// <summary>
