@@ -111,7 +111,7 @@ namespace Neo.Optimizer
                 if ((SingleJumpInOperand(i) && i.OpCode != CALLA) || (includePUSHA && i.OpCode == PUSHA))
                 {
                     int targetAddr = ComputeJumpTarget(a, i);
-                    Instruction target = addressToInstruction[targetAddr];
+                    Instruction target = GetTargetInstruction(addressToInstruction, targetAddr, a, i);
                     jumpSourceToTargets[i] = target;
                     if (!targetToSources.TryGetValue(target, out HashSet<Instruction>? sources))
                     {
@@ -125,7 +125,9 @@ namespace Neo.Optimizer
                     (int a1, int a2) = i.OpCode == TRY ?
                         (a + i.TokenI8, a + i.TokenI8_1) :
                         (a + i.TokenI32, a + i.TokenI32_1);
-                    (Instruction t1, Instruction t2) = (addressToInstruction[a1], addressToInstruction[a2]);
+                    (Instruction t1, Instruction t2) = (
+                        GetTargetInstruction(addressToInstruction, a1, a, i),
+                        GetTargetInstruction(addressToInstruction, a2, a, i));
                     trySourceToTargets.TryAdd(i, (t1, t2));
                     if (!targetToSources.TryGetValue(t1, out HashSet<Instruction>? sources1))
                     {
@@ -142,6 +144,17 @@ namespace Neo.Optimizer
                 }
             }
             return (jumpSourceToTargets, trySourceToTargets, targetToSources);
+        }
+
+        private static Instruction GetTargetInstruction(
+            Dictionary<int, Instruction> addressToInstruction,
+            int targetAddr,
+            int sourceAddr,
+            Instruction sourceInstruction)
+        {
+            if (!addressToInstruction.TryGetValue(targetAddr, out Instruction? target))
+                throw new BadScriptException($"{sourceInstruction.OpCode} at address {sourceAddr} targets invalid address {targetAddr}");
+            return target;
         }
     }
 }
