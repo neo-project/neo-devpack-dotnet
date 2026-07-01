@@ -18,11 +18,38 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Neo.Compiler.CSharp.UnitTests.Peripheral
 {
+    [TestClass]
+    public class UnitTest_DumpNefDebugInfoLimits
+    {
+        private const int MaxDebugInfoJsonBytes = 16 * 1024 * 1024;
+
+        [TestMethod]
+        public void Test_UnzipDebugInfoReadsSmallArchive()
+        {
+            const string json = "{\"hash\":\"0x0000000000000000000000000000000000000000\",\"documents\":[],\"methods\":[]}";
+            byte[] archive = DumpNef.ZipDebugInfo(Encoding.UTF8.GetBytes(json), "test.debug.json");
+
+            Assert.AreEqual(json, DumpNef.UnzipDebugInfo(archive));
+        }
+
+        [TestMethod]
+        public void Test_UnzipDebugInfoRejectsOversizedArchive()
+        {
+            string json = "{\"hash\":\"0x0000000000000000000000000000000000000000\",\"documents\":[\"" +
+                new string('a', MaxDebugInfoJsonBytes) +
+                "\"],\"methods\":[]}";
+            byte[] archive = DumpNef.ZipDebugInfo(Encoding.UTF8.GetBytes(json), "test.debug.json");
+
+            Assert.ThrowsException<InvalidDataException>(() => DumpNef.UnzipDebugInfo(archive));
+        }
+    }
+
     [TestClass]
     public class UnitTest_DumpNef
     {
