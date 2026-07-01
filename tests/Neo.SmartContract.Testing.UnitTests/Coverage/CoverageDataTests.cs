@@ -15,6 +15,7 @@ using Neo.SmartContract.Testing.Coverage;
 using Neo.SmartContract.Testing.Coverage.Formats;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
@@ -26,6 +27,7 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
     public class CoverageDataTests
     {
         private static readonly Regex WhiteSpaceRegex = new("\\s");
+        private const int MaxDebugInfoJsonBytes = 16 * 1024 * 1024;
 
         [TestMethod]
         public void NeoDebugInfoLoadThrowsHelpfulMessageForNonObjectJson()
@@ -41,6 +43,54 @@ namespace Neo.SmartContract.Testing.UnitTests.Coverage
 
             Assert.IsInstanceOfType(exception.InnerException, typeof(FormatException));
             Assert.AreEqual("The debug info root must be a JSON object.", exception.InnerException!.Message);
+        }
+
+        [TestMethod]
+        public void NeoDebugInfoTryLoadCompressedLoadsSmallDebugInfo()
+        {
+            const string json = "{\"hash\":\"0x0000000000000000000000000000000000000000\",\"documents\":[],\"methods\":[]}";
+            byte[] archive = CreateDebugInfoArchive(json);
+
+            Assert.IsTrue(TryLoadCompressed(archive, out var debugInfo));
+            Assert.IsNotNull(debugInfo);
+            Assert.AreEqual(UInt160.Zero, debugInfo.Hash);
+        }
+
+        [TestMethod]
+        public void NeoDebugInfoTryLoadCompressedRejectsOversizedDebugInfo()
+        {
+            string json = "{\"hash\":\"0x0000000000000000000000000000000000000000\",\"documents\":[\"" +
+                new string('a', MaxDebugInfoJsonBytes) +
+                "\"],\"methods\":[]}";
+            byte[] archive = CreateDebugInfoArchive(json);
+
+            Assert.IsFalse(TryLoadCompressed(archive, out var debugInfo));
+            Assert.IsNull(debugInfo);
+        }
+
+        private static byte[] CreateDebugInfoArchive(string json)
+        {
+            using var compressedFileStream = new MemoryStream();
+            using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Create, false))
+            {
+                var zipEntry = zipArchive.CreateEntry("test.debug.json");
+                using var zipEntryStream = zipEntry.Open();
+                byte[] content = Encoding.UTF8.GetBytes(json);
+                zipEntryStream.Write(content, 0, content.Length);
+            }
+            return compressedFileStream.ToArray();
+        }
+
+        private static bool TryLoadCompressed(byte[] archive, out NeoDebugInfo? debugInfo)
+        {
+            var tryLoadCompressed = typeof(NeoDebugInfo).GetMethod("TryLoadCompressed", BindingFlags.Static | BindingFlags.NonPublic, [typeof(Stream), typeof(NeoDebugInfo).MakeByRefType()]);
+            Assert.IsNotNull(tryLoadCompressed);
+
+            using var stream = new MemoryStream(archive);
+            object?[] args = [stream, null];
+            bool loaded = (bool)tryLoadCompressed!.Invoke(null, args)!;
+            debugInfo = (NeoDebugInfo?)args[1];
+            return loaded;
         }
 
         [TestMethod]

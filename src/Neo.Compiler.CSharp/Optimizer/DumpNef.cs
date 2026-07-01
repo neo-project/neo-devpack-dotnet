@@ -28,6 +28,9 @@ namespace Neo.Optimizer
 {
     internal static class DumpNef
     {
+        internal const int MaxDebugInfoJsonBytes = 16 * 1024 * 1024;
+        private const int CopyBufferSize = 81920;
+
         internal static readonly Regex DocumentRegex = new(@"\[(\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)", RegexOptions.Compiled);
         internal static readonly Regex RangeRegex = new(@"(\d+)\-(\d+)", RegexOptions.Compiled);
         internal static readonly Regex SequencePointRegex = new(@"(\d+)(\[\d+\]\d+\:\d+\-\d+\:\d+)", RegexOptions.Compiled);
@@ -55,13 +58,28 @@ namespace Neo.Optimizer
             var entry = archive.Entries.FirstOrDefault();
             if (entry != null)
             {
+                if (entry.Length > MaxDebugInfoJsonBytes)
+                    throw new InvalidDataException($"Debug info JSON exceeds the maximum size of {MaxDebugInfoJsonBytes} bytes.");
                 using var unzippedEntryStream = entry.Open();
-                using var ms = new MemoryStream();
-                unzippedEntryStream.CopyTo(ms);
-                var unzippedArray = ms.ToArray();
-                return Encoding.UTF8.GetString(unzippedArray);
+                return Encoding.UTF8.GetString(ReadToEndWithLimit(unzippedEntryStream, MaxDebugInfoJsonBytes));
             }
             throw new ArgumentException("No file found in zip archive");
+        }
+
+        private static byte[] ReadToEndWithLimit(Stream stream, int maxBytes)
+        {
+            using var ms = new MemoryStream();
+            byte[] buffer = new byte[CopyBufferSize];
+            int read;
+            long totalRead = 0;
+            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                totalRead += read;
+                if (totalRead > maxBytes)
+                    throw new InvalidDataException($"Debug info JSON exceeds the maximum size of {maxBytes} bytes.");
+                ms.Write(buffer, 0, read);
+            }
+            return ms.ToArray();
         }
 
         public static string GetInstructionAddressPadding(this Script script)
