@@ -9,6 +9,7 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -18,13 +19,10 @@ using System.Diagnostics;
 using System.Linq;
 using static Neo.Compiler.ControlFlow.JumpTarget;
 using static Neo.Compiler.ControlFlow.OpCodeTypes;
-
-using Neo.Optimizer;
+using VmInstruction = Neo.VM.Instruction;
 
 namespace Neo.Compiler.ControlFlow
 {
-    using Instruction = Neo.VM.Instruction;
-
     [Flags]
     public enum TryType
     {
@@ -76,7 +74,7 @@ namespace Neo.Compiler.ControlFlow
 
         // key: starting address of basic block
         // value: addr -> instruction of all instructions in this basic block
-        public Dictionary<int, Dictionary<int, Instruction>> basicBlocksInDict { get; protected set; }
+        public Dictionary<int, Dictionary<int, VmInstruction>> basicBlocksInDict { get; protected set; }
 
         // key: starting address of basic block
         // value: starting address of the next basic block,
@@ -86,15 +84,15 @@ namespace Neo.Compiler.ControlFlow
         // key: starting address of basic block
         // value: starting address of basic blocks that is jumped to, from this basic block
         public Dictionary<int, HashSet<int>> basicBlockJump { get; protected set; } = new();
-        public List<(int a, Instruction i)> addressAndInstructions { get; init; }
-        public Dictionary<int, Instruction> addressToInstructions { get; init; }
-        public Dictionary<Instruction, Instruction> jumpInstructionSourceToTargets { get; init; }
-        public Dictionary<Instruction, (Instruction, Instruction)> tryInstructionSourceToTargets { get; init; }
+        public List<(int a, VmInstruction i)> addressAndInstructions { get; init; }
+        public Dictionary<int, VmInstruction> addressToInstructions { get; init; }
+        public Dictionary<VmInstruction, VmInstruction> jumpInstructionSourceToTargets { get; init; }
+        public Dictionary<VmInstruction, (VmInstruction, VmInstruction)> tryInstructionSourceToTargets { get; init; }
         /// <summary>
-        /// key: target of all kinds of Instruction that has 1 or 2 jump targets
+        /// key: target of all kinds of instruction that has 1 or 2 jump targets
         /// value: sources of that jump target
         /// </summary>
-        public Dictionary<Instruction, HashSet<Instruction>> jumpTargetToSources { get; init; }
+        public Dictionary<VmInstruction, HashSet<VmInstruction>> jumpTargetToSources { get; init; }
         public Dictionary<int, EntryType> pushaTargets { get; init; }
         public Dictionary<int, EntryType> entryPointsByMethod { get; init; }
 
@@ -121,7 +119,7 @@ namespace Neo.Compiler.ControlFlow
 
         public void ResetCoveredMap(bool init = false)
         {
-            foreach ((int addr, Instruction _) in addressAndInstructions)
+            foreach ((int addr, VmInstruction _) in addressAndInstructions)
                 if (init)
                     // This throws exception when there exists duplicate addr
                     coveredMap.Add(addr, BranchType.UNCOVERED);
@@ -232,7 +230,7 @@ namespace Neo.Compiler.ControlFlow
                 // Here we have the exception not catched
                 if (!coveredMap.TryGetValue(addr, out BranchType value))
                     throw new BadScriptException($"wrong address {addr}");
-                Instruction instruction = script.GetInstruction(addr);
+                VmInstruction instruction = script.GetInstruction(addr);
                 if (jumpTargetToSources.ContainsKey(instruction) && addr != entranceAddr)
                     // on target of jump, start a new recursion to split basic blocks
                     return coveredMap[entranceAddr] = CoverInstruction(addr, tryStack, continueFromBasicBlockEntranceAddr: entranceAddr);
@@ -257,9 +255,9 @@ namespace Neo.Compiler.ControlFlow
                 {
                     coveredMap[addr] = BranchType.OK;
                     // Add a basic block starting from entranceAddr
-                    if (!basicBlocksInDict.TryGetValue(entranceAddr, out Dictionary<int, Instruction>? instructions))
+                    if (!basicBlocksInDict.TryGetValue(entranceAddr, out Dictionary<int, VmInstruction>? instructions))
                     {
-                        instructions = new Dictionary<int, Instruction>();
+                        instructions = new Dictionary<int, VmInstruction>();
                         basicBlocksInDict.Add(entranceAddr, instructions);
                     }
                     // Add this instruction to the basic block starting from entranceAddr
