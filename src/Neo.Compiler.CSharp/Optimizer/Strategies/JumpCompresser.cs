@@ -415,14 +415,8 @@ namespace Neo.Optimizer
                             newAddr += i.Size;
 
                             jumpSourceToTargets[i] = foldedTarget;
-                            if (jumpTargetToSources.TryGetValue(target, out HashSet<Instruction>? targetSources))
-                                targetSources.Remove(i);
-                            if (!jumpTargetToSources.TryGetValue(foldedTarget, out HashSet<Instruction>? finalTargetSources))
-                            {
-                                finalTargetSources = new HashSet<Instruction>();
-                                jumpTargetToSources[foldedTarget] = finalTargetSources;
-                            }
-                            finalTargetSources.Add(i);
+                            jumpTargetToSources[target].Remove(i);
+                            jumpTargetToSources[foldedTarget].Add(i);
                             continue;
                         }
                         if ((target.OpCode == OpCode.ENDTRY || target.OpCode == OpCode.ENDTRY_L)
