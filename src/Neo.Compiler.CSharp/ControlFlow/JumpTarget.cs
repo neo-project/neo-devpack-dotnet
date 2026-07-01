@@ -113,7 +113,7 @@ namespace Neo.Compiler.ControlFlow
                 if ((SingleJumpInOperand(i) && i.OpCode != CALLA) || (includePUSHA && i.OpCode == PUSHA))
                 {
                     int targetAddr = ComputeJumpTarget(a, i);
-                    VmInstruction target = addressToInstruction[targetAddr];
+                    VmInstruction target = GetTargetInstruction(addressToInstruction, targetAddr, a, i);
                     jumpSourceToTargets[i] = target;
                     if (!targetToSources.TryGetValue(target, out HashSet<VmInstruction>? sources))
                     {
@@ -127,7 +127,9 @@ namespace Neo.Compiler.ControlFlow
                     (int a1, int a2) = i.OpCode == TRY ?
                         (a + i.TokenI8, a + i.TokenI8_1) :
                         (a + i.TokenI32, a + i.TokenI32_1);
-                    (VmInstruction t1, VmInstruction t2) = (addressToInstruction[a1], addressToInstruction[a2]);
+                    (VmInstruction t1, VmInstruction t2) = (
+                        GetTargetInstruction(addressToInstruction, a1, a, i),
+                        GetTargetInstruction(addressToInstruction, a2, a, i));
                     trySourceToTargets.TryAdd(i, (t1, t2));
                     if (!targetToSources.TryGetValue(t1, out HashSet<VmInstruction>? sources1))
                     {
@@ -144,6 +146,17 @@ namespace Neo.Compiler.ControlFlow
                 }
             }
             return (jumpSourceToTargets, trySourceToTargets, targetToSources);
+        }
+
+        private static VmInstruction GetTargetInstruction(
+            Dictionary<int, VmInstruction> addressToInstruction,
+            int targetAddr,
+            int sourceAddr,
+            VmInstruction sourceInstruction)
+        {
+            if (!addressToInstruction.TryGetValue(targetAddr, out VmInstruction? target))
+                throw new BadScriptException($"{sourceInstruction.OpCode} at address {sourceAddr} targets invalid address {targetAddr}");
+            return target;
         }
     }
 }
