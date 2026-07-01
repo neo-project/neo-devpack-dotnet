@@ -16,6 +16,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Neo.SmartContract.Testing.Coverage
@@ -37,6 +38,9 @@ namespace Neo.SmartContract.Testing.Coverage
     /// </remarks>
     public partial class NeoDebugInfo(UInt160 hash, string documentRoot, IReadOnlyList<string> documents, IReadOnlyList<NeoDebugInfo.Method> methods)
     {
+        internal const int MaxDebugInfoJsonBytes = 16 * 1024 * 1024;
+        private const int CopyBufferSize = 81920;
+
         static readonly Regex spRegex = new(@"^(\d+)\[(-?\d+)\](\d+)\:(\d+)\-(\d+)\:(\d+)$");
 
         public const string MANIFEST_FILE_EXTENSION = ".manifest.json";
@@ -168,6 +172,8 @@ namespace Neo.SmartContract.Testing.Coverage
                 {
                     if (entry.FullName.EndsWith(DEBUG_JSON_EXTENSION, StringComparison.OrdinalIgnoreCase))
                     {
+                        if (entry.Length > MaxDebugInfoJsonBytes)
+                            throw new InvalidDataException($"Debug info JSON exceeds the maximum size of {MaxDebugInfoJsonBytes} bytes.");
                         using var entryStream = entry.Open();
                         debugInfo = Load(entryStream);
                         return true;
@@ -199,11 +205,26 @@ namespace Neo.SmartContract.Testing.Coverage
 
         internal static NeoDebugInfo Load(Stream stream)
         {
-            using StreamReader reader = new(stream);
-            var text = reader.ReadToEnd();
+            var text = ReadUtf8TextWithLimit(stream, MaxDebugInfoJsonBytes);
             var json = JToken.Parse(text) ?? throw new InvalidOperationException();
             if (json is not JObject jo) throw new FormatException("The debug info root must be a JSON object.");
             return FromDebugInfoJson(jo);
+        }
+
+        private static string ReadUtf8TextWithLimit(Stream stream, int maxBytes)
+        {
+            using var ms = new MemoryStream();
+            byte[] buffer = new byte[CopyBufferSize];
+            int read;
+            long totalRead = 0;
+            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                totalRead += read;
+                if (totalRead > maxBytes)
+                    throw new InvalidDataException($"Debug info JSON exceeds the maximum size of {maxBytes} bytes.");
+                ms.Write(buffer, 0, read);
+            }
+            return Encoding.UTF8.GetString(ms.ToArray());
         }
 
         public static NeoDebugInfo FromDebugInfoJson(string json)
