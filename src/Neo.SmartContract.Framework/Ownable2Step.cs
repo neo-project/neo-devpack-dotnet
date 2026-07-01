@@ -190,9 +190,10 @@ namespace Neo.SmartContract.Framework
         /// <remarks>
         /// On a contract update this preserves the current owner. If no owner is stored yet, it
         /// initializes one so contracts adopting <see cref="Ownable2Step"/> during an upgrade do not
-        /// remain ownerless. Note that an in-flight pending transfer is intentionally left untouched
-        /// across an update; operators should cancel any in-flight transfer before upgrading if the
-        /// upgrade changes trust assumptions.
+        /// remain ownerless. If an owner exists but the initialization marker is missing, the update
+        /// aborts instead of silently accepting inconsistent ownership state. Note that an in-flight
+        /// pending transfer is intentionally left untouched across an update; operators should cancel
+        /// any in-flight transfer before upgrading if the upgrade changes trust assumptions.
         /// </remarks>
         protected static void InitializeOwner(object? data, bool update)
         {
@@ -201,11 +202,7 @@ namespace Neo.SmartContract.Framework
                 if (OwnerInitializedStorage.GetBoolean(ByteString.Empty))
                     return;
 
-                if (GetOwner() is not null)
-                {
-                    OwnerInitializedStorage.Put(ByteString.Empty, true);
-                    return;
-                }
+                ExecutionEngine.Assert(GetOwner() is null, "owner initialization state is inconsistent");
             }
 
             data ??= Runtime.Transaction.Sender;

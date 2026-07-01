@@ -300,6 +300,19 @@ public class Ownable2StepTest
     }
 
     [TestMethod]
+    public void InitializeOwner_UpdateWithUnmarkedOwner_Aborts()
+    {
+        var engine = CreateEngine();
+        var contract = Deploy(engine, out _, out _);
+
+        contract.SetOwnerWithoutInitializedForTest(Bob.Account);
+
+        Assert.ThrowsException<TestException>(() => contract.InitializeForTest(Charlie.Account, true));
+        Assert.AreEqual(Bob.Account, contract.GetOwner());
+        Merge(contract);
+    }
+
+    [TestMethod]
     public void InitializeOwner_UpdateDoesNotReinitializeAfterRenounce()
     {
         var engine = CreateEngine();
@@ -438,6 +451,12 @@ public class Contract : Ownable2Step
         Storage.Delete(new byte[] { 0xFD });
         Storage.Delete(new byte[] { 0xFB });
     }
+
+    public static void SetOwnerWithoutInitializedForTest(UInt160 owner)
+    {
+        Storage.Put(new byte[] { 0xFD }, owner);
+        Storage.Delete(new byte[] { 0xFB });
+    }
 }";
 
         var tempFile = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.cs");
@@ -502,6 +521,9 @@ public class Contract : Ownable2Step
 
         [DisplayName("clearOwnershipStateForTest")]
         public abstract void ClearOwnershipStateForTest();
+
+        [DisplayName("setOwnerWithoutInitializedForTest")]
+        public abstract void SetOwnerWithoutInitializedForTest(UInt160 owner);
 
         [DisplayName("transferOwnership")]
         public abstract void TransferOwnership(UInt160 newOwner);
