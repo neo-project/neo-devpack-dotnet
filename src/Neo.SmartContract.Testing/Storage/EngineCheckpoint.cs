@@ -22,6 +22,9 @@ namespace Neo.SmartContract.Testing.Storage
 {
     public class EngineCheckpoint
     {
+        private const int MaxCheckpointKeyLength = 1024 * 1024;
+        private const int MaxCheckpointValueLength = 16 * 1024 * 1024;
+
         /// <summary>
         /// Data
         /// </summary>
@@ -52,18 +55,14 @@ namespace Neo.SmartContract.Testing.Storage
             var list = new List<(byte[], byte[])>();
             var buffer = new byte[sizeof(int)];
 
-            while (stream.Read(buffer) == sizeof(int))
+            while (TryReadExactly(stream, buffer))
             {
-                var length = BinaryPrimitives.ReadInt32LittleEndian(buffer);
-                var key = new byte[length];
+                var key = ReadCheckpointField(stream, buffer, MaxCheckpointKeyLength, "key");
+                if (key is null) break;
+                if (!TryReadExactly(stream, buffer)) break;
 
-                if (stream.Read(key) != length) break;
-                if (stream.Read(buffer) != sizeof(int)) break;
-
-                length = BinaryPrimitives.ReadInt32LittleEndian(buffer);
-                var data = new byte[length];
-
-                if (stream.Read(data) != length) break;
+                var data = ReadCheckpointField(stream, buffer, MaxCheckpointValueLength, "value");
+                if (data is null) break;
 
                 list.Add((key, data));
             }
@@ -141,6 +140,29 @@ namespace Neo.SmartContract.Testing.Storage
                 stream.Write(buffer);
                 stream.Write(entry.value);
             }
+        }
+
+        private static byte[]? ReadCheckpointField(Stream stream, byte[] lengthBuffer, int maxLength, string fieldName)
+        {
+            var length = BinaryPrimitives.ReadInt32LittleEndian(lengthBuffer);
+            if (length < 0 || length > maxLength)
+                throw new InvalidDataException($"Invalid checkpoint {fieldName} length: {length}.");
+
+            var data = new byte[length];
+            return TryReadExactly(stream, data) ? data : null;
+        }
+
+        private static bool TryReadExactly(Stream stream, Span<byte> buffer)
+        {
+            var offset = 0;
+            while (offset < buffer.Length)
+            {
+                var read = stream.Read(buffer[offset..]);
+                if (read == 0) return false;
+                offset += read;
+            }
+
+            return true;
         }
     }
 }
