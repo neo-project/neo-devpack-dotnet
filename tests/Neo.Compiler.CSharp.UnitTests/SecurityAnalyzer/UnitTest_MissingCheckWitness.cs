@@ -10,7 +10,6 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Neo.Compiler.ControlFlow;
 using Neo.Compiler.SecurityAnalyzer;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
 using Neo.SmartContract;
@@ -82,58 +81,6 @@ public class Contract : SmartContract
         }
 
         [TestMethod]
-        public void Test_MissingCheckWitness_Flags_BranchConsumedWitness_ThenUnguardedWrite()
-        {
-            // The witness gates only the if-body; the storage write after the branches rejoin is
-            // reachable whether or not the witness held. The control-flow-sensitive pass must flag it
-            // even though a CheckWitness is present in the method.
-            const string source = @"using Neo;
-using Neo.SmartContract.Framework;
-using Neo.SmartContract.Framework.Services;
-
-public class Contract : SmartContract
-{
-    public static void Exploit(UInt160 owner, byte[] key, byte[] value)
-    {
-        if (Runtime.CheckWitness(owner))
-        {
-            Runtime.Log(""authorized"");
-        }
-        Storage.Put(Storage.CurrentContext, key, value);
-    }
-
-    public static void Guarded(UInt160 owner, byte[] key, byte[] value)
-    {
-        if (Runtime.CheckWitness(owner))
-        {
-            Storage.Put(Storage.CurrentContext, key, value);
-        }
-    }
-
-    public static void WriteThenCheck(UInt160 owner, byte[] key, byte[] value)
-    {
-        Storage.Put(Storage.CurrentContext, key, value);
-        ExecutionEngine.Assert(Runtime.CheckWitness(owner));
-    }
-}";
-
-            var context = TestHelper.CompileSingleContract(source);
-            Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
-
-            var result = MissingCheckWitnessAnalyzer.AnalyzeMissingCheckWitness(
-                context.CreateExecutable(),
-                context.CreateManifest(),
-                null);
-
-            Assert.IsTrue(result.vulnerableMethodNames.Contains("exploit"),
-                "Branch-consumed witness with an unguarded write must be flagged.");
-            Assert.IsTrue(result.vulnerableMethodNames.Contains("writeThenCheck"),
-                "A write reached before the witness assertion must be flagged.");
-            Assert.IsFalse(result.vulnerableMethodNames.Contains("guarded"),
-                "A write inside the witness-guarded branch must not be flagged.");
-        }
-
-        [TestMethod]
         public void Test_MissingCheckWitness_Skips_Deploy_And_Initialize_Callbacks()
         {
             const string source = @"using Neo.SmartContract.Framework;
@@ -186,97 +133,6 @@ public class Contract : SmartContract
                 null);
 
             Assert.IsTrue(result.vulnerableMethodNames.Contains("dynamicWrite"));
-        }
-
-        [TestMethod]
-        public void Test_WitnessFlowAnalysis_TreatsAssertAsGuard()
-        {
-            byte[] script =
-            [
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.ASSERT,
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
-                (byte)OpCode.RET
-            ];
-
-            Assert.AreEqual(false, AnalyzeWitnessFlow(script));
-        }
-
-        [TestMethod]
-        public void Test_WitnessFlowAnalysis_TreatsJumpIfTargetAsGuarded()
-        {
-            byte[] script =
-            [
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.JMPIF, 0x03,
-                (byte)OpCode.RET,
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
-                (byte)OpCode.RET
-            ];
-
-            Assert.AreEqual(false, AnalyzeWitnessFlow(script));
-        }
-
-        [TestMethod]
-        public void Test_WitnessFlowAnalysis_TreatsJumpIfNotFallthroughAsGuarded()
-        {
-            byte[] script =
-            [
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.JMPIFNOT, 0x08,
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
-                (byte)OpCode.RET,
-                (byte)OpCode.RET
-            ];
-
-            Assert.AreEqual(false, AnalyzeWitnessFlow(script));
-        }
-
-        [TestMethod]
-        public void Test_WitnessFlowAnalysis_BailsOutOnUnmodelledWitnessConsumers()
-        {
-            byte[] negativeAssertScript =
-            [
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.NOT,
-                (byte)OpCode.ASSERT,
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
-                (byte)OpCode.RET
-            ];
-            Assert.IsNull(AnalyzeWitnessFlow(negativeAssertScript));
-
-            byte[] unusedWitnessScript =
-            [
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
-                (byte)OpCode.RET
-            ];
-            Assert.IsNull(AnalyzeWitnessFlow(unusedWitnessScript));
-
-            byte[] duplicateWitnessScript =
-            [
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.ASSERT,
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
-                (byte)OpCode.RET
-            ];
-            Assert.IsNull(AnalyzeWitnessFlow(duplicateWitnessScript));
-        }
-
-        [TestMethod]
-        public void Test_WitnessFlowAnalysis_BailsOutOnUnsupportedConditionalJump()
-        {
-            byte[] script =
-            [
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Runtime_CheckWitness.Hash),
-                (byte)OpCode.JMPEQ, 0x03,
-                (byte)OpCode.RET,
-                (byte)OpCode.SYSCALL, .. BitConverter.GetBytes(ApplicationEngine.System_Storage_Put.Hash),
-                (byte)OpCode.RET
-            ];
-
-            Assert.IsNull(AnalyzeWitnessFlow(script));
         }
 
         [TestMethod]
@@ -589,15 +445,6 @@ public class Contract : SmartContract
                 ReturnType = ContractParameterType.Void,
                 Safe = false
             };
-        }
-
-        private static bool? AnalyzeWitnessFlow(byte[] script)
-        {
-            var cfg = new ContractInBasicBlocks(
-                CreateNefFile(script),
-                CreateManifest(Method("main", 0)),
-                null);
-            return WitnessFlowAnalysis.HasUnguardedWrite(cfg, 0);
         }
     }
 }

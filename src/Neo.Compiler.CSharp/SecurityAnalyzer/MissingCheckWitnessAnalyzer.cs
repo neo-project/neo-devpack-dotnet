@@ -9,7 +9,6 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
-using Neo.Compiler.ControlFlow;
 using Neo.Json;
 using Neo.Optimizer;
 using Neo.SmartContract;
@@ -99,10 +98,6 @@ namespace Neo.Compiler.SecurityAnalyzer
             }
             int[] sortedOffsets = methodStartOffsets.OrderBy(o => o).ToArray();
 
-            // Optional control-flow graph used only to refine the witness-present case below.
-            // Building it must never change the baseline result, so any failure leaves it null.
-            ContractInBasicBlocks? cfg = TryBuildCfg(nef, manifest, debugInfo);
-
             List<string> vulnerableMethods = new();
             List<string> unauthenticatedLifecycleMethods = new();
 
@@ -118,40 +113,16 @@ namespace Neo.Compiler.SecurityAnalyzer
                     sortedOffsets,
                     methodStartOffsets);
 
-                if (!hasCheckWitness)
-                {
-                    if (hasStorageWrite)
-                        vulnerableMethods.Add(method.Name);
-                    if (hasLifecycleCall)
-                        unauthenticatedLifecycleMethods.Add(method.Name);
+                if (hasCheckWitness)
                     continue;
-                }
 
-                // A witness exists somewhere. The baseline conservatively treats the method as safe.
-                // Refine with a control-flow-sensitive pass: only report when a storage write is
-                // provably reachable on a path that no witness check dominates. The refinement is
-                // sound (no false positives) and bails out (leaving the method unreported) whenever
-                // the control flow cannot be modelled precisely.
-                if (hasStorageWrite
-                    && cfg is not null
-                    && WitnessFlowAnalysis.HasUnguardedWrite(cfg, method.Offset) is true)
+                if (hasStorageWrite)
                     vulnerableMethods.Add(method.Name);
+                if (hasLifecycleCall)
+                    unauthenticatedLifecycleMethods.Add(method.Name);
             }
 
             return new MissingCheckWitnessVulnerability(vulnerableMethods, unauthenticatedLifecycleMethods, debugInfo);
-        }
-
-        private static ContractInBasicBlocks? TryBuildCfg(NefFile nef, ContractManifest manifest, JToken? debugInfo)
-        {
-            try
-            {
-                return new ContractInBasicBlocks(nef, manifest, debugInfo);
-            }
-            catch
-            {
-                // Synthetic or malformed scripts may not form a clean CFG; refinement is skipped.
-                return null;
-            }
         }
 
         private static (bool hasStorageWrite, bool hasLifecycleCall, bool hasCheckWitness) AnalyzeMethodAndStaticHelpers(
