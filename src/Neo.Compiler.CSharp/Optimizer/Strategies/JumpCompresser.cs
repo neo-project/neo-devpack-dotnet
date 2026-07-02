@@ -405,19 +405,18 @@ namespace Neo.Optimizer
                         // (The second operand was a copy-paste of the same condition. Folding a
                         // jump into a conditional target is intentionally not done; see the FoldJump
                         // remarks.)
-                        if (unconditionalJump.Contains(target.OpCode))
+                        if (TryGetFoldedUnconditionalJumpTarget(i, target, jumpSourceToTargets, out Instruction foldedTarget))
                         {
                             modified = true;
-                            Instruction finalTarget = jumpSourceToTargets[target];
                             // No need to change opcode. Use the old instruction without a new one.
                             // No need to reset operand. BuildOptimizedAssets does it.
                             simplifiedInstructionsToAddress.Add(i, newAddr);
                             oldSequencePointAddressToNew.Add(a, newAddr);
                             newAddr += i.Size;
 
-                            jumpSourceToTargets[i] = finalTarget;
+                            jumpSourceToTargets[i] = foldedTarget;
                             jumpTargetToSources[target].Remove(i);
-                            jumpTargetToSources[finalTarget].Add(i);
+                            jumpTargetToSources[foldedTarget].Add(i);
                             continue;
                         }
                         if ((target.OpCode == OpCode.ENDTRY || target.OpCode == OpCode.ENDTRY_L)
@@ -455,6 +454,31 @@ namespace Neo.Optimizer
             }
             while (modified);
             return JumpCompresser.CompressJump(nef, manifest, debugInfo);
+        }
+
+        private static bool TryGetFoldedUnconditionalJumpTarget(
+            Instruction source,
+            Instruction target,
+            Dictionary<Instruction, Instruction> jumpSourceToTargets,
+            out Instruction finalTarget)
+        {
+            finalTarget = target;
+            HashSet<Instruction> visited = new() { source };
+            Instruction current = target;
+            while (unconditionalJump.Contains(current.OpCode) &&
+                   jumpSourceToTargets.TryGetValue(current, out Instruction? next))
+            {
+                if (!visited.Add(current) || visited.Contains(next))
+                    return false;
+
+                finalTarget = next;
+                if (!unconditionalJump.Contains(next.OpCode))
+                    return finalTarget != target;
+
+                current = next;
+            }
+
+            return finalTarget != target;
         }
     }
 }
