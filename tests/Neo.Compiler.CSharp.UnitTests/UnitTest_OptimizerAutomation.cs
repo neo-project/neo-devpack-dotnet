@@ -19,8 +19,10 @@ using Neo.SmartContract.Testing;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using OptimizerClass = Neo.Optimizer.Optimizer;
 using StrategyAttribute = Neo.Optimizer.StrategyAttribute;
 
@@ -165,6 +167,144 @@ namespace Neo.Compiler.CSharp.UnitTests
             var instruction = new Script(optimizedNef.Script.ToArray()).GetInstruction(0);
             Assert.AreEqual(OpCode.CALLT, instruction.OpCode);
             Assert.AreEqual(0, instruction.TokenU16);
+        }
+
+        [TestMethod]
+        public void Test_FoldJump_DoesNotHangOnSelfJump()
+        {
+            var nef = CreateNefFile([(byte)OpCode.JMP, 0x00], Array.Empty<MethodToken>());
+            Task optimizeTask = Task.Run(() => OptimizerClass.Optimize(
+                nef,
+                CreateEmptyManifest(),
+                null,
+                CompilationOptions.OptimizationType.Experimental));
+
+            Assert.IsTrue(optimizeTask.Wait(TimeSpan.FromSeconds(2)), "Optimizer should converge on a self-referential jump");
+        }
+
+        [TestMethod]
+        public void Test_FoldJump_DoesNotHangOnJumpCycle()
+        {
+            var nef = CreateNefFile([(byte)OpCode.JMP, 0x02, (byte)OpCode.JMP, 0xfe], Array.Empty<MethodToken>());
+            Task optimizeTask = Task.Run(() => OptimizerClass.Optimize(
+                nef,
+                CreateEmptyManifest(),
+                null,
+                CompilationOptions.OptimizationType.Experimental));
+
+            Assert.IsTrue(optimizeTask.Wait(TimeSpan.FromSeconds(2)), "Optimizer should converge on a cyclic jump chain");
+        }
+
+        [TestMethod]
+        public void Test_FoldJump_RetargetsJumpChainToFinalTarget()
+        {
+            var nef = CreateNefFile([(byte)OpCode.JMP, 0x02, (byte)OpCode.JMP, 0x02, (byte)OpCode.JMP, 0x02, (byte)OpCode.RET], Array.Empty<MethodToken>());
+
+            var (optimizedNef, _, _) = JumpCompresser.FoldJump(
+                nef,
+                CreateEmptyManifest(),
+                null);
+
+            var instructions = new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().ToArray();
+            Assert.AreEqual(OpCode.JMP, instructions[0].instruction.OpCode);
+            Assert.AreEqual(6, instructions[0].instruction.TokenI8);
+        }
+
+        [TestMethod]
+        public void Test_FoldJump_ReplacesJumpToEndTryWithEndTry()
+        {
+            var nef = CreateNefFile([(byte)OpCode.JMP, 0x02, (byte)OpCode.ENDTRY, 0x02, (byte)OpCode.RET], Array.Empty<MethodToken>());
+
+            var (optimizedNef, _, _) = JumpCompresser.FoldJump(
+                nef,
+                CreateEmptyManifest(),
+                null);
+
+            var instructions = new Script(optimizedNef.Script.ToArray()).EnumerateInstructions().ToArray();
+            Assert.AreEqual(OpCode.ENDTRY, instructions[0].instruction.OpCode);
+            Assert.AreEqual(4, instructions[0].instruction.TokenI8);
+        }
+
+        [TestMethod]
+        public void Test_BuildOptimizedAssets_RetargetsDeletedMethodOffsetWithoutSequencePointRemap()
+        {
+            var nef = CreateNefFile([(byte)OpCode.NOP, (byte)OpCode.RET], Array.Empty<MethodToken>());
+            var manifest = CreateManifestWithMethodOffset(0);
+            var instructions = new Script(nef.Script.ToArray()).EnumerateInstructions().ToArray();
+            Neo.VM.Instruction nop = instructions[0].instruction;
+            Neo.VM.Instruction ret = instructions[1].instruction;
+            OrderedDictionary simplifiedInstructionsToAddress = new()
+            {
+                { ret, 0 }
+            };
+
+            var (_, optimizedManifest, _) = AssetBuilder.BuildOptimizedAssets(
+                nef,
+                manifest,
+                null,
+                simplifiedInstructionsToAddress,
+                new Dictionary<Neo.VM.Instruction, Neo.VM.Instruction>(),
+                new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)>(),
+                new Dictionary<int, Neo.VM.Instruction>
+                {
+                    [0] = nop,
+                    [nop.Size] = ret
+                });
+
+            Assert.AreEqual(0, optimizedManifest.Abi.Methods[0].Offset);
+        }
+
+        [TestMethod]
+        public void Test_BuildOptimizedAssets_UsesSequencePointRemapForDeletedMethodOffset()
+        {
+            var nef = CreateNefFile([(byte)OpCode.NOP, (byte)OpCode.RET], Array.Empty<MethodToken>());
+            var manifest = CreateManifestWithMethodOffset(0);
+            var instructions = new Script(nef.Script.ToArray()).EnumerateInstructions().ToArray();
+            Neo.VM.Instruction nop = instructions[0].instruction;
+            Neo.VM.Instruction ret = instructions[1].instruction;
+            OrderedDictionary simplifiedInstructionsToAddress = new()
+            {
+                { ret, 0 }
+            };
+
+            var (_, optimizedManifest, _) = AssetBuilder.BuildOptimizedAssets(
+                nef,
+                manifest,
+                null,
+                simplifiedInstructionsToAddress,
+                new Dictionary<Neo.VM.Instruction, Neo.VM.Instruction>(),
+                new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)>(),
+                new Dictionary<int, Neo.VM.Instruction>
+                {
+                    [0] = nop,
+                    [nop.Size] = ret
+                },
+                new Dictionary<int, int> { [0] = 0 });
+
+            Assert.AreEqual(0, optimizedManifest.Abi.Methods[0].Offset);
+        }
+
+        [TestMethod]
+        public void Test_BuildOptimizedAssets_KeepsMethodOffsetWhenDeletedOffsetCannotBeResolved()
+        {
+            var nef = CreateNefFile([(byte)OpCode.NOP], Array.Empty<MethodToken>());
+            var manifest = CreateManifestWithMethodOffset(0);
+            Neo.VM.Instruction nop = new Script(nef.Script.ToArray()).GetInstruction(0);
+            OrderedDictionary simplifiedInstructionsToAddress = new();
+
+            var (_, optimizedManifest, _) = AssetBuilder.BuildOptimizedAssets(
+                nef,
+                manifest,
+                null,
+                simplifiedInstructionsToAddress,
+                new Dictionary<Neo.VM.Instruction, Neo.VM.Instruction>(),
+                new Dictionary<Neo.VM.Instruction, (Neo.VM.Instruction, Neo.VM.Instruction)>(),
+                new Dictionary<int, Neo.VM.Instruction>
+                {
+                    [0] = nop
+                });
+
+            Assert.AreEqual(0, optimizedManifest.Abi.Methods[0].Offset);
         }
 
         [TestMethod]
@@ -490,6 +630,23 @@ namespace Neo.Compiler.CSharp.UnitTests
                 Trusts = WildcardContainer<ContractPermissionDescriptor>.Create(),
                 Extra = null
             };
+        }
+
+        private static ContractManifest CreateManifestWithMethodOffset(int offset)
+        {
+            var manifest = CreateEmptyManifest();
+            manifest.Abi.Methods =
+            [
+                new ContractMethodDescriptor
+                {
+                    Name = "main",
+                    Offset = offset,
+                    Parameters = Array.Empty<ContractParameterDefinition>(),
+                    ReturnType = ContractParameterType.Void,
+                    Safe = false
+                }
+            ];
+            return manifest;
         }
 
         public static class InvalidOptimizationStrategies

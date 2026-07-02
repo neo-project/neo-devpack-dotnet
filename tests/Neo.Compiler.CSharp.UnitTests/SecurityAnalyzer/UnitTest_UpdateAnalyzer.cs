@@ -141,6 +141,25 @@ namespace Neo.Compiler.CSharp.UnitTests.SecurityAnalyzer
             Assert.IsFalse(UpdateAnalyzer.AnalyzeDestroy(nef, manifest), "CALLT destroy without WriteStates should not be detected");
         }
 
+        [TestMethod]
+        public void Test_UpdateAnalyzer_CallT_OutOfRangeToken_Throws()
+        {
+            byte[] script =
+            [
+                (byte)OpCode.CALLT, 0xff, 0xff,
+                (byte)OpCode.RET
+            ];
+
+            NefFile nef = CreateNefFile(script, Array.Empty<MethodToken>());
+            var manifest = CreateManifest();
+
+            var updateException = Assert.ThrowsException<BadScriptException>(() => UpdateAnalyzer.AnalyzeUpdate(nef, manifest));
+            StringAssert.Contains(updateException.Message, "Invalid CALLT token");
+
+            var destroyException = Assert.ThrowsException<BadScriptException>(() => UpdateAnalyzer.AnalyzeDestroy(nef, manifest));
+            StringAssert.Contains(destroyException.Message, "Invalid CALLT token");
+        }
+
         /// <summary>
         /// Test that the bitwise operator fix correctly identifies WriteStates flag.
         /// </summary>
