@@ -33,9 +33,9 @@ public class AccessControlTest
     private static readonly Signer Bob = TestEngine.Bob;
     private static readonly Signer Charlie = TestEngine.Charlie;
 
-    private static readonly byte[] DefaultAdmin = new byte[4];
-    private static readonly byte[] Minter = { 1, 0, 0, 0 };
-    private static readonly byte[] MinterAdmin = { 2, 0, 0, 0 };
+    private static readonly BigInteger DefaultAdmin = BigInteger.Zero;
+    private static readonly BigInteger Minter = BigInteger.One;
+    private static readonly BigInteger MinterAdmin = new(2);
 
     private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) _compiled;
 
@@ -69,22 +69,12 @@ public class AccessControlTest
     }
 
     [TestMethod]
-    public void Init_DefaultAdminRole_IsFourZeroBytes()
+    public void Init_DefaultAdminRole_IsZero()
     {
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        CollectionAssert.AreEqual(new byte[4], c.DEFAULT_ADMIN_ROLE());
-        Merge(c);
-    }
-
-    [TestMethod]
-    public void RoleKey_EnumValue_IsFourByteLittleEndian()
-    {
-        var engine = CreateEngine();
-        var c = Deploy(engine);
-
-        CollectionAssert.AreEqual(Minter, c.MinterRoleForTest());
+        Assert.AreEqual(BigInteger.Zero, c.DEFAULT_ADMIN_ROLE());
         Merge(c);
     }
 
@@ -123,13 +113,12 @@ public class AccessControlTest
     }
 
     [TestMethod]
-    public void HasRole_MalformedRole_Faults()
+    public void HasRole_NegativeRole_Faults()
     {
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        Assert.ThrowsException<TestException>(() => c.HasRole(new byte[3], Alice.Account));
-        Assert.ThrowsException<TestException>(() => c.HasRole(new byte[5], Alice.Account));
+        Assert.ThrowsException<TestException>(() => c.HasRole(new BigInteger(-1), Alice.Account));
         Merge(c);
     }
 
@@ -139,7 +128,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        CollectionAssert.AreEqual(DefaultAdmin, c.GetRoleAdmin(Minter));
+        Assert.AreEqual(DefaultAdmin, c.GetRoleAdmin(Minter));
         Merge(c);
     }
 
@@ -151,7 +140,7 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        byte[]? grantedRole = null;
+        BigInteger? grantedRole = null;
         UInt160? grantedAccount = null, grantedSender = null;
         c.OnRoleGranted += (r, a, s) => { grantedRole = r; grantedAccount = a; grantedSender = s; };
 
@@ -159,7 +148,7 @@ public class AccessControlTest
 
         Assert.IsTrue(c.HasRole(Minter, Bob.Account));
         Assert.AreEqual(BigInteger.One, c.GetRoleMemberCount(Minter));
-        CollectionAssert.AreEqual(Minter, grantedRole);
+        Assert.AreEqual(Minter, grantedRole);
         Assert.AreEqual(Bob.Account, grantedAccount);
         Assert.AreEqual(Alice.Account, grantedSender);
         Merge(c);
@@ -338,15 +327,15 @@ public class AccessControlTest
         var engine = CreateEngine();
         var c = Deploy(engine);
 
-        byte[]? evRole = null, evPrev = null, evNew = null;
+        BigInteger? evRole = null, evPrev = null, evNew = null;
         c.OnRoleAdminChanged += (r, p, n) => { evRole = r; evPrev = p; evNew = n; };
 
         // Make MinterAdmin the admin of Minter, and give it to Bob.
         c.SetRoleAdmin(Minter, MinterAdmin, Alice.Account);
-        CollectionAssert.AreEqual(Minter, evRole);
-        CollectionAssert.AreEqual(DefaultAdmin, evPrev);
-        CollectionAssert.AreEqual(MinterAdmin, evNew);
-        CollectionAssert.AreEqual(MinterAdmin, c.GetRoleAdmin(Minter));
+        Assert.AreEqual(Minter, evRole);
+        Assert.AreEqual(DefaultAdmin, evPrev);
+        Assert.AreEqual(MinterAdmin, evNew);
+        Assert.AreEqual(MinterAdmin, c.GetRoleAdmin(Minter));
 
         c.GrantRole(MinterAdmin, Alice.Account, Bob.Account);
 
@@ -404,7 +393,7 @@ public class AccessControlTest
             Assert.IsFalse(abi.Single(m => m.Name == mutator).Safe, $"{mutator} must not be safe");
 
         // Protected cores and private helpers must not be exported.
-        foreach (var hidden in new[] { "roleKey", "checkRole", "onlyRole", "GrantRoleInternal", "RevokeRoleInternal", "SetRoleAdminInternal",
+        foreach (var hidden in new[] { "roleBytes", "checkRole", "onlyRole", "GrantRoleInternal", "RevokeRoleInternal", "SetRoleAdminInternal",
             "initializeAccessControl", "validateRole", "guardLastAdmin", "memberKey", "adminKey", "countKey" })
             Assert.IsFalse(names.Contains(hidden), $"{hidden} must not be exported to the ABI");
     }
@@ -412,6 +401,7 @@ public class AccessControlTest
     private static (NefFile nef, ContractManifest manifest, NeoDebugInfo debugInfo) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
+using System.Numerics;
 
 public class Contract : AccessControl
 {
@@ -426,18 +416,13 @@ public class Contract : AccessControl
         InitializeAccessControl(data, update);
     }
 
-    public static ByteString MinterRoleForTest()
-    {
-        return RoleKey((int)TestRole.Minter);
-    }
-
-    public static bool GuardedAction(ByteString role, UInt160 actor)
+    public static bool GuardedAction(BigInteger role, UInt160 actor)
     {
         OnlyRole(role, actor);
         return true;
     }
 
-    public static void SetRoleAdmin(ByteString role, ByteString adminRole, UInt160 admin)
+    public static void SetRoleAdmin(BigInteger role, BigInteger adminRole, UInt160 admin)
     {
         OnlyRole(GetRoleAdmin(role), admin);
         AccessControl.SetRoleAdminInternal(role, adminRole);
@@ -481,9 +466,9 @@ public class Contract : AccessControl
     public abstract class AccessControlProxy(SmartContractInitialize initialize)
         : Neo.SmartContract.Testing.SmartContract(initialize)
     {
-        public delegate void RoleGrantedDelegate(byte[]? role, UInt160? account, UInt160? sender);
-        public delegate void RoleRevokedDelegate(byte[]? role, UInt160? account, UInt160? sender);
-        public delegate void RoleAdminChangedDelegate(byte[]? role, byte[]? previousAdminRole, byte[]? newAdminRole);
+        public delegate void RoleGrantedDelegate(BigInteger? role, UInt160? account, UInt160? sender);
+        public delegate void RoleRevokedDelegate(BigInteger? role, UInt160? account, UInt160? sender);
+        public delegate void RoleAdminChangedDelegate(BigInteger? role, BigInteger? previousAdminRole, BigInteger? newAdminRole);
 
         [DisplayName("RoleGranted")]
         public event RoleGrantedDelegate? OnRoleGranted;
@@ -495,34 +480,31 @@ public class Contract : AccessControl
         public event RoleAdminChangedDelegate? OnRoleAdminChanged;
 
         [DisplayName("dEFAULT_ADMIN_ROLE")]
-        public abstract byte[] DEFAULT_ADMIN_ROLE();
+        public abstract BigInteger DEFAULT_ADMIN_ROLE();
 
         [DisplayName("hasRole")]
-        public abstract bool HasRole(byte[] role, UInt160 account);
+        public abstract bool HasRole(BigInteger role, UInt160 account);
 
         [DisplayName("getRoleAdmin")]
-        public abstract byte[] GetRoleAdmin(byte[] role);
+        public abstract BigInteger GetRoleAdmin(BigInteger role);
 
         [DisplayName("getRoleMemberCount")]
-        public abstract BigInteger GetRoleMemberCount(byte[] role);
-
-        [DisplayName("minterRoleForTest")]
-        public abstract byte[] MinterRoleForTest();
+        public abstract BigInteger GetRoleMemberCount(BigInteger role);
 
         [DisplayName("grantRole")]
-        public abstract void GrantRole(byte[] role, UInt160 admin, UInt160 account);
+        public abstract void GrantRole(BigInteger role, UInt160 admin, UInt160 account);
 
         [DisplayName("revokeRole")]
-        public abstract void RevokeRole(byte[] role, UInt160 admin, UInt160 account);
+        public abstract void RevokeRole(BigInteger role, UInt160 admin, UInt160 account);
 
         [DisplayName("renounceRole")]
-        public abstract void RenounceRole(byte[] role, UInt160 account);
+        public abstract void RenounceRole(BigInteger role, UInt160 account);
 
         [DisplayName("guardedAction")]
-        public abstract bool? GuardedAction(byte[] role, UInt160 actor);
+        public abstract bool? GuardedAction(BigInteger role, UInt160 actor);
 
         [DisplayName("setRoleAdmin")]
-        public abstract void SetRoleAdmin(byte[] role, byte[] adminRole, UInt160 admin);
+        public abstract void SetRoleAdmin(BigInteger role, BigInteger adminRole, UInt160 admin);
 
         [DisplayName("reInit")]
         public abstract void ReInit(UInt160 admin);

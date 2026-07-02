@@ -23,9 +23,9 @@ namespace Neo.SmartContract.Framework
     /// administered by another role.
     /// </summary>
     /// <remarks>
-    /// A role is identified by a compact 4-byte key. Define role enums in your contract and derive
-    /// keys with <see cref="RoleKey"/>, e.g. <c>RoleKey((int)Roles.Minter)</c>.
-    /// <see cref="DEFAULT_ADMIN_ROLE"/> (four zero bytes) is the root role and is its own admin;
+    /// A role is identified by a non-negative integer. Define role enums in your contract and pass
+    /// their numeric values directly, e.g. <c>OnlyRole((int)Roles.Minter, minter)</c>.
+    /// <see cref="DEFAULT_ADMIN_ROLE"/> (0) is the root role and is its own admin;
     /// the account it is granted to at deployment can administer every other role.
     /// <para>
     /// Authorization is by explicit actor: callers pass the acting account and the contract
@@ -55,9 +55,9 @@ namespace Neo.SmartContract.Framework
 
         // Sub-namespace tags. 0x00 is reserved for the one-time init flag only; the role keys use
         // non-zero tags so they can never collide with it.
-        private const byte TAG_MEMBER = 0x01;  // [role:4][account:20] -> granted
-        private const byte TAG_ADMIN = 0x02;   // [role:4]             -> admin role override
-        private const byte TAG_COUNT = 0x03;   // [role:4]             -> member count
+        private const byte TAG_MEMBER = 0x01;  // [role][account:20] -> granted
+        private const byte TAG_ADMIN = 0x02;   // [role]             -> admin role override
+        private const byte TAG_COUNT = 0x03;   // [role]             -> member count
 
         // The init flag lives under tag 0x00 (a fixed single-byte key) so it can never collide with
         // the non-zero tagged variable-length role keys.
@@ -65,41 +65,33 @@ namespace Neo.SmartContract.Framework
 
         private static StorageMap Map => new(Storage.CurrentContext, Prefix);
 
-        private static byte[] MemberKey(ByteString role, UInt160 account)
-            => new byte[] { TAG_MEMBER }.Concat((byte[])role).Concat((byte[])account);
+        private static byte[] MemberKey(BigInteger role, UInt160 account)
+            => new byte[] { TAG_MEMBER }.Concat(RoleBytes(role)).Concat((byte[])account);
 
-        private static byte[] AdminKey(ByteString role)
-            => new byte[] { TAG_ADMIN }.Concat((byte[])role);
+        private static byte[] AdminKey(BigInteger role)
+            => new byte[] { TAG_ADMIN }.Concat(RoleBytes(role));
 
-        private static byte[] CountKey(ByteString role)
-            => new byte[] { TAG_COUNT }.Concat((byte[])role);
+        private static byte[] CountKey(BigInteger role)
+            => new byte[] { TAG_COUNT }.Concat(RoleBytes(role));
 
-        /// <summary>
-        /// Converts an enum-style integer role id to the fixed 4-byte role key used by storage.
-        /// </summary>
-        protected static ByteString RoleKey(int role)
-        {
-            ExecutionEngine.Assert(role >= 0, "AccessControl: role must be non-negative");
-            return (ByteString)new byte[] { (byte)role, (byte)(role >> 8), (byte)(role >> 16), (byte)(role >> 24) };
-        }
+        private static byte[] RoleBytes(BigInteger role)
+            => (byte[])(ByteString)role;
 
-        // Roles are fixed 4 bytes so that the flat (role ++ account) key is injective with lower
-        // storage overhead than 32-byte hashes.
-        private static void ValidateRole(ByteString role)
-            => ExecutionEngine.Assert(role.Length == 4, "AccessControl: role must be 4 bytes");
+        private static void ValidateRole(BigInteger role)
+            => ExecutionEngine.Assert(role >= 0, "AccessControl: role must be non-negative");
 
         /// <summary>
-        /// The root admin role (four zero bytes). It is its own admin, and the account granted this
+        /// The root admin role (0). It is its own admin, and the account granted this
         /// role at deployment can administer every other role.
         /// </summary>
         [Safe]
-        public static ByteString DEFAULT_ADMIN_ROLE() => RoleKey(0);
+        public static BigInteger DEFAULT_ADMIN_ROLE() => BigInteger.Zero;
 
         /// <summary>
         /// Returns whether <paramref name="account"/> has been granted <paramref name="role"/>.
         /// </summary>
         [Safe]
-        public static bool HasRole(ByteString role, UInt160 account)
+        public static bool HasRole(BigInteger role, UInt160 account)
         {
             ValidateRole(role);
             return Map.Get(MemberKey(role, account)) is not null;
@@ -112,33 +104,33 @@ namespace Neo.SmartContract.Framework
         /// administer <paramref name="role"/>.
         /// </summary>
         [Safe]
-        public static ByteString GetRoleAdmin(ByteString role)
+        public static BigInteger GetRoleAdmin(BigInteger role)
         {
             ValidateRole(role);
-            return Map.Get(AdminKey(role)) ?? DEFAULT_ADMIN_ROLE();
+            return Map.GetIntegerOrZero(AdminKey(role));
         }
 
         /// <summary>
         /// Returns the number of accounts that currently hold <paramref name="role"/>.
         /// </summary>
         [Safe]
-        public static BigInteger GetRoleMemberCount(ByteString role)
+        public static BigInteger GetRoleMemberCount(BigInteger role)
         {
             ValidateRole(role);
             return Map.GetIntegerOrZero(CountKey(role));
         }
 
-        public delegate void OnRoleGrantedDelegate(ByteString role, UInt160 account, UInt160 sender);
+        public delegate void OnRoleGrantedDelegate(BigInteger role, UInt160 account, UInt160 sender);
 
         [DisplayName("RoleGranted")]
         public static event OnRoleGrantedDelegate OnRoleGranted = null!;
 
-        public delegate void OnRoleRevokedDelegate(ByteString role, UInt160 account, UInt160 sender);
+        public delegate void OnRoleRevokedDelegate(BigInteger role, UInt160 account, UInt160 sender);
 
         [DisplayName("RoleRevoked")]
         public static event OnRoleRevokedDelegate OnRoleRevoked = null!;
 
-        public delegate void OnRoleAdminChangedDelegate(ByteString role, ByteString previousAdminRole, ByteString newAdminRole);
+        public delegate void OnRoleAdminChangedDelegate(BigInteger role, BigInteger previousAdminRole, BigInteger newAdminRole);
 
         [DisplayName("RoleAdminChanged")]
         public static event OnRoleAdminChangedDelegate OnRoleAdminChanged = null!;
@@ -147,7 +139,7 @@ namespace Neo.SmartContract.Framework
         /// Asserts that <paramref name="account"/> holds <paramref name="role"/> and witnessed the
         /// current invocation. This is the authorization core; it aborts otherwise.
         /// </summary>
-        protected static void CheckRole(ByteString role, UInt160 account)
+        protected static void CheckRole(BigInteger role, UInt160 account)
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
@@ -159,13 +151,13 @@ namespace Neo.SmartContract.Framework
         /// The first-line guard for an author's role-gated method: asserts that
         /// <paramref name="account"/> holds <paramref name="role"/> and signed the call.
         /// </summary>
-        protected static void OnlyRole(ByteString role, UInt160 account) => CheckRole(role, account);
+        protected static void OnlyRole(BigInteger role, UInt160 account) => CheckRole(role, account);
 
         /// <summary>
         /// Grants <paramref name="role"/> to <paramref name="account"/>. <paramref name="admin"/>
         /// must hold the role's admin role and witness the call. A no-op if already granted.
         /// </summary>
-        public static void GrantRole(ByteString role, UInt160 admin, UInt160 account)
+        public static void GrantRole(BigInteger role, UInt160 admin, UInt160 account)
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
@@ -177,7 +169,7 @@ namespace Neo.SmartContract.Framework
         /// Revokes <paramref name="role"/> from <paramref name="account"/>. <paramref name="admin"/>
         /// must hold the role's admin role and witness the call. A no-op if not granted.
         /// </summary>
-        public static void RevokeRole(ByteString role, UInt160 admin, UInt160 account)
+        public static void RevokeRole(BigInteger role, UInt160 admin, UInt160 account)
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
@@ -192,7 +184,7 @@ namespace Neo.SmartContract.Framework
         /// Renounces <paramref name="role"/> for the caller. Only <paramref name="account"/> itself
         /// (verified by witness) may renounce its own role. A no-op if not held.
         /// </summary>
-        public static void RenounceRole(ByteString role, UInt160 account)
+        public static void RenounceRole(BigInteger role, UInt160 account)
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
@@ -206,7 +198,7 @@ namespace Neo.SmartContract.Framework
         // The final DEFAULT_ADMIN_ROLE holder can never be removed, so a single call can never
         // leave the contract un-administrable. Hand over root control by granting the role to a
         // successor first (count >= 2), then dropping your own.
-        private static void GuardLastAdmin(ByteString role)
+        private static void GuardLastAdmin(BigInteger role)
         {
             if (role == DEFAULT_ADMIN_ROLE())
                 ExecutionEngine.Assert(GetRoleMemberCount(role) > 1, "AccessControl: cannot remove last default admin");
@@ -216,7 +208,7 @@ namespace Neo.SmartContract.Framework
         /// Unconditionally grants <paramref name="role"/> to <paramref name="account"/> (no admin
         /// check). Idempotent. Not exported; wrap it behind your own authorization.
         /// </summary>
-        protected static void GrantRoleInternal(ByteString role, UInt160 account, UInt160 sender)
+        protected static void GrantRoleInternal(BigInteger role, UInt160 account, UInt160 sender)
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
@@ -232,7 +224,7 @@ namespace Neo.SmartContract.Framework
         /// Unconditionally revokes <paramref name="role"/> from <paramref name="account"/> (no admin
         /// or last-admin check). Idempotent. Not exported; the public callers apply the guards.
         /// </summary>
-        protected static void RevokeRoleInternal(ByteString role, UInt160 account, UInt160 sender)
+        protected static void RevokeRoleInternal(BigInteger role, UInt160 account, UInt160 sender)
         {
             ValidateRole(role);
             byte[] key = MemberKey(role, account);
@@ -247,18 +239,18 @@ namespace Neo.SmartContract.Framework
         /// Sets the admin role for <paramref name="role"/>. Not exported (no admin check); expose it
         /// behind a gated wrapper, for example:
         /// <code>
-        /// public static void SetRoleAdmin(ByteString role, ByteString adminRole, UInt160 admin)
+        /// public static void SetRoleAdmin(BigInteger role, BigInteger adminRole, UInt160 admin)
         /// {
         ///     OnlyRole(GetRoleAdmin(role), admin);
         ///     AccessControl.SetRoleAdminInternal(role, adminRole);
         /// }
         /// </code>
         /// </summary>
-        protected static void SetRoleAdminInternal(ByteString role, ByteString adminRole)
+        protected static void SetRoleAdminInternal(BigInteger role, BigInteger adminRole)
         {
             ValidateRole(role);
             ValidateRole(adminRole);
-            ByteString previous = GetRoleAdmin(role);
+            BigInteger previous = GetRoleAdmin(role);
             if (previous == adminRole)
                 return;
             if (adminRole == DEFAULT_ADMIN_ROLE())
