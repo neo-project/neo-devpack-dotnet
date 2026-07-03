@@ -13,6 +13,8 @@
     <Product>Neo.SmartContract.Analyzer.CSharp</Product>
     <Description>Neo.SmartContract.Analyzer.CSharp</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
