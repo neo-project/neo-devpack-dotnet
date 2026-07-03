@@ -23,7 +23,7 @@ jobs:
       - name: Delete versions below 3.6.1
         env:
           MYGET_FEED: 'neo'
-          PACKAGE_NAMES: 'Neo.SmartContract.Framework,Neo.SmartContract.Testing'
+          PACKAGE_NAMES: 'Neo.Compiler.CSharp,Neo.Disassembler.CSharp,Neo.SmartContract.Analyzer,Neo.SmartContract.Framework,Neo.SmartContract.Template,Neo.SmartContract.Testing'
           MYGET_API_KEY: ${{ secrets.MYGET_TOKEN }}
         run: |
           import requests
@@ -67,22 +67,22 @@ jobs:
     name: Delete Old Github Packages
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - Neo.Compiler.CSharp
+          - Neo.Disassembler.CSharp
+          - Neo.SmartContract.Analyzer
+          - Neo.SmartContract.Framework
+          - Neo.SmartContract.Template
+          - Neo.SmartContract.Testing
 
     steps:
-    - name: Delete Neo.SmartContract.Testing Package
+    - name: Delete Old Package Versions
       uses: actions/delete-package-versions@v4
       with:
-        package-name: Neo.SmartContract.Testing
-        package-type: nuget
-        min-versions-to-keep: 3
-        delete-only-pre-release-versions: "true"
-        token: "${{ secrets.GITHUB_TOKEN }}"
-      continue-on-error: true
-
-    - name: Delete Neo.SmartContract.Framework Package
-      uses: actions/delete-package-versions@v4
-      with:
-        package-name: Neo.SmartContract.Framework
+        package-name: ${{ matrix.package }}
         package-type: nuget
         min-versions-to-keep: 3
         delete-only-pre-release-versions: "true"
