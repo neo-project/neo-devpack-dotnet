@@ -81,7 +81,7 @@ build:
 .PHONY: test
 test:
 	@echo "Running tests..."
-	@$(DOTNET) test ./neo-devpack-dotnet.sln --no-build -c Release
+	@$(DOTNET) test ./neo-devpack-dotnet.sln -c Release
 	@echo "All tests passed!"
 
 # Install nccs to system
