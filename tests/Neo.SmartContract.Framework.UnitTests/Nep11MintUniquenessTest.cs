@@ -42,6 +42,20 @@ public class Nep11MintUniquenessTest
         Assert.AreEqual(firstOwner, contract.OwnerOf(tokenId));
     }
 
+    [TestMethod]
+    public void Nep11Burn_RejectsMissingTokenIds()
+    {
+        var (nef, manifest) = CompileContract();
+        var engine = new TestEngine(true);
+        var contract = engine.Deploy<Nep11MintUniquenessContract>(nef, manifest);
+
+        var tokenId = new byte[] { 0x43 };
+
+        var exception = Assert.ThrowsException<TestException>(() => contract.Burn(tokenId));
+        Assert.IsTrue(exception.Message.Contains("does not exist."));
+        Assert.AreEqual(BigInteger.Zero, contract.TotalSupply);
+    }
+
     private static (NefFile nef, ContractManifest manifest) CompileContract()
     {
         const string source = @"using Neo.SmartContract.Framework;
@@ -60,6 +74,12 @@ public class Contract : Nep11Token<TestTokenState>
             Owner = owner,
             Name = ""token""
         });
+    }
+
+    [DisplayName(""burn"")]
+    public static void Burn(byte[] tokenId)
+    {
+        Nep11Token<TestTokenState>.Burn((ByteString)tokenId);
     }
 }
 
@@ -114,5 +134,8 @@ public class TestTokenState : Nep11TokenState
 
         [DisplayName("mint")]
         public abstract void Mint(byte[] tokenId, UInt160 owner);
+
+        [DisplayName("burn")]
+        public abstract void Burn(byte[] tokenId);
     }
 }
