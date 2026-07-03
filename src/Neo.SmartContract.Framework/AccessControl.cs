@@ -182,15 +182,14 @@ namespace Neo.SmartContract.Framework
 
         /// <summary>
         /// Renounces <paramref name="role"/> for the caller. Only <paramref name="account"/> itself
-        /// (verified by witness) may renounce its own role. A no-op if not held.
+        /// (verified by witness) may renounce its own role. Aborts if the role is not held.
         /// </summary>
         public static void RenounceRole(BigInteger role, UInt160 account)
         {
             ValidateRole(role);
             ExecutionEngine.Assert(account.IsValidAndNotZero, "AccessControl: invalid account");
             ExecutionEngine.Assert(Runtime.CheckWitness(account), "AccessControl: can only renounce roles for self");
-            if (!HasRole(role, account))
-                return;
+            ExecutionEngine.Assert(HasRole(role, account), "AccessControl: account is missing role");
             GuardLastAdmin(role);
             RevokeRoleInternal(role, account, account);
         }

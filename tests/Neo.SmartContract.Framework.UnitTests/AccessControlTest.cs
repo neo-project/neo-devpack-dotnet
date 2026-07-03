@@ -261,6 +261,18 @@ public class AccessControlTest
         Merge(c);
     }
 
+    [TestMethod]
+    public void RenounceRole_NotHeld_Aborts()
+    {
+        var engine = CreateEngine();
+        var c = Deploy(engine);
+
+        engine.SetTransactionSigners(Bob);
+        Assert.ThrowsException<TestException>(() => c.RenounceRole(Minter, Bob.Account));
+        Assert.IsFalse(c.HasRole(Minter, Bob.Account));
+        Merge(c);
+    }
+
     // ---- Last-admin guard ----
 
     [TestMethod]
