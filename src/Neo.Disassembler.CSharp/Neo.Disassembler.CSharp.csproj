@@ -11,6 +11,8 @@
         <PackageTags>NEO;Blockchain;Smart Contract</PackageTags>
         <Description>Disassembler for NEO smart contract.</Description>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <IncludeContentInPack>true</IncludeContentInPack>
         <ContentTargetFolders>content</ContentTargetFolders>
         <Nullable>enable</Nullable>

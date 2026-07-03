@@ -127,7 +127,8 @@ namespace Neo.SmartContract.Framework
         protected static void Burn(ByteString tokenId)
         {
             var tokenMap = new LocalStorageMap(Prefix_Token);
-            TokenState token = (TokenState)StdLib.Deserialize(tokenMap[tokenId]!);
+            var tokenKey = tokenMap[tokenId] ?? throw new Exception("The token with given \"tokenId\" does not exist.");
+            TokenState token = (TokenState)StdLib.Deserialize(tokenKey);
             tokenMap.Delete(tokenId);
             UpdateBalance(token.Owner, tokenId, -1);
             TotalSupply--;
