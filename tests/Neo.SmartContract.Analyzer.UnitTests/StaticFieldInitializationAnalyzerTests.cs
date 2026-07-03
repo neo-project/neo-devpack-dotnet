@@ -11,7 +11,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Neo.SmartContract.Analyzer.StaticFieldInitializationAnalyzer>;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<Neo.SmartContract.Analyzer.StaticFieldInitializationAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {

@@ -11,7 +11,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
-using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<
+using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<
     Neo.SmartContract.Analyzer.EnumMethodsUsageAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
