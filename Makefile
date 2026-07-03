@@ -249,12 +249,6 @@ docs:
 	@$(DOTNET) tool restore
 	@$(DOTNET) docfx docs/docfx.json --serve
 
-# Benchmarks
-.PHONY: benchmark
-benchmark: build
-	@echo "Running benchmarks..."
-	@$(DOTNET) run --project tests/Neo.Compiler.CSharp.Benchmarks -c Release
-
 # Security scan
 .PHONY: security-scan
 security-scan:
