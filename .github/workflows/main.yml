@@ -161,7 +161,7 @@ jobs:
       if: steps.check_release.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Framework \
-        --configuration Debug \
+        --configuration Release \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
@@ -169,7 +169,7 @@ jobs:
       if: steps.check_release.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Analyzer \
-        --configuration Debug \
+        --configuration Release \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
@@ -177,7 +177,7 @@ jobs:
       if: steps.check_release.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.Disassembler.CSharp \
-        --configuration Debug \
+        --configuration Release \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
@@ -185,7 +185,7 @@ jobs:
       if: steps.check_release.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Testing \
-        --configuration Debug \
+        --configuration Release \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
            
@@ -193,7 +193,7 @@ jobs:
       if: steps.check_release.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.Compiler.CSharp \
-        --configuration Debug \
+        --configuration Release \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
@@ -201,7 +201,7 @@ jobs:
       if: steps.check_release.outputs.exists != 'true'
       run: |
         dotnet pack ./src/Neo.SmartContract.Template \
-        --configuration Debug \
+        --configuration Release \
         --output ./out \
         --version-suffix ${{ env.VERSION_SUFFIX }}
         
