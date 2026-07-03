@@ -425,7 +425,7 @@ public class Contract : AccessControl
 
     public static void _deploy(object data, bool update)
     {
-        InitializeAccessControl(data, update);
+        InitializeAccessControl((UInt160?)data, update);
     }
 
     public static bool GuardedAction(BigInteger role, UInt160 actor)

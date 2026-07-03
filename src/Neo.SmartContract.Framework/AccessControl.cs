@@ -262,10 +262,10 @@ namespace Neo.SmartContract.Framework
         /// <summary>
         /// Bootstraps access control by granting <see cref="DEFAULT_ADMIN_ROLE"/> to the initial
         /// admin. Call this from the contract's <c>_deploy</c> method. Defaults the admin to the
-        /// transaction sender when <paramref name="data"/> is null; a no-op on update. Can only run
+        /// transaction sender when <paramref name="admin"/> is null; a no-op on update. Can only run
         /// once.
         /// </summary>
-        protected static void InitializeAccessControl(object? data, bool update)
+        protected static void InitializeAccessControl(UInt160? admin, bool update)
         {
             if (update)
                 return;
@@ -273,12 +273,10 @@ namespace Neo.SmartContract.Framework
             ExecutionEngine.Assert(Map.Get(new byte[] { TAG_INIT }) is null, "AccessControl: already initialized");
             Map.Put(new byte[] { TAG_INIT }, 1);
 
-            data ??= Runtime.Transaction.Sender;
+            UInt160 initialAdmin = admin ?? Runtime.Transaction.Sender;
+            ExecutionEngine.Assert(initialAdmin.IsValidAndNotZero, "AccessControl: invalid initial admin");
 
-            UInt160 admin = (UInt160)data;
-            ExecutionEngine.Assert(admin.IsValidAndNotZero, "AccessControl: invalid initial admin");
-
-            GrantRoleInternal(DEFAULT_ADMIN_ROLE(), admin, admin);
+            GrantRoleInternal(DEFAULT_ADMIN_ROLE(), initialAdmin, initialAdmin);
         }
     }
 }
