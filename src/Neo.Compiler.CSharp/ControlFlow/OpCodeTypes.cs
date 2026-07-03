@@ -9,13 +9,15 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Optimizer;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Neo.VM.OpCode;
+using VmInstruction = Neo.VM.Instruction;
 
-namespace Neo.Optimizer
+namespace Neo.Compiler.ControlFlow
 {
     static class OpCodeTypes
     {
@@ -67,7 +69,7 @@ namespace Neo.Optimizer
             return opCode - 1;
         }
 
-        public static byte SlotIndex(Instruction i)
+        public static byte SlotIndex(VmInstruction i)
         {
             OpCode o = i.OpCode;
             if (slotNonConst.Contains(o))
