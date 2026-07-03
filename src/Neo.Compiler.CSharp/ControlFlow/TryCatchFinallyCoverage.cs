@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -17,10 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using static Neo.Optimizer.JumpTarget;
-using static Neo.Optimizer.OpCodeTypes;
+using static Neo.Compiler.ControlFlow.JumpTarget;
+using static Neo.Compiler.ControlFlow.OpCodeTypes;
+using VmInstruction = Neo.VM.Instruction;
 
-namespace Neo.Optimizer
+namespace Neo.Compiler.ControlFlow
 {
     [DebuggerDisplay($"{nameof(TryCatchFinallySingleCoverage)} {nameof(tryAddr)}={{{nameof(tryAddr)}}}")]
     public class TryCatchFinallySingleCoverage
@@ -90,7 +92,7 @@ namespace Neo.Optimizer
             allTry = new();
             foreach (BasicBlock b in contractInBasicBlocks.sortedBasicBlocks)
             {
-                Instruction lastI = b.instructions.Last();
+                VmInstruction lastI = b.instructions.Last();
                 if (lastI.OpCode == OpCode.TRY || lastI.OpCode == OpCode.TRY_L)
                 {
                     (int catchAddr, int finallyAddr) = JumpTarget.ComputeTryTarget(b.lastAddr, lastI);
@@ -126,7 +128,7 @@ namespace Neo.Optimizer
                 if (handledBlocks.Contains(currentBlock))
                     return currentBlock.branchType;
                 handledBlocks.Add(currentBlock);
-                Instruction instruction = currentBlock.instructions.Last();
+                VmInstruction instruction = currentBlock.instructions.Last();
                 if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
                     return BranchType.ABORT;
                 if (callWithJump.Contains(instruction.OpCode))
