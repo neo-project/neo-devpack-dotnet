@@ -34,13 +34,13 @@
         <EnableDefaultNoneItems>true</EnableDefaultNoneItems>
         <UsingMicrosoftNETSdk>true</UsingMicrosoftNETSdk>
         
-        <NeoPackageVersion>3.10.0</NeoPackageVersion>
+        <NeoCorePackageVersion>3.10.0</NeoCorePackageVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-        <PackageReference Include="Neo.SmartContract.Framework" Version="$(NeoPackageVersion)"/>
-        <PackageReference Include="Neo.SmartContract.Testing" Version="$(NeoPackageVersion)"/>
-        <PackageReference Include="Neo.SmartContract.Analyzer" Version="$(NeoPackageVersion)">
+        <PackageReference Include="Neo.SmartContract.Framework" Version="$(NeoCorePackageVersion)"/>
+        <PackageReference Include="Neo.SmartContract.Testing" Version="$(NeoCorePackageVersion)"/>
+        <PackageReference Include="Neo.SmartContract.Analyzer" Version="$(NeoCorePackageVersion)">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
