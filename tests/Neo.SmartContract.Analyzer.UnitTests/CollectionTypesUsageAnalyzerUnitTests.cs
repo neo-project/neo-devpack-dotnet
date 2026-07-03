@@ -11,7 +11,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<
+using VerifyCS = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<
     Neo.SmartContract.Analyzer.CollectionTypesUsageAnalyzer,
     Neo.SmartContract.Analyzer.CollectionTypesUsageCodeFixProvider>;
 

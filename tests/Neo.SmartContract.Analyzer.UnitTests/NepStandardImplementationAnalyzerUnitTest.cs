@@ -12,7 +12,7 @@
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<
     Neo.SmartContract.Analyzer.NepStandardImplementationAnalyzer,
     Neo.SmartContract.Analyzer.NepStandardImplementationCodeFixProvider>;
 
