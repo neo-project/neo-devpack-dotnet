@@ -184,7 +184,7 @@ namespace Neo.SmartContract.Framework.Services
         public static extern void BurnGas(long gas);
 
         /// <summary>
-        /// Gets the next random number. The random number is determinstic.
+        /// Gets the next random number. The random number is deterministic.
         /// </summary>
         [Syscall("System.Runtime.GetRandom")]
         public static extern BigInteger GetRandom();
