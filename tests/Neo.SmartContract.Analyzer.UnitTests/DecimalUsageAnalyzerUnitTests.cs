@@ -12,7 +12,7 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyCS =
-    Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<Neo.SmartContract.Analyzer.DecimalUsageAnalyzer,
+    Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<Neo.SmartContract.Analyzer.DecimalUsageAnalyzer,
         Neo.SmartContract.Analyzer.DecimalUsageCodeFixProvider>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests

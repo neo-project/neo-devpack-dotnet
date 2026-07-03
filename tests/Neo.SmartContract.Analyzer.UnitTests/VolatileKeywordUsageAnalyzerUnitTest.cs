@@ -11,7 +11,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.CodeFixVerifier<
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.CodeFixVerifier<
     Neo.SmartContract.Analyzer.VolatileKeywordUsageAnalyzer,
     Neo.SmartContract.Analyzer.VolatileKeywordRemovalCodeFixProvider>;
 

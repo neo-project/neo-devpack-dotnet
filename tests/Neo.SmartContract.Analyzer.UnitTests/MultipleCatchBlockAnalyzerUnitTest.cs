@@ -11,7 +11,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<Neo.SmartContract.Analyzer.MultipleCatchBlockAnalyzer>;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.MSTest.AnalyzerVerifier<Neo.SmartContract.Analyzer.MultipleCatchBlockAnalyzer>;
 
 namespace Neo.SmartContract.Analyzer.UnitTests
 {
