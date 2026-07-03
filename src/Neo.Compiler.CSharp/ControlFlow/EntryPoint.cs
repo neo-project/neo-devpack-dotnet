@@ -9,13 +9,15 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System.Collections.Generic;
 using System.Linq;
+using VmInstruction = Neo.VM.Instruction;
 
-namespace Neo.Optimizer
+namespace Neo.Compiler.ControlFlow
 {
     public enum EntryType
     {
@@ -62,10 +64,10 @@ namespace Neo.Optimizer
         {
             Dictionary<int, EntryType> result = new();
             Script script = nef.Script;
-            List<(int, Instruction)> instructions = script.EnumerateInstructions().ToList();
+            List<(int, VmInstruction)> instructions = script.EnumerateInstructions().ToList();
             bool hasCallA = HasCallA(instructions);
             if (hasCallA)
-                foreach ((int addr, Instruction instruction) in instructions)
+                foreach ((int addr, VmInstruction instruction) in instructions)
                     if (instruction.OpCode == OpCode.PUSHA)
                     {
                         int target = JumpTarget.ComputeJumpTarget(addr, instruction);
@@ -80,10 +82,10 @@ namespace Neo.Optimizer
         /// </summary>
         /// <param name="instructions">The list of instructions.</param>
         /// <returns>True if the CALLA instruction exists; otherwise, false.</returns>
-        public static bool HasCallA(List<(int, Instruction)> instructions)
+        public static bool HasCallA(List<(int, VmInstruction)> instructions)
         {
             bool hasCallA = false;
-            foreach ((_, Instruction instruction) in instructions)
+            foreach ((_, VmInstruction instruction) in instructions)
                 if (instruction.OpCode == OpCode.CALLA)
                 {
                     hasCallA = true;

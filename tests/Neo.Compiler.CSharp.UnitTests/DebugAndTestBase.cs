@@ -19,6 +19,8 @@ using Neo.SmartContract.Testing.TestingStandards;
 using System.Collections.Generic;
 using System.Linq;
 
+using Neo.Compiler.ControlFlow;
+
 namespace Neo.Compiler.CSharp.UnitTests;
 
 public class DebugAndTestBase<T> : TestBase<T>

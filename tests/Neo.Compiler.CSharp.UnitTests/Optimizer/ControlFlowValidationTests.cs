@@ -10,13 +10,14 @@
 // modifications are permitted.
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Neo.Compiler.ControlFlow;
 using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
-using OptimizerJumpTarget = Neo.Optimizer.JumpTarget;
+using ControlFlowJumpTarget = Neo.Compiler.ControlFlow.JumpTarget;
 
 namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 {
@@ -29,7 +30,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             var script = new Script(new byte[] { (byte)OpCode.JMP, 0x03, (byte)OpCode.RET });
 
             var exception = Assert.ThrowsException<BadScriptException>(() =>
-                OptimizerJumpTarget.FindAllJumpAndTrySourceToTargets(script));
+                ControlFlowJumpTarget.FindAllJumpAndTrySourceToTargets(script));
 
             StringAssert.Contains(exception.Message, "JMP");
             StringAssert.Contains(exception.Message, "3");
@@ -41,7 +42,7 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
             var script = new Script(new byte[] { (byte)OpCode.TRY, 0x02, 0x00, (byte)OpCode.RET });
 
             var exception = Assert.ThrowsException<BadScriptException>(() =>
-                OptimizerJumpTarget.FindAllJumpAndTrySourceToTargets(script));
+                ControlFlowJumpTarget.FindAllJumpAndTrySourceToTargets(script));
 
             StringAssert.Contains(exception.Message, "TRY");
             StringAssert.Contains(exception.Message, "2");

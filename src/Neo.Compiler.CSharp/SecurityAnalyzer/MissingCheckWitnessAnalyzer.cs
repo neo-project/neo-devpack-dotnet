@@ -92,7 +92,7 @@ namespace Neo.Compiler.SecurityAnalyzer
                 if (instruction.OpCode != OpCode.CALL && instruction.OpCode != OpCode.CALL_L)
                     continue;
 
-                int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
+                int target = Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(addr, instruction);
                 if (target >= 0)
                     methodStartOffsets.Add(target);
             }
@@ -190,7 +190,7 @@ namespace Neo.Compiler.SecurityAnalyzer
 
                     if (instruction.OpCode == OpCode.CALL || instruction.OpCode == OpCode.CALL_L)
                     {
-                        int target = Neo.Optimizer.JumpTarget.ComputeJumpTarget(addr, instruction);
+                        int target = Neo.Compiler.ControlFlow.JumpTarget.ComputeJumpTarget(addr, instruction);
                         if (methodStartOffsets.Contains(target))
                             pendingMethodStarts.Push(target);
                     }

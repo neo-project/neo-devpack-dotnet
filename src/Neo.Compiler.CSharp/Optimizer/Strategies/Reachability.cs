@@ -16,8 +16,9 @@ using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Neo.Optimizer.JumpTarget;
-using static Neo.Optimizer.OpCodeTypes;
+using Neo.Compiler.ControlFlow;
+using static Neo.Compiler.ControlFlow.JumpTarget;
+using static Neo.Compiler.ControlFlow.OpCodeTypes;
 
 namespace Neo.Optimizer
 {

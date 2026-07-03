@@ -13,6 +13,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Optimizer;
 using Neo.SmartContract.Testing;
 
+using Neo.Compiler.ControlFlow;
+
 namespace Neo.Compiler.CSharp.UnitTests.Optimizer
 {
     [TestClass]

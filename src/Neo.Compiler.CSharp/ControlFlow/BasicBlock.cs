@@ -10,6 +10,7 @@
 // modifications are permitted.
 
 using Neo.Json;
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
@@ -17,8 +18,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using VmInstruction = Neo.VM.Instruction;
 
-namespace Neo.Optimizer
+namespace Neo.Compiler.ControlFlow
 {
     /// <summary>
     /// A basic block is a group of assembly instructions that are surely executed together.
@@ -38,20 +40,20 @@ namespace Neo.Optimizer
                 if (lastAddrCache >= 0)
                     return lastAddrCache;
                 lastAddrCache = startAddr;
-                foreach (Instruction i in instructions[..^1])
+                foreach (VmInstruction i in instructions[..^1])
                     lastAddrCache += i.Size;
                 return lastAddrCache;
             }
         }
         public int nextAddr { get => lastAddr + instructions.Last().Size; }
-        public List<Instruction> instructions { get; set; }  // instructions in this basic block
+        public List<VmInstruction> instructions { get; set; }  // instructions in this basic block
         public BasicBlock? prevBlock = null;  // the previous basic block (with subseqent address)
         public BasicBlock? nextBlock = null;  // the following basic block (with subseqent address)
         public HashSet<BasicBlock> jumpTargetBlocks = new();  // jump target of the last instruction of this basic block
         public HashSet<BasicBlock> jumpSourceBlocks = new();
         public BranchType branchType = BranchType.UNCOVERED;
 
-        public BasicBlock(int startAddr, List<Instruction> instructions)
+        public BasicBlock(int startAddr, List<VmInstruction> instructions)
         {
             this.startAddr = startAddr;
             this.instructions = instructions;
@@ -60,10 +62,10 @@ namespace Neo.Optimizer
         /// <summary>
         /// Sort the instruction dictionary by address
         /// </summary>
-        /// <param name="instructions">address -> <see cref="Instruction"/></param>
-        public BasicBlock(Dictionary<int, Instruction> instructions)
+        /// <param name="instructions">address -> instruction</param>
+        public BasicBlock(Dictionary<int, VmInstruction> instructions)
         {
-            IEnumerable<(int addr, Instruction i)> addrToInstructions = from kv in instructions orderby kv.Key ascending select (kv.Key, kv.Value);
+            IEnumerable<(int addr, VmInstruction i)> addrToInstructions = from kv in instructions orderby kv.Key ascending select (kv.Key, kv.Value);
             this.startAddr = addrToInstructions.First().addr;
             this.instructions = addrToInstructions.Select(kv => kv.i).ToList();
         }
@@ -71,7 +73,7 @@ namespace Neo.Optimizer
         public int FindFirstOpCode(OpCode opCode, ReadOnlyMemory<byte>? operand = null)
         {
             int addr = this.startAddr;
-            foreach (Instruction i in this.instructions)
+            foreach (VmInstruction i in this.instructions)
                 if (i.OpCode == opCode && (operand == null || operand.Equals(i.Operand)))
                     return addr;
                 else
@@ -85,13 +87,13 @@ namespace Neo.Optimizer
     /// </summary>
     public class ContractInBasicBlocks
     {
-        public static Dictionary<int, Dictionary<int, Instruction>> BasicBlocksInDict(NefFile nef, ContractManifest manifest)
+        public static Dictionary<int, Dictionary<int, VmInstruction>> BasicBlocksInDict(NefFile nef, ContractManifest manifest)
             => new InstructionCoverage(nef, manifest).basicBlocksInDict;
 
-        public Dictionary<Instruction, BasicBlock> basicBlocksByStartInstruction;
+        public Dictionary<VmInstruction, BasicBlock> basicBlocksByStartInstruction;
         public Dictionary<int, BasicBlock> basicBlocksByStartAddr;
         public InstructionCoverage coverage;
-        public IEnumerable<(int startAddr, List<Instruction> block)> sortedListInstructions;
+        public IEnumerable<(int startAddr, List<VmInstruction> block)> sortedListInstructions;
         public List<BasicBlock> sortedBasicBlocks;
         public ContractManifest manifest;
         public JToken? debugInfo;
@@ -111,7 +113,7 @@ namespace Neo.Optimizer
             basicBlocksByStartInstruction = new();
             basicBlocksByStartAddr = new();
             // build all blocks without handling jumps or continuations between blocks
-            foreach ((int startAddr, List<Instruction> block) in sortedListInstructions)
+            foreach ((int startAddr, List<VmInstruction> block) in sortedListInstructions)
             {
                 BasicBlock thisBlock = new(startAddr, block);
                 thisBlock.branchType = coverage.coveredMap[startAddr];
@@ -175,7 +177,7 @@ namespace Neo.Optimizer
             foreach (BasicBlock currentBlock in blocks)
             {
                 int addr = currentBlock.startAddr;
-                foreach (Instruction i in currentBlock.instructions)
+                foreach (VmInstruction i in currentBlock.instructions)
                 {
                     result.Add(addr);
                     addr += i.Size;
@@ -184,13 +186,13 @@ namespace Neo.Optimizer
             return result;
         }
 
-        public IEnumerable<Instruction> GetScriptInstructions()
+        public IEnumerable<VmInstruction> GetScriptInstructions()
         {
             // WARNING: OpCode.NOP at the start of a basic block may not be included
             // and the jumping operands may be wrong
             // Refer to InstructionCoverage coverage for jump targets
-            foreach ((_, List<Instruction> basicBlock) in sortedListInstructions)
-                foreach (Instruction instruction in basicBlock)
+            foreach ((_, List<VmInstruction> basicBlock) in sortedListInstructions)
+                foreach (VmInstruction instruction in basicBlock)
                     yield return instruction;
         }
     }

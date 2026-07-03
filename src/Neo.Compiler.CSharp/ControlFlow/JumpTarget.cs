@@ -9,19 +9,21 @@
 // Redistribution and use in source and binary forms with or without
 // modifications are permitted.
 
+using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static Neo.Optimizer.OpCodeTypes;
+using static Neo.Compiler.ControlFlow.OpCodeTypes;
 using static Neo.VM.OpCode;
+using VmInstruction = Neo.VM.Instruction;
 
-namespace Neo.Optimizer
+namespace Neo.Compiler.ControlFlow
 {
     static class JumpTarget
     {
-        public static bool SingleJumpInOperand(Instruction instruction) => SingleJumpInOperand(instruction.OpCode);
+        public static bool SingleJumpInOperand(VmInstruction instruction) => SingleJumpInOperand(instruction.OpCode);
         public static bool SingleJumpInOperand(OpCode opcode)
         {
             if (conditionalJump.Contains(opcode)) return true;
@@ -32,10 +34,10 @@ namespace Neo.Optimizer
             return false;
         }
 
-        public static bool DoubleJumpInOperand(Instruction instruction) => DoubleJumpInOperand(instruction.OpCode);
+        public static bool DoubleJumpInOperand(VmInstruction instruction) => DoubleJumpInOperand(instruction.OpCode);
         public static bool DoubleJumpInOperand(OpCode opcode) => (opcode == TRY || opcode == TRY_L);
 
-        public static int ComputeJumpTarget(int addr, Instruction instruction)
+        public static int ComputeJumpTarget(int addr, VmInstruction instruction)
         {
             if (conditionalJump.Contains(instruction.OpCode))
                 return addr + instruction.TokenI8;
@@ -51,7 +53,7 @@ namespace Neo.Optimizer
             };
         }
 
-        public static (int catchTarget, int finallyTarget) ComputeTryTarget(int addr, Instruction instruction)
+        public static (int catchTarget, int finallyTarget) ComputeTryTarget(int addr, VmInstruction instruction)
         {
             return instruction.OpCode switch
             {
@@ -65,28 +67,28 @@ namespace Neo.Optimizer
             };
         }
 
-        public static (Dictionary<Instruction, Instruction>,
-            Dictionary<Instruction, (Instruction, Instruction)>,
-            Dictionary<Instruction, HashSet<Instruction>>)
+        public static (Dictionary<VmInstruction, VmInstruction>,
+            Dictionary<VmInstruction, (VmInstruction, VmInstruction)>,
+            Dictionary<VmInstruction, HashSet<VmInstruction>>)
             FindAllJumpAndTrySourceToTargets(NefFile nef, bool includePUSHA = true)
         {
             Script script = nef.Script;
             return FindAllJumpAndTrySourceToTargets(script, includePUSHA);
         }
-        public static (Dictionary<Instruction, Instruction>,
-            Dictionary<Instruction, (Instruction, Instruction)>,
-            Dictionary<Instruction, HashSet<Instruction>>)
+        public static (Dictionary<VmInstruction, VmInstruction>,
+            Dictionary<VmInstruction, (VmInstruction, VmInstruction)>,
+            Dictionary<VmInstruction, HashSet<VmInstruction>>)
             FindAllJumpAndTrySourceToTargets(Script script, bool includePUSHA = true) => FindAllJumpAndTrySourceToTargets(script.EnumerateInstructions().ToList(), includePUSHA);
         public static (
-            Dictionary<Instruction, Instruction>,  // jump source to target
-            Dictionary<Instruction, (Instruction, Instruction)>,  // try source to targets
-            Dictionary<Instruction, HashSet<Instruction>>  // target to source
+            Dictionary<VmInstruction, VmInstruction>,  // jump source to target
+            Dictionary<VmInstruction, (VmInstruction, VmInstruction)>,  // try source to targets
+            Dictionary<VmInstruction, HashSet<VmInstruction>>  // target to source
             )
-            FindAllJumpAndTrySourceToTargets(List<Instruction> instructionsList, bool includePUSHA = true)
+            FindAllJumpAndTrySourceToTargets(List<VmInstruction> instructionsList, bool includePUSHA = true)
         {
             int addr = 0;
-            List<(int, Instruction)> addressAndInstructionsList = new();
-            foreach (Instruction i in instructionsList)
+            List<(int, VmInstruction)> addressAndInstructionsList = new();
+            foreach (VmInstruction i in instructionsList)
             {
                 addressAndInstructionsList.Add((addr, i));
                 addr += i.Size;
@@ -94,26 +96,26 @@ namespace Neo.Optimizer
             return FindAllJumpAndTrySourceToTargets(addressAndInstructionsList, includePUSHA);
         }
         public static (
-            Dictionary<Instruction, Instruction>,  // jump source to target
-            Dictionary<Instruction, (Instruction, Instruction)>,  // try source to targets
-            Dictionary<Instruction, HashSet<Instruction>>  // all jump and try targets to sources
+            Dictionary<VmInstruction, VmInstruction>,  // jump source to target
+            Dictionary<VmInstruction, (VmInstruction, VmInstruction)>,  // try source to targets
+            Dictionary<VmInstruction, HashSet<VmInstruction>>  // all jump and try targets to sources
             )
-            FindAllJumpAndTrySourceToTargets(List<(int, Instruction)> addressAndInstructionsList, bool includePUSHA = true)
+            FindAllJumpAndTrySourceToTargets(List<(int, VmInstruction)> addressAndInstructionsList, bool includePUSHA = true)
         {
-            Dictionary<int, Instruction> addressToInstruction = new();
-            foreach ((int a, Instruction i) in addressAndInstructionsList)
+            Dictionary<int, VmInstruction> addressToInstruction = new();
+            foreach ((int a, VmInstruction i) in addressAndInstructionsList)
                 addressToInstruction.Add(a, i);
-            Dictionary<Instruction, Instruction> jumpSourceToTargets = new();
-            Dictionary<Instruction, (Instruction, Instruction)> trySourceToTargets = new();
-            Dictionary<Instruction, HashSet<Instruction>> targetToSources = new();
-            foreach ((int a, Instruction i) in addressAndInstructionsList)
+            Dictionary<VmInstruction, VmInstruction> jumpSourceToTargets = new();
+            Dictionary<VmInstruction, (VmInstruction, VmInstruction)> trySourceToTargets = new();
+            Dictionary<VmInstruction, HashSet<VmInstruction>> targetToSources = new();
+            foreach ((int a, VmInstruction i) in addressAndInstructionsList)
             {
                 if ((SingleJumpInOperand(i) && i.OpCode != CALLA) || (includePUSHA && i.OpCode == PUSHA))
                 {
                     int targetAddr = ComputeJumpTarget(a, i);
-                    Instruction target = GetTargetInstruction(addressToInstruction, targetAddr, a, i);
+                    VmInstruction target = GetTargetInstruction(addressToInstruction, targetAddr, a, i);
                     jumpSourceToTargets[i] = target;
-                    if (!targetToSources.TryGetValue(target, out HashSet<Instruction>? sources))
+                    if (!targetToSources.TryGetValue(target, out HashSet<VmInstruction>? sources))
                     {
                         sources = new();
                         targetToSources.Add(target, sources);
@@ -125,17 +127,17 @@ namespace Neo.Optimizer
                     (int a1, int a2) = i.OpCode == TRY ?
                         (a + i.TokenI8, a + i.TokenI8_1) :
                         (a + i.TokenI32, a + i.TokenI32_1);
-                    (Instruction t1, Instruction t2) = (
+                    (VmInstruction t1, VmInstruction t2) = (
                         GetTargetInstruction(addressToInstruction, a1, a, i),
                         GetTargetInstruction(addressToInstruction, a2, a, i));
                     trySourceToTargets.TryAdd(i, (t1, t2));
-                    if (!targetToSources.TryGetValue(t1, out HashSet<Instruction>? sources1))
+                    if (!targetToSources.TryGetValue(t1, out HashSet<VmInstruction>? sources1))
                     {
                         sources1 = new();
                         targetToSources.Add(t1, sources1);
                     }
                     sources1.Add(i);
-                    if (!targetToSources.TryGetValue(t2, out HashSet<Instruction>? sources2))
+                    if (!targetToSources.TryGetValue(t2, out HashSet<VmInstruction>? sources2))
                     {
                         sources2 = new();
                         targetToSources.Add(t2, sources2);
@@ -146,13 +148,13 @@ namespace Neo.Optimizer
             return (jumpSourceToTargets, trySourceToTargets, targetToSources);
         }
 
-        private static Instruction GetTargetInstruction(
-            Dictionary<int, Instruction> addressToInstruction,
+        private static VmInstruction GetTargetInstruction(
+            Dictionary<int, VmInstruction> addressToInstruction,
             int targetAddr,
             int sourceAddr,
-            Instruction sourceInstruction)
+            VmInstruction sourceInstruction)
         {
-            if (!addressToInstruction.TryGetValue(targetAddr, out Instruction? target))
+            if (!addressToInstruction.TryGetValue(targetAddr, out VmInstruction? target))
                 throw new BadScriptException($"{sourceInstruction.OpCode} at address {sourceAddr} targets invalid address {targetAddr}");
             return target;
         }
