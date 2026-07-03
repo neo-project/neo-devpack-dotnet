@@ -190,7 +190,7 @@ publish:
 .PHONY: publish-all
 publish-all:
 	@echo "Publishing for all platforms..."
-	@for rid in win-x64 linux-x64 osx-x64 osx-arm64; do \
+	@for rid in win-x64 linux-x64 linux-arm64 osx-x64 osx-arm64; do \
 		echo "Publishing for $$rid..."; \
 		$(DOTNET) publish $(NCCS_PROJECT) -c Release -r $$rid --self-contained true \
 			/p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./publish/$$rid; \
@@ -249,12 +249,6 @@ docs:
 	@$(DOTNET) tool restore
 	@$(DOTNET) docfx docs/docfx.json --serve
 
-# Benchmarks
-.PHONY: benchmark
-benchmark: build
-	@echo "Running benchmarks..."
-	@$(DOTNET) run --project tests/Neo.Compiler.CSharp.Benchmarks -c Release
-
 # Security scan
 .PHONY: security-scan
 security-scan:
@@ -279,7 +273,11 @@ ifndef TYPE
 	$(eval TYPE := nep17)
 endif
 	@echo "Creating new $(TYPE) contract: $(NAME)..."
-	@$(DOTNET) new neocontract$(TYPE) -n $(NAME) -o ./contracts/$(NAME)
+	@if [ "$(TYPE)" = "solution" ]; then \
+		$(DOTNET) new neocontract -n $(NAME) -o ./contracts/$(NAME); \
+	else \
+		$(DOTNET) new neocontract$(TYPE) -n $(NAME) -o ./contracts/$(NAME); \
+	fi
 	@echo "Contract created in ./contracts/$(NAME)/"
 
 # Compile and deploy helper (requires neo-express)
@@ -293,5 +291,7 @@ deploy: compile
 list-templates:
 	@echo "Available contract templates:"
 	@echo "  nep17  - NEP-17 token standard"
+	@echo "  nep11  - NEP-11 token standard"
 	@echo "  oracle - Oracle request contract"
 	@echo "  owner  - Ownable contract pattern"
+	@echo "  solution - Smart contract solution"
