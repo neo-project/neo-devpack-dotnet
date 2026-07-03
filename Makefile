@@ -190,7 +190,7 @@ publish:
 .PHONY: publish-all
 publish-all:
 	@echo "Publishing for all platforms..."
-	@for rid in win-x64 linux-x64 osx-x64 osx-arm64; do \
+	@for rid in win-x64 linux-x64 linux-arm64 osx-x64 osx-arm64; do \
 		echo "Publishing for $$rid..."; \
 		$(DOTNET) publish $(NCCS_PROJECT) -c Release -r $$rid --self-contained true \
 			/p:PublishSingleFile=true /p:PublishReadyToRun=true -o ./publish/$$rid; \
