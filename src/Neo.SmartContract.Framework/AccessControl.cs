@@ -220,8 +220,11 @@ namespace Neo.SmartContract.Framework
         }
 
         /// <summary>
-        /// Unconditionally revokes <paramref name="role"/> from <paramref name="account"/> (no admin
-        /// or last-admin check). Idempotent. Not exported; the public callers apply the guards.
+        /// Unconditionally revokes <paramref name="role"/> from <paramref name="account"/>.
+        /// This protected primitive intentionally bypasses both admin authorization and the
+        /// last-default-admin guard so derived contracts can implement their own policy.
+        /// Public callers apply the standard guards; custom callers are responsible for preserving
+        /// <see cref="DEFAULT_ADMIN_ROLE"/> when that behavior is required.
         /// </summary>
         protected static void RevokeRoleInternal(BigInteger role, UInt160 account, UInt160 sender)
         {
