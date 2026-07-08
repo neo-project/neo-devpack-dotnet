@@ -35,7 +35,7 @@ Neo DevPack for .NET is a comprehensive suite of development tools for building 
 
 ## Components
 
-The neo DevPack for .NET consists of several key components:
+The Neo DevPack for .NET consists of several key components:
 
 ### Neo.SmartContract.Framework
 
