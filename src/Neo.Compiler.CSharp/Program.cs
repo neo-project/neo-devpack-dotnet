@@ -21,8 +21,6 @@ using Neo.SmartContract.Testing.Extensions;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
 using System.IO;
@@ -39,60 +37,148 @@ namespace Neo.Compiler
         {
             RootCommand rootCommand = new(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>()!.Title);
 
+            var oldNefArgument = new Argument<string>("old-nef") { Description = "The old .nef file." };
+            var oldManifestArgument = new Argument<string>("old-manifest") { Description = "The old manifest.json file." };
+            var newNefArgument = new Argument<string>("new-nef") { Description = "The new .nef file." };
+            var newManifestArgument = new Argument<string>("new-manifest") { Description = "The new manifest.json file." };
+            var failOnBreakingOption = new Option<bool>("--fail-on-breaking") { Description = "Return exit code 2 when breaking ABI changes are found." };
+
             var diffCommand = new Command("diff", "Compare two compiled smart contract artifact sets")
             {
-                new Argument<string>("old-nef", "The old .nef file."),
-                new Argument<string>("old-manifest", "The old manifest.json file."),
-                new Argument<string>("new-nef", "The new .nef file."),
-                new Argument<string>("new-manifest", "The new manifest.json file."),
-                new Option<bool>("--fail-on-breaking", "Return exit code 2 when breaking ABI changes are found.")
+                oldNefArgument,
+                oldManifestArgument,
+                newNefArgument,
+                newManifestArgument,
+                failOnBreakingOption
             };
-            diffCommand.Handler = CommandHandler.Create<string, string, string, string, bool>(HandleDiff);
-            rootCommand.AddCommand(diffCommand);
+            diffCommand.SetAction(parseResult => HandleDiff(
+                parseResult.GetValue(oldNefArgument)!,
+                parseResult.GetValue(oldManifestArgument)!,
+                parseResult.GetValue(newNefArgument)!,
+                parseResult.GetValue(newManifestArgument)!,
+                parseResult.GetValue(failOnBreakingOption)));
+            rootCommand.Subcommands.Add(diffCommand);
 
             // Add the 'new' subcommand for creating contracts from templates
+            var nameArgument = new Argument<string>("name") { Description = "The name of the new contract" };
+            var templateOption = new Option<ContractTemplate>("--template", "-t")
+            {
+                Description = "The template to use (Basic, NEP17, NEP11, Ownable, Oracle)",
+                DefaultValueFactory = _ => ContractTemplate.Basic
+            };
+            var newOutputOption = new Option<string>("--output", "-o")
+            {
+                Description = "The output directory for the new contract",
+                DefaultValueFactory = _ => Environment.CurrentDirectory
+            };
+            var authorOption = new Option<string>("--author")
+            {
+                Description = "The author of the contract",
+                DefaultValueFactory = _ => "Author"
+            };
+            var emailOption = new Option<string>("--email")
+            {
+                Description = "The author's email",
+                DefaultValueFactory = _ => "email@example.com"
+            };
+            var descriptionOption = new Option<string>("--description") { Description = "A description of the contract" };
+            var forceOption = new Option<bool>("--force") { Description = "Overwrite existing files" };
+
             var newCommand = new Command("new", "Create a new smart contract from a template")
             {
-                new Argument<string>("name", "The name of the new contract"),
-                new Option<ContractTemplate>(["-t", "--template"], () => ContractTemplate.Basic, "The template to use (Basic, NEP17, NEP11, Ownable, Oracle)"),
-                new Option<string>(["-o", "--output"], () => Environment.CurrentDirectory, "The output directory for the new contract"),
-                new Option<string>("--author", () => "Author", "The author of the contract"),
-                new Option<string>("--email", () => $"email@example.com", "The author's email"),
-                new Option<string>("--description", "A description of the contract"),
-                new Option<bool>("--force", "Overwrite existing files")
+                nameArgument,
+                templateOption,
+                newOutputOption,
+                authorOption,
+                emailOption,
+                descriptionOption,
+                forceOption
             };
-            newCommand.Handler = CommandHandler.Create<string, ContractTemplate, string, string, string, string, bool>(HandleNew);
-            rootCommand.AddCommand(newCommand);
+            newCommand.SetAction(parseResult => HandleNew(
+                parseResult.GetValue(nameArgument)!,
+                parseResult.GetValue(templateOption),
+                parseResult.GetValue(newOutputOption)!,
+                parseResult.GetValue(authorOption)!,
+                parseResult.GetValue(emailOption)!,
+                parseResult.GetValue(descriptionOption),
+                parseResult.GetValue(forceOption)));
+            rootCommand.Subcommands.Add(newCommand);
 
             // Add compilation arguments (make them optional for backward compatibility)
-            var pathsArgument = new Argument<string[]>("paths", "The path of the solution file, project file, project directory or source files.")
+            var pathsArgument = new Argument<string[]>("paths")
             {
+                Description = "The path of the solution file, project file, project directory or source files.",
                 Arity = ArgumentArity.ZeroOrMore
             };
-            rootCommand.AddArgument(pathsArgument);
+            rootCommand.Arguments.Add(pathsArgument);
 
-            rootCommand.AddOption(new Option<string>(["-o", "--output"], "Specifies the output directory."));
-            rootCommand.AddOption(new Option<string>("--base-name", "Specifies the base name of the output files."));
-            rootCommand.AddOption(new Option<NullableContextOptions>("--nullable", () => NullableContextOptions.Annotations, "Represents the default state of nullable analysis in this compilation."));
-            rootCommand.AddOption(new Option<bool>("--checked", "Indicates whether to check for overflow and underflow."));
-            rootCommand.AddOption(new Option<bool>("--assembly", "Indicates whether to generate assembly."));
-            rootCommand.AddOption(new Option<Options.GenerateArtifactsKind>("--generate-artifacts", "Instruct the compiler how to generate artifacts."));
-            rootCommand.AddOption(new Option<bool>("--security-analysis", "Whether to perform security analysis on the compiled contract"));
-            rootCommand.AddOption(new Option<bool>("--generate-interface", "Generate interface file for contracts with the Contract attribute"));
-            rootCommand.AddOption(new Option<CompilationOptions.OptimizationType>("--optimize", $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}"));
-            rootCommand.AddOption(new Option<bool>("--no-inline", "Instruct the compiler not to insert inline code."));
-            rootCommand.AddOption(new Option<byte>("--address-version", () => ProtocolSettings.Default.AddressVersion, "Indicates the address version used by the compiler."));
-            rootCommand.AddOption(new Option<bool>("--print-abi", "Print a static ABI and bytecode summary after successful compilation."));
-
-            var debugOption = new Option<CompilationOptions.DebugType>(["-d", "--debug"],
-                new ParseArgument<CompilationOptions.DebugType>(ParseDebug), description: "Indicates the debug level.")
+            var outputOption = new Option<string>("--output", "-o") { Description = "Specifies the output directory." };
+            var baseNameOption = new Option<string>("--base-name") { Description = "Specifies the base name of the output files." };
+            var nullableOption = new Option<NullableContextOptions>("--nullable")
             {
-                Arity = ArgumentArity.ZeroOrOne
+                Description = "Represents the default state of nullable analysis in this compilation.",
+                DefaultValueFactory = _ => NullableContextOptions.Annotations
             };
-            rootCommand.AddOption(debugOption);
+            var checkedOption = new Option<bool>("--checked") { Description = "Indicates whether to check for overflow and underflow." };
+            var assemblyOption = new Option<bool>("--assembly") { Description = "Indicates whether to generate assembly." };
+            var generateArtifactsOption = new Option<Options.GenerateArtifactsKind>("--generate-artifacts") { Description = "Instruct the compiler how to generate artifacts." };
+            var securityAnalysisOption = new Option<bool>("--security-analysis") { Description = "Whether to perform security analysis on the compiled contract" };
+            var generateInterfaceOption = new Option<bool>("--generate-interface") { Description = "Generate interface file for contracts with the Contract attribute" };
+            var optimizeOption = new Option<CompilationOptions.OptimizationType>("--optimize")
+            {
+                Description = $"Optimization level. e.g. --optimize={CompilationOptions.OptimizationType.All}",
+                DefaultValueFactory = _ => CompilationOptions.OptimizationType.Basic
+            };
+            var noInlineOption = new Option<bool>("--no-inline") { Description = "Instruct the compiler not to insert inline code." };
+            var addressVersionOption = new Option<byte>("--address-version")
+            {
+                Description = "Indicates the address version used by the compiler.",
+                DefaultValueFactory = _ => ProtocolSettings.Default.AddressVersion
+            };
+            var printAbiOption = new Option<bool>("--print-abi") { Description = "Print a static ABI and bytecode summary after successful compilation." };
 
-            rootCommand.Handler = CommandHandler.Create<RootCommand, Options, string[], InvocationContext>(Handle);
-            return rootCommand.Invoke(args);
+            rootCommand.Options.Add(outputOption);
+            rootCommand.Options.Add(baseNameOption);
+            rootCommand.Options.Add(nullableOption);
+            rootCommand.Options.Add(checkedOption);
+            rootCommand.Options.Add(assemblyOption);
+            rootCommand.Options.Add(generateArtifactsOption);
+            rootCommand.Options.Add(securityAnalysisOption);
+            rootCommand.Options.Add(generateInterfaceOption);
+            rootCommand.Options.Add(optimizeOption);
+            rootCommand.Options.Add(noInlineOption);
+            rootCommand.Options.Add(addressVersionOption);
+            rootCommand.Options.Add(printAbiOption);
+
+            var debugOption = new Option<CompilationOptions.DebugType>("--debug", "-d")
+            {
+                Description = "Indicates the debug level.",
+                Arity = ArgumentArity.ZeroOrOne,
+                CustomParser = ParseDebug
+            };
+            rootCommand.Options.Add(debugOption);
+
+            rootCommand.SetAction(parseResult =>
+            {
+                var options = new Options
+                {
+                    Output = parseResult.GetValue(outputOption),
+                    BaseName = parseResult.GetValue(baseNameOption),
+                    Nullable = parseResult.GetValue(nullableOption),
+                    Checked = parseResult.GetValue(checkedOption),
+                    Assembly = parseResult.GetValue(assemblyOption),
+                    GenerateArtifacts = parseResult.GetValue(generateArtifactsOption),
+                    SecurityAnalysis = parseResult.GetValue(securityAnalysisOption),
+                    GenerateContractInterface = parseResult.GetValue(generateInterfaceOption),
+                    Optimize = parseResult.GetValue(optimizeOption),
+                    NoInline = parseResult.GetValue(noInlineOption),
+                    AddressVersion = parseResult.GetValue(addressVersionOption),
+                    PrintAbi = parseResult.GetValue(printAbiOption),
+                    Debug = parseResult.GetValue(debugOption)
+                };
+                return Handle(rootCommand, options, parseResult.GetValue(pathsArgument));
+            });
+            return rootCommand.Parse(args).Invoke();
         }
 
         private static int HandleDiff(string oldNef, string oldManifest, string newNef, string newManifest, bool failOnBreaking)
@@ -204,30 +290,26 @@ namespace Neo.Compiler
             }
         }
 
-        private static void Handle(RootCommand command, Options options, string[]? paths, InvocationContext context)
+        private static int Handle(RootCommand command, Options options, string[]? paths)
         {
-            // Check if the --generate-interface option is present in the command line args
-            options.GenerateContractInterface = context.ParseResult.CommandResult.Children
-                .Any(token => token.Symbol.Name == "generate-interface");
-
             if (paths is null || paths.Length == 0)
             {
                 // catch Unhandled exception: System.Reflection.TargetInvocationException
                 try
                 {
-                    context.ExitCode = ProcessDirectory(options, Environment.CurrentDirectory);
-                    if (context.ExitCode == 2)
+                    int exitCode = ProcessDirectory(options, Environment.CurrentDirectory);
+                    if (exitCode == 2)
                     {
                         // Display help without args
-                        command.Invoke("--help");
+                        command.Parse("--help").Invoke();
                     }
+                    return exitCode;
                 }
                 catch (UnauthorizedAccessException)
                 {
                     Console.Error.WriteLine("Unauthorized to access the project directory, or no project is specified. Please ensure you have the proper permissions and a project is specified.");
+                    return 1;
                 }
-
-                return;
             }
             paths = paths.Select(Path.GetFullPath).ToArray();
             if (paths.Length == 1)
@@ -235,21 +317,18 @@ namespace Neo.Compiler
                 string path = paths[0];
                 if (Directory.Exists(path))
                 {
-                    context.ExitCode = ProcessDirectory(options, path);
-                    return;
+                    return ProcessDirectory(options, path);
                 }
                 if (File.Exists(path))
                 {
                     string extension = Path.GetExtension(path).ToLowerInvariant();
                     if (extension == ".csproj")
                     {
-                        context.ExitCode = ProcessCsproj(options, path);
-                        return;
+                        return ProcessCsproj(options, path);
                     }
                     else if (extension == ".sln")
                     {
-                        context.ExitCode = ProcessSln(options, path);
-                        return;
+                        return ProcessSln(options, path);
                     }
                 }
             }
@@ -292,25 +371,23 @@ namespace Neo.Compiler
                     Console.WriteLine($"Optimization finished.");
                     if (options.SecurityAnalysis)
                         SecurityAnalyzer.SecurityAnalyzer.AnalyzeWithPrint(nef, manifest, debugInfo);
-                    return;
+                    return 0;
                 }
                 else if (extension != ".cs")
                 {
                     Console.Error.WriteLine("The files must have a .cs extension.");
-                    context.ExitCode = 1;
                     Console.Error.WriteLine("Maybe invalid command line args. Got the following paths to compile:");
                     foreach (string p in paths)
                         Console.Error.WriteLine($"  {p}");
-                    return;
+                    return 1;
                 }
                 if (!File.Exists(path))
                 {
                     Console.Error.WriteLine($"The file \"{path}\" doesn't exist.");
-                    context.ExitCode = 1;
-                    return;
+                    return 1;
                 }
             }
-            context.ExitCode = ProcessSources(options, Path.GetDirectoryName(paths[0])!, paths);
+            return ProcessSources(options, Path.GetDirectoryName(paths[0])!, paths);
         }
 
         private static int ProcessDirectory(Options options, string path)
