@@ -198,7 +198,7 @@ public class Excluded
     {
         using var project = TempContractProject.Create("""
   <ItemGroup>
-    <Compile Remove="**/Excluded?.cs;Nested/**.cs" />
+    <Compile Remove="**/Excluded?.cs;Nested/**/*.cs" />
   </ItemGroup>
 """);
         project.WriteSource("Contract.cs", """
