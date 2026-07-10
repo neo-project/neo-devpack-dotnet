@@ -22,8 +22,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -456,6 +455,7 @@ namespace Neo.Compiler
         {
             // Restore project
 
+            csproj = Path.GetFullPath(csproj);
             string folder = Path.GetDirectoryName(csproj)!;
             var assetsPath = Path.Combine(folder, "obj", "project.assets.json");
             var shouldSkipRestore = Options.SkipRestoreIfAssetsPresent && File.Exists(assetsPath);
@@ -486,24 +486,7 @@ namespace Neo.Compiler
             // Extract Version information from the project file or its Directory.Build.props
             ExtractVersionInfo(document, Path.GetDirectoryName(csproj)!);
 
-            var remove = document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Remove")
-                .SelectMany(p => SplitItemSpec(p.Value))
-                .Select(p => CompileRemovePattern.Create(folder, p))
-                .ToArray();
-            var sourceFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            var obj = Path.Combine(folder, "obj");
-            var binSc = Path.Combine(folder, "bin");
-            foreach (var entry in Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
-                  .Where(p => !IsInDirectory(p, obj) && !IsInDirectory(p, binSc))
-                  .Select(Path.GetFullPath))
-            {
-                if (!remove.Any(pattern => pattern.IsMatch(entry))) sourceFiles.Add(entry);
-            }
-
-            sourceFiles.UnionWith(document.Root!.Elements("ItemGroup").Elements("Compile").Attributes("Include")
-                .SelectMany(p => SplitItemSpec(p.Value))
-                .Select(p => Path.GetFullPath(p, folder)));
+            var (sourceFiles, preprocessorSymbols) = EvaluateProject(csproj, folder);
             var assets = (JObject)JToken.Parse(File.ReadAllBytes(assetsPath))!;
             List<MetadataReference> references = new(CommonReferences);
             CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary, deterministic: true, nullableContextOptions: Options.Nullable, allowUnsafe: false);
@@ -512,97 +495,61 @@ namespace Neo.Compiler
                 MetadataReference? reference = GetReference(name, (JObject)package!, assets, folder, compilationOptions);
                 if (reference is not null) references.Add(reference);
             }
-            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: Options.GetParseOptions(), path: p));
+            CSharpParseOptions parseOptions = Options.GetParseOptions().WithPreprocessorSymbols(
+                Options.GetParseOptions().PreprocessorSymbolNames.Concat(preprocessorSymbols).Distinct(StringComparer.Ordinal));
+            IEnumerable<SyntaxTree> syntaxTrees = sourceFiles.OrderBy(p => p).Select(p => CSharpSyntaxTree.ParseText(File.ReadAllText(p), options: parseOptions, path: p));
             return CSharpCompilation.Create(assets["project"]!["restore"]!["projectName"]!.GetString(), syntaxTrees, references, compilationOptions);
         }
 
-        private static IEnumerable<string> SplitItemSpec(string value)
+        private static (string[] SourceFiles, string[] PreprocessorSymbols) EvaluateProject(string csproj, string folder)
         {
-            return value.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        }
-
-        private static bool IsInDirectory(string path, string directory)
-        {
-            string relative = Path.GetRelativePath(directory, path);
-            return relative != "." && relative != ".." && !relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) && !Path.IsPathRooted(relative);
-        }
-
-        private sealed class CompileRemovePattern
-        {
-            private readonly string _projectFolder;
-            private readonly string? _fullPath;
-            private readonly Regex? _relativeRegex;
-
-            private CompileRemovePattern(string projectFolder, string? fullPath, Regex? relativeRegex)
+            var startInfo = new ProcessStartInfo
             {
-                _projectFolder = projectFolder;
-                _fullPath = fullPath;
-                _relativeRegex = relativeRegex;
+                FileName = "dotnet",
+                WorkingDirectory = folder,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            startInfo.ArgumentList.Add("msbuild");
+            startInfo.ArgumentList.Add(csproj);
+            startInfo.ArgumentList.Add("-nologo");
+            startInfo.ArgumentList.Add("-verbosity:quiet");
+            startInfo.ArgumentList.Add("-getItem:Compile");
+            startInfo.ArgumentList.Add("-getProperty:DefineConstants");
+
+            using var process = Process.Start(startInfo);
+            ArgumentNullException.ThrowIfNull(process);
+            Task<string> standardOutput = process.StandardOutput.ReadToEndAsync();
+            Task<string> standardError = process.StandardError.ReadToEndAsync();
+            process.WaitForExit();
+
+            string output = standardOutput.GetAwaiter().GetResult();
+            string error = standardError.GetAwaiter().GetResult();
+            if (process.ExitCode != 0)
+            {
+                throw new InvalidOperationException($"dotnet msbuild project evaluation failed with exit code {process.ExitCode} for '{csproj}': {error.Trim()}");
             }
 
-            public static CompileRemovePattern Create(string projectFolder, string pattern)
+            using JsonDocument evaluation = JsonDocument.Parse(output);
+            JsonElement root = evaluation.RootElement;
+            if (!root.TryGetProperty("Items", out JsonElement items) ||
+                !items.TryGetProperty("Compile", out JsonElement compileItems) ||
+                !root.TryGetProperty("Properties", out JsonElement properties) ||
+                !properties.TryGetProperty("DefineConstants", out JsonElement defineConstants))
             {
-                if (pattern.IndexOfAny(['*', '?']) < 0)
-                {
-                    return new CompileRemovePattern(projectFolder, NormalizePath(Path.GetFullPath(pattern, projectFolder)), null);
-                }
-
-                string normalizedPattern = NormalizeRelativePattern(pattern);
-                var regex = new Regex("^" + WildcardToRegex(normalizedPattern) + "$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-                return new CompileRemovePattern(projectFolder, null, regex);
+                throw new InvalidOperationException($"dotnet msbuild returned incomplete project evaluation data for '{csproj}'.");
             }
 
-            public bool IsMatch(string fullPath)
-            {
-                string normalizedFullPath = NormalizePath(fullPath);
-                if (_fullPath is not null) return string.Equals(normalizedFullPath, _fullPath, StringComparison.OrdinalIgnoreCase);
+            string[] sourceFiles = compileItems.EnumerateArray()
+                .Select(item => item.GetProperty("FullPath").GetString()
+                    ?? throw new InvalidOperationException($"A Compile item in '{csproj}' did not have a FullPath."))
+                .ToArray();
+            string[] preprocessorSymbols = (defineConstants.GetString() ?? string.Empty)
+                .Split([';', ','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-                string relativePath = NormalizeRelativePattern(Path.GetRelativePath(_projectFolder, fullPath));
-                return _relativeRegex!.IsMatch(relativePath);
-            }
-
-            private static string NormalizePath(string path) => Path.GetFullPath(path).Replace('\\', '/');
-
-            private static string NormalizeRelativePattern(string pattern) => pattern.Replace('\\', '/');
-
-            private static string WildcardToRegex(string pattern)
-            {
-                var builder = new StringBuilder();
-                for (int i = 0; i < pattern.Length; i++)
-                {
-                    char current = pattern[i];
-                    if (current == '*')
-                    {
-                        if (i + 1 < pattern.Length && pattern[i + 1] == '*')
-                        {
-                            i++;
-                            if (i + 1 < pattern.Length && pattern[i + 1] == '/')
-                            {
-                                i++;
-                                builder.Append("(?:.*/)?");
-                            }
-                            else
-                            {
-                                builder.Append(".*");
-                            }
-                        }
-                        else
-                        {
-                            builder.Append("[^/]*");
-                        }
-                    }
-                    else if (current == '?')
-                    {
-                        builder.Append("[^/]");
-                    }
-                    else
-                    {
-                        builder.Append(Regex.Escape(current.ToString()));
-                    }
-                }
-
-                return builder.ToString();
-            }
+            return (sourceFiles, preprocessorSymbols);
         }
 
         private MetadataReference? GetReference(string name, JObject package, JObject assets, string folder, CSharpCompilationOptions compilationOptions)
