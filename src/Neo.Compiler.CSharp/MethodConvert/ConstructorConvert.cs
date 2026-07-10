@@ -69,6 +69,7 @@ internal partial class MethodConvert
 
     private void ProcessStaticFields(SemanticModel model)
     {
+        int staticFieldInitializationStart = _instructions.Count;
         foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
         {
             foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
@@ -81,6 +82,7 @@ internal partial class MethodConvert
                 });
             }
         }
+        int vTableInitializationStart = _instructions.Count;
         foreach (var (fieldIndex, type) in _context.VTables)
         {
             IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
@@ -99,6 +101,13 @@ internal partial class MethodConvert
             Push(virtualMethods.Length);
             AddInstruction(OpCode.PACK);
             AccessSlot(OpCode.STSFLD, fieldIndex);
+        }
+
+        if (vTableInitializationStart < _instructions.Count)
+        {
+            var vTableInitialization = _instructions[vTableInitializationStart..];
+            _instructions.RemoveRange(vTableInitializationStart, vTableInitialization.Count);
+            _instructions.InsertRange(staticFieldInitializationStart, vTableInitialization);
         }
     }
 }
