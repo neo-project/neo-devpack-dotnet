@@ -525,6 +525,24 @@ namespace Neo.Compiler
 
         private static int ProcessOutputs(Options options, string folder, List<CompilationContext> contexts)
         {
+            var outputNameCollisions = contexts
+                .Where(context => context.Success && context.ContractName != null)
+                .GroupBy(context => context.ContractName!, StringComparer.OrdinalIgnoreCase)
+                .Where(group => group.Count() > 1)
+                .Select(group => new
+                {
+                    OutputName = group.Select(context => context.ContractName!).OrderBy(name => name, StringComparer.Ordinal).First(),
+                    Contracts = group.Select(context => CompilationEngine.GetContractIdentity(context.TargetContract)).OrderBy(name => name, StringComparer.Ordinal).ToArray()
+                })
+                .OrderBy(collision => collision.OutputName, StringComparer.Ordinal)
+                .ToArray();
+            if (outputNameCollisions.Length > 0)
+            {
+                foreach (var collision in outputNameCollisions)
+                    Console.Error.WriteLine($"Output base name '{collision.OutputName}' is shared by contracts: {string.Join(", ", collision.Contracts)}.");
+                return 1;
+            }
+
             int result = 0;
             List<CompilationException> exceptions = new();
             foreach (CompilationContext context in contexts)
