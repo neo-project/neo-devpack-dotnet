@@ -16,7 +16,6 @@ using Neo.SmartContract.Manifest;
 using Neo.VM;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Neo.Optimizer
@@ -48,11 +47,9 @@ namespace Neo.Optimizer
         private static void RegisterStrategies(IEnumerable<Type> types)
         {
             bool registeredAny = false;
-            foreach (Type type in types.OrderBy(type => type.FullName ?? type.Name, StringComparer.Ordinal))
+            foreach (Type type in types)
             {
-                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                    .OrderBy(method => method.Name, StringComparer.Ordinal)
-                    .ThenBy(method => method.MetadataToken))
+                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 {
                     StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
                     if (attribute is null || !HasValidStrategySignature(method))
