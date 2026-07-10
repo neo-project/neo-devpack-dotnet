@@ -107,7 +107,7 @@ namespace Neo.Compiler.ControlFlow
             addressToInstructions = addressAndInstructions.ToDictionary(e => e.a, e => e.i);
             (jumpInstructionSourceToTargets, tryInstructionSourceToTargets, jumpTargetToSources) =
                 FindAllJumpAndTrySourceToTargets(addressAndInstructions);
-            pushaTargets = EntryPoint.EntryPointsByCallA(nef);
+            pushaTargets = EntryPoint.EntryPointsByPusha(nef);
             entryPointsByMethod = EntryPoint.EntryPointsByMethod(manifest);
             ResetCoveredMap(init: true);
 
@@ -116,6 +116,8 @@ namespace Neo.Compiler.ControlFlow
             //    CoverInstruction(method.Offset, script, coveredMap)
             //);
             foreach (int addr in entryPointsByMethod.Keys)
+                CoverInstruction(addr);
+            foreach (int addr in pushaTargets.Keys)
                 CoverInstruction(addr);
         }
 
