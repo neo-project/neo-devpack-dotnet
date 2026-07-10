@@ -267,13 +267,44 @@ namespace Neo.Compiler
 
         private CompilationContext CompileProjectContractWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string targetContractName)
         {
-            var c = sortedClasses.FirstOrDefault(p => p.Name.Equals(targetContractName, StringComparison.InvariantCulture))
-                ?? throw new ArgumentException($"targetContractName '{targetContractName}' was not found");
+            var c = ResolveTargetContract(sortedClasses, targetContractName);
             var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
-            var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-            var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName: true);
+            var classesNotInDependencies = GetClassesNotInDependencies(allClassSymbols, dependencies);
+            var context = new CompilationContext(this, c, classesNotInDependencies, allowBaseName: true);
             context.Compile();
             return context;
+        }
+
+        private static INamedTypeSymbol ResolveTargetContract(List<INamedTypeSymbol> sortedClasses, string targetContractName)
+        {
+            var qualifiedMatch = sortedClasses.FirstOrDefault(contract =>
+                string.Equals(GetContractIdentity(contract), targetContractName, StringComparison.Ordinal));
+            if (qualifiedMatch != null)
+                return qualifiedMatch;
+
+            var simpleMatches = sortedClasses
+                .Where(contract => string.Equals(contract.Name, targetContractName, StringComparison.Ordinal))
+                .OrderBy(GetContractIdentity, StringComparer.Ordinal)
+                .ToArray();
+
+            if (simpleMatches.Length == 1)
+                return simpleMatches[0];
+            if (simpleMatches.Length == 0)
+                throw new ArgumentException($"targetContractName '{targetContractName}' was not found");
+
+            throw new ArgumentException(
+                $"targetContractName '{targetContractName}' is ambiguous. Use one of: {string.Join(", ", simpleMatches.Select(GetContractIdentity))}");
+        }
+
+        internal static string GetContractIdentity(INamedTypeSymbol contract)
+        {
+            return contract.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat);
+        }
+
+        private static List<INamedTypeSymbol> GetClassesNotInDependencies(List<INamedTypeSymbol?> allClassSymbols, List<INamedTypeSymbol> dependencies)
+        {
+            var dependencySet = new HashSet<INamedTypeSymbol>(dependencies, SymbolEqualityComparer.Default);
+            return allClassSymbols.OfType<INamedTypeSymbol>().Where(symbol => !dependencySet.Contains(symbol)).ToList();
         }
 
         private List<CompilationContext> CompileProjectContractsWithPrepare(List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols)
@@ -283,8 +314,8 @@ namespace Neo.Compiler
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
-                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName);
+                var classesNotInDependencies = GetClassesNotInDependencies(allClassSymbols, dependencies);
+                var context = new CompilationContext(this, c, classesNotInDependencies, allowBaseName);
                 context.Compile();
                 // Process the target contract add this compilation context
                 Contexts.TryAdd(c, context);
@@ -349,8 +380,8 @@ namespace Neo.Compiler
             Parallel.ForEach(sortedClasses, c =>
             {
                 var dependencies = classDependencies.TryGetValue(c, out var dependency) ? dependency : [];
-                var classesNotInDependencies = allClassSymbols.Except(dependencies).ToList();
-                var context = new CompilationContext(this, c, classesNotInDependencies!, allowBaseName);
+                var classesNotInDependencies = GetClassesNotInDependencies(allClassSymbols, dependencies);
+                var context = new CompilationContext(this, c, classesNotInDependencies, allowBaseName);
                 context.Compile();
                 // Process the target contract add this compilation context
                 Contexts.TryAdd(c, context);
