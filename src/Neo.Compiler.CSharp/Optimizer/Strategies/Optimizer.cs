@@ -32,9 +32,7 @@ namespace Neo.Optimizer
         static Optimizer()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            foreach (Type type in assembly.GetTypes())
-                RegisterStrategies(type);
-            DiscoverAndOrderStrategies(assembly);
+            RegisterStrategies(assembly.GetTypes());
             foreach (FieldInfo field in typeof(OpCode).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
                 OperandSizeAttribute? attribute = field.GetCustomAttribute<OperandSizeAttribute>();
@@ -45,61 +43,42 @@ namespace Neo.Optimizer
             }
         }
 
-        public static void RegisterStrategies(Type type)
+        public static void RegisterStrategies(Type type) => RegisterStrategies([type]);
+
+        private static void RegisterStrategies(IEnumerable<Type> types)
         {
-            foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
+            bool registeredAny = false;
+            foreach (Type type in types.OrderBy(type => type.FullName ?? type.Name, StringComparer.Ordinal))
             {
-                StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
-                if (attribute is null) continue;
-
-                // Validate method signature
-                if (method.ReturnType != typeof((NefFile, ContractManifest, JObject?)) ||
-                    method.GetParameters().Length != 3 ||
-                    method.GetParameters()[0].ParameterType != typeof(NefFile) ||
-                    method.GetParameters()[1].ParameterType != typeof(ContractManifest) ||
-                    method.GetParameters()[2].ParameterType != typeof(JObject))
+                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .OrderBy(method => method.Name, StringComparer.Ordinal)
+                    .ThenBy(method => method.MetadataToken))
                 {
-                    continue; // Skip methods with incorrect signature
+                    StrategyAttribute? attribute = method.GetCustomAttribute<StrategyAttribute>();
+                    if (attribute is null || !HasValidStrategySignature(method))
+                        continue;
+
+                    if (!RegisterStrategyMethod(method, attribute))
+                        continue;
+
+                    string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
+                    strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
+                    registeredAny = true;
                 }
-
-                if (!RegisterStrategyMethod(method, attribute))
-                    continue;
-
-                string name = string.IsNullOrEmpty(attribute.Name) ? method.Name.ToLowerInvariant() : attribute.Name;
-                strategies[name] = method.CreateDelegate<Func<NefFile, ContractManifest, JObject, (NefFile nef, ContractManifest manifest, JObject debugInfo)>>();
             }
 
-            // Sort strategies by priority (highest priority first)
-            orderedStrategies.Sort((a, b) => b.attribute.Priority.CompareTo(a.attribute.Priority));
+            if (registeredAny)
+                orderedStrategies.Sort(CompareStrategies);
         }
 
-        private static void DiscoverAndOrderStrategies(Assembly assembly)
+        private static bool HasValidStrategySignature(MethodInfo method)
         {
-            var strategyMethods = new List<(MethodInfo method, StrategyAttribute attribute)>();
-
-            foreach (Type type in assembly.GetTypes())
-            {
-                foreach (MethodInfo method in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
-                {
-                    var attribute = method.GetCustomAttribute<StrategyAttribute>();
-                    if (attribute != null)
-                    {
-                        // Verify method signature matches expected optimization strategy signature
-                        var parameters = method.GetParameters();
-                        if (parameters.Length == 3 &&
-                            parameters[0].ParameterType == typeof(NefFile) &&
-                            parameters[1].ParameterType == typeof(ContractManifest) &&
-                            parameters[2].ParameterType == typeof(JObject))
-                        {
-                            strategyMethods.Add((method, attribute));
-                        }
-                    }
-                }
-            }
-
-            // Order by priority (higher priority first)
-            foreach (var (method, attribute) in strategyMethods.OrderByDescending(s => s.attribute.Priority))
-                RegisterStrategyMethod(method, attribute);
+            ParameterInfo[] parameters = method.GetParameters();
+            return method.ReturnType == typeof((NefFile, ContractManifest, JObject?)) &&
+                parameters.Length == 3 &&
+                parameters[0].ParameterType == typeof(NefFile) &&
+                parameters[1].ParameterType == typeof(ContractManifest) &&
+                parameters[2].ParameterType == typeof(JObject);
         }
 
         private static bool RegisterStrategyMethod(MethodInfo method, StrategyAttribute attribute)
@@ -114,6 +93,23 @@ namespace Neo.Optimizer
 
         private static (Guid moduleVersionId, int metadataToken) GetStrategyMethodId(MethodInfo method) =>
             (method.Module.ModuleVersionId, method.MetadataToken);
+
+        private static int CompareStrategies(
+            (MethodInfo method, StrategyAttribute attribute) left,
+            (MethodInfo method, StrategyAttribute attribute) right)
+        {
+            int comparison = right.attribute.Priority.CompareTo(left.attribute.Priority);
+            if (comparison != 0) return comparison;
+
+            comparison = StringComparer.Ordinal.Compare(left.method.DeclaringType?.Assembly.FullName, right.method.DeclaringType?.Assembly.FullName);
+            if (comparison != 0) return comparison;
+
+            comparison = StringComparer.Ordinal.Compare(left.method.DeclaringType?.FullName, right.method.DeclaringType?.FullName);
+            if (comparison != 0) return comparison;
+
+            comparison = StringComparer.Ordinal.Compare(left.method.Name, right.method.Name);
+            return comparison != 0 ? comparison : left.method.MetadataToken.CompareTo(right.method.MetadataToken);
+        }
 
         public static (NefFile, ContractManifest, JObject?) Optimize(NefFile nef, ContractManifest manifest, JObject? debugInfo = null, CompilationOptions.OptimizationType optimizationType = CompilationOptions.OptimizationType.All)
         {

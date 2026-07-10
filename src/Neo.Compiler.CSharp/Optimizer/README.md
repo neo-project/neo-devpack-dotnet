@@ -147,7 +147,11 @@ Optimizer/
 1. Create a new class in `Strategies/`
 2. Implement the optimization logic
 3. Add the `[Strategy]` attribute
-4. Register in `BasicOptimizer.cs`
+4. Use the standard public static strategy signature
+
+Valid attributed methods are discovered automatically when the optimizer is initialized.
+Strategies run by descending priority. Equal priorities are ordered by assembly, declaring
+type, method name, and metadata token so execution order does not depend on reflection order.
 
 ## Performance Impact
 
