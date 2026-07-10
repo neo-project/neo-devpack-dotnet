@@ -120,6 +120,8 @@ namespace Neo.Compiler
         <LangVersion>preview</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <DefineConstants></DefineConstants>
+        <DisableImplicitConfigurationDefines>true</DisableImplicitConfigurationDefines>
     </PropertyGroup>
 
     <!-- Remove all Compile items from compilation -->
