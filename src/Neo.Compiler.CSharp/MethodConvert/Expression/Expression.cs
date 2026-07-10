@@ -12,6 +12,7 @@
 extern alias scfx;
 using System;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
@@ -58,6 +59,8 @@ internal partial class MethodConvert
             if (value == null)
                 return false;
 
+            ThrowIfFloatingPointDefault(model, syntax);
+
             typeSymbol = GetTypeSymbol(syntaxNode, model);
 
             if (typeSymbol != null)
@@ -80,6 +83,27 @@ internal partial class MethodConvert
         {
             throw CompilationException.Unexpected("evaluating constant expression during conversion", e);
         }
+    }
+
+    private static void ThrowIfFloatingPointDefault(SemanticModel model, ExpressionSyntax syntax)
+    {
+        var floatingPointDefault = syntax.DescendantNodesAndSelf()
+            .OfType<ExpressionSyntax>()
+            .FirstOrDefault(expression =>
+            {
+                if (expression is not DefaultExpressionSyntax &&
+                    !expression.IsKind(SyntaxKind.DefaultLiteralExpression))
+                    return false;
+
+                var typeInfo = model.GetTypeInfo(expression);
+                var type = typeInfo.Type ?? typeInfo.ConvertedType;
+                return type?.SpecialType is SpecialType.System_Single
+                    or SpecialType.System_Double
+                    or SpecialType.System_Decimal;
+            });
+
+        if (floatingPointDefault is not null)
+            throw new CompilationException(floatingPointDefault, DiagnosticId.FloatingPointNumber, FloatingPointNotSupportedMessage);
     }
 
     private void ConvertNonConstantExpression(SemanticModel model, ExpressionSyntax syntax)
