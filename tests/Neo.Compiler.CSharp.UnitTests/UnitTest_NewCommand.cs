@@ -275,6 +275,78 @@ EndGlobal
             Assert.IsFalse(result.StdOut.Contains("Error compiling project Broken.csproj:", StringComparison.Ordinal));
         }
 
+        [TestMethod]
+        public void TestSolutionSkipsProjectsWithoutSmartContracts()
+        {
+            string contractName = "SolutionContract";
+            var generateResult = RunCompilerCommand($"new {contractName} -t Basic --output \"{_testOutputPath}\"");
+            Assert.AreEqual(0, generateResult.ExitCode);
+
+            string contractProject = Path.Combine(_testOutputPath, contractName, $"{contractName}.csproj");
+            UseLocalFrameworkReference(contractProject);
+
+            string utilityDirectory = Path.Combine(_testOutputPath, "Utility");
+            Directory.CreateDirectory(utilityDirectory);
+            File.WriteAllText(Path.Combine(utilityDirectory, "Utility.csproj"), """
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>
+""");
+            File.WriteAllText(Path.Combine(utilityDirectory, "Utility.cs"), "public static class Utility { public static int Value => 1; }");
+
+            string solutionPath = Path.Combine(_testOutputPath, "Mixed.sln");
+            File.WriteAllText(solutionPath, $$"""
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility", "Utility\Utility.csproj", "{11111111-1111-1111-1111-111111111111}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{contractName}}", "{{contractName}}\{{contractName}}.csproj", "{22222222-2222-2222-2222-222222222222}"
+EndProject
+Global
+EndGlobal
+""");
+
+            var result = RunCompilerCommand($"\"{solutionPath}\"");
+
+            Assert.AreEqual(0, result.ExitCode, $"Expected non-contract projects to be skipped. Output: {result.StdOut}{result.StdErr}");
+            Assert.IsTrue(File.Exists(Path.Combine(_testOutputPath, "bin", "sc", $"{contractName}.nef")));
+        }
+
+        [TestMethod]
+        public void TestSolutionFailsWhenAnyProjectCompilationFails()
+        {
+            string contractName = "ValidContract";
+            var generateResult = RunCompilerCommand($"new {contractName} -t Basic --output \"{_testOutputPath}\"");
+            Assert.AreEqual(0, generateResult.ExitCode);
+
+            string contractProject = Path.Combine(_testOutputPath, contractName, $"{contractName}.csproj");
+            UseLocalFrameworkReference(contractProject);
+
+            string brokenDirectory = Path.Combine(_testOutputPath, "Broken");
+            Directory.CreateDirectory(brokenDirectory);
+            File.WriteAllText(Path.Combine(brokenDirectory, "Broken.csproj"), "<Project>");
+
+            string solutionPath = Path.Combine(_testOutputPath, "PartiallyBroken.sln");
+            File.WriteAllText(solutionPath, $$"""
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{contractName}}", "{{contractName}}\{{contractName}}.csproj", "{11111111-1111-1111-1111-111111111111}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Broken", "Broken\Broken.csproj", "{22222222-2222-2222-2222-222222222222}"
+EndProject
+Global
+EndGlobal
+""");
+
+            var result = RunCompilerCommand($"\"{solutionPath}\"");
+
+            Assert.AreEqual(1, result.ExitCode, $"Expected a project compilation failure to fail the solution. Output: {result.StdOut}{result.StdErr}");
+            StringAssert.Contains(result.StdErr, "Error compiling project Broken.csproj:");
+            Assert.IsFalse(File.Exists(Path.Combine(_testOutputPath, "bin", "sc", $"{contractName}.nef")));
+        }
+
         private CommandResult RunCompilerCommand(string arguments)
         {
             var args = SplitArgs(arguments);
