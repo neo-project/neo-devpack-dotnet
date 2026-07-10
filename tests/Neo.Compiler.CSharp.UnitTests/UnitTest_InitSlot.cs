@@ -160,6 +160,53 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual(new BigInteger(21), contract.Get());
         }
 
+        [TestMethod]
+        public void EmitInitSlot_InitializesSlotsDiscoveredFromVTableMethods()
+        {
+            const string source = """
+                using Neo.SmartContract.Framework;
+                using System.ComponentModel;
+
+                public class Contract : SmartContract
+                {
+                    [DisplayName("read")]
+                    public static int Read()
+                    {
+                        return new Outer().Read();
+                    }
+                }
+
+                public class Outer
+                {
+                    public virtual int Read()
+                    {
+                        return new Inner().Read();
+                    }
+                }
+
+                public static class NestedState
+                {
+                    public static readonly int Value = 42;
+                }
+
+                public class Inner
+                {
+                    public virtual int Read()
+                    {
+                        return NestedState.Value;
+                    }
+                }
+                """;
+
+            var context = TestHelper.CompileSingleContract(source);
+            var nef = context.CreateExecutable();
+            var manifest = context.CreateManifest();
+
+            var engine = new TestEngine(true);
+            var contract = engine.Deploy<LateDiscoveredInitializerContract>(nef, manifest);
+            Assert.AreEqual(new BigInteger(42), contract.Read());
+        }
+
         private static CompilationContext CompileSource(
             string source,
             CompilationOptions.OptimizationType optimize = CompilationOptions.OptimizationType.Basic)
@@ -227,6 +274,13 @@ namespace Neo.Compiler.CSharp.UnitTests
         {
             [DisplayName("get")]
             public abstract BigInteger? Get();
+        }
+
+        public abstract class LateDiscoveredInitializerContract(SmartContractInitialize initialize)
+            : SmartContract.Testing.SmartContract(initialize)
+        {
+            [DisplayName("read")]
+            public abstract BigInteger? Read();
         }
     }
 }

@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.IO;
 using Neo.VM;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.Compiler;
@@ -69,36 +70,52 @@ internal partial class MethodConvert
 
     private void ProcessStaticFields(SemanticModel model)
     {
-        foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
+        HashSet<INamedTypeSymbol> initializedClasses = new(SymbolEqualityComparer.Default);
+        HashSet<ITypeSymbol> initializedVTables = new(SymbolEqualityComparer.Default);
+        bool initializedAny;
+
+        // Converting initializers and vtable methods can discover more static slots.
+        // Snapshot each collection and keep emitting new work in slot order.
+        do
         {
-            foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
+            initializedAny = false;
+            foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
             {
-                if (field.IsConst || !field.IsStatic) continue;
-                ProcessFieldInitializer(model, field, null, () =>
+                if (!initializedClasses.Add(@class)) continue;
+                initializedAny = true;
+                foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
                 {
-                    byte index = _context.AddStaticField(field);
-                    AccessSlot(OpCode.STSFLD, index);
-                });
-            }
-        }
-        foreach (var (fieldIndex, type) in _context.VTables)
-        {
-            IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-            for (int i = virtualMethods.Length - 1; i >= 0; i--)
-            {
-                IMethodSymbol method = virtualMethods[i];
-                if (method.IsAbstract)
-                {
-                    Push((object?)null);
-                }
-                else
-                {
-                    InvokeMethod(model, method);
+                    if (field.IsConst || !field.IsStatic) continue;
+                    ProcessFieldInitializer(model, field, null, () =>
+                    {
+                        byte index = _context.AddStaticField(field);
+                        AccessSlot(OpCode.STSFLD, index);
+                    });
                 }
             }
-            Push(virtualMethods.Length);
-            AddInstruction(OpCode.PACK);
-            AccessSlot(OpCode.STSFLD, fieldIndex);
+
+            foreach (var (fieldIndex, type) in _context.VTables.ToArray())
+            {
+                if (!initializedVTables.Add(type)) continue;
+                initializedAny = true;
+                IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+                for (int i = virtualMethods.Length - 1; i >= 0; i--)
+                {
+                    IMethodSymbol method = virtualMethods[i];
+                    if (method.IsAbstract)
+                    {
+                        Push((object?)null);
+                    }
+                    else
+                    {
+                        InvokeMethod(model, method);
+                    }
+                }
+                Push(virtualMethods.Length);
+                AddInstruction(OpCode.PACK);
+                AccessSlot(OpCode.STSFLD, fieldIndex);
+            }
         }
+        while (initializedAny);
     }
 }
