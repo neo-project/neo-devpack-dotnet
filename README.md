@@ -42,7 +42,7 @@ The Neo DevPack for .NET consists of several key components:
 The framework provides the necessary libraries and APIs for writing neo smart contracts in C#. It includes:
 
 - Base classes and interfaces for smart contract development
-- neo blockchain API wrappers
+- Neo blockchain API wrappers
 - Standard contract templates (NEP-17, NEP-11, etc.)
 - Utilities for common blockchain operations
 
