@@ -88,6 +88,50 @@ public class Contract : SmartContract
             Assert.IsFalse(Directory.EnumerateFiles(workspace.ProjectDirectory, "*.nef", SearchOption.AllDirectories).Any());
         }
 
+        [TestMethod]
+        public void TestDuplicateContractNamesAreRejectedBeforeWritingOutputs()
+        {
+            using var workspace = TempWorkspace.Create();
+            string projectPath = workspace.CreateProject("""
+using Neo.SmartContract.Framework;
+
+namespace First
+{
+    public class SharedContract : SmartContract
+    {
+        public static int First() => 1;
+    }
+}
+
+namespace Second
+{
+    public class SharedContract : SmartContract
+    {
+        public static int Second() => 2;
+    }
+}
+""");
+
+            string outputPath = Path.Combine(workspace.ProjectDirectory, "out");
+
+            using var error = new StringWriter();
+            var previousError = Console.Error;
+            int exitCode;
+            try
+            {
+                Console.SetError(error);
+                exitCode = Program.Main([projectPath, "--debug", "None", "-o", outputPath]);
+            }
+            finally
+            {
+                Console.SetError(previousError);
+            }
+
+            Assert.AreEqual(1, exitCode);
+            StringAssert.Contains(error.ToString(), "Output base name 'SharedContract' is shared by contracts: First.SharedContract, Second.SharedContract.");
+            Assert.IsFalse(Directory.Exists(outputPath) && Directory.EnumerateFiles(outputPath).Any());
+        }
+
         private sealed class TempWorkspace : IDisposable
         {
             public string Root { get; }
