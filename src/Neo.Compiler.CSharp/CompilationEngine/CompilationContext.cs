@@ -448,7 +448,9 @@ namespace Neo.Compiler
                     break;
                 case ClassDeclarationSyntax @class:
                     INamedTypeSymbol symbol = model.GetDeclaredSymbol(@class)!;
-                    if (symbol.Name != _targetContract.Name && _nonDependencies != null && _nonDependencies.Contains(symbol))
+                    if (!SymbolEqualityComparer.Default.Equals(symbol, _targetContract) &&
+                        _nonDependencies != null &&
+                        _nonDependencies.Contains(symbol, SymbolEqualityComparer.Default))
                         return;
                     if (processed.Add(symbol)) ProcessClass(model, symbol);
                     break;
@@ -470,7 +472,7 @@ namespace Neo.Compiler
                 // As a result, we must stop the process if the current contract class is not the target contract
                 // For example, if the target contract is "Contract1" and the project contains "Contract1" and "Contract2"
                 // the process must skip when the "Contract2" class is processed
-                if (_targetContract.Name != symbol.Name)
+                if (!SymbolEqualityComparer.Default.Equals(_targetContract, symbol))
                 {
                     return;
                 }
@@ -742,7 +744,7 @@ namespace Neo.Compiler
         {
             if (!_staticFields.TryGetValue(symbol, out byte index))
             {
-                index = (byte)StaticFieldCount;
+                index = GetNextStaticSlot(symbol);
                 _staticFields.Add(symbol, index);
             }
             return index;
@@ -750,7 +752,7 @@ namespace Neo.Compiler
 
         internal byte AddAnonymousStaticField()
         {
-            byte index = (byte)StaticFieldCount;
+            byte index = GetNextStaticSlot();
             _anonymousStaticFields.Add(index);
             return index;
         }
@@ -761,7 +763,7 @@ namespace Neo.Compiler
             {
                 return field;
             }
-            byte index = (byte)StaticFieldCount;
+            byte index = GetNextStaticSlot(symbol);
             _anonymousStaticFields.Add(index);
             _capturedStaticFields.TryAdd(symbol, index);
             return index;
@@ -776,10 +778,22 @@ namespace Neo.Compiler
         {
             if (!_vtables.TryGetValue(type, out byte index))
             {
-                index = (byte)StaticFieldCount;
+                index = GetNextStaticSlot(type);
                 _vtables.Add(type, index);
             }
             return index;
+        }
+
+        private byte GetNextStaticSlot(ISymbol? symbol = null)
+        {
+            if (StaticFieldCount >= byte.MaxValue)
+            {
+                string message = $"Contracts with more than {byte.MaxValue} static slots are not supported.";
+                throw symbol is null
+                    ? new CompilationException(DiagnosticId.SyntaxNotSupported, message)
+                    : new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, message);
+            }
+            return (byte)StaticFieldCount;
         }
 
         internal void AssociateCapturedStaticField(ISymbol symbol, byte index)

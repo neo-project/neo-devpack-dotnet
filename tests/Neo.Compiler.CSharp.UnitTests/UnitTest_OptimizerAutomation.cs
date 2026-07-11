@@ -67,6 +67,29 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_StrategyTieBreakersAreDeterministic()
+        {
+            var optimizerType = typeof(OptimizerClass);
+            var field = optimizerType.GetField("orderedStrategies", BindingFlags.NonPublic | BindingFlags.Static);
+            var orderedStrategies = field!.GetValue(null) as List<(MethodInfo method, StrategyAttribute attribute)>;
+            Assert.IsNotNull(orderedStrategies);
+
+            var expected = orderedStrategies!
+                .OrderByDescending(strategy => strategy.attribute.Priority)
+                .ThenBy(strategy => strategy.method.DeclaringType!.Assembly.FullName, StringComparer.Ordinal)
+                .ThenBy(strategy => strategy.method.DeclaringType!.FullName, StringComparer.Ordinal)
+                .ThenBy(strategy => strategy.method.Name, StringComparer.Ordinal)
+                .ThenBy(strategy => strategy.method.MetadataToken)
+                .Select(strategy => $"{strategy.method.DeclaringType!.FullName}.{strategy.method.Name}")
+                .ToArray();
+            var actual = orderedStrategies
+                .Select(strategy => $"{strategy.method.DeclaringType!.FullName}.{strategy.method.Name}")
+                .ToArray();
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         public void Test_RegisteredStrategiesDoNotContainDuplicates()
         {
             var optimizerType = typeof(OptimizerClass);
