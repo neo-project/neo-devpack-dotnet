@@ -48,7 +48,7 @@ internal partial class MethodConvert
                 break;
             case "-":
                 ConvertExpression(model, expression.Operand);
-                EmitNegativeInteger(model.GetTypeInfo(expression.Operand).Type);
+                EmitNegativeInteger(model, model.GetTypeInfo(expression.Operand).Type, expression.Operand);
                 break;
             case "~":
                 ConvertExpression(model, expression.Operand);
@@ -298,7 +298,7 @@ internal partial class MethodConvert
         if (typeSymbol != null) EnsureIntegerInRange(typeSymbol);
     }
 
-    private void EmitNegativeInteger(ITypeSymbol? typeSymbol)
+    private void EmitNegativeInteger(SemanticModel model, ITypeSymbol? typeSymbol, ExpressionSyntax operand)
     {
         if (typeSymbol is null) return;
         while (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated)
@@ -314,7 +314,27 @@ internal partial class MethodConvert
             return;
         }
 
-        var minValue = typeSymbol.Name == "Int64" ? long.MinValue : int.MinValue; // int32 or int64
+        var minValue = typeSymbol.Name == "Int64" ? (System.Numerics.BigInteger)long.MinValue : int.MinValue; // int32 or int64
+
+        // If the operand is a constant known at compile time, the overflow check can be resolved statically
+        if (TryGetIntegerConstant(model, operand, out var constant))
+        {
+            if (constant != minValue)
+            {
+                // Overflow is impossible: just negate
+                AddInstruction(OpCode.NEGATE);
+                return;
+            }
+
+            // constant == minValue
+            if (_checkedStack.Peek())
+            {
+                // Overflow is guaranteed in checked context: throw directly
+                AddInstruction(OpCode.THROW);
+            }
+            // In unchecked context, -minValue == minValue, i.e. the value stays the same: emit nothing
+            return;
+        }
 
         JumpTarget negateTarget = new(), endTarget = new();
         AddInstruction(OpCode.DUP);
