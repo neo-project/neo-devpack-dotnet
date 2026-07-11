@@ -314,7 +314,7 @@ internal partial class MethodConvert
             return;
         }
 
-        var minValue = typeSymbol.Name == "Int64" ? (System.Numerics.BigInteger)long.MinValue : int.MinValue; // int32 or int64
+        var minValue = typeSymbol.Name == "Int64" ? long.MinValue : int.MinValue; // int32 or int64
 
         // If the operand is a constant known at compile time, the overflow check can be resolved statically
         if (TryGetIntegerConstant(model, operand, out var constant))
