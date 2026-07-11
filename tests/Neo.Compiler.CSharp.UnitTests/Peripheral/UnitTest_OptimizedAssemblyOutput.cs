@@ -65,4 +65,40 @@ public class UnitTest_OptimizedAssemblyOutput
             Directory.Delete(workspace, recursive: true);
         }
     }
+
+    [TestMethod]
+    public void AssemblyWriteFailureReturnsError()
+    {
+        string workspace = Path.Combine(Path.GetTempPath(), $"NeoOptimizedAssemblyFailure_{Guid.NewGuid():N}");
+        string output = Path.Combine(workspace, "out");
+        string sourcePath = Path.Combine(workspace, "Contract.cs");
+        Directory.CreateDirectory(output);
+        Directory.CreateDirectory(Path.Combine(output, "OptimizedAssembly.asm"));
+        File.WriteAllText(sourcePath, """
+            using Neo.SmartContract.Framework;
+
+            public class Contract : SmartContract
+            {
+                public static int Increment(int value) => value + 1;
+            }
+            """);
+
+        try
+        {
+            int exitCode = Program.Main([
+                sourcePath,
+                "--base-name", "OptimizedAssembly",
+                "--assembly",
+                "--optimize=Experimental",
+                "--debug=Extended",
+                "-o", output
+            ]);
+
+            Assert.AreEqual(1, exitCode);
+        }
+        finally
+        {
+            Directory.Delete(workspace, recursive: true);
+        }
+    }
 }
