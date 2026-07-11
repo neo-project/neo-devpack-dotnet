@@ -208,11 +208,8 @@ internal partial class MethodConvert
 
         if (TryGetIntegerConstant(model, rightExpr, out var shiftAmount))
         {
-            if (shiftAmount < 0 || shiftAmount >= maxShift)
-            {
-                throw new CompilationException(rightExpr, DiagnosticId.InvalidArgument,
-                    $"Left shift amount {shiftAmount} is out of range [0, {maxShift - 1}] for type '{leftType.Name}'.");
-            }
+            // If shift amount is in range [0, maxShift), no need to check overflow
+            if (shiftAmount >=0 && shiftAmount < maxShift) return;
         }
 
         var endTarget = new JumpTarget();
