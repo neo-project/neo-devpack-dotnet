@@ -34,21 +34,6 @@ namespace Neo.Compiler.CSharp.UnitTests.Optimizer
         }
 
         [TestMethod]
-        public void Test_EntryPointsByCallA()
-        {
-            var withoutCallA = CreateNefFile([(byte)OpCode.PUSHA, 5, 0, 0, 0, (byte)OpCode.RET]);
-#pragma warning disable CS0618 // Exercise the compatibility wrapper.
-            Assert.AreEqual(0, EntryPoint.EntryPointsByCallA(withoutCallA).Count);
-
-            var withCallA = CreateNefFile([(byte)OpCode.PUSHA, 6, 0, 0, 0, (byte)OpCode.CALLA, (byte)OpCode.RET]);
-            var entryPoints = EntryPoint.EntryPointsByCallA(withCallA);
-#pragma warning restore CS0618
-
-            Assert.AreEqual(1, entryPoints.Count);
-            Assert.AreEqual(EntryType.PUSHA, entryPoints[6]);
-        }
-
-        [TestMethod]
         public void Test_EntryPointsByPushaIgnoresInvalidTargets()
         {
             var selfTarget = CreateNefFile([(byte)OpCode.PUSHA, 0, 0, 0, 0, (byte)OpCode.RET]);
