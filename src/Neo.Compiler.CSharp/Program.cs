@@ -723,14 +723,18 @@ namespace Neo.Compiler
                 if (options.Assembly)
                 {
                     var asmPath = Path.Combine(outputFolder, $"{baseName}.asm");
-                    if (!TryFileOperation("write", asmPath, () => File.WriteAllText(asmPath, context.CreateAssembly())))
+                    var dumpNefContents = string.Empty;
+                    if (!TryFileOperation("write", asmPath, () =>
+                    {
+                        dumpNefContents = DumpNef.GenerateDumpNef(nef, debugInfo, manifest);
+                        File.WriteAllText(asmPath, dumpNefContents);
+                    }))
                     {
                         return 1;
                     }
                     Console.WriteLine($"Created {asmPath}");
                     try
                     {
-                        var dumpNefContents = DumpNef.GenerateDumpNef(nef, debugInfo, manifest);
                         var dumpNefPath = Path.Combine(outputFolder, $"{baseName}.nef.txt");
                         if (!TryFileOperation("write", dumpNefPath, () => File.WriteAllText(dumpNefPath, dumpNefContents)))
                         {
