@@ -180,7 +180,7 @@ internal partial class MethodConvert
     /// <param name="model">The semantic model of the compilation.</param>
     /// <param name="rightExpr">The right expression of the shift operation.</param>
     /// <param name="leftType">The left type of the shift operation.</param>
-    /// <param name="promotedIfSmall">Whether to promote the left type to int if it is a small integer type(less than 32-bits).
+    /// <param name="promotedIfSmall">Whether to promote the left type to int if it is a small integer type(less than 32-bits).</param>
     /// </summary>
     private void CheckLeftShiftOverflow(SemanticModel model, ITypeSymbol? leftType, ExpressionSyntax rightExpr, bool promotedIfSmall)
     {
