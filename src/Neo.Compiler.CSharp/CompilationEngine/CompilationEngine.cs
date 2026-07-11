@@ -35,7 +35,10 @@ namespace Neo.Compiler
         internal Compilation? Compilation;
         internal CompilationOptions Options { get; private set; } = options;
         private static readonly MetadataReference[] CommonReferences;
+        private static readonly StringComparison ProjectPathComparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         private readonly Dictionary<string, MetadataReference> MetaReferences = new();
+        private string? PreparedProjectPath;
+        private string? ProjectPath;
         private string? ProjectVersion;
         private string? ProjectVersionPrefix;
         private string? ProjectVersionSuffix;
@@ -193,9 +196,34 @@ namespace Neo.Compiler
 
         public List<CompilationContext> CompileProject(string csproj)
         {
+            var compilation = LoadProjectCompilation(csproj, forceReload: true);
+            return CompileProjectContracts(compilation);
+        }
+
+        private Compilation LoadProjectCompilation(string csproj, bool forceReload)
+        {
+            string projectPath = Path.GetFullPath(csproj);
+            if (!forceReload && Compilation is not null && string.Equals(ProjectPath, projectPath, ProjectPathComparison))
+            {
+                return Compilation;
+            }
+
+            ResetProjectState();
+            Compilation = GetCompilation(projectPath);
+            ProjectPath = projectPath;
+            return Compilation;
+        }
+
+        private void ResetProjectState()
+        {
+            Compilation = null;
+            MetaReferences.Clear();
+            PreparedProjectPath = null;
+            ProjectPath = null;
+            ProjectVersion = null;
+            ProjectVersionPrefix = null;
+            ProjectVersionSuffix = null;
             Contexts.Clear();
-            Compilation ??= GetCompilation(csproj);
-            return CompileProjectContracts(Compilation);
         }
 
         public List<CompilationContext> CompileProject(string csproj, List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols, string? targetContractName = null)
@@ -204,21 +232,28 @@ namespace Neo.Compiler
             {
                 throw new InvalidOperationException("Please call PrepareProjectContracts before calling CompileProject with sortedClasses, classDependencies and allClassSymbols parameters.");
             }
+
+            string projectPath = Path.GetFullPath(csproj);
+            if (Compilation is null || PreparedProjectPath is null || !string.Equals(PreparedProjectPath, projectPath, ProjectPathComparison))
+            {
+                throw new InvalidOperationException($"Project '{projectPath}' is not the project currently prepared by this compilation engine. Call {nameof(PrepareProjectContracts)} for this project before calling the prepared {nameof(CompileProject)} overload.");
+            }
+
             Contexts.Clear();
-            Compilation ??= GetCompilation(csproj);
             return targetContractName == null ? CompileProjectContractsWithPrepare(sortedClasses, classDependencies, allClassSymbols) : [CompileProjectContractWithPrepare(sortedClasses, classDependencies, allClassSymbols, targetContractName)];
         }
 
         public (List<INamedTypeSymbol> sortedClasses, Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> classDependencies, List<INamedTypeSymbol?> allClassSymbols) PrepareProjectContracts(string csproj)
         {
-            Compilation ??= GetCompilation(csproj);
+            var compilation = LoadProjectCompilation(csproj, forceReload: false);
+            PreparedProjectPath = null;
             var classDependencies = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
             var allSmartContracts = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
             var allClassSymbols = new List<INamedTypeSymbol?>();
             var classSymbols = new List<INamedTypeSymbol>();
-            foreach (var tree in Compilation.SyntaxTrees)
+            foreach (var tree in compilation.SyntaxTrees)
             {
-                var semanticModel = Compilation.GetSemanticModel(tree);
+                var semanticModel = compilation.GetSemanticModel(tree);
                 var classNodes = tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>();
 
                 foreach (var classNode in classNodes)
@@ -261,6 +296,7 @@ namespace Neo.Compiler
             // Check contract dependencies, make sure there is no cycle in the dependency graph
             var sortedClasses = TopologicalSort(classDependencies);
 
+            PreparedProjectPath = ProjectPath;
             return (sortedClasses, classDependencies, allClassSymbols);
         }
 
