@@ -731,7 +731,7 @@ namespace Neo.Compiler
             if (index >= 0) return (ushort)index;
 
             const int MaxMethodTokens = 128;
-            if (_methodTokens.Count > MaxMethodTokens)
+            if (_methodTokens.Count >= MaxMethodTokens)
                 throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Contract method calls limit({MaxMethodTokens}) exceeded.");
             _methodTokens.Add(new MethodToken
             {
