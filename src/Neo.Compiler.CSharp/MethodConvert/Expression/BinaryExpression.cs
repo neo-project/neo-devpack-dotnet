@@ -209,7 +209,7 @@ internal partial class MethodConvert
         if (TryGetIntegerConstant(model, rightExpr, out var shiftAmount))
         {
             // If shift amount is in range [0, maxShift), no need to check overflow
-            if (shiftAmount >=0 && shiftAmount < maxShift) return;
+            if (shiftAmount >= 0 && shiftAmount < maxShift) return;
         }
 
         var endTarget = new JumpTarget();
