@@ -726,8 +726,11 @@ namespace Neo.Compiler
 
         internal ushort AddMethodToken(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags)
         {
-            int index = _methodTokens.FindIndex(p => p.Hash == hash && p.Method == method && p.ParametersCount == parametersCount && p.HasReturnValue == hasReturnValue && p.CallFlags == callFlags);
+            int index = _methodTokens.FindIndex(p => p.Hash == hash && p.Method == method &&
+                p.ParametersCount == parametersCount && p.HasReturnValue == hasReturnValue && p.CallFlags == callFlags);
             if (index >= 0) return (ushort)index;
+            if (_methodTokens.Count >= ushort.MaxValue)
+                throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Contract method calls limit({ushort.MaxValue}) exceeded.");
             _methodTokens.Add(new MethodToken
             {
                 Hash = hash,
