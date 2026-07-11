@@ -744,7 +744,7 @@ namespace Neo.Compiler
         {
             if (!_staticFields.TryGetValue(symbol, out byte index))
             {
-                index = (byte)StaticFieldCount;
+                index = GetNextStaticSlot(symbol);
                 _staticFields.Add(symbol, index);
             }
             return index;
@@ -752,7 +752,7 @@ namespace Neo.Compiler
 
         internal byte AddAnonymousStaticField()
         {
-            byte index = (byte)StaticFieldCount;
+            byte index = GetNextStaticSlot();
             _anonymousStaticFields.Add(index);
             return index;
         }
@@ -763,7 +763,7 @@ namespace Neo.Compiler
             {
                 return field;
             }
-            byte index = (byte)StaticFieldCount;
+            byte index = GetNextStaticSlot(symbol);
             _anonymousStaticFields.Add(index);
             _capturedStaticFields.TryAdd(symbol, index);
             return index;
@@ -778,10 +778,22 @@ namespace Neo.Compiler
         {
             if (!_vtables.TryGetValue(type, out byte index))
             {
-                index = (byte)StaticFieldCount;
+                index = GetNextStaticSlot(type);
                 _vtables.Add(type, index);
             }
             return index;
+        }
+
+        private byte GetNextStaticSlot(ISymbol? symbol = null)
+        {
+            if (StaticFieldCount >= byte.MaxValue)
+            {
+                string message = $"Contracts with more than {byte.MaxValue} static slots are not supported.";
+                throw symbol is null
+                    ? new CompilationException(DiagnosticId.SyntaxNotSupported, message)
+                    : new CompilationException(symbol, DiagnosticId.SyntaxNotSupported, message);
+            }
+            return (byte)StaticFieldCount;
         }
 
         internal void AssociateCapturedStaticField(ISymbol symbol, byte index)
