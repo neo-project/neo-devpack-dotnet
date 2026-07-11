@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.IO;
 using Neo.VM;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Neo.Compiler;
@@ -69,45 +70,63 @@ internal partial class MethodConvert
 
     private void ProcessStaticFields(SemanticModel model)
     {
+        HashSet<INamedTypeSymbol> initializedClasses = new(SymbolEqualityComparer.Default);
+        HashSet<ITypeSymbol> initializedVTables = new(SymbolEqualityComparer.Default);
         int staticFieldInitializationStart = _instructions.Count;
-        foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
-        {
-            foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
-            {
-                if (field.IsConst || !field.IsStatic) continue;
-                ProcessFieldInitializer(model, field, null, () =>
-                {
-                    byte index = _context.AddStaticField(field);
-                    AccessSlot(OpCode.STSFLD, index);
-                });
-            }
-        }
-        int vTableInitializationStart = _instructions.Count;
-        foreach (var (fieldIndex, type) in _context.VTables)
-        {
-            IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
-            for (int i = virtualMethods.Length - 1; i >= 0; i--)
-            {
-                IMethodSymbol method = virtualMethods[i];
-                if (method.IsAbstract)
-                {
-                    Push((object?)null);
-                }
-                else
-                {
-                    InvokeMethod(model, method);
-                }
-            }
-            Push(virtualMethods.Length);
-            AddInstruction(OpCode.PACK);
-            AccessSlot(OpCode.STSFLD, fieldIndex);
-        }
+        bool initializedAny;
 
-        if (vTableInitializationStart < _instructions.Count)
+        // Converting initializers and vtable methods can discover more static slots.
+        // Keep vtable initialization ahead of every static field initializer.
+        do
         {
-            var vTableInitialization = _instructions[vTableInitializationStart..];
-            _instructions.RemoveRange(vTableInitializationStart, vTableInitialization.Count);
-            _instructions.InsertRange(staticFieldInitializationStart, vTableInitialization);
+            initializedAny = false;
+
+            int vTableInitializationStart = _instructions.Count;
+            foreach (var (fieldIndex, type) in _context.VTables.ToArray())
+            {
+                if (!initializedVTables.Add(type)) continue;
+                initializedAny = true;
+                IMethodSymbol[] virtualMethods = type.GetAllMembers().OfType<IMethodSymbol>().Where(p => p.IsVirtualMethod()).ToArray();
+                for (int i = virtualMethods.Length - 1; i >= 0; i--)
+                {
+                    IMethodSymbol method = virtualMethods[i];
+                    if (method.IsAbstract)
+                    {
+                        Push((object?)null);
+                    }
+                    else
+                    {
+                        InvokeMethod(model, method);
+                    }
+                }
+                Push(virtualMethods.Length);
+                AddInstruction(OpCode.PACK);
+                AccessSlot(OpCode.STSFLD, fieldIndex);
+            }
+
+            if (vTableInitializationStart < _instructions.Count)
+            {
+                var vTableInitialization = _instructions[vTableInitializationStart..];
+                _instructions.RemoveRange(vTableInitializationStart, vTableInitialization.Count);
+                _instructions.InsertRange(staticFieldInitializationStart, vTableInitialization);
+                staticFieldInitializationStart += vTableInitialization.Count;
+            }
+
+            foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
+            {
+                if (!initializedClasses.Add(@class)) continue;
+                initializedAny = true;
+                foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
+                {
+                    if (field.IsConst || !field.IsStatic) continue;
+                    ProcessFieldInitializer(model, field, null, () =>
+                    {
+                        byte index = _context.AddStaticField(field);
+                        AccessSlot(OpCode.STSFLD, index);
+                    });
+                }
+            }
         }
+        while (initializedAny);
     }
 }
