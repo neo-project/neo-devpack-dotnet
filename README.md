@@ -1,4 +1,4 @@
-# NEO DevPack for .NET
+# Neo DevPack for .NET
 
 <p align="center">
   <a href="https://neo.org/">
@@ -31,24 +31,24 @@
 
 ## Overview
 
-NEO DevPack for .NET is a comprehensive suite of development tools for building smart contracts and decentralized applications (dApps) on the NEO blockchain platform using .NET. This toolkit enables developers to write, compile, test, and deploy smart contracts using C# and other .NET languages.
+Neo DevPack for .NET is a comprehensive suite of development tools for building smart contracts and decentralized applications (dApps) on the neo blockchain platform using .NET. This toolkit enables developers to write, compile, test, and deploy smart contracts using C# and other .NET languages.
 
 ## Components
 
-The NEO DevPack for .NET consists of several key components:
+The Neo DevPack for .NET consists of several key components:
 
 ### Neo.SmartContract.Framework
 
-The framework provides the necessary libraries and APIs for writing NEO smart contracts in C#. It includes:
+The framework provides the necessary libraries and APIs for writing neo smart contracts in C#. It includes:
 
 - Base classes and interfaces for smart contract development
-- NEO blockchain API wrappers
+- Neo blockchain API wrappers
 - Standard contract templates (NEP-17, NEP-11, etc.)
 - Utilities for common blockchain operations
 
 ### Neo.Compiler.CSharp
 
-A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) bytecode. Features include:
+A specialized compiler that translates C# code into neo Virtual Machine (NeoVM) bytecode. Features include:
 
 - A partial C# language support for smart contract development
 - Optimization for gas efficiency
@@ -58,7 +58,7 @@ A specialized compiler that translates C# code into NEO Virtual Machine (NeoVM) 
 
 ### Neo.SmartContract.Testing
 
-A testing framework for NEO smart contracts that allows:
+A testing framework for neo smart contracts that allows:
 
 - Unit testing of contracts without deployment
 - Storage simulation
@@ -77,7 +77,7 @@ Code analyzers and linting tools to help write secure and efficient contracts.
 
 ### Neo.SmartContract.Template
 
-Project templates for creating new NEO smart contracts with the proper structure and configurations.
+Project templates for creating new neo smart contracts with the proper structure and configurations.
 
 ## Getting Started
 
@@ -136,7 +136,7 @@ public class HelloWorldContract : SmartContract
 
 ### Compiling a Smart Contract
 
-The NEO C# compiler (nccs) translates your C# smart contract into NeoVM bytecode, which can then be deployed to the NEO blockchain. There are several ways to compile your contract:
+The neo C# compiler (nccs) translates your C# smart contract into NeoVM bytecode, which can then be deployed to the neo blockchain. There are several ways to compile your contract:
 
 #### Basic Compilation
 
@@ -188,7 +188,7 @@ dotnet run --project src/Neo.Compiler.CSharp/Neo.Compiler.CSharp.csproj -- path/
 
 #### Compiler Command Reference
 
-The NEO C# compiler supports the following options:
+The neo C# compiler supports the following options:
 
 | Option | Description |
 |--------|-------------|
@@ -219,7 +219,7 @@ The report flags ABI removals and signature changes as breaking, highlights perm
 
 ### Testing a Smart Contract
 
-The NEO DevPack includes a comprehensive testing framework specifically designed for smart contracts. Here's how to create unit tests for your contracts:
+The neo DevPack includes a comprehensive testing framework specifically designed for smart contracts. Here's how to create unit tests for your contracts:
 
 ```csharp
 using Neo.SmartContract.Testing;
@@ -324,10 +324,10 @@ Each example comes with corresponding unit tests that demonstrate how to properl
 
 ## Documentation
 
-For detailed documentation on NEO smart contract development with .NET:
+For detailed documentation on neo smart contract development with .NET:
 
-- [NEO Official Documentation](https://docs.neo.org/)
-- [NEO Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html)
+- [Neo Official Documentation](https://docs.neo.org/)
+- [Neo Smart Contract Development Guide](https://docs.neo.org/docs/en-us/develop/write/basics.html)
 
 ## Contributing
 
@@ -347,5 +347,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- [NEO Project](https://neo.org/)
-- [NEO Community](https://neo.org/community)
+- [Neo Project](https://neo.org/)
+- [Neo Community](https://neo.org/community)
