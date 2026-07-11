@@ -2,6 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Neo.Compiler;
 using Neo.Compiler.CSharp.UnitTests.Syntax;
+using Neo.VM;
 using System;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,27 @@ public class UnitTest_SlotLimits
         var context = TestHelper.CompileSingleContract(BuildLocalOverflowSource(256));
         Assert.IsFalse(context.Success, "Compilation should fail cleanly when local count exceeds the VM slot limit.");
         StringAssert.Contains(string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())), "255 local");
+    }
+
+    [TestMethod]
+    public void Contracts_With255StaticSlots_CompileSuccessfully()
+    {
+        var context = TestHelper.CompileSingleContract(BuildStaticSlotSource(255));
+        Assert.IsTrue(context.Success, string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())));
+
+        var initialize = context.CreateManifest().Abi.GetMethod("_initialize", 0);
+        Assert.IsNotNull(initialize);
+        var instruction = ((Script)context.CreateExecutable().Script).GetInstruction(initialize.Offset);
+        Assert.AreEqual(OpCode.INITSSLOT, instruction.OpCode);
+        Assert.AreEqual(byte.MaxValue, instruction.Operand.Span[0]);
+    }
+
+    [TestMethod]
+    public void Contracts_WithMoreThan255StaticSlots_FailCompilationCleanly()
+    {
+        var context = TestHelper.CompileSingleContract(BuildStaticSlotSource(256));
+        Assert.IsFalse(context.Success, "Compilation should fail cleanly when the static slot count exceeds the VM limit.");
+        StringAssert.Contains(string.Join(Environment.NewLine, context.Diagnostics.Select(p => p.ToString())), "255 static slots");
     }
 
     private static string BuildParameterOverflowSource(int parameterCount)
@@ -61,6 +83,30 @@ public class Contract : SmartContract
     public static int Main()
     {
 {{body}}        return 0;
+    }
+}
+""";
+    }
+
+    private static string BuildStaticSlotSource(int staticSlotCount)
+    {
+        var fields = new StringBuilder();
+        var body = new StringBuilder("        int sum = 0;\n");
+        for (var i = 0; i < staticSlotCount; i++)
+        {
+            fields.Append("    private static int Field").Append(i).AppendLine(";");
+            body.Append("        sum += Field").Append(i).AppendLine(";");
+        }
+
+        return $$"""
+using Neo.SmartContract.Framework;
+
+public class Contract : SmartContract
+{
+{{fields}}
+    public static int Main()
+    {
+{{body}}        return sum;
     }
 }
 """;
