@@ -103,7 +103,7 @@ internal partial class MethodConvert
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
-            CheckShiftOverflow(model.GetTypeInfo(expression.Left).Type, true);
+            CheckLeftShiftOverflow(model, model.GetTypeInfo(expression.Left).Type, expression.Right, true);
         }
         AddInstruction(opcode);
 
@@ -177,9 +177,12 @@ internal partial class MethodConvert
     /// Checks for left shift overflow in checked context.
     /// Validates that the shift amount is non-negative and within the bit width of the left operand type.
     /// </summary>
+    /// <param name="model">The semantic model of the compilation.</param>
+    /// <param name="rightExpr">The right expression of the shift operation.</param>
     /// <param name="leftType">The left type of the shift operation.</param>
-    /// <param name="promotedIfSmall">Whether to promote the left type to int if it is a small integer type(less than 32-bits).</param>
-    private void CheckShiftOverflow(ITypeSymbol? leftType, bool promotedIfSmall)
+    /// <param name="promotedIfSmall">Whether to promote the left type to int if it is a small integer type(less than 32-bits).
+    /// </summary>
+    private void CheckLeftShiftOverflow(SemanticModel model, ITypeSymbol? leftType, ExpressionSyntax rightExpr, bool promotedIfSmall)
     {
         // Only check overflow in checked context
         if (!_checkedStack.Peek()) return;
@@ -204,22 +207,32 @@ internal partial class MethodConvert
             _ => 32 // Default to 32 for unknown types
         };
 
+        if (TryGetIntegerConstant(model, rightExpr, out var shiftAmount))
+        {
+            if (shiftAmount < 0 || shiftAmount >= maxShift)
+            {
+                throw new CompilationException(rightExpr, DiagnosticId.InvalidArgument,
+                    $"Left shift amount {shiftAmount} is out of range [0, {maxShift - 1}] for type '{leftType.Name}'.");
+            }
+            return; // Just return if shift amount is a constant and in range.
+        }
+
         var endTarget = new JumpTarget();
         var checkUpperTarget = new JumpTarget();
 
         // Check if shift amount is negative (top of stack is shift amount)
-        AddInstruction(OpCode.DUP);
+        Dup();
         Push(0);
-        Jump(OpCode.JMPGE_L, checkUpperTarget);
-        AddInstruction(OpCode.THROW);
+        JumpIfGreaterOrEqual(checkUpperTarget);
+        Throw();
 
         // Check if shift amount exceeds type bit width
-        checkUpperTarget.Instruction = AddInstruction(OpCode.DUP);
+        checkUpperTarget.Instruction = Dup();
         Push(maxShift);
-        Jump(OpCode.JMPLT_L, endTarget);
-        AddInstruction(OpCode.THROW);
+        JumpIfLess(endTarget);
+        Throw();
 
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        endTarget.Instruction = Nop();
     }
 
     private void ConvertLogicalOrExpression(SemanticModel model, ExpressionSyntax left, ExpressionSyntax right)
