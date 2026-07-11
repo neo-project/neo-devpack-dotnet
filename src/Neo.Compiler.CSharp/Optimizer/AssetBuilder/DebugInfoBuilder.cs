@@ -42,10 +42,9 @@ namespace Neo.Optimizer
             {
                 GroupCollection rangeGroups = RangeRegex.Match(method!["range"]!.AsString()).Groups;
                 (int oldMethodStart, int oldMethodEnd) = (int.Parse(rangeGroups[1].ToString()), int.Parse(rangeGroups[2].ToString()));
-                int methodStart;
-                if (simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[oldMethodStart]))
-                    methodStart = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodStart]]!;
-                else if (oldSequencePointAddressToNew?.TryGetValue(oldMethodStart, out methodStart) != true)
+                if (!TryResolveInstructionOffset(
+                    oldMethodStart, oldMethodEnd, simplifiedInstructionsToAddress, oldAddressToInstruction,
+                    oldSequencePointAddressToNew, out int methodStart))
                 {
                     methodsToRemove.Add(method);
                     continue;
@@ -55,11 +54,14 @@ namespace Neo.Optimizer
                 if (oldSequencePointAddressToNew?.TryGetValue(oldMethodEnd, out var methodEnd) != true)
                 {
                     //int methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEnd]]!;
-                    int oldMethodEndNotDeleted = oldAddressToInstruction.Where(kv =>
-                    kv.Key >= oldMethodStart && kv.Key <= oldMethodEnd &&
-                    simplifiedInstructionsToAddress.Contains(kv.Value)
-                    ).Max(kv => kv.Key);
-                    methodEnd = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEndNotDeleted]]!;
+                    int? oldMethodEndNotDeleted = oldAddressToInstruction.Where(kv =>
+                        kv.Key >= oldMethodStart && kv.Key <= oldMethodEnd &&
+                        simplifiedInstructionsToAddress.Contains(kv.Value))
+                        .Select(kv => (int?)kv.Key)
+                        .Max();
+                    methodEnd = oldMethodEndNotDeleted is null
+                        ? methodStart
+                        : (int)simplifiedInstructionsToAddress[oldAddressToInstruction[oldMethodEndNotDeleted.Value]]!;
                 }
                 method["range"] = $"{methodStart}-{methodEnd}";
 
@@ -143,17 +145,48 @@ namespace Neo.Optimizer
                 if (method["abi"] is JObject abi && abi["offset"] != null)
                 {
                     int offset = int.Parse(abi["offset"]!.ToString());
-                    if (simplifiedInstructionsToAddress.Contains(oldAddressToInstruction[offset]))
-                        offset = (int)simplifiedInstructionsToAddress[oldAddressToInstruction[offset]]!;
-                    else
-                        oldSequencePointAddressToNew?.TryGetValue(offset, out offset);
-                    abi["offset"] = offset;
+                    if (TryResolveInstructionOffset(
+                        offset, oldMethodEnd, simplifiedInstructionsToAddress, oldAddressToInstruction,
+                        oldSequencePointAddressToNew, out int newOffset))
+                        abi["offset"] = newOffset;
                 }
             }
             JArray methods = (JArray)debugInfo["methods"]!;
             foreach (JToken method in methodsToRemove)
                 methods.Remove(method);
             return debugInfo;
+        }
+
+        private static bool TryResolveInstructionOffset(
+            int oldOffset,
+            int oldMethodEnd,
+            System.Collections.Specialized.OrderedDictionary simplifiedInstructionsToAddress,
+            Dictionary<int, Instruction> oldAddressToInstruction,
+            Dictionary<int, int>? oldSequencePointAddressToNew,
+            out int newOffset)
+        {
+            if (oldAddressToInstruction.TryGetValue(oldOffset, out Instruction? oldInstruction) &&
+                simplifiedInstructionsToAddress.Contains(oldInstruction))
+            {
+                newOffset = (int)simplifiedInstructionsToAddress[oldInstruction]!;
+                return true;
+            }
+            if (oldSequencePointAddressToNew?.TryGetValue(oldOffset, out newOffset) == true)
+                return true;
+
+            for (int currentOffset = oldOffset;
+                currentOffset <= oldMethodEnd && oldAddressToInstruction.TryGetValue(currentOffset, out Instruction? instruction);
+                currentOffset += instruction.Size)
+            {
+                if (simplifiedInstructionsToAddress.Contains(instruction))
+                {
+                    newOffset = (int)simplifiedInstructionsToAddress[instruction]!;
+                    return true;
+                }
+            }
+
+            newOffset = oldOffset;
+            return false;
         }
     }
 }
