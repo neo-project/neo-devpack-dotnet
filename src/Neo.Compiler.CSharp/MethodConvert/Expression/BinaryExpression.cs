@@ -99,7 +99,7 @@ internal partial class MethodConvert
 
         if (expression.OperatorToken.ValueText == "/")
         {
-            CheckDivideOverflow(model.GetTypeInfo(expression).Type);
+            CheckDivideOverflow(model, model.GetTypeInfo(expression).Type, expression.Left, expression.Right);
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
@@ -124,7 +124,10 @@ internal partial class MethodConvert
     /// as the result would exceed the maximum value of that type.
     /// For example: int.MinValue / -1 would be 2147483648, which exceeds int.MaxValue.
     /// </summary>
+    /// <param name="model">The semantic model of the compilation.</param>
     /// <param name="type">The result type of the division expression.</param>
+    /// <param name="leftExpr">The left expression (dividend) of the division operation.</param>
+    /// <param name="rightExpr">The right expression (divisor) of the division operation.</param>
     /// <remarks>
     /// Overflow check is needed for:
     /// - Int32 (int): int.MinValue / -1 overflows
@@ -134,8 +137,10 @@ internal partial class MethodConvert
     /// - Smaller types (sbyte, byte, short, ushort, char): promoted to int in division
     /// - Unsigned types (uint, ulong): no negative values, no overflow possible
     /// - BigInteger: arbitrary precision, no overflow possible
+    /// - Constant divisor != -1: overflow only occurs when dividing by -1
+    /// - Constant dividend != minValue: overflow only occurs when dividend is the minimum value
     /// </remarks>
-    private void CheckDivideOverflow(ITypeSymbol? type)
+    private void CheckDivideOverflow(SemanticModel model, ITypeSymbol? type, ExpressionSyntax? leftExpr, ExpressionSyntax rightExpr)
     {
         if (type is null) return;
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
@@ -158,6 +163,14 @@ internal partial class MethodConvert
 
         // Skip if type doesn't need overflow check
         if (minValue is null) return;
+
+        // If the divisor is a constant other than -1, overflow is impossible: skip the check.
+        if (TryGetIntegerConstant(model, rightExpr, out var divisor) && divisor != -1)
+            return;
+
+        // If the dividend is a constant other than minValue, overflow is impossible: skip the check.
+        if (leftExpr is not null && TryGetIntegerConstant(model, leftExpr, out var dividend) && dividend != minValue.Value)
+            return;
 
         var endTarget = new JumpTarget();
 

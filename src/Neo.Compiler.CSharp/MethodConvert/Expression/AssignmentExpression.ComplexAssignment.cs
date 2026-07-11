@@ -294,7 +294,7 @@ internal partial class MethodConvert
 
         if (operatorToken.ValueText == "/=")
         {
-            CheckDivideOverflow(type);
+            CheckDivideOverflow(model, type, null, right);
         }
         else if (operatorToken.ValueText == "<<=")
         {
