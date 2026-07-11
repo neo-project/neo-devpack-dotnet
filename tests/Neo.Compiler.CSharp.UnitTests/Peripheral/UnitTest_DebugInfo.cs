@@ -58,5 +58,28 @@ namespace Neo.Compiler.CSharp.UnitTests.Peripheral
             Assert.IsTrue(debugInfo.ContainsProperty("static-variables"));
             Assert.AreEqual("MyStaticVar1,Integer,0;MyStaticVar2,Boolean,1", string.Join(';', (debugInfo["static-variables"] as JArray)!.Select(u => u!.AsString())));
         }
+
+        [TestMethod]
+        public void Test_OptimizedDebugInfoHash()
+        {
+            var options = TestHelper.CreateDefaultOptions();
+            options.Debug = CompilationOptions.DebugType.Extended;
+            var context = TestHelper.CompileSingleContract("""
+                using Neo.SmartContract.Framework;
+
+                public class Contract : SmartContract
+                {
+                    public static int Increment(int value) => value + 1;
+                }
+                """, options);
+            Assert.IsTrue(context.Success, string.Join(System.Environment.NewLine, context.Diagnostics));
+
+            var unoptimizedHash = context.CreateExecutable().Script.Span.ToScriptHash().ToString();
+            var (nef, _, debugInfo) = context.CreateResults();
+            var optimizedHash = nef.Script.Span.ToScriptHash().ToString();
+
+            Assert.AreNotEqual(unoptimizedHash, optimizedHash, "The test contract must exercise an optimizer rewrite.");
+            Assert.AreEqual(optimizedHash, debugInfo["hash"]!.GetString());
+        }
     }
 }
