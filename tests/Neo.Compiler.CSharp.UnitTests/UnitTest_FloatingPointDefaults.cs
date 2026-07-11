@@ -22,6 +22,7 @@ public class UnitTest_FloatingPointDefaults
     [DataRow("default(float)")]
     [DataRow("default(double)")]
     [DataRow("default(decimal)")]
+    [DataRow("default(System.Half)")]
     public void ExplicitFloatingPointDefaults_ReportFloatingPointDiagnostic(string expression)
     {
         AssertFloatingPointDiagnostic(CompileDefault(expression));
@@ -31,6 +32,7 @@ public class UnitTest_FloatingPointDefaults
     [DataRow("float")]
     [DataRow("double")]
     [DataRow("decimal")]
+    [DataRow("System.Half")]
     public void ContextualFloatingPointDefaults_ReportFloatingPointDiagnostic(string typeName)
     {
         AssertFloatingPointDiagnostic(CompileContextualDefault(typeName));

@@ -54,12 +54,12 @@ internal partial class MethodConvert
             // Get the correct model for the syntax node (fixes partial class issues)
             model = model.GetModelForNode(syntax);
 
+            ThrowIfFloatingPointDefault(model, syntax);
+
             var constant = model.GetConstantValue(syntax);
             var value = constant.Value;
             if (value == null)
                 return false;
-
-            ThrowIfFloatingPointDefault(model, syntax);
 
             typeSymbol = GetTypeSymbol(syntaxNode, model);
 
@@ -97,13 +97,21 @@ internal partial class MethodConvert
 
                 var typeInfo = model.GetTypeInfo(expression);
                 var type = typeInfo.Type ?? typeInfo.ConvertedType;
-                return type?.SpecialType is SpecialType.System_Single
+                bool isBuiltInFloatingPoint = type?.SpecialType is SpecialType.System_Single
                     or SpecialType.System_Double
                     or SpecialType.System_Decimal;
+                return isBuiltInFloatingPoint || IsSystemHalf(type);
             });
 
         if (floatingPointDefault is not null)
             throw new CompilationException(floatingPointDefault, DiagnosticId.FloatingPointNumber, FloatingPointNotSupportedMessage);
+    }
+
+    private static bool IsSystemHalf(ITypeSymbol? type)
+    {
+        return type is INamedTypeSymbol { MetadataName: "Half", Arity: 0 } namedType
+            && namedType.ContainingNamespace.Name == "System"
+            && namedType.ContainingNamespace.ContainingNamespace.IsGlobalNamespace;
     }
 
     private void ConvertNonConstantExpression(SemanticModel model, ExpressionSyntax syntax)
