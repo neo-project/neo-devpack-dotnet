@@ -13,6 +13,7 @@ using Neo.Optimizer;
 using Neo.SmartContract;
 using Neo.SmartContract.Manifest;
 using Neo.VM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using VmInstruction = Neo.VM.Instruction;
@@ -60,6 +61,7 @@ namespace Neo.Compiler.ControlFlow
         /// </summary>
         /// <param name="nef">The NEF file.</param>
         /// <returns>A dictionary containing entry points.</returns>
+        [Obsolete("Use AllEntryPoints to include method and PUSHA entry points.")]
         public static Dictionary<int, EntryType> EntryPointsByCallA(NefFile nef)
         {
             Script script = nef.Script;
