@@ -181,7 +181,6 @@ internal partial class MethodConvert
     /// <param name="rightExpr">The right expression of the shift operation.</param>
     /// <param name="leftType">The left type of the shift operation.</param>
     /// <param name="promotedIfSmall">Whether to promote the left type to int if it is a small integer type(less than 32-bits).</param>
-    /// </summary>
     private void CheckLeftShiftOverflow(SemanticModel model, ITypeSymbol? leftType, ExpressionSyntax rightExpr, bool promotedIfSmall)
     {
         // Only check overflow in checked context
@@ -214,7 +213,6 @@ internal partial class MethodConvert
                 throw new CompilationException(rightExpr, DiagnosticId.InvalidArgument,
                     $"Left shift amount {shiftAmount} is out of range [0, {maxShift - 1}] for type '{leftType.Name}'.");
             }
-            return; // Just return if shift amount is a constant and in range.
         }
 
         var endTarget = new JumpTarget();
