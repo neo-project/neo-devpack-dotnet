@@ -729,8 +729,10 @@ namespace Neo.Compiler
             int index = _methodTokens.FindIndex(p => p.Hash == hash && p.Method == method &&
                 p.ParametersCount == parametersCount && p.HasReturnValue == hasReturnValue && p.CallFlags == callFlags);
             if (index >= 0) return (ushort)index;
-            if (_methodTokens.Count >= ushort.MaxValue)
-                throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Contract method calls limit({ushort.MaxValue}) exceeded.");
+
+            const int MaxMethodTokens = 128;
+            if (_methodTokens.Count > MaxMethodTokens)
+                throw new CompilationException(DiagnosticId.SyntaxNotSupported, $"Contract method calls limit({MaxMethodTokens}) exceeded.");
             _methodTokens.Add(new MethodToken
             {
                 Hash = hash,
