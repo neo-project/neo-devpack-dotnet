@@ -72,28 +72,16 @@ internal partial class MethodConvert
     {
         HashSet<INamedTypeSymbol> initializedClasses = new(SymbolEqualityComparer.Default);
         HashSet<ITypeSymbol> initializedVTables = new(SymbolEqualityComparer.Default);
+        int staticFieldInitializationStart = _instructions.Count;
         bool initializedAny;
 
         // Converting initializers and vtable methods can discover more static slots.
-        // Snapshot each collection and keep emitting new work in slot order.
+        // Keep vtable initialization ahead of every static field initializer.
         do
         {
             initializedAny = false;
-            foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
-            {
-                if (!initializedClasses.Add(@class)) continue;
-                initializedAny = true;
-                foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
-                {
-                    if (field.IsConst || !field.IsStatic) continue;
-                    ProcessFieldInitializer(model, field, null, () =>
-                    {
-                        byte index = _context.AddStaticField(field);
-                        AccessSlot(OpCode.STSFLD, index);
-                    });
-                }
-            }
 
+            int vTableInitializationStart = _instructions.Count;
             foreach (var (fieldIndex, type) in _context.VTables.ToArray())
             {
                 if (!initializedVTables.Add(type)) continue;
@@ -114,6 +102,29 @@ internal partial class MethodConvert
                 Push(virtualMethods.Length);
                 AddInstruction(OpCode.PACK);
                 AccessSlot(OpCode.STSFLD, fieldIndex);
+            }
+
+            if (vTableInitializationStart < _instructions.Count)
+            {
+                var vTableInitialization = _instructions[vTableInitializationStart..];
+                _instructions.RemoveRange(vTableInitializationStart, vTableInitialization.Count);
+                _instructions.InsertRange(staticFieldInitializationStart, vTableInitialization);
+                staticFieldInitializationStart += vTableInitialization.Count;
+            }
+
+            foreach (INamedTypeSymbol @class in _context.StaticFieldSymbols.Select(p => p.ContainingType).Distinct<INamedTypeSymbol>(SymbolEqualityComparer.Default).ToArray())
+            {
+                if (!initializedClasses.Add(@class)) continue;
+                initializedAny = true;
+                foreach (IFieldSymbol field in @class.GetAllMembers().OfType<IFieldSymbol>())
+                {
+                    if (field.IsConst || !field.IsStatic) continue;
+                    ProcessFieldInitializer(model, field, null, () =>
+                    {
+                        byte index = _context.AddStaticField(field);
+                        AccessSlot(OpCode.STSFLD, index);
+                    });
+                }
             }
         }
         while (initializedAny);

@@ -186,14 +186,22 @@ namespace Neo.Compiler.CSharp.UnitTests
 
                 public static class NestedState
                 {
-                    public static readonly int Value = 42;
+                    public static readonly Base Value = new();
+                }
+
+                public class Base
+                {
+                    public virtual int Read()
+                    {
+                        return 42;
+                    }
                 }
 
                 public class Inner
                 {
                     public virtual int Read()
                     {
-                        return NestedState.Value;
+                        return NestedState.Value.Read();
                     }
                 }
                 """;
