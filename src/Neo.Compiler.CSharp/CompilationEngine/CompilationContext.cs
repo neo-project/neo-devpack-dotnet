@@ -448,7 +448,9 @@ namespace Neo.Compiler
                     break;
                 case ClassDeclarationSyntax @class:
                     INamedTypeSymbol symbol = model.GetDeclaredSymbol(@class)!;
-                    if (symbol.Name != _targetContract.Name && _nonDependencies != null && _nonDependencies.Contains(symbol))
+                    if (!SymbolEqualityComparer.Default.Equals(symbol, _targetContract) &&
+                        _nonDependencies != null &&
+                        _nonDependencies.Contains(symbol, SymbolEqualityComparer.Default))
                         return;
                     if (processed.Add(symbol)) ProcessClass(model, symbol);
                     break;
@@ -470,7 +472,7 @@ namespace Neo.Compiler
                 // As a result, we must stop the process if the current contract class is not the target contract
                 // For example, if the target contract is "Contract1" and the project contains "Contract1" and "Contract2"
                 // the process must skip when the "Contract2" class is processed
-                if (_targetContract.Name != symbol.Name)
+                if (!SymbolEqualityComparer.Default.Equals(_targetContract, symbol))
                 {
                     return;
                 }
