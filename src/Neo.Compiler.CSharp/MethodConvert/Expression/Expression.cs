@@ -12,6 +12,7 @@
 extern alias scfx;
 using System;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Neo.Cryptography.ECC;
 using Neo.Extensions;
@@ -53,6 +54,8 @@ internal partial class MethodConvert
             // Get the correct model for the syntax node (fixes partial class issues)
             model = model.GetModelForNode(syntax);
 
+            ThrowIfFloatingPointDefault(model, syntax);
+
             var constant = model.GetConstantValue(syntax);
             var value = constant.Value;
             if (value == null)
@@ -80,6 +83,35 @@ internal partial class MethodConvert
         {
             throw CompilationException.Unexpected("evaluating constant expression during conversion", e);
         }
+    }
+
+    private static void ThrowIfFloatingPointDefault(SemanticModel model, ExpressionSyntax syntax)
+    {
+        var floatingPointDefault = syntax.DescendantNodesAndSelf()
+            .OfType<ExpressionSyntax>()
+            .FirstOrDefault(expression =>
+            {
+                if (expression is not DefaultExpressionSyntax &&
+                    !expression.IsKind(SyntaxKind.DefaultLiteralExpression))
+                    return false;
+
+                var typeInfo = model.GetTypeInfo(expression);
+                var type = typeInfo.Type ?? typeInfo.ConvertedType;
+                bool isBuiltInFloatingPoint = type?.SpecialType is SpecialType.System_Single
+                    or SpecialType.System_Double
+                    or SpecialType.System_Decimal;
+                return isBuiltInFloatingPoint || IsSystemHalf(type);
+            });
+
+        if (floatingPointDefault is not null)
+            throw new CompilationException(floatingPointDefault, DiagnosticId.FloatingPointNumber, FloatingPointNotSupportedMessage);
+    }
+
+    private static bool IsSystemHalf(ITypeSymbol? type)
+    {
+        return type is INamedTypeSymbol { MetadataName: "Half", Arity: 0 } namedType
+            && namedType.ContainingNamespace.Name == "System"
+            && namedType.ContainingNamespace.ContainingNamespace.IsGlobalNamespace;
     }
 
     private void ConvertNonConstantExpression(SemanticModel model, ExpressionSyntax syntax)
