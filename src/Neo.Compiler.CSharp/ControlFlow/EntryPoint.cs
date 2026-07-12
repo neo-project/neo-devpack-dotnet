@@ -56,24 +56,26 @@ namespace Neo.Compiler.ControlFlow
         }
 
         /// <summary>
-        /// Gets a dictionary of entry points based on the CALLA instruction.
+        /// Gets a dictionary of entry points referenced by PUSHA instructions.
         /// </summary>
         /// <param name="nef">The NEF file.</param>
         /// <returns>A dictionary containing entry points.</returns>
-        public static Dictionary<int, EntryType> EntryPointsByCallA(NefFile nef)
+        internal static Dictionary<int, EntryType> EntryPointsByPusha(NefFile nef)
+        {
+            Script script = nef.Script;
+            return EntryPointsByPusha(script.EnumerateInstructions().ToList());
+        }
+
+        private static Dictionary<int, EntryType> EntryPointsByPusha(List<(int, VmInstruction)> instructions)
         {
             Dictionary<int, EntryType> result = new();
-            Script script = nef.Script;
-            List<(int, VmInstruction)> instructions = script.EnumerateInstructions().ToList();
-            bool hasCallA = HasCallA(instructions);
-            if (hasCallA)
-                foreach ((int addr, VmInstruction instruction) in instructions)
-                    if (instruction.OpCode == OpCode.PUSHA)
-                    {
-                        int target = JumpTarget.ComputeJumpTarget(addr, instruction);
-                        if (target != addr && target >= 0)
-                            result[target] = EntryType.PUSHA;
-                    }
+            foreach ((int addr, VmInstruction instruction) in instructions)
+                if (instruction.OpCode == OpCode.PUSHA)
+                {
+                    int target = JumpTarget.ComputeJumpTarget(addr, instruction);
+                    if (target != addr && target >= 0)
+                        result[target] = EntryType.PUSHA;
+                }
             return result;
         }
 
@@ -106,13 +108,17 @@ namespace Neo.Compiler.ControlFlow
         }
 
         /// <summary>
-        /// Gets a dictionary of all entry points, including those calculated based on the CALLA instruction and methods.
+        /// Gets a dictionary of all method and PUSHA entry points.
         /// </summary>
         /// <param name="nef">The NEF file.</param>
         /// <param name="manifest">The contract manifest.</param>
-        /// <param name="debugInfo">The debug information.</param>
         /// <returns>A dictionary containing all entry points.</returns>
         public static Dictionary<int, EntryType> AllEntryPoints(NefFile nef, ContractManifest manifest)
-            => EntryPointsByCallA(nef).Concat(EntryPointsByMethod(manifest)).ToDictionary(kv => kv.Key, kv => kv.Value);
+        {
+            Dictionary<int, EntryType> result = EntryPointsByPusha(nef);
+            foreach ((int address, EntryType entryType) in EntryPointsByMethod(manifest))
+                result[address] = entryType;
+            return result;
+        }
     }
 }
