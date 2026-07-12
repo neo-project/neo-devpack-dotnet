@@ -49,7 +49,7 @@ internal partial class MethodConvert
     /// <param name="hasReturnValue">Whether the method returns a value.</param>
     /// <param name="callFlags">The call flags to use for the method call.</param>
     /// <returns>The instruction to perform the contract method call.</returns>
-    private Instruction CallContractMethod(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags = CallFlags.All)
+    private Instruction CallContractMethod(UInt160 hash, string method, ushort parametersCount, bool hasReturnValue, CallFlags callFlags = CallFlags.ReadOnly)
     {
         ushort token = _context.AddMethodToken(hash, method, parametersCount, hasReturnValue, callFlags);
         return AddInstruction(new Instruction

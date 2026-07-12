@@ -18,7 +18,7 @@ public abstract class Contract_Types_BigInteger(Neo.SmartContract.Testing.SmartC
     /// <summary>
     /// Optimization: "All"
     /// </summary>
-    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABDwAAUhJAVwEAAv///39waJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9ABAAAAOTSDMjc0rdSAAAAAABAEEARQA9AVwABeDcAAEAAQUC0O2rw").AsSerializable<Neo.SmartContract.NefFile>();
+    public static Neo.SmartContract.NefFile Nef => Convert.FromBase64String(@"TkVGM1Rlc3RpbmdFbmdpbmUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHA7znO4OTpJcbCoGp54UQN2G/OrARhdG9pAQABBQAAUhJAVwEAAv///39waJxKyhQyHgP/////AAAAAJFKAv///38yDAMAAAAAAQAAAJ9ABAAAAOTSDMjc0rdSAAAAAABAEEARQA9AVwABeDcAAEAAQUCP///4").AsSerializable<Neo.SmartContract.NefFile>();
 
     #endregion
 

@@ -39,14 +39,11 @@ namespace Neo.Compiler
         /// compile time.
         /// </summary>
         /// <remarks>
-        /// Detection is sound (no false positives) over the statically-resolvable intra-contract
-        /// call graph: a violation is reported when a Safe method, or any method transitively
-        /// reachable from it through direct calls, emits a <c>System.Storage.Put</c> /
-        /// <c>System.Storage.Delete</c> syscall. Writes reachable only through virtual dispatch,
-        /// dynamic (CALLA) invocations, or another contract (a cross-contract call carrying the
-        /// <c>WriteStates</c> flag) are out of scope here — they require interprocedural /
-        /// cross-contract dataflow and may be added later. <c>Runtime.Notify</c> is intentionally
-        /// not treated as a mutation: emitting an event does not change contract state.
+        /// A violation is reported when a Safe method, or any method transitively reachable from it
+        /// through direct calls, emits a storage-write syscall or an external call that is not
+        /// provably read-only. Writes reachable only through virtual dispatch or dynamic (CALLA)
+        /// invocations remain out of scope. <c>Runtime.Notify</c> is intentionally not treated as a
+        /// mutation: emitting an event does not change contract state.
         /// </remarks>
         private IEnumerable<CompilationException> GetSafeMethodViolations()
         {
@@ -68,12 +65,12 @@ namespace Neo.Compiler
                 if (TryFindReachableWriteCapableCall(entry!, out MethodConvert? caller))
                 {
                     string detail = ReferenceEquals(caller, entry)
-                        ? "calls another contract with state-writing call flags"
-                        : $"reaches a state-writing external contract call through '{caller!.Symbol.Name}'";
+                        ? "calls another contract without provably read-only call flags"
+                        : $"reaches an external contract call without provably read-only flags through '{caller!.Symbol.Name}'";
                     yield return new CompilationException(method.Symbol, DiagnosticId.SafeMethodWriteCapableCall,
                         $"Method '{method.Symbol.Name}' is marked [Safe] but {detail}. " +
                         "The [Safe] flag tells wallets the method is read-only and can be invoked without a " +
-                        "signature prompt, but a Contract.Call carrying CallFlags.WriteStates can mutate state. " +
+                        "signature prompt, but an external call that may permit CallFlags.WriteStates can mutate state. " +
                         "Use read-only call flags (e.g. CallFlags.ReadOnly / CallFlags.None) or remove the [Safe] attribute.");
                 }
             }
@@ -123,12 +120,12 @@ namespace Neo.Compiler
         }
 
         /// <summary>
-        /// Mirrors <see cref="TryFindReachableStorageWrite"/> but looks for a write-capable
-        /// <c>System.Contract.Call</c>: a method marked <c>[Safe]</c> must not be able to mutate
-        /// state through another contract either, so a Contract.Call carrying
-        /// <see cref="CallFlags.WriteStates"/> is treated as a state mutation.
+        /// Mirrors <see cref="TryFindReachableStorageWrite"/> but looks for write-capable external
+        /// calls. A method marked <c>[Safe]</c> must not be able to mutate state through another
+        /// contract, so CALLT tokens and <c>System.Contract.Call</c> invocations that may carry
+        /// <see cref="CallFlags.WriteStates"/> are treated as state mutations.
         /// </summary>
-        private static bool TryFindReachableWriteCapableCall(MethodConvert entry, out MethodConvert? caller)
+        private bool TryFindReachableWriteCapableCall(MethodConvert entry, out MethodConvert? caller)
         {
             HashSet<MethodConvert> visited = new() { entry };
             Stack<MethodConvert> pending = new();
@@ -150,44 +147,64 @@ namespace Neo.Compiler
         }
 
         /// <summary>
-        /// Returns <see langword="true"/> only when the method provably emits a
-        /// <c>System.Contract.Call</c> whose <c>CallFlags</c> argument is a compile-time constant
-        /// that includes <see cref="CallFlags.WriteStates"/>.
+        /// Returns <see langword="true"/> when the method emits a tokenized call that permits state
+        /// writes, or a <c>System.Contract.Call</c> whose flags are not provably read-only.
         /// </summary>
         /// <remarks>
-        /// Detection is deliberately sound (no false positives): because <c>[Safe]</c> violations
-        /// fail the build, the analysis only reports when the operand layout is unambiguous. At the
-        /// syscall the eval stack (top→down) is <c>scriptHash, method, callFlags, args</c>. We only
-        /// conclude when the script-hash and method operands are each produced by a single
-        /// value-push instruction, which proves the instruction three positions before the syscall
-        /// produces the <c>callFlags</c> argument; that operand must then be a constant integer
-        /// carrying the WriteStates bit. Any computed flag, non-trivial hash/method expression, or
-        /// unrecognized push shape is left unflagged (a tolerated false negative).
+        /// At the call the eval stack (top→down) is <c>scriptHash, method, callFlags, args</c>.
+        /// The call is accepted only when the script-hash and method operands are single value
+        /// pushes and the preceding flags operand is a constant without the WriteStates bit. A
+        /// dynamic or otherwise unresolved flag may carry WriteStates and is therefore rejected.
         /// </remarks>
-        private static bool MakesWriteCapableExternalCall(MethodConvert method)
+        private bool MakesWriteCapableExternalCall(MethodConvert method)
         {
             IReadOnlyList<Instruction> instructions = method.Instructions;
             for (int i = 0; i < instructions.Count; i++)
             {
                 Instruction instruction = instructions[i];
-                if (instruction.OpCode != OpCode.SYSCALL || instruction.Operand is not { Length: 4 })
+
+                if (instruction.OpCode == OpCode.CALLT)
+                {
+                    if (instruction.Operand is not { Length: 2 })
+                        return true;
+
+                    ushort tokenIndex = BitConverter.ToUInt16(instruction.Operand, 0);
+                    if (tokenIndex >= _methodTokens.Count ||
+                        (_methodTokens[tokenIndex].CallFlags & CallFlags.WriteStates) != 0)
+                        return true;
+
                     continue;
-                if (BitConverter.ToUInt32(instruction.Operand, 0) != ApplicationEngine.System_Contract_Call.Hash)
+                }
+
+                if (!IsSystemContractCall(instruction))
                     continue;
 
+                // The standalone extern Contract.Call stub has only the syscall. Its arguments are
+                // checked at the inline syscall or CALL/CALL_L emitted in each caller.
                 if (i < 3)
                     continue;
-                if (!IsSingleValuePush(instructions[i - 1].OpCode)) // scriptHash
-                    continue;
-                if (!IsSingleValuePush(instructions[i - 2].OpCode)) // method
-                    continue;
-                if (!TryGetPushedInteger(instructions[i - 3], out BigInteger flags)) // callFlags
-                    continue;
+
+                if (!IsSingleValuePush(instructions[i - 1].OpCode) || // scriptHash
+                    !IsSingleValuePush(instructions[i - 2].OpCode) || // method
+                    !TryGetPushedInteger(instructions[i - 3], out BigInteger flags)) // callFlags
+                    return true;
 
                 if ((flags & (int)CallFlags.WriteStates) != 0)
                     return true;
             }
             return false;
+        }
+
+        private static bool IsSystemContractCall(Instruction instruction)
+        {
+            if (instruction.OpCode == OpCode.SYSCALL && instruction.Operand is { Length: 4 })
+                return BitConverter.ToUInt32(instruction.Operand, 0) == ApplicationEngine.System_Contract_Call.Hash;
+
+            Instruction? target = instruction.Target?.Instruction;
+            return instruction.OpCode is OpCode.CALL or OpCode.CALL_L &&
+                target?.OpCode == OpCode.SYSCALL &&
+                target.Operand is { Length: 4 } &&
+                BitConverter.ToUInt32(target.Operand, 0) == ApplicationEngine.System_Contract_Call.Hash;
         }
 
         /// <summary>
