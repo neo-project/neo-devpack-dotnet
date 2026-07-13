@@ -2,6 +2,8 @@
 
 The syntax checklist has been reorganized into C# version specific documents. Each entry provides a short example along with the compiler support status. The automated syntax probe tests load these files directly, ensuring the documentation and test coverage remain consistent.
 
+The normative support states, evidence requirements, diagnostic policy, and component responsibilities are defined by the [Neo C# Contract Compatibility Profile](NeoCSharpContractProfile.md). The current probes encode `supported` and `unsupported` cases. Context-specific positive and negative probes represent partial support until the machine-readable profile can express those restrictions directly.
+
 ## Version Index
 
 - [C# 1](csharp-syntax/csharp-1.md)
