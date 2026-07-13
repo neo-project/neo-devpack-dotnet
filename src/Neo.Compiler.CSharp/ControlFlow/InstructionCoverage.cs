@@ -61,8 +61,8 @@ namespace Neo.Compiler.ControlFlow
     public enum BranchType
     {
         OK = 1,     // One of the branches may return without exception
-        THROW = 2,  // All branches surely have exceptions, but can be catched
-        ABORT = 3,  // All branches abort, and cannot be catched
+        THROW = 2,  // All branches surely have exceptions, but can be caught
+        ABORT = 3,  // All branches abort, and cannot be caught
         UNCOVERED = 4,
     }
 
@@ -177,17 +177,13 @@ namespace Neo.Compiler.ControlFlow
             return BranchType.THROW;
         }
 
+        /// <summary>
+        /// ABORT and ABORTMSG terminate execution without being caught.
+        /// Exception handlers are still covered conservatively for other faults in the protected region.
+        /// </summary>
         public BranchType HandleAbort(int entranceAddr, int abortFromAddr, Stack<TryState> stack, int analysisDepth = 0)
         {
-            // See if we are in a try or catch. There may still be runtime exceptions
-            (int catchAddr, int finallyAddr, TryType stackType, _) = stack.Peek();
-            if (stackType == TryType.TRY && catchAddr != -1 ||
-                stackType == TryType.CATCH && finallyAddr != -1)
-            {
-                // Visit catchAddr because there may still be exceptions at runtime
-                if (HandleThrow(entranceAddr, abortFromAddr, stack, analysisDepth) == BranchType.OK)
-                    return BranchType.OK;  // No need to set coveredMap[entranceAddr] because it's OK when covered
-            }
+            HandleThrow(entranceAddr, abortFromAddr, stack, analysisDepth);
             return BranchType.ABORT;
         }
 
@@ -271,7 +267,7 @@ namespace Neo.Compiler.ControlFlow
                     instructions.Add(addr, instruction);
                 }
 
-                // ABORT may also THROW in execution; this has been handled in HandleAbort
+                // ABORT and ABORTMSG terminate execution and cannot be caught.
                 if (instruction.OpCode == OpCode.ABORT || instruction.OpCode == OpCode.ABORTMSG)
                     return coveredMap[entranceAddr] = HandleAbort(entranceAddr, addr, tryStack, analysisDepth);
                 if (callWithJump.Contains(instruction.OpCode))
