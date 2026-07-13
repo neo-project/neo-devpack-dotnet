@@ -24,6 +24,10 @@ namespace Neo.SmartContract.Analyzer
     {
         public const string DiagnosticId = "NC4023";
         private const string Category = "Usage";
+        private const string FrameworkAssemblyName = "Neo.SmartContract.Framework";
+        private const string UInt160MetadataName = FrameworkAssemblyName + ".UInt160";
+        private const string UInt256MetadataName = FrameworkAssemblyName + ".UInt256";
+        private const string ECPointMetadataName = FrameworkAssemblyName + ".ECPoint";
 
         private static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(
             DiagnosticId,
@@ -39,19 +43,50 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.FieldDeclaration);
+            context.RegisterCompilationStartAction(compilationContext =>
+            {
+                var frameworkAssembly = compilationContext.Compilation.SourceModule.ReferencedAssemblySymbols
+                    .FirstOrDefault(static assembly => assembly.Identity.Name == FrameworkAssemblyName);
+                if (frameworkAssembly is null)
+                    return;
+
+                var uint160Type = frameworkAssembly.GetTypeByMetadataName(UInt160MetadataName);
+                var uint256Type = frameworkAssembly.GetTypeByMetadataName(UInt256MetadataName);
+                var ecPointType = frameworkAssembly.GetTypeByMetadataName(ECPointMetadataName);
+
+                compilationContext.RegisterSyntaxNodeAction(
+                    nodeContext => AnalyzeNode(nodeContext, uint160Type, uint256Type, ecPointType),
+                    SyntaxKind.FieldDeclaration);
+            });
         }
 
-        private void AnalyzeNode(SyntaxNodeAnalysisContext context)
+        private void AnalyzeNode(
+            SyntaxNodeAnalysisContext context,
+            INamedTypeSymbol? uint160Type,
+            INamedTypeSymbol? uint256Type,
+            INamedTypeSymbol? ecPointType)
         {
             var fieldDeclaration = (FieldDeclarationSyntax)context.Node;
 
             if (!fieldDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword))
                 return;
 
+            var variableType = context.SemanticModel.GetTypeInfo(
+                fieldDeclaration.Declaration.Type,
+                context.CancellationToken).Type as INamedTypeSymbol;
+            if (variableType is null)
+            {
+                return;
+            }
+
+            var isUInt160 = SymbolEqualityComparer.Default.Equals(variableType, uint160Type);
+            var isUInt256 = SymbolEqualityComparer.Default.Equals(variableType, uint256Type);
+            var isECPoint = SymbolEqualityComparer.Default.Equals(variableType, ecPointType);
+            if (!isUInt160 && !isUInt256 && !isECPoint)
+                return;
+
             foreach (var variable in fieldDeclaration.Declaration.Variables)
             {
-                var variableTypeName = fieldDeclaration.Declaration.Type.ToString();
                 var initializer = variable.Initializer;
 
                 if (initializer == null)
@@ -63,7 +98,7 @@ namespace Neo.SmartContract.Analyzer
 
                 var literalValue = literalExpression.Token.ValueText;
 
-                if (variableTypeName == "UInt256")
+                if (isUInt256)
                 {
                     if (!IsValidUInt256(literalValue))
                     {
@@ -71,7 +106,7 @@ namespace Neo.SmartContract.Analyzer
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
-                else if (variableTypeName == "UInt160")
+                else if (isUInt160)
                 {
                     if (!IsValidUInt160(literalValue))
                     {
@@ -79,7 +114,7 @@ namespace Neo.SmartContract.Analyzer
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
-                else if (variableTypeName == "ECPoint")
+                else if (isECPoint)
                 {
                     if (!IsValidECPoint(literalValue))
                     {
