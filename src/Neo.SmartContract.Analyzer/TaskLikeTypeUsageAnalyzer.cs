@@ -90,22 +90,63 @@ public sealed class TaskLikeTypeUsageAnalyzer : DiagnosticAnalyzer
 
     private static void ReportIfTaskLike(SyntaxNodeAnalysisContext context, Location location, ITypeSymbol? type)
     {
-        if (!IsTaskLikeType(type))
+        if (FindTaskLikeType(type) is not { } taskLikeType)
         {
             return;
         }
 
-        var diagnostic = Diagnostic.Create(Rule, location, type!.ToDisplayString());
+        var diagnostic = Diagnostic.Create(Rule, location, taskLikeType.ToDisplayString());
         context.ReportDiagnostic(diagnostic);
     }
 
-    private static bool IsTaskLikeType(ITypeSymbol? type)
+    private static INamedTypeSymbol? FindTaskLikeType(ITypeSymbol? type)
     {
-        if (type is not INamedTypeSymbol namedType)
+        switch (type)
         {
-            return false;
-        }
+            case IArrayTypeSymbol arrayType:
+                return FindTaskLikeType(arrayType.ElementType);
+            case IFunctionPointerTypeSymbol functionPointerType:
+                if (FindTaskLikeType(functionPointerType.Signature.ReturnType) is { } returnType)
+                {
+                    return returnType;
+                }
 
+                foreach (var parameter in functionPointerType.Signature.Parameters)
+                {
+                    if (FindTaskLikeType(parameter.Type) is { } parameterType)
+                    {
+                        return parameterType;
+                    }
+                }
+
+                return null;
+            case INamedTypeSymbol namedType:
+                if (IsTaskLikeType(namedType))
+                {
+                    return namedType;
+                }
+
+                if (FindTaskLikeType(namedType.ContainingType) is { } containingTypeMatch)
+                {
+                    return containingTypeMatch;
+                }
+
+                foreach (var typeArgument in namedType.TypeArguments)
+                {
+                    if (FindTaskLikeType(typeArgument) is { } typeArgumentMatch)
+                    {
+                        return typeArgumentMatch;
+                    }
+                }
+
+                return null;
+            default:
+                return null;
+        }
+    }
+
+    private static bool IsTaskLikeType(INamedTypeSymbol namedType)
+    {
         var originalType = namedType.OriginalDefinition;
         if (originalType.ContainingNamespace.ToDisplayString() != "System.Threading.Tasks")
         {
