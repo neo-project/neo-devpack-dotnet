@@ -25,6 +25,8 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
     [TestClass]
     public class RpcStoreTests
     {
+        private const string RpcUrlEnvironmentVariable = "NEO_RPC_TEST_URL";
+
         [TestMethod]
         public void RpcStoreMutationsExplainReadOnlyBehavior()
         {
@@ -90,9 +92,17 @@ namespace Neo.SmartContract.Testing.UnitTests.Storage
         }
 
         [TestMethod]
+        [TestCategory("Integration")]
         public void TestRpcStore()
         {
-            var engine = new TestEngine(new EngineStorage(new RpcStore("http://seed2t5.neo.org:20332")), false);
+            var rpcUrl = Environment.GetEnvironmentVariable(RpcUrlEnvironmentVariable);
+            if (string.IsNullOrWhiteSpace(rpcUrl))
+            {
+                Assert.Inconclusive($"Set {RpcUrlEnvironmentVariable} to a reachable Neo N3 JSON-RPC endpoint to run this integration test.");
+                return;
+            }
+
+            var engine = new TestEngine(new EngineStorage(new RpcStore(rpcUrl)), false);
 
             // check network values
 
