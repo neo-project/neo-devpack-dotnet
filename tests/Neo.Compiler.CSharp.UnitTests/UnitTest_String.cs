@@ -530,6 +530,16 @@ namespace Neo.Compiler.CSharp.UnitTests
         }
 
         [TestMethod]
+        public void Test_StringCharCount()
+        {
+            Assert.AreEqual("aaa", Contract.TestStringCharCount('a', 3));
+            AssertGasConsumed(1725630);
+
+            Assert.ThrowsException<TestException>(() => Contract.TestStringCharCount('a', -1));
+            AssertGasConsumed(1308750);
+        }
+
+        [TestMethod]
         public void Test_StringBuilderBasic()
         {
             Assert.AreEqual("neo compiler\nruntime\n", Contract.TestStringBuilderBasic());
