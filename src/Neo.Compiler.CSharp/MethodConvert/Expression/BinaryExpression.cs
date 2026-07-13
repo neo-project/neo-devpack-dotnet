@@ -99,7 +99,7 @@ internal partial class MethodConvert
 
         if (expression.OperatorToken.ValueText == "/")
         {
-            CheckDivideOverflow(model.GetTypeInfo(expression).Type);
+            CheckDivideOverflow(model, model.GetTypeInfo(expression).Type, expression.Right);
         }
         else if (expression.OperatorToken.ValueText == "<<")
         {
@@ -135,13 +135,18 @@ internal partial class MethodConvert
     /// - Unsigned types (uint, ulong): no negative values, no overflow possible
     /// - BigInteger: arbitrary precision, no overflow possible
     /// </remarks>
-    private void CheckDivideOverflow(ITypeSymbol? type)
+    private void CheckDivideOverflow(SemanticModel model, ITypeSymbol? type, ExpressionSyntax rightExpr)
     {
         if (type is null) return;
         while (type.NullableAnnotation == NullableAnnotation.Annotated)
         {
             // Supporting nullable integer like `byte?`
             type = ((INamedTypeSymbol)type).TypeArguments.First();
+        }
+
+        if (TryGetIntegerConstant(model, rightExpr, out var rightValue))
+        {
+            if (rightValue != -1) return; // Just return if right value is not -1.
         }
 
         // Determine the minimum value based on the type
@@ -160,17 +165,16 @@ internal partial class MethodConvert
         if (minValue is null) return;
 
         var endTarget = new JumpTarget();
-
-        AddInstruction(OpCode.DUP);
+        Dup();
         Push(-1);
-        Jump(OpCode.JMPNE_L, endTarget);
+        JumpIfNotEqual(endTarget);
 
-        AddInstruction(OpCode.OVER);
+        Over();
         Push(minValue.Value);
-        Jump(OpCode.JMPNE_L, endTarget);
+        JumpIfNotEqual(endTarget);
 
-        AddInstruction(OpCode.THROW);
-        endTarget.Instruction = AddInstruction(OpCode.NOP);
+        Throw();
+        endTarget.Instruction = Nop();
     }
 
     /// <summary>
