@@ -7,6 +7,10 @@
 
   <ItemGroup>
     <PackageReference Include="Neo.SmartContract.Framework" Version="TemplateNeoVersion" />
+    <PackageReference Include="Neo.SmartContract.Analyzer" Version="TemplateNeoVersion">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <PropertyGroup>
