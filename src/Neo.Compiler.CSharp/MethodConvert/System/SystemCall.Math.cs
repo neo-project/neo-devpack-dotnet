@@ -259,13 +259,15 @@ internal partial class MethodConvert
         if (arguments is not null)
             methodConvert.PrepareArgumentsForMethod(model, symbol, arguments, CallingConvention.StdCall);
 
-        var exceptionTarget = new JumpTarget();
+        var okTarget = new JumpTarget();
         // Evaluation stack: value=5 min=0 max=10 <- top
         methodConvert.Over();                                      // 5 0 10 0
         methodConvert.Over();                                      // 5 0 10 0 10 <- top
-        methodConvert.JumpIfLessOrEqual(exceptionTarget);         // 5 0 10  // if 0 <= 10, continue execution
+        methodConvert.JumpIfLessOrEqual(okTarget);                 // 5 0 10  // if 0 <= 10, continue execution
+        methodConvert.Drop(3);                                     // Drop the value, min, max
+        methodConvert.Push("min > max");                           // Push the error message
         methodConvert.Throw();                                     // Throw if min > max
-        exceptionTarget.Instruction = methodConvert.Nop();         // Exception handling target
+        okTarget.Instruction = methodConvert.Nop();                // OK target
         methodConvert.Reverse3();                                  // 10 0 5
         methodConvert.Max();                                       // 10 5
         methodConvert.Min();                                       // 5

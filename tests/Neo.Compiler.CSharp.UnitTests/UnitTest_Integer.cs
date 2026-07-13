@@ -344,7 +344,7 @@ namespace Neo.Compiler.CSharp.UnitTests
             Assert.AreEqual((byte)5, Contract.ClampByte(5, 0, 10));
             AssertGasConsumed(1047930);
             Assert.ThrowsException<TestException>(() => Contract.ClampByte(5, 10, 0));
-            AssertGasConsumed(1062750);
+            AssertGasConsumed(1063170);
             Assert.AreEqual((byte)5, Contract.ClampByte(0, 5, 10));
             AssertGasConsumed(1047930);
             Assert.AreEqual((byte)5, Contract.ClampByte(10, 0, 5));
@@ -471,9 +471,9 @@ namespace Neo.Compiler.CSharp.UnitTests
             AssertGasConsumed(1047930);
             Assert.AreEqual(BigInteger.One, Contract.ClampBigInteger(BigInteger.One, BigInteger.MinusOne, BigInteger.One));
             Assert.ThrowsException<TestException>(() => Contract.ClampBigInteger(BigInteger.MinusOne, BigInteger.One, BigInteger.MinusOne));
-            AssertGasConsumed(1062750);
+            AssertGasConsumed(1063170);
             Assert.ThrowsException<TestException>(() => Contract.ClampBigInteger(BigInteger.One, BigInteger.One, BigInteger.MinusOne));
-            AssertGasConsumed(1062750);
+            AssertGasConsumed(1063170);
         }
 
         [TestMethod]
