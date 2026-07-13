@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -35,7 +36,8 @@ namespace Neo.SmartContract.Analyzer
             Category,
             DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "Duplicate constant StorageMap/LocalStorageMap prefixes in the same contract, or a prefix that reuses a reserved prefix of an inherited framework base class, can cause storage namespace collisions.");
+            description: "Duplicate constant StorageMap/LocalStorageMap prefixes in the same contract, or a prefix that reuses a reserved prefix of an inherited framework base class, can cause storage namespace collisions.",
+            customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
         // Reserved single-byte storage prefixes used internally by framework base classes. A
         // derived contract that builds a StorageMap with one of these prefixes silently shares the
@@ -59,18 +61,33 @@ namespace Neo.SmartContract.Analyzer
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeClassDeclaration, SyntaxKind.ClassDeclaration);
+            context.RegisterCompilationStartAction(static startContext =>
+            {
+                ConcurrentBag<PrefixUsageCandidate> candidates = new();
+                ConcurrentDictionary<SyntaxTree, SemanticModel> semanticModels = new();
+                startContext.RegisterSemanticModelAction(semanticModelContext =>
+                    semanticModels.TryAdd(
+                        semanticModelContext.SemanticModel.SyntaxTree,
+                        semanticModelContext.SemanticModel));
+                startContext.RegisterSyntaxNodeAction(
+                    syntaxContext => CollectClassDeclaration(syntaxContext, candidates),
+                    SyntaxKind.ClassDeclaration);
+                startContext.RegisterCompilationEndAction(
+                    compilationContext => AnalyzeCollectedPrefixes(
+                        compilationContext,
+                        candidates,
+                        semanticModels));
+            });
         }
 
-        private static void AnalyzeClassDeclaration(SyntaxNodeAnalysisContext context)
+        private static void CollectClassDeclaration(
+            SyntaxNodeAnalysisContext context,
+            ConcurrentBag<PrefixUsageCandidate> candidates)
         {
             var classDeclaration = (ClassDeclarationSyntax)context.Node;
             if (context.SemanticModel.GetDeclaredSymbol(classDeclaration, context.CancellationToken) is not INamedTypeSymbol typeSymbol ||
                 typeSymbol.TypeKind != TypeKind.Class)
                 return;
-
-            Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
-            SeedInheritedReservedPrefixes(typeSymbol, seenPrefixes);
 
             foreach (VariableDeclaratorSyntax declarator in classDeclaration.Members
                 .OfType<FieldDeclarationSyntax>()
@@ -82,38 +99,94 @@ namespace Neo.SmartContract.Analyzer
                 if (!IsStorageNamespaceType(field.Type))
                     continue;
 
+                if (declarator.Initializer?.Value is not ExpressionSyntax initializerValue)
+                    continue;
+
+                candidates.Add(new PrefixUsageCandidate(
+                    typeSymbol,
+                    field,
+                    initializerValue,
+                    context.SemanticModel,
+                    declarator.Identifier.GetLocation()));
+            }
+        }
+
+        private static void AnalyzeCollectedPrefixes(
+            CompilationAnalysisContext context,
+            ConcurrentBag<PrefixUsageCandidate> candidates,
+            IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels)
+        {
+            Dictionary<INamedTypeSymbol, List<CollectedPrefixUsage>> usagesByType =
+                new(SymbolEqualityComparer.Default);
+
+            foreach (PrefixUsageCandidate candidate in candidates)
+            {
                 if (!TryGetPrefixExpression(
-                        declarator.Initializer?.Value,
-                        context.SemanticModel,
+                        candidate.InitializerValue,
+                        candidate.SemanticModel,
+                        semanticModels,
                         context.CancellationToken,
                         new HashSet<ISymbol>(SymbolEqualityComparer.Default),
-                        out ExpressionSyntax? prefixExpression))
+                        out ExpressionSyntax? prefixExpression) ||
+                    prefixExpression is null)
                 {
                     continue;
                 }
 
-                if (prefixExpression is null)
-                    continue;
-
-                if (!TryNormalizePrefix(prefixExpression, context.SemanticModel, context.CancellationToken, new HashSet<ISymbol>(SymbolEqualityComparer.Default), out string normalizedPrefix))
-                    continue;
-
-                if (seenPrefixes.TryGetValue(normalizedPrefix, out PrefixUsage existing))
+                if (!TryNormalizePrefix(
+                        prefixExpression,
+                        candidate.SemanticModel,
+                        semanticModels,
+                        context.CancellationToken,
+                        new HashSet<ISymbol>(SymbolEqualityComparer.Default),
+                        out string normalizedPrefix))
                 {
-                    if (!SymbolEqualityComparer.Default.Equals(existing.Field, field))
+                    continue;
+                }
+
+                CollectedPrefixUsage usage = new(
+                    candidate.Type,
+                    candidate.Field,
+                    normalizedPrefix,
+                    candidate.Location);
+
+                if (!usagesByType.TryGetValue(usage.Type, out List<CollectedPrefixUsage>? typeUsages))
+                {
+                    typeUsages = new List<CollectedPrefixUsage>();
+                    usagesByType.Add(usage.Type, typeUsages);
+                }
+
+                typeUsages.Add(usage);
+            }
+
+            foreach (KeyValuePair<INamedTypeSymbol, List<CollectedPrefixUsage>> pair in usagesByType)
+            {
+                INamedTypeSymbol typeSymbol = pair.Key;
+                List<CollectedPrefixUsage> typeUsages = pair.Value;
+                Dictionary<string, PrefixUsage> seenPrefixes = new(StringComparer.Ordinal);
+                SeedInheritedReservedPrefixes(typeSymbol, seenPrefixes);
+
+                foreach (CollectedPrefixUsage usage in typeUsages
+                    .OrderBy(item => item.Location.SourceTree?.FilePath ?? string.Empty, StringComparer.Ordinal)
+                    .ThenBy(item => item.Location.SourceSpan.Start))
+                {
+                    if (seenPrefixes.TryGetValue(usage.NormalizedPrefix, out PrefixUsage existing))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            Rule,
-                            declarator.Identifier.GetLocation(),
-                            normalizedPrefix,
-                            field.Name,
-                            existing.Description));
+                        if (!SymbolEqualityComparer.Default.Equals(existing.Field, usage.Field))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                Rule,
+                                usage.Location,
+                                usage.NormalizedPrefix,
+                                usage.Field.Name,
+                                existing.Description));
+                        }
+
+                        continue;
                     }
 
-                    continue;
+                    seenPrefixes[usage.NormalizedPrefix] = new PrefixUsage(usage.Field, usage.Field.Name);
                 }
-
-                seenPrefixes[normalizedPrefix] = new PrefixUsage(field, field.Name);
             }
         }
 
@@ -151,9 +224,24 @@ namespace Neo.SmartContract.Analyzer
                 or "global::Neo.SmartContract.Framework.Services.LocalStorageMap";
         }
 
+        private static SemanticModel? GetSemanticModelForNode(
+            SyntaxNode node,
+            SemanticModel semanticModel,
+            IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels)
+        {
+            if (node.SyntaxTree == semanticModel.SyntaxTree)
+                return semanticModel;
+
+            return semanticModels.TryGetValue(node.SyntaxTree, out SemanticModel? declaringSemanticModel) &&
+                ReferenceEquals(declaringSemanticModel.Compilation, semanticModel.Compilation)
+                ? declaringSemanticModel
+                : null;
+        }
+
         private static bool TryGetPrefixExpression(
             ExpressionSyntax? initializerValue,
             SemanticModel semanticModel,
+            IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels,
             CancellationToken cancellationToken,
             HashSet<ISymbol> visitedSymbols,
             out ExpressionSyntax? prefixExpression)
@@ -162,6 +250,14 @@ namespace Neo.SmartContract.Analyzer
 
             if (initializerValue is null)
                 return false;
+
+            SemanticModel? initializerSemanticModel = GetSemanticModelForNode(
+                initializerValue,
+                semanticModel,
+                semanticModels);
+            if (initializerSemanticModel is null)
+                return false;
+            semanticModel = initializerSemanticModel;
 
             if (initializerValue is BaseObjectCreationExpressionSyntax creation)
             {
@@ -189,9 +285,6 @@ namespace Neo.SmartContract.Analyzer
 
             foreach (SyntaxReference syntaxReference in methodSymbol.DeclaringSyntaxReferences)
             {
-                if (syntaxReference.SyntaxTree != semanticModel.SyntaxTree)
-                    continue;
-
                 if (syntaxReference.GetSyntax(cancellationToken) is not MethodDeclarationSyntax methodDeclaration)
                     continue;
 
@@ -209,6 +302,7 @@ namespace Neo.SmartContract.Analyzer
                 if (TryGetPrefixExpression(
                         returnedExpression,
                         semanticModel,
+                        semanticModels,
                         cancellationToken,
                         visitedSymbols,
                         out prefixExpression))
@@ -223,13 +317,20 @@ namespace Neo.SmartContract.Analyzer
         private static bool TryNormalizePrefix(
             ExpressionSyntax expression,
             SemanticModel semanticModel,
+            IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels,
             CancellationToken cancellationToken,
             HashSet<ISymbol> visitedSymbols,
             out string normalizedPrefix)
         {
             normalizedPrefix = string.Empty;
 
-            if (TryGetByteSequence(expression, semanticModel, cancellationToken, visitedSymbols, out byte[] bytes))
+            if (TryGetByteSequence(
+                    expression,
+                    semanticModel,
+                    semanticModels,
+                    cancellationToken,
+                    visitedSymbols,
+                    out byte[] bytes))
             {
                 normalizedPrefix = BitConverter.ToString(bytes).Replace("-", string.Empty);
                 return true;
@@ -241,24 +342,33 @@ namespace Neo.SmartContract.Analyzer
         private static bool TryGetByteSequence(
             ExpressionSyntax expression,
             SemanticModel semanticModel,
+            IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels,
             CancellationToken cancellationToken,
             HashSet<ISymbol> visitedSymbols,
             out byte[] bytes)
         {
             bytes = Array.Empty<byte>();
 
+            SemanticModel? expressionSemanticModel = GetSemanticModelForNode(
+                expression,
+                semanticModel,
+                semanticModels);
+            if (expressionSemanticModel is null)
+                return false;
+            semanticModel = expressionSemanticModel;
+
             switch (expression)
             {
                 case LiteralExpressionSyntax literal:
                     return TryGetLiteralBytes(literal.Token.Value, out bytes);
                 case CastExpressionSyntax castExpression:
-                    return TryGetByteSequence(castExpression.Expression, semanticModel, cancellationToken, visitedSymbols, out bytes);
+                    return TryGetByteSequence(castExpression.Expression, semanticModel, semanticModels, cancellationToken, visitedSymbols, out bytes);
                 case PrefixUnaryExpressionSyntax unaryExpression:
-                    return TryGetByteSequence(unaryExpression.Operand, semanticModel, cancellationToken, visitedSymbols, out bytes);
+                    return TryGetByteSequence(unaryExpression.Operand, semanticModel, semanticModels, cancellationToken, visitedSymbols, out bytes);
                 case ArrayCreationExpressionSyntax arrayCreation when arrayCreation.Initializer is not null:
-                    return TryGetByteArray(arrayCreation.Initializer.Expressions, semanticModel, cancellationToken, visitedSymbols, out bytes);
+                    return TryGetByteArray(arrayCreation.Initializer.Expressions, semanticModel, semanticModels, cancellationToken, visitedSymbols, out bytes);
                 case ImplicitArrayCreationExpressionSyntax implicitArray when implicitArray.Initializer is not null:
-                    return TryGetByteArray(implicitArray.Initializer.Expressions, semanticModel, cancellationToken, visitedSymbols, out bytes);
+                    return TryGetByteArray(implicitArray.Initializer.Expressions, semanticModel, semanticModels, cancellationToken, visitedSymbols, out bytes);
             }
 
             SymbolInfo symbolInfo = semanticModel.GetSymbolInfo(expression, cancellationToken);
@@ -275,11 +385,20 @@ namespace Neo.SmartContract.Analyzer
                 if (fieldSymbol.HasConstantValue && TryGetLiteralBytes(fieldSymbol.ConstantValue, out bytes))
                     return true;
 
-                SyntaxReference? syntaxReference = fieldSymbol.DeclaringSyntaxReferences.FirstOrDefault(reference => reference.SyntaxTree == semanticModel.SyntaxTree);
-                if (syntaxReference?.GetSyntax(cancellationToken) is VariableDeclaratorSyntax declarator &&
-                    declarator.Initializer is not null)
+                foreach (SyntaxReference syntaxReference in fieldSymbol.DeclaringSyntaxReferences)
                 {
-                    return TryGetByteSequence(declarator.Initializer.Value, semanticModel, cancellationToken, visitedSymbols, out bytes);
+                    if (syntaxReference.GetSyntax(cancellationToken) is VariableDeclaratorSyntax declarator &&
+                        declarator.Initializer is not null &&
+                        TryGetByteSequence(
+                            declarator.Initializer.Value,
+                            semanticModel,
+                            semanticModels,
+                            cancellationToken,
+                            visitedSymbols,
+                            out bytes))
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -289,6 +408,7 @@ namespace Neo.SmartContract.Analyzer
         private static bool TryGetByteArray(
             SeparatedSyntaxList<ExpressionSyntax> expressions,
             SemanticModel semanticModel,
+            IReadOnlyDictionary<SyntaxTree, SemanticModel> semanticModels,
             CancellationToken cancellationToken,
             HashSet<ISymbol> visitedSymbols,
             out byte[] bytes)
@@ -296,7 +416,13 @@ namespace Neo.SmartContract.Analyzer
             List<byte> values = new(expressions.Count);
             foreach (ExpressionSyntax expression in expressions)
             {
-                if (!TryGetByteSequence(expression, semanticModel, cancellationToken, visitedSymbols, out byte[] elementBytes))
+                if (!TryGetByteSequence(
+                        expression,
+                        semanticModel,
+                        semanticModels,
+                        cancellationToken,
+                        visitedSymbols,
+                        out byte[] elementBytes))
                 {
                     bytes = Array.Empty<byte>();
                     return false;
@@ -353,6 +479,56 @@ namespace Neo.SmartContract.Analyzer
                     bytes = Array.Empty<byte>();
                     return false;
             }
+        }
+
+        private sealed class PrefixUsageCandidate
+        {
+            public PrefixUsageCandidate(
+                INamedTypeSymbol type,
+                IFieldSymbol field,
+                ExpressionSyntax initializerValue,
+                SemanticModel semanticModel,
+                Location location)
+            {
+                Type = type;
+                Field = field;
+                InitializerValue = initializerValue;
+                SemanticModel = semanticModel;
+                Location = location;
+            }
+
+            public INamedTypeSymbol Type { get; }
+
+            public IFieldSymbol Field { get; }
+
+            public ExpressionSyntax InitializerValue { get; }
+
+            public SemanticModel SemanticModel { get; }
+
+            public Location Location { get; }
+        }
+
+        private sealed class CollectedPrefixUsage
+        {
+            public CollectedPrefixUsage(
+                INamedTypeSymbol type,
+                IFieldSymbol field,
+                string normalizedPrefix,
+                Location location)
+            {
+                Type = type;
+                Field = field;
+                NormalizedPrefix = normalizedPrefix;
+                Location = location;
+            }
+
+            public INamedTypeSymbol Type { get; }
+
+            public IFieldSymbol Field { get; }
+
+            public string NormalizedPrefix { get; }
+
+            public Location Location { get; }
         }
 
         private sealed class PrefixUsage
