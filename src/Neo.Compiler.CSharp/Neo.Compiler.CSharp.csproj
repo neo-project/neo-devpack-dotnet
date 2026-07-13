@@ -71,4 +71,31 @@
     <Copy SourceFiles="@(CompilerFrameworkReferenceSource)" DestinationFiles="@(CompilerFrameworkReferenceSource->'$(CompilerReferenceOutputDir)/%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'@(CompilerFrameworkReferenceSource)' != ''" />
   </Target>
 
+  <PropertyGroup>
+    <ArtifactLibraryDependencyProject>$(MSBuildThisFileDirectory)..\Neo.SmartContract.Testing\Neo.SmartContract.Testing.csproj</ArtifactLibraryDependencyProject>
+    <ArtifactLibraryDependencyAssembly>$(MSBuildThisFileDirectory)..\Neo.SmartContract.Testing\bin\$(Configuration)\$(TargetFramework)\Neo.SmartContract.Testing.dll</ArtifactLibraryDependencyAssembly>
+  </PropertyGroup>
+
+  <Target Name="IncludeArtifactLibraryDependency" BeforeTargets="ComputeResolvedFilesToPublishList">
+    <MSBuild Projects="$(ArtifactLibraryDependencyProject)"
+             Targets="Restore;Build"
+             BuildInParallel="$(BuildInParallel)"
+             Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework)"
+             RemoveProperties="NoBuild;NoRestore;RuntimeIdentifier;SelfContained;PublishSelfContained;PublishSingleFile;PublishReadyToRun;PublishTrimmed;PublishAot" />
+    <ItemGroup>
+      <ResolvedFileToPublish Include="$(ArtifactLibraryDependencyAssembly)"
+                             RelativePath="Neo.SmartContract.Testing.dll"
+                             CopyToPublishDirectory="PreserveNewest"
+                             ExcludeFromSingleFile="true" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="PreserveArtifactLibraryMetadataAssemblies" BeforeTargets="_ComputeFilesToBundle">
+    <ItemGroup>
+      <ResolvedFileToPublish Update="@(ResolvedFileToPublish)"
+                             Condition="'%(Filename)' == 'Neo.IO' or '%(Filename)' == 'Neo'"
+                             ExcludeFromSingleFile="true" />
+    </ItemGroup>
+  </Target>
+
 </Project>
